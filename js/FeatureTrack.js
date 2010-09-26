@@ -11,8 +11,9 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     //                trackPadding: distance in px between tracks
     //                baseUrl: base URL for the URL in trackMeta
 
+    if (browserParams === undefined)  { return; }
     Track.call(this, trackMeta.label, trackMeta.key,
-               false, browserParams.changeCallback);
+	       false, browserParams.changeCallback);
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
@@ -64,9 +65,11 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
     this.histogramMeta = trackInfo.histogramMeta;
-    for (var i = 0; i < this.histogramMeta.length; i++) {
-        this.histogramMeta[i].lazyArray =
-            new LazyArray(this.histogramMeta[i].arrayParams);
+    if (this.histogramMeta !== undefined)  {
+	for (var i = 0; i < this.histogramMeta.length; i++) {
+            this.histogramMeta[i].lazyArray =
+		new LazyArray(this.histogramMeta[i].arrayParams);
+	}
     }
     this.histStats = trackInfo.histStats;
     this.histBinBases = trackInfo.histBinBases;
@@ -119,6 +122,7 @@ FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
 FeatureTrack.prototype.fillHist = function(blockIndex, block,
                                            leftBase, rightBase,
                                            stripeWidth) {
+    if (this.histogramMeta === undefined)  { return; }
     // bases in each histogram bin that we're currently rendering
     var bpPerBin = (rightBase - leftBase) / this.numBins;
     var pxPerCount = 2;
@@ -315,10 +319,9 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
 
     var curTrack = this;
     var featCallback = function(feature, path) {
-        //uniqueId is a stringification of the path in the NCList where
-        //the feature lives; it's unique across the top-level NCList
-        //(the top-level NCList covers a track/chromosome combination)
-        var uniqueId = path.join(",");
+	// refactored ID retrieval/construction into getId() function 
+	//    to allow easier FeatureTrack subclassing
+	var uniqueId = curTrack.getId(feature, path);
         //console.log("ID " + uniqueId + (layouter.hasSeen(uniqueId) ? " (seen)" : " (new)"));
         if (layouter.hasSeen(uniqueId)) {
             //console.log("this layouter has seen " + uniqueId);
@@ -340,6 +343,15 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
                               curTrack.heightUpdate(layouter.totalHeight,
                                                     blockIndex);
                           });
+};
+
+// refactored ID retrieval/construction into getId() function 
+//    to allow easier FeatureTrack subclassing
+FeatureTrack.prototype.getId = function(feature, path)  {
+    // ID is a stringification of the path in the NCList where
+    // the feature lives; it's unique across the top-level NCList
+    // (the top-level NCList covers a track/chromosome combination)
+    return path.join(",");
 };
 
 FeatureTrack.prototype.measureStyles = function() {
@@ -521,24 +533,35 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         && feature[fields["subfeatures"]]
         && feature[fields["subfeatures"]].length > 0) {
 
-        var featParam = {
-            feature: feature,
-            featDiv: featDiv,
-            displayStart: displayStart,
-            displayEnd: displayEnd
-        };
-
-        for (var i = 0; i < feature[fields["subfeatures"]].length; i++) {
-            this.subfeatureArray.index(feature[fields["subfeatures"]][i],
-                                       this.subfeatureCallback,
-                                       featParam);
-        }
+	// refactoring subfeature handling/loading into 
+	//   handleSubFeatures() method to allow for subclasses to 
+	//   handle differently
+	this.handleSubFeatures(feature, featDiv, displayStart, displayEnd);
     }
 
     //ie6 doesn't respect the height style if the div is empty
     if (Util.is_ie6) featDiv.appendChild(document.createComment());
     //TODO: handle event-handler-related IE leaks
     return featDiv;
+};
+
+// refactored subfeature handling/loading into 
+//   handleSubFeatures() method to allow for subclasses to 
+//   handle differently
+FeatureTrack.prototype.handleSubFeatures = function(feature, featDiv, 
+						    displayStart, displayEnd)  {
+    var fields = this.fields
+        var featParam = {
+            feature: feature,
+            featDiv: featDiv,
+            displayStart: displayStart,
+            displayEnd: displayEnd
+        };
+        for (var i = 0; i < feature[fields["subfeatures"]].length; i++) {
+            this.subfeatureArray.index(feature[fields["subfeatures"]][i],
+                                       this.subfeatureCallback,
+                                       featParam);
+        }
 };
 
 FeatureTrack.prototype.featureUrl = function(feature) {
