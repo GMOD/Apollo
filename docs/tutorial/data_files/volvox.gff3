@@ -1,6 +1,9 @@
 ##gff-version 3
 ##Note: See http://song.sourceforge.net
 
+# For now, need at least one annot feature in order to get annot track to show up.
+ctgA	example	annot	18000	18080	.	+	.	Name=annot1
+
 ctgA	example	contig	1	50000	.	.	.	Name=ctgA
 ctgA	example	remark	1659	1984	.	+	.	Name=f07;Note=This is an example
 ctgA	example	remark	3014	6130	.	+	.	Name=f06;Note=This is another example
