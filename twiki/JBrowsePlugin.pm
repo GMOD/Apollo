@@ -377,6 +377,8 @@ JBCODE
     <script type="text/javascript" src="$jbRoot/js/Track.js"></script>
     <script type="text/javascript" src="$jbRoot/js/SequenceTrack.js"></script>
     <script type="text/javascript" src="$jbRoot/js/FeatureTrack.js"></script>
+    <script type="text/javascript" src="$jbRoot/js/DraggableFeatureTrack.js"></script>
+    <script type="text/javascript" src="$jbRoot/js/AnnotTrack.js"></script>
     <script type="text/javascript" src="$jbRoot/js/StaticTrack.js"></script>
     <script type="text/javascript" src="$jbRoot/js/ImageTrack.js"></script>
     <script type="text/javascript" src="$jbRoot/js/GenomeView.js"></script>

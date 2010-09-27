@@ -267,7 +267,7 @@ Browser.prototype.createTrackList = function(parent, params) {
     dojo.subscribe("/dnd/drop", function(source,nodes,iscopy){
                        brwsr.onVisibleTracksChanged();
                        //multi-select too confusing?
-                       //brwsr.viewDndWidget.selectNone();
+                       brwsr.viewDndWidget.selectNone();
                    });
 
     this.trackListWidget.insertNodes(false, params.trackData);
@@ -462,7 +462,8 @@ Browser.prototype.showTracks = function(trackNameList) {
     for (var i = 0; i < removeFromList.length; i++) {
         this.trackListWidget.delItem(removeFromList[i]);
         movedNode = dojo.byId(removeFromList[i]);
-        movedNode.parentNode.removeChild(movedNode);
+        if (movedNode != null)
+          movedNode.parentNode.removeChild(movedNode);
     }
     this.onVisibleTracksChanged();
 };
@@ -627,6 +628,7 @@ Browser.prototype.createNavBox = function(parent, locLength, params) {
     this.chromList = document.createElement("select");
     this.chromList.id="chrom";
     navbox.appendChild(this.chromList);
+    /* locationBox is the text box that shows the currently displayed range (with a "Go" button next to it). */
     this.locationBox = document.createElement("input");
     this.locationBox.size=locLength;
     this.locationBox.type="text";

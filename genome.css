@@ -19,6 +19,7 @@ div.container {
     z-index: 0;
 }
 
+/* This is the window around the whole feature map (including the numbers at the top) */
 div.dragWindow {
     position:absolute;
     overflow: hidden;
@@ -37,15 +38,18 @@ div.locationTrap {
     z-index: -10;
 }
 
+/* This is the red rectangular outline that appears on the top scale bar */
 div.locationThumb {
     position: absolute;
     top: 0px;
     /* if you change this border from 2px, change GenomeView.showTrap */
     border: 2px solid red;
     margin: 0px -2px 0px -2px;
+    /* I don't see the cursor change when I drag the locationThumb box. */
     cursor: url("openhand.cur");
 }
 
+/* Style of locationThumb outline as it is being dragged. */
 div.locationThumb.dojoMoveItem {
     cursor: url("closedhand.cur");
 }
@@ -175,15 +179,21 @@ div.tracklist-label {
     padding: 3px;
 }
 
-/* commented for now, multi-select too confusing?
+/* commented for now, multi-select too confusing? */
+/* THIS happens if you've already selected one track label (on the left)--this is used for subsequent additions to your selection. */
 .tracklist-container.dojoDndItemSelected {
-    background: #ddf;
+/*    background: #ddf; */
+    color: #d9f;
+    background: #d0f;
 }
 
+/* This is what happens with the FIRST selected track label (on the left). 
+You don't see any color change when you select a track label that's already
+in the main GenomeView. */
 .tracklist-container.dojoDndItemAnchor {
-    background: #ddf;
+/*    background: #ddf; */
+    background: #ed0;
 }
-*/
 
 div.tracklist-container {
     padding: 5px;
@@ -191,6 +201,7 @@ div.tracklist-container {
     margin-bottom: -3px;
 }
 
+/* I don't know when this happens.  I haven't observed it. */
 .tracklist-container.dojoDndItemBefore {
     border-top: 3px solid #999;
     padding-top: 2px;
@@ -211,6 +222,20 @@ div.tracklist-container {
     /* font-size: 80%; */
     white-space: nowrap;
     background-color: #eee;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.annot-label {
+    position: absolute;
+    font-family: monospace;
+    border: 2px;
+    margin: -2px 0px 0px 0px;
+    /* padding: 0px 0px 2px 0px; for more space below labels */
+    padding: 0px 0px 0px 0px;
+    font-size: 80%;
+    white-space: nowrap;
+    background-color: #ee0;
     z-index: 10;
     cursor: pointer;
 }
@@ -384,6 +409,18 @@ div.est-hist {
     border-width: 1px;
     cursor: pointer;
     z-index: 10;
+}
+
+.plus-annot,
+.minus-annot {
+    position: absolute;
+    height: 10px;
+    background-color: #3333FF;
+    border-style: solid;
+    border-color: #007;
+    border-width: 2px;
+    cursor: pointer;
+    z-index: 100;
 }
 
 .plus-dblhelix,

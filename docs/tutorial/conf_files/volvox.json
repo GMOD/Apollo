@@ -11,6 +11,12 @@
 
   "tracks": [
     {
+      "track": "Annotations",
+      "key": "User-created Annotations",
+      "feature": ["annot"],
+      "class": "annot"
+    },
+    {
       "track": "ExampleFeatures",
       "key": "Example Features",
       "feature": ["remark"],

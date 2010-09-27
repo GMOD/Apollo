@@ -118,7 +118,8 @@ foreach my $seg (@refSeqs) {
 			'url' => "$trackDir/{refseq}/"
                                  . $track->{"track"}
                                  . "/trackData.json",
-			'type' => "FeatureTrack",
+#			'type' => "FeatureTrack",
+                        'type' => ($track->{"track"} =~ /Annot/i) ? "AnnotTrack" : "DraggableFeatureTrack",
 		       };
 		     return $trackList;
 		 });

@@ -11,6 +11,9 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     //                trackPadding: distance in px between tracks
     //                baseUrl: base URL for the URL in trackMeta
 
+    if (arguments.length == 0)
+      return;
+
     Track.call(this, trackMeta.label, trackMeta.key,
                false, browserParams.changeCallback);
     this.fields = {};
