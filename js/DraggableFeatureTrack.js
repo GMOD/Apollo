@@ -61,6 +61,7 @@ DraggableFeatureTrack.prototype.loadSuccess = function(trackInfo) {
     //console.log((new Date().getTime() - startTime) / 1000);
 
     var fields = this.fields;
+    var track = this;
 //    if (! trackInfo.urlTemplate) {
         // !! This function should be pulled out as a separate function in FeatureTrack--then I could just overload
         // that function and not this whole method.
@@ -79,7 +80,7 @@ DraggableFeatureTrack.prototype.loadSuccess = function(trackInfo) {
 	          ", label: " + feat[fields["name"]] +
 	          ", ID: " + feat[fields["id"]]);
             // If it's selected, deselect it.  Otherwise, select it.
-	    DraggableFeatureTrack.prototype.toggleSelection(elem);
+	    track.toggleSelection(elem);
         };
 //    }
 
@@ -94,8 +95,10 @@ DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
     if (elem.style.border == "") {  // !! What if it had a border set by its style?
 	elem.style.border = "3px solid red";
 	// Make it draggable
-        DraggableFeatureTrack.prototype.makeDraggable(elem);
-	DraggableFeatureTrack.prototype.makeDroppable();
+//        DraggableFeatureTrack.prototype.makeDraggable(elem);
+		this.makeDraggable(elem);
+//        DraggableFeatureTrack.prototype.makeDroppable(elem);
+        this.makeDroppable(elem);
     }
     // !! Else, take it off the "selected" list
     else 
@@ -122,30 +125,82 @@ DraggableFeatureTrack.prototype.makeDraggable = function(elem) {
 }
 
 /* Make dragged feature droppable in Annot row */
-DraggableFeatureTrack.prototype.makeDroppable = function() {
+DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
+	
+	var fields = this.fields;
+	
     $("#track_Annotations").droppable({
        drop: function(ev, ui) {
-            var pos = $(ui.helper).offset();
-            // Clone the dragged feature
-            var newAnnot=$(ui.draggable).clone();
-            // Change its class
-            DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
 
-            // Set vertical position of dropped item (left position is based on dragged feature)
-            newAnnot.css({"top": 0});
-            // Restore border of annot to its default (don't want selection border)
-            newAnnot.css({"border": null});
-            // Find the right block to put the new annot in
-            // The field that specifies the start base of this feature
-            var startField = 0;  // hardcode for now
-//            var track = $(this).track;  // doesn't work
-//            var fields = track.fields();
-//            console.log("Before calling findBlock, this.track.fields[start] = " + fields["start"]);
-            var block = DraggableFeatureTrack.prototype.findBlock($(ui.draggable)[0], $(this).children(), startField);
-            newAnnot.appendTo(block);
+    	var feat = elem.feature;
+    	
+    	var pos = $(ui.helper).offset();
+    	// Clone the dragged feature
+    	var newAnnot=$(ui.draggable).clone();
+    	// Change its class
+    	DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
 
-            console.log("itemDragged: " + newAnnot + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
-        }
+    	// Set vertical position of dropped item (left position is based on dragged feature)
+    	newAnnot.css({"top": 0});
+    	// Restore border of annot to its default (don't want selection border)
+    	newAnnot.css({"border": null});
+    	// Find the right block to put the new annot in
+    	// The field that specifies the start base of this feature
+    	var startField = 0;  // hardcode for now
+//  	var track = $(this).track;  // doesn't work
+//  	var fields = track.fields();
+//  	console.log("Before calling findBlock, this.track.fields[start] = " + fields["start"]);
+    	var block = DraggableFeatureTrack.prototype.findBlock($(ui.draggable)[0], $(this).children(), startField);
+    	newAnnot.appendTo(block);
+
+    	var responseFeatures;
+            
+	    dojo.xhrPost( {
+		// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
+	    	postData: '{ "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }, "uniquename": "' + feat[fields["name"]] + '" }], "operation": "add_feature" }',
+	    	url: "/ApolloWeb/AnnotationEditorService",
+	    	handleAs: "text",
+	    	timeout: 5000, // Time in milliseconds
+	    	// The LOAD function will be called on a successful response.
+	    	load: function(response, ioArgs) { //
+	    	console.log("API call worked!" + response)
+	    	responseFeatures = eval('(' + response + ')').features;
+	    	console.log(responseFeatures[0].uniquename);
+	    },
+	    // The ERROR function will be called in an error case.
+	    error: function(response, ioArgs) { // 
+	    	console.log("API didn't work!")
+	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
+	    	//dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //  
+	    	return response; // 
+	    }
+	    });
+
+	    /*	    var xhrArgs = {
+                url: "http://10.0.1.24:8080/ApolloWeb/AnnotationEditorService?jsessionid=66400E87DFA4801D75C87776194313AB",
+                postData: "Some random text",
+                handleAs: "text",
+                load: function(data) {
+		//dojo.byId("response2").innerHTML = "Message posted.";
+		     console.log("It worked!");
+                },
+                error: function(error) {
+                    //We'll 404 in the demo, but that's okay.  We don't have a 'postIt' service on the
+                    //docs server.
+                    //dojo.byId("response2").innerHTML = "Message posted.";
+		    console.log("No dice!");
+                }
+            }
+            //dojo.byId("response2").innerHTML = "Message being sent..."
+            //Call the asynchronous xhrPost
+            var deferred = dojo.xhrPost(xhrArgs);
+	     */
+
+	    console.log("itemDragged: " + newAnnot + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
+
+	    console.log(newAnnot);
+	    console.log(pos);
+    }
     });
 }
 
