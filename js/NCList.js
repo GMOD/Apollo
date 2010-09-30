@@ -6,6 +6,8 @@
 //http://bioinformatics.oxfordjournals.org/cgi/content/abstract/btl647v1
 
 function NCList() {
+    this.featIdMap = {};
+    this.topList = [];
 }
 
 NCList.prototype.importExisting = function(nclist, sublistIndex,
@@ -27,6 +29,10 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
     //              in the NCList seems like a waste (TODO: measure that waste).
     //half-open?
     this.sublistIndex = sublistIndex;
+    if (intervals.length == 0) {
+        this.topList = [];
+        return;
+    }
     var myIntervals = intervals;//.concat();
     //sort by OL
     myIntervals.sort(function(a, b) {
@@ -35,12 +41,15 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
         else
             return b[1] - a[1];
     });
+    console.log(dojo.toJson(myIntervals));
     var sublistStack = new Array();
     var curList = new Array();
     this.topList = curList;
     curList.push(myIntervals[0]);
+    if (myIntervals.length == 1) return;
     var curInterval, topSublist;
     for (var i = 1, len = myIntervals.length; i < len; i++) {
+        console.log(dojo.toJson(myIntervals));
         curInterval = myIntervals[i];
         //if this interval is contained in the previous interval,
         if (curInterval[1] < myIntervals[i - 1][1]) {
@@ -77,6 +86,7 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 
     while (high - low > 1) {
         mid = (low + high) >>> 1;
+        console.log("mid: " + mid + ", arr: " + dojo.toJson(arr));
         if (arr[mid][itemIndex] > item)
             high = mid;
         else
@@ -178,8 +188,10 @@ NCList.prototype.iterate = function(from, to, fun, postFun) {
     //testIndex: test on start or end
     var testIndex = (from > to) ? 1 : 0;
     var finish = new Finisher(postFun);
-    this.iterHelper(this.topList, from, to, fun, finish,
-                    inc, searchIndex, testIndex, []);
+    if (this.topList.length > 0) {
+        this.iterHelper(this.topList, from, to, fun, finish,
+                        inc, searchIndex, testIndex, []);
+    }
     finish.finish();
 };
 
@@ -204,6 +216,45 @@ NCList.prototype.histogram = function(from, to, numBins, callback) {
                      callback(result);
                  }
                  );
+};
+
+NCList.prototype.setSublistIndex = function(index) {
+    if (this.sublistIndex === undefined) {
+        this.sublistIndex = index;
+    } else {
+        throw new Error("sublistIndex already set; can't be changed");
+    }
+};
+
+NCList.prototype.add = function(feat, id) {
+    var featArray = [feat];
+    this.iterate(-Infinity, Infinity, function(f) { featArray.push(f); });
+    for (var i = 0; i < featArray.length; i++) {
+        if (featArray[this.sublistIndex])
+            delete featArray[this.sublistIndex];
+    }
+    this.fill(featArray, this.sublistIndex);
+    this.featIdMap[id] = feat;
+};
+
+NCList.prototype.delete = function(id) {
+    var toDelete = this.featIdMap[id];
+    if (toDelete) {
+        var featArray = [];
+        this.iterate(-Infinity, Infinity,
+                     function(feat) {
+                         if (feat !== toDelete) featArray.push(feat);
+                     });
+        for (var i = 0; i < featArray.length; i++) {
+            if (featArray[this.sublistIndex])
+                delete featArray[this.sublistIndex];
+        }
+        delete this.featIdMap[id];
+        console.log(dojo.toJson(featArray));
+        this.fill(featArray, this.sublistIndex);
+    } else {
+        throw new Error("NCList.delete: id " + id + " doesn't exist");
+    }
 };
 
 /*

@@ -130,7 +130,7 @@ Finisher.prototype.dec = function() {
 };
 
 Finisher.prototype.finish = function() {
-    if (this.count <= 0) this.fun();
+    if ((this.count <= 0) && this.fun) this.fun();
 };
 
 /*
