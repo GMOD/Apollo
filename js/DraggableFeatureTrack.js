@@ -126,8 +126,10 @@ DraggableFeatureTrack.prototype.makeDraggable = function(elem) {
 
 /* Make dragged feature droppable in Annot row */
 DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
-	
+
 	var fields = this.fields;
+//	var track = this;
+//	var features = this.features;
 	
     $("#track_Annotations").droppable({
        drop: function(ev, ui) {
@@ -151,13 +153,18 @@ DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
 //  	var fields = track.fields();
 //  	console.log("Before calling findBlock, this.track.fields[start] = " + fields["start"]);
     	var block = DraggableFeatureTrack.prototype.findBlock($(ui.draggable)[0], $(this).children(), startField);
-    	newAnnot.appendTo(block);
+//    	newAnnot.appendTo(block);
 
     	var responseFeatures;
-            
-	    dojo.xhrPost( {
+
+//    	var track = this;
+
+    	var track = this.track;
+    	var features = this.track.features;
+    	
+    	dojo.xhrPost( {
 		// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-	    	postData: '{ "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }, "uniquename": "' + feat[fields["name"]] + '" }], "operation": "add_feature" }',
+	    	postData: '{ "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
 	    	url: "/ApolloWeb/AnnotationEditorService",
 	    	handleAs: "text",
 	    	timeout: 5000, // Time in milliseconds
@@ -165,6 +172,10 @@ DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
 	    	load: function(response, ioArgs) { //
 	    	console.log("API call worked!" + response)
 	    	responseFeatures = eval('(' + response + ')').features;
+	    	var featureArray = DraggableFeatureTrack.prototype.convertJsonToFeatureArray(responseFeatures[0]);
+	    	features.add(featureArray, responseFeatures[0].uniquename);
+	    	track.hideAll();
+	    	track.changed();
 	    	console.log(responseFeatures[0].uniquename);
 	    },
 	    // The ERROR function will be called in an error case.
@@ -231,6 +242,16 @@ DraggableFeatureTrack.prototype.setAnnotClassNameForFeature = function(feature) 
         }
 }
 
+// Convert JSON feature object from server into feature array (fa) for JBrowse.  fa[0] is an array of field definitions
+// with each subsequent element being the data
+DraggableFeatureTrack.prototype.convertJsonToFeatureArray = function(jsonFeature) {
+	var featureArray = new Array();
+	featureArray[0] = jsonFeature.location.fmin;
+	featureArray[1] = jsonFeature.location.fmax;
+	featureArray[2] = jsonFeature.location.strand;
+	featureArray[3] = jsonFeature.uniquename;
+	return featureArray;
+}
 
 /*
 

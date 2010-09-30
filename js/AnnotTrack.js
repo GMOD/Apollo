@@ -18,6 +18,8 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
         thisObj.renderSubfeature(param.feature, param.featDiv, val);
     };
 
+    // define fields meta data
+    this.fields = { "start": 0, "end": 1, "strand": 2, "name": 3 };
 }
 
 // Inherit from FeatureTrack
