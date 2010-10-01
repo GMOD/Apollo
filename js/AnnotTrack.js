@@ -20,6 +20,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
 
     // define fields meta data
     this.fields = { "start": 0, "end": 1, "strand": 2, "name": 3 };
+    
 }
 
 // Inherit from FeatureTrack
@@ -34,6 +35,38 @@ AnnotTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                            widthPct, widthPx, scale]);
   this.setLabel(this.key);
 };
+
+AnnotTrack.prototype.loadSuccess = function(trackInfo) {
+	FeatureTrack.prototype.loadSuccess.call(this, trackInfo);
+	
+    var track = this;
+    var features = this.features;
+    
+	dojo.xhrPost( {
+	    	postData: '{ "operation": "get_features" }',
+	    	url: "/ApolloWeb/AnnotationEditorService",
+	    	handleAs: "text",
+	    	timeout: 5000, // Time in milliseconds
+	    	// The LOAD function will be called on a successful response.
+	    	load: function(response, ioArgs) { //
+	    	console.log("foolicious: " + response);
+	    	var responseFeatures = eval('(' + response + ')').features;
+	    	var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
+	    	features.add(featureArray, responseFeatures[0].uniquename);
+	    	track.hideAll();
+	    	track.changed();
+	    	console.log(responseFeatures[0].uniquename);
+	    },
+	    // The ERROR function will be called in an error case.
+	    error: function(response, ioArgs) { // 
+	    	console.log("API didn't work!")
+	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
+	    	//dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //  
+	    	return response; // 
+	    }
+	});
+
+}
 
 /*
 

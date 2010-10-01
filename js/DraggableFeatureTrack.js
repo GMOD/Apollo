@@ -172,7 +172,7 @@ DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
 	    	load: function(response, ioArgs) { //
 	    	console.log("API call worked!" + response)
 	    	responseFeatures = eval('(' + response + ')').features;
-	    	var featureArray = DraggableFeatureTrack.prototype.convertJsonToFeatureArray(responseFeatures[0]);
+	    	var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
 	    	features.add(featureArray, responseFeatures[0].uniquename);
 	    	track.hideAll();
 	    	track.changed();
@@ -240,17 +240,6 @@ DraggableFeatureTrack.prototype.setAnnotClassNameForFeature = function(feature) 
                         feature.removeClass(aclass).addClass(arrList[i]);
                 }
         }
-}
-
-// Convert JSON feature object from server into feature array (fa) for JBrowse.  fa[0] is an array of field definitions
-// with each subsequent element being the data
-DraggableFeatureTrack.prototype.convertJsonToFeatureArray = function(jsonFeature) {
-	var featureArray = new Array();
-	featureArray[0] = jsonFeature.location.fmin;
-	featureArray[1] = jsonFeature.location.fmax;
-	featureArray[2] = jsonFeature.location.strand;
-	featureArray[3] = jsonFeature.uniquename;
-	return featureArray;
 }
 
 /*
