@@ -51,7 +51,7 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    	load: function(response, ioArgs) { //
 	    	console.log("foolicious: " + response);
 	    	var responseFeatures = eval('(' + response + ')').features;
-	    	if (featureArray.length > 0) {
+	    	if (responseFeatures.length > 0) {
 	    		var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
 	    		features.add(featureArray, responseFeatures[0].uniquename);
 	    		track.hideAll();
