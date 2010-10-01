@@ -51,11 +51,13 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    	load: function(response, ioArgs) { //
 	    	console.log("foolicious: " + response);
 	    	var responseFeatures = eval('(' + response + ')').features;
-	    	var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
-	    	features.add(featureArray, responseFeatures[0].uniquename);
-	    	track.hideAll();
-	    	track.changed();
-	    	console.log(responseFeatures[0].uniquename);
+	    	if (featureArray.length > 0) {
+	    		var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
+	    		features.add(featureArray, responseFeatures[0].uniquename);
+	    		track.hideAll();
+	    		track.changed();
+	    		console.log(responseFeatures[0].uniquename);
+	    	}
 	    },
 	    // The ERROR function will be called in an error case.
 	    error: function(response, ioArgs) { // 
