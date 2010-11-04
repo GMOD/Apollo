@@ -86,7 +86,7 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 
     while (high - low > 1) {
         mid = (low + high) >>> 1;
-        console.log("mid: " + mid + ", arr: " + dojo.toJson(arr));
+        // console.log("mid: " + mid + ", arr: " + dojo.toJson(arr));
         if (arr[mid][itemIndex] > item)
             high = mid;
         else

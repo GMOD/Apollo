@@ -1,90 +1,34 @@
 /*  Subclass of FeatureTrack that allows features to be dragged and dropped into the annotation track to create annotations. */
 function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
     FeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
+    thisObj = this;
 }
 
 // Inherit from FeatureTrack
 DraggableFeatureTrack.prototype = new FeatureTrack();
 
+DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
+    var track = thisObj;
+    event = event || window.event;
+    if (event.shiftKey) return;
+    var elem = (event.currentTarget || event.srcElement);
+    //depending on bubbling, we might get the subfeature here
+    //instead of the parent feature
+    if (!elem.feature) elem = elem.parentElement;
+    if (!elem.feature) return; //shouldn't happen; just bail if it does
 
-/* ?? Do I need all this stuff if it's mostly the same as in FeatureTrack?  Maybe some of it could be broken out into other methods in FeatureTrack
- * so I can just subclass the method(s) I need. */
-DraggableFeatureTrack.prototype.loadSuccess = function(trackInfo) {
-    var startTime = new Date().getTime();
-    this.count = trackInfo.featureCount;
-    this.fields = {};
-    for (var i = 0; i < trackInfo.headers.length; i++) {
-	this.fields[trackInfo.headers[i]] = i;
-    }
-//    console.log("this.fields[start] = " + this.fields["start"]);
-    this.subFields = {};
-    if (trackInfo.subfeatureHeaders) {
-        for (var i = 0; i < trackInfo.subfeatureHeaders.length; i++) {
-            this.subFields[trackInfo.subfeatureHeaders[i]] = i;
-        }
-    }
-    this.features.importExisting(trackInfo.featureNCList,
-                                 trackInfo.sublistIndex,
-                                 trackInfo.lazyIndex,
-                                 this.baseUrl,
-                                 trackInfo.lazyfeatureUrlTemplate);
-    if (trackInfo.subfeatureArray)
-        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray);
+    var fields = thisObj.fields;
+//    console.log("DFT.onFeatureClick: fields = " + fields + ", fields[end] = " + fields["end"]);
 
-    this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
-    this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
-    this.subfeatureScale = 80 * (trackInfo.featureCount / this.refSeq.length);
-    this.className = trackInfo.className;
-    this.subfeatureClasses = trackInfo.subfeatureClasses;
-    this.arrowheadClass = trackInfo.arrowheadClass;
-    this.urlTemplate = trackInfo.urlTemplate;
-    this.histogramMeta = trackInfo.histogramMeta;
-    for (var i = 0; i < this.histogramMeta.length; i++) {
-        this.histogramMeta[i].lazyArray =
-            new LazyArray(this.histogramMeta[i].arrayParams);
-    }
-    this.histStats = trackInfo.histStats;
-    this.histBinBases = trackInfo.histBinBases;
+    var feat = elem.feature;
+    console.log("DFT: user clicked on draggablefeature\nstart: " + feat[fields["start"]] +
+	  ", end: " + feat[fields["end"]] +
+	  ", strand: " + feat[fields["strand"]] +
+	  ", label: " + feat[fields["name"]] +
+	  ", ID: " + feat[fields["id"]]);
 
-    if (trackInfo.clientConfig) {
-        var cc = trackInfo.clientConfig;
-        var density = trackInfo.featureCount / this.refSeq.length;
-        this.histScale = (cc.histScale ? cc.histScale : 4) * density;
-        this.labelScale = (cc.labelScale ? cc.labelScale : 50) * density;
-        this.subfeatureScale = (cc.subfeatureScale ? cc.subfeatureScale : 80)
-                                   * density;
-        if (cc.featureCss) this.featureCss = cc.featureCss;
-        if (cc.histCss) this.histCss = cc.histCss;
-        if (cc.featureCallback) this.featureCallback = cc.featureCallback;
-    }
-
-    //console.log((new Date().getTime() - startTime) / 1000);
-
-    var fields = this.fields;
-    var track = this;
-//    if (! trackInfo.urlTemplate) {
-        // !! This function should be pulled out as a separate function in FeatureTrack--then I could just overload
-        // that function and not this whole method.
-        this.onFeatureClick = function(event) {
-            event = event || window.event;
-	    if (event.shiftKey) return;
-	    var elem = (event.currentTarget || event.srcElement);
-            //depending on bubbling, we might get the subfeature here
-            //instead of the parent feature
-            if (!elem.feature) elem = elem.parentElement;
-            if (!elem.feature) return; //shouldn't happen; just bail if it does
-            var feat = elem.feature;
-	    console.log("clicked on feature: start: " + feat[fields["start"]] +
-	          ", end: " + feat[fields["end"]] +
-	          ", strand: " + feat[fields["strand"]] +
-	          ", label: " + feat[fields["name"]] +
-	          ", ID: " + feat[fields["id"]]);
-            // If it's selected, deselect it.  Otherwise, select it.
-	    track.toggleSelection(elem);
-        };
-//    }
-
-    this.setLoaded();
+    // If feature is selected, deselect it.  Otherwise, select it.
+    track.toggleSelection(elem);
 };
 
 /* If elem is selected, deselect it.  Otherwise, select it. 
@@ -95,12 +39,10 @@ DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
     if (elem.style.border == "") {  // !! What if it had a border set by its style?
 	elem.style.border = "3px solid red";
 	// Make it draggable
-//        DraggableFeatureTrack.prototype.makeDraggable(elem);
-		this.makeDraggable(elem);
-//        DraggableFeatureTrack.prototype.makeDroppable(elem);
+	this.makeDraggable(elem);
         this.makeDroppable(elem);
     }
-    // !! Else, take it off the "selected" list
+    // !! Else, need to take it off the "selected" list
     else 
 	elem.style.border = "";
 
@@ -113,12 +55,12 @@ DraggableFeatureTrack.prototype.makeDraggable = function(elem) {
 //    console.log("makeDraggable: elem = " + elem + ", elem.className = " + elem.className + ", elem.id = " + elem.id);  // DEL
     $(".draggable-feature").draggable({
 	    helper:'clone',
-		//	    containment: 'gridtrack',  // Need containment?
+		//	    containment: 'gridtrack',  // Need containment?  (Don't seem to)
             zindex: 200,
             opacity: 0.3,  // make the object semi-transparent when dragged
             axis: 'y'      // Allow only vertical dragging
     });
-    // If a selected feature is being dragged, we'll handle the drag--don't want it to go to the whole-canvas-drag handler.
+    // If a selected feature is being dragged, we'll handle the drag here--don't want it to go to the whole-canvas-drag handler.
     $(".draggable-feature").bind("mousedown", function(evt) {
 	evt.stopPropagation();
     });
@@ -126,38 +68,36 @@ DraggableFeatureTrack.prototype.makeDraggable = function(elem) {
 
 /* Make dragged feature droppable in Annot row */
 DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
-	
-	var fields = this.fields;
+    var fields = this.fields;
 	
     $("#track_Annotations").droppable({
        drop: function(ev, ui) {
-
-    	var feat = elem.feature;
-    	
-    	var pos = $(ui.helper).offset();
+    	var pos = $(ui.helper).offset();  // Need?
     	// Clone the dragged feature
     	var newAnnot=$(ui.draggable).clone();
-    	// Change its class
+    	// Change its class to the appropriate annot class
     	DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
 
     	// Set vertical position of dropped item (left position is based on dragged feature)
     	newAnnot.css({"top": 0});
     	// Restore border of annot to its default (don't want selection border)
     	newAnnot.css({"border": null});
-    	// Find the right block to put the new annot in
-    	// The field that specifies the start base of this feature
-    	var startField = 0;  // hardcode for now
-//  	var track = $(this).track;  // doesn't work
-//  	var fields = track.fields();
-//  	console.log("Before calling findBlock, this.track.fields[start] = " + fields["start"]);
-    	var block = DraggableFeatureTrack.prototype.findBlock($(ui.draggable)[0], $(this).children(), startField);
-    	newAnnot.appendTo(block);
 
+        // This was what we did before actual creation of annotation object on server--don't need anymore
+    	// Find the right block to put the new annot in
+//     	var startField = fields["start"];      	// The field that specifies the start base of this feature
+//  	console.log("Before calling findBlock, startfield = " + fields["start"]);
+//    	var block = DraggableFeatureTrack.prototype.findBlock($(ui.draggable)[0], $(this).children(), startField);
+//    	newAnnot.appendTo(block); 
+
+    	var track = this.track;
+    	var features = this.track.features;
+    	var feat = elem.feature;
     	var responseFeatures;
-            
-	    dojo.xhrPost( {
+
+    	dojo.xhrPost( {
 		// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-	    	postData: '{ "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }, "uniquename": "' + feat[fields["name"]] + '" }], "operation": "add_feature" }',
+	    	postData: '{ "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
 	    	url: "/ApolloWeb/AnnotationEditorService",
 	    	handleAs: "text",
 	    	timeout: 5000, // Time in milliseconds
@@ -165,7 +105,11 @@ DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
 	    	load: function(response, ioArgs) { //
 	    	console.log("API call worked!" + response)
 	    	responseFeatures = eval('(' + response + ')').features;
-	    	console.log(responseFeatures[0].uniquename);
+	    	var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
+	    	features.add(featureArray, responseFeatures[0].uniquename);
+	    	track.hideAll();
+	    	track.changed();
+	    	console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
 	    },
 	    // The ERROR function will be called in an error case.
 	    error: function(response, ioArgs) { // 
@@ -196,28 +140,28 @@ DraggableFeatureTrack.prototype.makeDroppable = function(elem) {
             var deferred = dojo.xhrPost(xhrArgs);
 	     */
 
-	    console.log("itemDragged: " + newAnnot + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
-
-	    console.log(newAnnot);
-	    console.log(pos);
+//	console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
+//	    console.log("newAnnot: " + newAnnot);
+//	    console.log("pos: " + pos);
     }
     });
 }
 
 /* Find and return the block that this feature goes in */
-DraggableFeatureTrack.prototype.findBlock = function(feature, blocks, startField) {
-    var feat = feature.feature;
-    var startBase = feat[startField];
-    // !! What if it's on minus strand?  (Seems ok)
-    // !! Can we safely skip the first few blocks, since they're always blank?
-    for (i = 0; i < blocks.length; i++) {
-//            console.log("Block " + i + ": end = " + blocks[i].endBase);
-            if (startBase <= blocks[i].endBase) {
-                    console.log("Feature with startBase=" + startBase + " goes in block " + i + ", which has endBase=" + blocks[i].endBase);
-                    return blocks[i];
-            }
-    }
-}
+/* (No longer needed) */
+// DraggableFeatureTrack.prototype.findBlock = function(feature, blocks, startField) {
+//     var feat = feature.feature;
+//     var startBase = feat[startField];
+//     // !! What if it's on minus strand?  (Seems ok)
+//     // !! Can we safely skip the first few blocks, since they're always blank?
+//     for (i = 0; i < blocks.length; i++) {
+// //            console.log("Block " + i + ": end = " + blocks[i].endBase);
+//             if (startBase <= blocks[i].endBase) {
+//                     console.log("Feature with startBase=" + startBase + " goes in block " + i + ", which has endBase=" + blocks[i].endBase);
+//                     return blocks[i];
+//             }
+//     }
+// }
 
 /* Change feature class name to annot class name */
 DraggableFeatureTrack.prototype.setAnnotClassNameForFeature = function(feature) {
@@ -230,7 +174,6 @@ DraggableFeatureTrack.prototype.setAnnotClassNameForFeature = function(feature) 
                 }
         }
 }
-
 
 /*
 

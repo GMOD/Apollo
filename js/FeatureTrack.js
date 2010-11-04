@@ -30,7 +30,7 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.trackMeta = trackMeta;
     this.load(this.baseUrl + url);
 
-    var thisObj = this;
+    thisObj = this;
     this.subfeatureCallback = function(i, val, param) {
         thisObj.renderSubfeature(param.feature, param.featDiv, val,
                                  param.displayStart, param.displayEnd);
@@ -91,26 +91,25 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
 
     //console.log((new Date().getTime() - startTime) / 1000);
 
-    var fields = this.fields;
-    if (! trackInfo.urlTemplate) {
-        this.onFeatureClick = function(event) {
-            event = event || window.event;
-	    if (event.shiftKey) return;
-	    var elem = (event.currentTarget || event.srcElement);
-            //depending on bubbling, we might get the subfeature here
-            //instead of the parent feature
-            if (!elem.feature) elem = elem.parentElement;
-            if (!elem.feature) return; //shouldn't happen; just bail if it does
-            var feat = elem.feature;
-	    alert("clicked on feature\nstart: " + feat[fields["start"]] +
-	          ", end: " + feat[fields["end"]] +
-	          ", strand: " + feat[fields["strand"]] +
-	          ", label: " + feat[fields["name"]] +
-	          ", ID: " + feat[fields["id"]]);
-        };
-    }
-
     this.setLoaded();
+};
+
+/* Broken out of loadSuccess so that DraggableFeatureTrack can overload it */
+FeatureTrack.prototype.onFeatureClick = function(event) {
+    var fields = thisObj.fields;
+    event = event || window.event;
+    if (event.shiftKey) return;
+    var elem = (event.currentTarget || event.srcElement);
+    //depending on bubbling, we might get the subfeature here
+    //instead of the parent feature
+    if (!elem.feature) elem = elem.parentElement;
+    if (!elem.feature) return; //shouldn't happen; just bail if it does
+    var feat = elem.feature;
+    alert("clicked on feature\nstart: " + feat[fields["start"]] +
+	  ", end: " + feat[fields["end"]] +
+	  ", strand: " + feat[fields["strand"]] +
+	  ", label: " + feat[fields["name"]] +
+	  ", ID: " + feat[fields["id"]]);
 };
 
 FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
