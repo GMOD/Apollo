@@ -230,8 +230,8 @@ NCList.prototype.add = function(feat, id) {
     var featArray = [feat];
     this.iterate(-Infinity, Infinity, function(f) { featArray.push(f); });
     for (var i = 0; i < featArray.length; i++) {
-        if (featArray[this.sublistIndex])
-            delete featArray[this.sublistIndex];
+        if (featArray[i][this.sublistIndex])
+            delete featArray[i][this.sublistIndex];
     }
     this.fill(featArray, this.sublistIndex);
     this.featIdMap[id] = feat;
@@ -246,8 +246,8 @@ NCList.prototype.delete = function(id) {
                          if (feat !== toDelete) featArray.push(feat);
                      });
         for (var i = 0; i < featArray.length; i++) {
-            if (featArray[this.sublistIndex])
-                delete featArray[this.sublistIndex];
+            if (featArray[i][this.sublistIndex])
+                delete featArray[i][this.sublistIndex];
         }
         delete this.featIdMap[id];
         console.log(dojo.toJson(featArray));
