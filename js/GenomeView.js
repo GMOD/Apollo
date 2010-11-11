@@ -362,6 +362,7 @@ function GenomeView(elem, stripeWidth, refseq, zoomLevel) {
     };
 
     view.mouseDown = function(event) {
+//        console.log("GenomeView.mouseDown " + event); // DEL
         if ("animation" in view) {
             if (view.animation instanceof Zoomer) {
                 dojo.stopEvent(event);
@@ -1042,6 +1043,12 @@ GenomeView.prototype.addTrack = function(track) {
     trackDiv.className = "track";
     trackDiv.id = "track_" + track.name;
     trackDiv.track = track;
+
+    if (track.name == "Annotations") {
+        trackDiv.style.backgroundColor = "#FFFFDD";
+        labelDiv.style.backgroundColor = "#77AAFF";
+    }
+
     var view = this;
     var heightUpdate = function(height) {
         view.trackHeightUpdate(track.name, height);
