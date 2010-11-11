@@ -41,7 +41,6 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
         else
             return b[1] - a[1];
     });
-    console.log(dojo.toJson(myIntervals));
     var sublistStack = new Array();
     var curList = new Array();
     this.topList = curList;
@@ -49,7 +48,6 @@ NCList.prototype.fill = function(intervals, sublistIndex) {
     if (myIntervals.length == 1) return;
     var curInterval, topSublist;
     for (var i = 1, len = myIntervals.length; i < len; i++) {
-        console.log(dojo.toJson(myIntervals));
         curInterval = myIntervals[i];
         //if this interval is contained in the previous interval,
         if (curInterval[1] < myIntervals[i - 1][1]) {
@@ -86,7 +84,7 @@ NCList.prototype.binarySearch = function(arr, item, itemIndex) {
 
     while (high - low > 1) {
         mid = (low + high) >>> 1;
-        // console.log("mid: " + mid + ", arr: " + dojo.toJson(arr));
+//        console.log("mid: " + mid + ", arr: " + dojo.toJson(arr));
         if (arr[mid][itemIndex] > item)
             high = mid;
         else
@@ -250,7 +248,6 @@ NCList.prototype.delete = function(id) {
                 delete featArray[i][this.sublistIndex];
         }
         delete this.featIdMap[id];
-        console.log(dojo.toJson(featArray));
         this.fill(featArray, this.sublistIndex);
     } else {
         throw new Error("NCList.delete: id " + id + " doesn't exist");
