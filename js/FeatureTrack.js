@@ -448,7 +448,12 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     } else {
         featDiv = document.createElement("div");
         featDiv.onclick = this.onFeatureClick;
+        // Needed by DraggableFeatureTrack (which doesn't overload this function, renderFeature)
+        featDiv.onmouseover = this.onMouseOver;
+        featDiv.onmousedown = this.onMouseDown;
+        featDiv.onmouseup = this.onMouseUp;
     }
+
     featDiv.feature = feature;
     featDiv.layoutEnd = featureEnd;
 
