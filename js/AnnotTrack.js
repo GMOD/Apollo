@@ -61,9 +61,9 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    },
 	    // The ERROR function will be called in an error case.
 	    error: function(response, ioArgs) { // 
-	    	console.log("API didn't work!")
+	    	console.log("Annotation server error--maybe you forgot to login to the server?")
 	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
-	    	//dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //  
+	    	//dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //  
 	    	return response; // 
 	    }
 	});
