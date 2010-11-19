@@ -19,13 +19,13 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     };
 
     // define fields meta data
-    this.fields = { "start": 0, "end": 1, "strand": 2, "name": 3 };
+    this.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
     
 }
 
 // Inherit from FeatureTrack
 AnnotTrack.prototype = new FeatureTrack();
-console.log("AnnotTrack created");  // DEL
+console.log("AnnotTrack created @@@");  // DEL
 
 AnnotTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                             trackDiv, labelDiv,
@@ -51,7 +51,7 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    	load: function(response, ioArgs) { //
 	    	console.log("foolicious: " + response);
 	    	var responseFeatures = eval('(' + response + ')').features;
-	    	for (var i = 0; i <= responseFeatures.length; ++i) {
+	    	for (var i = 0; i < responseFeatures.length; i++) {
 	    		var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[i]);
 	    		features.add(featureArray, responseFeatures[0].uniquename);
 	    		track.hideAll();
