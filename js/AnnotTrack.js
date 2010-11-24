@@ -43,7 +43,7 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
     var features = this.features;
     
 	dojo.xhrPost( {
-	    	postData: '{ "operation": "get_features" }',
+	    	postData: '{ "track": "' + track.name + '", "operation": "get_features" }',
 	    	url: "/ApolloWeb/AnnotationEditorService",
 	    	handleAs: "text",
 	    	timeout: 5000, // Time in milliseconds

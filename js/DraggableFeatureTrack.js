@@ -156,7 +156,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 	
     	dojo.xhrPost( {
 		// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-	    	postData: '{ "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
+	    	postData: '{ "track": "' + track.name + '", "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
 	    	url: "/ApolloWeb/AnnotationEditorService",
 	    	handleAs: "text",
 	    	timeout: 5000, // Time in milliseconds
