@@ -25,7 +25,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
 
 // Inherit from FeatureTrack
 AnnotTrack.prototype = new FeatureTrack();
-console.log("AnnotTrack created @@@");  // DEL
+console.log("AnnotTrack created ...");  // DEL
 
 AnnotTrack.prototype.setViewInfo = function(genomeView, numBlocks,
                                             trackDiv, labelDiv,
