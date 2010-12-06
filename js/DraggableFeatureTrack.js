@@ -1,9 +1,13 @@
 /*  Subclass of FeatureTrack that allows features to be dragged and dropped into the annotation track to create annotations. */
 function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
     FeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
-    thisObj = this;
+
     this.dragging = false;
     this.currentSelection = null;
+    var thisObj = this;
+    this.mouseOverFeat = function(event)  {thisObj.onMouseOver(event);}
+    this.mouseDownFeat = function(event)  {thisObj.onMouseDown(event);}
+    this.mouseUpFeat = function(event)  {thisObj.onMouseUp(event);}
 }
 
 // Inherit from FeatureTrack
@@ -28,37 +32,48 @@ DraggableFeatureTrack.prototype.getCurrentSelection = function() {
         return this.currentSelection;
 }
 
+/**
+ *  overriding renderFeature to add event handling for mouseover, mousedown, mouseup
+ */
+DraggableFeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
+                                                containerStart, containerEnd) {
+    var featDiv = FeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
+                                                containerStart, containerEnd);
+    featDiv.onmouseover = this.mouseOverFeat;
+    featDiv.onmousedown = this.mouseDownFeat;
+    featDiv.onmouseup = this.mouseUpFeat;
+    return featDiv;
+}
+
 /* I would think that you could add the draggable to the feature at mousedown, but it seems to be already too late--
  * had to add at mouseover.
  */
 DraggableFeatureTrack.prototype.onMouseDown = function(event) {
     var elem = (event.currentTarget || event.srcElement);
     if (!elem.feature) elem = elem.parentElement;
-    var track = thisObj;
-        console.log("DFT.onMouseDown: started dragging " + elem.feature); // DEL
-        DraggableFeatureTrack.prototype.setCurrentSelection(elem.feature);
-        // This only works the SECOND time you try to drag a feature.
-//	event.stopPropagation();
-//	track.makeDraggableAndDroppable(elem);
-        DraggableFeatureTrack.prototype.setDragging(true);
+    console.log("DFT.onMouseDown: started dragging " + elem.feature); // DEL
+    DraggableFeatureTrack.prototype.setCurrentSelection(elem.feature);
+    // This only works the SECOND time you try to drag a feature.
+    //	event.stopPropagation();
+    //	track.makeDraggableAndDroppable(elem);
+    DraggableFeatureTrack.prototype.setDragging(true);
 }
 
 DraggableFeatureTrack.prototype.onMouseOver = function(event) {
     if (DraggableFeatureTrack.prototype.isDragging()) {
-//            console.log("DFT.onMouseOver: already dragging"); // DEL
-            return;
+	// console.log("DFT.onMouseOver: already dragging"); // DEL
+	return;
     }
-
     event = event || window.event;
-    var track = thisObj;
+    var track = this;
     if (event.shiftKey) return;
     var elem = (event.currentTarget || event.srcElement);
     // !! What if we don't do this?
     if (!elem.feature) elem = elem.parentElement;
     if (!elem.feature) return; //shouldn't happen; just bail if it does
-//    console.log("DFT: mouseover on draggablefeature " + elem.feature + ", elem.className = " + elem.className + ", event = " + event);  // DEL
-        // Make this feature draggable & droppable
-	track.makeDraggableAndDroppable(elem);
+    // console.log("DFT: mouseover on draggablefeature " + elem.feature + ", elem.className = " + elem.className + ", event = " + event);  // DEL
+    // Make this feature draggable & droppable
+    track.makeDraggableAndDroppable(elem);
 }
 
 DraggableFeatureTrack.prototype.onMouseUp = function(event) {
@@ -68,7 +83,7 @@ DraggableFeatureTrack.prototype.onMouseUp = function(event) {
 }
 
 DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
-    var track = thisObj;
+    var track = this;
     event = event || window.event;
     if (event.shiftKey) return;
     var elem = (event.currentTarget || event.srcElement);
@@ -78,8 +93,8 @@ DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
     if (!elem.feature) return; //shouldn't happen; just bail if it does
 
     // For debugging, but also to let a click on a feature potentially bring up other info (e.g. a web page)
-    var fields = thisObj.fields;
-//    console.log("DFT.onFeatureClick: fields = " + fields + ", fields[end] = " + fields["end"]);
+    var fields = track.fields;
+    //    console.log("DFT.onFeatureClick: fields = " + fields + ", fields[end] = " + fields["end"]);
 
     var feat = elem.feature;
     console.log("DFT: user clicked on draggablefeature " + elem.feature +"\nstart: " + feat[fields["start"]] +
@@ -112,12 +127,12 @@ DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
 DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
         // Check whether we've already done it--look at class name and see if it includes "draggable-feature"
         if (DraggableFeatureTrack.prototype.hasString(elem.className, "draggable-feature")) {
-//                console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className + "--already has draggable-feature");
+	//      console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className + "--already has draggable-feature");
                 return;
         }
 
     dojo.addClass(elem, "draggable-feature");
-    console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className);
+    // console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className);
     $(".draggable-feature").draggable({
 	    helper:'clone',
 		//	    containment: 'gridtrack',  // Need containment?  (Don't seem to)
