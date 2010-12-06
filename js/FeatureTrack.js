@@ -30,11 +30,12 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.trackMeta = trackMeta;
     this.load(this.baseUrl + url);
 
-    thisObj = this;
+    var thisObj = this;
     this.subfeatureCallback = function(i, val, param) {
         thisObj.renderSubfeature(param.feature, param.featDiv, val,
                                  param.displayStart, param.displayEnd);
     };
+    this.featureClick = function(event) { thisObj.onFeatureClick(event); }
 }
 
 FeatureTrack.prototype = new Track("");
@@ -96,7 +97,8 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
 
 /* Broken out of loadSuccess so that DraggableFeatureTrack can overload it */
 FeatureTrack.prototype.onFeatureClick = function(event) {
-    var fields = thisObj.fields;
+    // var fields = thisObj.fields;
+    var fields = this.fields;
     event = event || window.event;
     if (event.shiftKey) return;
     var elem = (event.currentTarget || event.srcElement);
@@ -447,11 +449,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
         featDiv.target = "_new";
     } else {
         featDiv = document.createElement("div");
-        featDiv.onclick = this.onFeatureClick;
-        // Needed by DraggableFeatureTrack (which doesn't overload this function, renderFeature)
-        featDiv.onmouseover = this.onMouseOver;
-        featDiv.onmousedown = this.onMouseDown;
-        featDiv.onmouseup = this.onMouseUp;
+	featDiv.onclick = this.featureClick;
     }
 
     featDiv.feature = feature;
