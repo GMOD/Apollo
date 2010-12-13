@@ -27,17 +27,8 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
 AnnotTrack.prototype = new FeatureTrack();
 console.log("AnnotTrack created ...");  // DEL
 
-AnnotTrack.prototype.setViewInfo = function(genomeView, numBlocks,
-                                            trackDiv, labelDiv,
-                                            widthPct, widthPx, scale) {
-  Track.prototype.setViewInfo.apply(this, [genomeView, numBlocks,
-                                           trackDiv, labelDiv,
-                                           widthPct, widthPx, scale]);
-  this.setLabel(this.key);
-};
-
 AnnotTrack.prototype.loadSuccess = function(trackInfo) {
-	FeatureTrack.prototype.loadSuccess.call(this, trackInfo);
+    FeatureTrack.prototype.loadSuccess.call(this, trackInfo);
 	
     var track = this;
     var features = this.features;
