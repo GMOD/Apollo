@@ -214,35 +214,37 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
         var selected = DraggableFeatureTrack.prototype.getSelected();
         for (var i = 0; i < selected.length; i++) {
                 var feat = selected[i];
-	    	console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
-    	        var responseFeatures;
+                console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
+                var responseFeatures;
+                var topLevelFeature = JSONUtils.createJsonFeature(feat[fields["start"]], feat[fields["end"]], feat[fields["strand"]], "SO", "gene");
 	
-    	dojo.xhrPost( {
-		// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-	    	postData: '{ "track": "' + track.name + '", "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
-	    	url: "/ApolloWeb/AnnotationEditorService",
-	    	handleAs: "text",
-	    	timeout: 5000, // Time in milliseconds
-	    	// The LOAD function will be called on a successful response.
-	    	load: function(response, ioArgs) { //
-	    	console.log("Successfully created annotation object: " + response)
-	    	responseFeatures = eval('(' + response + ')').features;
-	    	var featureArray = JSONUtils.prototype.convertJsonToFeatureArray(responseFeatures[0]);
-	    	features.add(featureArray, responseFeatures[0].uniquename);
-	    	track.hideAll();
-	    	track.changed();
-//	    	console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
-	    },
-	    // The ERROR function will be called in an error case.
-	    error: function(response, ioArgs) { // 
-	    	console.log("Error creating annotation--maybe you forgot to log into the server?");
-	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
-	    	//dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //  
-	    	return response;
-	    }
-	    });
+                dojo.xhrPost( {
+                	// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
+                	//postData: '{ "track": "' + track.name + '", "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
+                	postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
+                	url: "/ApolloWeb/AnnotationEditorService",
+                	handleAs: "text",
+                	timeout: 5000, // Time in milliseconds
+                	// The LOAD function will be called on a successful response.
+                	load: function(response, ioArgs) { //
+                	console.log("Successfully created annotation object: " + response)
+                	responseFeatures = eval('(' + response + ')').features;
+                	var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
+                	features.add(featureArray, responseFeatures[0].uniquename);
+                	track.hideAll();
+                	track.changed();
+//              	console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
+                },
+                // The ERROR function will be called in an error case.
+                error: function(response, ioArgs) { // 
+                	console.log("Error creating annotation--maybe you forgot to log into the server?");
+                	console.error("HTTP status code: ", ioArgs.xhr.status); //
+                	//dojo.byId("replace").innerHTML = 'Loading the ressource from the server did not work'; //  
+                	return response;
+                }
+                });
         }
-//	console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
+//      console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
     }
     });
 }
