@@ -202,15 +202,15 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
         DraggableFeatureTrack.prototype.setDragging(false);
     	// Clone the dragged feature
 	   // GAH not sure if newAnnot is really needed (think some of it's functionality was replaced by list of selected elems?)
-        var newAnnot=$(ui.draggable).clone();
+        // var newAnnot=$(ui.draggable).clone();
 //        console.log("makeDroppable: feat = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
     	// Change its class to the appropriate annot class
-    	DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
+    	// DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
 
     	// Set vertical position of dropped item (left position is based on dragged feature)
-        newAnnot.css({"top": 0});
+        // newAnnot.css({"top": 0});
     	// Restore border of annot to its default (don't want selection border)
-        newAnnot.css({"border": null});
+        // newAnnot.css({"border": null});
 
     	var track = this.track;
     	var features = this.track.features;
