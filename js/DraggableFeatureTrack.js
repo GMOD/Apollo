@@ -36,6 +36,10 @@ DraggableFeatureTrack.prototype.addToSelection = function(newThing) {
     console.log("addToSelection " + newThing + "; now sel = " + this.sel); // DEL
 }
 
+DraggableFeatureTrack.prototype.clearSelection = function() {
+    this.sel = [];
+}
+
 DraggableFeatureTrack.prototype.removeFromSelection = function(thing) {
     var idx = this.sel.indexOf(thing);
     if (idx > -1)
@@ -197,15 +201,16 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 //        console.log("makeDroppable: stopped dragging");  // DEL
         DraggableFeatureTrack.prototype.setDragging(false);
     	// Clone the dragged feature
-    	var newAnnot=$(ui.draggable).clone();
+	   // GAH not sure if newAnnot is really needed (think some of it's functionality was replaced by list of selected elems?)
+        var newAnnot=$(ui.draggable).clone();
 //        console.log("makeDroppable: feat = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
     	// Change its class to the appropriate annot class
     	DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
 
     	// Set vertical position of dropped item (left position is based on dragged feature)
-    	newAnnot.css({"top": 0});
+        newAnnot.css({"top": 0});
     	// Restore border of annot to its default (don't want selection border)
-    	newAnnot.css({"border": null});
+        newAnnot.css({"border": null});
 
     	var track = this.track;
     	var features = this.track.features;
@@ -216,6 +221,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 var feat = selected[i];
                 console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
                 var responseFeatures;
+	    // creating JSON feature data struct that WebApollo server understands, based on JSON feature data struct that JBrowse understands
                 var topLevelFeature = JSONUtils.createJsonFeature(feat[fields["start"]], feat[fields["end"]], feat[fields["strand"]], "SO", "gene");
 	
                 dojo.xhrPost( {
@@ -244,6 +250,8 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 }
                 });
         }
+	   DraggableFeatureTrack.prototype.clearSelection();
+	   
 //      console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
     }
     });
