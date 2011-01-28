@@ -78,19 +78,6 @@ DraggableFeatureTrack.prototype.onMouseDown = function(event) {
         // This only works the SECOND time you try to drag a feature.
 //	event.stopPropagation();
 //	track.makeDraggableAndDroppable(elem);
-        
-//        // Drag other selected features along with elem
-//      // It turns out that JQuery doesn't directly support multi-drag.  I'm leaving in this commented-out attempt in case it's at all useful.
-//        var selected = DraggableFeatureTrack.prototype.getSelected();
-//        for (var i = 0; i < selected.length; i++) {
-//                var feat = selected[i];
-//	    	console.log("Trying to drag feature " + i + ": " + feat); // DEL
-//                if (feat == elem.feature)
-//                        console.log("Feature " + i + " is the feature that's being dragged");
-//                else
-//                        $(".draggable-feature").draggable().trigger(event); // Will this drag anything that's ever been selected?
-//        }
-
         DraggableFeatureTrack.prototype.setDragging(true);
 }
 
@@ -173,17 +160,6 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className);
     $(".draggable-feature").draggable({
 	    helper:'clone',
-//      // It turns out that JQuery doesn't directly support multi-drag.  I'm leaving in this commented-out attempt in case it's at all useful.
-// 	    helper: function(event, ui) {
-// 		var selected = DraggableFeatureTrack.prototype.getSelected();
-// 		for (var i = 0; i < selected.length; i++) {
-// 		    var feat = selected[i];
-// 		    console.log("Trying to drag feature " + i + ": " + feat); // DEL
-// 		    $(feat).clone();
-// 		    $(feat).addClass('ui-draggable-dragging');
-// 		}
-// 		//		return $(this).clone(); // ?
-// 	    },
             zindex: 200,
             opacity: 0.3,  // make the object semi-transparent when dragged
             axis: 'y'      // Allow only vertical dragging
@@ -200,18 +176,6 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
        drop: function(ev, ui) {
 //        console.log("makeDroppable: stopped dragging");  // DEL
         DraggableFeatureTrack.prototype.setDragging(false);
-    	// Clone the dragged feature
-	   // GAH not sure if newAnnot is really needed (think some of it's functionality was replaced by list of selected elems?)
-        // var newAnnot=$(ui.draggable).clone();
-//        console.log("makeDroppable: feat = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
-    	// Change its class to the appropriate annot class
-    	// DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
-
-    	// Set vertical position of dropped item (left position is based on dragged feature)
-        // newAnnot.css({"top": 0});
-    	// Restore border of annot to its default (don't want selection border)
-        // newAnnot.css({"border": null});
-
     	var track = this.track;
     	var features = this.track.features;
         // This creates a new annotation for each currently selected feature (not a multi-exon feature comprised of the selected features, as we'd like).
@@ -226,7 +190,6 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 	
                 dojo.xhrPost( {
                 	// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-                	//postData: '{ "track": "' + track.name + '", "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
                 	postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
                 	url: "/ApolloWeb/AnnotationEditorService",
                 	handleAs: "text",
@@ -268,21 +231,8 @@ DraggableFeatureTrack.prototype.hasString = function(array, string) {
 }
 
 
-/* Change feature class name to the corresponding annot class name */
-DraggableFeatureTrack.prototype.setAnnotClassNameForFeature = function(feature) {
-    var arrList = feature.attr("class").split(' ');
-    for ( var i = 0; i < arrList.length; i++ ) {
-        var aclass = arrList[i];
-        if (aclass.match("us-")) {  // plus-* or minus-*
-            arrList[i] = aclass.replace(/us-\w+/, "us-annot");
-            feature.removeClass(aclass).addClass(arrList[i]);
-        }
-    }
-}
-
 /*
-
-Copyright (c) 2007-2011 The Evolutionary Software Foundation
+Copyright (c) 2010-2011 Berkeley Bioinformatics Open-source Projects & Lawrence Berkeley National Labs
 
 This package and its accompanying libraries are free software; you can
 redistribute it and/or modify it under the terms of the LGPL (either
