@@ -6,13 +6,14 @@ function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.mouseOverFeat = function(event)  {thisObj.onMouseOver(event);}
     this.mouseDownFeat = function(event)  {thisObj.onMouseDown(event);}
     this.mouseUpFeat = function(event)  {thisObj.onMouseUp(event);}
-
     this.dragging = false;
-    this.sel = [];
 }
 
 // Inherit from FeatureTrack
 DraggableFeatureTrack.prototype = new FeatureTrack();
+
+// selected feature array is class variable (shared across all DraggableFeatureTrack objects)
+DraggableFeatureTrack.sel = []; 
 
 DraggableFeatureTrack.prototype.setDragging = function(onOrOff) {
 //        console.log("setDragging(" + onOrOff + ")");
@@ -24,34 +25,36 @@ DraggableFeatureTrack.prototype.isDragging = function() {
     return this.dragging;
 }
 
-DraggableFeatureTrack.prototype.addToSelection = function(newThing) {
-    if (this.sel == undefined)
-        this.sel = [newThing];
-    else {
-        // Check if it's already in the selected array before adding it
-        var idx = this.sel.indexOf(newThing);
-        if (idx == -1)
-            this.sel.push(newThing);
+/** class method */
+DraggableFeatureTrack.addToSelected = function(newThing) {  
+    // Check if it's already in the selected array before adding it
+    var lsel = DraggableFeatureTrack.sel;
+    if (lsel.indexOf(newThing) == -1)  {
+        lsel.push(newThing);
     }
-    console.log("addToSelection " + newThing + "; now sel = " + this.sel); // DEL
+    console.log("addToSelection " + newThing + "; now sel = " + lsel); // DEL
 }
 
-DraggableFeatureTrack.prototype.clearSelection = function() {
-    this.sel = [];
+/** class method */
+DraggableFeatureTrack.clearSelection = function() {
+    DraggableFeatureTrack.sel = [];
 }
 
-DraggableFeatureTrack.prototype.removeFromSelection = function(thing) {
-    var idx = this.sel.indexOf(thing);
+/** class method */
+DraggableFeatureTrack.removeFromSelected = function(thing) {
+    var lsel = DraggableFeatureTrack.sel;
+    var idx = lsel.indexOf(thing);
     if (idx > -1)
-        this.sel.splice(idx, 1);
+        lsel.splice(idx, 1);
     else
-        console.error("Couldn't find " + thing + " in selection set " + this.sel);
-    console.log("removeFromSelection " + thing + "; now sel = " + this.sel); // DEL
+        console.error("Couldn't find " + thing + " in selection set " + lsel);
+    console.log("removeFromSelected " + thing + "; now sel = " + lsel); // DEL
 }
 
-// Returns an array 
-DraggableFeatureTrack.prototype.getSelected = function() {
-    return this.sel;
+/** class method */
+// Returns raw array -- manipulation will change selection...
+DraggableFeatureTrack.getSelected = function() {
+    return DraggableFeatureTrack.sel;
 }
 
 /**
@@ -77,7 +80,8 @@ DraggableFeatureTrack.prototype.onMouseDown = function(event) {
     var featdiv = this.getTopLevelFeatureDiv(elem);
     var feat = featdiv.feature;
     console.log("DFT.onMouseDown: started dragging " + feat); // DEL
-    DraggableFeatureTrack.prototype.addToSelection(feat);
+//    DraggableFeatureTrack.addToSelection(feat);
+    DraggableFeatureTrack.toggleSelection(feat);
         // This only works the SECOND time you try to drag a feature.
 //	event.stopPropagation();
 //	this.makeDraggableAndDroppable(elem);
@@ -118,7 +122,7 @@ DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
     console.log("DFT: user clicked on draggablefeature: start = " + feat[this.fields["start"]] + ", id = " + feat[this.fields["id"]]);
 
     // If feature was already selected, deselect it.  Otherwise, select it (add to current selected set).
-    this.toggleSelection(featdiv);
+    DraggableFeatureTrack.toggleSelection(featdiv);
 };
 
 /** 
@@ -141,21 +145,35 @@ DraggableFeatureTrack.prototype.getTopLevelFeatureDiv = function(elem)  {
     return elem;
 }
 
+/** returns first feature or subfeature div found when crawling towards root from branch in feature/subfeature/descendants div hierachy  */
+DraggableFeatureTrack.prototype.getLowestFeatureDiv = function(elem)  {
+    while (!elem.feature && !elem.subfeature)  {
+	elem = elem.parentNode;
+	if (elem === document)  { return null; } 
+    }
+    return elem;
+}
 
-/* If elem is selected, deselect it.  Otherwise, select it.
+
+/* 
+ * class method
+ * If elem is selected, deselect it.  Otherwise, select it.
  * Appearance of selected elements depends on ".selected-feature" style in CSS stylesheet (usually genome.css)
  *    (assumes feature div styles are entirely handled in CSS stylesheet (so not overriden by styles in code))
  */
-DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
-    //    if $(elem).hasClass("selected-feature"))  {  // start of jquery equivalent to dojo way...
-    if (dojo.hasClass(elem, "selected-feature"))  {
-	dojo.removeClass(elem, "selected-feature");
-        DraggableFeatureTrack.prototype.removeFromSelection(elem.feature);
+DraggableFeatureTrack.toggleSelection = function(featdiv) {
+    var feat = featdiv.feature || featdiv.subfeature;  // feature if assigned, otherwise subfeature
+    if (!feat)  { return; } // shouldn't happen
+
+    if (DraggableFeatureTrack.getSelected().indexOf(feat) == -1)  {
+	dojo.addClass(featdiv, "selected-feature");
+	DraggableFeatureTrack.addToSelected(feat); 
     }
     else  { 
-	dojo.addClass(elem, "selected-feature");
-	// DraggableFeatureTrack.prototype.addToSelection(elem.feature);   // already done
+	dojo.removeClass(featdiv, "selected-feature");
+	DraggableFeatureTrack.removeFromSelected(feat);
     }
+    //    if $(elem).hasClass("selected-feature"))  {  // start of jquery equivalent to dojo way...
 }
 
 
@@ -191,7 +209,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     	var features = this.track.features;
         // This creates a new annotation for each currently selected feature (not a multi-exon feature comprised of the selected features, as we'd like).
         // Also, the drag-ghost is only of the most recently selected feature--it's not capable of showing the drag-ghosts of all selected features.
-        var selected = DraggableFeatureTrack.prototype.getSelected();
+        var selected = DraggableFeatureTrack.getSelected();
         for (var i = 0; i < selected.length; i++) {
                 var feat = selected[i];
                 console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
@@ -224,7 +242,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 }
                 });
         }
-	   DraggableFeatureTrack.prototype.clearSelection();
+	   DraggableFeatureTrack.clearSelection();
 	   
 //      console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
     }
