@@ -11,7 +11,7 @@ input.icon {
     display: -moz-inline-stack;
     display: inline-block;
     zoom: 1;
-    *display: inline;
+    display: inline;
 }
 
 div.container {
@@ -725,4 +725,11 @@ div.generic_parent-hist {
     z-index: 8;
     min-width: 1px;
     cursor: pointer;
+}
+
+/* to make sure selection style overrides any other styles in this stylesheet, make sure to put selection style at end */
+.selected-feature {
+    border-style: solid; 
+    border-color: red;
+    border-width: 3px; 
 }
