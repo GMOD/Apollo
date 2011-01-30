@@ -141,22 +141,21 @@ DraggableFeatureTrack.prototype.getTopLevelFeatureDiv = function(elem)  {
     return elem;
 }
 
+
 /* If elem is selected, deselect it.  Otherwise, select it.
- * Selected elements get a red border and become draggable.
+ * Appearance of selected elements depends on ".selected-feature" style in CSS stylesheet (usually genome.css)
+ *    (assumes feature div styles are entirely handled in CSS stylesheet (so not overriden by styles in code))
  */
 DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
-    if (elem.style.border == "") {  // !! What if it had a border set by its style?
-//        DraggableFeatureTrack.prototype.addToSelection(elem.feature);   // already done
-	dojo.addClass(elem, "selected");
-	elem.style.border = "3px solid red";
-    }
-    // Else, need to take it off the "selected" list
-    else {
+    //    if $(elem).hasClass("selected-feature"))  {  // start of jquery equivalent to dojo way...
+    if (dojo.hasClass(elem, "selected-feature"))  {
+	dojo.removeClass(elem, "selected-feature");
         DraggableFeatureTrack.prototype.removeFromSelection(elem.feature);
-	dojo.removeClass(elem, "selected");
-	elem.style.border = "";
     }
-//    console.log("toggleSelection: now elem.style.border = " + elem.style.border); // DEL
+    else  { 
+	dojo.addClass(elem, "selected-feature");
+	// DraggableFeatureTrack.prototype.addToSelection(elem.feature);   // already done
+    }
 }
 
 
