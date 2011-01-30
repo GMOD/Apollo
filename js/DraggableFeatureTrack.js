@@ -49,7 +49,7 @@ DraggableFeatureTrack.prototype.removeFromSelection = function(thing) {
     console.log("removeFromSelection " + thing + "; now sel = " + this.sel); // DEL
 }
 
-/* Returns an array */
+// Returns an array 
 DraggableFeatureTrack.prototype.getSelected = function() {
     return this.sel;
 }
@@ -71,32 +71,31 @@ DraggableFeatureTrack.prototype.renderFeature = function(feature, uniqueId, bloc
  * had to add at mouseover.
  */
 DraggableFeatureTrack.prototype.onMouseDown = function(event) {
+    event = event || window.event;
     var elem = (event.currentTarget || event.srcElement);
-    if (!elem.feature) elem = elem.parentElement;
-    console.log("DFT.onMouseDown: started dragging " + elem.feature); // DEL
-    DraggableFeatureTrack.prototype.addToSelection(elem.feature);
+    // if (!elem.feature) elem = elem.parentElement;
+    var featdiv = this.getTopLevelFeatureDiv(elem);
+    var feat = featdiv.feature;
+    console.log("DFT.onMouseDown: started dragging " + feat); // DEL
+    DraggableFeatureTrack.prototype.addToSelection(feat);
         // This only works the SECOND time you try to drag a feature.
 //	event.stopPropagation();
-//	track.makeDraggableAndDroppable(elem);
+//	this.makeDraggableAndDroppable(elem);
         DraggableFeatureTrack.prototype.setDragging(true);
 }
 
 DraggableFeatureTrack.prototype.onMouseOver = function(event) {
     if (DraggableFeatureTrack.prototype.isDragging()) {
-//            console.log("DFT.onMouseOver: already dragging"); // DEL
+        console.log("DFT.onMouseOver: already dragging"); // DEL
         return;
     }
-
     event = event || window.event;
-    var track = this;
-    if (event.shiftKey) return;
-    var elem = (event.currentTarget || event.srcElement);
-    // !! What if we don't do this?
-    if (!elem.feature) elem = elem.parentElement;
-    if (!elem.feature) return; //shouldn't happen; just bail if it does
-//    console.log("DFT: mouseover on draggablefeature " + elem.feature + ", elem.className = " + elem.className + ", event = " + event);  // DEL
-        // Make this feature draggable & droppable
-    track.makeDraggableAndDroppable(elem);
+    var elem = (event.target || event.srcElement);
+    var featdiv = this.getTopLevelFeatureDiv(elem);
+    if (featdiv === null) return; //shouldn't happen; just bail if it does
+    console.log("DFT: mouseover on draggablefeature " + featdiv.feature + ", elem.className = " + featdiv.className + ", event = " + event);  
+    // Make this feature draggable & droppable
+    this.makeDraggableAndDroppable(featdiv);
 }
 
 DraggableFeatureTrack.prototype.onMouseUp = function(event) {
@@ -104,31 +103,43 @@ DraggableFeatureTrack.prototype.onMouseUp = function(event) {
 //    console.log("DFT.onMouseup: stopped dragging");  // DEL
 }
 
+/**
+    (should switch to using dojo.connect or dojo.fixEvent for normalized events, so can remove IE specific code
+*/
 DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
-    var track = this;
-    event = event || window.event;
-//    if (event.shiftKey) return;
 
-    var elem = (event.currentTarget || event.srcElement);
-    //depending on bubbling, we might get the subfeature here
-    //instead of the parent feature
-    if (!elem.feature) elem = elem.parentElement;
-    if (!elem.feature) return; //shouldn't happen; just bail if it does
-
-    // For debugging, but also to let a click on a feature potentially bring up other info (e.g. a web page)
-    var fields = track.fields;
-//    console.log("DFT.onFeatureClick: fields = " + fields + ", fields[end] = " + fields["end"]);
-
-    var feat = elem.feature;
-    console.log("DFT: user clicked on draggablefeature " + elem.feature +"\nstart: " + feat[fields["start"]] +
-	  ", end: " + feat[fields["end"]] +
-	  ", strand: " + feat[fields["strand"]] +
-	  ", label: " + feat[fields["name"]] +
-	  ", ID: " + feat[fields["id"]]);
+    event = event || window.event;  // window.event for IE, event for other browsers 
+    var elem = (event.target || event.srcElement);  // e.srcElement for IE, e.target for other browsers
+    // due to event bubbling, elem may be for a feature or a subfeature (assumes subfeature elems are _leaf_ divs)
+    var featdiv = this.getTopLevelFeatureDiv(elem);
+    if (featdiv === null)  { return; } //shouldn't happen; just bail if it does
+    var feat = featdiv.feature;
+    if (feat === null)  { return; } //shouldn't happen; just bail if it does
+    console.log("DFT: user clicked on draggablefeature: start = " + feat[this.fields["start"]] + ", id = " + feat[this.fields["id"]]);
 
     // If feature was already selected, deselect it.  Otherwise, select it (add to current selected set).
-    track.toggleSelection(elem);
+    this.toggleSelection(featdiv);
 };
+
+/** 
+ * get highest level feature in feature hierarchy 
+ * should be able to handle current two-level feature/subfeature hierarchy 
+ *     (including non-feature descendants of feature div, such as arrowhead div)
+ *   but also anticipating shift to multi-level feature hierarchy
+ *   and/or feature/subfeature elements that have non-feature div descendants, possibly nested
+ * elem should be a div for a feature or subfeature, or descendant div of feature or subfeature
+*/
+DraggableFeatureTrack.prototype.getTopLevelFeatureDiv = function(elem)  {
+    while (!elem.feature)  {
+	elem = elem.parentNode;
+	if (elem === document)  { return null; } 
+    }
+    // found a feature, now crawl up hierarchy till top feature (feature with no parent feature)
+    while (elem.parentNode.feature)  {
+	elem = elem.parentNode;
+    }
+    return elem;
+}
 
 /* If elem is selected, deselect it.  Otherwise, select it.
  * Selected elements get a red border and become draggable.
@@ -148,11 +159,13 @@ DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
 //    console.log("toggleSelection: now elem.style.border = " + elem.style.border); // DEL
 }
 
+
 // Make this DraggableFeatureTrack draggable
 DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     // Check whether we've already done it--look at class name and see if it includes "draggable-feature"
-    if (DraggableFeatureTrack.prototype.hasString(elem.className, "draggable-feature")) {
-//            console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className + "--already has draggable-feature");
+    // if (DraggableFeatureTrack.prototype.hasString(elem.className, "draggable-feature")) {
+    if (dojo.hasClass(elem, "draggable-feature")) {
+        console.log("Already has draggable-feature class: " + elem.feature + ", className = " + elem.className );
         return;
     }
 
@@ -169,7 +182,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 //        console.log("makeDraggable: evt.stopPropagation.  elem.feature = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
 	evt.stopPropagation();
     });
-
+      
     var fields = this.fields;
     // Note that this relies on the annotation track's name being "Annotations".  Need to make this more general.
     $("#track_Annotations").droppable({
@@ -220,6 +233,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     });
 }
 
+
 /* Check whether an array includes the string in question */
 DraggableFeatureTrack.prototype.hasString = function(array, string) {
     if (array == null)
@@ -229,7 +243,6 @@ DraggableFeatureTrack.prototype.hasString = function(array, string) {
         return true;
     return false;
 }
-
 
 /*
 Copyright (c) 2010-2011 Berkeley Bioinformatics Open-source Projects & Lawrence Berkeley National Labs
