@@ -163,7 +163,6 @@ DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
 // Make this DraggableFeatureTrack draggable
 DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     // Check whether we've already done it--look at class name and see if it includes "draggable-feature"
-    // if (DraggableFeatureTrack.prototype.hasString(elem.className, "draggable-feature")) {
     if (dojo.hasClass(elem, "draggable-feature")) {
         console.log("Already has draggable-feature class: " + elem.feature + ", className = " + elem.className );
         return;
@@ -231,17 +230,6 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 //      console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
     }
     });
-}
-
-
-/* Check whether an array includes the string in question */
-DraggableFeatureTrack.prototype.hasString = function(array, string) {
-    if (array == null)
-        return false;
-    var arr2str = array.toString();
-    if (arr2str.search(string) >= 0)
-        return true;
-    return false;
 }
 
 /*
