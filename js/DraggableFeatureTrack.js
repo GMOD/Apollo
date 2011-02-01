@@ -229,16 +229,18 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 	//postData: '{ "track": "' + track.name + '", "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
                 	postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
                 	url: "/ApolloWeb/AnnotationEditorService",
-                	handleAs: "text",
+                	handleAs: "json",
                 	timeout: 5000, // Time in milliseconds
                 	// The LOAD function will be called on a successful response.
                 	load: function(response, ioArgs) { //
                 	console.log("Successfully created annotation object: " + response)
-                	responseFeatures = eval('(' + response + ')').features;
-                	var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
-                	features.add(featureArray, responseFeatures[0].uniquename);
-                	track.hideAll();
-                	track.changed();
+                	// response processing is now handled by the long poll thread (when using servlet 3.0)
+                	// uncomment code to get it working with servlet 2.5
+//                	responseFeatures = responseFeatures.features;
+//                	var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
+//                	features.add(featureArray, responseFeatures[0].uniquename);
+//                	track.hideAll();
+//                	track.changed();
 //              	console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
                 },
                 // The ERROR function will be called in an error case.

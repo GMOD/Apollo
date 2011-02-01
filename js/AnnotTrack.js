@@ -36,12 +36,12 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	dojo.xhrPost( {
 	    	postData: '{ "track": "' + track.name + '", "operation": "get_features" }',
 	    	url: "/ApolloWeb/AnnotationEditorService",
-	    	handleAs: "text",
-	    	timeout: 5000, // Time in milliseconds
+	    	handleAs: "json",
+	    	timeout: 5 * 1000, // Time in milliseconds
 	    	// The LOAD function will be called on a successful response.
 	    	load: function(response, ioArgs) { //
 	    	console.log("foolicious: " + response);
-	    	var responseFeatures = eval('(' + response + ')').features;
+	    	var responseFeatures = response.features;
 	    	for (var i = 0; i < responseFeatures.length; i++) {
 	    		var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[i]);
 	    		features.add(featureArray, responseFeatures[0].uniquename);
@@ -56,6 +56,40 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
 	    	//dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //  
 	    	return response; // 
+	    }
+	});
+	
+	this.createAnnotationChangeListener();
+
+}
+
+AnnotTrack.prototype.createAnnotationChangeListener = function() {
+    var track = this;
+    var features = this.features;
+
+	dojo.xhrGet( {
+    	url: "/ApolloWeb/AnnotationChangeNotificationService",
+    	content: { track: track.name },
+    	handleAs: "json",
+    	timeout: 1000 * 1000, // Time in milliseconds
+    	// The LOAD function will be called on a successful response.
+    	load: function(response, ioArgs) {
+    		if (response.operation == "ADD") {
+    			var responseFeatures = response.features;
+    			var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
+    			var id = responseFeatures[0].uniquename;
+    			if (features.featIdMap[id] == null) {
+    				features.add(featureArray, id);
+    				track.hideAll();
+    				track.changed();
+    			}
+    		}
+    		track.createAnnotationChangeListener();
+    	},
+	    // The ERROR function will be called in an error case.
+	    error: function(response, ioArgs) { // 
+	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
+	    	return response;
 	    }
 	});
 
