@@ -1,58 +1,77 @@
+
 /*  Subclass of FeatureTrack that allows features to be dragged and dropped into the annotation track to create annotations. */
 function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
     FeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
 //    thisObj = this;
     var thisObj = this;
-    this.mouseOverFeat = function(event)  {thisObj.onMouseOver(event);}
-    this.mouseDownFeat = function(event)  {thisObj.onMouseDown(event);}
-    this.mouseUpFeat = function(event)  {thisObj.onMouseUp(event);}
-
-    this.dragging = false;
-    this.sel = [];
+    this.mouseOverFeat = function(event)  {thisObj.featMouseOver(event);}
+    this.mouseDownFeat = function(event)  {thisObj.featMouseDown(event);}
+    this.mouseUpFeat = function(event)  {thisObj.featMouseUp(event);}
+//
 }
+
 
 // Inherit from FeatureTrack
 DraggableFeatureTrack.prototype = new FeatureTrack();
 
-DraggableFeatureTrack.prototype.setDragging = function(onOrOff) {
+// selected feature array is class variable (shared across all DraggableFeatureTrack objects)
+DraggableFeatureTrack.sel_features = []; 
+DraggableFeatureTrack.sel_divs = []; 
+DraggableFeatureTrack.dragging = false;
+
+DraggableFeatureTrack.setDragging = function(onOrOff) {
 //        console.log("setDragging(" + onOrOff + ")");
-    this.dragging = onOrOff;
+    DraggableFeatureTrack.dragging = onOrOff;
 }
 
-DraggableFeatureTrack.prototype.isDragging = function() {
+DraggableFeatureTrack.isDragging = function() {
 //        console.log("isDragging: " + this.dragging);
-    return this.dragging;
+    return DraggableFeatureTrack.dragging;
 }
 
-DraggableFeatureTrack.prototype.addToSelection = function(newThing) {
-    if (this.sel == undefined)
-        this.sel = [newThing];
-    else {
-        // Check if it's already in the selected array before adding it
-        var idx = this.sel.indexOf(newThing);
-        if (idx == -1)
-            this.sel.push(newThing);
+/** class method */
+DraggableFeatureTrack.addToSelection = function(featdiv) {  
+    // Check if it's already in the selected array before adding it
+    if (DraggableFeatureTrack.sel_divs.indexOf(featdiv) == -1)  {
+        DraggableFeatureTrack.sel_divs.push(featdiv);
+	DraggableFeatureTrack.sel_features.push(featdiv.feature);
+	dojo.addClass(featdiv, "selected-feature");
     }
-    console.log("addToSelection " + newThing + "; now sel = " + this.sel); // DEL
+    console.log("addToSelection " + featdiv);
 }
 
-DraggableFeatureTrack.prototype.clearSelection = function() {
-    this.sel = [];
+/** class method */
+DraggableFeatureTrack.clearSelection = function() {
+    var idx;
+    for (idx in DraggableFeatureTrack.sel_divs)  {
+	dojo.removeClass(DraggableFeatureTrack.sel_divs[idx], "selected-feature");
+    }
+    DraggableFeatureTrack.sel_divs = [];
+    DraggableFeatureTrack.sel_features = [];
 }
 
-DraggableFeatureTrack.prototype.removeFromSelection = function(thing) {
-    var idx = this.sel.indexOf(thing);
-    if (idx > -1)
-        this.sel.splice(idx, 1);
-    else
-        console.error("Couldn't find " + thing + " in selection set " + this.sel);
-    console.log("removeFromSelection " + thing + "; now sel = " + this.sel); // DEL
+/** class method */
+DraggableFeatureTrack.removeFromSelection = function(featdiv) {
+    // index of feat in sel_features will be same as index of featdiv in sel_divs
+    var idx = DraggableFeatureTrack.sel_divs.indexOf(featdiv);
+    if (idx > -1)  {
+        DraggableFeatureTrack.sel_divs.splice(idx, 1);
+	DraggableFeatureTrack.sel_features.splice(idx, 1);
+	dojo.removeClass(featdiv, "selected-feature");
+    }
+    console.log("removeFromSelection " + featdiv);
 }
 
-/* Returns an array */
-DraggableFeatureTrack.prototype.getSelected = function() {
-    return this.sel;
+/** class method */
+// Returns raw array -- manipulation will change selection...
+DraggableFeatureTrack.getSelectedFeatures = function() {
+    return DraggableFeatureTrack.sel_features;
 }
+
+DraggableFeatureTrack.getSelectedDivs = function()  {
+    return DraggableFeatureTrack.sel_divs;
+}
+
 
 /**
  *  overriding renderFeature to add event handling for mouseover, mousedown, mouseup
@@ -67,123 +86,154 @@ DraggableFeatureTrack.prototype.renderFeature = function(feature, uniqueId, bloc
     return featDiv;
 }
 
-/* I would think that you could add the draggable to the feature at mousedown, but it seems to be already too late--
- * had to add at mouseover.
- */
-DraggableFeatureTrack.prototype.onMouseDown = function(event) {
+/* 
+ *  selection occurs on mouse down
+ *  mouse-down on unselected feature -- deselect all & select feature
+ *  mouse-down on selected feature -- no change to selection (but may start drag?)
+ *  mouse-down on "empty" area -- deselect all 
+ *        (WARNING: this is preferred behavior, but conflicts with dblclick for zoom -- zoom would also deselect)  
+ *         therefore have mouse-click on empty area deselect all (no conflict with dblclick)
+ *  shift-mouse-down on unselected feature -- add feature to selection
+ *  shift-mouse-down on selected feature -- remove feature from selection
+ *  shift-mouse-down on "empty" area -- no change to selection
+  */
+DraggableFeatureTrack.prototype.featMouseDown = function(event) {
+    event = event || window.event;
     var elem = (event.currentTarget || event.srcElement);
-    if (!elem.feature) elem = elem.parentElement;
-    console.log("DFT.onMouseDown: started dragging " + elem.feature); // DEL
-    DraggableFeatureTrack.prototype.addToSelection(elem.feature);
-        // This only works the SECOND time you try to drag a feature.
-//	event.stopPropagation();
-//	track.makeDraggableAndDroppable(elem);
-        
-//        // Drag other selected features along with elem
-//      // It turns out that JQuery doesn't directly support multi-drag.  I'm leaving in this commented-out attempt in case it's at all useful.
-//        var selected = DraggableFeatureTrack.prototype.getSelected();
-//        for (var i = 0; i < selected.length; i++) {
-//                var feat = selected[i];
-//	    	console.log("Trying to drag feature " + i + ": " + feat); // DEL
-//                if (feat == elem.feature)
-//                        console.log("Feature " + i + " is the feature that's being dragged");
-//                else
-//                        $(".draggable-feature").draggable().trigger(event); // Will this drag anything that's ever been selected?
-//        }
-
-        DraggableFeatureTrack.prototype.setDragging(true);
+    // if (!elem.feature) elem = elem.parentElement;
+    var featdiv = this.getTopLevelFeatureDiv(elem);
+    var feat = featdiv.feature;
+    var already_selected = (DraggableFeatureTrack.getSelectedDivs().indexOf(featdiv) > -1);
+    if (event.shiftKey)  {
+	if (already_selected) {
+	    DraggableFeatureTrack.removeFromSelection(featdiv);
+	}
+	else  {
+            DraggableFeatureTrack.addToSelection(featdiv);
+	}
+    }
+    else  {
+	if (!already_selected)  {
+	    DraggableFeatureTrack.clearSelection();
+	    DraggableFeatureTrack.addToSelection(featdiv);
+	}
+    }
+    //    DraggableFeatureTrack.toggleSelection(featdiv);
+    // This only works the SECOND time you try to drag a feature.
+    // event.stopPropagation();
+    // this.makeDraggableAndDroppable(elem);
+    console.log("DFT.featMouseDown: started dragging " + feat); // DEL
+    DraggableFeatureTrack.setDragging(true);
 }
 
-DraggableFeatureTrack.prototype.onMouseOver = function(event) {
-    if (DraggableFeatureTrack.prototype.isDragging()) {
-//            console.log("DFT.onMouseOver: already dragging"); // DEL
+
+/*  GAH should switch to using dojo.connect or dojo.fixEvent for normalized events, so can remove IE specific code */
+DraggableFeatureTrack.prototype.featMouseOver = function(event) {
+    if (DraggableFeatureTrack.isDragging()) {
+//        console.log("DFT.featMouseOver: already dragging"); // DEL
         return;
     }
-
     event = event || window.event;
-    var track = this;
-    if (event.shiftKey) return;
-    var elem = (event.currentTarget || event.srcElement);
-    // !! What if we don't do this?
-    if (!elem.feature) elem = elem.parentElement;
-    if (!elem.feature) return; //shouldn't happen; just bail if it does
-//    console.log("DFT: mouseover on draggablefeature " + elem.feature + ", elem.className = " + elem.className + ", event = " + event);  // DEL
-        // Make this feature draggable & droppable
-    track.makeDraggableAndDroppable(elem);
+    var elem = (event.target || event.srcElement);
+    var featdiv = this.getTopLevelFeatureDiv(elem);
+    if (featdiv === null) return; //shouldn't happen; just bail if it does
+//    console.log("DFT.featMouseOver on draggablefeature " + featdiv.feature + ", elem.className = " + featdiv.className + ", event = " + event);  
+    // Make this feature draggable & droppable
+    this.makeDraggableAndDroppable(featdiv);
 }
 
-DraggableFeatureTrack.prototype.onMouseUp = function(event) {
-    DraggableFeatureTrack.prototype.setDragging(false);
+DraggableFeatureTrack.prototype.featMouseUp = function(event) {
+     DraggableFeatureTrack.setDragging(false); 
 //    console.log("DFT.onMouseup: stopped dragging");  // DEL
 }
 
+/**
+ *  feature click no-op (to override FeatureTrack.onFetureClick, which conflicts with mouse-down selection
+ */
 DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
-    var track = this;
-    event = event || window.event;
-//    if (event.shiftKey) return;
-
-    var elem = (event.currentTarget || event.srcElement);
-    //depending on bubbling, we might get the subfeature here
-    //instead of the parent feature
-    if (!elem.feature) elem = elem.parentElement;
-    if (!elem.feature) return; //shouldn't happen; just bail if it does
-
-    // For debugging, but also to let a click on a feature potentially bring up other info (e.g. a web page)
-    var fields = track.fields;
-//    console.log("DFT.onFeatureClick: fields = " + fields + ", fields[end] = " + fields["end"]);
-
-    var feat = elem.feature;
-    console.log("DFT: user clicked on draggablefeature " + elem.feature +"\nstart: " + feat[fields["start"]] +
-	  ", end: " + feat[fields["end"]] +
-	  ", strand: " + feat[fields["strand"]] +
-	  ", label: " + feat[fields["name"]] +
-	  ", ID: " + feat[fields["id"]]);
+    // do nothing
+}
+/*
+DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
+    event = event || window.event;  // window.event for IE, event for other browsers 
+    var elem = (event.target || event.srcElement);  // e.srcElement for IE, e.target for other browsers
+    // due to event bubbling, elem may be for a feature or a subfeature (assumes subfeature elems are _leaf_ divs)
+    var featdiv = this.getTopLevelFeatureDiv(elem);
+    if (featdiv === null)  { return; } //shouldn't happen; just bail if it does
+    var feat = featdiv.feature;
+    if (feat === null)  { return; } //shouldn't happen; just bail if it does
+    console.log("DFT: user clicked on draggablefeature: start = " + feat[this.fields["start"]] + ", id = " + feat[this.fields["id"]]);
 
     // If feature was already selected, deselect it.  Otherwise, select it (add to current selected set).
-    track.toggleSelection(elem);
+    DraggableFeatureTrack.toggleSelection(featdiv);
 };
+*/
 
-/* If elem is selected, deselect it.  Otherwise, select it.
- * Selected elements get a red border and become draggable.
- */
-DraggableFeatureTrack.prototype.toggleSelection = function(elem) {
-    if (elem.style.border == "") {  // !! What if it had a border set by its style?
-//        DraggableFeatureTrack.prototype.addToSelection(elem.feature);   // already done
-	dojo.addClass(elem, "selected");
-	elem.style.border = "3px solid red";
+/** 
+ * get highest level feature in feature hierarchy 
+ * should be able to handle current two-level feature/subfeature hierarchy 
+ *     (including non-feature descendants of feature div, such as arrowhead div)
+ *   but also anticipating shift to multi-level feature hierarchy
+ *   and/or feature/subfeature elements that have non-feature div descendants, possibly nested
+ * elem should be a div for a feature or subfeature, or descendant div of feature or subfeature
+*/
+DraggableFeatureTrack.prototype.getTopLevelFeatureDiv = function(elem)  {
+    while (!elem.feature)  {
+	elem = elem.parentNode;
+	if (elem === document)  { return null; } 
     }
-    // Else, need to take it off the "selected" list
-    else {
-        DraggableFeatureTrack.prototype.removeFromSelection(elem.feature);
-	dojo.removeClass(elem, "selected");
-	elem.style.border = "";
+    // found a feature, now crawl up hierarchy till top feature (feature with no parent feature)
+    while (elem.parentNode.feature)  {
+	elem = elem.parentNode;
     }
-//    console.log("toggleSelection: now elem.style.border = " + elem.style.border); // DEL
+    return elem;
 }
+
+/** returns first feature or subfeature div found when crawling towards root from branch in feature/subfeature/descendants div hierachy  */
+DraggableFeatureTrack.prototype.getLowestFeatureDiv = function(elem)  {
+    while (!elem.feature && !elem.subfeature)  {
+	elem = elem.parentNode;
+	if (elem === document)  { return null; } 
+    }
+    return elem;
+}
+
+
+/* 
+ * class method
+ * If elem is selected, deselect it.  Otherwise, select it.
+ * Appearance of selected elements depends on ".selected-feature" style in CSS stylesheet (usually genome.css)
+ *    (assumes feature div styles are entirely handled in CSS stylesheet (so not overriden by styles in code))
+ */
+/*
+DraggableFeatureTrack.toggleSelection = function(featdiv) {
+    var feat = featdiv.feature || featdiv.subfeature;  // feature if assigned, otherwise subfeature
+    if (!feat)  { return; } // shouldn't happen
+
+    if (DraggableFeatureTrack.getSelected().indexOf(feat) == -1)  {
+	dojo.addClass(featdiv, "selected-feature");
+	DraggableFeatureTrack.addToSelected(feat); 
+    }
+    else  { 
+	dojo.removeClass(featdiv, "selected-feature");
+	DraggableFeatureTrack.removeFromSelected(feat);
+    }
+    //    if $(elem).hasClass("selected-feature"))  {  // start of jquery equivalent to dojo way...
+}
+*/
 
 // Make this DraggableFeatureTrack draggable
 DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     // Check whether we've already done it--look at class name and see if it includes "draggable-feature"
-    if (DraggableFeatureTrack.prototype.hasString(elem.className, "draggable-feature")) {
-//            console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className + "--already has draggable-feature");
+    if (dojo.hasClass(elem, "draggable-feature")) {
+	//        console.log("Already has draggable-feature class: " + elem.feature + ", className = " + elem.className );
         return;
     }
 
     dojo.addClass(elem, "draggable-feature");
-    console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className);
+//    console.log("makeDraggable: feature = " + elem.feature + ", className = " + elem.className);
     $(".draggable-feature").draggable({
 	    helper:'clone',
-//      // It turns out that JQuery doesn't directly support multi-drag.  I'm leaving in this commented-out attempt in case it's at all useful.
-// 	    helper: function(event, ui) {
-// 		var selected = DraggableFeatureTrack.prototype.getSelected();
-// 		for (var i = 0; i < selected.length; i++) {
-// 		    var feat = selected[i];
-// 		    console.log("Trying to drag feature " + i + ": " + feat); // DEL
-// 		    $(feat).clone();
-// 		    $(feat).addClass('ui-draggable-dragging');
-// 		}
-// 		//		return $(this).clone(); // ?
-// 	    },
             zindex: 200,
             opacity: 0.3,  // make the object semi-transparent when dragged
             axis: 'y'      // Allow only vertical dragging
@@ -193,40 +243,27 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 //        console.log("makeDraggable: evt.stopPropagation.  elem.feature = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
 	evt.stopPropagation();
     });
-
+      
     var fields = this.fields;
     // Note that this relies on the annotation track's name being "Annotations".  Need to make this more general.
     $("#track_Annotations").droppable({
        drop: function(ev, ui) {
 //        console.log("makeDroppable: stopped dragging");  // DEL
-        DraggableFeatureTrack.prototype.setDragging(false);
-    	// Clone the dragged feature
-	   // GAH not sure if newAnnot is really needed (think some of it's functionality was replaced by list of selected elems?)
-        // var newAnnot=$(ui.draggable).clone();
-//        console.log("makeDroppable: feat = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
-    	// Change its class to the appropriate annot class
-    	// DraggableFeatureTrack.prototype.setAnnotClassNameForFeature(newAnnot);
-
-    	// Set vertical position of dropped item (left position is based on dragged feature)
-        // newAnnot.css({"top": 0});
-    	// Restore border of annot to its default (don't want selection border)
-        // newAnnot.css({"border": null});
-
+        DraggableFeatureTrack.setDragging(false);
     	var track = this.track;
     	var features = this.track.features;
         // This creates a new annotation for each currently selected feature (not a multi-exon feature comprised of the selected features, as we'd like).
         // Also, the drag-ghost is only of the most recently selected feature--it's not capable of showing the drag-ghosts of all selected features.
-        var selected = DraggableFeatureTrack.prototype.getSelected();
+           var selected = DraggableFeatureTrack.getSelectedFeatures();
         for (var i = 0; i < selected.length; i++) {
                 var feat = selected[i];
                 console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
-                var responseFeatures;
+                var responseFeature;
 	    // creating JSON feature data struct that WebApollo server understands, based on JSON feature data struct that JBrowse understands
                 var topLevelFeature = JSONUtils.createJsonFeature(feat[fields["start"]], feat[fields["end"]], feat[fields["strand"]], "SO", "gene");
 	
                 dojo.xhrPost( {
                 	// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-                	//postData: '{ "track": "' + track.name + '", "features": [{ "location": { "fmax": ' + feat[fields["end"]] + ', "fmin": ' + feat[fields["start"]] + ', "strand": ' + feat[fields["strand"]] + ' }, "type": { "cv": {"name": "SO"}, "name": "gene" }}], "operation": "add_feature" }',
                 	postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
                 	url: "/ApolloWeb/AnnotationEditorService",
                 	handleAs: "json",
@@ -252,39 +289,15 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 }
                 });
         }
-	   DraggableFeatureTrack.prototype.clearSelection();
+//	   DraggableFeatureTrack.clearSelection();
 	   
 //      console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
     }
     });
 }
 
-/* Check whether an array includes the string in question */
-DraggableFeatureTrack.prototype.hasString = function(array, string) {
-    if (array == null)
-        return false;
-    var arr2str = array.toString();
-    if (arr2str.search(string) >= 0)
-        return true;
-    return false;
-}
-
-
-/* Change feature class name to the corresponding annot class name */
-DraggableFeatureTrack.prototype.setAnnotClassNameForFeature = function(feature) {
-    var arrList = feature.attr("class").split(' ');
-    for ( var i = 0; i < arrList.length; i++ ) {
-        var aclass = arrList[i];
-        if (aclass.match("us-")) {  // plus-* or minus-*
-            arrList[i] = aclass.replace(/us-\w+/, "us-annot");
-            feature.removeClass(aclass).addClass(arrList[i]);
-        }
-    }
-}
-
 /*
-
-Copyright (c) 2007-2011 The Evolutionary Software Foundation
+Copyright (c) 2010-2011 Berkeley Bioinformatics Open-source Projects & Lawrence Berkeley National Labs
 
 This package and its accompanying libraries are free software; you can
 redistribute it and/or modify it under the terms of the LGPL (either
