@@ -21,6 +21,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
 
     // define fields meta data
     this.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
+    this.comet_working = true;
     
 }
 
@@ -113,6 +114,7 @@ AnnotTrack.prototype.createAnnotationChangeListener = function() {
 	    // The ERROR function will be called in an error case.
 	    error: function(response, ioArgs) { // 
 	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
+		track.comet_working = false;
 	    	return response;
 	    }
 	});

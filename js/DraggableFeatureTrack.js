@@ -248,10 +248,11 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     // Note that this relies on the annotation track's name being "Annotations".  Need to make this more general.
     $("#track_Annotations").droppable({
        drop: function(ev, ui) {
+	   // within drop(), "this" is trackDiv that feature div is dropped on
 //        console.log("makeDroppable: stopped dragging");  // DEL
         DraggableFeatureTrack.setDragging(false);
-    	var track = this.track;
-    	var features = this.track.features;
+    	var track = this.track;  
+    	var features = track.features;
         // This creates a new annotation for each currently selected feature (not a multi-exon feature comprised of the selected features, as we'd like).
         // Also, the drag-ghost is only of the most recently selected feature--it's not capable of showing the drag-ghosts of all selected features.
            var selected = DraggableFeatureTrack.getSelectedFeatures();
@@ -273,12 +274,17 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 	console.log("Successfully created annotation object: " + response)
                 	// response processing is now handled by the long poll thread (when using servlet 3.0)
                 	// uncomment code to get it working with servlet 2.5
-//                	responseFeatures = responseFeatures.features;
-//                	var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
-//                	features.add(featureArray, responseFeatures[0].uniquename);
-//                	track.hideAll();
-//                	track.changed();
-//              	console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
+			    //  if comet-style long pollling is not working, then create annotations based on 
+			    //     AnnotationEditorResponse
+			    if (!track.comet_working)  {
+//                		responseFeatures = responseFeatures.features;
+                		responseFeatures = response.features;
+                		var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
+                		features.add(featureArray, responseFeatures[0].uniquename);
+                		track.hideAll();
+                		track.changed();
+              			console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
+			    }
                 },
                 // The ERROR function will be called in an error case.
                 error: function(response, ioArgs) { // 
