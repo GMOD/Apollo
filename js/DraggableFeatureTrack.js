@@ -118,9 +118,8 @@ DraggableFeatureTrack.prototype.featMouseDown = function(event) {
 	    DraggableFeatureTrack.addToSelection(featdiv);
 	}
     }
-    //    DraggableFeatureTrack.toggleSelection(featdiv);
+    event.stopPropagation();
     // This only works the SECOND time you try to drag a feature.
-    // event.stopPropagation();
     // this.makeDraggableAndDroppable(elem);
     console.log("DFT.featMouseDown: started dragging " + feat); // DEL
     DraggableFeatureTrack.setDragging(true);
@@ -152,22 +151,8 @@ DraggableFeatureTrack.prototype.featMouseUp = function(event) {
  */
 DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
     // do nothing
+    //    event.stopPropagation();
 }
-/*
-DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
-    event = event || window.event;  // window.event for IE, event for other browsers 
-    var elem = (event.target || event.srcElement);  // e.srcElement for IE, e.target for other browsers
-    // due to event bubbling, elem may be for a feature or a subfeature (assumes subfeature elems are _leaf_ divs)
-    var featdiv = this.getTopLevelFeatureDiv(elem);
-    if (featdiv === null)  { return; } //shouldn't happen; just bail if it does
-    var feat = featdiv.feature;
-    if (feat === null)  { return; } //shouldn't happen; just bail if it does
-    console.log("DFT: user clicked on draggablefeature: start = " + feat[this.fields["start"]] + ", id = " + feat[this.fields["id"]]);
-
-    // If feature was already selected, deselect it.  Otherwise, select it (add to current selected set).
-    DraggableFeatureTrack.toggleSelection(featdiv);
-};
-*/
 
 /** 
  * get highest level feature in feature hierarchy 
@@ -197,30 +182,6 @@ DraggableFeatureTrack.prototype.getLowestFeatureDiv = function(elem)  {
     }
     return elem;
 }
-
-
-/* 
- * class method
- * If elem is selected, deselect it.  Otherwise, select it.
- * Appearance of selected elements depends on ".selected-feature" style in CSS stylesheet (usually genome.css)
- *    (assumes feature div styles are entirely handled in CSS stylesheet (so not overriden by styles in code))
- */
-/*
-DraggableFeatureTrack.toggleSelection = function(featdiv) {
-    var feat = featdiv.feature || featdiv.subfeature;  // feature if assigned, otherwise subfeature
-    if (!feat)  { return; } // shouldn't happen
-
-    if (DraggableFeatureTrack.getSelected().indexOf(feat) == -1)  {
-	dojo.addClass(featdiv, "selected-feature");
-	DraggableFeatureTrack.addToSelected(feat); 
-    }
-    else  { 
-	dojo.removeClass(featdiv, "selected-feature");
-	DraggableFeatureTrack.removeFromSelected(feat);
-    }
-    //    if $(elem).hasClass("selected-feature"))  {  // start of jquery equivalent to dojo way...
-}
-*/
 
 // Make this DraggableFeatureTrack draggable
 DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
