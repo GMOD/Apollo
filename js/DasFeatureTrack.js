@@ -21,12 +21,12 @@
  */
 
 function DasFeatureTrack(trackMeta, url, refSeq, browserParams) {
-    // DraggableFeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
-    FeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
+    DraggableFeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
+    // FeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
 }
 
-// DasFeatureTrack.prototype = new DraggableFeatureTrack();
-DasFeatureTrack.prototype = new FeatureTrack();
+DasFeatureTrack.prototype = new DraggableFeatureTrack();
+//DasFeatureTrack.prototype = new FeatureTrack();
 
 DasFeatureTrack.prototype.fillBlock = function(blockIndex, block,
                                             leftBlock, rightBlock,
