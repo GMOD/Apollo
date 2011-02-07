@@ -555,7 +555,7 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 //   handle differently
 FeatureTrack.prototype.handleSubFeatures = function(feature, featDiv, 
 						    displayStart, displayEnd)  {
-    var fields = this.fields
+    var fields = this.fields;
         var featParam = {
             feature: feature,
             featDiv: featDiv,
@@ -614,7 +614,10 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
         "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
         + "top: 0px;"
         + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
+
+    subDiv.subfeature = subfeature;
     featDiv.appendChild(subDiv);
+    return subDiv;
 };
 
 /*
