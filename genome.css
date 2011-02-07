@@ -411,6 +411,7 @@ div.est-hist {
     z-index: 10;
 }
 
+/* previous annotation style -- blue fill with black border
 .plus-annot,
 .minus-annot {
     position: absolute;
@@ -422,6 +423,38 @@ div.est-hist {
     cursor: pointer;
     z-index: 100;
 }
+*/
+
+.plus-annot,
+.minus-annot {
+    position: absolute;
+    height: 4px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    background-color: #999;
+    z-index: 6;
+    min-width: 1px;
+    cursor: pointer;
+}
+
+.plus-annot-arrowhead {
+    position: absolute;
+    margin-top: -4px;
+    width: 12px;
+    height: 12px;
+    background-image: url('img/plus-transcript-head.png');
+    background-repeat: no-repeat;
+}
+
+.minus-annot-arrowhead {
+    position: absolute;
+    margin-top: -4px;
+    width: 12px;
+    height: 12px;
+    background-image: url('img/minus-transcript-head.png');
+    background-repeat: no-repeat;
+}
+
 
 .plus-dblhelix,
 .minus-dblhelix {
@@ -729,7 +762,7 @@ div.generic_parent-hist {
 
 /* to make sure selection style overrides any other styles in this stylesheet, make sure to put selection style at end */
 .selected-feature {
-    border-style: solid; 
-    border-color: red;
-    border-width: 6px; 
+    outline-style: solid; 
+    outline-color: green;
+    outline-width: 3px; 
 }
