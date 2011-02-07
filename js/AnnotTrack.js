@@ -31,6 +31,8 @@ AnnotTrack.prototype = new FeatureTrack();
 
 AnnotTrack.creation_count = 0;
 AnnotTrack.currentAnnot = null;
+AnnotTrack.USE_LOCAL_EDITS = true;
+
 
 dojo.require("dijit.Menu");
 dojo.require("dijit.MenuItem");
@@ -66,12 +68,11 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    	timeout: 5 * 1000, // Time in milliseconds
 	    	// The LOAD function will be called on a successful response.
 	    	load: function(response, ioArgs) { //
-	    	console.log("foolicious: " + response);
 	    	var responseFeatures = response.features;
 	    	for (var i = 0; i < responseFeatures.length; i++) {
 	    		var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[i]);
 	    		features.add(featureArray, responseFeatures[0].uniquename);
-	    		console.log("responseFeatures[0].uniquename: " + responseFeatures[0].uniquename);
+	    		// console.log("responseFeatures[0].uniquename: " + responseFeatures[0].uniquename);
 	    	}
     		track.hideAll();
     		track.changed();

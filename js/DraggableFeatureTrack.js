@@ -11,7 +11,6 @@ function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
 //
 }
 
-
 // Inherit from FeatureTrack
 DraggableFeatureTrack.prototype = new FeatureTrack();
 
@@ -60,8 +59,7 @@ DraggableFeatureTrack.addToSelection = function(featdiv) {
 
 /** class method */
 DraggableFeatureTrack.clearSelection = function() {
-    var idx;
-    for (idx in DraggableFeatureTrack.sel_divs)  {
+    for (var idx in DraggableFeatureTrack.sel_divs)  {
 	dojo.removeClass(DraggableFeatureTrack.sel_divs[idx], "selected-feature");
     }
     DraggableFeatureTrack.sel_divs = [];
@@ -256,6 +254,7 @@ DraggableFeatureTrack.prototype.getLowestFeatureDiv = function(elem)  {
     return elem;
 }
 
+
 // Make this DraggableFeatureTrack draggable
 DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     // Check whether we've already done it--look at class name and see if it includes "draggable-feature"
@@ -273,43 +272,71 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
             axis: 'y'      // Allow only vertical dragging
     });
     // If a selected feature is being dragged, we'll handle the drag here--don't want the drag event to go to the whole-canvas-drag handler.
-    $(".draggable-feature").bind("mousedown", function(evt) {
+  /*  GAH following is no longer necessary, event propagation is stopped in featMouseDown ??
+  $(".draggable-feature").bind("mousedown", function(evt) {
 //        console.log("makeDraggable: evt.stopPropagation.  elem.feature = " + elem.feature + ", currentSelection = " + DraggableFeatureTrack.prototype.getCurrentSelection());  // DEL
 	evt.stopPropagation();
     });
-      
-    var fields = this.fields;
-    var subFields = this.subFields;
+*/
+
+    var source_track = this;      
+    var source_fields = this.fields;
+    var source_subFields = this.subFields;
+
     // Note that this relies on the annotation track's name being "Annotations".  Need to make this more general.
     $("#track_Annotations").droppable({
-       drop: function(ev, ui) {
-	   // within drop(), "this" is trackDiv that feature div is dropped on
-//        console.log("makeDroppable: stopped dragging");  // DEL
-        DraggableFeatureTrack.setDragging(false);
-    	var track = this.track;  
-    	var features = track.features;
+	drop: function(ev, ui) {
+	    // within drop(), "this" is trackDiv that feature div is dropped on
+	    // console.log("makeDroppable: stopped dragging");  // DEL
+            DraggableFeatureTrack.setDragging(false);
+    	    var target_track = this.track;
+	   
+    	var features = target_track.features;
         // This creates a new annotation for each currently selected feature (not a multi-exon feature comprised of the selected features, as we'd like).
         // Also, the drag-ghost is only of the most recently selected feature--it's not capable of showing the drag-ghosts of all selected features.
            var selected = DraggableFeatureTrack.getSelectedFeatures();
-           for (i in selected)  {
+	   // New Plan: for each entry in selected, entry = { "feature" : feature, "div" : featDiv, "track" : track }
+	   
+           for (var i in selected)  {
             var feat = selected[i];
-            console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
+	       console.log("old feature: ");
+	       console.log(feat);
+
+	       if (AnnotTrack.USE_LOCAL_EDITS)  {
+		   var newfeat = JSONUtils.convertToTrack(feat, source_track, target_track);
+		   // vare newfeat = convertToTrack(feat, selection.track, target_track);
+		   var id = newfeat[target_track.fields["id"]];
+		   if (id && id != null)  {
+		       id = id + "_annot_" + AnnotTrack.creation_count++;
+		   }
+		   else  {
+		       id = "annot_" + AnnotTrack.creation_count++;
+		   }
+		   newfeat[target_track.fields["id"]] = id;
+		   newfeat[target_track.fields["name"]] = id;
+		   console.log("new feature: ");
+		   console.log(newfeat);
+		   features.add(newfeat, id);
+		   target_track.hideAll();
+		   target_track.changed();
+	       }
+	       else  {
             var responseFeature;
 	    // creating JSON feature data struct that WebApollo server understands, based on JSON feature data struct that JBrowse understands
-            var topLevelFeature = JSONUtils.createJsonFeature(feat[fields["start"]], feat[fields["end"]], feat[fields["strand"]], "SO", "gene");
+            var topLevelFeature = JSONUtils.createJsonFeature(feat[source_fields["start"]], feat[source_fields["end"]], feat[source_fields["strand"]], "SO", "gene");
 	    //console.log("createJsonFeature: " + topLevelFeature);
 	    console.log("createJsonFeature: ");
 	    console.log(topLevelFeature);
-	    var testFeature = JSONUtils.createApolloFeature(feat, fields, subFields, "transcript");
+	    var testFeature = JSONUtils.createApolloFeature(feat, source_fields, source_subFields, "transcript");
 	    console.log("createApolloFeature: ");
 	    console.log(testFeature);
-	    console.log(fields);
+	    console.log(source_fields);
 	
                 dojo.xhrPost( {
                     // "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
                     // postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
                     // postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(testFeature) + '], "operation": "add_transcript" }',
-                    postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(testFeature) + '], "operation": "add_feature" }',
+                    postData: '{ "track": "' + target_track.name + '", "features": [ ' + JSON.stringify(testFeature) + '], "operation": "add_feature" }',
                 	url: "/ApolloWeb/AnnotationEditorService",
                 	handleAs: "json",
                 	timeout: 5000, // Time in milliseconds
@@ -320,11 +347,11 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 	// uncomment code to get it working with servlet 2.5
 			    //  if comet-style long pollling is not working, then create annotations based on 
 			    //     AnnotationEditorResponse
-			    if (!track.comet_working)  {
+			    if (!target_track.comet_working)  {
                			// responseFeatures = responseFeatures.features;
                 		responseFeatures = response.features;
 				/*
-				for (j in responseFeatures)  {
+				for (var j in responseFeatures)  {
 				    var newfeat = JSONUtils.createJBrowseFeature(responseFeatures[i], fields);
 				    features.add(newfeat, newfeat.id);
 				} 
@@ -332,9 +359,9 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 				var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
 				features.add(featureArray, responseFeatures[0].uniquename);
 
-                		track.hideAll();
-                		track.changed();
-              			console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
+                		target_track.hideAll();
+                		target_track.changed();
+              			// console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
 			    }
                 },
                 // The ERROR function will be called in an error case.
@@ -345,13 +372,16 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
                 	return response;
                 }
                 });
-        }
+	       }
+           }
 //	   DraggableFeatureTrack.clearSelection();
 	   
 //      console.log("itemDragged: " + newAnnot); //  + ", pos.left = " + pos.left + ", pos.top = " + pos.top + ", width = " + ui.draggable.width());
-    }
+    } 
     });
 }
+
+
 
 /*
 Copyright (c) 2010-2011 Berkeley Bioinformatics Open-source Projects & Lawrence Berkeley National Labs
