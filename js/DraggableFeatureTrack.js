@@ -7,6 +7,7 @@ function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.mouseOverFeat = function(event)  {thisObj.featMouseOver(event);}
     this.mouseDownFeat = function(event)  {thisObj.featMouseDown(event);}
     this.mouseUpFeat = function(event)  {thisObj.featMouseUp(event);}
+    this.mouseDoubleClickFeat = function(event) {thisObj.featDoubleClick(event); }
 //
 }
 
@@ -33,11 +34,28 @@ DraggableFeatureTrack.isDragging = function() {
 DraggableFeatureTrack.addToSelection = function(featdiv) {  
     // Check if it's already in the selected array before adding it
     if (DraggableFeatureTrack.sel_divs.indexOf(featdiv) == -1)  {
-        DraggableFeatureTrack.sel_divs.push(featdiv);
-	DraggableFeatureTrack.sel_features.push(featdiv.feature);
-	dojo.addClass(featdiv, "selected-feature");
+	if (featdiv.feature || featdiv.subfeature)  {
+	    console.log("addToSelection ");
+            console.log(featdiv);
+            DraggableFeatureTrack.sel_divs.push(featdiv);
+	    if (featdiv.feature)  {
+	    DraggableFeatureTrack.sel_features.push(featdiv.feature);
+	    console.log("add feature to selection");
+	    console.log(featdiv.feature);
+	    }
+	    else if (featdiv.subfeature)  {
+		DraggableFeatureTrack.sel_features.push(featdiv.subfeature);
+		console.log("add subfeature to selection");
+		console.log(featdiv.subfeature);
+	    }
+	    dojo.addClass(featdiv, "selected-feature");
+	}
+	else {
+	    console.log("no feature or subfeature associated with div: ");
+	    console.log(featdiv);
+	}
     }
-    console.log("addToSelection " + featdiv);
+
 }
 
 /** class method */
@@ -80,10 +98,26 @@ DraggableFeatureTrack.prototype.renderFeature = function(feature, uniqueId, bloc
                                                 containerStart, containerEnd) {
     var featDiv = FeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
                                                             containerStart, containerEnd);
-    featDiv.onmouseover = this.mouseOverFeat;
-    featDiv.onmousedown = this.mouseDownFeat;
-    featDiv.onmouseup = this.mouseUpFeat;
+    if (featDiv)  {  // just in case featDiv doesn't actually get created
+	featDiv.onmouseover = this.mouseOverFeat;
+	featDiv.onmousedown = this.mouseDownFeat;
+	featDiv.onmouseup = this.mouseUpFeat;
+	featDiv.ondblclick = this.mouseDoubleClickFeat;
+    }
     return featDiv;
+}
+
+DraggableFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
+							    displayStart, displayEnd) {
+    var subFeatDiv = FeatureTrack.prototype.renderSubfeature.call(this, feature, featDiv, subfeature, 
+								  displayStart, displayEnd);
+    if (subFeatDiv)  {  // just in case subFeatDiv doesn't actually get created
+	subFeatDiv.onmouseover = this.mouseOverFeat;
+	subFeatDiv.onmousedown = this.mouseDownFeat;
+	subFeatDiv.onmouseup = this.mouseUpFeat;
+	subFeatDiv.ondblclick = this.mouseDoubleClickFeat;
+    }
+    return subFeatDiv;
 }
 
 /* 
@@ -101,8 +135,11 @@ DraggableFeatureTrack.prototype.featMouseDown = function(event) {
     event = event || window.event;
     var elem = (event.currentTarget || event.srcElement);
     // if (!elem.feature) elem = elem.parentElement;
-    var featdiv = this.getTopLevelFeatureDiv(elem);
+//    var featdiv = this.getTopLevelFeatureDiv(elem);
+    var featdiv = this.getLowestFeatureDiv(elem);
     var feat = featdiv.feature;
+    if (feat)  { feat.isSubFeature = false; }
+    else  { feat = featdiv.subfeature; feat.isSubFeature = true; }
     var already_selected = (DraggableFeatureTrack.getSelectedDivs().indexOf(featdiv) > -1);
     if (event.shiftKey)  {
 	if (already_selected) {
@@ -125,6 +162,10 @@ DraggableFeatureTrack.prototype.featMouseDown = function(event) {
     DraggableFeatureTrack.setDragging(true);
 }
 
+DraggableFeatureTrack.prototype.featDoubleClick = function(event)  {
+    // prevent event bubbling up to genome view and triggering zoom
+    event.stopPropagation();
+}
 
 /*  GAH should switch to using dojo.connect or dojo.fixEvent for normalized events, so can remove IE specific code */
 DraggableFeatureTrack.prototype.featMouseOver = function(event) {
@@ -134,7 +175,8 @@ DraggableFeatureTrack.prototype.featMouseOver = function(event) {
     }
     event = event || window.event;
     var elem = (event.target || event.srcElement);
-    var featdiv = this.getTopLevelFeatureDiv(elem);
+    // var featdiv = this.getTopLevelFeatureDiv(elem);
+    var featdiv = this.getLowestFeatureDiv(elem);
     if (featdiv === null) return; //shouldn't happen; just bail if it does
 //    console.log("DFT.featMouseOver on draggablefeature " + featdiv.feature + ", elem.className = " + featdiv.className + ", event = " + event);  
     // Make this feature draggable & droppable
@@ -146,12 +188,15 @@ DraggableFeatureTrack.prototype.featMouseUp = function(event) {
 //    console.log("DFT.onMouseup: stopped dragging");  // DEL
 }
 
+
+
+
 /**
- *  feature click no-op (to override FeatureTrack.onFetureClick, which conflicts with mouse-down selection
+ *  feature click no-op (to override FeatureTrack.onFeatureClick, which conflicts with mouse-down selection
  */
 DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
     // do nothing
-    //    event.stopPropagation();
+    //   event.stopPropagation();
 }
 
 /** 
@@ -165,7 +210,7 @@ DraggableFeatureTrack.prototype.onFeatureClick = function(event) {
 DraggableFeatureTrack.prototype.getTopLevelFeatureDiv = function(elem)  {
     while (!elem.feature)  {
 	elem = elem.parentNode;
-	if (elem === document)  { return null; } 
+	if (elem === document)  {return null;} 
     }
     // found a feature, now crawl up hierarchy till top feature (feature with no parent feature)
     while (elem.parentNode.feature)  {
@@ -174,11 +219,17 @@ DraggableFeatureTrack.prototype.getTopLevelFeatureDiv = function(elem)  {
     return elem;
 }
 
-/** returns first feature or subfeature div found when crawling towards root from branch in feature/subfeature/descendants div hierachy  */
+/** returns parent feature div of subfeature div */
+DraggableFeatureTrack.prototype.getParentFeatureDiv = function(elem)  {
+    elem = elem.parentNode;
+    return DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
+}
+
+/** returns first feature or subfeature div (including itself) found when crawling towards root from branch in feature/subfeature/descendants div hierachy  */
 DraggableFeatureTrack.prototype.getLowestFeatureDiv = function(elem)  {
     while (!elem.feature && !elem.subfeature)  {
 	elem = elem.parentNode;
-	if (elem === document)  { return null; } 
+	if (elem === document)  {return null;} 
     }
     return elem;
 }
@@ -206,6 +257,7 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
     });
       
     var fields = this.fields;
+    var subFields = this.subFields;
     // Note that this relies on the annotation track's name being "Annotations".  Need to make this more general.
     $("#track_Annotations").droppable({
        drop: function(ev, ui) {
@@ -217,16 +269,25 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
         // This creates a new annotation for each currently selected feature (not a multi-exon feature comprised of the selected features, as we'd like).
         // Also, the drag-ghost is only of the most recently selected feature--it's not capable of showing the drag-ghosts of all selected features.
            var selected = DraggableFeatureTrack.getSelectedFeatures();
-        for (var i = 0; i < selected.length; i++) {
-                var feat = selected[i];
-                console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
-                var responseFeature;
+           for (i in selected)  {
+            var feat = selected[i];
+            console.log("Creating new annotation for feature " + i + ": " + feat); // DEL
+            var responseFeature;
 	    // creating JSON feature data struct that WebApollo server understands, based on JSON feature data struct that JBrowse understands
-                var topLevelFeature = JSONUtils.createJsonFeature(feat[fields["start"]], feat[fields["end"]], feat[fields["strand"]], "SO", "gene");
+            var topLevelFeature = JSONUtils.createJsonFeature(feat[fields["start"]], feat[fields["end"]], feat[fields["strand"]], "SO", "gene");
+	    //console.log("createJsonFeature: " + topLevelFeature);
+	    console.log("createJsonFeature: ");
+	    console.log(topLevelFeature);
+	    var testFeature = JSONUtils.createApolloFeature(feat, fields, subFields, "transcript");
+	    console.log("createApolloFeature: ");
+	    console.log(testFeature);
+	    console.log(fields);
 	
                 dojo.xhrPost( {
-                	// "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
-                	postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
+                    // "http://10.0.1.24:8080/ApolloWeb/Login?username=foo&password=bar" to login
+                    // postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(topLevelFeature) + '], "operation": "add_feature" }',
+                    // postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(testFeature) + '], "operation": "add_transcript" }',
+                    postData: '{ "track": "' + track.name + '", "features": [ ' + JSON.stringify(testFeature) + '], "operation": "add_feature" }',
                 	url: "/ApolloWeb/AnnotationEditorService",
                 	handleAs: "json",
                 	timeout: 5000, // Time in milliseconds
@@ -238,10 +299,17 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 			    //  if comet-style long pollling is not working, then create annotations based on 
 			    //     AnnotationEditorResponse
 			    if (!track.comet_working)  {
-//                		responseFeatures = responseFeatures.features;
+               			// responseFeatures = responseFeatures.features;
                 		responseFeatures = response.features;
-                		var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
-                		features.add(featureArray, responseFeatures[0].uniquename);
+				/*
+				for (j in responseFeatures)  {
+				    var newfeat = JSONUtils.createJBrowseFeature(responseFeatures[i], fields);
+				    features.add(newfeat, newfeat.id);
+				} 
+				*/ 
+				var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
+				features.add(featureArray, responseFeatures[0].uniquename);
+
                 		track.hideAll();
                 		track.changed();
               			console.log("DFT: responseFeatures[0].uniquename = " + responseFeatures[0].uniquename);
