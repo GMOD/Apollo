@@ -50,11 +50,8 @@ JSONUtils.createApolloFeature = function(jfeature, fields, subfields, specified_
 	afeature.type = { "cv": { "name": "SO" }};
 	afeature.type.name = typename;
     }
-    console.log("subfeatures: " + fields["subfeatures"]);
     if (fields["subfeatures"])  {
-	console.log("found subfeatures field");
 	var subfeats = jfeature[fields["subfeatures"]];
-	console.log(subfeats);
 	// GAH TODO: get this working for lazy-loaded subfeatures 
 	// lazy-loaded subfeatures will only have single-valued index into LazyArray, rather than an actual array
 	//    currently detecting for this and bailing on children if no array found
@@ -80,3 +77,45 @@ JSONUtils.createJBrowseFeature = function(apollo_feature, fields)  {
     
 }
 */
+
+/*
+*  takes a feature from a source_track and returns equivalent feature for a target_track, 
+*       based on inspection of feature fields and subfields
+*  only doing data conversion:
+*       returned feature is _not_ added to target_track (if desired, must do elsewhere)
+*       no rendering or div creation
+*
+*  GAH TODO:  need to make this more generic 
+*       maybe loop through all fields of newfeat, populate any that have corresponding fields in feat, 
+*          if no corresponding field then set to null (or undefined?)
+*/
+JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
+    var newfeat = new Array();
+    var source_fields = source_track.fields;
+    var source_subfields = source_track.subFields;
+    var target_fields = target_track.fields;
+    var target_subfields = target_track.subFields;
+    
+    newfeat[target_fields["start"]] = feat[source_fields["start"]];
+    newfeat[target_fields["end"]] = feat[source_fields["end"]];
+    newfeat[target_fields["strand"]] = feat[source_fields["strand"]];
+    if (target_fields["id"])  { newfeat[target_fields["id"]] = feat[source_fields["id"]]; }
+    if (target_fields["name"])  { newfeat[target_fields["name"]] = feat[source_fields["id"]]; } // assign ID to name
+    if (target_fields["subfeatures"] && source_fields["subfeatures"])   { 
+	var newsubfeats = new Array();
+	var subfeats = feat[source_fields["subfeatures"]];
+	if (subfeats)  {
+	    for (var i in subfeats)  {
+		var oldsub = subfeats[i];
+		var newsub = new Array();
+		newsub[target_subfields["start"]] = oldsub[source_subfields["start"]];
+		newsub[target_subfields["end"]] = oldsub[source_subfields["end"]];
+		newsub[target_subfields["strand"]] = oldsub[source_subfields["strand"]];
+		newsub[target_subfields["type"]] = oldsub[source_subfields["type"]];
+		newsubfeats[i] = newsub;
+	    }
+	}
+	newfeat[target_fields["subfeatures"]]  = newsubfeats;
+    }
+    return newfeat;
+}
