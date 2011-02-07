@@ -38,6 +38,16 @@ LazyArray.prototype.index = function(i, callback, param) {
     this.range(i, i, callback, undefined, param);
 };
 
+/* 
+*  retrieve LazyArray entry at a specific index
+*/
+/*
+LazyArray.prototype.get = function(index)  {
+    var chunkIndex = Math.floor(index / this.chunkSize());
+    
+}
+*/
+
 /**
  * call the callback on each element in the range [start, end]
  * @param start index of first element to call the callback on
