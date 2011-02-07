@@ -106,6 +106,9 @@ AnnotTrack.prototype.createAnnotationChangeListener = function() {
     			var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
     			var id = responseFeatures[0].uniquename;
     			if (features.featIdMap[id] == null) {
+			    // note that proper handling of subfeatures requires annotation trackData.json resource to 
+			    //    set sublistIndex one past last feature array index used by other fields 
+			    //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
     				features.add(featureArray, id);
     				track.hideAll();
     				track.changed();
