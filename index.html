@@ -8,17 +8,20 @@
     <title>Apollo 2 JBrowse</title>
     <link rel="stylesheet" type="text/css" href="jslib/dijit/themes/tundra/tundra.css"></link>
     <link rel="stylesheet" type="text/css" href="jslib/dojo/resources/dojo.css"></link>
-    <link rel="stylesheet" type="text/css" href="genome.css"></link>
-
-    <style type="text/css">
+  <!-- need jqueryui theme for resizable, etc. --> 
+    <link rel="stylesheet" type="text/css" 
+     href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/base/jquery-ui.css"/>
+   <style type="text/css">
       html, body { height: 100%; width: 100%; padding: 0; border: 0; }
     </style>
+    <link rel="stylesheet" type="text/css" href="genome.css"></link>
 
-<!--
-<script src="http://o.aolcdn.com/dojo/1.5/dojo/dojo.xd.js" type="text/javascript"></script>
--->
+<!-- <script src="http://o.aolcdn.com/dojo/1.5/dojo/dojo.xd.js"
+type="text/javascript"></script> -->
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js" djConfig="isDebug: true"></script>
+<!-- <script type="text/javascript"
+src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dojo/dojo.xd.js"
+djConfig="isDebug: true"></script> -->
 <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/dijit.js"></script> -->
 
 
@@ -30,12 +33,10 @@
     <!-- JQuery -->
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
     <script type="text/javascript">
-	google.load("jquery", "1");
-	google.load("jqueryui", "1");
-//	google.load("dojo", "1.5");
-//	google.load("dijit", "1.5");
-	-->
-    </script>
+	google.load("jquery", "1.5");
+	google.load("jqueryui", "1.8.9");
+	google.load("dojo", "1.5");
+   </script>
 
     <script type="text/javascript" src="js/Browser.js"></script>
     <script type="text/javascript" src="js/Util.js"></script>
