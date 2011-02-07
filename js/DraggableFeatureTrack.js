@@ -165,6 +165,28 @@ DraggableFeatureTrack.prototype.featMouseDown = function(event) {
 DraggableFeatureTrack.prototype.featDoubleClick = function(event)  {
     // prevent event bubbling up to genome view and triggering zoom
     event.stopPropagation();
+
+    event = event || window.event;
+    var elem = (event.target || event.srcElement);
+    var featdiv = this.getLowestFeatureDiv(elem);
+    // only take action on double-click for subfeatures 
+    //  (but stop propagation for both features and subfeatures)
+    // GAH TODO:  make this work for feature hierarchies > 2 levels deep
+    if (featdiv.subfeature)  {   
+	var already_selected = (DraggableFeatureTrack.getSelectedDivs().indexOf(featdiv) > -1);
+	// if subfeature already selected, deselect 
+	if (already_selected)  { 
+	    DraggableFeatureTrack.removeFromSelection(featdiv);
+	}
+	// select parent feature
+	var parent_feat_div = this.getParentFeatureDiv(featdiv);
+	if (parent_feat_div !== null)  {
+	    DraggableFeatureTrack.addToSelection(parent_feat_div);
+	    // deselect all children of parent feature??  
+	    // regardless of whether shift-modifier or not???
+	}
+    }
+
 }
 
 /*  GAH should switch to using dojo.connect or dojo.fixEvent for normalized events, so can remove IE specific code */
