@@ -7,7 +7,7 @@ function DraggableFeatureTrack(trackMeta, url, refSeq, browserParams) {
     this.mouseOverFeat = function(event)  {thisObj.featMouseOver(event);}
     this.mouseDownFeat = function(event)  {thisObj.featMouseDown(event);}
     this.mouseUpFeat = function(event)  {thisObj.featMouseUp(event);}
-    this.mouseDoubleClickFeat = function(event) {thisObj.featDoubleClick(event); }
+    this.mouseDoubleClickFeat = function(event) {thisObj.featDoubleClick(event);}
 //
 }
 
@@ -99,6 +99,13 @@ DraggableFeatureTrack.prototype.renderFeature = function(feature, uniqueId, bloc
     if (featDiv)  {  // just in case featDiv doesn't actually get created
 	featDiv.onmouseover = this.mouseOverFeat;
 	featDiv.onmousedown = this.mouseDownFeat;
+/*	$(featDiv).one("mousedown", function(event)  {
+	    console.log("trying oneoff binding");
+	    console.log(this);
+	    event.stopPropagation();
+	    $(this).draggable().trigger(event);
+	} );
+*/
 	featDiv.onmouseup = this.mouseUpFeat;
 	featDiv.ondblclick = this.mouseDoubleClickFeat;
     }
@@ -129,33 +136,64 @@ DraggableFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, su
  *  shift-mouse-down on selected feature -- remove feature from selection
  *  shift-mouse-down on "empty" area -- no change to selection
   */
+
 DraggableFeatureTrack.prototype.featMouseDown = function(event) {
+    var orig_event = event;
     event = event || window.event;
     var elem = (event.currentTarget || event.srcElement);
     // if (!elem.feature) elem = elem.parentElement;
 //    var featdiv = this.getTopLevelFeatureDiv(elem);
     var featdiv = this.getLowestFeatureDiv(elem);
     var feat = featdiv.feature;
-    if (feat)  { feat.isSubFeature = false; }
-    else  { feat = featdiv.subfeature; feat.isSubFeature = true; }
+    if (feat)  {feat.isSubFeature = false;}
+    else  {feat = featdiv.subfeature;feat.isSubFeature = true;}
     var already_selected = (DraggableFeatureTrack.getSelectedDivs().indexOf(featdiv) > -1);
+    var parent_featdiv = this.getParentFeatureDiv(featdiv);
+    var parent_selected = false;
+    if (parent_featdiv && parent_featdiv !== null)  {
+	parent_selected = (DraggableFeatureTrack.getSelectedDivs().indexOf(parent_featdiv) > -1);
+    }
     if (event.shiftKey)  {
 	if (already_selected) {
 	    DraggableFeatureTrack.removeFromSelection(featdiv);
 	}
 	else  {
-            DraggableFeatureTrack.addToSelection(featdiv);
+	    if (parent_selected)  {  // if parent selected, deselect parent
+		DraggableFeatureTrack.removeFromSelection(parent_featdiv);
+	    }
+	    if (! parent_selected)  {  // if neither child nor parent already selected, select child
+		DraggableFeatureTrack.addToSelection(featdiv);
+	    }
 	}
     }
     else  {
 	if (!already_selected)  {
-	    DraggableFeatureTrack.clearSelection();
-	    DraggableFeatureTrack.addToSelection(featdiv);
+	    if (! parent_selected)  {  // if parent selected, do nothing
+		DraggableFeatureTrack.clearSelection();
+		DraggableFeatureTrack.addToSelection(featdiv);
+	    }
 	}
     }
-    event.stopPropagation();
+
     // This only works the SECOND time you try to drag a feature.
-    // this.makeDraggableAndDroppable(elem);
+
+//    this.makeDraggableAndDroppable(elem, event);
+
+/*    if (!dojo.hasClass(featdiv, "ui-draggable"))  {
+	    $(featdiv).draggable().trigger(event);
+    }
+*/
+/*    if (!dojo.hasClass(featdiv, "ui-draggable"))  {
+	$(featdiv).one("mousedown", function(down_event)  {
+	    console.log("trying oneoff binding");
+	    console.log(this);
+	    down_event.stopPropagation();
+	    $(this).draggable().trigger(down_event);
+	} );
+    }
+*/
+    event.stopPropagation();
+
     console.log("DFT.featMouseDown: started dragging " + feat); // DEL
     DraggableFeatureTrack.setDragging(true);
 }
@@ -177,9 +215,9 @@ DraggableFeatureTrack.prototype.featDoubleClick = function(event)  {
 	    DraggableFeatureTrack.removeFromSelection(featdiv);
 	}
 	// select parent feature
-	var parent_feat_div = this.getParentFeatureDiv(featdiv);
-	if (parent_feat_div !== null)  {
-	    DraggableFeatureTrack.addToSelection(parent_feat_div);
+	var parent_featdiv = this.getParentFeatureDiv(featdiv);
+	if (parent_featdiv !== null)  {
+	    DraggableFeatureTrack.addToSelection(parent_featdiv);
 	    // deselect all children of parent feature??  
 	    // regardless of whether shift-modifier or not???
 	}
@@ -188,6 +226,7 @@ DraggableFeatureTrack.prototype.featDoubleClick = function(event)  {
 }
 
 /*  GAH should switch to using dojo.connect or dojo.fixEvent for normalized events, so can remove IE specific code */
+// DraggableFeatureTrack.prototype.featMouseOver = function(event) {  }
 DraggableFeatureTrack.prototype.featMouseOver = function(event) {
     if (DraggableFeatureTrack.isDragging()) {
 //        console.log("DFT.featMouseOver: already dragging"); // DEL
@@ -207,7 +246,7 @@ DraggableFeatureTrack.prototype.featMouseUp = function(event) {
      DraggableFeatureTrack.setDragging(false); 
 //    console.log("DFT.onMouseup: stopped dragging");  // DEL
 }
-
+// */
 
 
 
@@ -305,13 +344,10 @@ DraggableFeatureTrack.prototype.makeDraggableAndDroppable = function(elem) {
 	       if (AnnotTrack.USE_LOCAL_EDITS)  {
 		   var newfeat = JSONUtils.convertToTrack(feat, source_track, target_track);
 		   // vare newfeat = convertToTrack(feat, selection.track, target_track);
-		   var id = newfeat[target_track.fields["id"]];
-		   if (id && id != null)  {
-		       id = id + "_annot_" + AnnotTrack.creation_count++;
-		   }
-		   else  {
-		       id = "annot_" + AnnotTrack.creation_count++;
-		   }
+		   //		   var id = newfeat[target_track.fields["id"]];
+		   var id = "annot_" + AnnotTrack.creation_count++; 
+		   //		   if (id && id != null)  { id = id + "_annot_" + AnnotTrack.creation_count++; }
+		   //		   else  { id = "annot_" + AnnotTrack.creation_count++; }
 		   newfeat[target_track.fields["id"]] = id;
 		   newfeat[target_track.fields["name"]] = id;
 		   console.log("new feature: ");
