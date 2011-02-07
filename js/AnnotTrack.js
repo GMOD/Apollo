@@ -24,6 +24,8 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     this.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
     this.comet_working = true;
     this.remote_edit_working = true;
+
+    this.mouseDownAnnot = function(event)  {thisObj.annotMouseDown(event);}
 }
 
 // Inherit from FeatureTrack
@@ -149,7 +151,51 @@ AnnotTrack.prototype.handleSubFeatures = function(feature, featDiv,
     }
 }
 
+AnnotTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
+                                                   displayStart, displayEnd) {
+    var subdiv = FeatureTrack.prototype.renderSubfeature.call(this, feature, featDiv, subfeature, 
+							      displayStart, displayEnd);
+    subdiv.onmousedown = this.annotMouseDown;
+}
 
+AnnotTrack.prototype.annotMouseDown = function(event)  {
+    event = event || window.event;
+    var elem = (event.currentTarget || event.srcElement);
+    var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
+    if (featdiv && (featdiv != null))  {
+	if (dojo.hasClass(featdiv, "ui-resizable"))  {
+	    console.log("already resizable");
+	    console.log(featdiv);
+	}
+	else {
+	    console.log("making annotation resizable");
+	    console.log(featdiv);
+	    $(featdiv).resizable( { handles: "e, w", 
+				    helper: "ui-resizable-helper" } );
+//				    opacity: 0.5 } );
+				    // ghost: true } );
+	    
+	}
+    }
+    event.stopPropagation();
+}
+
+/**
+ *  feature click no-op (to override FeatureTrack.onFeatureClick, which conflicts with mouse-down selection
+ */
+AnnotTrack.prototype.onFeatureClick = function(event) {
+    console.log("in AnnotTrack.onFeatureClick");
+    event = event || window.event;
+    var elem = (event.currentTarget || event.srcElement);
+    var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
+    if (featdiv && (featdiv != null))  {
+	console.log(featdiv);
+    }
+
+    // do nothing
+    //   event.stopPropagation();
+
+}
 
 /*
 Copyright (c) 2010-2011 Berkeley Bioinformatics Open Projects (BBOP)
