@@ -15,10 +15,11 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
   FeatureTrack.call(this, trackMeta, url, refSeq, browserParams);
 
     var thisObj = this;
+/*
     this.subfeatureCallback = function(i, val, param) {
         thisObj.renderSubfeature(param.feature, param.featDiv, val);
     };
-
+*/
     // define fields meta data
     this.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
     this.comet_working = true;
@@ -133,6 +134,17 @@ AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     // console.log("added context menu to featdiv: ", uniqueId);
     return featDiv;
 }
+
+/** AnnotTrack subfeatures are similar to DAS subfeatures, so handled similarly */
+AnnotTrack.prototype.handleSubFeatures = function(feature, featDiv, 
+						     displayStart, displayEnd)  {
+    var subfeatures = this.fields["subfeatures"];
+    for (var i = 0; i < feature[subfeatures].length; i++) {
+	var subfeature = feature[subfeatures][i];
+	this.renderSubfeature(feature, featDiv, subfeature, displayStart, displayEnd);
+    }
+}
+
 
 
 /*
