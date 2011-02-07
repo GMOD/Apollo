@@ -15,14 +15,18 @@
       html, body { height: 100%; width: 100%; padding: 0; border: 0; }
     </style>
 
-    <script type="text/javascript" src="../../../jslib/dojo/dojo.js" djConfig="isDebug: false"></script>
-    <script type="text/javascript" src="../../../jslib/dojo/jbrowse_dojo.js" ></script>
+<!--    <script type="text/javascript"
+src="../../../jslib/dojo/dojo.js" djConfig="isDebug: false"></script> -->
+<!--    <script type="text/javascript"
+src="../../../jslib/dojo/jbrowse_dojo.js" ></script> -->
+
 
     <!-- JQuery -->
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
     <script type="text/javascript">
       google.load("jquery", "1");
       google.load("jqueryui", "1");
+      google.load("dojo", "1.5");
     </script>
     <link rel="stylesheet" type="text/css" href="../../../jqueryui.css" media="all" />
 
@@ -35,9 +39,9 @@
     <script type="text/javascript" src="../../../js/SequenceTrack.js"></script>
     <script type="text/javascript" src="../../../js/Layout.js"></script>
     <script type="text/javascript" src="../../../js/FeatureTrack.js"></script>
-    <script type="text/javascript" src="../../../js/DasFeatureTrack.js"></script>
     <script type="text/javascript" src="../../../js/DraggableFeatureTrack.js"></script>
-    <script type="text/javascript" src="../../../js/AnnotTrack.js"></script>
+    <script type="text/javascript" src="../../../js/DasFeatureTrack.js"></script>
+   <script type="text/javascript" src="../../../js/AnnotTrack.js"></script>
     <script type="text/javascript" src="../../../js/UITracks.js"></script>
     <script type="text/javascript" src="../../../js/ImageTrack.js"></script>
     <script type="text/javascript" src="../../../js/GenomeView.js"></script>
