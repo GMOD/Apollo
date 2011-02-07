@@ -22,7 +22,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     // define fields meta data
     this.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
     this.comet_working = true;
-    
+    this.remote_edit_working = true;
 }
 
 // Inherit from FeatureTrack
@@ -40,8 +40,8 @@ var annot_context_menu;
 dojo.addOnLoad( function()  {
     annot_context_menu = new dijit.Menu({});
     annot_context_menu.addChild(new dijit.MenuItem( 
-	{ label: "Delete", 
-	   // onclick: AnnotTrack.deleteCurrentAnnotation()
+	{ label: "Delete" 
+	   // , onclick: AnnotTrack.deleteCurrentAnnotation()
 	}
     ));
     annot_context_menu.addChild(new dijit.MenuItem( 
@@ -79,7 +79,8 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	    error: function(response, ioArgs) { // 
 	    	console.log("Annotation server error--maybe you forgot to login to the server?")
 	    	console.error("HTTP status code: ", ioArgs.xhr.status); //
-	    	//dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //  
+	    	//dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; // 
+		track.remote_edit_working = false;
 	    	return response; // 
 	    }
 	});
