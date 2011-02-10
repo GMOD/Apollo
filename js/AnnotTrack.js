@@ -21,12 +21,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     };
 */
     // define fields meta data
-    this.fields = {
-	"start": 0,
-	"end": 1,
-	"strand": 2,
-	"name": 3
-    };
+    this.fields = AnnotTrack.fields;
     this.comet_working = true;
     this.remote_edit_working = true;
 
@@ -40,8 +35,9 @@ AnnotTrack.prototype = new FeatureTrack();
 
 AnnotTrack.creation_count = 0;
 AnnotTrack.currentAnnot = null;
+AnnotTrack.selectedFeatures = [];
 AnnotTrack.USE_LOCAL_EDITS = false;
-
+AnnotTrack.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
 
 dojo.require("dijit.Menu");
 dojo.require("dijit.MenuItem");
@@ -51,15 +47,17 @@ var annot_context_menu;
 
 dojo.addOnLoad( function()  {
     annot_context_menu = new dijit.Menu({});
-    annot_context_menu.addChild(new dijit.MenuItem( 
+    annot_context_menu.addChild(new dijit.MenuItem(
     {
-	label: "Delete"
-    // , onclick: AnnotTrack.deleteCurrentAnnotation()
+    	label: "Delete",
+    	onClick: function() {
+    		AnnotTrack.deleteSelectedFeatures();
+        }
     }
     ));
     annot_context_menu.addChild(new dijit.MenuItem( 
     {
-	label: "..."
+    	label: "..."
     }
     ));
     annot_context_menu.startup();
@@ -117,20 +115,28 @@ AnnotTrack.prototype.createAnnotationChangeListener = function() {
 	// The LOAD function will be called on a successful response.
 	load: function(response, ioArgs) {
 	    if (response.operation == "ADD") {
-		var responseFeatures = response.features;
-//		var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
-		var featureArray = JSONUtils.createJBrowseFeature(responseFeatures[0], track.fields, track.subFields);
+	    	var responseFeatures = response.features;
+//	    	var featureArray = JSONUtils.convertJsonToFeatureArray(responseFeatures[0]);
+	    	var featureArray = JSONUtils.createJBrowseFeature(responseFeatures[0], track.fields, track.subFields);
 
-		var id = responseFeatures[0].uniquename;
-		if (features.featIdMap[id] == null) {
-		    // note that proper handling of subfeatures requires annotation trackData.json resource to
-		    //    set sublistIndex one past last feature array index used by other fields
-		    //    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
-		    features.add(featureArray, id);
-		    track.hideAll();
-		    track.changed();
-		}
+	    	var id = responseFeatures[0].uniquename;
+	    	if (features.featIdMap[id] == null) {
+	    		// note that proper handling of subfeatures requires annotation trackData.json resource to
+	    		//    set sublistIndex one past last feature array index used by other fields
+	    		//    (currently Annotations always have 6 fields (0-5), so sublistIndex = 6
+	    		features.add(featureArray, id);
+	    	}
 	    }
+		else if (response.operation == "DELETE") {
+
+			var responseFeatures = response.features;
+                        for (var i = 0; i < responseFeatures.length; ++i) {
+                              var id_to_delete = responseFeatures[i].uniquename;
+                              features.delete(id_to_delete);
+			}
+		}
+		track.hideAll();
+		track.changed();
 	    track.createAnnotationChangeListener();
 	},
 	// The ERROR function will be called in an error case.
@@ -150,6 +156,7 @@ AnnotTrack.annot_under_mouse = null;
  */
 AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     containerStart, containerEnd) {
+	var track = this;
     var featDiv = FeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
 	containerStart, containerEnd);
     if (featDiv && featDiv != null)  {
@@ -166,7 +173,26 @@ AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 	  AnnotTrack.annot_under_mouse = null;
 	} );
       // console.log("added context menu to featdiv: ", uniqueId);
-      $(featDiv).droppable(  {
+    dojo.connect(featDiv, "oncontextmenu", this, function(e) {
+    	if (AnnotTrack.selectedFeatures.length == 1) {
+    		AnnotTrack.selectedFeatures = [];
+    	}
+    	AnnotTrack.selectedFeatures.push([feature, track.name]);
+    });
+
+//    var track = this;
+    $(featDiv).bind("mouseenter", function(event)  {
+	/* "this" in mousenter function will be featdiv */
+	AnnotTrack.annot_under_mouse = this;
+	console.log("annot under mouse: ");
+	console.log(annot_under_mouse);
+    } );
+    $(featDiv).bind("mouseleave", function(event)  {
+	console.log("no annot under mouse: ");
+	AnnotTrack.annot_under_mouse = null;
+    } );
+    // console.log("added context menu to featdiv: ", uniqueId);
+    $(featDiv).droppable(  {
 	accept: ".selected-feature",   // only accept draggables that are selected feature divs	
 	    tolerance: "pointer", 
 	    hoverClass: "annot-drop-hover", 
@@ -356,6 +382,44 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 	}
     } );
 }
+
+AnnotTrack.deleteSelectedFeatures = function() {
+	var trackName;
+	var features = '"features": [';
+	for (var i = 0; i < AnnotTrack.selectedFeatures.length; ++i) {
+		var data = AnnotTrack.selectedFeatures[i];
+		var feat = data[0];
+		var uniqueName = feat[AnnotTrack.fields["name"]];
+		if (trackName == null) {
+			trackName = data[1];
+		}
+		if (i > 0) {
+			features += ',';
+		}
+		features += ' { "uniquename": "' + uniqueName + '" } ';
+	}
+	features += ']';
+	
+	dojo.xhrPost( {
+		postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }',
+		url: "/ApolloWeb/AnnotationEditorService",
+		handleAs: "json",
+		timeout: 5000 * 1000, // Time in milliseconds
+		load: function(response, ioArgs) {
+			var responseFeatures = response.features;
+		},
+		// The ERROR function will be called in an error case.
+		error: function(response, ioArgs) { // 
+			console.log("Annotation server error--maybe you forgot to login to the server?")
+			console.error("HTTP status code: ", ioArgs.xhr.status); //
+			//dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //  
+			return response; // 
+		}
+		
+	});
+	AnnotTrack.selectedFeatures = [];
+}
+
 /*
 Copyright (c) 2010-2011 Berkeley Bioinformatics Open Projects (BBOP)
 
