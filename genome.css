@@ -816,6 +816,12 @@ div.generic_parent-hist {
     
 }
 
+.annot-drop-hover  {
+    outline-style: solid; 
+    outline-color: red;
+    outline-width: 4px; 
+}
+
 /* 
 *  overriding JQueryUI .ui-resizable style, which changes anything getting resized to "position:absolute"
 *  for this to work this CSS _must_ come after jquery-ui.css in load order
