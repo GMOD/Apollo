@@ -18,18 +18,56 @@ JSONUtils.createJsonFeature = function(fmin, fmax, strand, cv, cvterm) {
 	return feature;
 }
 
+/**
+*  creates a feature in JBrowse JSON format
+*  takes as arguments:
+*      afeature: feature in ApolloEditorService JSON format,
+*      fields: array specifying order of fields for JBrowse feature 
+*      subfields:  array specifying order of fields for subfeatures of JBrowse feature 
+*/
+JSONUtils.createJBrowseFeature = function(afeature, fields, subfields)  {
+    var jfeature = new Array();
+    var loc = afeature.location;
+    jfeature[fields["start"]] = loc.fmin;
+    jfeature[fields["end"]] = loc.fmax;
+    jfeature[fields["strand"]] = loc.strand;
+    if (fields["id"])  { jfeature[fields["id"]] = afeature.uniquename; }
+    if (fields["name"])  { jfeature[fields["name"]] = afeature.uniquename; }
+    if (fields["type"])  { 
+	var type = afeature.type.name;
+	if (type == "exon")  { type = "UTR"; }
+	jfeature[fields["type"]] = type;
+    }
+    if (fields["subfeatures"] && afeature.children)  {
+	jfeature[fields["subfeatures"]] = new Array();
+	for (var i in afeature.children)  {
+	    var achild = afeature.children[i];
+	    var jchild =  JSONUtils.createJBrowseFeature(achild, subfields, subfields);
+	    jfeature[fields["subfeatures"]][i] =jchild;
+	}
+    }
+    return jfeature;
+}
+
 /** 
 *  creates a feature in ApolloEditorService JSON format
-*  takes as argument a feature in JBrowse JSON format, and an array specifying order of fields
-*  ApoloEditorService format:
+*  takes as argument:
+*       jfeature: a feature in JBrowse JSON format, 
+*       fields: array specifying order of fields in jfeature
+*       subfields: array specifying order of fields in subfeatures of jfeature
+*       specified_type (optional): type passed in that overrides type info for jfeature
+*  ApolloEditorService format:
 *    { 
 *       "location" : { "fmin": fmin, "fmax": fmax, "strand": strand }, 
 *       "type": { "cv": { "name":, cv },   // typical cv name: "SO" (Sequence Ontology)
 *                 "name": cvterm },        // typical name: "transcript"
 *       "children": { __recursive ApolloEditorService feature__ }
 *    }
+* 
+*   For ApolloEditorService "add_feature" call to work, need to have "gene" as toplevel feature, 
+*         then "transcript", then ???
 *                 
-*    fields example: ["start", "end", "strand", "id", "subfeatures"]
+*    JBrowse JSON fields example: ["start", "end", "strand", "id", "subfeatures"]
 *
 *    type handling
 *    if specified_type arg present, it determines type name
@@ -61,7 +99,8 @@ JSONUtils.createApolloFeature = function(jfeature, fields, subfields, specified_
 	    for (i in subfeats) {
 		var subfeat = subfeats[i];
 		if (subfields)  {
-		    afeature.children[i] = JSONUtils.createApolloFeature(subfeat, subfields); 
+		    // afeature.children[i] = JSONUtils.createApolloFeature(subfeat, subfields); 
+		    afeature.children[i] = JSONUtils.createApolloFeature(subfeat, subfields, subfields, "exon"); 
 		}
 		else  {
 		    afeature.children[i] = JSONUtils.createApolloFeature(subfeat, fields, fields); 
