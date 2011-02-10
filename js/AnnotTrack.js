@@ -143,6 +143,8 @@ AnnotTrack.prototype.createAnnotationChangeListener = function() {
 
 }
 
+AnnotTrack.annot_under_mouse = null;
+
 /**
  *  overriding renderFeature to add event handling right-click context menu
  */
@@ -151,7 +153,28 @@ AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     var featDiv = FeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
 	containerStart, containerEnd);
     annot_context_menu.bindDomNode(featDiv);
+//    var track = this;
+    $(featDiv).bind("mouseenter", function(event)  {
+	/* "this" in mousenter function will be featdiv */
+	AnnotTrack.annot_under_mouse = this;
+	console.log("annot under mouse: ");
+	console.log(annot_under_mouse);
+    } );
+    $(featDiv).bind("mouseleave", function(event)  {
+	console.log("no annot under mouse: ");
+	AnnotTrack.annot_under_mouse = null;
+    } );
     // console.log("added context menu to featdiv: ", uniqueId);
+    $(featDiv).droppable(  {
+	accept: ".selected-feature",   // only accept draggables that are selected feature divs	
+	tolerance: "pointer", 
+	hoverClass: "annot-drop-hover", 
+	drop: function(event, ui)  {
+	    console.log("dropped feature on annot:");
+	    console.log(this);
+	}
+	
+    } );
     return featDiv;
 }
 
@@ -206,10 +229,20 @@ AnnotTrack.prototype.onFeatureClick = function(event) {
     if (featdiv && (featdiv != null))  {
 	console.log(featdiv);
     }
-
 // do nothing
 //   event.stopPropagation();
+}
 
+AnnotTrack.prototype.addToAnnotation = function(annotdiv, newfeat)  {
+    console.log("existing annotation");
+    var existing_annot = annotdiv.feature;
+    console.log(existing_annot);
+    var existing_subs = existing_annot[this.fields["subfeatures"]];
+    existing_subs.push(newfeat);
+    console.log("added to annotation: ");
+    console.log(existing_annot);
+    this.hideAll();
+    this.changed();
 }
 
 AnnotTrack.prototype.makeTrackDroppable = function() {
@@ -221,6 +254,8 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
     $(target_trackdiv).droppable(  {
 	accept: ".selected-feature",   // only accept draggables that are selected feature divs
 	drop: function(event, ui)  {
+	    // "this" is the div being dropped on, so same as target_trackdiv
+	    console.log("draggable dropped on droppable");
 	    console.log(ui);
 	    // getSelectedFeatures() and getSelectedDivs() always return same size with corresponding  feat / div
 	    //	    var feats = DraggableFeatureTrack.getSelectedFeatures();
@@ -233,6 +268,13 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 		var newfeat = JSONUtils.convertToTrack(dragfeat, source_track, target_track);
 		console.log("local feat conversion: " )
 		console.log(newfeat);
+		if (AnnotTrack.annot_under_mouse != null)  {
+		    console.log("adding to annot: ");
+		    console.log(AnnotTrack.annot_under_mouse);
+		    target_track.addToAnnotation(annot_under_mouse, newfeat);
+		    console.log("finished adding to annot: ");
+		}
+		else  {
 		if (AnnotTrack.USE_LOCAL_EDITS)  {
 		    var id = "annot_" + AnnotTrack.creation_count++;
 		    newfeat[target_track.fields["id"]] = id;
@@ -251,11 +293,13 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 		    var target_subFields = target_track.subFields;
 		    // creating JSON feature data struct that WebApollo server understands, 
 		    //    based on JSON feature data struct that JBrowse understands
+		    /*
 		    var topLevelFeature = JSONUtils.createJsonFeature(dragfeat[source_fields["start"]], 
 								      dragfeat[source_fields["end"]], 
 								      dragfeat[source_fields["strand"]], "SO", "gene");
 		    console.log("createJsonFeature: ");
 		    console.log(topLevelFeature);
+		    */
 		    var testFeature = JSONUtils.createApolloFeature(dragfeat, source_fields, source_subFields, "transcript");
 		    console.log("createApolloFeature: ");
 		    console.log(testFeature);
@@ -301,6 +345,7 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 			    return response;
 			}
 		    });
+		}
 		}
 	    }
 
