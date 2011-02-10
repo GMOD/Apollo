@@ -152,29 +152,31 @@ AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     containerStart, containerEnd) {
     var featDiv = FeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
 	containerStart, containerEnd);
-    annot_context_menu.bindDomNode(featDiv);
-//    var track = this;
-    $(featDiv).bind("mouseenter", function(event)  {
-	/* "this" in mousenter function will be featdiv */
-	AnnotTrack.annot_under_mouse = this;
-	console.log("annot under mouse: ");
-	console.log(annot_under_mouse);
-    } );
-    $(featDiv).bind("mouseleave", function(event)  {
-	console.log("no annot under mouse: ");
-	AnnotTrack.annot_under_mouse = null;
-    } );
-    // console.log("added context menu to featdiv: ", uniqueId);
-    $(featDiv).droppable(  {
+    if (featDiv && featDiv != null)  {
+      annot_context_menu.bindDomNode(featDiv);
+      //    var track = this;
+      $(featDiv).bind("mouseenter", function(event)  {
+	  /* "this" in mousenter function will be featdiv */
+	  AnnotTrack.annot_under_mouse = this;
+	  console.log("annot under mouse: ");
+	  console.log(AnnotTrack.annot_under_mouse);
+	} );
+      $(featDiv).bind("mouseleave", function(event)  {
+	  console.log("no annot under mouse: ");
+	  AnnotTrack.annot_under_mouse = null;
+	} );
+      // console.log("added context menu to featdiv: ", uniqueId);
+      $(featDiv).droppable(  {
 	accept: ".selected-feature",   // only accept draggables that are selected feature divs	
-	tolerance: "pointer", 
-	hoverClass: "annot-drop-hover", 
-	drop: function(event, ui)  {
+	    tolerance: "pointer", 
+	    hoverClass: "annot-drop-hover", 
+	    drop: function(event, ui)  {
 	    console.log("dropped feature on annot:");
 	    console.log(this);
-	}
+	  }
 	
-    } );
+	} );
+    }
     return featDiv;
 }
 
@@ -192,7 +194,9 @@ AnnotTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
     displayStart, displayEnd) {
     var subdiv = FeatureTrack.prototype.renderSubfeature.call(this, feature, featDiv, subfeature, 
 	displayStart, displayEnd);
-    subdiv.onmousedown = this.annotMouseDown;
+    if (subdiv && subdiv != null)  {
+      subdiv.onmousedown = this.annotMouseDown;
+    }
 }
 
 AnnotTrack.prototype.annotMouseDown = function(event)  {
@@ -271,7 +275,7 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 		if (AnnotTrack.annot_under_mouse != null)  {
 		    console.log("adding to annot: ");
 		    console.log(AnnotTrack.annot_under_mouse);
-		    target_track.addToAnnotation(annot_under_mouse, newfeat);
+		    target_track.addToAnnotation(AnnotTrack.annot_under_mouse, newfeat);
 		    console.log("finished adding to annot: ");
 		}
 		else  {
