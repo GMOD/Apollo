@@ -159,6 +159,9 @@ AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 	var track = this;
     var featDiv = FeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
 	containerStart, containerEnd);
+	console.log("rendered feature: ");
+	console.log(feature);
+	console.log(featDiv);
     if (featDiv && featDiv != null)  {
       annot_context_menu.bindDomNode(featDiv);
       //    var track = this;
@@ -179,18 +182,6 @@ AnnotTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     	}
     	AnnotTrack.selectedFeatures.push([feature, track.name]);
     });
-
-//    var track = this;
-    $(featDiv).bind("mouseenter", function(event)  {
-	/* "this" in mousenter function will be featdiv */
-	AnnotTrack.annot_under_mouse = this;
-	console.log("annot under mouse: ");
-	console.log(annot_under_mouse);
-    } );
-    $(featDiv).bind("mouseleave", function(event)  {
-	console.log("no annot under mouse: ");
-	AnnotTrack.annot_under_mouse = null;
-    } );
     // console.log("added context menu to featdiv: ", uniqueId);
     $(featDiv).droppable(  {
 	accept: ".selected-feature",   // only accept draggables that are selected feature divs	
@@ -269,6 +260,10 @@ AnnotTrack.prototype.addToAnnotation = function(annotdiv, newfeat)  {
     console.log(existing_annot);
     var existing_subs = existing_annot[this.fields["subfeatures"]];
     existing_subs.push(newfeat);
+    // hardwiring start as f[0], end as f[1] for now -- 
+    //   to fix this need to whether newfeat is a subfeat, etc.
+    if (newfeat[0] < existing_annot[0])  { existing_annot[0] = newfeat[0]; }
+    if (newfeat[1] > existing_annot[1])  { existing_annot[1] = newfeat[1]; }
     console.log("added to annotation: ");
     console.log(existing_annot);
     this.hideAll();
@@ -285,17 +280,18 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 	accept: ".selected-feature",   // only accept draggables that are selected feature divs
 	drop: function(event, ui)  {
 	    // "this" is the div being dropped on, so same as target_trackdiv
-	    console.log("draggable dropped on droppable");
+	    console.log("draggable dropped on AnnotTrack");
 	    console.log(ui);
 	    // getSelectedFeatures() and getSelectedDivs() always return same size with corresponding  feat / div
 	    //	    var feats = DraggableFeatureTrack.getSelectedFeatures();
-	    var dragdivs = DraggableFeatureTrack.getSelectedDivs();
+	    var dragdivs = DraggableFeatureTrack.getSelectedDivs();1
 	    for (var i in dragdivs)  {
 		var dragdiv = dragdivs[i];
+		var is_subfeature = dragdiv.subfeature;
 		var dragfeat = dragdiv.feature || dragdiv.subfeature;
 		console.log(dragfeat);
 		var source_track = dragdiv.track;
-		var newfeat = JSONUtils.convertToTrack(dragfeat, source_track, target_track);
+		var newfeat = JSONUtils.convertToTrack(dragfeat, is_subfeature, source_track, target_track);
 		console.log("local feat conversion: " )
 		console.log(newfeat);
 		if (AnnotTrack.annot_under_mouse != null)  {

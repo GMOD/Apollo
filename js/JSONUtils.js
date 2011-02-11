@@ -128,18 +128,22 @@ JSONUtils.createJBrowseFeature = function(apollo_feature, fields)  {
 *       maybe loop through all fields of newfeat, populate any that have corresponding fields in feat, 
 *          if no corresponding field then set to null (or undefined?)
 */
-JSONUtils.convertToTrack = function(feat, source_track, target_track)  {
+JSONUtils.convertToTrack = function(feat, is_subfeat, source_track, target_track)  {
     var newfeat = new Array();
     var source_fields = source_track.fields;
     var source_subfields = source_track.subFields;
     var target_fields = target_track.fields;
     var target_subfields = target_track.subFields;
-    
+    if (is_subfeat)  {
+      source_fields = source_subfields;
+      target_fields = target_subfields;
+    }
     newfeat[target_fields["start"]] = feat[source_fields["start"]];
     newfeat[target_fields["end"]] = feat[source_fields["end"]];
     newfeat[target_fields["strand"]] = feat[source_fields["strand"]];
     if (target_fields["id"])  { newfeat[target_fields["id"]] = feat[source_fields["id"]]; }
     if (target_fields["name"])  { newfeat[target_fields["name"]] = feat[source_fields["id"]]; } // assign ID to name
+    if (target_fields["type"])  { newfeat[target_fields["type"]] = feat[source_fields["type"]]; }
     if (target_fields["subfeatures"] && source_fields["subfeatures"])   { 
 	var newsubfeats = new Array();
 	var subfeats = feat[source_fields["subfeatures"]];
