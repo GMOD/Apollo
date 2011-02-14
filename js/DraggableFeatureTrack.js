@@ -11,6 +11,83 @@ DraggableFeatureTrack.prototype = new FeatureTrack();
 DraggableFeatureTrack.sel_features = []; 
 DraggableFeatureTrack.sel_divs = []; 
 DraggableFeatureTrack.dragging = false;
+DraggableFeatureTrack.USE_MULTIDRAG = false;
+DraggableFeatureTrack.featToDiv = [];
+DraggableFeatureTrack.featToSubDivs = [];
+
+// feat may be a feature or subfeature?
+DraggableFeatureTrack.showEdgeMatches = function(feat)  {
+    /* experimenting with highlighting edges of features that match selected features (or their subfeatures) */
+    //	    var ftracks = $("div.track[features]");
+    console.log("finding feature tracks that match:");
+    //	    var feat = feature || subfeature;
+    var first_left_hit = true;
+    var first_right_hit = true;
+    // TODO remove hardwiring of min and max index (need track info to do this)
+    var min = feat[0];
+    var max = feat[1];
+    var ftracks = $("div.track").each( function(index, elem)  {
+	var ftrak = elem.track;
+	if (ftrak && ftrak.features)  {
+	    var nclist = ftrak.features;
+	    // iterate calls function only for features that overlap min/max coords
+	    nclist.iterate(min, max, function(rfeat, path) {
+		// TODO remove hardwiring of subfeature index
+		var subfeats = feat[4];
+		var rsubfeats = rfeat[4];
+		if (subfeats instanceof Array && rsubfeats instanceof Array && rsubfeats[0] instanceof Array)  {
+		    //			    console.log("found overlap");
+		    //			    console.log(rfeat);
+		    var id = feat[3];
+		    var rid = rfeat[3];
+		    var rdiv = DraggableFeatureTrack.featToDiv[rid];
+		    var rsubdivs = DraggableFeatureTrack.featToSubDivs[rid];
+		    if (rdiv && rsubdivs)  {
+			// console.log(rdiv);
+			// console.log(rsubdivs);
+			for (var i in subfeats)  {
+			    var sfeat = subfeats[i];
+			    var smin = sfeat[0];
+			    var smax = sfeat[1];
+			    for (var j in rsubfeats)  {
+				var rfeat = rsubfeats[j];
+				var rmin = rfeat[0];
+				var rmax = rfeat[1];
+				if (smin === rmin)  {
+				    var rsubdiv = rsubdivs[j];
+				    if (rsubdiv)  {
+					$(rsubdiv).addClass("left-edge-match");
+					if (first_left_hit)  {
+					    console.log("left match:");
+					    console.log(rfeat);
+					    console.log("left match div: ");
+					    console.log(rsubdiv);
+					    first_left_hit = false;
+					}
+				    }
+				}
+				if (smax === rmax)  {
+				    var rsubdiv = rsubdivs[j];
+				    if (rsubdiv)  {
+					$(rsubdiv).addClass("right-edge-match");
+					if (first_right_hit)  {
+					    console.log("right match:");
+					    console.log(rfeat);
+					    console.log("right match div: ");
+					    console.log(rsubdiv);
+					    first_right_hit = false;
+					}
+				    }
+
+				}
+			    }
+			}
+		    }
+		}
+	    }, function() {} );  // empty function for no-op on finishing
+	}
+    } );
+}
 
 /** 
 * class method 
@@ -25,17 +102,21 @@ DraggableFeatureTrack.addToSelection = function(featdiv) {
 	    console.log("addToSelection ");
             console.log(featdiv);
             DraggableFeatureTrack.sel_divs.push(featdiv);
+	    var feat;
 	    if (featdiv.feature)  {
+		feat = featdiv.feature;
 		DraggableFeatureTrack.sel_features.push(featdiv.feature);
-		//	    console.log("add feature to selection");
-		//	    console.log(featdiv.feature);
+		// console.log("add feature to selection");
+		// console.log(featdiv.feature);
 	    }
 	    else if (featdiv.subfeature)  {
+		feat = featdiv.subfeature;
 		DraggableFeatureTrack.sel_features.push(featdiv.subfeature);
 		// console.log("add subfeature to selection");
 		// console.log(featdiv.subfeature);
 	    }
 	    $(featdiv).addClass("selected-feature");
+	    if (feat)  { DraggableFeatureTrack.showEdgeMatches(feat); }
 	}
     }
     else {
@@ -56,9 +137,14 @@ DraggableFeatureTrack.clearSelection = function() {
 	if ($(featdiv).hasClass("ui-draggable"))  {
 	    $(featdiv).draggable("destroy");
 	}
+	if ($(featdiv).hasClass("ui-multidraggable"))  {
+	    $(featdiv).multidraggable("destroy");
+	}
     }
     DraggableFeatureTrack.sel_divs = [];
     DraggableFeatureTrack.sel_features = [];
+    $(".left-edge-match").removeClass("left-edge-match");
+    $(".right-edge-match").removeClass("right-edge-match");
 }
 
 /** 
@@ -75,6 +161,9 @@ DraggableFeatureTrack.removeFromSelection = function(featdiv) {
 	if ($(featdiv).hasClass("ui-draggable"))  {
 	    $(featdiv).draggable("destroy");
 	}
+	if ($(featdiv).hasClass("ui-multidraggable"))  {
+	    $(featdiv).multidraggable("destroy");
+	}
     }
     console.log("removeFromSelection " + featdiv);
 }
@@ -90,23 +179,6 @@ DraggableFeatureTrack.removeChildrenFromSelection = function(featdiv)  {
 	console.log(elem);
 	DraggableFeatureTrack.removeFromSelection(elem);
     } );
-/*  was trying something less elegant, for fear of recursive search in jquery for ".selected-feature" 
-       following the featdiv.track link and getting _all_ selected-features, but jquery seems to 
-       be smart enough to avoid that...
-        
-    var child_divs = $(featdiv).children("div[feature], div[subfeature]");
-    console.log(child_divs);
-    if (child_divs.length > 0)  {
-	child_divs.each( function(idx, elem)  {
-	    if ($(elem).hasClass("selected-feature"))  {
-		DraggableFeatureTrack.removeFromSelection(elem);
-	    }
-	    console.log("result " + idx);
-	    console.log(elem);
-	    DraggableFeatureTrack.removeChildrenFromSelection(elem);;
-	} );
-    }
-*/
 }
 
 /** class method */
@@ -136,12 +208,17 @@ DraggableFeatureTrack.prototype.renderFeature = function(feature, uniqueId, bloc
 	$(featdiv).bind("dblclick", this.featDoubleClick);
 	// $(featdiv).bind("mouseenter", this.featMouseEnter);
 	// $(featdiv).bind("mouseleave", this.featMouseLeave);
+
+	// TODO: need to clear this if re-rendering (or clear on a per-div basis? maybe when blocks are destroyed?)
+	DraggableFeatureTrack.featToDiv[feature[this.fields["id"]]] = featdiv;
+	// DraggableFeatureTrack.featToSubDivs[feature[this.fields["id"]]] = [];
     }
     return featdiv;
 }
 
 DraggableFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
-							    displayStart, displayEnd) {
+							    displayStart, displayEnd )  {
+							    // subindex) {
     var subfeatdiv = FeatureTrack.prototype.renderSubfeature.call(this, feature, featDiv, subfeature, 
 								  displayStart, displayEnd);
     if (subfeatdiv)  {  // just in case subFeatDiv doesn't actually get created
@@ -152,6 +229,18 @@ DraggableFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, su
 	$(subfeatdiv).bind("dblclick", this.featDoubleClick);
 	//	subfeatdiv.onmouseover = this.mouseOverFeat;
 	//	subfeatdiv.onmouseup = this.mouseUpFeat;
+	var id = feature[this.fields["id"]];
+	if (id && id !== null)  {
+	    var subdivs = DraggableFeatureTrack.featToSubDivs[id];
+	    if (! subdivs)  {subdivs = [];DraggableFeatureTrack.featToSubDivs[id] = subdivs;}
+	    //	console.log(subindex);
+	    // subdivs[subindex] = subfeatdiv;
+//	    console.log(subdivs.length);
+//	    console.log(feature);
+//	    console.log(subfeature);
+	    subdivs.push(subfeatdiv);
+//	    console.log(DraggableFeatureTrack.featToSubDivs[id][subdivs.length-1]);
+	}
     }
     return subfeatdiv;
 }
@@ -194,7 +283,7 @@ DraggableFeatureTrack.prototype.featMouseDown = function(event) {
 	var featdiv = this;
 	var feat = featdiv.feature;
 	if (feat)  {feat.isSubFeature = false;}
-	else  {feat = featdiv.subfeature; feat.isSubFeature = true;}
+	else  {feat = featdiv.subfeature;feat.isSubFeature = true;}
 	var already_selected = (DraggableFeatureTrack.getSelectedDivs().indexOf(featdiv) > -1);
 	var parent_featdiv = DraggableFeatureTrack.prototype.getParentFeatureDiv(featdiv);
 	var parent_selected = false;
@@ -250,15 +339,45 @@ DraggableFeatureTrack.prototype.featMouseDown = function(event) {
 	 *  therefore whenever mousedown on a previously selected div also want to check that draggability and redo if missing 
 	 */  
 	if (trigger_draggable)  {
-	    if (! $(this).hasClass("ui-draggable"))  {  
+	    if (DraggableFeatureTrack.USE_MULTIDRAG)  {
+		if (! $(this).hasClass("ui-multidraggable"))  {  
+		    console.log("setting up multi-dragability");
+		    console.log(this);
+		    $(this).multidraggable(   // multidraggable() adds "ui-multidraggable" class to siv
+			{helper: 'clone', 
+			 opacity: 0.3, 
+			 axis: 'y', 
+			 create: function(event, ui)  {this.drag_create = true;}
+			} ).trigger(event);
+		}
+	    }
+	    else if (! $(this).hasClass("ui-draggable"))  {  
 		console.log("setting up dragability");
 		console.log(this);
-		$(this).draggable(   // draggable() adds "ui-draggable" class to 
-		    {helper: 'clone', 
-		     opacity: 0.3, 
+		$(this).draggable(   // draggable() adds "ui-draggable" class to div
+		    {
+			helper: 'clone', 
+		 /* experimenting for pseudo-multi-drag 
+  		        helper: function() { 
+			    var holder = document.createElement("div");
+			    var seldivs = DraggableFeatureTrack.getSelectedDivs();
+			    for (var i in seldivs)  {
+				var featclone = $(seldivs[i]).clone();
+				console.log("drag helper experiment");
+				console.log(holder);
+				console.log(featclone);
+				holder.appendChild(featclone[0]);
+			    }
+			    //  var featclone = $(this).clone();
+			    console.log(holder);
+			    return holder;
+			}, 
+*/
+		     opacity: 0.5, 
 		     axis: 'y', 
-		     create: function(event, ui)  { this.drag_create = true; }
+		     create: function(event, ui)  {this.drag_create = true;}
 		    } ).trigger(event);
+
 	    }
 	}
     }
