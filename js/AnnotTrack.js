@@ -438,7 +438,7 @@ AnnotTrack.deleteSelectedFeatures = function() {
 		handleAs: "json",
 		timeout: 5000 * 1000, // Time in milliseconds
 		load: function(response, ioArgs) {
-		    if (!AnnotTrack.USE_COMET || !target_track.comet_working)  {
+		    if (!AnnotTrack.USE_COMET || !track.comet_working)  {
 			var responseFeatures = response.features;
 			if (!responseFeatures || responseFeatures.length == 0)  {
 			    // if not using comet, or comet not working
