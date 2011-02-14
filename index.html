@@ -33,11 +33,19 @@ djConfig="isDebug: true"></script> -->
     <!-- JQuery -->
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
     <script type="text/javascript">
-	google.load("jquery", "1.5");
-	google.load("jqueryui", "1.8.9");
+<!--	google.load("jquery", "1.5"); -->
+<!-- 	google.load("jqueryui", "1.8.9"); -->
+<!--        google.load("jquery", "1.3.2");  -->
+<!--        google.load("jqueryui", "1.7.2");  -->
+         google.load("jquery", "1.4");  
+         google.load("jqueryui", "1.8.8"); 
 	google.load("dojo", "1.5");
    </script>
 
+<!--  <script type="text/javascript"
+   src="jslib/jquery_plugins/multidraggable_ui1.8.8/js/mod.jquery.ui.multidraggable-1.8.8.js"></script>
+    -->
+    <script type="text/javascript" src="jslib/jquery_plugins/mod.jquery.ui.multidraggable-1.8.8.js"></script>
     <script type="text/javascript" src="js/Browser.js"></script>
     <script type="text/javascript" src="js/Util.js"></script>
     <script type="text/javascript" src="js/NCList.js"></script>
@@ -48,7 +56,9 @@ djConfig="isDebug: true"></script> -->
     <script type="text/javascript" src="js/Layout.js"></script>
     <script type="text/javascript" src="js/FeatureTrack.js"></script>
     <script type="text/javascript" src="js/DraggableFeatureTrack.js"></script>
-    <script type="text/javascript" src="js/DasFeatureTrack.js"></script>
+    <!-- for testing draggable etc. -->
+    <!--   <script type="text/javascript" src="js/BasicDraggableFeatureTrack.js"></script>   -->
+   <script type="text/javascript" src="js/DasFeatureTrack.js"></script>
     <script type="text/javascript" src="js/AnnotTrack.js"></script>
     <script type="text/javascript" src="js/UITracks.js"></script>
     <script type="text/javascript" src="js/ImageTrack.js"></script>
