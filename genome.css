@@ -836,3 +836,15 @@ div.generic_parent-hist {
     outline-color: green;
     outline-width: 3px; 
 }
+
+/* style to highlight left feature edges that match selected feature(s) edges */
+.left-edge-match  {
+    border-left: solid blue 1px;
+}
+
+/* style to highlight right feature edges that match selected feature(s) edges */
+.right-edge-match  {
+    border-right: solid blue 1px;
+}
+
+
