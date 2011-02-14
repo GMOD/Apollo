@@ -23,7 +23,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     // define fields meta data
     this.fields = AnnotTrack.fields;
     this.comet_working = true;
-    this.remote_edit_working = true;
+    this.remote_edit_working = false;
 
     this.mouseDownAnnot = function(event)  {
 	thisObj.annotMouseDown(event);
@@ -33,16 +33,30 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
 // Inherit from FeatureTrack
 AnnotTrack.prototype = new FeatureTrack();
 
-AnnotTrack.creation_count = 0;
-AnnotTrack.currentAnnot = null;
-AnnotTrack.selectedFeatures = [];
+/**
+*  only set USE_COMET true if server supports Servlet 3.0 comet-style long-polling, and web app is propertly set up for async
+*    otherwise if USE_COMET is set to true, will cause server-breaking errors
+*  
+*/
+AnnotTrack.USE_COMET = false;
+
+/**
+*  set USE_LOCAL_EDITS = true to bypass editing calls to AnnotationEditorService servlet and attempt 
+*    to create similar annotations locally
+*  useful when AnnotationEditorService is having problems, or experimenting with something not yet completely implemented server-side
+*/
 AnnotTrack.USE_LOCAL_EDITS = false;
+
+AnnotTrack.creation_count = 0;
+AnnotTrack.selectedFeatures = [];
+
 AnnotTrack.fields = {"start": 0, "end": 1, "strand": 2, "name": 3};
 
 dojo.require("dijit.Menu");
 dojo.require("dijit.MenuItem");
 var annot_context_menu;
-
+var context_path = "/ApolloWeb";
+// var context_path = "";
 
 
 dojo.addOnLoad( function()  {
@@ -73,7 +87,7 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
     
     dojo.xhrPost( {
 	postData: '{ "track": "' + track.name + '", "operation": "get_features" }',
-	url: "/ApolloWeb/AnnotationEditorService",
+	url: context_path + "/AnnotationEditorService",
 	handleAs: "json",
 	timeout: 5 * 1000, // Time in milliseconds
 	// The LOAD function will be called on a successful response.
@@ -97,7 +111,9 @@ AnnotTrack.prototype.loadSuccess = function(trackInfo) {
 	}
     });
 	
-    this.createAnnotationChangeListener();
+    if (AnnotTrack.USE_COMET)  {
+	this.createAnnotationChangeListener();
+    }
     this.makeTrackDroppable();
 }
 
@@ -106,7 +122,7 @@ AnnotTrack.prototype.createAnnotationChangeListener = function() {
     var features = this.features;
 
     dojo.xhrGet( {
-	url: "/ApolloWeb/AnnotationChangeNotificationService",
+	url: context_path + "/AnnotationChangeNotificationService",
 	content: {
 	    track: track.name
 	},
@@ -333,7 +349,7 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 	
 		    dojo.xhrPost( {
 			postData: '{ "track": "' + target_track.name + '", "features": [ ' + JSON.stringify(testFeature) + '], "operation": "add_feature" }',
-			url: "/ApolloWeb/AnnotationEditorService",
+			url: context_path + "/AnnotationEditorService",
 			handleAs: "json",
 			timeout: 5000, // Time in milliseconds
 			// The LOAD function will be called on a successful response.
@@ -342,7 +358,7 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 			    // response processing is now handled by the long poll thread (when using servlet 3.0)
 			    //  if comet-style long pollling is not working, then create annotations based on 
 			    //     AnnotationEditorResponse
-			    if (!target_track.comet_working)  {
+			    if (!AnnotTrack.USE_COMET || !target_track.comet_working)  {
 				// responseFeatures = responseFeatures.features;
 				responseFeatures = response.features;
 				/*
@@ -398,7 +414,7 @@ AnnotTrack.deleteSelectedFeatures = function() {
 	
 	dojo.xhrPost( {
 		postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }',
-		url: "/ApolloWeb/AnnotationEditorService",
+		url: context_path + "/AnnotationEditorService",
 		handleAs: "json",
 		timeout: 5000 * 1000, // Time in milliseconds
 		load: function(response, ioArgs) {
