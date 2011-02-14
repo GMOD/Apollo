@@ -143,14 +143,14 @@ AnnotTrack.prototype.createAnnotationChangeListener = function() {
 	    		features.add(featureArray, id);
 	    	}
 	    }
-		else if (response.operation == "DELETE") {
+	    else if (response.operation == "DELETE") {
 
-			var responseFeatures = response.features;
+		var responseFeatures = response.features;
                         for (var i = 0; i < responseFeatures.length; ++i) {
                               var id_to_delete = responseFeatures[i].uniquename;
                               features.delete(id_to_delete);
 			}
-		}
+	    }
 		track.hideAll();
 		track.changed();
 	    track.createAnnotationChangeListener();
@@ -278,8 +278,8 @@ AnnotTrack.prototype.addToAnnotation = function(annotdiv, newfeat)  {
     existing_subs.push(newfeat);
     // hardwiring start as f[0], end as f[1] for now -- 
     //   to fix this need to whether newfeat is a subfeat, etc.
-    if (newfeat[0] < existing_annot[0])  { existing_annot[0] = newfeat[0]; }
-    if (newfeat[1] > existing_annot[1])  { existing_annot[1] = newfeat[1]; }
+    if (newfeat[0] < existing_annot[0])  {existing_annot[0] = newfeat[0];}
+    if (newfeat[1] > existing_annot[1])  {existing_annot[1] = newfeat[1];}
     console.log("added to annotation: ");
     console.log(existing_annot);
     this.hideAll();
@@ -396,8 +396,15 @@ AnnotTrack.prototype.makeTrackDroppable = function() {
 }
 
 AnnotTrack.deleteSelectedFeatures = function() {
-	var trackName;
-	var features = '"features": [';
+    var trackdiv = $("div#track_Annotations.track").get(0);
+    var track = trackdiv.track;
+//    console.log("track: ");
+//    console.log(track);
+    var features_nclist = track.features;
+    var trackName;
+    var features = '"features": [';
+
+    var uniqueNames = [];
 	for (var i = 0; i < AnnotTrack.selectedFeatures.length; ++i) {
 		var data = AnnotTrack.selectedFeatures[i];
 		var feat = data[0];
@@ -408,9 +415,12 @@ AnnotTrack.deleteSelectedFeatures = function() {
 		if (i > 0) {
 			features += ',';
 		}
-		features += ' { "uniquename": "' + uniqueName + '" } ';
+	    features += ' { "uniquename": "' + uniqueName + '" } ';
+	    uniqueNames.push(uniqueName);
 	}
 	features += ']';
+    // console.log("request server deletion");
+    //    console.log(features);
 	
 	dojo.xhrPost( {
 		postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }',
@@ -418,7 +428,20 @@ AnnotTrack.deleteSelectedFeatures = function() {
 		handleAs: "json",
 		timeout: 5000 * 1000, // Time in milliseconds
 		load: function(response, ioArgs) {
+		    if (!AnnotTrack.USE_COMET || !target_track.comet_working)  {
 			var responseFeatures = response.features;
+			if (!responseFeatures || responseFeatures.length == 0)  {
+			    // if not using comet, or comet not working
+			    // and no features are returned, then they were successfully deleted?
+			    for (var j in uniqueNames)  {
+				var id_to_delete = uniqueNames[j];
+				console.log("server deleted: " + id_to_delete);
+				features_nclist.delete(id_to_delete);
+			    }
+			    track.hideAll();
+			    track.changed();
+			}
+		    }
 		},
 		// The ERROR function will be called in an error case.
 		error: function(response, ioArgs) { // 
