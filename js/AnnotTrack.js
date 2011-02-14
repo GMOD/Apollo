@@ -30,7 +30,7 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     }
 }
 
-// Inherit from FeatureTrack
+// Inherit from FeatureTrack 
 AnnotTrack.prototype = new FeatureTrack();
 
 /**
@@ -38,7 +38,7 @@ AnnotTrack.prototype = new FeatureTrack();
 *    otherwise if USE_COMET is set to true, will cause server-breaking errors
 *  
 */
-AnnotTrack.USE_COMET = false;
+AnnotTrack.USE_COMET = true;
 
 /**
 *  set USE_LOCAL_EDITS = true to bypass editing calls to AnnotationEditorService servlet and attempt 
@@ -421,7 +421,17 @@ AnnotTrack.deleteSelectedFeatures = function() {
 	features += ']';
     // console.log("request server deletion");
     //    console.log(features);
-	
+
+    if (AnnotTrack.USE_LOCAL_EDITS)  {
+	for (var j in uniqueNames)  {
+	    var id_to_delete = uniqueNames[j];
+	    console.log("server deleted: " + id_to_delete);
+	    features_nclist.delete(id_to_delete);
+	}
+	track.hideAll();
+	track.changed();
+    }
+    else  {
 	dojo.xhrPost( {
 		postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }',
 		url: context_path + "/AnnotationEditorService",
@@ -452,7 +462,8 @@ AnnotTrack.deleteSelectedFeatures = function() {
 		}
 		
 	});
-	AnnotTrack.selectedFeatures = [];
+    }
+    AnnotTrack.selectedFeatures = [];
 }
 
 /*
