@@ -689,54 +689,6 @@ div.transcript-hist {
     min-width: 1px;
 }
 
-.plus-transcript-CDS,
-.minus-transcript-CDS {
-    position: absolute;
-    height: 12px;
-    margin-top: -4px;
-    background-image: url('img/cds.png');
-    background-repeat: repeat-x;
-/*  border-width: 2px 0px 3px 0px;
-    border-style: solid;
-    border-color: white;
-    background-color: #FF9185;
-    border-style: solid;
-    border-color: #00f;
-    border-width: 1px;*/
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
-}
-
-.plus-annot-CDS,
-.minus-annot-CDS {
-    position: absolute;
-    height: 12px;
-    margin-top: -4px; 
-    background-color: #30AAFF;
-    border-style: solid;
-    border-color: #01F;
-    border-width: 1px;
-    cursor: pointer;
-    z-index: 10;
-    min-width: 1px;
-}
-
-.plus-annot-UTR, 
-.minus-annot-UTR {
-    position: absolute;
-    height: 6px;
-    margin-top: -2px;
-    background-color: #2088FF;
-    border-style: solid;
-    border-color: #01F;
-    border-width: 1px 0px 2px 0px;
-    z-index: 8;
-    min-width: 1px;
-    cursor: pointer;
-}
-
-
 .plus-transcript-exon,
 .minus-transcript-exon,
 .plus-transcript-UTR, 
@@ -809,13 +761,49 @@ div.generic_parent-hist {
     cursor: pointer;
 }
 
+
+/** styles for annotations (features in AnnotTracks) */
+.plus-annot-CDS,
+.minus-annot-CDS {
+    position: absolute;
+    height: 12px;
+    margin-top: -4px; 
+    background-color: #30AAFF;
+    border-style: solid;
+    border-color: #01F;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 10;
+    min-width: 1px;
+}
+
+.plus-annot-UTR, 
+.minus-annot-UTR {
+    position: absolute;
+    height: 6px;
+    margin-top: -2px;
+    background-color: #2088FF;
+    border-style: solid;
+    border-color: #01F;
+    border-width: 1px 0px 2px 0px;
+    z-index: 8;
+    min-width: 1px;
+    cursor: pointer;
+}
+
+/**
+*   appearance of resizing box when dragging annotation edges
+*   if case browser doesn't support transparency via "rgba", fall back on solid background?
+*/
 .ui-resizable-helper  {
     border: 2px dotted red;
     background: rgb(100, 150, 255);
     background: rgba(100, 150, 255, 0.5);
     
 }
-
+/**
+*  appearance of annotations (features in AnnoTracks)  when they are drop targets and are hovered over 
+*/
 .annot-drop-hover  {
     outline-style: solid; 
     outline-color: red;
@@ -830,6 +818,30 @@ div.generic_parent-hist {
     position: absolute;
 }
 
+/* style to highlight left feature edges that match selected feature(s) edges 
+*  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
+*  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
+*/
+.left-edge-match  {
+    border-left: solid blue 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
+/* style to highlight right feature edges that match selected feature(s) edges 
+*  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
+*  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
+*/
+.right-edge-match  {
+    border-right: solid blue 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+}
+
 /* to make sure selection style overrides any other styles in this stylesheet, make sure to put selection style at end */
 .selected-feature {
     outline-style: solid; 
@@ -837,14 +849,14 @@ div.generic_parent-hist {
     outline-width: 3px; 
 }
 
-/* style to highlight left feature edges that match selected feature(s) edges */
-.left-edge-match  {
-    border-left: solid blue 1px;
-}
-
-/* style to highlight right feature edges that match selected feature(s) edges */
-.right-edge-match  {
-    border-right: solid blue 1px;
+/* 
+*  slection of annotations is separate from selection of features, 
+*   so want a different selection style for selected annotations 
+*/
+.selected-annotation  {
+    outline-style: solid;
+    outline-color: red;
+    outline-width: 3px;
 }
 
 
