@@ -289,7 +289,7 @@ Browser.prototype.createTrackList = function(parent, params) {
 Browser.prototype.onVisibleTracksChanged = function() {
     this.view.updateTrackList();
     var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+                               function(track) {return track.name;});
     dojo.cookie(this.container.id + "-tracks",
                 trackLabels.join(","),
                 {expires: 60});
@@ -308,7 +308,7 @@ Browser.prototype.addTracks = function(trackList, replace) {
     if (!this.isInitialized) {
         var brwsr = this;
         this.deferredFunctions.push(
-            function() {brwsr.addTracks(trackList, show); }
+            function() {brwsr.addTracks(trackList, show);}
         );
 	return;
     }
@@ -335,7 +335,7 @@ Browser.prototype.addTracks = function(trackList, replace) {
 Browser.prototype.navigateTo = function(loc) {
     if (!this.isInitialized) {
         var brwsr = this;
-        this.deferredFunctions.push(function() { brwsr.navigateTo(loc); });
+        this.deferredFunctions.push(function() {brwsr.navigateTo(loc);});
 	return;
     }
 
@@ -442,7 +442,7 @@ Browser.prototype.showTracks = function(trackNameList) {
     if (!this.isInitialized) {
         var brwsr = this;
         this.deferredFunctions.push(
-            function() { brwsr.showTracks(trackNameList); }
+            function() {brwsr.showTracks(trackNameList);}
         );
 	return;
     }
@@ -482,7 +482,7 @@ Browser.prototype.visibleRegion = function() {
  */
 Browser.prototype.visibleTracks = function() {
     var trackLabels = dojo.map(this.view.tracks,
-                               function(track) { return track.name; });
+                               function(track) {return track.name;});
     return trackLabels.join(",");
 };
 

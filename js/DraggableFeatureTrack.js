@@ -522,8 +522,8 @@ DraggableFeatureTrack.prototype.showRange = function(first, last, startBase, bpP
 						     containerStart, containerEnd) {
     FeatureTrack.prototype.showRange.call(this, first, last, startBase, bpPerBlock, scale,
 					  containerStart, containerEnd);   
-    console.log("called DraggableFeatureTrack.showRange(), block range: " + 
-		this.firstAttached +  "--" + this.lastAttached + ",  " + (this.lastAttached - this.firstAttached));
+//    console.log("called DraggableFeatureTrack.showRange(), block range: " + 
+//		this.firstAttached +  "--" + this.lastAttached + ",  " + (this.lastAttached - this.firstAttached));
     // redo selection styles for divs in case any divs for selected features were changed/added/deleted
     var sfeats = DraggableFeatureTrack.getSelectedFeatures();
     var stracks = DraggableFeatureTrack.getTracksForSelectedFeatures();
