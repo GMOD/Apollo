@@ -9,6 +9,9 @@ package NCList;
 
 use strict;
 use warnings;
+use Carp;
+use List::Util qw(max);
+use Data::Dumper;
 
 =head2 new
 
@@ -17,75 +20,136 @@ use warnings;
  Function: create an NCList
  Example : 
  Returns : an NCList object
- Args    : $featList is a reference to an array of arrays;
-           each of the inner arrays represents an interval with the start
-           at $startIndex and the end at $endIndex.  $sublistIndex should
-           be an array position that's otherwise unused.
-
+ Args    : The addFeatures method takes a reference to an array of arrays;
+           the arguments here describe the inner arrays.
+           Each of those inner arrays represents an interval with the start
+           position at $start and the end position at $end.
+           $sublistIndex should be an array position that's otherwise unused.
 
 =cut
+
 sub new {
-    my ($class, $start, $end, $sublistIndex, $featList) = @_;
+    my ($class, $start, $end, $sublistIndex) = @_;
 
-    my @features = sort {
-	if ($a->[$start] != $b->[$start]) {
-	    $a->[$start] - $b->[$start];
-	} else {
-	    $b->[$end] - $a->[$end];
-	}
-    } @$featList;
-
-    #@sublistStack is a list of all the currently relevant sublists
-    #(one for each level of nesting)
-    my @sublistStack;
-    #$curlist is the currently active sublist
     my $curList = [];
 
     my $self = { 'topList' => $curList,
+                 'startIndex' => $start,
+                 'endIndex' => $end,
 		 'sublistIndex' => $sublistIndex,
-	         'count' => $#features + 1};
+                 'sublistStack' => [],
+                 'curList' => $curList,
+	         'count' => 0,
+                 'lastAdded' => undef,
+                 'minStart' => undef,
+                 'maxEnd' => undef };
     bless $self, $class;
 
-    push @$curList, $features[0];
+    return $self;
+}
 
-    my ($topSublist, $i);
+sub ID {
+    my $self = shift;
+    if (@_) {
+        croak "ID already set" if defined($self->{ID});
+        $self->{ID} = shift;
+    } else {
+        return $self->{ID};
+    }
+}
 
-    for ($i = 1; $i <= $#features; $i++) {
-	#if this interval is contained in the previous interval,
-	if ($features[$i]->[$end] < $features[$i - 1]->[$end]) {
-	    #create a new sublist starting with this interval
-	    push @sublistStack, $curList;
-	    $curList = [$features[$i]];
-	    $features[$i - 1]->[$sublistIndex] = $curList;
-	} else {
-	    #find the right sublist for this interval
-	    while (1) {
-                #if we're at the top level list,
-		if ($#sublistStack < 0) {
-                    #just add the current feature
-		    push @$curList, $features[$i];
-		    last;
-		} else {
-		    $topSublist = $sublistStack[$#sublistStack];
-                    #if the last interval in the top sublist ends
-                    #after the end of the current interval,
-		    if ($topSublist->[$#{$topSublist}]->[$end] 
-                        > $features[$i]->[$end]) {
-			#then curList is the first (deepest) sublist
-                        #that the current feature fits into, and
-                        #we add the current feature to curList
-			push @$curList, $features[$i];
-			last;
-		    } else {
-                        #move on to the next shallower sublist
-			$curList = pop @sublistStack;
-		    }
-		}
-	    }
-	}
+sub addFeatures {
+    my ($self, $features) = @_;
+
+    #@$sublistStack is a list of all the currently relevant sublists
+    #(one for each level of nesting)
+    my $sublistStack = $self->{sublistStack};
+    #$curlist is the currently active sublist
+    my $curList = $self->{curList};
+    #$lastAdded is the most recently added feature
+    my $lastAdded = $self->{lastAdded};
+
+    my $start = $self->{startIndex};
+    my $end = $self->{endIndex};
+    my $sublistIndex = $self->{sublistIndex};
+
+    #maxEnd is the highest feature end value that we've seen
+    my $maxEnd;
+
+    if (!defined($lastAdded)) {
+        $lastAdded = shift @$features;
+        $self->{minStart} = $lastAdded->[$start];
+        $maxEnd = $lastAdded->[$end];
+        push @$curList, $lastAdded;
+    } else {
+        $lastAdded = $self->{lastAdded};
+        $maxEnd = $self->{maxEnd};
     }
 
-    return $self;
+    for (my $i = 0; $i <= $#{$features}; $i++) {
+        croak "input not sorted: got \n" . Dumper($lastAdded) . "\nbefore\n" . Dumper($features->[$i]) . "\n"
+            if (($lastAdded->[$start] > $features->[$i]->[$start])
+                || (($lastAdded->[$start] == $features->[$i]->[$start])
+                    &&
+                    ($lastAdded->[$end] < $features->[$i]->[$end])) );
+
+        $maxEnd = max($maxEnd, $features->[$i]->[$end]);
+
+        $curList = _addSingle($features->[$i], $lastAdded,
+                              $sublistStack, $curList,
+                              $end, $sublistIndex);
+
+        $lastAdded = $features->[$i];
+    }
+
+    $self->{curList} = $curList;
+    $self->{maxEnd} = $maxEnd;
+    $self->{lastAdded} = $lastAdded;
+}
+
+sub _addSingle {
+    my ($feat, $lastAdded, $sublistStack, $curList, $end, $sublistIndex) = @_;
+
+    #if this interval is contained in the previous interval,
+    if ($feat->[$end] < $lastAdded->[$end]) {
+        #create a new sublist starting with this interval
+        push @$sublistStack, $curList;
+        $curList = [$feat];
+        $lastAdded->[$sublistIndex] = $curList;
+    } else {
+        #find the right sublist for this interval
+        while (1) {
+            #if we're at the top level list,
+            if ($#{$sublistStack} < 0) {
+                #just add the current feature to the current list
+                push @$curList, $feat;
+                last;
+            } else {
+                #if the last interval in the last sublist in
+                #sublistStack ends after the end of the current interval,
+                if ($sublistStack->[-1]->[-1]->[$end] > $feat->[$end]) {
+                    #then curList is the first (deepest) sublist
+                    #that the current feature fits into, and
+                    #we add the current feature to curList
+                    push @$curList, $feat;
+                    last;
+                } else {
+                    #move on to the next shallower sublist
+                    $curList = pop @$sublistStack;
+                }
+            }
+        }
+    }
+
+    return $curList;
+}
+
+sub maxEnd {
+    return shift->{maxEnd};
+}
+
+sub minStart {
+    return shift->{minStart};
 }
 
 sub nestedList {
@@ -98,7 +162,7 @@ sub nestedList {
 
 Mitchell Skinner E<lt>mitch_skinner@berkeley.eduE<gt>
 
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
+Copyright (c) 2007-2010 The Evolutionary Software Foundation
 
 This package and its accompanying libraries are free software; you can
 redistribute it and/or modify it under the terms of the LGPL (either

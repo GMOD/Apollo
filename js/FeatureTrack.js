@@ -14,13 +14,15 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
     if (arguments.length == 0)
       return;
 
-    if (browserParams === undefined)  { return; }
+    if (browserParams === undefined)  {return;}
     Track.call(this, trackMeta.label, trackMeta.key,
 	       false, browserParams.changeCallback);
     this.fields = {};
     this.features = new NCList();
     this.refSeq = refSeq;
     this.baseUrl = (browserParams.baseUrl ? browserParams.baseUrl : "");
+    this.url = url;
+    this.trackBaseUrl = (this.baseUrl + url).match(/^.+\//);
     //number of histogram bins per block
     this.numBins = 25;
     this.histLabel = false;
@@ -35,7 +37,7 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
         thisObj.renderSubfeature(param.feature, param.featDiv, val,
                                  param.displayStart, param.displayEnd);
     };
-    this.featureClick = function(event) { thisObj.onFeatureClick(event);}
+    this.featureClick = function(event) {thisObj.onFeatureClick(event);}
 }
 
 FeatureTrack.prototype = new Track("");
@@ -53,13 +55,20 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
             this.subFields[trackInfo.subfeatureHeaders[i]] = i;
         }
     }
+    var importBaseUrl = this.trackBaseUrl;
+    if (trackInfo.ignoreTrackBaseUrl)  {
+	importBaseUrl = "";
+    }
     this.features.importExisting(trackInfo.featureNCList,
                                  trackInfo.sublistIndex,
                                  trackInfo.lazyIndex,
-                                 this.baseUrl,
+//                                 this.trackBaseUrl,
+                                 importBaseUrl,
                                  trackInfo.lazyfeatureUrlTemplate);
     if (trackInfo.subfeatureArray)
-        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray);
+        this.subfeatureArray = new LazyArray(trackInfo.subfeatureArray,
+//                                             this.trackBaseUrl);
+                                 importBaseUrl);
 
     this.histScale = 4 * (trackInfo.featureCount / this.refSeq.length);
     this.labelScale = 50 * (trackInfo.featureCount / this.refSeq.length);
@@ -69,10 +78,12 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
     this.arrowheadClass = trackInfo.arrowheadClass;
     this.urlTemplate = trackInfo.urlTemplate;
     this.histogramMeta = trackInfo.histogramMeta;
+
     if (this.histogramMeta !== undefined)  {
 	for (var i = 0; i < this.histogramMeta.length; i++) {
-            this.histogramMeta[i].lazyArray =
-		new LazyArray(this.histogramMeta[i].arrayParams);
+	    this.histogramMeta[i].lazyArray =
+		// new LazyArray(this.histogramMeta[i].arrayParams, this.trackBaseUrl);
+	    new LazyArray(this.histogramMeta[i].arrayParams, importBaseUrl);
 	}
     }
     this.histStats = trackInfo.histStats;
@@ -87,7 +98,13 @@ FeatureTrack.prototype.loadSuccess = function(trackInfo) {
                                    * density;
         if (cc.featureCss) this.featureCss = cc.featureCss;
         if (cc.histCss) this.histCss = cc.histCss;
-        if (cc.featureCallback) this.featureCallback = cc.featureCallback;
+        if (cc.featureCallback) {
+            try {
+                this.featureCallback = eval("(" + cc.featureCallback + ")");
+            } catch (e) {
+                console.log("eval failed for featureCallback on track " + this.name + ": " + cc.featureCallback);
+            }
+        }
     }
 
     //console.log((new Date().getTime() - startTime) / 1000);
@@ -176,6 +193,11 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
     // coarsest (largest number of bases per bin).
     // We want to use coarsest histogramMeta that's at least as fine as the
     // one we're currently rendering.
+    // TODO: take into account that the histogramMeta chosen here might not
+    // fit neatly into the current histogram (e.g., if the current histogram
+    // is at 50,000 bases/bin, and we have server histograms at 20,000
+    // and 2,000 bases/bin, then we should choose the 2,000 histogramMeta
+    // rather than the 20,000)
     var histogramMeta = this.histogramMeta[0];
     for (var i = 0; i < this.histogramMeta.length; i++) {
         if (bpPerBin >= this.histogramMeta[i].basesPerBin)
@@ -199,6 +221,9 @@ FeatureTrack.prototype.fillHist = function(blockIndex, block,
             firstServerBin,
             firstServerBin + (binCount * this.numBins),
             function(i, val) {
+                // this will count features that span the boundaries of
+                // the original histogram multiple times, so it's not
+                // perfectly quantitative.  Hopefully it's still useful, though.
                 histogram[Math.floor((i - firstServerBin) / binCount)] += val;
             },
             function() {
@@ -575,9 +600,9 @@ FeatureTrack.prototype.handleSubFeatures = function(feature, featDiv,
             displayEnd: displayEnd
         };
         for (var i = 0; i < feature[fields["subfeatures"]].length; i++) {
-            this.subfeatureArray.index(feature[fields["subfeatures"]][i],
-                                       this.subfeatureCallback,
-                                       featParam);
+            this.renderSubfeature(feature, featDiv,
+                                  feature[fields["subfeatures"]][i],
+                                  displayStart, displayEnd);
         }
 };
 
@@ -600,34 +625,39 @@ FeatureTrack.prototype.featureUrl = function(feature) {
 
 FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
                                                    displayStart, displayEnd) {
-    //var featStart = feature[this.fields["start"]];
     var subStart = subfeature[this.subFields["start"]];
     var subEnd = subfeature[this.subFields["end"]];
-    var featLength = displayEnd - displayStart; //feature[this.fields["end"]] - featStart;
-    var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
+    var featLength = displayEnd - displayStart;
+
     var subDiv = document.createElement("div");
+
+    if (this.subfeatureClasses) {
+        var className = this.subfeatureClasses[subfeature[this.subFields["type"]]];
+        switch (subfeature[this.subFields["strand"]]) {
+        case 1:
+            subDiv.className = "plus-" + className;break;
+        case 0:
+        case null:
+        case undefined:
+            subDiv.className = className;break;
+        case -1:
+            subDiv.className = "minus-" + className;break;
+        }
+
+    }
 
     // if the feature has been truncated to where it doesn't cover
     // this subfeature anymore, just skip this subfeature
     if ((subEnd <= displayStart) || (subStart >= displayEnd)) return;
 
-    switch (subfeature[this.subFields["strand"]]) {
-    case 1:
-        subDiv.className = "plus-" + className;break;
-    case 0:
-    case null:
-    case undefined:
-        subDiv.className = className;break;
-    case -1:
-        subDiv.className = "minus-" + className;break;
-    }
     if (Util.is_ie6) subDiv.appendChild(document.createComment());
     subDiv.style.cssText =
         "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
         + "top: 0px;"
         + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
-
     subDiv.subfeature = subfeature;
+    if (this.featureCallback)
+        this.featureCallback(subfeature, this.subFields, subDiv);
     featDiv.appendChild(subDiv);
     return subDiv;
 };

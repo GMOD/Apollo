@@ -93,19 +93,25 @@ void write_png_file(const char* file_name, int width, int height, png_bytep imgb
     return;
 }
 
-string ensure_path(vector<string> pathelems) {
+string ensurePath(string basePath, vector<string> pathElems) {
+    // if basePath is non-empty, it must already exist
     string path;
+    string relPath;
+    if (basePath.length() > 0) path += basePath + "/";
     struct stat st;
-    for (int i = 0; i < pathelems.size(); i++) {
-        path += pathelems[i] + "/";
+    for (int i = 0; i < pathElems.size(); i++) {
+        path += pathElems[i] + "/";
+        relPath += pathElems[i] + "/";
         if (!((stat(path.c_str(), &st) == 0) && S_ISDIR(st.st_mode))) {
             if (-1 == mkdir(path.c_str(), 0777)) {
-               cerr << "failed to make directory " << path  << " (error " << errno << ")" << endl;
-               exit(1);
+                cerr << "failed to make directory " << path 
+                     << " (error " << errno << ")" << endl;
+                exit(1);
             }
         }
     }
-    return path;
+    // leave trailing slash off of the return value
+    return relPath.substr(0, relPath.size() - 1);
 }
 
 class WiggleTileRenderer {
@@ -113,7 +119,7 @@ class WiggleTileRenderer {
 public:
 
     WiggleTileRenderer(int pixelBases, int tileWidthPixels, int tileHeight,
-                       string baseDir)
+                       string baseDir, string relDir)
         : curTile_(numeric_limits<int>::min()),
 	  curStart_(0),
 	  curEnd_(numeric_limits<int>::min()),
@@ -122,40 +128,41 @@ public:
           tileWidthPixels_(tileWidthPixels),
           tileHeight_(tileHeight),
           baseDir_(baseDir),
-          tileDir_(baseDir) {
+          relDir_(relDir),
+          tileRel_(baseDir) {
     }
 
     void addValue(int base, float value) {
-      //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
+        //cerr << "zoom " << pixelBases_ << " addValue: base: " << base << ", value: " << value <<endl;
         curEnd_ = max(curEnd_, base);
         processValue(base, value);
     }
   
     void renderTile() {
-      //cerr << "rendering tile " << curTile_ << endl;
+        //cerr << "rendering tile " << curTile_ << endl;
         stringstream s;
-        s << tileDir_ << curTile_ << ".png";
+        s << baseDir_ << "/" << tileRel_ << "/" << curTile_ << ".png";
         drawTile(s.str());
     }
 
     void flushTilesBefore(int base) {
-      // flush tiles up to, but not including, base #base
-      if (curTile_ != numeric_limits<int>::min())
-	while (curTile_ < base / tileWidthBases_) {
-	  renderTile();
-	  curTile_++;
-	  curStart_ += tileWidthBases_;
-        }
-      curTile_ = base / tileWidthBases_;
-      curStart_ = (long long)curTile_ * (long long)tileWidthBases_;
+        // flush tiles up to, but not including, base #base
+        if (curTile_ != numeric_limits<int>::min())
+            while (curTile_ < base / tileWidthBases_) {
+                renderTile();
+                curTile_++;
+                curStart_ += tileWidthBases_;
+            }
+        curTile_ = base / tileWidthBases_;
+        curStart_ = (long long)curTile_ * (long long)tileWidthBases_;
     }
 
     void flushAllTiles() {
-      // render previous tiles
-      flushTilesBefore(curEnd_);
-      // render last tile
-      if (curEnd_ >= curStart_)
-	renderTile();
+        // render previous tiles
+        flushTilesBefore(curEnd_);
+        // render last tile
+        if (curEnd_ >= curStart_)
+            renderTile();
     }
 
     void newSection(const string chrom, const int base) {
@@ -167,7 +174,7 @@ public:
         if ((curTile_ != numeric_limits<int>::min())
             && ((chrom != chrom_)
                 || (curTile_ != base / tileWidthBases_))) {
-	  flushAllTiles();
+            flushAllTiles();
         }
 
         //if this is a new chrom, make a directory for it
@@ -178,24 +185,25 @@ public:
             s << pixelBases_;
             scale = s.str();
 
-            const string path[] = {baseDir_, chrom, scale};
-            tileDir_ = ensure_path(vector<string>(path, path + sizeof(path)/sizeof(*path)));
-            chromDirs_[chrom] = tileDir_;
+            const string path[] = {relDir_, chrom, scale};
+            tileRel_ = ensurePath(baseDir_, vector<string>(path, path + sizeof(path)/sizeof(*path)));
+            chromRels_[chrom] = tileRel_;
         }
 
         chrom_ = chrom;
         curTile_ = base / tileWidthBases_;
     }
 
-    string chromDir(string chrom) {
-        return chromDirs_[chrom];
+    string chromRel(string chrom) {
+        return chromRels_[chrom];
     }
 
     int getTileBases() const {
         return tileWidthBases_;
     }
 
-    //render the current tile to file, and erase its info from private buffers in subclass
+    //render the current tile to file, and erase its info from private
+    //buffers in subclass
     virtual void drawTile(string pngFile) = 0;
     //handle sample
     virtual void processValue(int base, float value) = 0;
@@ -206,13 +214,19 @@ protected:
     int tileWidthBases_;
     int tileWidthPixels_;
     int tileHeight_;
-    int curTile_;  // index of next tile to render, or numeric_limits<int>::min() if no information has been added
-    int curStart_;  // first base of the next tile
-    int curEnd_;  // last base for which information has been added, or numeric_limits<int>::min() if no info added
+    // index of next tile to render, or numeric_limits<int>::min()
+    // if no information has been added
+    int curTile_;
+    // first base of the next tile
+    int curStart_;
+    // last base for which information has been added,
+    // or numeric_limits<int>::min() if no info added
+    int curEnd_;
     string baseDir_;
-    string tileDir_;
+    string relDir_;
+    string tileRel_;
     string chrom_;
-    map<string, string> chromDirs_;
+    map<string, string> chromRels_;
 };
 
 class MeanRenderer : public WiggleTileRenderer {
@@ -220,11 +234,11 @@ class MeanRenderer : public WiggleTileRenderer {
 public:
 
     MeanRenderer(int tileWidthBases, int tileWidthPixels,
-                 int tileHeight, string baseDir,
+                 int tileHeight, string baseDir, string relDir,
                  png_color bgColor, png_color fgColor,
                  float globalMax, float globalMin) :
         WiggleTileRenderer(tileWidthBases, tileWidthPixels,
-                           tileHeight, baseDir),
+                           tileHeight, baseDir, relDir),
         bgColor_(bgColor),
         fgColor_(fgColor),
         globalMax_(globalMax),
@@ -246,7 +260,7 @@ public:
     void processValue(int base, float value) {
         //x is the x-pixel in the current tile onto which the given base falls.
         int x = ((((long long)base - (long long)curStart_)
-	  	* (long long)tileWidthPixels_)
+                  * (long long)tileWidthPixels_)
 	         / (long long)tileWidthBases_);
 	extendTileTo(x);
         sumVals_[x] += value;
@@ -256,11 +270,11 @@ public:
     }
 
     void extendTileTo(int pixel) {
-      if (pixel >= 0)
-	if ((size_t)pixel >= sumVals_.size()) {
-	  sumVals_.insert (sumVals_.end(), (size_t)pixel + 1 - sumVals_.size(), 0.0f);
-	  valsPerPx_.insert (valsPerPx_.end(), (size_t)pixel + 1 - valsPerPx_.size(), 0);
-	}
+        if (pixel >= 0)
+            if ((size_t)pixel >= sumVals_.size()) {
+                sumVals_.insert (sumVals_.end(), (size_t)pixel + 1 - sumVals_.size(), 0.0f);
+                valsPerPx_.insert (valsPerPx_.end(), (size_t)pixel + 1 - valsPerPx_.size(), 0);
+            }
     }
 
     void eraseTileTo(int pixel) {
@@ -317,23 +331,23 @@ public:
     }
 
 private:
-  // colors
+    // colors
     png_color bgColor_;
     png_color fgColor_;
-  // moment buffer
+    // moment buffer
     deque<float> sumVals_;
     deque<int> valsPerPx_;
-  // global bounds
+    // global bounds
     float globalMax_;
     float globalMin_;
-  // image buffer
+    // image buffer
     png_bytep * buf_;
 };
 
 enum WiggleFormat {
-  FIXED,
-  VARIABLE,
-  BED
+    FIXED,
+    VARIABLE,
+    BED
 };
 
 class ParseFailure {};
@@ -342,11 +356,11 @@ class WiggleParser {
 public:
 
     WiggleParser() :
-          curBase_(numeric_limits<int>::min()),
-          step_(1),
-          span_(1),
-          chrom_(""),
-          format_(BED) {
+        curBase_(numeric_limits<int>::min()),
+        step_(1),
+        span_(1),
+        chrom_(""),
+        format_(BED) {
     }
 
     void addRenderer(WiggleTileRenderer* r) {
@@ -522,7 +536,7 @@ public:
             wig.close();
             //finish off last tile
             for (int i = 0; i < renderers_.size(); i++)
-              renderers_[i]->flushAllTiles();
+                renderers_[i]->flushAllTiles();
         }  else {
             cerr << "Unable to open file " << filename << endl;
             exit(1);
@@ -567,52 +581,56 @@ private:
 
 int main(int argc, char **argv){
   
-  INIT_OPTS_LIST (opts, argc, argv, 1, "[options] <input file>", "create a JBrowse quantitative track, broken into tile images, from a WIG file");
+    INIT_OPTS_LIST (opts, argc, argv, 1, "[options] <input file>", "create a JBrowse quantitative track, broken into tile images, from a WIG file");
 
-  string pngdiropt = "data/tiles";
-  string jsondiropt = "data/tracks";
-  string tracklabel = "wigtrack";
-  int width = 2000;
-  int height = 100;
-  string fgopt = "105,155,111";
-  string bgopt = "255,255,255";
-  string minopt, maxopt;
+    string outdiropt = "data";
+    string pngrelopt = "tiles";
+    string jsondiropt = "data/tracks";
+    string tracklabel = "wigtrack";
+    int width = 2000;
+    int height = 100;
+    string fgopt = "105,155,111";
+    string bgopt = "255,255,255";
+    string minopt, maxopt;
 
-  opts.add ("pd -png-dir", pngdiropt, "PNG output directory");
-  opts.add ("jd -json-dir", jsondiropt, "JSON output directory");
-  opts.add ("tl -track-label", tracklabel, "track label");
-  opts.add ("tw -tile-width", width, "tile width in pixels");
-  opts.add ("th -track-height", height, "track height in pixels");
-  opts.add ("fg -foreground-color", fgopt, "foreground R,G,B color");
-  opts.add ("bg -background-color", bgopt, "background R,G,B color");
-  opts.add ("min -min-value", minopt, "minimum value to show (default is minimum value in WIG file)", false);
-  opts.add ("max -max-value", maxopt, "maximum value to show (default is maximum value in WIG file)", false);
 
-  try {
-    opts.parse();
-  } catch (Opts_list::Syntax_exception e) {
-    cerr << opts.short_help() << e.what();
-    exit(1);
-  }
+    opts.add ("od -outdir", outdiropt, "the data directory");
+    opts.add ("pd -png-dir", pngrelopt, "PNG output directory, relative to the data directory");
+    opts.add ("jd -json-dir", jsondiropt, "JSON output directory");
+    opts.add ("tl -track-label", tracklabel, "track label");
+    opts.add ("tw -tile-width", width, "tile width in pixels");
+    opts.add ("th -track-height", height, "track height in pixels");
+    opts.add ("fg -foreground-color", fgopt, "foreground R,G,B color");
+    opts.add ("bg -background-color", bgopt, "background R,G,B color");
+    opts.add ("min -min-value", minopt, "minimum value to show (default is minimum value in WIG file)", false);
+    opts.add ("max -max-value", maxopt, "maximum value to show (default is maximum value in WIG file)", false);
 
-  string wig_filename = opts.args[0];
+    try {
+        opts.parse();
+    } catch (Opts_list::Syntax_exception e) {
+        cerr << opts.short_help() << e.what();
+        exit(1);
+    }
+
+    string wig_filename = opts.args[0];
 
     png_color bg = {
-      atoi(strtok((char*) bgopt.c_str(), ",")),   // cast away const
-      atoi(strtok(NULL, ",")), 
-      atoi(strtok(NULL, ","))
+        atoi(strtok((char*) bgopt.c_str(), ",")),   // cast away const
+        atoi(strtok(NULL, ",")), 
+        atoi(strtok(NULL, ","))
     };
 
     png_color fg = {
-      atoi(strtok((char*) fgopt.c_str(), ",")),   // cast away const
-      atoi(strtok(NULL, ",")), 
-      atoi(strtok(NULL, ","))
+        atoi(strtok((char*) fgopt.c_str(), ",")),   // cast away const
+        atoi(strtok(NULL, ",")), 
+        atoi(strtok(NULL, ","))
     };
 
-    vector<string> basePath;
-    basePath.push_back(pngdiropt);
-    basePath.push_back(tracklabel);
-    string baseDir = ensure_path(basePath);
+    vector<string> relPath;
+    //basePath.push_back(outdiropt);
+    relPath.push_back(pngrelopt);
+    relPath.push_back(tracklabel);
+    string relDir = ensurePath(outdiropt, relPath);
 
     float max = 1.0f;
     float min = 0.0f;
@@ -620,7 +638,8 @@ int main(int argc, char **argv){
         if (! (from_string<float>(min, minopt, dec)
                &&
                from_string<float>(max, maxopt, dec))) {
-            cerr << "couldn't parse min and max arguments: " << minopt << " " << maxopt << endl;
+            cerr << "couldn't parse min and max arguments: "
+                 << minopt << " " << maxopt << endl;
             exit(1);
         }
     } else {
@@ -633,13 +652,14 @@ int main(int argc, char **argv){
 
     //bases per pixel
     const int zooms[] = {1, 2, 5, 10, 20, 50, 100, 200, 500, 1000,
-                   2000, 5000, 10000, 20000, 50000, 100000};
+                         2000, 5000, 10000, 20000, 50000, 100000};
     int num_zooms=sizeof(zooms)/sizeof(*zooms);
 
     WiggleParser p;
 
     for (int i = 0; i < num_zooms; i++) {
-        p.addRenderer(new MeanRenderer(zooms[i], width, height, baseDir,
+        p.addRenderer(new MeanRenderer(zooms[i], width, height,
+                                       outdiropt, relDir,
                                        bg, fg, max, min));
     }
 
@@ -652,7 +672,7 @@ int main(int argc, char **argv){
     WiggleTileRenderer* r;
     for (chrom = chroms.begin(); chrom != chroms.end(); chrom++) {
         jsonDir.push_back(*chrom);
-        string jsonPath = ensure_path(jsonDir) + tracklabel + ".json";
+        string jsonPath = ensurePath("", jsonDir) + "/" + tracklabel + ".json";
         ofstream json(jsonPath.c_str());
         jsonDir.pop_back();
         if (json.is_open()) {
@@ -662,7 +682,7 @@ int main(int argc, char **argv){
                 r = p.getRenderer(i);
                 json << "      {" << endl
                      << "         \"urlPrefix\" : \""
-                     << r->chromDir(*chrom) << "\"," << endl
+                     << r->chromRel(*chrom) << "/\"," << endl
                      << "         \"height\" : "
                      << height << "," << endl
                      << "         \"basesPerTile\" : "
@@ -687,13 +707,13 @@ int main(int argc, char **argv){
 
 /*
 
-Copyright (c) 2007-2009 The Evolutionary Software Foundation
+  Copyright (c) 2007-2009 The Evolutionary Software Foundation
 
-Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
+  Created by Mitchell Skinner <mitch_skinner@berkeley.edu>
 
-This package and its accompanying libraries are free software; you can
-redistribute it and/or modify it under the terms of the LGPL (either
-version 2.1, or at your option, any later version) or the Artistic
-License 2.0.  Refer to LICENSE for the full license text.
+  This package and its accompanying libraries are free software; you can
+  redistribute it and/or modify it under the terms of the LGPL (either
+  version 2.1, or at your option, any later version) or the Artistic
+  License 2.0.  Refer to LICENSE for the full license text.
 
 */
