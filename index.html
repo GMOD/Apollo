@@ -42,10 +42,7 @@ djConfig="isDebug: true"></script> -->
 	google.load("dojo", "1.5");
    </script>
 
-<!--  <script type="text/javascript"
-   src="jslib/jquery_plugins/multidraggable_ui1.8.8/js/mod.jquery.ui.multidraggable-1.8.8.js"></script>
-    -->
-    <script type="text/javascript" src="jslib/jquery_plugins/mod.jquery.ui.multidraggable-1.8.8.js"></script>
+   <script type="text/javascript" src="jslib/jquery_plugins/mod.jquery.ui.multidraggable-1.8.8.js"></script>
     <script type="text/javascript" src="js/Browser.js"></script>
     <script type="text/javascript" src="js/Util.js"></script>
     <script type="text/javascript" src="js/NCList.js"></script>
@@ -85,9 +82,11 @@ djConfig="isDebug: true"></script> -->
                                    location: queryParams.loc,
                                    tracks: queryParams.tracks,
                                    bookmark: bookmarkCallback,
-                                   dataRoot: "data/"
+	                           dataRoot: "" 
                                });
     /* ]]> */
+    <!-- standard jbrowse dataRoot setting in Browser constructor... -->
+    <!-- dataRoot: "data/" -->
     </script>
   </head>
   
