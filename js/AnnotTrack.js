@@ -25,10 +25,12 @@ function AnnotTrack(trackMeta, url, refSeq, browserParams) {
     this.comet_working = true;
     this.remote_edit_working = false;
 
-    this.mouseDownAnnot = function(event)  {
-	thisObj.annotMouseDown(event);
+    this.annotMouseDown = function(event)  {
+	thisObj.onAnnotMouseDown(event);
     }
 }
+
+
 
 // Inherit from FeatureTrack 
 AnnotTrack.prototype = new FeatureTrack();
@@ -38,14 +40,14 @@ AnnotTrack.prototype = new FeatureTrack();
 *    otherwise if USE_COMET is set to true, will cause server-breaking errors
 *  
 */
-AnnotTrack.USE_COMET = true;
+AnnotTrack.USE_COMET = false;
 
 /**
 *  set USE_LOCAL_EDITS = true to bypass editing calls to AnnotationEditorService servlet and attempt 
 *    to create similar annotations locally
 *  useful when AnnotationEditorService is having problems, or experimenting with something not yet completely implemented server-side
 */
-AnnotTrack.USE_LOCAL_EDITS = false;
+AnnotTrack.USE_LOCAL_EDITS = true;
 
 AnnotTrack.creation_count = 0;
 AnnotTrack.selectedFeatures = [];
@@ -232,7 +234,15 @@ AnnotTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
     }
 }
 
-AnnotTrack.prototype.annotMouseDown = function(event)  {
+AnnotTrack.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
+                                     containerStart, containerEnd) {
+    FeatureTrack.prototype.showRange.call(this, first, last, startBase, bpPerBlock, scale,
+					  containerStart, containerEnd);
+//    console.log("after calling annot track.showRange(), block range: " + 
+//		this.firstAttached + "--" + this.lastAttached + ",  " + (this.lastAttached - this.firstAttached));
+}
+
+AnnotTrack.prototype.onAnnotMouseDown = function(event)  {
     event = event || window.event;
     var elem = (event.currentTarget || event.srcElement);
     var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
@@ -403,7 +413,7 @@ AnnotTrack.deleteSelectedFeatures = function() {
     var features_nclist = track.features;
     var trackName;
     var features = '"features": [';
-
+    
     var uniqueNames = [];
 	for (var i = 0; i < AnnotTrack.selectedFeatures.length; ++i) {
 		var data = AnnotTrack.selectedFeatures[i];

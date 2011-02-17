@@ -110,6 +110,7 @@ DraggableFeatureTrack.prototype.addToSelection = function(featdiv)  {
 	    console.log("addToSelection ");
             console.log(featdiv);
             DraggableFeatureTrack.sel_divs.push(featdiv);
+	    DraggableFeatureTrack.tracks_for_sel_features.push(ftrack);  // this should eventually change to track ID (but needs to be unique)
 	    var feat;
 	    if (featdiv.feature)  {
 		feat = featdiv.feature;
@@ -140,8 +141,10 @@ DraggableFeatureTrack.prototype.addToSelection = function(featdiv)  {
  */
 DraggableFeatureTrack.prototype.clearSelection = function() {
 //    $(DraggableFeatureTrack.sel_divs, ".ui-draggable").draggable("destroy");
+    console.log("clearing previous selection");
     for (var idx in DraggableFeatureTrack.sel_divs)  {
 	var featdiv = DraggableFeatureTrack.sel_divs[idx];
+	console.log(featdiv);
 	$(featdiv).removeClass("selected-feature");
 	if ($(featdiv).hasClass("ui-draggable"))  {
 	    $(featdiv).draggable("destroy");
@@ -149,8 +152,10 @@ DraggableFeatureTrack.prototype.clearSelection = function() {
 	if ($(featdiv).hasClass("ui-multidraggable"))  {
 	    $(featdiv).multidraggable("destroy");
 	}
+	console.log(featdiv);
     }
     DraggableFeatureTrack.sel_divs = [];
+    DraggableFeatureTrack.tracks_for_sel_features = [];
     DraggableFeatureTrack.sel_features = [];
     $(".left-edge-match").removeClass("left-edge-match");
     $(".right-edge-match").removeClass("right-edge-match");
@@ -166,6 +171,7 @@ DraggableFeatureTrack.prototype.removeFromSelection = function(featdiv) {
     if (idx > -1)  {
         DraggableFeatureTrack.sel_divs.splice(idx, 1);
 	DraggableFeatureTrack.sel_features.splice(idx, 1);
+	DraggableFeatureTrack.tracks_for_sel_features.splice(idx, 1);
 	$(featdiv).removeClass("selected-feature");
 	if ($(featdiv).hasClass("ui-draggable"))  {
 	    $(featdiv).draggable("destroy");
@@ -502,6 +508,45 @@ DraggableFeatureTrack.prototype.getLowestFeatureDiv = function(elem)  {
 	if (elem === document)  {return null;} 
     }
     return elem;
+}
+
+/**
+*   Near as I can tell, track.showRange is called every time the appearance of the track changes in a way that would 
+*      cause feature divs to be added or deleted
+*   So overriding showRange here to try and map selected features to selected divs and make sure the divs have selection style set
+*/
+DraggableFeatureTrack.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
+						     containerStart, containerEnd) {
+    FeatureTrack.prototype.showRange.call(this, first, last, startBase, bpPerBlock, scale,
+					  containerStart, containerEnd);   
+    console.log("called DraggableFeatureTrack.showRange(), block range: " + 
+		this.firstAttached +  "--" + this.lastAttached + ",  " + (this.lastAttached - this.firstAttached));
+    // redo selection styles for divs in case any divs for selected features were changed/added/deleted
+    var sfeats = DraggableFeatureTrack.getSelectedFeatures();
+    var stracks = DraggableFeatureTrack.getTracksForSelectedFeatures();
+    for (var sin in sfeats)  {
+	// only look for selected features in this track -- 
+	// otherwise will be redoing (sfeats.length * tracks.length) times instead of sfeats.length times, 
+	// because showRange is getting called for each track 
+	var sfeat = sfeats[sin];
+	if (this === stracks[sin])  {
+	    var sdiv = this.getFeatDiv(sfeat);
+	    if (sdiv && sdiv !== null)  { 
+		console.log("found selected feature: ");
+		console.log(sdiv);
+		var jdiv = $(sdiv);
+		if (! jdiv.hasClass("selected-feature"))  {
+		    console.log("did not have selection style, applying now");
+		    jdiv.addClass("selected-feature");
+		    console.log(sdiv);
+		}
+		else  {
+		    console.log("already had selection style");
+		}
+		DraggableFeatureTrack.sel_divs[sin] = jdiv;
+	    }
+	}
+    }
 }
 
 
