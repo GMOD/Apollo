@@ -35,7 +35,7 @@ function FeatureTrack(trackMeta, url, refSeq, browserParams) {
         thisObj.renderSubfeature(param.feature, param.featDiv, val,
                                  param.displayStart, param.displayEnd);
     };
-    this.featureClick = function(event) { thisObj.onFeatureClick(event); }
+    this.featureClick = function(event) { thisObj.onFeatureClick(event);}
 }
 
 FeatureTrack.prototype = new Track("");
@@ -126,7 +126,7 @@ FeatureTrack.prototype.setViewInfo = function(genomeView, numBlocks,
 FeatureTrack.prototype.fillHist = function(blockIndex, block,
                                            leftBase, rightBase,
                                            stripeWidth) {
-    if (this.histogramMeta === undefined)  { return; }
+    if (this.histogramMeta === undefined)  {return;}
     // bases in each histogram bin that we're currently rendering
     var bpPerBin = (rightBase - leftBase) / this.numBins;
     var pxPerCount = 2;
@@ -299,6 +299,9 @@ FeatureTrack.prototype.fillFeatures = function(blockIndex, block,
     //0-based
 
     var layouter = new Layout(leftBase, rightBase);
+
+    // GAH: new layouter means all previous divs from this block are removed??
+    //   if so then this is where should be flushing out featToDiv maps
     block.featureLayout = layouter;
     block.featureNodes = {};
     block.style.backgroundColor = "#ddd";
@@ -355,7 +358,16 @@ FeatureTrack.prototype.getId = function(feature, path)  {
     // ID is a stringification of the path in the NCList where
     // the feature lives; it's unique across the top-level NCList
     // (the top-level NCList covers a track/chromosome combination)
-    return path.join(",");
+    var id;
+    if (path && path != null)  {
+	id = path.join(",");
+    }
+    else if (this.fields["id"])  {
+	    // no path, for now assume id is unique within track
+	    id = feature[this.fields["id"]];
+    }
+    // if no path and no id field, returns undefined 
+    return id; 
 };
 
 FeatureTrack.prototype.measureStyles = function() {
@@ -413,9 +425,9 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
     if (this.arrowheadClass) {
         switch (feature[fields["strand"]]) {
         case 1:
-            featureEnd   += (this.plusArrowWidth / scale); break;
+            featureEnd   += (this.plusArrowWidth / scale);break;
         case -1:
-            featureStart -= (this.minusArrowWidth / scale); break;
+            featureStart -= (this.minusArrowWidth / scale);break;
         }
     }
 
@@ -459,13 +471,13 @@ FeatureTrack.prototype.renderFeature = function(feature, uniqueId, block, scale,
 
     switch (feature[fields["strand"]]) {
     case 1:
-        featDiv.className = "plus-" + this.className; break;
+        featDiv.className = "plus-" + this.className;break;
     case 0:
     case null:
     case undefined:
-        featDiv.className = this.className; break;
+        featDiv.className = this.className;break;
     case -1:
-        featDiv.className = "minus-" + this.className; break;
+        featDiv.className = "minus-" + this.className;break;
     }
 
     if ((fields["phase"] !== undefined) && (feature[fields["phase"]] !== null))
@@ -601,13 +613,13 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
 
     switch (subfeature[this.subFields["strand"]]) {
     case 1:
-        subDiv.className = "plus-" + className; break;
+        subDiv.className = "plus-" + className;break;
     case 0:
     case null:
     case undefined:
-        subDiv.className = className; break;
+        subDiv.className = className;break;
     case -1:
-        subDiv.className = "minus-" + className; break;
+        subDiv.className = "minus-" + className;break;
     }
     if (Util.is_ie6) subDiv.appendChild(document.createComment());
     subDiv.style.cssText =
@@ -619,6 +631,36 @@ FeatureTrack.prototype.renderSubfeature = function(feature, featDiv, subfeature,
     featDiv.appendChild(subDiv);
     return subDiv;
 };
+
+/**
+*  given a feature data struct being rendered on this track, return the div used for rendering the feature
+*    or (undefined? null?) if no div found
+*  JBrowse should only have a single div for each feature (features that overlap multiple blocks are assigned 
+*      to a single block within the set they overlap (and hence a single feat div is generated)
+*/
+FeatureTrack.prototype.getFeatDiv = function(feature)  {
+    /*
+      *  General idea is to loop through feature blocks and find div = block.featureNodes[feature.id]
+      *  Hopefully can restrict to just visible (or at least "attached" blocks)
+      *      maybe by restricting to: Track.blocks[Track.firstAttached] to Track.blocks[Track.lastAttached]
+      *  OR, create featToDiv[id] map for whole track, and modify whenever individual block.featureNodes are modified
+      */
+
+    // assuming "this" is track
+    var fid = this.getId(feature, null);
+    for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
+	var block = this.blocks[bindex];
+	if (block && block.featureNodes)  {
+	    var div = block.featureNodes[fid];
+	    if (div && div != null)  {
+		return div;
+	    }
+	}
+    }
+    
+    // nothing found in any blocks
+    return undefined;
+}
 
 /*
 
