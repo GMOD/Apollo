@@ -251,7 +251,10 @@ DraggableFeatureTrack.prototype.renderSubfeature = function(feature, featDiv, su
 	var id = feature[this.fields["id"]];
 	if (id && id !== null)  {
 	    var subdivs = DraggableFeatureTrack.featToSubDivs[id];
-	    if (! subdivs)  {subdivs = [];DraggableFeatureTrack.featToSubDivs[id] = subdivs;}
+	    if (! subdivs)  {
+		subdivs = [];
+		DraggableFeatureTrack.featToSubDivs[id] = subdivs;
+	    }
 	    //	console.log(subindex);
 	    // subdivs[subindex] = subfeatdiv;
 //	    console.log(subdivs.length);
@@ -543,6 +546,7 @@ DraggableFeatureTrack.prototype.showRange = function(first, last, startBase, bpP
 		else  {
 		    console.log("already had selection style");
 		}
+		// reset sel_divs to point to the correct div
 		DraggableFeatureTrack.sel_divs[sin] = jdiv;
 	    }
 	}
