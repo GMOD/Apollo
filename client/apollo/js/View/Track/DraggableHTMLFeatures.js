@@ -80,9 +80,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     },
 
     constructor: function( args ) {
-
-        console.log("DragableFeatureTrack constructor called");
-
         this.gview = this.browser.view;
         // get a handle to on the main WA object
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
@@ -765,8 +762,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
      */
     onFeatureMouseDown: function(event) {
         // event.stopPropagation();
-        if( this.verbose_selection || this.verbose_drag ) { console.log("DFT.onFeatureMouseDown called"); }
-	console.log("genome coord: " + this.gview.absXtoBp(event.pageX));
+        if( this.verbose_selection || this.verbose_drag ) { 
+            console.log("DFT.onFeatureMouseDown called"); 
+	    console.log("genome coord: " + this.gview.absXtoBp(event.pageX));
+        }
 
 	// drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
 	//   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 

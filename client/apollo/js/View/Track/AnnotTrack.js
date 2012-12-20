@@ -105,13 +105,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.verbose_create = false;
         this.verbose_add = false;
         this.verbose_delete = false;
-        this.verbose_drop = true;
+        this.verbose_drop = false;
         this.verbose_click = false;
         this.verbose_resize = false;
         this.verbose_mousedown = false;
         this.verbose_mouseenter = false;
         this.verbose_mouseleave = false;
         this.verbose_render = false;
+        this.verbose_server_notification = false;
 
         var track = this;
 
@@ -201,9 +202,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                     track.changed();
                     track.createAnnotationChangeListener();
-
+                    // console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
 		    var strack = track.getSequenceTrack();
-                    console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
 		    // setAnnotTrack() triggers loading of sequence alterations
 		    if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); } 
                 },
@@ -260,10 +260,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     // }
                     else {
                             for (var i in response) {
+                                
                                     var changeData = response[i];
+                                    if (track.verbose_server_notification) {
+                                            console.log(changeData.operation + " command from server: ");
+                                            console.log(changeData);                                        
+                                    }
                                     if (changeData.operation == "ADD") {
-                                            console.log("ADD command from server: ");
-                                            console.log(changeData);
                                             if (changeData.sequenceAlterationEvent) {
                                                     track.getSequenceTrack().annotationsAddedNotification(changeData.features);
                                             }
@@ -272,8 +275,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             }
                                     }
                                     else if (changeData.operation == "DELETE") {
-                                            console.log("DELETE command from server: ");
-                                            console.log(changeData);
                                             if (changeData.sequenceAlterationEvent) {
                                                     track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
                                             }
@@ -282,8 +283,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             }
                                     }
                                     else if (changeData.operation == "UPDATE") {
-                                            console.log("UPDATE command from server: ");
-                                            console.log(changeData);
                                             if (changeData.sequenceAlterationEvent) {
 						track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
                                                  //   track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
@@ -296,8 +295,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             }
                                     }
                                     else  {
-                                            console.log("UNKNOWN command from server: ");
-                                            console.log(response);
+                                        // unknown command from server, null-op?
                                     }
                             }
                             // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
@@ -871,7 +869,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      *    (contrasted with DraggableFeatureTracks, which all share the same selection and selection manager
      */
     deleteSelectedFeatures: function()  {
-	console.log("attempting to delete selected features");
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
         this.deleteAnnotations(selected);

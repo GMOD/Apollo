@@ -32,6 +32,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         this.show_reverse_strand = true;
         this.show_protein_translation = true;
         this.context_path = "..";
+        this.verbose_server_notification = false;
 
         this.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
         this.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
@@ -64,9 +65,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	//	this.initContextMenu();
 
 	var atrack = this.getAnnotTrack();
-	console.log("in SequenceTrack constructor, annotation track = ", atrack);
 	if (atrack)  { 
-	    console.log("in SequenceTrack constructor, found AnnotTrack: ", atrack);
 	    this.setAnnotTrack(atrack); 
 	}  
     },
@@ -110,8 +109,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	                  timeout: 5 * 1000, // Time in milliseconds
     	                  // The LOAD function will be called on a successful response.
     	                  load: function(response, ioArgs) { //
-			      console.log("SequenceTrack get_sequence_alterations response: ");
-			      console.log(response);
     		              var responseFeatures = response.features;
     		              for (var i = 0; i < responseFeatures.length; i++) {
     			          var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
@@ -750,7 +747,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
     createGenomicInsertion: function()  {
         var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-        console.log("SequenceTrack.createGenomicInsertion() called at genome position: " + gcoord);
 
         var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
         this.annotTrack.openDialog("Add Insertion", content);
@@ -777,7 +773,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
     createGenomicDeletion: function()  {
         var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-        console.log("SequenceTrack.createGenomicDeletion() called at genome position: " + gcoord);
 
         var content = this.createAddSequenceAlterationPanel("deletion", gcoord);
         this.annotTrack.openDialog("Add Deletion", content);
@@ -786,21 +781,17 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
     createGenomicSubstitution: function()  {
         var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-        console.log("SequenceTrack.createGenomicSubstitution() called at genome position: " + gcoord);
         var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
         this.annotTrack.openDialog("Add Substitution", content);
     },
 
     deleteSelectedFeatures: function()  {
-        console.log("SequenceTrack.deleteSelectedFeatures() called");
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
         this.requestDeletion(selected);
     },
 
     requestDeletion: function(selected)  {
-        console.log("SequenceTrack.requestDeletion called");
-        console.log(selected);
         var track = this;
         var features = "[ ";
         for (var i = 0; i < selected.length; ++i) {
@@ -816,7 +807,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     },
 
     getInformation: function()  {
-        console.log("SequenceTrack.getInformation() called");
+
     },
 
     /**
@@ -824,7 +815,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
      *      so telling SequenceTrack to add to it's SeqFeatureStore
      */
     annotationsAddedNotification: function(responseFeatures)  {
-        console.log("SequenceTrack.annotationsAddedNotification() called");
+        if (this.verbose_server_notification)  { console.log("SequenceTrack.annotationsAddedNotification() called"); }
         var track = this;
         // add to store
         for (var i = 0; i < responseFeatures.length; ++i) {
@@ -850,7 +841,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
      *      so telling SequenceTrack to remove from it's SeqFeatureStore
      */
     annotationsDeletedNotification: function(annots)  {
-        console.log("SequenceTrack.removeSequenceAlterations() called");
+        if (this.verbose_server_notification)  {  console.log("SequenceTrack.removeSequenceAlterations() called"); }
         var track = this;
         // remove from SeqFeatureStore
         for (var i = 0; i < annots.length; ++i) {
@@ -984,7 +975,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     },
 
     setAnnotTrack: function(annotTrack) {
-	if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
+	// if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
 	this.annotTrack = annotTrack;
 	this.initContextMenu();
 	this.loadSequenceAlterations();
@@ -1053,7 +1044,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 		// should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloAnnotTrack)  {
                     this.annotTrack = tracks[i];
-		    console.log("In SequenceTrack, found WebApollo annotation track: ", this.annotTrack);
                     this.annotTrack.seqTrack = this;
                     break;
                 }
