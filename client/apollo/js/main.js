@@ -12,21 +12,31 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dijit/MenuItem', 
            'dijit/CheckedMenuItem',
+           'dijit/form/DropDownButton',
+           'dijit/DropDownMenu',
            'JBrowse/Plugin',
            './FeatureEdgeMatchManager',
 	   './FeatureSelectionManager'
        ],
-    function( declare, dijitCheckedMenuItem, JBPlugin, FeatureEdgeMatchManager, FeatureSelectionManager ) {
+    function( declare, dijitMenuItem, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, JBPlugin, 
+              FeatureEdgeMatchManager, FeatureSelectionManager ) {
 
 return declare( JBPlugin,
 {
 
-    colorCdsByFrame: false,
+
+//    colorCdsByFrame: false,
+//    searchMenuInitialized: false,
 
     constructor: function( args ) {
         var thisB = this;
-        var browser = args.browser;
+        this.colorCdsByFrame = false;
+        this.searchMenuInitialized = false;
+//        var browser = args.browser;
+//        this.browser = browser;
+        var browser = this.browser;  // this.browser set in Plugin superclass constructor
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
@@ -84,7 +94,52 @@ return declare( JBPlugin,
             browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
         });
 
+    }, 
+
+/** 
+ * hacking addition of a "tools" menu to standard JBrowse menubar, 
+ *    with a "Search Sequence" dropdown
+ */
+    initSearchMenu: function()  {
+        if (! this.searchMenuInitialized) { 
+            var webapollo = this;
+            this.browser.addGlobalMenuItem( 'tools',
+                                            new dijitMenuItem(
+                                                {
+		                                    label: "Search sequence",
+		                                    onClick: function() {
+		                                        webapollo.getAnnotTrack().searchSequence();
+		                                    }
+                                                }) );
+            var toolMenu = this.browser.makeGlobalMenu('tools');
+            if( toolMenu ) {
+                var toolButton = new dijitDropDownButton(
+                    { className: 'file',
+                      innerHTML: 'Tools',
+                      //title: '',
+                      dropDown: toolMenu
+                    });
+                dojo.addClass( toolButton.domNode, 'menu' );
+                this.browser.menuBar.appendChild( toolButton.domNode );
+            }
+        }
+        this.searchMenuInitialized = true;
+    }, 
+
+    getAnnotTrack: function()  {
+        if (this.browser && this.browser.view && this.browser.view.tracks)  {
+            var tracks = this.browser.view.tracks;
+            for (var i = 0; i < tracks.length; i++)  {
+	        // should be doing instanceof here, but class setup is not being cooperative
+                if (tracks[i].isWebApolloAnnotTrack)  {
+                    console.log("annot track refseq: " + tracks[i].refSeq.name);
+                    return tracks[i];
+                }
+            }
+        }
+        return null;
     }
+
 });
 
 });

@@ -179,7 +179,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
 	var success = this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
 //	this.initNonAnnotContextMenu();
-        this.initSearchMenu();
+        if (! this.webapollo.searchMenuInitialized)  {
+            this.webapollo.initSearchMenu();
+        }
         this.initSaveMenu();
         this.initPopupDialog();
 
@@ -2158,32 +2160,6 @@ getAnnotationInformation: function()  {
     annot_context_menu.startup();
 }, 
 
-/** 
- * hacking addition of a "tools" menu to standard JBrowse menubar, 
- *    with a "Search Sequence" dropdown
- */
-initSearchMenu: function()  {
-    var thisObj = this;
-    this.browser.addGlobalMenuItem( 'tools',
-          new dijitMenuItem(
-              {
-		  label: "Search sequence",
-		  onClick: function() {
-		      thisObj.searchSequence();
-		  }
-              }) );
-    var toolMenu = this.browser.makeGlobalMenu('tools');
-    if( toolMenu ) {
-        var toolButton = new dijitDropDownButton(
-            { className: 'file',
-              innerHTML: 'Tools',
-              //title: '',
-              dropDown: toolMenu
-            });
-        dojo.addClass( toolButton.domNode, 'menu' );
-        this.browser.menuBar.appendChild( toolButton.domNode );
-    }
-}, 
 
 /**
  *  Add AnnotTrack data save option to track label pulldown menu
