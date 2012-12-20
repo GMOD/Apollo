@@ -2641,6 +2641,7 @@ makeTrackMenu: function()  {
     // };
 
     executeUpdateOperation: function(postData, loadCallback) {
+    	var track = this;
         if (!this.listener || this.listener.fired != -1 ) {
         	this.handleError({responseText: '{ error: "Server connection error - try reloading the page" }'});
         	return;
