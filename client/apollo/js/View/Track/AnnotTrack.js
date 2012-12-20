@@ -554,7 +554,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
                 // if zoomed int to showing sequence residues, then make edge-dragging snap to interbase pixels
 		var gridvals;
-                if (scale === track.gview.charWidth) { gridvals = [track.gview.charWidth, 1]; }
+                var charSize = track.gview.getSequenceCharacterSize();
+                if (scale === charSize.width) { gridvals = [track.gview.charWidth, 1]; }
                 else  { gridvals = false; }
 
                 $(featdiv).resizable( {
@@ -2573,7 +2574,8 @@ makeTrackMenu: function()  {
 	    var strand = topfeat.get('strand');
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
-            if (scale === track.gview.charWidth && track.useResiduesOverlay)  {
+            var charSize = track.gview.getSequenceCharacterSize();
+            if (scale === charSize.width && track.useResiduesOverlay)  {
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
                     var block = this.blocks[bindex];

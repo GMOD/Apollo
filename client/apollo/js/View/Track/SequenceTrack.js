@@ -41,13 +41,13 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         };
 
 	this.charSize = this.gview.getSequenceCharacterSize();
-	this.charWidth = this.charSize.charWidth;
-	this.seqHeight = this.charSize.seqHeight;
+//	this.charWidth = this.charSize.charWidth;
+//	this.seqHeight = this.charSize.seqHeight;
 
 	// splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible 
 	//    for DNA residues and protein translation to be different styles
-	this.dnaHeight = this.seqHeight;
-	this.proteinHeight = this.seqHeight;
+//	this.dnaHeight = this.seqHeight;
+//	this.proteinHeight = this.seqHeight;
 
 	// this.refSeq = refSeq;  already assigned in BlockBased superclass
 
@@ -151,9 +151,10 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     },
 
     endZoom: function(destScale, destBlockBases) {
-        var charSize = this.getCharacterMeasurements();
+//        var charSize = this.getCharacterMeasurements();
+        var charSize = this.gview.getSequenceCharacterSize();
 
-        if( ( destScale == charSize.w ) ||
+        if( ( destScale == charSize.width ) ||
 	    (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
 	    this.show();
         }
@@ -180,9 +181,9 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
         this.inherited( arguments );
 
-        var charSize = this.getCharacterMeasurements();
-
-        if ( (scale == charSize.w ) ||
+//        var charSize = this.getCharacterMeasurements();
+        var charSize = this.gview.getSequenceCharacterSize();
+        if ( (scale == charSize.width ) ||
 	    (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
         } else {
@@ -191,36 +192,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         }
         this.setLabel( this.key );
     },
-
-    /**
-     * @returns {Object} containing <code>h</code> and <code>w</code>,
-     *      in pixels, of the characters being used for sequences
-     */
-    getCharacterMeasurements: function() {
-        if( !this._measurements )
-            this._measurements = this._measureSequenceCharacterSize( this.div );
-        return this._measurements;
-    },
-
-    /**
-     * Conducts a test with DOM elements to measure sequence text width
-     * and height.
-     */
-    _measureSequenceCharacterSize: function( containerElement ) {
-        var widthTest = document.createElement("div");
-        widthTest.className = "wa-sequence";
-        widthTest.style.visibility = "hidden";
-        var widthText = "12345678901234567890123456789012345678901234567890";
-        widthTest.appendChild(document.createTextNode(widthText));
-        containerElement.appendChild(widthTest);
-        var result = {
-            w:  widthTest.clientWidth / widthText.length,
-            h: widthTest.clientHeight
-        };
-        containerElement.removeChild(widthTest);
-        return result;
-  },
-
 
     /**
      *   GAH
@@ -244,8 +215,9 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
         var fillArgs = arguments;
         var track = this;
-        var charSize = this.getCharacterMeasurements();
-        if ((scale == charSize.w) ||
+//        var charSize = this.getCharacterMeasurements();
+        var charSize = this.gview.getSequenceCharacterSize();
+        if ((scale == charSize.width) ||
     	(this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
         } else {
@@ -271,10 +243,10 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	    var leftExtended = leftBase - 2;
     	    var rightExtended = rightBase + 2;
 
-            var dnaHeight     = charSize.h;
-            var proteinHeight = charSize.h;
+            var dnaHeight     = charSize.height;
+            var proteinHeight = charSize.height;
 
-    	    if ( scale == charSize.w ) {
+    	    if ( scale == charSize.width ) {
                 // this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
                 //  this.sequenceStore.getRange( this.refSeq, leftBase, endBase,
             //    this.store.getFeatures(
@@ -478,8 +450,8 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         var featDiv =
             this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
-
-        var charSize = this.getCharacterMeasurements();
+//        var charSize = this.getCharacterMeasurements();
+        var charSize = this.gview.getSequenceCharacterSize();
 
         var seqNode = $("div.wa-sequence", block).get(0);
         // var seqNode = $("div.dna-container", block).get(0);
@@ -490,7 +462,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
     	}
     	else if (ftype == "insertion") {
-    	    if ( scale == charSize.w ) {
+    	    if ( scale == charSize.width ) {
     		var container  = document.createElement("div");
     		var residues = feature.get("residues");
     		$(container).addClass("dna-residues");
@@ -506,7 +478,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	    }
     	}
     	else if ((ftype == "substitution")) {
-    	    if ( scale == charSize.w ) {
+    	    if ( scale == charSize.width ) {
     		var container  = document.createElement("div");
     		var residues = feature.get("residues");
     		$(container).addClass("dna-residues");
