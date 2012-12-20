@@ -67,6 +67,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //                trackPadding: distance in px between tracks
         //                baseUrl: base URL for the URL in trackMeta
         this.has_custom_context_menu = true;
+        this.exportAdapters = [];
 
 	this.selectionManager = this.setSelectionManager( this.webapollo.annotSelectionManager );
 
@@ -2189,47 +2190,61 @@ initSearchMenu: function()  {
  *    (turned off JBrowse default via config.noExport = true)
  */
 initSaveMenu: function()  {
-    var thisObj = this;
-    var dataAdaptersMenu = new dijit.Menu();
+    var track = this;
     dojo.xhrPost( {
 		sync: true,
-		postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
+		postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
 		url: context_path + "/AnnotationEditorService",
 		handleAs: "json",
 		timeout: 5 * 1000, // Time in milliseconds
 		// The LOAD function will be called on a successful response.
 		load: function(response, ioArgs) { //
-			var dataAdapters = response.data_adapters;
-			for (var i = 0; i < dataAdapters.length; ++i) {
-				var dataAdapter = dataAdapters[i];
-				if (thisObj.permission & dataAdapter.permission) {
-					dataAdaptersMenu.addChild(new dijit.MenuItem( {
-						label: dataAdapter.key,
-						onClick: function(key, options) {
-							return function() {
-								thisObj.exportData(key, options);
-							};
-						}(dataAdapter.key, dataAdapter.options)
-					}));
-				}
+		    var dataAdapters = response.data_adapters;
+		    for (var i = 0; i < dataAdapters.length; ++i) {
+			var dataAdapter = dataAdapters[i];
+			if (track.permission & dataAdapter.permission) {
+                            track.exportAdapters.push( dataAdapter );
 			}
+		    }
+                    // remake track label pulldown menu so will include dataAdapter submenu
+                    track.makeTrackMenu();
 		},
 		error: function(response, ioArgs) { //
-//		    thisObj.handleError(response);
+//		    track.handleError(response);
 		}
     });
+}, 
 
-    // if there's a menu separator, add right before first seperator (which is where default save is added), 
-    //     otherwise add at end
-    var mitems = this.trackMenu.getChildren();
-    for (var mindex=0; mindex < mitems.length; mindex++) {
-        if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
+makeTrackMenu: function()  {
+    this.inherited( arguments );
+    var track = this;
+    var options = this._trackMenuOptions();
+    if( options && options.length && this.label && this.labelMenuButton && this.exportAdapters.length > 0) {
+        var dataAdaptersMenu = new dijit.Menu();
+        for (var i=0; i<this.exportAdapters.length; i++) {
+            var dataAdapter = this.exportAdapters[i];
+            dataAdaptersMenu.addChild(new dijit.MenuItem( {
+                label: dataAdapter.key,
+                onClick: function(key, options) {
+			   return function() {
+			       track.exportData(key, options);
+	                   };
+		        }(dataAdapter.key, dataAdapter.options)
+                } ) );
+        }
+        // if there's a menu separator, add right before first seperator (which is where default save is added), 
+        //     otherwise add at end
+        var mitems = this.trackMenu.getChildren();
+        for (var mindex=0; mindex < mitems.length; mindex++) {
+            if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
+        }
+         
+        var savePopup = new dijit.PopupMenuItem({
+                label: "Save track data",
+                iconClass: 'dijitIconSave',
+                popup: dataAdaptersMenu });
+        this.trackMenu.addChild(savePopup, mindex);
     }
-    var savePopup = new dijit.PopupMenuItem({
-		label: "Save track data",
-		iconClass: 'dijitIconSave',
-		popup: dataAdaptersMenu });
-    this.trackMenu.addChild(savePopup, mindex);
 }, 
 
     getPermission: function( callback ) {
