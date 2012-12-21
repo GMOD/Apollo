@@ -1730,14 +1730,16 @@ getAnnotationInformation: function()  {
     getInformationForSelectedAnnotations: function(records) {
         var track = this;
         var features = '"features": [';
+        var seqtrack = track.getSequenceTrack();
         for (var i in records)  {
 	    var record = records[i];
 	    var selfeat = record.feature;
 	    var seltrack = record.track;
             var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
             var uniqueName = topfeat.id();
-            // just checking to ensure that all features in selection are from this track
-            if (seltrack === track)  {
+            // just checking to ensure that all features in selection are from this annotation track 
+            //     (or from sequence annotation track);
+            if (seltrack === track || (seqtrack && (seltrack === seqtrack)))  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
@@ -1765,7 +1767,9 @@ getAnnotationInformation: function()  {
                             information += "Unique id: " + feature.uniquename + "<br/>";
                             information += "Date of creation: " + feature.time_accessioned + "<br/>";
                             information += "Owner: " + feature.owner + "<br/>";
-                            information += "Parent ids: " + feature.parent_ids + "<br/>";
+                            if (feature.parent_ids) {
+                                information += "Parent ids: " + feature.parent_ids + "<br/>";
+                            }
                     }
                     track.openDialog("Annotation information", information);
                 },

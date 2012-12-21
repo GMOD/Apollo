@@ -631,7 +631,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         		thisObj.getInformation();
         	}
         } ));
-
         thisObj.contextMenuItems["information"] = index++;
 
         thisObj.annot_context_menu.onOpen = function(event) {
@@ -807,7 +806,11 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     },
 
     getInformation: function()  {
-
+        var selected = this.selectionManager.getSelection();
+        var annotTrack = this.getAnnotTrack();
+        if (annotTrack) {
+            annotTrack.getInformationForSelectedAnnotations(selected);
+        }
     },
 
     /**
