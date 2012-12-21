@@ -918,8 +918,8 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	    		}
 	    	}
 	    	else {
-	    		if (input.match(/[^ACGT]/)) {
-	    			alert("The sequence should only containg A, C, G, T");
+	    		if (input.match(/[^ACGTN]/)) {
+	    			alert("The sequence should only containg A, C, G, T, N");
 	    			ok = false;
 	    		}
 	    	}
