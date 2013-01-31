@@ -65,6 +65,54 @@ return declare( JBPlugin,
                     }
                 });
         browser.addGlobalMenuItem( 'options', cds_frame_toggle );
+        var plus_strand_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Show plus strand",
+                    checked: true,
+                    onClick: function(event) {
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.view.featureFilter = browser.view.passAllFilter;
+                        }
+                        else if (plus)  {
+                            browser.view.featureFilter = browser.view.plusStrandFilter;
+                        }
+                        else if (minus)  {
+                            browser.view.featureFilter = browser.view.minusStrandFilter;
+                        }
+                        else  {
+                            browser.view.featureFilter = browser.view.passNoneFilter;
+                        }
+                        browser.view.redrawTracks();
+                    }
+                });
+        browser.addGlobalMenuItem( 'options', plus_strand_toggle );
+        var minus_strand_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Show minus strand",
+                    checked: true,
+                    onClick: function(event) {
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.view.featureFilter = browser.view.passAllFilter;
+                        }
+                        else if (plus)  {
+                            browser.view.featureFilter = browser.view.plusStrandFilter;
+                        }
+                        else if (minus)  {
+                            browser.view.featureFilter = browser.view.minusStrandFilter;
+                        }
+                        else  {
+                            browser.view.featureFilter = browser.view.passNoneFilter;
+                        }
+                        browser.view.redrawTracks();
+                    }
+                });
+        browser.addGlobalMenuItem( 'options', minus_strand_toggle );
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
