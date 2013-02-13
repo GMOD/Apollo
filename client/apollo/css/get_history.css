@@ -1,5 +1,9 @@
 @CHARSET "UTF-8";
 
+.history_div {
+	font-size: 10px;
+}
+
 .history_table {
 	font-size: 1.5em;
 	max-width: 47em;

@@ -220,9 +220,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         }
 
-        this.makeTrackDroppable();
-        this.hide();
-        this.show();
+        if (success) {
+        	this.makeTrackDroppable();
+        	this.hide();
+        	this.show();
+        }
+        else {
+			this.hide();
+        }
 
     }, 
 
@@ -777,29 +782,29 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             for (var i in parentFeatures) {
                     var featArray = parentFeatures[i];
                     if (featArray.isSubfeature) {
-                            var parentFeature = featArray[0].parent();
-                            var fmin = undefined;
-                            var fmax = undefined;
-                            // var featureToAdd = $.extend({}, parentFeature);
-			    var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                            featureToAdd.set('subfeatures', new Array());
-                            for (var k = 0; k < featArray.length; ++k) {
-                                    // var dragfeat = featArray[k];
-				var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
-                                    var childFmin = dragfeat.get('start');
-                                    var childFmax = dragfeat.get('end');
-                                    if (fmin === undefined || childFmin < fmin) {
-                                            fmin = childFmin;
-                                    }
-                                    if (fmax === undefined || childFmax > fmax) {
-                                            fmax = childFmax;
-                                    }
-                                    featureToAdd.get("subfeatures").push( dragfeat );
-                            }
-                            featureToAdd.set( "start", fmin );
-                            featureToAdd.set( "end",   fmax );
-                            var afeat = JSONUtils.createApolloFeature( featureToAdd, "transcript" );
-                            featuresToAdd.push(afeat);
+                    	var parentFeature = featArray[0].parent();
+                    	var fmin = undefined;
+                    	var fmax = undefined;
+                    	// var featureToAdd = $.extend({}, parentFeature);
+                    	var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
+                    	featureToAdd.set('subfeatures', new Array());
+                    	for (var k = 0; k < featArray.length; ++k) {
+                    		// var dragfeat = featArray[k];
+                    		var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
+                    		var childFmin = dragfeat.get('start');
+                    		var childFmax = dragfeat.get('end');
+                    		if (fmin === undefined || childFmin < fmin) {
+                    			fmin = childFmin;
+                    		}
+                    		if (fmax === undefined || childFmax > fmax) {
+                    			fmax = childFmax;
+                    		}
+                    		featureToAdd.get("subfeatures").push( dragfeat );
+                    	}
+                    	featureToAdd.set( "start", fmin );
+                    	featureToAdd.set( "end",   fmax );
+                    	var afeat = JSONUtils.createApolloFeature( featureToAdd, "transcript" );
+                    	featuresToAdd.push(afeat);
                     }
                     else {
                             for (var k = 0; k < featArray.length; ++k) {
@@ -1793,7 +1798,7 @@ getAnnotationInformation: function()  {
     getSequenceForSelectedFeatures: function(records) {
         var track = this;
 
-        var content = dojo.create("div");
+        var content = dojo.create("div", { className: "get_sequence" });
         var textArea = dojo.create("textarea", { className: "sequence_area", readonly: true }, content);
         var form = dojo.create("form", { }, content);
         var peptideButtonDiv = dojo.create("div", { className: "first_button_div" }, form);
@@ -2242,7 +2247,7 @@ makeTrackMenu: function()  {
 		    if (loadCallback)  { loadCallback(permission); };
 		},
 		error: function(response, ioArgs) { //
-		    thisObj.handleError(response);
+//		    thisObj.handleError(response);
 		    success = false;
 		}
 	});
