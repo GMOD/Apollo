@@ -12,6 +12,10 @@ div.track_annotations {
     /* background-color: #FFFFDD; */
 }
 
+div.track_dna {
+    background-color: #FFF7cc;
+}
+
 div#overviewtrack_overview_loc_track {
     background-color: transparent;
 }
