@@ -7,6 +7,7 @@ define( ['dojo/_base/declare',
 return declare( SeqFeatureStore,
 {
     constructor: function( args ) {
+        this.refSeq = args.refSeq;
         this.features = {};
 	this.sorted_feats = [];
         this._calculateStats();
@@ -73,11 +74,11 @@ return declare( SeqFeatureStore,
         }
 
         this.globalStats = {
-            featureDensity: featureCount/(maxEnd-minStart+1),
+            featureDensity: featureCount/(this.refSeq.end - this.refSeq.start +1), 
             featureCount: featureCount,
-            minStart: minStart,
-            maxEnd: maxEnd,
-            span: (maxEnd-minStart+1)
+            minStart: minStart, /* 5'-most feature start */
+            maxEnd: maxEnd,     /* 3'-most feature end */
+            span: (maxEnd-minStart+1)  /* min span containing all features */
         };
     },
 
