@@ -58,6 +58,10 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	seqStoreConfig.refSeq = this.refSeq;
 
 	this.sequenceStore = new StaticChunked(seqStoreConfig);
+        this.browser._storeCache[ 'refseqs'] = {
+            refCount: 1, 
+            store: this.sequenceStore
+        };
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
