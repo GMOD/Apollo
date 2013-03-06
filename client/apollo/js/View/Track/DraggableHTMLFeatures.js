@@ -849,6 +849,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
+        // set all other tracks to standard track zIndex, 
+        // set this track to > than others to ensure ghost is drawn on top of all other tracks
+        ftrack.div.style.zIndex = 10;
+        $(ftrack.gview.tracks).each( function(index, track)  {
+            if (track.div !== ftrack.div && track.div.style.zIndex !== 5)  {
+                track.div.style.zIndex = 5;
+            }
+        } );
 /*	if (selected)  {  // simple version (no multiselect ghosting, no event retriggering for simultaneous select & drag)
 	    var $featdiv = $(featdiv);
 	    $featdiv.draggable(   { 
