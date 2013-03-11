@@ -7,7 +7,8 @@ define( [
             'dijit/Menu',
             'dijit/MenuItem', 
             'dijit/MenuSeparator', 
-            'dijit/PopupMenuItem', 
+            'dijit/PopupMenuItem',
+            'dijit/form/Button', 
             'dijit/form/DropDownButton',
             'dijit/DropDownMenu',
 
@@ -25,7 +26,7 @@ define( [
     'JBrowse/View/GranularRectLayout',
         ],
         function( declare, $, draggable, droppable, resizable, 
-		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, 
+		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu, 
                   dijitDialog, dojoxDataGrid, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, 
 		  SimpleFeature, Util, Layout ) {
@@ -178,8 +179,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var track = this;
 
 //	this.getPermission( dojo.hitch(this, initAnnotContextMenu) );  // calling back to initAnnotContextMenu() once permissions are returned by server
-	var success = this.getPermission( function()  { track.initAnnotContextMenu(); } );  // calling back to initAnnotContextMenu() once permissions are returned by server
-//	this.initNonAnnotContextMenu();
+	var success = this.getPermission( function()  { 
+                                              track.initAnnotContextMenu(); 
+                                          } );  // calling back to initAnnotContextMenu() once permissions are returned by server
+        
+        /* getPermission call is synchronous, so login initialization etc. can be called anytime after getPermission call */
+        track.initLoginMenu();
         if (! this.webapollo.searchMenuInitialized)  {
             this.webapollo.initSearchMenu();
         }
@@ -2006,10 +2011,55 @@ getAnnotationInformation: function()  {
     },
 
     handleConfirm: function(response) {
-            return confirm(response);
+            return confirm(response); 
     },
+    
+    initLoginMenu: function() {
+        var track = this;
+	var browser = this.gview.browser;
+        if (this.permission)  {   // permission only set if permission request succeeded
+            browser.addGlobalMenuItem( 'user',
+                    new dijitMenuItem(
+                        {
+                            label: 'Logout',
+                            onClick: function()  { console.log("clicked stub for logging out");
+                                                   // attempted to do client-side session cookie deletion, but doesn't 
+                                                   //  work because JSESSIONID is flagged as "HttpOnly"
+                                                   // document.cookie = "JSESSIONID=; path=/ApolloWeb/";
 
-
+                                                   // reload page after removing session cookie?
+                                                   window.location.reload();
+                                                 }
+                        })
+             );
+            var userMenu = browser.makeGlobalMenu('user');
+            var loginButton = new dijitDropDownButton(
+                { className: 'user',
+                  innerHTML: "UserName",
+                  dropDown: userMenu, 
+                });
+            // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left' 
+            //     styling in CSS rule for 'menu' class
+            // dojo.addClass( loginButton.domNode, 'menu' );
+        }
+        else  { 
+            var loginButton = new dijitButton(
+                { className: 'login',
+                  innerHTML: "Login",
+                  onClick: function()  {
+                      console.log("clicked on login") ;
+                      track.openDialog("Login", "stub for login dialog");
+                  }
+                });
+                // dojo.addClass( loginButton.domNode, 'menu' );
+        }
+        browser.afterMilestone( 'initView', function() {
+            // must append after menubar is created, plugin constructor called before menubar exists, 
+            // browser.initView called after menubar exists
+            browser.menuBar.appendChild( loginButton.domNode );
+        });
+    }, 
+    
   initAnnotContextMenu: function() {
     var thisObj = this;
     contextMenuItems = new Array();
