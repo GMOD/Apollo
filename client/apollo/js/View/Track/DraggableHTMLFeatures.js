@@ -44,7 +44,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             {
                 style: {
 		    // className: "{type}",   // feature classname gets set to feature.get('type')
-                    className: "container-12px", 
+                    className: "container-16px", 
                     renderClassName: "gray-center-30pct", 
                     arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
