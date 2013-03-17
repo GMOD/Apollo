@@ -2035,8 +2035,9 @@ getAnnotationInformation: function()  {
             var userMenu = browser.makeGlobalMenu('user');
             var loginButton = new dijitDropDownButton(
                 { className: 'user',
-                  innerHTML: "UserName",
-                  dropDown: userMenu, 
+                  innerHTML: '<span class="usericon"></span> UserName',
+                  title: 'user logged in: UserName',
+                  dropDown: userMenu
                 });
             // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left' 
             //     styling in CSS rule for 'menu' class
