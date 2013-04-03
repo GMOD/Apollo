@@ -1,0 +1,61 @@
+# blue
+# green
+# purple
+# springgreen
+# blueviolet
+
+.whatever-80pct, 
+.whatever-blue-80pct, 
+.whatever-blue-80pct  {
+    background-color: blue;
+    height: 80%;
+    top: 10%;
+}
+
+.green-80pct, 
+.plus-green-80pct, 
+.minus-green-80pct  {
+    background-color: green; 
+    height: 80%;
+    top: 10%;
+}
+
+.blue-80pct, 
+.plus-blue-80pct, 
+.minus-blue-80pct  {
+    background-color: blue; 
+    height: 80%;
+    top: 10%;
+}
+
+.purple-80pct, 
+.plus-purple-80pct, 
+.minus-purple-80pct  {
+    background-color: purple; 
+    height: 80%;
+    top: 10%;
+}
+
+.springgreen-80pct, 
+.plus-springgreen-80pct, 
+.minus-springgreen-80pct  {
+    background-color: springgreen; 
+    height: 80%;
+    top: 10%;
+}
+
+.blueviolet-80pct, 
+.plus-blueviolet-80pct, 
+.minus-blueviolet-80pct  {
+    background-color: blueviolet; 
+    height: 80%;
+    top: 10%;
+}
+
+.mediumpurple-80pct, 
+.plus-mediumpurple-80pct, 
+.minus-mediumpurple-80pct  {
+    background-color: mediumpurple; 
+    height: 80%;
+    top: 10%;
+}
