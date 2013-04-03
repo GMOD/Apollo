@@ -343,6 +343,30 @@ div.basic-hist {
     background-color: #8DB890;
 }
 
+.trellis-CDS, 
+.plus-trellis-CDS, 
+.minus-trellis-CDS {
+    background-color: gold;
+    border: 1px solid gray;
+    height: 80%;
+    top: 10%;
+}
+
+.trellis-UTR, 
+.plus-trellis-UTR, 
+.minus-trellis-UTR  {
+    background-color: #B39700;
+    height: 60%;
+    top: 20%;
+}
+
+.trellis-match-part, 
+.plus-trellis-match-part, 
+.minus-trellis-match-part  {
+    background-color: #1F3DDE;
+    height: 60%;
+    top: 10%;
+}
 
 /* defaults for rendering aligned read from BAM files */
 .bam-read, 
