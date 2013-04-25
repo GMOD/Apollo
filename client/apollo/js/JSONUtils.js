@@ -173,7 +173,7 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 *    ignoring JBrowse ID / name fields for now
 *    currently, for features with lazy-loaded children, ignores children 
 */
-JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
+JSONUtils.createApolloFeature = function( jfeature, specified_type, useName )   {
 
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  { 
@@ -219,6 +219,11 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
 	afeature.type.name = typename;
     }
 
+    var name = jfeature.get('name');
+    if (useName && name) {
+    	afeature.name = name;
+    }
+
     if (diagnose) { console.log("converting to Apollo feature: " + typename); }
     var subfeats;
     // use filteredsubs if present instead of subfeats?
@@ -228,6 +233,26 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
     if( subfeats && subfeats.length )  {
 	afeature.children = [];
 	var slength = subfeats.length;
+	var cds;
+	
+	var updateCds = function(subfeat) {
+		if (!cds) {
+	        cds = new SimpleFeature({id: "cds", parent: jfeature});
+	        cds.set('start', subfeat.get('start'));
+	        cds.set('end', subfeat.get('end'));
+	        cds.set('strand', subfeat.get('strand'));
+	        cds.set('type', 'CDS');
+		}
+		else {
+			if (subfeat.get("start") < cds.get("start")) {
+				cds.set("start", subfeat.get("start"));
+			}
+			if (subfeat.get("end") > cds.get("end")) {
+				cds.set("end", subfeat.get("end"));
+			}
+		}
+	}
+	
 	for (var i=0; i<slength; i++)  {
 	    var subfeat = subfeats[i];
 	    var subtype = subfeat.get('type');
@@ -238,10 +263,14 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
             }
             else if (subtype === "wholeCDS" || subtype === "polypeptide") {
                 // normalize to "CDS" sequnce ontology term
-                converted_subtype = "CDS";
-	    }
+                // converted_subtype = "CDS";
+            	updateCds(subfeat);
+            	converted_subtype = null;
+            }
             else if (SeqOnto.cdsTerms[subtype])  {
                 // other sequence ontology CDS terms, leave unchanged
+            	updateCds(subfeat);
+            	converted_subtype = null;
             }
             else if (SeqOnto.spliceTerms[subtype])  {  
                 // splice sites -- filter out?  leave unchanged?
@@ -255,7 +284,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
             }
             else if (SeqOnto.intronTerms[subtype])  {
                 // introns -- filter out?  leave unchanged?
-                // converted_subtype = null;  // filter out
+                converted_subtype = null;  // filter out
             }
 	    else  { 
                 // convert everything else to exon???
@@ -269,6 +298,9 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type )   {
             else {
                 if (diagnose)  { console.log("    edited out subfeature, type: " + subtype); }
             }
+	}
+	if (cds) {
+		afeature.children.push( JSONUtils.createApolloFeature( cds, "CDS"));
 	}
     }
     else if ( specified_type === 'transcript' )  {
