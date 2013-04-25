@@ -16,12 +16,14 @@ define(
            'dijit/CheckedMenuItem',
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
+           'dijit/form/Button',
            'JBrowse/Plugin',
            './FeatureEdgeMatchManager',
-	   './FeatureSelectionManager'
+	   './FeatureSelectionManager',
+	   './View/Track/AnnotTrack'
        ],
-    function( declare, dijitMenuItem, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager ) {
+    function( declare, dijitMenuItem, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
+              FeatureEdgeMatchManager, FeatureSelectionManager, AnnotTrack ) {
 
 return declare( JBPlugin,
 {
@@ -142,6 +144,8 @@ return declare( JBPlugin,
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
+            browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
+            browser.poweredByLink.target = "_blank";
         });
 
     },
@@ -196,6 +200,44 @@ return declare( JBPlugin,
         this.searchMenuInitialized = true;
     }, 
 
+    
+    initLoginMenu: function(username) {
+    	var webapollo = this;
+    	var loginButton;
+    	if (username)  {   // permission only set if permission request succeeded
+    		this.browser.addGlobalMenuItem( 'user',
+    				new dijitMenuItem(
+    						{
+    							label: 'Logout',
+    							onClick: function()  {
+    								webapollo.getAnnotTrack().logout();
+    							}
+    						})
+    		);
+    		var userMenu = this.browser.makeGlobalMenu('user');
+    		loginButton = new dijitDropDownButton(
+    				{ className: 'user',
+    					innerHTML: '<span class="usericon"></span>' + username,
+    					title: 'user logged in: UserName',
+    					dropDown: userMenu
+    				});
+    		// if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left' 
+    		//     styling in CSS rule for 'menu' class
+    		// dojo.addClass( loginButton.domNode, 'menu' );
+    	}
+    	else  { 
+    		loginButton = new dijitButton(
+    				{ className: 'login',
+    					innerHTML: "Login",
+    					onClick: function()  {
+    						webapollo.getAnnotTrack().login();
+    					}
+    				});
+    	}
+    	this.browser.menuBar.appendChild( loginButton.domNode );
+    	this.loginMenuInitialized = true;
+    }, 
+    
     getAnnotTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
             var tracks = this.browser.view.tracks;
