@@ -51,6 +51,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         UTR: "webapollo-UTR",   
                         CDS: "webapollo-CDS",   
                         exon: "container-100pct", 
+                        intron: null,
                         wholeCDS: null, 
                         match_part: "darkblue-80pct"
                     }, 
