@@ -136,6 +136,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		}
         	}
         }));
+
+        this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
+        this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
 		
     },
 
@@ -1994,6 +1997,101 @@ getAnnotationInformation: function()  {
         this.gview.zoomToBaseLevel(event, coordinate);
     },
 
+ 
+
+    scrollToNextEdge: function(event)  {
+        //         var coordinate = this.getGenomeCoord(event);
+        var vregion = this.gview.visibleRegion();
+        var coordinate = (vregion.start + vregion.end)/2;
+        var selected = this.selectionManager.getSelection();
+        if (selected && (selected.length > 0)) {
+            var selfeat = selected[0].feature;
+            // find current center genome coord, compare to subfeatures, 
+            //   figure out nearest subfeature right of center of view 
+            //   if subfeature overlaps, go to right edge
+            //   else go to left edge 
+            //   if to left, move to left edge
+            //   if to right, 
+            while (selfeat.parent()) {
+                selfeat = selfeat.parent();
+            }
+            var coordDelta = Number.MAX_VALUE;
+            var pmin = selfeat.get('start');
+            var pmax = selfeat.get('end');
+            if ((coordinate - pmax) > 10) {
+                this.gview.centerAtBase(pmin, false);
+            }
+            else  {
+                var childfeats = selfeat.children();                
+                for (var i=0; i<childfeats.length; i++)  {
+                    var cfeat = childfeats[i];
+                    var cmin = cfeat.get('start');
+                    var cmax = cfeat.get('end');
+                    //            if (cmin > coordinate)  {
+                    if ((cmin - coordinate) > 10) { // fuzz factor of 10 bases
+                        coordDelta = Math.min(coordDelta, cmin-coordinate);
+                    }
+                    //            if (cmax > coordinate)  {
+                    if ((cmax - coordinate) > 10) { // fuzz factor of 10 bases
+                        coordDelta = Math.min(coordDelta, cmax-coordinate);
+                    }
+                }
+                // find closest edge right of current coord
+                if (coordDelta != Number.MAX_VALUE)  {
+                    var newCenter = coordinate + coordDelta;
+                    this.gview.centerAtBase(newCenter, false);
+                }
+            }
+        }
+    }, 
+
+   scrollToPreviousEdge: function(event) {
+        //         var coordinate = this.getGenomeCoord(event);
+        var vregion = this.gview.visibleRegion();
+        var coordinate = (vregion.start + vregion.end)/2;
+        var selected = this.selectionManager.getSelection();
+        if (selected && (selected.length > 0)) {
+            
+            var selfeat = selected[0].feature;
+            // find current center genome coord, compare to subfeatures, 
+            //   figure out nearest subfeature right of center of view 
+            //   if subfeature overlaps, go to right edge
+            //   else go to left edge 
+            //   if to left, move to left edge
+            //   if to right, 
+            while (selfeat.parent()) {
+                selfeat = selfeat.parent();
+            }
+            var coordDelta = Number.MAX_VALUE;
+            var pmin = selfeat.get('start');
+            var pmax = selfeat.get('end');
+            if ((pmin - coordinate) > 10) {
+                this.gview.centerAtBase(pmax, false);
+            }
+            else  {
+                var childfeats = selfeat.children();                
+                for (var i=0; i<childfeats.length; i++)  {
+                    var cfeat = childfeats[i];
+                    var cmin = cfeat.get('start');
+                    var cmax = cfeat.get('end');
+                    //            if (cmin > coordinate)  {
+                    if ((coordinate - cmin) > 10) { // fuzz factor of 10 bases
+                        coordDelta = Math.min(coordDelta, coordinate-cmin);
+                    }
+                    //            if (cmax > coordinate)  {
+                    if ((coordinate - cmax) > 10) { // fuzz factor of 10 bases
+                        coordDelta = Math.min(coordDelta, coordinate-cmax);
+                    }
+                }
+                // find closest edge right of current coord
+                if (coordDelta != Number.MAX_VALUE)  {
+                    var newCenter = coordinate - coordDelta;
+                    this.gview.centerAtBase(newCenter, false);
+                }
+            }
+        }
+    }, 
+
     zoomBackOut: function(event) {
         this.gview.zoomBackOut(event);
     },
@@ -2081,6 +2179,7 @@ getAnnotationInformation: function()  {
     	}
     } ));
     contextMenuItems["get_sequence"] = index++;
+
     annot_context_menu.addChild(new dijit.MenuItem( {
     	label: "Zoom to base level",
     	onClick: function(event) {
@@ -2093,6 +2192,23 @@ getAnnotationInformation: function()  {
     	}
     } ));
     contextMenuItems["zoom_to_base_level"] = index++;
+
+    annot_context_menu.addChild(new dijit.MenuItem( {
+    	label: "Center on next edge",
+    	onClick: function(event) {
+    		thisObj.scrollToNextEdge(thisObj.annot_context_mousedown);
+    	}
+    } ));
+    contextMenuItems["next_subfeature_edge"] = index++;
+
+    annot_context_menu.addChild(new dijit.MenuItem( {
+    	label: "Center on previous edge",
+    	onClick: function(event) {
+    		thisObj.scrollToPreviousEdge(thisObj.annot_context_mousedown);
+    	}
+    } ));
+    contextMenuItems["next_subfeature_edge"] = index++;
+
     if (permission & Permission.WRITE) {
     	annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
@@ -2379,7 +2495,13 @@ makeTrackMenu: function()  {
         var selected = this.selectionManager.getSelection();
         if (selected.length < 2) {
             menuItem.set("disabled", true);
+            // menuItem.domNode.style.display = "none";  // direct method for hiding menuitem
+            // $(menuItem.domNode).hide();   // probably better method for hiding menuitem
             return;
+        }
+        else  {
+            // menuItem.domNode.style.display = "";  // direct method for unhiding menuitem
+            // $(menuItem.domNode).show();  // probably better method for unhiding menuitem
         }
         var strand = selected[0].feature.get('strand');
         for (var i = 1; i < selected.length; ++i) {
