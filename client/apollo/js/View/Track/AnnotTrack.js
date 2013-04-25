@@ -2193,7 +2193,8 @@ getAnnotationInformation: function()  {
     } ));
     contextMenuItems["zoom_to_base_level"] = index++;
 
-    annot_context_menu.addChild(new dijit.MenuItem( {
+/*
+     annot_context_menu.addChild(new dijit.MenuItem( {
     	label: "Center on next edge",
     	onClick: function(event) {
     		thisObj.scrollToNextEdge(thisObj.annot_context_mousedown);
@@ -2208,6 +2209,7 @@ getAnnotationInformation: function()  {
     	}
     } ));
     contextMenuItems["next_subfeature_edge"] = index++;
+*/
 
     if (permission & Permission.WRITE) {
     	annot_context_menu.addChild(new dijit.MenuSeparator());
