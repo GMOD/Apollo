@@ -1,0 +1,78 @@
+@CHARSET "UTF-8";
+
+.parent_annotation_info_editor {
+	border-right: dotted;
+	border-min-width: 1px;
+	padding-right: 5%;
+	float: left;
+	font-size: 1.2em;
+	min-width: 45%;
+}
+
+.annotation_info_editor {
+	float: right;
+	font-size: 1.2em;
+	min-width: 45%;
+}
+
+.annotation_info_editor_container {
+}
+
+.annotation_info_editor_header {
+	font-size: 1.3em;
+	text-align: center;
+	padding-bottom: 5px;
+}
+
+.dbxrefs {
+	min-width: 100%;
+	min-height: 7em;
+	border: solid;
+	border-width: 1px;
+	border-color: lightgray;
+}
+
+.comments {
+	min-width: 100%;
+	min-height: 10em;
+	border: solid;
+	border-width: 1px;
+	border-color: lightgray;
+}
+
+.annotation_info_editor_content {
+	font-size: 1.5em;
+}
+
+.annotation_info_editor_section_header {
+	text-align: center;
+}
+
+.annotation_info_editor_label {
+	text-align: right;
+	padding-right: 10px;
+}
+
+.annotation_info_editor_section {
+	padding-top: 20px;
+}
+
+.annotation_info_editor_button_group {
+	/*
+	width: 60%;
+	margin-left: auto;
+	margin-right: auto;
+	*/
+}
+
+.annotation_info_editor_button {
+	width: 5em;
+	margin-right: 2.5px;
+	margin-left: 2.5px;
+}
+
+/*
+.dojoxGridHeader {
+	display:none;
+}
+*/
