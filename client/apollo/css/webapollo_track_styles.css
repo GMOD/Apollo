@@ -403,7 +403,7 @@ div.basic-hist {
     background-color: #FF0000;
     /* setting z-index higher than "cigarM" (and default "subfeature") to ensure not hidden by neighboring match regions when zoomed out */
     z-index: 12;   /* rendered above matches/mismatches, but below insertion */
-    min-width: 2px;
+    min-width: 3px;
 }
 
 /* CIGAR string "I" subfeature, indicating insertion in aligned sequence relative to viewed sequence */
@@ -413,7 +413,7 @@ div.basic-hist {
     height: 100%;
     background-color: #00FF00;
     z-index: 13;  /* rendered above sibling subfeature types to increase visibility, since will always be a zero-width features (?) */
-    min-width: 2px;
+    min-width: 3px;
 }
 
 
@@ -424,7 +424,7 @@ div.basic-hist {
     height: 100%; 
     background-color: #1B8A99;
     z-index: 10; /* rendered above more generic "M" type */
-    min-width: 2px;
+    min-width: 1px;
 }
 
 /* CIGAR string "X" subfeature, indicating mismatch of aligned sequence relative to viewed sequence */
@@ -434,7 +434,7 @@ div.basic-hist {
     height: 100%; 
     background-color: rgb(182, 167, 0);  
     z-index: 11;  /* rendered above matches, but below deletions and insertions */
-    min-width: 2px;
+    min-width: 3px;
 }
 
 
