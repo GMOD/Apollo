@@ -385,23 +385,58 @@ div.basic-hist {
 }
 */
 
-/* render match (M) spans as subfeatures of BAM alignment */
+/* CIGAR string "M" subfeature, indicating "alignment match" (can be a sequence match or mismatch) of aligned sequence relative to viewed sequence */
 .cigarM, 
 .plus-cigarM, 
 .minus-cigarM  {
-    position: absolute;
     height: 100%; 
-    margin-top: 0px;
     background-color: #1B8A99;
-    /* background-color: green; */
-    z-index: 8;
+    z-index: 8;   /* rendered below most other subfeatures */
     min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
 }
+
+/* CIGAR string "D" subfeature, indicating deletion in aligned sequence relative to viewed sequence */
+.cigarD, 
+.plus-cigarD, 
+.minus-cigarD  {
+    height: 100%;
+    background-color: #FF0000;
+    /* setting z-index higher than "cigarM" (and default "subfeature") to ensure not hidden by neighboring match regions when zoomed out */
+    z-index: 12;   /* rendered above matches/mismatches, but below insertion */
+    min-width: 2px;
+}
+
+/* CIGAR string "I" subfeature, indicating insertion in aligned sequence relative to viewed sequence */
+.cigarI, 
+.plus-cigarI, 
+.minus-cigarI  {
+    height: 100%;
+    background-color: #00FF00;
+    z-index: 13;  /* rendered above sibling subfeature types to increase visibility, since will always be a zero-width features (?) */
+    min-width: 2px;
+}
+
+
+/* CIGAR string "=" (or "E") subfeature, indicating exact sequence match of aligned sequence relative to viewed sequence */
+.cigarEQ, 
+.plus-cigarEQ, 
+.minus-cigarEQ  {
+    height: 100%; 
+    background-color: #1B8A99;
+    z-index: 10; /* rendered above more generic "M" type */
+    min-width: 2px;
+}
+
+/* CIGAR string "X" subfeature, indicating mismatch of aligned sequence relative to viewed sequence */
+.cigarX, 
+.plus-cigarX, 
+.minus-cigarX  {
+    height: 100%; 
+    background-color: rgb(182, 167, 0);  
+    z-index: 11;  /* rendered above matches, but below deletions and insertions */
+    min-width: 2px;
+}
+
 
 /*  don't render skips, just let parent bam show through (similar to not rendering intron but letting transcript show through)
 .cigarN, 
@@ -413,11 +448,6 @@ div.basic-hist {
     background-color: #AACDDC;
     z-index: 8;
     min-width: 1px;
-    cursor: pointer;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
 }
 */
 
