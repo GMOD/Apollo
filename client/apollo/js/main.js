@@ -25,8 +25,6 @@ define(
 
 return declare( JBPlugin,
 {
-
-
 //    colorCdsByFrame: false,
 //    searchMenuInitialized: false,
 
@@ -34,9 +32,11 @@ return declare( JBPlugin,
         var thisB = this;
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
-//        var browser = args.browser;
-//        this.browser = browser;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
+
+        if (! browser.config.helpUrl)  {
+	    browser.config.helpUrl = "http://genomearchitect.org/WebApolloHelp";
+        }
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
