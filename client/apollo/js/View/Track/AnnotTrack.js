@@ -1854,6 +1854,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			structure: commentTableLayout,
             			updateDelay: 0
             		});
+            		
             		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
             			dojo.place(commentTable.domNode, commentsTable, "first");
             			commentTable.startup();
@@ -3399,6 +3400,9 @@ makeTrackMenu: function()  {
             load: function(response, ioArgs) { //
             	if (loadCallback) {
             		loadCallback(response);
+            	}
+            	if (response && response.alert) {
+            		alert(response.alert);
             	}
             },
             error: function(response, ioArgs) { //
