@@ -37,7 +37,7 @@ return declare( JBPlugin,
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
 
         if (! browser.config.helpUrl)  {
-	    browser.config.helpUrl = "http://genomearchitect.org/WebApolloHelp";
+	    browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
         }
 
         // hand the browser object to the feature edge match manager
