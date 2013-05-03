@@ -215,6 +215,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.initPopupDialog();
 
         if (success) {
+            track.createAnnotationChangeListener();
             dojo.xhrPost( {
                 postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
                 url: context_path + "/AnnotationEditorService",
@@ -229,7 +230,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                     track.changed();
-                    track.createAnnotationChangeListener();
+
                     // console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
 		    var strack = track.getSequenceTrack();
 		    // setAnnotTrack() triggers loading of sequence alterations
