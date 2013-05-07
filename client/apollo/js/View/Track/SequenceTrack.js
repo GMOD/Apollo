@@ -93,6 +93,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	thisConfig.style.renderClassName = null;
 	thisConfig.style.arrowheadClass = null;
 	thisConfig.style.centerChildrenVertically = false;
+        thisConfig.ignoreFeatureFilter = true;
 	return thisConfig;
     },
 
