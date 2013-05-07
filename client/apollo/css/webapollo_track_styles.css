@@ -8,7 +8,8 @@
     top: 10%;
 /* height: 12px */
 /*    margin-top: 2px;  */  /* relying on centering code instead */
-    background-color: #F58544;
+/*    background-color: #F58544; */
+    background-color: rgb(218, 170, 241);
     border-style: solid;
     border-color: #555;
     border-width: 1px;
@@ -20,7 +21,8 @@
 /*    height: 8px;  */
 /*    margin-top: 4px; */  /* relying on centering code instead */
 /*    z-index: 8; */
-    background-color: #AA5626;
+ /*   background-color: #AA5626; */
+    background-color: rgb(173, 92, 194);
 }
 
 .mRNA, 
@@ -34,6 +36,10 @@
 
 div.track_annotations {
     background-color: #FFFFDD;
+}
+
+div.track_localannot {
+    background-color: #DDDDCC;
 }
 
 /* 

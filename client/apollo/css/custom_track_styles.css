@@ -59,3 +59,21 @@
     height: 80%;
     top: 10%;
 }
+
+.orange-80pct, 
+.plus-orange-80pct, 
+.minus-orange-80pct  {
+    background-color: rgb(255, 163, 0);
+    height: 80%;
+    top: 10%;
+    border: 1px solid gray;
+}
+
+.darkorange-60pct, 
+.plus-darkorange-60pct, 
+.minus-darkorange-60pct  {
+    background-color: rgb(214, 172, 121);
+    height: 60%;
+    top: 20%;
+    border: 1px solid gray;
+}
