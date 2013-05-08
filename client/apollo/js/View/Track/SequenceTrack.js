@@ -896,7 +896,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	var track = this;
 	var content = dojo.create("div");
         var charWidth = 15;
-
         if (type == "deletion") {
 	    var deleteDiv = dojo.create("div", { }, content);
 	    var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "sequence_alteration_input_label" }, deleteDiv);
