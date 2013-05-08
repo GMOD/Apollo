@@ -890,7 +890,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         var count = 0;
         track.store.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
         return count;
-    },
+    }, 
 
     createAddSequenceAlterationPanel: function(type, gcoord) {
 	var track = this;
@@ -905,7 +905,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             $(deleteField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 var isBackspace = (unicode == 8);  // 8 = BACKSPACE
-                if (unicode == 13) {  // 13 = ENTER
+                if (unicode == 13) {  // 13 = ENTER/RETURN
                     addSequenceAlteration();
                 }
                 else {
@@ -919,22 +919,23 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         }
         else {
 	    var plusDiv = dojo.create("div", { }, content);
+            var minusDiv = dojo.create("div", { }, content);
 	    var plusLabel = dojo.create("label", { innerHTML: "+ strand", className: "sequence_alteration_input_label" }, plusDiv);
 	    var plusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, plusDiv);
-
-            var minusDiv = dojo.create("div", { }, content);
 	    var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "sequence_alteration_input_label" }, minusDiv);
 	    var minusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, minusDiv);
             // not sure why, but dojo.connect doesn't work well here??  (at least in Chrome)
 	    //    dojo.connect(inputField, "keypress", null, function(e) {        
             // and JQuery keypress almost works, but doesn't register backspace events
             //    $(inputField).keypress(function(e) {
+            //    apparently keypress in general doesn't report for some non-character keys:
+            //        http://stackoverflow.com/questions/3911589/why-doesnt-keypress-handle-the-delete-key-and-the-backspace-key
             // but jquery keydown seems to work
             $(plusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
                 var isBackspace = (unicode == 8);  // 8 = BACKSPACE
-                if (unicode == 13) {  // 13 = ENTER
+                if (unicode == 13) {  // 13 = ENTER/RETURN
                     addSequenceAlteration();
                 }
                 else {
@@ -1004,65 +1005,39 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
 	var addSequenceAlteration = function() {
 	    var ok = true;
-//	    if (inputField.value.length == 0) {
-//	    	alert("Input cannot be empty for " + type);
-//	    	ok = false;
-//	    }
-	    if (ok) {
-	    	if (type == "deletion") {
-	    	    var input = deleteField.value;
-                    if (deleteField.value.length == 0) {
-	    	        alert("Input cannot be empty for " + type);
-	    	        ok = false;
-                    }
-	            else if (input.match(/\D/)) {
-	    			alert("The length must be a number");
-	    			ok = false;
-	    		}
-	    		else {
-	    			input = parseInt(input);
-	    			if (input <= 0) {
-	    				alert("The length must be a positive number");
-	    				ok = false;
-	    			}
-	    		}
-	    	}
-	    	else {  // insertion or substitution
-	    	    var input = plusField.value.toUpperCase();
-                    if (plusField.value.length == 0) {
-	    	        alert("Input cannot be empty for " + type);
-	    	        ok = false;
-                    }
-	    	    else if (input.match(/[^ACGTN]/)) {
-	    			alert("The sequence should only containg A, C, G, T, N");
-	    			ok = false;
-	    		}
-	    	}
-	    }
-	    if (ok) {
+            var inputField;
+	    var inputField = ((type == "deletion") ? deleteField : plusField);
+            // if (type == "deletion") { inputField = deleteField; }
+            // else  { inputField = plusField; }
+            var input = inputField.value.toUpperCase();
+            if (input.length == 0) {
+	    	alert("Input cannot be empty for " + type);
+                return;
+            }
+	    else {
 	    	var fmin = gcoord;
 	    	var fmax;
 	    	if (type == "insertion") {
-	    		fmax = gcoord;
+	    	    fmax = gcoord;
 	    	}
 	    	else if (type == "deletion") {
-	    		fmax = gcoord + parseInt(input);
+	    	    fmax = gcoord + parseInt(input);
 	    	}
 	    	else if (type == "substitution") {
-	    		fmax = gcoord + input.length;;
+	    	    fmax = gcoord + input.length;;
 	    	}
 	    	if (track.storedFeatureCount(fmin, fmax == fmin ? fmin + 1 : fmax) > 0) {
-	    		alert("Cannot create overlapping sequence alterations");
+	    	    alert("Cannot create overlapping sequence alterations");
 	    	}
 	    	else {
-	    		var feature = '"location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ', "strand": 1 }, "type": {"name": "' + type + '", "cv": { "name":"sequence" } }';
-	    		if (type != "deletion") {
-	    			feature += ', "residues": "' + input + '"';
-	    		}
-	    		var features = '[ { ' + feature + ' } ]';
-	    		var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
-	    		track.annotTrack.executeUpdateOperation(postData);
-	    		track.annotTrack.popupDialog.hide();
+	    	    var feature = '"location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ', "strand": 1 }, "type": {"name": "' + type + '", "cv": { "name":"sequence" } }';
+	    	    if (type != "deletion") {
+	    		feature += ', "residues": "' + input + '"';
+	    	    }
+	    	    var features = '[ { ' + feature + ' } ]';
+	    	    var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
+	    	    track.annotTrack.executeUpdateOperation(postData);
+	    	    track.annotTrack.popupDialog.hide();
 	    	}
 	    }
 	};
