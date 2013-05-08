@@ -895,22 +895,112 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     createAddSequenceAlterationPanel: function(type, gcoord) {
 	var track = this;
 	var content = dojo.create("div");
-	var inputDiv = dojo.create("div", { }, content);
-	var inputLabel = dojo.create("label", { innerHTML: type == "deletion" ? "Length" : "Sequence", className: "sequence_alteration_input_label" }, inputDiv);
-	var inputField = dojo.create("input", { type: "text", size: 10, className: "sequence_alteration_input_field" }, inputDiv);
+        var charWidth = 10;
+
+        if (type == "deletion") {
+	    var deleteDiv = dojo.create("div", { }, content);
+	    var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "sequence_alteration_input_label" }, deleteDiv);
+	    var deleteField = dojo.create("input", { type: "text", size: 10, className: "sequence_alteration_input_field" }, deleteDiv);
+        }
+        else {
+	    var plusDiv = dojo.create("div", { }, content);
+	    var plusLabel = dojo.create("label", { innerHTML: "+ strand", className: "sequence_alteration_input_label" }, plusDiv);
+	    var plusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, plusDiv);
+
+            var minusDiv = dojo.create("div", { }, content);
+	    var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "sequence_alteration_input_label" }, minusDiv);
+	    var minusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, minusDiv);
+            // not sure why, but dojo.connect doesn't work well here??  (at least in Chrome)
+	    //    dojo.connect(inputField, "keypress", null, function(e) {        
+            // and JQuery keypress almost works, but doesn't register backspace events
+            //    $(inputField).keypress(function(e) {
+            // but jquery keydown seems to work
+            $(plusField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                // ignoring delete key, doesn't do anything in input elements?
+                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
+                if (unicode == 13) {  // 13 = ENTER
+                    addSequenceAlteration();
+                }
+                else {
+                    var curval = e.srcElement.value;
+                    var newchar = String.fromCharCode(unicode);
+                    // only allow acgtnACGTN and backspace
+                    //    (and acgtn are transformed to uppercase in CSS)
+                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {  
+                        // can't synchronize scroll position of two input elements, 
+                        // see http://stackoverflow.com/questions/10197194/keep-text-input-scrolling-synchronized
+                        // but, if scrolling triggered (or potentially triggered), can hide other strand input element
+                        // scrolling only triggered when length of input text exceeds character size of input element
+                        if (isBackspace)  {
+                            minusField.value = track.complement(curval.substring(0,curval.length-1));  
+                        }
+                        else {
+                            minusField.value = track.complement(curval + newchar);  
+                        }
+                        if (curval.length > charWidth) {
+                            $(minusDiv).hide();
+                        }
+                        else {
+                            $(minusDiv).show();  // make sure is showing to bring back from a hide
+                        }
+                    }
+                    else { return false; }  // prevents entering any chars other than ACGTN and backspace
+                }
+	    });
+
+            $(minusField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                // ignoring delete key, doesn't do anything in input elements?
+                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
+                if (unicode == 13) {  // 13 = ENTER
+                    addSequenceAlteration();
+                }
+                else {
+                    var curval = e.srcElement.value;
+                    var newchar = String.fromCharCode(unicode);
+                    // only allow acgtnACGTN and backspace
+                    //    (and acgtn are transformed to uppercase in CSS)
+                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {  
+                        // can't synchronize scroll position of two input elements, 
+                        // see http://stackoverflow.com/questions/10197194/keep-text-input-scrolling-synchronized
+                        // but, if scrolling triggered (or potentially triggered), can hide other strand input element
+                        // scrolling only triggered when length of input text exceeds character size of input element
+                        if (isBackspace)  {
+                            plusField.value = track.complement(curval.substring(0,curval.length-1));  
+                        }
+                        else {
+                            plusField.value = track.complement(curval + newchar);  
+                        }
+                        if (curval.length > charWidth) {
+                            $(plusDiv).hide();
+                        }
+                        else {
+                            $(plusDiv).show();  // make sure is showing to bring back from a hide
+                        }
+                    }
+                    else { return false; }  // prevents entering any chars other than ACGTN and backspace
+                }
+	    });
+
+        }
 	var buttonDiv = dojo.create("div", { className: "sequence_alteration_button_div" }, content);
 	var addButton = dojo.create("button", { innerHTML: "Add", className: "sequence_alteration_button" }, buttonDiv);
 
 	var addSequenceAlteration = function() {
 	    var ok = true;
-	    if (inputField.value.length == 0) {
-	    	alert("Input cannot be empty for " + type);
-	    	ok = false;
-	    }
+//	    if (inputField.value.length == 0) {
+//	    	alert("Input cannot be empty for " + type);
+//	    	ok = false;
+//	    }
 	    if (ok) {
-	    	var input = inputField.value.toUpperCase();
 	    	if (type == "deletion") {
-	    		if (input.match(/\D/)) {
+	    	    var input = deleteField.value;
+                    if (deleteField.value.length == 0) {
+	    	        alert("Input cannot be empty for " + type);
+	    	        ok = false;
+                    }
+	            else if (input.match(/\D/)) {
 	    			alert("The length must be a number");
 	    			ok = false;
 	    		}
@@ -922,8 +1012,13 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	    			}
 	    		}
 	    	}
-	    	else {
-	    		if (input.match(/[^ACGTN]/)) {
+	    	else {  // insertion or substitution
+	    	    var input = plusField.value.toUpperCase();
+                    if (plusField.value.length == 0) {
+	    	        alert("Input cannot be empty for " + type);
+	    	        ok = false;
+                    }
+	    	    else if (input.match(/[^ACGTN]/)) {
 	    			alert("The sequence should only containg A, C, G, T, N");
 	    			ok = false;
 	    		}
@@ -956,14 +1051,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	    	}
 	    }
 	};
-
-	dojo.connect(inputField, "keypress", null, function(e) {
-		var unicode = e.keyCode ? e.keyCode : e.charCode;
-		if (unicode == 13) {
-			addSequenceAlteration();
-		}
-	});
-
+        
 	dojo.connect(addButton, "onclick", null, function() {
 		addSequenceAlteration();
 	});
