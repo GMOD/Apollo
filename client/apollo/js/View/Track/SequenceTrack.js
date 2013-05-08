@@ -895,12 +895,27 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     createAddSequenceAlterationPanel: function(type, gcoord) {
 	var track = this;
 	var content = dojo.create("div");
-        var charWidth = 10;
+        var charWidth = 15;
 
         if (type == "deletion") {
 	    var deleteDiv = dojo.create("div", { }, content);
 	    var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "sequence_alteration_input_label" }, deleteDiv);
 	    var deleteField = dojo.create("input", { type: "text", size: 10, className: "sequence_alteration_input_field" }, deleteDiv);
+
+            $(deleteField).keydown(function(e) {
+                var unicode = e.charCode || e.keyCode;
+                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
+                if (unicode == 13) {  // 13 = ENTER
+                    addSequenceAlteration();
+                }
+                else {
+                    var newchar = String.fromCharCode(unicode);
+                    // only allow numeric chars and backspace
+                    if (! (newchar.match(/[0-9]/) || isBackspace))  {  
+                        return false; 
+                    }
+                }
+	    });
         }
         else {
 	    var plusDiv = dojo.create("div", { }, content);
