@@ -57,9 +57,13 @@ div.gridline_minor {
 }
 
 .annot-render {
-    height: 4px;
-    margin-top: 6px;
-    background-color: #0460d9;
+    /* height: 4px; original MAKER choice */
+    /* margin-top: 6px; original MAKER choice */
+    /* background-color: #0460d9; original color choice based on kuler.adobe.com */
+    /* adjusted background-color, height, margin-top to better see DNA residues overlay when zoomed in */
+    height: 6px;  
+    margin-top: 5px;
+    background-color: #A4BBFF; 
 }
  
 .annot-CDS, 
@@ -67,7 +71,8 @@ div.gridline_minor {
 .minus-annot-CDS {
     height: 16px;
     margin-top: 0px; 
-    background-color: #0460d9;
+    /* background-color: #0460d9; original color choice based on kuler.adobe.com */
+    background-color: rgb(79, 134, 207);  /* adjusted to better see DNA residues overlay when zoomed in */
     border: 2px solid rgb(15,66,133);
 }
 
@@ -263,6 +268,18 @@ div.gridline_minor {
 
 .right-edge-match  {
     border-right: solid red 3px;
+}
+
+.cds-frame0 {
+    background-color: #FF8080;
+}
+
+.cds-frame1 {
+    background-color: #80FF80; 
+}
+
+.cds-frame2 {
+    background-color: #8080FF;
 }
 
 

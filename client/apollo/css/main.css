@@ -8,5 +8,9 @@
 @import url("search_sequence.css");
 @import url("get_history.css");
 @import url("export.css");
-/* @import url("maker.css"); taking out maker CSS overhaul until problems are fixed */
+/* for now, maker.css is not loaded by default
+   to use maker.css without modifying this file, just add 
+           "css": "plugins/WebApollo/css/maker.css"
+   entry in configuration (usually in trackList.json)  */
+/* @import url("maker.css"); */
 @import url("custom_track_styles.css");
