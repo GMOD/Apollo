@@ -141,6 +141,19 @@ return declare( JBPlugin,
             label: 'WebApollo Sequence'
         });
 
+        // transform track configs from vanilla JBrowse to WebApollo:
+        // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
+        //
+        var track_configs = browser.config.tracks;
+        for (var i=0; i<track_configs.length; i++)  {
+            var track_config = track_configs[i];
+            if (track_config.type ==  "JBrowse/View/Track/HTMLFeatures" )  { 
+                track_config.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
+                console.log("changed track type for " + track_config.label);
+            }
+        }
+
+
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
