@@ -35,11 +35,11 @@
 
 
 div.track_annotations {
-    background-color: #FFFFDD;
+    background-color: #FFFFDD !important;
 }
 
 div.track_localannot {
-    background-color: #DDDDCC;
+    background-color: #DDDDCC !important;
 }
 
 /* 
