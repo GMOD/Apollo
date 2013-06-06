@@ -153,12 +153,13 @@ return declare( JBPlugin,
             }
         }
 
-
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-            browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
-            browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
-            browser.poweredByLink.target = "_blank";
+            if (browser.poweredByLink)  {
+                browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
+                browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
+                browser.poweredByLink.target = "_blank";
+            }
         });
 
     },
@@ -263,7 +264,40 @@ return declare( JBPlugin,
             }
         }
         return null;
+    }, 
+
+    /** ported from berkeleybop/jbrowse GenomeView.js 
+      * returns char height/width on GenomeView
+      */
+    getSequenceCharacterSize: function()  {
+        if (! this._charSize)  {
+	    this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
+        }
+        return this._charSize;
+    }, 
+
+    /**
+     * ported from berkeleybop/jbrowse GenomeView.js 
+     * Conducts a test with DOM elements to measure sequence text width
+     * and height.
+     */
+    calculateSequenceCharacterSize: function( containerElement ) {
+        var widthTest = document.createElement("div");
+        widthTest.className = "wa-sequence";
+        widthTest.style.visibility = "hidden";
+        var widthText = "12345678901234567890123456789012345678901234567890";
+        widthTest.appendChild(document.createTextNode(widthText));
+        containerElement.appendChild(widthTest);
+
+        var result = {
+            width:  widthTest.clientWidth / widthText.length,
+            height: widthTest.clientHeight
+        };
+
+        containerElement.removeChild(widthTest);
+        return result;
     }
+
 
 });
 
