@@ -2980,7 +2980,7 @@ makeTrackMenu: function()  {
         this.popupDialog.set("content", data);
         this.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
         this.popupDialog.show();
-        this.popupDialog.placeAt("GenomeBrowser", "first");
+       // this.popupDialog.placeAt("GenomeBrowser", "first");
     },
 
     updateMenu: function() {
