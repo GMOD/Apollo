@@ -1011,9 +1011,31 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             var input = inputField.value.toUpperCase();
             if (input.length == 0) {
 	    	alert("Input cannot be empty for " + type);
-                return;
-            }
-	    else {
+	    	ok = false;
+	    }
+	    if (ok) {
+	    	var input = inputField.value.toUpperCase();
+	    	if (type == "deletion") {
+	    		if (input.match(/\D/)) {
+	    			alert("The length must be a number");
+	    			ok = false;
+	    		}
+	    		else {
+	    			input = parseInt(input);
+	    			if (input <= 0) {
+	    				alert("The length must be a positive number");
+	    				ok = false;
+	    			}
+	    		}
+	    	}
+	    	else {
+	    		if (input.match(/[^ACGTN]/)) {
+	    			alert("The sequence should only containg A, C, G, T, N");
+	    			ok = false;
+	    		}
+	    	}
+	    }
+	    if (ok) {
 	    	var fmin = gcoord;
 	    	var fmax;
 	    	if (type == "insertion") {

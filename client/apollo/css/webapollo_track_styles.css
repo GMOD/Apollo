@@ -558,28 +558,23 @@ div.basic-hist {
     z-index: 20;  
 }
 
-.plus-trellis-arrowhead, 
-.plus-webapollo-arrowhead, 
+.plus-trellis-arrowhead,
+.plus-webapollo-arrowhead,
 .plus-annot-arrowhead  {
     position: absolute;
-    width: 12px;
-    height: 100%;
-    background-image: url('../img/plus-transcript-head.png');
-    /* background-image: url('../img/plus-arrowhead-transparent.png'); */
-    background-repeat: no-repeat;
-    background-position: left center;  /* center image vertically */
+    width: 9px;
+    height: 5px;
+    background-image: url('../img/plus-arrowhead.png');
     z-index: 1;
 }
 
-.minus-trellis-arrowhead, 
-.minus-webapollo-arrowhead, 
+.minus-trellis-arrowhead,
+.minus-webapollo-arrowhead,
 .minus-annot-arrowhead {
     position: absolute;
-    width: 12px;
-    height: 100%;
-    background-image: url('../img/minus-transcript-head.png');
-    background-repeat: no-repeat;
-    background-position: right center;  /* center image vertically */
+    width: 9px;
+    height: 5px;
+    background-image: url('../img/minus-arrowhead.png');
     z-index: 1;
 }
 
