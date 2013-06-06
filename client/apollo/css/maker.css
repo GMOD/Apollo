@@ -38,22 +38,16 @@ div.gridline_minor {
     color: gray;
 }
 
-.plus-trellis-arrowhead, 
-.plus-webapollo-arrowhead { 
-    background-image: url('../img/plus-transcript-head-blue-background_1.png');
+.plus-trellis-arrowhead,
+.plus-webapollo-arrowhead,
+.plus-annot-arrowhead {
+    background-image: url('../img/plus-arrowhead.png');
 }
 
-.plus-annot-arrowhead  {
-    background-image: url('../img/plus-transcript-head-parchment-background_1.png');
-}
-
-.minus-trellis-arrowhead, 
-.minus-webapollo-arrowhead {
-    background-image: url('../img/minus-transcript-head-blue-background_1.png');
-}
-
+.minus-trellis-arrowhead,
+.minus-webapollo-arrowhead,
 .minus-annot-arrowhead {
-    background-image: url('../img/minus-transcript-head-parchment-background_1.png');
+    background-image: url('../img/minus-arrowhead.png');
 }
 
 .annot-render {
@@ -61,7 +55,7 @@ div.gridline_minor {
     /* margin-top: 6px; original MAKER choice */
     /* background-color: #0460d9; original color choice based on kuler.adobe.com */
     /* adjusted background-color, height, margin-top to better see DNA residues overlay when zoomed in */
-    height: 6px;  
+    height: 6px;
     margin-top: 5px;
     background-color: #A4BBFF; 
 }
