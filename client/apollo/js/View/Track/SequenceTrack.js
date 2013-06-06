@@ -41,7 +41,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             track.onResiduesMouseDown(event);
         };
 
-	this.charSize = this.gview.getSequenceCharacterSize();
+	this.charSize = this.webapollo.getSequenceCharacterSize();
 //	this.charWidth = this.charSize.charWidth;
 //	this.seqHeight = this.charSize.seqHeight;
 
@@ -154,7 +154,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
     endZoom: function(destScale, destBlockBases) {
 //        var charSize = this.getCharacterMeasurements();
-        var charSize = this.gview.getSequenceCharacterSize();
+        var charSize = this.webapollo.getSequenceCharacterSize();
 
         if( ( destScale == charSize.width ) ||
 	    (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
@@ -184,7 +184,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         this.inherited( arguments );
 
 //        var charSize = this.getCharacterMeasurements();
-        var charSize = this.gview.getSequenceCharacterSize();
+        var charSize = this.webapollo.getSequenceCharacterSize();
         if ( (scale == charSize.width ) ||
 	    (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
@@ -218,7 +218,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         var fillArgs = arguments;
         var track = this;
 //        var charSize = this.getCharacterMeasurements();
-        var charSize = this.gview.getSequenceCharacterSize();
+        var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
     	(this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
@@ -453,7 +453,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
 //        var charSize = this.getCharacterMeasurements();
-        var charSize = this.gview.getSequenceCharacterSize();
+        var charSize = this.webapollo.getSequenceCharacterSize();
 
         var seqNode = $("div.wa-sequence", block).get(0);
         // var seqNode = $("div.dna-container", block).get(0);

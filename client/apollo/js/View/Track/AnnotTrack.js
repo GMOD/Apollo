@@ -596,7 +596,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
                 // if zoomed int to showing sequence residues, then make edge-dragging snap to interbase pixels
 		var gridvals;
-                var charSize = track.gview.getSequenceCharacterSize();
+                var charSize = track.webapollo.getSequenceCharacterSize();
                 if (scale === charSize.width) { gridvals = [track.gview.charWidth, 1]; }
                 else  { gridvals = false; }
 
@@ -2833,7 +2833,9 @@ getAnnotationInformation: function()  {
 		dojo.forEach(this.getChildren(), function(item, idx, arr) {
 			if (item instanceof dijit.MenuItem) {
 				item._setSelected(false);
-				item._onUnhover();
+                                // check for _onUnhover, since latest dijit.MenuItem does not have _onUnhover() method
+                            if (item._onUnhover) { item._onUnhover(); }
+				
 			}
 		});
 	};
@@ -3294,7 +3296,7 @@ makeTrackMenu: function()  {
 	    var strand = topfeat.get('strand');
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
-            var charSize = track.gview.getSequenceCharacterSize();
+            var charSize = track.webapollo.getSequenceCharacterSize();
             if (scale === charSize.width && track.useResiduesOverlay)  {
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
