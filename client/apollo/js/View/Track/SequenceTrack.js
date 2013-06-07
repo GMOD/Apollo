@@ -455,7 +455,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
 
-        var seqNode = $("div.wa-sequence", block).get(0);
+        var seqNode = $("div.wa-sequence", block.domNode).get(0);
         // var seqNode = $("div.dna-container", block).get(0);
         featDiv.style.top = "0px";
         var ftype = feature.get("type");
@@ -887,8 +887,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             //    	end = track.refSeq.length;
     	    end = track.refSeq.end;
         }
-//        var count = 0;
-        var count = 1;
+        var count = 0;
         track.store.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
         
         return count;
