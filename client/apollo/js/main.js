@@ -45,6 +45,7 @@ return declare( JBPlugin,
 	    browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
         }
 
+
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
 
@@ -72,56 +73,9 @@ return declare( JBPlugin,
                     }
                 });
         browser.addGlobalMenuItem( 'options', cds_frame_toggle );
-        var plus_strand_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "Show plus strand",
-                    checked: true,
-                    onClick: function(event) {
-                        var plus = plus_strand_toggle.checked;
-                        var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
-                        if (plus && minus)  {
-                            browser.view.featureFilter = browser.view.passAllFilter;
-                        }
-                        else if (plus)  {
-                            browser.view.featureFilter = browser.view.plusStrandFilter;
-                        }
-                        else if (minus)  {
-                            browser.view.featureFilter = browser.view.minusStrandFilter;
-                        }
-                        else  {
-                            browser.view.featureFilter = browser.view.passNoneFilter;
-                        }
-                        // browser.view.redrawTracks();
-                        thisB.redoLayout();
-                    }
-                });
-        browser.addGlobalMenuItem( 'options', plus_strand_toggle );
-        var minus_strand_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "Show minus strand",
-                    checked: true,
-                    onClick: function(event) {
-                        var plus = plus_strand_toggle.checked;
-                        var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
-                        if (plus && minus)  {
-                            browser.view.featureFilter = browser.view.passAllFilter;
-                        }
-                        else if (plus)  {
-                            browser.view.featureFilter = browser.view.plusStrandFilter;
-                        }
-                        else if (minus)  {
-                            browser.view.featureFilter = browser.view.minusStrandFilter;
-                        }
-                        else  {
-                            browser.view.featureFilter = browser.view.passNoneFilter;
-                        }
-                        // browser.view.redrawTracks();
-                        thisB.redoLayout();
-                    }
-                });
-        browser.addGlobalMenuItem( 'options', minus_strand_toggle );
+
+        this.addStrandFilterOptions();
+
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -168,6 +122,79 @@ return declare( JBPlugin,
         });
 
     },
+
+    plusStrandFilter: function(feature)  {
+        var strand = feature.get('strand');
+        if (strand == 1 || strand == '+')  { return true; }
+        else  { return false; }
+    },
+
+    minusStrandFilter: function(feature)  {
+        var strand = feature.get('strand');
+        if (strand == -1 || strand == '-')  { return true; }
+        else  { return false; }
+    },
+    passAllFilter: function(feature)  {  return true; }, 
+    passNoneFilter: function(feature)  { return false; }, 
+
+    addStrandFilterOptions: function()  {
+        var thisB = this;
+        var browser = this.browser;
+        var plus_strand_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Show plus strand",
+                    checked: true,
+                    onClick: function(event) {
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            //browser.view.featureFilter = browser.view.passAllFilter;
+                            browser.setFeatureFilter(thisB.passAllFilter);
+                        }
+                        else if (plus)  {
+                            browser.setFeatureFilter(thisB.plusStrandFilter);
+  //                          browser.view.featureFilter = browser.view.plusStrandFilter;
+                        }
+                        else if (minus)  {
+                            browser.setFeatureFilter(thisB.minusStrandFilter);
+//                            browser.view.featureFilter = browser.view.minusStrandFilter;
+                        }
+                        else  {
+//                            browser.view.featureFilter = browser.view.passNoneFilter;
+                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        }
+                        // browser.view.redrawTracks();
+                        thisB.redoLayout();
+                    }
+                });
+        browser.addGlobalMenuItem( 'options', plus_strand_toggle );
+        var minus_strand_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Show minus strand",
+                    checked: true,
+                    onClick: function(event) {
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.setFeatureFilter(thisB.passAllFilter);
+                        }
+                        else if (plus)  {
+                            browser.setFeatureFilter(thisB.plusStrandFilter);
+                        }
+                        else if (minus)  {
+                            browser.setFeatureFilter(thisB.minusStrandFilter);
+                        }
+                        else  {
+                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        }
+                        //browser.view.redrawTracks();
+                        thisB.redoLayout();
+                    }
+                });
+        browser.addGlobalMenuItem( 'options', minus_strand_toggle );
+    }, 
 
     // would rather call view.redrawTracks()
     //
