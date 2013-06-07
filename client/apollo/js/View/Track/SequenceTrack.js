@@ -94,6 +94,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	thisConfig.style.arrowheadClass = null;
 	thisConfig.style.centerChildrenVertically = false;
         thisConfig.ignoreFeatureFilter = true;
+        thisConfig.style.showLabels = false;
 	return thisConfig;
     },
 
@@ -456,7 +457,6 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         var charSize = this.webapollo.getSequenceCharacterSize();
 
         var seqNode = $("div.wa-sequence", block.domNode).get(0);
-        // var seqNode = $("div.dna-container", block).get(0);
         featDiv.style.top = "0px";
         var ftype = feature.get("type");
         if (ftype) {
