@@ -149,23 +149,18 @@ return declare( JBPlugin,
                         var minus = minus_strand_toggle.checked;
                         console.log("plus: ", plus, " minus: ", minus);
                         if (plus && minus)  {
-                            //browser.view.featureFilter = browser.view.passAllFilter;
                             browser.setFeatureFilter(thisB.passAllFilter);
                         }
                         else if (plus)  {
                             browser.setFeatureFilter(thisB.plusStrandFilter);
-  //                          browser.view.featureFilter = browser.view.plusStrandFilter;
                         }
                         else if (minus)  {
                             browser.setFeatureFilter(thisB.minusStrandFilter);
-//                            browser.view.featureFilter = browser.view.minusStrandFilter;
                         }
                         else  {
-//                            browser.view.featureFilter = browser.view.passNoneFilter;
                             browser.setFeatureFilter(thisB.passNoneFilter);
                         }
-                        // browser.view.redrawTracks();
-                        thisB.redoLayout();
+                        browser.view.redrawTracks();
                     }
                 });
         browser.addGlobalMenuItem( 'options', plus_strand_toggle );
@@ -189,31 +184,10 @@ return declare( JBPlugin,
                         else  {
                             browser.setFeatureFilter(thisB.passNoneFilter);
                         }
-                        //browser.view.redrawTracks();
-                        thisB.redoLayout();
-                    }
+                        browser.view.redrawTracks();
+                        }
                 });
         browser.addGlobalMenuItem( 'options', minus_strand_toggle );
-    }, 
-
-    // would rather call view.redrawTracks()
-    //
-    // BUT, view.redrawTracks currently doesn't force relayout
-    //     browser.view.redrawTracks();
-    // track.changed() forces relayout (at least for HTMLFeatures)
-    //    but also call changeCallBack(), which currently is always view.showVisibleBlocks()
-    //    thus will needlessly call view.showVisibleBlocks() repeatedly 
-    // so trying for now to be explicit
-    redoLayout: function()  {
-        this.browser.view.trackIterate( function(t) { 
-                                       t.hideAll(); 
-                                       if (t._clearLayout)  { 
-                                           // console.log("clearing layout for track: " + t.label);
-                                           t._clearLayout(); 
-                                       } 
-                                   } 
-                                 );
-        this.browser.view.showVisibleBlocks(true);
     }, 
 
 /** 
