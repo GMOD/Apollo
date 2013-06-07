@@ -120,7 +120,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     			          track.store.insert(jfeat);
     		              }
     	                      track.featureCount = track.storedFeatureCount();
-    	                      if (track.SHOW_IF_FEATURES && track.featureCount > 0) {
+                              if (track.SHOW_IF_FEATURES && track.featureCount > 0) {
     	    	                  track.show();
     	                      }
     	                      else {
@@ -235,7 +235,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     	    // seq_block_container style sets width = 100%, so seqNode fills the block width
     	    //    regardless of whether holding residue divs or not
     	    $(seqNode).addClass("block-seq-container");
-    	    block.appendChild(seqNode);
+    	    block.domNode.appendChild(seqNode);
 
     	    var slength = rightBase - leftBase;
 
@@ -887,8 +887,10 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             //    	end = track.refSeq.length;
     	    end = track.refSeq.end;
         }
-        var count = 0;
+//        var count = 0;
+        var count = 1;
         track.store.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
+        
         return count;
     }, 
 

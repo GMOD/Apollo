@@ -3340,7 +3340,7 @@ makeTrackMenu: function()  {
                                 seqNode.appendChild(document.createTextNode(seq));
                                 // console.log("ypos: " + ypos);
                                 seqNode.style.cssText = "top: " + ypos + "px;";
-                                block.appendChild(seqNode);
+                                block.domNode.appendChild(seqNode);
                                 if (track.FADEIN_RESIDUES)  {
                                     $(seqNode).hide();
                                     $(seqNode).fadeIn(1500);
