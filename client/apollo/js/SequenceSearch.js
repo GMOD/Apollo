@@ -1,6 +1,6 @@
 define( [
             'dojo/_base/declare',
-            'jquery',
+            'jquery'
 ], 
 	function( declare, $ ) {
 

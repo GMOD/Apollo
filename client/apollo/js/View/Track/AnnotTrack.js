@@ -26,7 +26,7 @@ define( [
             'WebApollo/SequenceSearch', 
             'JBrowse/Model/SimpleFeature',
     'JBrowse/Util', 
-    'JBrowse/View/GranularRectLayout',
+    'JBrowse/View/GranularRectLayout'
         ],
         function( declare, $, draggable, droppable, resizable, dialog,
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,

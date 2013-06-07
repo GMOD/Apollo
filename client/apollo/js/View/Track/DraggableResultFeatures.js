@@ -1,6 +1,6 @@
 define( [
          'dojo/_base/declare',
-         'WebApollo/View/Track/DraggableHTMLFeatures', 
+         'WebApollo/View/Track/DraggableHTMLFeatures'
          ],
          function( declare, DraggableFeatureTrack) {
 
