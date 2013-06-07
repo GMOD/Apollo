@@ -3318,7 +3318,7 @@ makeTrackMenu: function()  {
                             // trying to avoid duplication both for efficiency and because re-rendering of text can
                             //    be slighly off from previous rendering, leading to bold / blurry text when overlaid
 
-                            var $seqdivs = $("div.annot-sequence", block);
+                            var $seqdivs = $("div.annot-sequence", block.domNode);
                             var sindex = $seqdivs.length;
                             var add_residues = true;
                             if ($seqdivs && sindex > 0)  {
