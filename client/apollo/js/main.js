@@ -36,6 +36,11 @@ return declare( JBPlugin,
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
 
+        args.cssLoaded.then( function() {
+            if (! browser.config.view) { browser.config.view = {}; }
+            browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;
+        } );
+
         if (! browser.config.helpUrl)  {
 	    browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
         }
@@ -270,8 +275,13 @@ return declare( JBPlugin,
       * returns char height/width on GenomeView
       */
     getSequenceCharacterSize: function()  {
+        var container = this.browser.container;
+        if (this.browser.view && this.browser.view.elem)  {
+            container = this.browser.view.elem;
+        }
         if (! this._charSize)  {
-	    this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
+            //	    this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
+	    this._charSize = this.calculateSequenceCharacterSize(container);
         }
         return this._charSize;
     }, 
