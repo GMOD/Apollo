@@ -1196,7 +1196,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // if annotation has parent, get comments for parent
             if(annot.afeature.parent_id) {
                 var parentContent = this.createEditCommentsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
-                    dojo.attr(parentContent, "class", "parent_comments_div");
+                    dojo.attr(parentContent, "webapolloclass", "parent_comments_div");
                     dojo.place(parentContent, content);
             }
             var annotContent = this.createEditCommentsPanelForFeature(annot.id(), track.getUniqueTrackName());
@@ -1417,7 +1417,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // if annotation has parent, get comments for parent
         if ( annot.afeature.parent_id ) {
             var parentContent = this.createEditDbxrefsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
-            dojo.attr(parentContent, "class", "parent_dbxrefs_div");
+            dojo.attr(parentContent, "webapolloclass", "parent_dbxrefs_div");
             dojo.place(parentContent, content);
         }
         var annotContent = this.createEditDbxrefsPanelForFeature(annot.id(), track.getUniqueTrackName());
@@ -1575,15 +1575,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if (seltrack !== track)  {
             return;
         }
-        var content = dojo.create("div", { class: "annotation_info_editor_container "});
+        var content = dojo.create("div", { webapolloclass: "annotation_info_editor_container "});
         // if annotation has parent, get comments for parent
         if (annot.afeature.parent_id) {
             var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
-            dojo.attr(parentContent, "class", "parent_annotation_info_editor");
+            dojo.attr(parentContent, "webapolloclass", "parent_annotation_info_editor");
             dojo.place(parentContent, content);
         }
         var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName());
-        dojo.attr(annotContent, "class", "annotation_info_editor");
+        dojo.attr(annotContent, "webapolloclass", "annotation_info_editor");
         dojo.place(annotContent, content);
         track.openDialog("Annotation Info Editor", content, "70%");
     },
@@ -1594,26 +1594,26 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var header = dojo.create("div", { className: "annotation_info_editor_header" }, content);
 
         var nameDiv = dojo.create("div", { }, content);
-    	var nameLabel = dojo.create("label", { innerHTML: "Symbol", class: "annotation_info_editor_label" }, nameDiv);
+    	var nameLabel = dojo.create("label", { innerHTML: "Symbol", webapolloclass: "annotation_info_editor_label" }, nameDiv);
     	var nameField = new dijitTextBox();
     	dojo.place(nameField.domNode, nameDiv);
  //    	var nameField = new dojo.create("input", { type: "text" }, nameDiv);
     	
-    	var dbxrefsDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
-    	var dbxrefsLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "DBXRefs" }, dbxrefsDiv);
-    	var dbxrefsTable = dojo.create("div", { class: "dbxrefs" }, dbxrefsDiv);
+    	var dbxrefsDiv = dojo.create("div", { webapolloclass: "annotation_info_editor_section" }, content);
+    	var dbxrefsLabel = dojo.create("div", { webapolloclass: "annotation_info_editor_section_header", innerHTML: "DBXRefs" }, dbxrefsDiv);
+    	var dbxrefsTable = dojo.create("div", { webapolloclass: "dbxrefs" }, dbxrefsDiv);
     	var dbxrefButtonsContainer = dojo.create("div", { style: "text-align: center;" }, dbxrefsDiv);
-    	var dbxrefButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, dbxrefButtonsContainer);
-    	var addDbxrefButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, dbxrefButtons);
-    	var deleteDbxrefButton = dojo.create("button", { innerHTML: "Delete", class: "annotation_info_editor_button" }, dbxrefButtons);
+    	var dbxrefButtons = dojo.create("div", { webapolloclass: "annotation_info_editor_button_group" }, dbxrefButtonsContainer);
+    	var addDbxrefButton = dojo.create("button", { innerHTML: "Add", webapolloclass: "annotation_info_editor_button" }, dbxrefButtons);
+    	var deleteDbxrefButton = dojo.create("button", { innerHTML: "Delete", webapolloclass: "annotation_info_editor_button" }, dbxrefButtons);
 
-    	var commentsDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
-    	var commentsLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Comments" }, commentsDiv);
-    	var commentsTable = dojo.create("div", { class: "comments" }, commentsDiv);
+    	var commentsDiv = dojo.create("div", { webapolloclass: "annotation_info_editor_section" }, content);
+    	var commentsLabel = dojo.create("div", { webapolloclass: "annotation_info_editor_section_header", innerHTML: "Comments" }, commentsDiv);
+    	var commentsTable = dojo.create("div", { webapolloclass: "comments" }, commentsDiv);
     	var commentButtonsContainer = dojo.create("div", { style: "text-align: center;" }, commentsDiv);
-    	var commentButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, commentButtonsContainer);
-    	var addCommentButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, commentButtons);
-    	var deleteCommentButton = dojo.create("button", { innerHTML: "Delete", class: "annotation_info_editor_button" }, commentButtons);
+    	var commentButtons = dojo.create("div", { webapolloclass: "annotation_info_editor_button_group" }, commentButtonsContainer);
+    	var addCommentButton = dojo.create("button", { innerHTML: "Add", webapolloclass: "annotation_info_editor_button" }, commentButtons);
+    	var deleteCommentButton = dojo.create("button", { innerHTML: "Delete", webapolloclass: "annotation_info_editor_button" }, commentButtons);
     	var cannedComments;
     	
     	var updateName = function(name) {
@@ -2064,8 +2064,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     			historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
     		}
     		historyPreviewDiv.appendChild(featDiv);
-    		dojo.attr(historyRows.childNodes.item(selectedIndex), "class", "history_row");
-    		dojo.attr(historyRows.childNodes.item(index), "class", "history_row history_row_selected");
+    		dojo.attr(historyRows.childNodes.item(selectedIndex), "webapolloclass", "history_row");
+    		dojo.attr(historyRows.childNodes.item(index), "webapolloclass", "history_row history_row_selected");
     		selectedIndex = index;
     	};
 	
@@ -2380,7 +2380,7 @@ getAnnotationInformation: function()  {
 	var content = dojo.create("div");
 	var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />" }, content);
 	var responseDiv = dojo.create("div", { className: "export_response" }, content);
-//	var responseIFrame = dojo.create("iframe", { class: "export_response_iframe" }, responseDiv);
+//	var responseIFrame = dojo.create("iframe", { webapolloclass: "export_response_iframe" }, responseDiv);
 
 	dojo.xhrGet( {
 		url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
