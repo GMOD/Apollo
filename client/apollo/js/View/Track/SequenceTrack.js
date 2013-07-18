@@ -95,6 +95,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 	thisConfig.style.centerChildrenVertically = false;
         thisConfig.ignoreFeatureFilter = true;
         thisConfig.style.showLabels = false;
+        thisConfig.pinned = true;
 	return thisConfig;
     },
 

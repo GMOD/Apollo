@@ -165,6 +165,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	thisConfig.menuTemplate = null;
 	thisConfig.noExport = true;  // turn off default "Save track data" "
 	thisConfig.style.centerChildrenVertically = false;
+        thisConfig.pinned = true;
 	return thisConfig;
 	/*  start of alternative to nulling out JBrowse feature contextual menu, instead attempt to merge in AnnotTrack-specific menu items
 	var superConfig = this.inherited(arguments);
