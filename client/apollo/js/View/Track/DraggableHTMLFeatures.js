@@ -852,12 +852,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
         // set all other tracks to standard track zIndex, 
         // set this track to > than others to ensure ghost is drawn on top of all other tracks
-       ftrack.div.style.zIndex = 10;
+  /*     ftrack.div.style.zIndex = 10;
         $(ftrack.gview.tracks).each( function(index, track)  {
             if (track.div !== ftrack.div && track.div.style.zIndex !== 7)  {
                 track.div.style.zIndex = 7;
             }
         } );
+*/
 
 /*	if (selected)  {  // simple version (no multiselect ghosting, no event retriggering for simultaneous select & drag)
 	    var $featdiv = $(featdiv);
@@ -882,8 +883,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     console.log("setting up dragability");
                     console.log(featdiv);
                 }
+                var atrack = ftrack.webapollo.getAnnotTrack();
+                var fblock = ftrack.getBlock(featdiv);
+                var ablock = atrack.getEquivalentBlock(fblock);
+
                 $featdiv.draggable(   // draggable() adds "ui-draggable" class to div
                     {
+                        zIndex: 200, 
+                        // appendTo: featdiv.parentNode.previousSibling, 
+                        appendTo: ablock.domNode, 
                         // custom helper for pseudo-multi-drag ("pseudo" because multidrag is visual only --
                         //      handling of draggable when dropped is already done through selection)
                         //    strategy for custom helper is to make a "holder" div with same dimensionsas featdiv
@@ -896,16 +904,23 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
                        // helper: 'clone',
                        helper: function() {
-                            var $featdiv_copy = $featdiv.clone();
-                            var $holder = $featdiv.clone();
+                            // var $featdiv_copy = $featdiv.clone();
+                            var $pfeatdiv;
+                            if (featdiv.subfeature) {
+                                $pfeatdiv = $(featdiv.parentNode);
+                            }
+                            else  {
+                                 $pfeatdiv = $(featdiv);
+                            }
+                            var $holder = $pfeatdiv.clone();
                             $holder.removeClass();
                             $holder.addClass("custom-multifeature-draggable-helper");
                             var holder = $holder[0];
-                            var featdiv_copy = $featdiv_copy[0];
+                            // var featdiv_copy = $featdiv_copy[0];
 
-                            var foffset = $featdiv.offset();
-                            var fheight = $featdiv.height();
-                            var fwidth = $featdiv.width();
+                            var foffset = $pfeatdiv.offset();
+                            var fheight = $pfeatdiv.height();
+                            var fwidth = $pfeatdiv.width();
                             var ftop = foffset.top;
                             var fleft = foffset.left;
                             if (this.verbose_drag)  {
@@ -975,6 +990,27 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
     }, 
 
+    /* given a feature or subfeature, return block that rendered it */
+    getBlock: function( featdiv ) {
+        var fdiv = featdiv;
+        while (fdiv.feature || fdiv.subfeature) {
+            if (fdiv.parentNode.block) { return fdiv.parentNode.block; }
+            fdiv = fdiv.parentNode;
+        }
+        return null;  // should never get here...
+    }, 
+
+    getEquivalentBlock: function ( block ) {
+        var startBase = block.startBase;
+        var endBase = block.endBase;
+        for (var i=this.firstAttached; i<=this.lastAttached; i++)  {
+            var testBlock = this.blocks[i];
+            if (testBlock.startBase == startBase && testBlock.endBase == endBase) {
+                return testBlock;
+            }
+        }
+        return null;
+    }, 
 
     onFeatureDoubleClick: function( event )  {
         var ftrack = this;
