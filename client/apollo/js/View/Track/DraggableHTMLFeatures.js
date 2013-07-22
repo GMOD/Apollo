@@ -844,6 +844,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
        }
     },
 
+    /* 
+     * WARNING: assumes one level (featdiv has feature) 
+     *                  or two-level (featdiv has feature, subdivs have subfeature) feature hierarchy
+     */
     handleFeatureDragSetup: function(event)  {
         var ftrack = this;
         var featdiv = (event.currentTarget || event.srcElement);
@@ -906,14 +910,18 @@ var draggableTrack = declare( HTMLFeatureTrack,
                        helper: function() {
                             // var $featdiv_copy = $featdiv.clone();
                             var $pfeatdiv;
+                            // get top-level feature (assumes one or two-level feature hierarchy)
                             if (featdiv.subfeature) {
-                                $pfeatdiv = $(featdiv.parentNode);
+                                $pfeatdiv = $(featdiv.parentNode); 
                             }
                             else  {
                                  $pfeatdiv = $(featdiv);
                             }
                             var $holder = $pfeatdiv.clone();
                             $holder.removeClass();
+                            // just want the shell of the top-level feature, so remove children 
+                            //      (selected children will be added back in below)
+                            $holder.empty(); 
                             $holder.addClass("custom-multifeature-draggable-helper");
                             var holder = $holder[0];
                             // var featdiv_copy = $featdiv_copy[0];
