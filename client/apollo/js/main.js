@@ -258,6 +258,12 @@ return declare( JBPlugin,
     	this.loginMenuInitialized = true;
     }, 
     
+    /**
+     *  get the GenomeView's user annotation track
+     *  WebApollo assumes there is only one AnnotTrack
+     *     if there are multiple AnnotTracks, getAnnotTrack returns first one found
+     *         iterating through tracks list
+     */
     getAnnotTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
             var tracks = this.browser.view.tracks;
@@ -271,6 +277,27 @@ return declare( JBPlugin,
         }
         return null;
     }, 
+
+    /**
+     *  get the GenomeView's sequence track
+     *  WebApollo assumes there is only one SequenceTrack
+     *     if there are multiple SequenceTracks, getSequenceTrack returns first one found
+     *         iterating through tracks list
+     */
+    getSequenceTrack: function()  {
+        if (this.browser && this.browser.view && this.browser.view.tracks)  {
+            var tracks = this.browser.view.tracks;
+            for (var i = 0; i < tracks.length; i++)  {
+	        // should be doing instanceof here, but class setup is not being cooperative
+                if (tracks[i].isWebApolloSequenceTrack)  {
+                    // console.log("seq track refseq: " + tracks[i].refSeq.name);
+                    return tracks[i];
+                }
+            }
+        }
+        return null;
+    }, 
+  
 
     /** ported from berkeleybop/jbrowse GenomeView.js 
       * returns char height/width on GenomeView
