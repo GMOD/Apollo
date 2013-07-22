@@ -847,6 +847,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     /* 
      * WARNING: assumes one level (featdiv has feature) 
      *                  or two-level (featdiv has feature, subdivs have subfeature) feature hierarchy
+     * attaching ghost to pinned AnnotTrack or SequenceTrack to ensure that stays on top
      */
     handleFeatureDragSetup: function(event)  {
         var ftrack = this;
@@ -864,7 +865,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
         } );
 */
 
-/*	if (selected)  {  // simple version (no multiselect ghosting, no event retriggering for simultaneous select & drag)
+/*
+// simple version for testing
+// (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
+	if (selected)  {  
 	    var $featdiv = $(featdiv);
 	    $featdiv.draggable(   { 
 		helper: 'clone', 
@@ -888,14 +892,18 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     console.log(featdiv);
                 }
                 var atrack = ftrack.webapollo.getAnnotTrack();
+                if (! atrack) { atrack = ftrack.webapollo.getSequenceTrack();  }
                 var fblock = ftrack.getBlock(featdiv);
-                var ablock = atrack.getEquivalentBlock(fblock);
+
+                // append drag ghost to featdiv block's equivalent block in annotation track if present, 
+                //     else  append to equivalent block in sequence track if present, 
+                //     else append to featdiv's block 
+                var ablock = ( atrack ? atrack.getEquivalentBlock(fblock) : fblock);
 
                 $featdiv.draggable(   // draggable() adds "ui-draggable" class to div
                     {
                         zIndex: 200, 
-                        // appendTo: featdiv.parentNode.previousSibling, 
-                        appendTo: ablock.domNode, 
+                        appendTo: ablock.domNode, // would default to featdiv's parent div
                         // custom helper for pseudo-multi-drag ("pseudo" because multidrag is visual only --
                         //      handling of draggable when dropped is already done through selection)
                         //    strategy for custom helper is to make a "holder" div with same dimensionsas featdiv
@@ -940,7 +948,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             for (var i=0; i<selength; i++)  {
                                 var srec = selection[i];
                                 var strack = srec.track;
-				var sfeat = srec.feature;
+                                var sfeat = srec.feature;
                                 var sfeatdiv = strack.getFeatDiv( sfeat );
                                 // if (sfeatdiv && (sfeatdiv !== featdiv))  {
                                 if (sfeatdiv)  {
