@@ -3,6 +3,10 @@
 
 */
 
+.feature, .plus-feature, .minus-feature {
+  height: 10px;
+}
+
 .webapollo-CDS {
     height: 80%;
     top: 10%;
