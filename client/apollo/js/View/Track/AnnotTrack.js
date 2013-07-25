@@ -632,7 +632,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             console.log("right edge delta bases: " + rightDeltaBases);
                         }
                         var subfeat = ui.originalElement[0].subfeature;
-                        console.log(subfeat);
+                        // console.log(subfeat);
 
                         var fmin = subfeat.get('start') + leftDeltaBases;
                         var fmax = subfeat.get('end') + rightDeltaBases;
@@ -640,7 +640,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         // var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
                         var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.id() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "set_exon_boundaries" }';
                         track.executeUpdateOperation(postData);
-                        console.log(subfeat);
+                        // console.log(subfeat);
                         // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
                         track.changed();
                     }
