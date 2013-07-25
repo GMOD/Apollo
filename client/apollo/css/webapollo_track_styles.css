@@ -566,9 +566,11 @@ div.basic-hist {
 .plus-webapollo-arrowhead,
 .plus-annot-arrowhead  {
     position: absolute;
-    width: 9px;
-    height: 5px;
+    width: 12px;
+    height: 100%;
     background-image: url('../img/plus-arrowhead.png');
+    background-repeat: no-repeat;
+    background-position: left center;  /* center image vertically */
     z-index: 1;
 }
 
@@ -576,9 +578,11 @@ div.basic-hist {
 .minus-webapollo-arrowhead,
 .minus-annot-arrowhead {
     position: absolute;
-    width: 9px;
-    height: 5px;
+    width: 12px;
+    height: 100%;
     background-image: url('../img/minus-arrowhead.png');
+    background-repeat: no-repeat;
+    background-position: right center;  /* center image vertically */
     z-index: 1;
 }
 
