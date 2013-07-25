@@ -20,10 +20,11 @@ define(
            'JBrowse/Plugin',
            './FeatureEdgeMatchManager',
 	   './FeatureSelectionManager',
+           './TrackConfigTransformer', 
 	   './View/Track/AnnotTrack'
        ],
     function( declare, dijitMenuItem, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager, AnnotTrack ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack ) {
 
 return declare( JBPlugin,
 {
@@ -51,6 +52,7 @@ return declare( JBPlugin,
 
 	this.featSelectionManager = new FeatureSelectionManager();
 	this.annotSelectionManager = new FeatureSelectionManager();
+        this.trackTransformer = new TrackConfigTransformer();
 
 	// setting up selection exclusiveOr --
 	//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
@@ -106,10 +108,7 @@ return declare( JBPlugin,
         var track_configs = browser.config.tracks;
         for (var i=0; i<track_configs.length; i++)  {
             var track_config = track_configs[i];
-            if (track_config.type ==  "JBrowse/View/Track/HTMLFeatures" )  { 
-                track_config.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
-                console.log("changed track type for " + track_config.label);
-            }
+            this.trackTransformer.transform(track_config);
         }
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
