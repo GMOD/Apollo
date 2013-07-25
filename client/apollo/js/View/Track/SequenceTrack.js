@@ -1,12 +1,13 @@
 define( [
     'dojo/_base/declare',
     'JBrowse/Store/Sequence/StaticChunked', 
+    'WebApollo/Store/SeqFeature/ScratchPad', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'JBrowse/CodonTable'
      ],
-function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
+function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
 
     var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
@@ -19,6 +20,8 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
  * @constructor
  */
     constructor: function( args ) {
+        console.log("in SequenceTrack constructor, config: ");
+        console.log(this.config);
 	this.isWebApolloSequenceTrack = true;
 	var track = this;
 
@@ -52,27 +55,47 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 
 	// this.refSeq = refSeq;  already assigned in BlockBased superclass
 
-  	var seqStoreConfig = dojo.clone(this.config);
-        seqStoreConfig.storeClass = "JBrowse/Store/Sequence/StaticChunked", 
-        seqStoreConfig.type = "JBrowse/Store/Sequence/StaticChunked", 
-	seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;
-        var inner_config = dojo.clone(seqStoreConfig);
-        // need a seqStoreConfig.config, 
-        //   since in StaticChunked constructor seqStoreConfig.baseUrl is ignored, 
-        //   and seqStoreConfig.config.baseUrl is used instead (as of JBrowse 1.9.8+)
-        seqStoreConfig.config = inner_config;
-        // must add browser and refseq _after_ cloning, otherwise get Browser errors
-	seqStoreConfig.browser = this.browser;
-	seqStoreConfig.refSeq = this.refSeq;
+        if (this.store.name == 'refseqs') {
+            this.sequenceStore = this.store;
+  	    var annotStoreConfig = dojo.clone(this.config);
+	    annotStoreConfig.browser = this.browser;
+	    annotStoreConfig.refSeq = this.refSeq;
+            var annotStore = new ScratchPad(annotStoreConfig);
+            this.store = annotStore;
+            annotStoreConfig.name = this.store.name;
+            this.browser._storeCache[this.store.name] = {
+                refCount: 1, 
+                store: this.store
+            };
+        }
+        else  {
+  	    var seqStoreConfig = dojo.clone(this.config);
+            seqStoreConfig.storeClass = "JBrowse/Store/Sequence/StaticChunked";
+            seqStoreConfig.type = "JBrowse/Store/Sequence/StaticChunked";
+            // old style, using residuesUrlTemplate
+            if (this.config.residuesUrlTemplate) {
+	        seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;                        
+            }
 
-	this.sequenceStore = new StaticChunked(seqStoreConfig);
-        this.browser._storeCache[ 'refseqs'] = {
-            refCount: 1, 
-            store: this.sequenceStore
-        };
+            var inner_config = dojo.clone(seqStoreConfig);
+            // need a seqStoreConfig.config, 
+            //   since in StaticChunked constructor seqStoreConfig.baseUrl is ignored, 
+            //   and seqStoreConfig.config.baseUrl is used instead (as of JBrowse 1.9.8+)
+            seqStoreConfig.config = inner_config;
+            // must add browser and refseq _after_ cloning, otherwise get Browser errors
+	    seqStoreConfig.browser = this.browser;
+	    seqStoreConfig.refSeq = this.refSeq;
+
+	    this.sequenceStore = new StaticChunked(seqStoreConfig);
+            this.browser._storeCache[ 'refseqs'] = {
+                refCount: 1, 
+                store: this.sequenceStore
+            };
+        }
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
+        this.ALWAYS_SHOW = false;
         // this.setLoaded();
 	//	this.initContextMenu();
 
@@ -130,7 +153,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
     			          track.store.insert(jfeat);
     		              }
     	                      track.featureCount = track.storedFeatureCount();
-                              if (track.SHOW_IF_FEATURES && track.featureCount > 0) {
+                              if (track.ALWAYS_SHOW || (track.SHOW_IF_FEATURES && track.featureCount > 0)) {
     	    	                  track.show();
     	                      }
     	                      else {
@@ -167,7 +190,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         var charSize = this.webapollo.getSequenceCharacterSize();
 
         if( ( destScale == charSize.width ) ||
-	    (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
+	    this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0)) {
 	    this.show();
         }
         else  {
@@ -196,7 +219,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ( (scale == charSize.width ) ||
-	    (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
+	    this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
         } else {
             this.hide();
@@ -230,7 +253,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
 //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
-    	(this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
+    	    this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
         } else {
             this.hide();
@@ -843,7 +866,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             }
         }
         track.featureCount = track.storedFeatureCount();
-        if (this.SHOW_IF_FEATURES && this.featureCount > 0) {
+        if (this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0)) {
     	    this.show();
         }
         else {
@@ -866,7 +889,7 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
             this.store.deleteFeatureById(id_to_delete);
         }
         track.featureCount = track.storedFeatureCount();
-        if (this.SHOW_IF_FEATURES && this.featureCount > 0) {
+        if (this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0)) {
     	    this.show();
         }
         else {
