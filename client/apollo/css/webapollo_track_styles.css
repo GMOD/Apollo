@@ -571,7 +571,7 @@ div.basic-hist {
     background-image: url('../img/plus-arrowhead.png');
     background-repeat: no-repeat;
     background-position: left center;  /* center image vertically */
-    z-index: 1;
+    z-index: 15;
 }
 
 .minus-trellis-arrowhead,
@@ -583,7 +583,7 @@ div.basic-hist {
     background-image: url('../img/minus-arrowhead.png');
     background-repeat: no-repeat;
     background-position: right center;  /* center image vertically */
-    z-index: 1;
+    z-index: 15;
 }
 
 .cds-frame0 {
