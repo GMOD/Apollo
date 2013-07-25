@@ -767,7 +767,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // event.stopPropagation();
         if( this.verbose_selection || this.verbose_drag ) { 
             console.log("DFT.onFeatureMouseDown called"); 
-	    console.log("genome coord: " + this.gview.absXtoBp(event.pageX));
+	    console.log("genome coord: " + this.getGenomeCoord(event));
         }
 
 	// drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
@@ -1146,9 +1146,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
  */
-    getUiGenomeCoord: function(mouseEvent)  {
+ /*   getUiGenomeCoord: function(mouseEvent)  {
 	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
     }, 
+*/
 
 /**
  *  for the input mouse event, returns genome position under mouse IN 0-BASED INTERBASE COORDINATES
@@ -1169,7 +1170,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
  * 
  */
     getGenomeCoord: function(mouseEvent)  {
-	return this.getUiGenomeCoord(mouseEvent) - 1;
+	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
+//	return this.getUiGenomeCoord(mouseEvent) - 1;
     }
 
 });
