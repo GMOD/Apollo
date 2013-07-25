@@ -42,18 +42,26 @@ function( declare, StaticChunked, DraggableFeatureTrack, JSONUtils, Permission, 
         };
 
 	this.charSize = this.webapollo.getSequenceCharacterSize();
-//	this.charWidth = this.charSize.charWidth;
-//	this.seqHeight = this.charSize.seqHeight;
+        //	this.charWidth = this.charSize.charWidth;
+        //	this.seqHeight = this.charSize.seqHeight;
 
 	// splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible 
 	//    for DNA residues and protein translation to be different styles
-//	this.dnaHeight = this.seqHeight;
-//	this.proteinHeight = this.seqHeight;
+        //	this.dnaHeight = this.seqHeight;
+        //	this.proteinHeight = this.seqHeight;
 
 	// this.refSeq = refSeq;  already assigned in BlockBased superclass
 
-	var seqStoreConfig = dojo.clone(this.config);
+  	var seqStoreConfig = dojo.clone(this.config);
+        seqStoreConfig.storeClass = "JBrowse/Store/Sequence/StaticChunked", 
+        seqStoreConfig.type = "JBrowse/Store/Sequence/StaticChunked", 
 	seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;
+        var inner_config = dojo.clone(seqStoreConfig);
+        // need a seqStoreConfig.config, 
+        //   since in StaticChunked constructor seqStoreConfig.baseUrl is ignored, 
+        //   and seqStoreConfig.config.baseUrl is used instead (as of JBrowse 1.9.8+)
+        seqStoreConfig.config = inner_config;
+        // must add browser and refseq _after_ cloning, otherwise get Browser errors
 	seqStoreConfig.browser = this.browser;
 	seqStoreConfig.refSeq = this.refSeq;
 
