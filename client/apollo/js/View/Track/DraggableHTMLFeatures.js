@@ -53,6 +53,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         exon: "container-100pct", 
                         intron: null,
                         wholeCDS: null, 
+                        start_codon: null, 
+                        stop_codon: null, 
                         match_part: "darkblue-80pct"
                     }, 
 
