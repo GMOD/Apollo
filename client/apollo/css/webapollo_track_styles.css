@@ -10,12 +10,9 @@
 .webapollo-CDS {
     height: 80%;
     top: 10%;
-/* height: 12px */
-/*    margin-top: 2px;  */  /* relying on centering code instead */
-/*    background-color: #F58544; */
     background-color: rgb(218, 170, 241);
     border-style: solid;
-    border-color: #555;
+    border-color: rgb(173, 92, 194);
     border-width: 1px;
 }
 
