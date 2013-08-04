@@ -28,6 +28,9 @@ constructor: function()  {
 },
 
 transform: function(trackConfig) {
+    if (trackConfig.overridePlugins) {
+        return;
+    }
     if (this[trackConfig.type]) {
         var transformer = this[trackConfig.type];
         transformer(trackConfig);
