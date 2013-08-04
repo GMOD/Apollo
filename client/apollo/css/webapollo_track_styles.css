@@ -588,15 +588,15 @@ div.basic-hist {
 }
 
 .cds-frame0 {
-    background-color: #FF8080;
+    background-color: #FF8080 !important;
 }
 
 .cds-frame1 {
-    background-color: #80FF80; 
+    background-color: #80FF80 !important;
 }
 
 .cds-frame2 {
-    background-color: #8080FF;
+    background-color: #8080FF !important;
 }
 
 /**
