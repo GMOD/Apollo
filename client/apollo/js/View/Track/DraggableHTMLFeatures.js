@@ -462,7 +462,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                                                data: { start: prevStart, end: prevEnd, type: 'exon', 
                                                                        strand: feature.get('strand')  } 
                                                              } );
-                                console.log(exon);
                                 newsubs.push(exon);
                                 prevStart = curStart;
                                 prevEnd = curEnd;
