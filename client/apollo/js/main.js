@@ -21,10 +21,11 @@ define(
            './FeatureEdgeMatchManager',
 	   './FeatureSelectionManager',
            './TrackConfigTransformer', 
-	   './View/Track/AnnotTrack'
+	   './View/Track/AnnotTrack', 
+           'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
     function( declare, dijitMenuItem, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, GFF3Driver ) {
 
 return declare( JBPlugin,
 {
@@ -85,7 +86,8 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
             defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
-                                    'JBrowse/Store/SeqFeature/GFF3'
+                                    'JBrowse/Store/SeqFeature/GFF3', 
+                                    'WebApollo/Store/SeqFeature/ApolloGFF3'
                                   ],
             label: 'WebApollo Features'
         });
@@ -120,6 +122,12 @@ return declare( JBPlugin,
             }
         });
 
+        var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
+            constructor: function( args ) {
+                this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
+            }
+        } );
+        browser.registerExtraFileDriver(customGff3Driver);
     },
 
     plusStrandFilter: function(feature)  {
