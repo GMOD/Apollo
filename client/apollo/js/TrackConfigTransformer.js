@@ -24,6 +24,13 @@ constructor: function()  {
         trackConfig.compress = 0;
         trackConfig.subfeatures = 1;
     };
+    
+    this["JBrowse/View/Track/Alignments"] = function(trackConfig) {
+        console.log("transforming Alignments (or Alignments2) track");
+        trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
+    };
+
+    this["JBrowse/View/Track/Alignments2"] = this["JBrowse/View/Track/Alignments"];
 
 },
 
