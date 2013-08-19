@@ -130,6 +130,13 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	return thisConfig;
     },
 
+    /** removing track pin toggle menuitem, so SequenceTrack is always pinned 
+     *   (very hacky since depends on label of pin menuitem)
+     */
+   _trackMenuOptions: function() {
+       var original_options = this.inherited( arguments );
+       return this.webapollo.removeItemWithLabel(original_options, "Pin to top");
+   }, 
 
     /**
      * called by AnnotTrack to initiate sequence alterations load

@@ -191,6 +191,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 */
 
     },
+
+    /** removing track pin toggle menuitem, so AnnotTrack is always pinned 
+     *   (very hacky since depends on label of pin menuitem)
+     */
+   _trackMenuOptions: function() {
+       var original_options = this.inherited( arguments );
+       return this.webapollo.removeItemWithLabel(original_options, "Pin to top");
+   }, 
     
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
