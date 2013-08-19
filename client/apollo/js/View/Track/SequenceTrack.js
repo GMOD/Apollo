@@ -130,12 +130,15 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	return thisConfig;
     },
 
-    /** removing track pin toggle menuitem, so SequenceTrack is always pinned 
-     *   (very hacky since depends on label of pin menuitem)
+    /** removing "Pin to top" menuitem, so SequenceTrack is always pinned 
+     *    and "Delete track" menuitem, so can't be deleted
+     *   (very hacky since depends on label property of menuitem config)
      */
    _trackMenuOptions: function() {
-       var original_options = this.inherited( arguments );
-       return this.webapollo.removeItemWithLabel(original_options, "Pin to top");
+       var options = this.inherited( arguments );
+       options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+       options = this.webapollo.removeItemWithLabel(options, "Delete track");
+       return options;
    }, 
 
     /**
