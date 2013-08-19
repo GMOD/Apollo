@@ -341,6 +341,23 @@ return declare( JBPlugin,
 
         containerElement.removeChild(widthTest);
         return result;
+    }, 
+
+    /** utility function, given an array with objects that have label props, 
+     *        return array with all objects that don't have label
+     *   D = [ { label: A }, { label: B}, { label: C } ]
+     *   E = D.removeItemWithLabel("B");
+     *   E ==> [ { label: A }, { label: C } ]
+     */
+    removeItemWithLabel: function(inarray, label) {
+        var outarray = [];
+        for (var i=0; i<inarray.length; i++) {
+            var obj = inarray[i];
+            if (! (obj.label && (obj.label === label))) {
+                outarray.push(obj);
+            }
+        }
+        return outarray;
     }
 
 
