@@ -1,23 +1,23 @@
 #!/usr/bin/env perl
 use strict;
 use FindBin qw($RealBin);
-use lib "$RealBin/../lib";
+use lib "$RealBin/../perl5";
 use JBlibs;
 
-use Bio::JBrowse::Cmd::FlatFileToJson;
+use Bio::WebApollo::Cmd::VcfToJson;
 
-exit Bio::JBrowse::Cmd::FlatFileToJson->new(@ARGV)->run;
+exit Bio::WebApollo::Cmd::VcfToJson->new(@ARGV)->run;
 
 __END__
 
 =head1 NAME
 
-flatfile-to-json.pl - format data into JBrowse JSON format from an annotation file
+vcf-to-json.pl - format vcf data into WebApollo JSON format from an annotation file
 
 =head1 USAGE
 
   flatfile-to-json.pl                                                         \
-      ( --gff <GFF3 file> | --bed <BED file> | --vcf <VCF file)               \
+      --vcf <VCF file>                                                        \
       --trackLabel <track identifier>                                         \
       [ --out <output directory> ]                                            \
       [ --key <human-readable track name> ]                                   \
@@ -46,13 +46,9 @@ flatfile-to-json.pl - format data into JBrowse JSON format from an annotation fi
 
 =over 4
 
-=item --gff <GFF3 file>
+=item --vcf <vcf file>
 
-=item --bed <BED file>
-
-Process a GFF3 or BED-format file containing annotation data.
-
-NOTE: This script does not support GFF version 2 or GTF (GFF 2.5) input.
+Process a VCF file 
 
 =item --trackLabel <track identifier>
 
