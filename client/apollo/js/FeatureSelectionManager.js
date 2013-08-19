@@ -15,7 +15,8 @@ return declare( null,
         this.listeners = [];
         this.clearOnAdd = [];
         this.unselectableTypes = { "non_canonical_five_prime_splice_site" : true, 
-			           "non_canonical_three_prime_splice_site" : true };
+			           "non_canonical_three_prime_splice_site" : true,
+			           "stop_codon_read_through" : true};
     },
 
     /**
@@ -34,12 +35,12 @@ return declare( null,
     // adding a parent should remove all children
     // adding a child should remove all parents
     // attempting to add a feature that's already part of the selection does nothing (and doesn't trigger listener calls)
-    addToSelection: function( rec )  {
+    addToSelection: function( rec, keepOtherTracksSelection )  {
 
         // if this selection manager has had setClearOnAdd(others)
         // called to set other selection managers to clear selection
         // from when
-        if (this.clearOnAdd)  {
+        if (this.clearOnAdd && !keepOtherTracksSelection)  {
 	    for (var i=0; i<this.clearOnAdd.length; i++)  {
 	        this.clearOnAdd[i].clearSelection();
 	    }
@@ -129,6 +130,13 @@ return declare( null,
           }
         */
         //  console.log("done calling FeatureselectionManager.clearSelection()");
+    },
+    
+    clearAllSelection: function() {
+    	this.clearSelection();
+    	for (var i = 0; i < this.clearOnAdd.length; ++i) {
+    		this.clearOnAdd[i].clearSelection();
+    	}
     },
 
     isSelected: function( rec )  {

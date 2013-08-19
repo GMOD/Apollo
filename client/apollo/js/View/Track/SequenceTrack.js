@@ -4,10 +4,9 @@ define( [
     'WebApollo/Store/SeqFeature/ScratchPad', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
-    'WebApollo/Permission',
-    'JBrowse/CodonTable'
+    'WebApollo/Permission'
      ],
-function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, CodonTable ) {
+function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission ) {
 
     var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
@@ -101,6 +100,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	if (atrack)  { 
 	    this.setAnnotTrack(atrack); 
 	}  
+	
+	this.translationTable = {};
+	
     },
 
 // annotSelectionManager is class variable (shared by all AnnotTrack instances)
@@ -138,6 +140,52 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
        options = this.webapollo.removeItemWithLabel(options, "Delete track");
        return options;
    }, 
+   
+    loadTranslationTable: function() {
+    	var track = this;
+        dojo.xhrPost( {
+            postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_translation_table" }',
+            url: track.context_path + "/AnnotationEditorService",
+            handleAs: "json",
+            sync: true,
+            timeout: 5 * 1000, // Time in milliseconds
+            // The LOAD function will be called on a successful response.
+            load: function(response, ioArgs) { //
+            	track.translationTable = {};
+            	var ttable = response.translation_table;
+            	for (var codon in ttable) {
+            	    // looping through codon table, make sure not hitting generic properties...
+            	    if (ttable.hasOwnProperty(codon)) {
+            	        var aa = ttable[codon];
+            	        // console.log("Codon: ", codon, ", aa: ", aa);
+            	        var nucs = [];
+            	        for (var i=0; i<3; i++) {
+            	            var nuc = codon.charAt(i);
+            	            nucs[i] = [];
+            	            nucs[i][0] = nuc.toUpperCase();
+            	            nucs[i][1] = nuc.toLowerCase();
+            	        }
+            	        for (var i=0; i<2; i++) {
+            	            var n0 = nucs[0][i];
+            	            for (var j=0; j<2; j++) {
+            	                var n1 = nucs[1][j];
+            	                for (var k=0; k<2; k++) {
+            	                    var n2 = nucs[2][k];
+            	                    var triplet = n0 + n1 + n2;
+            	                    track.translationTable[triplet] = aa;
+            	                    // console.log("triplet: ", triplet, ", aa: ", aa );
+            	                }
+            	            }
+            	        }
+            	    }
+            	}
+            },
+            // The ERROR function will be called in an error case.
+            error: function(response, ioArgs) { //
+            	return response; //
+            }
+        });
+    },
 
     /**
      * called by AnnotTrack to initiate sequence alterations load
@@ -590,6 +638,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
     /** end is ignored, assume all of seq is translated (except any extra bases at end) */
     renderTranslation: function ( input_seq, offset, blockLength, reverse) {
+    	var CodonTable = this.translationTable;
         var verbose = false;
         // sequence of diagnostic block
         //    var verbose = (input_seq === "GTATATTTTGTACGTTAAAAATAAAAA" || input_seq === "GCGTATATTTTGTACGTTAAAAATAAA" );
@@ -1125,6 +1174,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     setAnnotTrack: function(annotTrack) {
 	// if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
 	this.annotTrack = annotTrack;
+	this.loadTranslationTable();
 	this.initContextMenu();
 	this.loadSequenceAlterations();
     },

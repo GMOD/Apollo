@@ -1,7 +1,8 @@
 require({
            packages: [
                { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
-               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
+               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' },
+               { name: 'bbop', location: '../plugins/WebApollo/jslib/bbop' }
            ]
        },
        [],

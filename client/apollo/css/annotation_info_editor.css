@@ -3,19 +3,21 @@
 .parent_annotation_info_editor {
 	border-right: dotted;
 	border-min-width: 1px;
-	padding-right: 5%;
+	padding-right: 4.5%;
 	float: left;
 	font-size: 1.2em;
-	min-width: 45%;
+	width: 45%;
 }
 
 .annotation_info_editor {
 	float: right;
 	font-size: 1.2em;
-	min-width: 45%;
+	padding-right: 1%;
+	width: 24em;
 }
 
 .annotation_info_editor_container {
+	padding-bottom: 15%;
 }
 
 .annotation_info_editor_header {
@@ -25,6 +27,30 @@
 }
 
 .dbxrefs {
+	min-width: 100%;
+	min-height: 7em;
+	border: solid;
+	border-width: 1px;
+	border-color: lightgray;
+}
+
+.attributes {
+	min-width: 100%;
+	min-height: 7em;
+	border: solid;
+	border-width: 1px;
+	border-color: lightgray;
+}
+
+.pubmed_ids {
+	min-width: 100%;
+	min-height: 7em;
+	border: solid;
+	border-width: 1px;
+	border-color: lightgray;
+}
+
+.go_ids {
 	min-width: 100%;
 	min-height: 7em;
 	border: solid;
@@ -51,10 +77,16 @@
 .annotation_info_editor_label {
 	text-align: right;
 	padding-right: 10px;
+	float: left;
 }
 
 .annotation_info_editor_section {
 	padding-top: 20px;
+}
+
+.annotation_info_editor_field_section {
+	padding-bottom: 1em;
+	padding-top: 0.5em;
 }
 
 .annotation_info_editor_button_group {
@@ -71,6 +103,33 @@
 	margin-left: 2.5px;
 }
 
-.comments .dojoxGridHeader {
-	display:none;
+.comments .dojoxGridHeader,
+.pubmed_ids .dojoxGridHeader,
+.go_ids .dojoxGridHeader {
+	display: none;
+}
+
+.annotation_editor_field {
+	float: right;
+}
+
+.status {
+	border: 1px;
+	border-style: solid;
+	border-color: lightgray;
+	padding: 0.5em;
+	overflow-y: auto;
+	max-height: 2em;
+}
+
+.annotation_info_editor_radio {
+/*	padding-right: 1em; */
+	display: inline-block;
+}
+
+.annotation_info_editor_radio_label {
+}
+
+.ui-autocomplete {
+	max-width: 75%;
 }

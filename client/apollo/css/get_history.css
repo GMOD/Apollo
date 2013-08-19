@@ -6,11 +6,15 @@
 
 .history_table {
 	font-size: 1.5em;
-	max-width: 47em;
+/*	max-width: 47em; */
 }
 
 .history_header_column {
 	font-weight: bold;
+}
+
+.history_column_operation {
+	width: 18em !important;
 }
 
 .history_column {
@@ -28,12 +32,18 @@
 	background-color: #000099;
 	color: white;
 }
+
+.history_row_current {
+	background-color: #787878;
+	color: white;
+}
+
 .history_rows {
 	max-height: 10em;
 	overflow-y: auto;
 }
 
-.history_date_column {
+.history_column_date {
 	max-width: 10em;
 }
 

@@ -49,7 +49,10 @@ var JAFeature = declare( SimpleFeature, {
 	if (this.data.type === "CDS")  { 
 	    this.data.type = "wholeCDS"; 
 	}
-
+	else if (this.data.type === "stop_codon_read_through") {
+		parent.data.readThroughStopCodon = true;
+	}
+	
         this._uniqueID = afeature.uniquename;
 
 	// this doesn't work, since can be multiple properties with same CV term (comments, for example)
@@ -63,17 +66,30 @@ var JAFeature = declare( SimpleFeature, {
         }, this);
 */
 
-	if (afeature.properties) {
-    	    for (var i = 0; i < afeature.properties.length; ++i) {
-    		var property = afeature.properties[i];
-    		if (property.type.name == "comment" && property.value == "Manually set translation start") {
-    		    // jfeature.manuallySetTranslationStart = true;
-		    this.data.manuallySetTranslationStart = true;   // so can call feat.get('manuallySetTranslationStart')
-		    if (this.parent())  { parent.data.manuallySetTranslationStart = true; }
-    		}
-    	    }
-	}
+        if (afeature.properties) {
+        	for (var i = 0; i < afeature.properties.length; ++i) {
+        		var property = afeature.properties[i];
+        		if (property.type.name == "comment" && property.value == "Manually set translation start") {
+        			// jfeature.manuallySetTranslationStart = true;
+        			this.data.manuallySetTranslationStart = true;   // so can call feat.get('manuallySetTranslationStart')
+        			if (this.parent())  { parent.data.manuallySetTranslationStart = true; }
+        		}
+        	}
+        }
 
+        if (!parent) {
+        	var descendants = [];
+        	for (var i = 0; i < afeature.children.length; ++i) {
+        		var child = afeature.children[i];
+        		if (child.children) {
+        			for (var j = 0; j < child.children.length; ++j) {
+        				JSONUtils.flattenFeature(child.children[j], descendants);
+        			}
+        		}
+        	}
+        	afeature.children = afeature.children.concat(descendants);
+        }
+        
 	// moved subfeature assignment to bottom of feature construction, since subfeatures may need to call method on their parent
 	//     only thing subfeature constructor won't have access to is parent.data.subfeatures
         // get the subfeatures              
@@ -88,6 +104,16 @@ JSONUtils.JAFeature = JAFeature;
 
 JSONUtils.createJBrowseFeature = function( afeature )  {
     return new JAFeature( afeature );
+};
+
+JSONUtils.flattenFeature = function(feature, descendants) {
+	descendants.push(feature);
+	if (feature.children) {
+		for (var i = 0; i < feature.children.length; ++i) {
+			JSONUtils.flattenFeature(feature.children[i], descendants);
+		}
+		feature.children = [];
+	}
 };
 
 

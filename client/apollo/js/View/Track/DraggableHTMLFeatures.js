@@ -201,7 +201,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                       }
                                   }
                                   if (this.verbose_selection)  { console.log("clearing selection"); }
-                                  track.selectionManager.clearSelection();
+                                  track.selectionManager.clearAllSelection();
                               }
                           else   {
                               track.prev_selection = null;
@@ -818,7 +818,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
            }
            else  {  // if shift-mouse-down and neither this or parent selected, select this
                // children are auto-deselected by selection manager when parent is selected
-               selman.addToSelection({ feature: feat, track: this });
+               selman.addToSelection({ feature: feat, track: this }, true);
            }
        }
        else if (event.altKey) {

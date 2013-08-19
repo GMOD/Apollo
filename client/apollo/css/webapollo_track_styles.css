@@ -775,3 +775,20 @@ div.canvas-track-control {
 /* repeatrunner     background-color: rgb(255,152,255); */
 /* default-alignment-block    background-color: #C87C8E; */
 /* nvit-alignment    background-color: #848DBF; */
+
+.stop_codon_read_through, 
+.plus-stop_codon_read_through,
+.minus-stop_codon_read_through {
+    position: absolute;
+    height: 16px;
+    background-color: purple;
+    border-style: solid;
+    border-color: #01F;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 15;
+    min-width: 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
