@@ -1,0 +1,9 @@
+##fileformat=VCFv4.0
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=VRD,Number=2,Type=Integer,Description="Variant read depth">
+##FILTER=<ID=q10,Description="Quality below 10">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE1	SAMPLE2
+chr1	15883	chr1:SOAP:SNV:15883	C	G,C	.	PASS	DP=100	GT:DP:VRD	0/1:33:17,16	0|0:67:40
+chr3	44444	chr3:SOAP:SNV:44444	A	T	.	PASS	DP=50	GT:DP:VRD	1:24:24	0:26:26
