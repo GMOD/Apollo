@@ -13,6 +13,7 @@ define(
        [
            'dojo/_base/declare',
            'dijit/MenuItem', 
+           'dijit/MenuSeparator', 
            'dijit/CheckedMenuItem',
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
@@ -24,7 +25,7 @@ define(
 	   './View/Track/AnnotTrack', 
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
-    function( declare, dijitMenuItem, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
+    function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, GFF3Driver ) {
 
 return declare( JBPlugin,
@@ -75,7 +76,7 @@ return declare( JBPlugin,
                         browser.view.redrawTracks();
                     }
                 });
-        browser.addGlobalMenuItem( 'options', cds_frame_toggle );
+        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
 
         this.addStrandFilterOptions();
 
@@ -170,7 +171,7 @@ return declare( JBPlugin,
                         browser.view.redrawTracks();
                     }
                 });
-        browser.addGlobalMenuItem( 'options', plus_strand_toggle );
+        browser.addGlobalMenuItem( 'view', plus_strand_toggle );
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Show minus strand",
@@ -194,7 +195,8 @@ return declare( JBPlugin,
                         browser.view.redrawTracks();
                         }
                 });
-        browser.addGlobalMenuItem( 'options', minus_strand_toggle );
+        browser.addGlobalMenuItem( 'view', minus_strand_toggle );
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     }, 
 
 /** 
