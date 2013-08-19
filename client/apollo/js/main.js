@@ -117,6 +117,7 @@ return declare( JBPlugin,
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             if (browser.poweredByLink)  {
+                dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
                 browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
                 browser.poweredByLink.target = "_blank";
