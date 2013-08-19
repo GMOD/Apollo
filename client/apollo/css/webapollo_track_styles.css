@@ -686,6 +686,14 @@ div.basic-hist {
     outline-width: 3px;
 }
 
+div.track_webapollo_view_track_annottrack div.track-label .track-close-button {
+    visibility: hidden;
+}
+
+div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-button {
+    visibility: hidden;
+}
+
 /*
 *  diagnostics for blocks
 */
