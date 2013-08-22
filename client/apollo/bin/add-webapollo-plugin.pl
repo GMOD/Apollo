@@ -100,12 +100,12 @@ my $apollo_plugin =  {
 
 my $plugin_is_new = 1;
 # legacy way of specifying WebApollo plugin just as "WebApollo" string, should eliminate;
-if ($tracklist_data->{plugins} eq "WebApollo") {
+if ($tracklist_data->{plugins} && ($tracklist_data->{plugins} eq "WebApollo")) {
     $tracklist_data->{plugins} = [];
 }
 for( my $i = 0; $i < @{$tracklist_data->{plugins}|| []}; $i++ ) {
   my $plugin = $tracklist_data->{plugins}[$i];
-  if( $plugin->{name} eq $apollo_plugin->{name} ) {
+  if( $plugin->{name} && ( $plugin->{name} eq $apollo_plugin->{name} ) ) {
     $tracklist_data->{plugins}[$i] = $apollo_plugin;
     $plugin_is_new = 0;
   }  
@@ -116,11 +116,12 @@ if ($plugin_is_new)  {
 
 $tracklist_data->{alwaysOnTracks} = "DNA,Annotations";
 $tracklist_data->{favicon} = $favicon_url;
+$tracklist_data->{share_link} = 0;
 
 my $track_is_new = 1;
 for( my $i = 0; $i < @{$tracklist_data->{tracks}|| []}; $i++ ) {
   my $track = $tracklist_data->{tracks}[$i];
-  if( $track->{label} eq $user_track->{label} ) {
+  if( $track->{label} && ( $track->{label} eq $user_track->{label} ) ) {
     $tracklist_data->{tracks}[$i] = $user_track;
     $track_is_new = 0;
   }
