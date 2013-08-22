@@ -39,6 +39,11 @@ return declare( JBPlugin,
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
 
+        if (browser.config.favicon) {
+            // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
+            this.setFavicon(browser.config.favicon);
+        }
+
         args.cssLoaded.then( function() {
             if (! browser.config.view) { browser.config.view = {}; }
             browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;
@@ -361,6 +366,29 @@ return declare( JBPlugin,
             }
         }
         return outarray;
+    }, 
+
+    setFavicon: function(favurl) {
+        var $head = $('head');
+        // remove any existing favicons
+        var $existing_favs = $("head > link[rel='icon'], head > link[rel='shortcut icon']");
+        $existing_favs.remove();
+
+        // add new favicon (as both rel='icon' and rel='shortcut icon' for better browser compatibility)
+        var favicon1 = document.createElement('link');
+        favicon1.id = "favicon_icon";
+        favicon1.rel = 'icon';
+        favicon1.type="image/x-icon";
+        favicon1.href = favurl;
+
+        var favicon2 = document.createElement('link');
+        favicon2.id = "favicon_shortcut_icon";
+        favicon2.rel = 'shortcut icon';
+        favicon2.type="image/x-icon";
+        favicon2.href = favurl;
+
+        $head.prepend(favicon1);
+        $head.prepend(favicon2);
     }
 
 
