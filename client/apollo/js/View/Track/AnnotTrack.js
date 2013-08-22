@@ -33,14 +33,16 @@ define( [
     'JBrowse/View/GranularRectLayout',
     'bbop/golr',
     'bbop/jquery',
-    'bbop/search_box'
+    'bbop/search_box',
+    'dojo/request/xhr',
+    'dojox/widget/Standby'
         ],
         function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
 		  dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
                   dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils,
-		  SimpleFeature, Util, Layout, golr, jquery, bbop ) {
+		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby ) {
 
 //var listeners = [];
 //var listener;
@@ -224,6 +226,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         
         /* getPermission call is synchronous, so login initialization etc. can be called anytime after getPermission call */
         //track.initLoginMenu();
+
+    var standby = new Standby({target: track.div, color: "transparent"});
+    document.body.appendChild(standby.domNode);
+    standby.startup();
+    standby.show();
+
+
 		if (!this.webapollo.loginMenuInitialized) {
 			this.webapollo.initLoginMenu(this.username);
 		}
@@ -235,11 +244,68 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         if (success) {
             track.createAnnotationChangeListener();
+            xhr(context_path + "/AnnotationEditorService", {
+            	handleAs: "json",
+            	data: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
+            	method: "post"
+            }).then(function(response, ioArgs) {
+                var responseFeatures = response.features;
+                var i = 0;
+
+                var func = function() {
+                	while (i < responseFeatures.length) {
+                        var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+                        track.store.insert(jfeat);
+                        if ((++i % 100) == 0) {
+                        	window.setTimeout(func, 1);
+                        	return;
+                        }
+                	}
+                    if (i == responseFeatures.length) {
+                        track.changed();
+                    	
+                        // console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
+                        var strack = track.getSequenceTrack();
+                        // setAnnotTrack() triggers loading of sequence alterations
+                        if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); }
+
+                        standby.hide();
+                    }
+                };
+                func();
+                
+                /*
+                for (var i = 0; i < responseFeatures.length; i++) {
+                    var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+                    track.store.insert(jfeat);
+                }
+                */
+                // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
+                /*
+                track.changed();
+            	
+                // console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
+                var strack = track.getSequenceTrack();
+                // setAnnotTrack() triggers loading of sequence alterations
+                if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); }
+
+                standby.hide();
+                */
+            }, function(response, ioArgs) { //
+                console.log("Annotation server error--maybe you forgot to login to the server?");
+                console.error("HTTP status code: ", ioArgs.xhr.status); //
+                track.handleError(response);
+                //dojo.byId("replace").innerHTML = 'Loading the resource from the server did not work'; //
+                // track.remote_edit_working = false;
+                return response; //
+            });
+            
+            /*
             dojo.xhrPost( {
                 postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "json",
-                timeout: 5 * 1000, // Time in milliseconds
+                timeout: 5 * 60 * 1000, // Time in milliseconds
                 // The LOAD function will be called on a successful response.
                 load: function(response, ioArgs) { //
                     var responseFeatures = response.features;
@@ -265,6 +331,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response; //
                 }
             });
+            */
 
         }
 
@@ -1528,11 +1595,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                          comment.focus();
                      });
 
-        getComments();
-        getCannedComments();
         updateTable();
         return content;
-
     },
 
     editDbxrefs: function()  {
@@ -1712,15 +1776,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             return;
         }
         var content = dojo.create("div", { class: "annotation_info_editor_container "});
+        var numItems = 0;
         // if annotation has parent, get comments for parent
         if (annot.afeature.parent_id) {
             var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
             dojo.attr(parentContent, "class", "parent_annotation_info_editor");
             dojo.place(parentContent, content);
+            ++numItems;
         }
         var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName());
         dojo.attr(annotContent, "class", "annotation_info_editor");
         dojo.place(annotContent, content);
+        ++numItems;
+        dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
         track.openDialog("Annotation Info Editor", content);
         track.popupDialog.resize();
         track.popupDialog._position();
@@ -1796,6 +1864,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var pubmedIdDb = "PMID";
         var goIdDb = "GO";
         
+        var escapeString = function(str) {
+        	return str.replace(/(["'])/g, "\\$1")
+        };
+        
         var init = function() {
             var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
             var operation = "get_annotation_info_editor_configuration";
@@ -1859,7 +1931,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
     	
     	var updateName = function(name) {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": ' + name + ' } ]';
+    		name = escapeString(name);
+            var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
             var operation = "set_name";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
@@ -1898,7 +1971,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	};
 
     	var updateSymbol = function(symbol) {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": ' + symbol + ' } ]';
+    		symbol = escapeString(symbol);
+            var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
             var operation = "set_symbol";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
@@ -1934,6 +2008,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	};
     	
     	var updateDescription = function(description) {
+    		description = escapeString(description);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
             var operation = "set_description";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -1963,7 +2038,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         	});
         	dojo.connect(descriptionField, "onBlur", function() {
         		var newDescription = descriptionField.get("value");
-    			newDescription = newDescription.replace(/(["'])/g, "\\$1");
         		if (oldDescription != newDescription) {
         			updateDescription(newDescription);
         		}
@@ -2007,7 +2081,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         	});
         	dojo.connect(descriptionField, "onBlur", function() {
         		var newDescription = descriptionField.get("value");
-    			newDescription = newDescription.replace(/(["'])/g, "\\$1");
         		if (oldDescription != newDescription) {
         			updateDescription(newDescription);
         		}
@@ -2015,6 +2088,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	};
     	
         var addDbxref = function(db, accession) {
+        	db = escapeString(db);
+        	accession = escapeString(accession);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
             var operation = "add_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2022,6 +2097,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
 
         var deleteDbxrefs = function(dbxrefs) {
+        	for (var i = 0; i < dbxrefs.length; ++i) {
+        		dbxrefs[i] = escapeString(dbxrefs[i]);
+        	}
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(dbxrefs) + ' } ]';
             var operation = "delete_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2029,6 +2107,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
 
         var updateDbxref = function(oldDb, oldAccession, newDb, newAccession) {
+        	oldDb = escapeString(oldDb);
+        	oldAccession = escapeString(oldAccession);
+        	newDb = escapeString(newDb);
+        	newAccession = escapeString(newAccession);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
             var operation = "update_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2173,6 +2255,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
         
         var addAttribute = function(tag, value) {
+        	tag = escapeString(tag);
+        	value = escapeString(value);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
             var operation = "add_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2180,6 +2264,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
 
         var deleteAttributes = function(attributes) {
+        	for (var i = 0; i < attributes.length; ++i) {
+        		attributes[i] = escapeString(attributes[i]);
+        	}
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
             var operation = "delete_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2187,6 +2274,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
 
         var updateAttribute = function(oldTag, oldValue, newTag, newValue) {
+        	oldTag = escapeString(oldTag);
+        	oldValue = escapeString(oldValue);
+        	newTag = escapeString(newTag);
+        	newValue = escapeString(newValue);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
             var operation = "update_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2684,6 +2775,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
         
     	var addComment = function(comment) {
+    		comment = escapeString(comment);
     		var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
     		var operation = "add_comments";
     		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2691,6 +2783,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	};
 
     	var deleteComments = function(comments) {
+    		for (var i = 0; i < comments.length; ++i) {
+    			comments[i] = escapeString(comments[i]);
+    		}
     		var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": ' + JSON.stringify(comments) + ' } ]';
     		var operation = "delete_comments";
     		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2701,6 +2796,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         	if (oldComment == newComment) {
         		return;
         	}
+        	oldComment = escapeString(oldComment);
+        	newComment = escapeString(newComment);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
             var operation = "update_comments";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
@@ -2764,14 +2861,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
             		dojo.connect(commentTable, "onStartEdit", function(inCell, inRowIndex) {
             			oldComment = commentTable.store.getValue(commentTable.getItem(inRowIndex), "comment");
-            			if (oldComment) {
-            				oldComment = oldComment.replace(/(["'])/g, "\\$1");
-            			}
             		});
             		
             		dojo.connect(commentTable, "onApplyCellEdit", function(inValue, inRowIndex, inFieldIndex) {
             			var newComment = inValue;
-            			newComment = newComment.replace(/(["'])/g, "\\$1");
             			if (!newComment) {
 //            				alert("No comment");
             			}
@@ -3050,6 +3143,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     	fetchHistory();
     	this.openDialog("History", content);
+        track.popupDialog.resize();
+        track.popupDialog._position();
 //  	this.popupDialog.hide();
 //  	this.openDialog("History", content);
     }, 

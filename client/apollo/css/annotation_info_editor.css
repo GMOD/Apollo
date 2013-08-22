@@ -1,19 +1,19 @@
 @CHARSET "UTF-8";
 
 .parent_annotation_info_editor {
-	border-right: dotted;
-	border-min-width: 1px;
-	padding-right: 4.5%;
-	float: left;
 	font-size: 1.2em;
-	width: 45%;
+	width: 22em !important;
+	border-min-width: 1px;
+	border-right: dotted;
+	padding-right: 4%;
+	float: left;
 }
 
 .annotation_info_editor {
-	float: right;
 	font-size: 1.2em;
+	width: 22em !important;
 	padding-right: 1%;
-	width: 24em;
+	float: right;
 }
 
 .annotation_info_editor_container {

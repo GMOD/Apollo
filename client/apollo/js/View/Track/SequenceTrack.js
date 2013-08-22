@@ -4,9 +4,10 @@ define( [
     'WebApollo/Store/SeqFeature/ScratchPad', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
-    'WebApollo/Permission'
+    'WebApollo/Permission',
+    'dojox/widget/Standby'
      ],
-function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission ) {
+function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
 
     var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
@@ -102,7 +103,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	}  
 	
 	this.translationTable = {};
-	
     },
 
 // annotSelectionManager is class variable (shared by all AnnotTrack instances)
@@ -143,12 +143,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
    
     loadTranslationTable: function() {
     	var track = this;
-        dojo.xhrPost( {
+        return dojo.xhrPost( {
             postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_translation_table" }',
             url: track.context_path + "/AnnotationEditorService",
             handleAs: "json",
-            sync: true,
-            timeout: 5 * 1000, // Time in milliseconds
+            //timeout: 5 * 1000, // Time in milliseconds
             // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) { //
             	track.translationTable = {};
@@ -179,6 +178,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             	        }
             	    }
             	}
+            	track.changed();
             },
             // The ERROR function will be called in an error case.
             error: function(response, ioArgs) { //
@@ -196,11 +196,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         /**
          *    now do XHR to WebApollo AnnotationEditorService for "get_sequence_alterations"
          */
-        dojo.xhrPost( {
+        return dojo.xhrPost( {
     	                  postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_sequence_alterations" }',
     	                  url: track.context_path + "/AnnotationEditorService",
     	                  handleAs: "json",
-    	                  timeout: 5 * 1000, // Time in milliseconds
+    	                  //timeout: 5 * 1000, // Time in milliseconds
     	                  // The LOAD function will be called on a successful response.
     	                  load: function(response, ioArgs) { //
     		              var responseFeatures = response.features;
@@ -292,6 +292,13 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
      *      (otherwise in the callback would need to fiddle with horizontal position of seqNode within the block) ???
      */
     fillBlock: function( args ) {
+    	if (this.standby == null) {
+    		this.standby = new Standby({target: this.div, color: "transparent"});
+    		document.body.appendChild(this.standby.domNode);
+    		this.standby.startup();
+    		this.standby.show();
+    	}
+    	
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -1173,10 +1180,13 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
     setAnnotTrack: function(annotTrack) {
 	// if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
-	this.annotTrack = annotTrack;
-	this.loadTranslationTable();
+    
+    	var track = this;
+    	
+   	this.annotTrack = annotTrack;
 	this.initContextMenu();
-	this.loadSequenceAlterations();
+	
+	this.loadTranslationTable().then(function() { track.loadSequenceAlterations().then(function() { if (track.standby) { track.standby.hide(); } } ); } );
     },
 
     /*
