@@ -86,6 +86,47 @@ return declare( JBPlugin,
         this.addStrandFilterOptions();
 
 
+        if (browser.config.show_nav) {
+            var helpUrl = browser.config.helpUrl;
+//            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
+//            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
+//            var jbrowseUrl = "http://jbrowse.org";
+            browser.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            id: 'menubar_apollo_quickstart', 
+                                            label: 'General',
+                                            onClick: function()  { window.open(helpUrl,'help_window').focus(); }
+                                        })
+                                  );
+  /*          browser.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            id: 'menubar_apollo_userguide', 
+                                            label: 'User Guide',
+                                            onClick: function()  { window.open(guideUrl,'help_window').focus(); }
+                                        })
+                                  );
+            browser.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            id: 'menubar_apollo_wiki', 
+                                            label: 'Wiki',
+                                            onClick: function()  { window.open(wikiUrl,'help_window').focus(); }
+                                        })
+                                  );
+*/
+            browser.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            id: 'menubar_powered_by_jbrowse', 
+                                            label: 'Powered by JBrowse',
+                                            // iconClass: 'jbrowseIconHelp', 
+                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                        })
+                                  );
+        }
+
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
         // as options
