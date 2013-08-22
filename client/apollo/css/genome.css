@@ -58,5 +58,14 @@ div.locationThumb {
    /* background: url("img/glyphs_white.png") no-repeat -168px -27px; */
 /*    background: pink; */
     background: url("../img/user_icon_16px.png");
-
 }
+
+
+#menubar_about {
+    display: none;
+}
+
+#menubar_generalhelp  {
+    display: none;
+}
+
