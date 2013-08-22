@@ -215,23 +215,21 @@ return declare( JBPlugin,
             this.browser.addGlobalMenuItem( 'tools',
                                             new dijitMenuItem(
                                                 {
+                                                    id: 'menubar_apollo_seqsearch', 
 		                                    label: "Search sequence",
 		                                    onClick: function() {
 		                                        webapollo.getAnnotTrack().searchSequence();
 		                                    }
                                                 }) );
-            var toolMenu = this.browser.makeGlobalMenu('tools');
-            if( toolMenu ) {
-                var toolButton = new dijitDropDownButton(
-                    { className: 'file',
-                      innerHTML: 'Tools',
-                      //title: '',
-                      dropDown: toolMenu
-                    });
-                dojo.addClass( toolButton.domNode, 'menu' );
-                this.browser.menuBar.appendChild( toolButton.domNode );
-            }
+            this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
+
+        // move Tool menu in front of Help menu (Help should always be last menu?)
+        // Dojo weirdness: actual menu pulldown get assigned "widgetid" equal to "id" passed when creating dijit DropDownButton
+        var $toolsMenu = $('.menu[widgetid="dropdownbutton_tools"');
+        //this.$tools_menu = $('#dropdownbutton_tools').parent().parent();   // gives same result...
+        var $helpMenu = $('.menu[widgetid="dropdownbutton_help"');
+        $toolsMenu.insertBefore($helpMenu);
         this.searchMenuInitialized = true;
     }, 
 
