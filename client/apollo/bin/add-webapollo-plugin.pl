@@ -13,6 +13,7 @@ use JSON;
 my $in_file;
 my $out_file;
 my $plugin_url = "./plugins/WebApollo";
+my $favicon_url;
 my $help;
 
 parse_options();
@@ -21,11 +22,14 @@ sub parse_options {
   GetOptions("in|i=s"		=> \$in_file,
              "out|o=s"		=> \$out_file,
              "url|u=s"            => \$plugin_url, 
+             "favicon|f=s"        => \$favicon_url, 
              "help|h"		=> \$help);
   die print_usage() if !$in_file;
   die print_usage() if $help;
   if (!$out_file) { $out_file = $in_file; }
 }
+
+if (! $favicon_url)  { $favicon_url = $plugin_url . "/img/webapollo_favicon.ico"; }
 
 sub print_usage {
 	die << "END";
@@ -33,11 +37,13 @@ usage: add-webapollo-plugin.pl
 	-i|--in   <input_trackList.json>
 	[-o|--out <output_trackList.json>]
 	[-u|--url <root url for plugin>] 
+        [-f|--fav <url for favicon>]
 	[-h|--help]
 
 	i: input trackList.json file (required)
 	o: output trackList.json file [default: input trackList.json]
 	u: URL to WebApollo plugin (can be relative or absolute) [default: ./plugins/WebApollo]
+	f: URL for favicon [default: (WebApollo plugin URL)/img/webapollo_favicon.ico]
 END
 }
 
@@ -93,6 +99,10 @@ my $apollo_plugin =  {
 };
 
 my $plugin_is_new = 1;
+# legacy way of specifying WebApollo plugin just as "WebApollo" string, should eliminate;
+if ($tracklist_data->{plugins} eq "WebApollo") {
+    $tracklist_data->{plugins} = [];
+}
 for( my $i = 0; $i < @{$tracklist_data->{plugins}|| []}; $i++ ) {
   my $plugin = $tracklist_data->{plugins}[$i];
   if( $plugin->{name} eq $apollo_plugin->{name} ) {
@@ -100,12 +110,12 @@ for( my $i = 0; $i < @{$tracklist_data->{plugins}|| []}; $i++ ) {
     $plugin_is_new = 0;
   }  
 }
-
 if ($plugin_is_new)  {
   push @{ $tracklist_data->{plugins} ||= [] }, $apollo_plugin;
 }
 
 $tracklist_data->{alwaysOnTracks} = "DNA,Annotations";
+$tracklist_data->{favicon} = $favicon_url;
 
 my $track_is_new = 1;
 for( my $i = 0; $i < @{$tracklist_data->{tracks}|| []}; $i++ ) {
@@ -118,6 +128,24 @@ for( my $i = 0; $i < @{$tracklist_data->{tracks}|| []}; $i++ ) {
 
 if ($track_is_new) {
   push @{ $tracklist_data->{tracks} ||= [] }, $user_track;
+}
+
+# trying to support backward compatibility, 
+# if have previous include of "annotation_trackList.json" file, then remove 
+#     since annotation track is now inserted directly into main trackList.json file
+#     but, preserve any other includes
+if (exists $tracklist_data->{include})  {
+  my $new_include = [];
+  for( my $i = 0; $i < @{$tracklist_data->{include}|| []}; $i++ ) {
+    my $include_file = $tracklist_data->{include}[$i];
+    if( $include_file ne "annotation_trackList.json") { 
+      push(@$new_include, $include_file);
+    }
+  }
+  if (@$new_include) {  
+    $tracklist_data->{include} = $new_include;
+  }
+  else  { delete $tracklist_data->{include}; }
 }
 
 open my $out, '>', $out_file or die "$! writing $out_file";
