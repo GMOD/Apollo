@@ -90,7 +90,7 @@ return declare( JBPlugin,
             var helpUrl = browser.config.helpUrl;
 //            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
 //            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
-//            var jbrowseUrl = "http://jbrowse.org";
+            var jbrowseUrl = "http://jbrowse.org";
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
