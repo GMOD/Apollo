@@ -61,10 +61,11 @@ div.locationThumb {
 }
 
 
+/* hiding standard JBrowse Help->About menuitem */
 #menubar_about {
     display: none;
 }
-
+/* hiding standard JBrowse Help->General menuitem */
 #menubar_generalhelp  {
     display: none;
 }

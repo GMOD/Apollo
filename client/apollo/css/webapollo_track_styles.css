@@ -407,25 +407,33 @@ div.basic-hist {
 }
 
 /* CIGAR string "D" subfeature, indicating deletion in aligned sequence relative to viewed sequence */
+/* setting z-index higher than "cigarM" (and default "subfeature") to ensure not hidden by neighboring match regions when zoomed out */
+/* deletions are rendered above matches/mismatches, but below insertion */
+/* turned off, deletion rendering in DraggableAlignments tracks is being handled as non-features by _drawMismatches() now */
+/*
 .cigarD, 
 .plus-cigarD, 
 .minus-cigarD  {
     height: 100%;
     background-color: #FF0000;
-    /* setting z-index higher than "cigarM" (and default "subfeature") to ensure not hidden by neighboring match regions when zoomed out */
-    z-index: 12;   /* rendered above matches/mismatches, but below insertion */
+    z-index: 12;   
     min-width: 3px;
 }
+*/
 
 /* CIGAR string "I" subfeature, indicating insertion in aligned sequence relative to viewed sequence */
+/* rendered above sibling subfeature types to increase visibility, since will always be a zero-width feature (?) */
+/* turned off, insertion rendering in DraggableAlignments tracks is being handled as non-features by _drawMismatches() now */
+/*
 .cigarI, 
 .plus-cigarI, 
 .minus-cigarI  {
     height: 100%;
     background-color: #00FF00;
-    z-index: 13;  /* rendered above sibling subfeature types to increase visibility, since will always be a zero-width features (?) */
+    z-index: 13;  
     min-width: 3px;
 }
+*/
 
 
 /* CIGAR string "=" (or "E") subfeature, indicating exact sequence match of aligned sequence relative to viewed sequence */
@@ -462,6 +470,32 @@ div.basic-hist {
 }
 */
 
+/* align_insertion, align_deletion, align_skip, align_mismatch are assigned to 
+   non-feature child divs of bam-read features in DraggableAlignments._drawMismatches()
+*/
+.align_insertion {
+    background-color: #00FF00;
+    height: 100%;
+    min-width: 2px;
+    z-index: 20;  // render on top of mismatches etc.
+}
+
+.align_deletion {
+    background-color: #FF0000;
+    height: 100%;
+    min-width: 2px;
+    z-index: 20;  // render on top of mismatches etc.
+}
+
+.align_skip {
+}
+
+.align_mismatch {
+    background-color: #D8C046;
+    height: 100%;
+    min-width: 2px;
+    z-index: 12;
+}
 
 /** container */
 .annot,  
@@ -530,9 +564,9 @@ div.basic-hist {
        (div.sequence .dna-residues.forward-strand) and 
        (div.sequence .dna-residues.reverse-strand) styles
 */
-.deletion, 
-.plus-deletion,
-.minus-deletion {
+.sequence-alteration.deletion, 
+.sequence-alteration.plus-deletion,
+.sequence-alteration.minus-deletion {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -541,9 +575,9 @@ div.basic-hist {
     z-index: 20;  
 }
 
-.insertion, 
-.plus-insertion,
-.minus-insertion {
+.sequence-alteration.insertion, 
+.sequence-alteration.plus-insertion,
+.sequence-alteration.minus-insertion {
     border-style: solid;
     border-color: green;
     border-width: 1px;
@@ -552,9 +586,9 @@ div.basic-hist {
     z-index: 20;  
 }
 
-.substitution, 
-.plus-substitution,
-.minus-substitution {
+.sequence-alteration.substitution, 
+.sequence-alteration.plus-substitution,
+.sequence-alteration.minus-substitution {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -686,10 +720,12 @@ div.basic-hist {
     outline-width: 3px;
 }
 
+/* hiding close button for AnnotTracks, so can't be removed */
 div.track_webapollo_view_track_annottrack div.track-label .track-close-button {
     visibility: hidden;
 }
 
+/* hiding close button for SequenceTracks, so can't be removed */
 div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-button {
     visibility: hidden;
 }
