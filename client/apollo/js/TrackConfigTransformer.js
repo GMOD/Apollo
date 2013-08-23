@@ -12,11 +12,11 @@ constructor: function()  {
     
     this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
-        console.log("in TrackConfigTransformer: track " + trackConfig.label + ", changing type to: " + trackConfig.type);
+        // console.log("in TrackConfigTransformer: track " + trackConfig.label + ", changing type to: " + trackConfig.type);
     };
 
     this["JBrowse/View/Track/Sequence"] = function(trackConfig) {
-        console.log("transforming Sequence track");
+        // console.log("transforming Sequence track");
         trackConfig.type = "WebApollo/View/Track/AnnotSequenceTrack";
         trackConfig.storeClass = "WebApollo/Store/SeqFeature/ScratchPad";
         trackConfig.style = { className: "{type}", 
@@ -26,7 +26,6 @@ constructor: function()  {
     };
     
     this["JBrowse/View/Track/Alignments"] = function(trackConfig) {
-        console.log("transforming Alignments (or Alignments2) track");
         trackConfig.type = "WebApollo/View/Track/DraggableAlignments";
     };
 
