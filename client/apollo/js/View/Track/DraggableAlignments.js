@@ -18,7 +18,8 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
     constructor: function( args )  {
 	// forcing store to create subfeatures, unless config.subfeatures explicitly set to false
 	//     default is set to true in _defaultConfig()
-	this.store.createSubfeatures = this.config.subfeatures;
+        //	this.store.createSubfeatures = this.config.subfeatures;
+        if (this.config.style.showSubfeatures) { this.store.createSubfeatures = true; }
     }, 
 
     _defaultConfig: function()  {
@@ -27,7 +28,8 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
             dojo.clone( this.inherited(arguments) ),
             {
                 layoutPitchY: 2, 
-                subfeatures: true,
+//                subfeatures: true,
+                maxFeatureScreenDensity: 0.5,
                 style: {
                     className: "bam-read", 
                     renderClassName: null, 
@@ -36,7 +38,7 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
 	            showSubfeatures: true, 
 	            showMismatches: true, 
 		    showLabels: false, 
-                    showMismatchResidues: false,  // when rendering mismatches, whether to render residues text
+                    showMismatchResidues: true,  // when rendering mismatches, whether to render residues text when zoomed in and sizing works
                     subfeatureClasses: {
 	                M: "cigarM", 
 //		        D: "cigarD",
