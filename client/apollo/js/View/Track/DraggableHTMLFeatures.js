@@ -1121,11 +1121,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
     }, 
 
-/*
-    updateStaticElements: function( coords ) {
-        this.inherited( arguments );
-    },
-*/
+
+    /* bypassing HTMLFeatures floating of arrows to keep them in view, too buggy for now */
+    updateFeatureArrowPositions: function( coords ) {
+        return;
+    }, 
 
 /*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
