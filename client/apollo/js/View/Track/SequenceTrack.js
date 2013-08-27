@@ -44,7 +44,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             track.onResiduesMouseDown(event);
         };
 
-	this.charSize = this.webapollo.getSequenceCharacterSize();
+//	this.charSize = this.webapollo.getSequenceCharacterSize();
         //	this.charWidth = this.charSize.charWidth;
         //	this.seqHeight = this.charSize.seqHeight;
 
