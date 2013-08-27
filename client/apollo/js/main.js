@@ -30,15 +30,14 @@ define(
 
 return declare( JBPlugin,
 {
-//    colorCdsByFrame: false,
-//    searchMenuInitialized: false,
 
     constructor: function( args ) {
+        console.log("loaded WebApollo plugin");
         var thisB = this;
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
-
+        
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
@@ -162,12 +161,50 @@ return declare( JBPlugin,
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
+        //    dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
                 browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
                 browser.poweredByLink.target = "_blank";
+            } 
+            
+           var view = browser.view;
+           view.oldOnResize = view.onResize;
+  
+         /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
+          *    bug appears in Chrome, not Firefox, unsure of other browsers
+          */
+         view.onResize = function() {  
+            // detect if zoomed into base level
+            // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
+            // if showing residues (full zoom), then pxPerBp == maxPxPerBp
+            //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
+            var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
+            var centerBp = Math.round((view.minVisible() + view.maxVisible())/2); 
+            var oldCharSize = thisB.getSequenceCharacterSize();
+            var newCharSize = thisB.getSequenceCharacterSize(true);
+            // detect if something happened to change pixel size of residues font (likely a web browser zoom)
+            var charWidthChanged = (newCharSize.width != oldCharSize.width);
+            var charWidth = newCharSize.width;
+            if (charWidthChanged) {  
+                // if charWidth changed, need to change maxPxPerBp to match
+                // console.log("residues font size changed, new char width = " + newCharSize.width);
+                if (! browser.config.view) { browser.config.view = {}; }
+                browser.config.view.maxPxPerBp = charWidth;
+                view.maxPxPerBp = charWidth;
             }
+            if (charWidthChanged && fullZoom) {
+                // console.log("at full zoom, trying font size fix");
+                view.pxPerBp = view.maxPxPerBp;
+                view.oldOnResize();
+                thisB.browserZoomFix(centerBp);
+            }
+            else  {
+                view.oldOnResize();
+            }
+        };
+
         });
 
         var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
@@ -177,6 +214,64 @@ return declare( JBPlugin,
         } );
         browser.registerExtraFileDriver(customGff3Driver);
     },
+
+
+/** 
+ *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
+ *    bug appears in Chrome, not Firefox, unsure of other browsers
+ *    based on GenomeView.zoomToBaseLevel(), GenomeView.updateZoom(), then stripping away unneeded
+*/
+browserZoomFix: function(pos) {
+    var view = this.browser.view;
+    if (view.animation) return;
+    var baseZoomIndex = view.zoomLevels.length - 1;
+    var zoomLoc = 0.5;
+    view.showWait();
+    view.trimVertical();
+    var relativeScale = view.zoomLevels[baseZoomIndex] / view.pxPerBp;
+    var fixedBp = pos;
+    view.curZoom = baseZoomIndex;
+    view.pxPerBp = view.zoomLevels[baseZoomIndex];
+    view.maxLeft = (view.pxPerBp * view.ref.end) - view.getWidth();
+
+    // needed, otherwise Density track can render wrong
+    //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
+    for (var track = 0; track < view.tracks.length; track++)
+	view.tracks[track].startZoom(view.pxPerBp,
+				     fixedBp - ((zoomLoc * view.getWidth())
+						/ view.pxPerBp),
+				     fixedBp + (((1 - zoomLoc) * view.getWidth())
+						/ view.pxPerBp));
+
+    var eWidth = view.elem.clientWidth;
+    var centerPx = view.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
+    // stripeWidth: pixels per block
+    view.stripeWidth = view.stripeWidthForZoom(view.curZoom);
+    view.scrollContainer.style.width =
+        (view.stripeCount * view.stripeWidth) + "px";
+    view.zoomContainer.style.width =
+        (view.stripeCount * view.stripeWidth) + "px";
+    var centerStripe = Math.round(centerPx / view.stripeWidth);
+    var firstStripe = (centerStripe - ((view.stripeCount) / 2)) | 0;
+    view.offset = firstStripe * view.stripeWidth;
+    view.maxOffset = view.bpToPx(view.ref.end+1) - view.stripeCount * view.stripeWidth;
+    view.maxLeft = view.bpToPx(view.ref.end+1) - view.getWidth();
+    view.minLeft = view.bpToPx(view.ref.start);
+    view.zoomContainer.style.left = "0px";
+    view.setX((centerPx - view.offset) - (eWidth / 2));
+    dojo.forEach(view.uiTracks, function(track) { track.clear(); });
+
+    // needed, otherwise Density track can render wrong
+    //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
+    view.trackIterate( function(track) {
+        track.endZoom( view.pxPerBp,Math.round(view.stripeWidth / view.pxPerBp));
+    });
+
+    view.showVisibleBlocks(true);
+    view.showDone();
+    view.showCoarse();
+},
+
 
     plusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
@@ -324,7 +419,6 @@ return declare( JBPlugin,
             for (var i = 0; i < tracks.length; i++)  {
 	        // should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloAnnotTrack)  {
-                    console.log("annot track refseq: " + tracks[i].refSeq.name);
                     return tracks[i];
                 }
             }
@@ -356,12 +450,12 @@ return declare( JBPlugin,
     /** ported from berkeleybop/jbrowse GenomeView.js 
       * returns char height/width on GenomeView
       */
-    getSequenceCharacterSize: function()  {
+    getSequenceCharacterSize: function(recalc)  {
         var container = this.browser.container;
         if (this.browser.view && this.browser.view.elem)  {
             container = this.browser.view.elem;
         }
-        if (! this._charSize)  {
+        if (recalc || (! this._charSize))  {
             //	    this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
 	    this._charSize = this.calculateSequenceCharacterSize(container);
         }
