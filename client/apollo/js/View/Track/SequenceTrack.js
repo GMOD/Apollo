@@ -20,8 +20,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
  * @constructor
  */
     constructor: function( args ) {
-        console.log("in SequenceTrack constructor, config: ");
-        console.log(this.config);
 	this.isWebApolloSequenceTrack = true;
 	var track = this;
 

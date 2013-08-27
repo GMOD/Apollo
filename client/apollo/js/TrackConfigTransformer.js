@@ -8,7 +8,6 @@ define( [ 'dojo/_base/declare' ],
 return declare( null, {
 
 constructor: function()  {
-    console.log("in TrackConfigTransformer constructor");
     
     this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 

@@ -537,7 +537,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //		if (tracks[i].config.type ==  "WebApollo/View/Track/AnnotSequenceTrack")  {
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
-		    console.log("found WebApollo sequence track: ", this.seqTrack);
                    // tracks[i].setAnnotTrack(this);
                     break;
                 }
