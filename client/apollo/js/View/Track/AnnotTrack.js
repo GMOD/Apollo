@@ -162,7 +162,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         	}
         	
         }));
-
+        
+        this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function(names) {
+        	var foobar;
+        }));
+        
         this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
         this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
 		
@@ -228,7 +232,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //track.initLoginMenu();
 
     var standby = new Standby({target: track.div, color: "transparent"});
-    document.body.appendChild(standby.domNode);
+   document.body.appendChild(standby.domNode);
     standby.startup();
     standby.show();
 
@@ -256,23 +260,24 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 	while (i < responseFeatures.length) {
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                         track.store.insert(jfeat);
-                        if ((++i % 100) == 0) {
+                        if ((i++ % 100) == 0) {
                         	window.setTimeout(func, 1);
                         	return;
                         }
                 	}
                     if (i == responseFeatures.length) {
                         track.changed();
-                    	
-                        // console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
-                        var strack = track.getSequenceTrack();
-                        // setAnnotTrack() triggers loading of sequence alterations
-                        if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); }
-
                         standby.hide();
                     }
                 };
                 func();
+                
+                /*
+                // console.log("AnnotTrack get_features XHR returned, trying to find sequence track: ", strack);
+                var strack = track.getSequenceTrack();
+                // setAnnotTrack() triggers loading of sequence alterations
+                if (strack && (! strack.annotTrack))  { strack.setAnnotTrack(track); }
+                */
                 
                 /*
                 for (var i = 0; i < responseFeatures.length; i++) {
@@ -2682,6 +2687,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			        	width: '100%',
 	    							type: declare(dojox.grid.cells._Widget, {
 	    								widgetClass: dijitTextBox,
+	    								/*
 	    								createWidget: function(inNode, inDatum, inRowIndex) {
 	    									var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
 	    									var textBox = widget.domNode.childNodes[0].childNodes[0];
@@ -2695,11 +2701,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	            			                        }
 	            			                };
 	            			                var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
-	            			                auto.set_personality('bbop_term_ac');
+	            			                auto.set_personality('bbop_ont');
 	            			                auto.add_query_filter('document_category', 'ontology_class');
 	            			                auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
 	    									return widget;
 	    								}
+	    								*/
 	    							}),
 	    								// dojox.grid.cells._Widget,
             			        	formatter: function(goId, rowIndex, cell) { //item, rowIndex, cell) {

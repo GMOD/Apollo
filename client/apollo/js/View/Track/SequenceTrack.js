@@ -97,12 +97,26 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         // this.setLoaded();
 	//	this.initContextMenu();
 
+        /*
 	var atrack = this.getAnnotTrack();
 	if (atrack)  { 
 	    this.setAnnotTrack(atrack); 
 	}  
-	
+	*/
+        
 	this.translationTable = {};
+
+	var initAnnotTrack = dojo.hitch(this, function() {
+		var atrack = this.getAnnotTrack();
+		if (atrack && this.div) {
+			this.setAnnotTrack(atrack);
+		}
+		else {
+			window.setTimeout(initAnnotTrack, 100);
+		}
+	});
+	initAnnotTrack();
+	
     },
 
 // annotSelectionManager is class variable (shared by all AnnotTrack instances)
@@ -284,6 +298,21 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         this.setLabel( this.key );
     },
 
+    startStandby: function() {
+    	if (this.standby == null) {
+    		this.standby = new Standby({target: this.div, color: "transparent"});
+    		document.body.appendChild(this.standby.domNode);
+    		this.standby.startup();
+    		this.standby.show();
+    	}
+    },
+    
+    stopStandby: function() {
+    	if (this.standby != null) {
+    		this.standby.hide();
+    	}
+    },
+    
     /**
      *   GAH
      *   not entirely sure, but I think this strategy of calling getRange() only works as long as
@@ -291,14 +320,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
      *   or in other words for a given block there is only one chunk that overlaps it
      *      (otherwise in the callback would need to fiddle with horizontal position of seqNode within the block) ???
      */
-    fillBlock: function( args ) {
-    	if (this.standby == null) {
-    		this.standby = new Standby({target: this.div, color: "transparent"});
-    		document.body.appendChild(this.standby.domNode);
-    		this.standby.startup();
-    		this.standby.show();
-    	}
-    	
+    fillBlock: function( args ) {    	
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -313,6 +335,13 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         var fillArgs = arguments;
         var track = this;
+        
+        var finishCallback = args.finishCallback;
+    	args.finishCallback = function() {
+    		finishCallback();
+    		track.stopStandby();
+    	};
+        
 //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
@@ -1179,14 +1208,22 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     },
 
     setAnnotTrack: function(annotTrack) {
+    	this.startStandby();
 	// if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
-    
     	var track = this;
     	
    	this.annotTrack = annotTrack;
 	this.initContextMenu();
-	
-	this.loadTranslationTable().then(function() { track.loadSequenceAlterations().then(function() { if (track.standby) { track.standby.hide(); } } ); } );
+
+	this.loadTranslationTable().then(
+		function() {
+			track.loadSequenceAlterations().then(function() {
+				track.stopStandby();
+			});
+		},
+		function() {
+			track.stopStandby();
+		});
     },
 
     /*
