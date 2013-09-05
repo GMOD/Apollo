@@ -442,9 +442,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 			track.createAnnotationChangeListener();
 			return;
 		}
+		// bad gateway
+		if (ioArgs.xhr.status == 502) {
+			track.createAnnotationChangeListener();
+			return;
+		}
 		// server killed
 		if (ioArgs.xhr.status == 503 || ioArgs.xhr.status == 0) {
 			track.handleError({responseText: '{ error: "Server connection error" }'});
+			window.location.reload();
 			return;
 		}
 		// server timeout
@@ -2627,7 +2633,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		track.executeUpdateOperation(postData);
         	}
         	else {
-    			alert("Invalid ID " + goId + " - Removing entry");
+    			alert("Invalid ID " + goId + " - Must be formatted as 'GO:#######' - Removing entry");
         		goIdTable.store.deleteItem(goIdTable.getItem(row));
         	}
         };
