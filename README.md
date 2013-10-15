@@ -4,7 +4,7 @@ Apollo
 Genome annotation editor, with a Java servlet backend and a Javascript client that runs in a web browser as a JBrowse plugin
 
 For general information on WebApollo, got to: 
-http://gmod.org/wiki/WebApollo
+http://genomearchitect.org/
 
 For WebApollo installation instructions, go to:  
 http://www.gmod.org/wiki/WebApollo_Installation
