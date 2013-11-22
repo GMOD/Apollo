@@ -20,7 +20,9 @@ SequenceOntologyUtils.neverHasCDS = {
     protein_match: true, 
     protein_hmm_match: true, 
     alignment: true, 
-    repeat: true
+    repeat: true,
+    repeat_region: true,
+    transposable_element: true
 };
             
 SequenceOntologyUtils.neverHasExons = {
@@ -36,7 +38,9 @@ SequenceOntologyUtils.neverHasExons = {
     protein_match: true, 
     protein_hmm_match: true, 
     alignment: true, 
-    repeat: true
+    repeat: true,
+    repeat_region: true,
+    transposable_element: true
 };
 
 

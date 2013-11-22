@@ -377,195 +377,197 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 // this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
                 //  this.sequenceStore.getRange( this.refSeq, leftBase, endBase,
             //    this.store.getFeatures(
-		this.sequenceStore.getFeatures(
-                    { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
-    		    function( feat ) {
-                        var start = feat.get('start');
-                        var end   = feat.get('end');
-                        var seq   = feat.get('seq');
+    	    	this.sequenceStore.getReferenceSequence(
+    	    			{ ref: this.refSeq.name, start: leftExtended, end: rightExtended },
+    	    			function( seq ) {
+//    	    				var start = feat.get('start');
+//    	    				var end   = feat.get('end');
+//    	    				var seq   = feat.get('seq') || feat.get('residues').substring;
+    	    				var start = args.leftBase - 2;
+    	    				var end = args.rightBase + 2;
 
-    		        // fill with leading blanks if the
-    		        // sequence does not extend all the way
-    		        // across our range
-    		        for( ; start < 0; start++ ) {
-    			    seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
-    		        }
+    	    				// fill with leading blanks if the
+    	    				// sequence does not extend all the way
+    	    				// across our range
+    	    				for( ; start < 0; start++ ) {
+    	    					seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
+    	    				}
 
-    		        var blockStart = start + 2;
-    		        var blockEnd = end - 2;
-    		        var blockResidues = seq.substring(2, seq.length-2);
-    		        var blockLength = blockResidues.length;
-    		        var extendedStart = start;
-    		        var extendedEnd = end;
-    		        var extendedStartResidues = seq.substring(0, seq.length-2);
-    		        var extendedEndResidues = seq.substring(2);
+    	    				var blockStart = start + 2;
+    	    				var blockEnd = end - 2;
+    	    				var blockResidues = seq.substring(2, seq.length-2);
+    	    				var blockLength = blockResidues.length;
+    	    				var extendedStart = start;
+    	    				var extendedEnd = end;
+    	    				var extendedStartResidues = seq.substring(0, seq.length-2);
+    	    				var extendedEndResidues = seq.substring(2);
 
-    		        if (verbose)  {
-    			    console.log("seq: " + seq + ", length: " + seq.length);
-    			    console.log("blockResidues: " + blockResidues + ", length: " + blockResidues.length);
-    			    console.log("extendedStartResidues: " + extendedStartResidues + ", length: " + extendedStartResidues.length);
-    			    console.log("extendedEndResidues: " + extendedEndResidues + ", length: " + extendedEndResidues.length);
-    		        }
+    	    				if (verbose)  {
+    	    					console.log("seq: " + seq + ", length: " + seq.length);
+    	    					console.log("blockResidues: " + blockResidues + ", length: " + blockResidues.length);
+    	    					console.log("extendedStartResidues: " + extendedStartResidues + ", length: " + extendedStartResidues.length);
+    	    					console.log("extendedEndResidues: " + extendedEndResidues + ", length: " + extendedEndResidues.length);
+    	    				}
 
-    		        if (track.show_protein_translation) {
-    			    var framedivs = [];
-    			    for (var i=0; i<3; i++) {
-    			        // var tstart = start + i;
-    			        var tstart = blockStart + i;
-    			        var frame = tstart % 3;
-     			        if (verbose) { console.log("  forward translating: offset = " + i + ", frame = " + frame); }
-    			        var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
-    			        // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
-    			        //    otherwise use more muted "frame" styling
-    			        if (track.webapollo.colorCdsByFrame) {
-    			            $(transProtein).addClass("cds-frame" + frame);
-    			        }
-    			        else  {
-    			            $(transProtein).addClass("frame" + frame);
-    			        }
-    			        framedivs[frame] = transProtein;
-    			    }
-    			    for (var i=2; i>=0; i--) {
-    			        var transProtein = framedivs[i];
-    			        seqNode.appendChild(transProtein);
-    			        $(transProtein).bind("mousedown", track.residuesMouseDown);
-    			        blockHeight += proteinHeight;
-    			    }
-    		        }
+    	    				if (track.show_protein_translation) {
+    	    					var framedivs = [];
+    	    					for (var i=0; i<3; i++) {
+    	    						// var tstart = start + i;
+    	    						var tstart = blockStart + i;
+    	    						var frame = tstart % 3;
+    	    						if (verbose) { console.log("  forward translating: offset = " + i + ", frame = " + frame); }
+    	    						var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
+    	    						// if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
+    	    						//    otherwise use more muted "frame" styling
+    	    						if (track.webapollo.colorCdsByFrame) {
+    	    							$(transProtein).addClass("cds-frame" + frame);
+    	    						}
+    	    						else  {
+    	    							$(transProtein).addClass("frame" + frame);
+    	    						}
+    	    						framedivs[frame] = transProtein;
+    	    					}
+    	    					for (var i=2; i>=0; i--) {
+    	    						var transProtein = framedivs[i];
+    	    						seqNode.appendChild(transProtein);
+    	    						$(transProtein).bind("mousedown", track.residuesMouseDown);
+    	    						blockHeight += proteinHeight;
+    	    					}
+    	    				}
 
-    		        /*
+    	    				/*
       		         var dnaContainer = document.createElement("div");
     		         $(dnaContainer).addClass("dna-container");
     		         seqNode.appendChild(dnaContainer);
-    		         */
+    	    				 */
 
-    		        // add a div for the forward strand
-    		        var forwardDNA = track.renderResidues( blockResidues );
-    		        $(forwardDNA).addClass("forward-strand");
-    		        seqNode.appendChild( forwardDNA );
+    	    				// add a div for the forward strand
+    	    				var forwardDNA = track.renderResidues( blockResidues );
+    	    				$(forwardDNA).addClass("forward-strand");
+    	    				seqNode.appendChild( forwardDNA );
 
 
-                        /*                     could force highlighting on mouseenter in additona to mousemove,
+    	    				/*                     could force highlighting on mouseenter in additona to mousemove,
                          but mousemove seems to always be fired anyway when there's a mouseenter
       		         $(forwardDNA).bind("mouseenter", function(event) {
     			 track.removeTextHighlight(element);
     	                 } );
-                         */
+    	    				 */
 
 
-    		        // dnaContainer.appendChild(forwardDNA);
-    		        track.residues_context_menu.bindDomNode(forwardDNA);
-    		        $(forwardDNA).bind("mousedown", track.residuesMouseDown);
-    		        blockHeight += dnaHeight;
+    	    				// dnaContainer.appendChild(forwardDNA);
+    	    				track.residues_context_menu.bindDomNode(forwardDNA);
+    	    				$(forwardDNA).bind("mousedown", track.residuesMouseDown);
+    	    				blockHeight += dnaHeight;
 
-    		        if (track.show_reverse_strand) {
-    			    // and one for the reverse strand
-    			    // var reverseDNA = track.renderResidues( start, end, track.complement(seq) );
-    			    var reverseDNA = track.renderResidues( track.complement(blockResidues) );
-    			    $(reverseDNA).addClass("reverse-strand");
-    			    seqNode.appendChild( reverseDNA );
-    			    // dnaContainer.appendChild(reverseDNA);
-    			    track.residues_context_menu.bindDomNode(reverseDNA);
-    			    $(reverseDNA).bind("mousedown", track.residuesMouseDown);
-    			    blockHeight += dnaHeight;
-    		        }
+    	    				if (track.show_reverse_strand) {
+    	    					// and one for the reverse strand
+    	    					// var reverseDNA = track.renderResidues( start, end, track.complement(seq) );
+    	    					var reverseDNA = track.renderResidues( track.complement(blockResidues) );
+    	    					$(reverseDNA).addClass("reverse-strand");
+    	    					seqNode.appendChild( reverseDNA );
+    	    					// dnaContainer.appendChild(reverseDNA);
+    	    					track.residues_context_menu.bindDomNode(reverseDNA);
+    	    					$(reverseDNA).bind("mousedown", track.residuesMouseDown);
+    	    					blockHeight += dnaHeight;
+    	    				}
 
-    		        // set up highlighting of base pair underneath mouse
-    		        $(forwardDNA).bind("mouseleave", function(event) {
-    			                       track.removeTextHighlight(forwardDNA);
-    			                       if (reverseDNA) { track.removeTextHighlight(reverseDNA); }
-    			                       track.last_dna_coord = undefined;
-    		                           } );
-    		        $(forwardDNA).bind("mousemove", function(event) {
-    	                                       var gcoord = track.getGenomeCoord(event);
-    			                       if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
-    			                           var blockCoord = gcoord - leftBase;
-    			                           track.last_dna_coord = gcoord;
-    			                           track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
-    			                           if (!track.freezeHighlightedBases) {
-    			                               track.lastHighlightedForwardDNA = forwardDNA;
-    			                           }
-    			                           if (reverseDNA)  {
-    			                               track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
-    			                               if (!track.freezeHighlightedBases) {
-    			                                   track.lastHighlightedReverseDNA = reverseDNA;
-    			                               }
-    			                           }
-    			                       }
-    		                           } );
-    		        if (reverseDNA) {
-    			    $(reverseDNA).bind("mouseleave", function(event) {
-    			                           track.removeTextHighlight(forwardDNA);
-    			                           track.removeTextHighlight(reverseDNA);
-    			                           track.last_dna_coord = undefined;
-    		                               } );
-    			    $(reverseDNA).bind("mousemove", function(event) {
-    			                           var gcoord = track.getGenomeCoord(event);
-    			                           if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
-    			                               var blockCoord = gcoord - leftBase;
-    			                               track.last_dna_coord = gcoord;
-    			                               track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
-    			                               track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
-    			                               if (!track.freezeHighlightedBases) {
-    			                                   track.lastHighlightedForwardDNA = forwardDNA;
-    			                                   track.lastHighlightedReverseDNA = reverseDNA;
-    			                               }
-    			                           }
-    		                               } );
-    		        }
+    	    				// set up highlighting of base pair underneath mouse
+    	    				$(forwardDNA).bind("mouseleave", function(event) {
+    	    					track.removeTextHighlight(forwardDNA);
+    	    					if (reverseDNA) { track.removeTextHighlight(reverseDNA); }
+    	    					track.last_dna_coord = undefined;
+    	    				} );
+    	    				$(forwardDNA).bind("mousemove", function(event) {
+    	    					var gcoord = track.getGenomeCoord(event);
+    	    					if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
+    	    						var blockCoord = gcoord - leftBase;
+    	    						track.last_dna_coord = gcoord;
+    	    						track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
+    	    						if (!track.freezeHighlightedBases) {
+    	    							track.lastHighlightedForwardDNA = forwardDNA;
+    	    						}
+    	    						if (reverseDNA)  {
+    	    							track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
+    	    							if (!track.freezeHighlightedBases) {
+    	    								track.lastHighlightedReverseDNA = reverseDNA;
+    	    							}
+    	    						}
+    	    					}
+    	    				} );
+    	    				if (reverseDNA) {
+    	    					$(reverseDNA).bind("mouseleave", function(event) {
+    	    						track.removeTextHighlight(forwardDNA);
+    	    						track.removeTextHighlight(reverseDNA);
+    	    						track.last_dna_coord = undefined;
+    	    					} );
+    	    					$(reverseDNA).bind("mousemove", function(event) {
+    	    						var gcoord = track.getGenomeCoord(event);
+    	    						if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
+    	    							var blockCoord = gcoord - leftBase;
+    	    							track.last_dna_coord = gcoord;
+    	    							track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
+    	    							track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
+    	    							if (!track.freezeHighlightedBases) {
+    	    								track.lastHighlightedForwardDNA = forwardDNA;
+    	    								track.lastHighlightedReverseDNA = reverseDNA;
+    	    							}
+    	    						}
+    	    					} );
+    	    				}
 
-    		        if (track.show_protein_translation && track.show_reverse_strand) {
-    			    var extendedReverseComp = track.reverseComplement(extendedStartResidues);
-    			    if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
-    			    var framedivs = [];
-    			    for (var i=0; i<3; i++) {
-    			        var tstart = blockStart + i;
-    			        // var frame = tstart % 3;
-    			        var frame = (track.refSeq.length - blockEnd + i) % 3;
-    			        // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
-    			        frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
-    			        var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-    			        if (track.webapollo.colorCdsByFrame) {
-    			            $(transProtein).addClass("cds-frame" + frame);
-    			        }
-    			        else  {
-    			            $(transProtein).addClass("frame" + frame);
-    			        }
-    			        framedivs[frame] = transProtein;
-    			    }
-    			    // for (var i=2; i>=0; i--) {
-    			    for (var i=0; i<3; i++) {
-    			        var transProtein = framedivs[i];
-    			        seqNode.appendChild(transProtein);
-    			        $(transProtein).bind("mousedown", track.residuesMouseDown);
-    			        blockHeight += proteinHeight;
-    			    }
-    		        }
-//    	                DraggableFeatureTrack.prototype.fillBlock.apply(track, fillArgs);
-//			dojo.hitch ???
-			track.inherited("fillBlock", fillArgs);
-    		        blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
-    	                // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
-    		        track.heightUpdate(blockHeight, blockIndex);
-    		    },
-                    function() {}
-    	        );
+    	    				if (track.show_protein_translation && track.show_reverse_strand) {
+    	    					var extendedReverseComp = track.reverseComplement(extendedStartResidues);
+    	    					if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
+    	    					var framedivs = [];
+    	    					for (var i=0; i<3; i++) {
+    	    						var tstart = blockStart + i;
+    	    						// var frame = tstart % 3;
+    	    						var frame = (track.refSeq.length - blockEnd + i) % 3;
+    	    						// frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
+    	    						frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
+    	    						var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
+    	    						if (track.webapollo.colorCdsByFrame) {
+    	    							$(transProtein).addClass("cds-frame" + frame);
+    	    						}
+    	    						else  {
+    	    							$(transProtein).addClass("frame" + frame);
+    	    						}
+    	    						framedivs[frame] = transProtein;
+    	    					}
+    	    					// for (var i=2; i>=0; i--) {
+    	    					for (var i=0; i<3; i++) {
+    	    						var transProtein = framedivs[i];
+    	    						seqNode.appendChild(transProtein);
+    	    						$(transProtein).bind("mousedown", track.residuesMouseDown);
+    	    						blockHeight += proteinHeight;
+    	    					}
+    	    				}
+//  	    				DraggableFeatureTrack.prototype.fillBlock.apply(track, fillArgs);
+//  	    				dojo.hitch ???
+    	    				track.inherited("fillBlock", fillArgs);
+    	    				blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
+    	    				// this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
+    	    				track.heightUpdate(blockHeight, blockIndex);
+    	    			},
+    	    			function() {}
+    	    	);
     	    }
     	    else  {
-    	        blockHeight = 20;  // default dna track height if not zoomed to base level
-    	        seqNode.style.height = "20px";
+    	    	blockHeight = 20;  // default dna track height if not zoomed to base level
+    	    	seqNode.style.height = "20px";
 
-    	        // DraggableFeatureTrack.prototype.fillBlock.apply(track, arguments);
-		track.inherited("fillBlock", arguments);
-		// this.inherited("fillBlock", arguments);
+    	    	// DraggableFeatureTrack.prototype.fillBlock.apply(track, arguments);
+    	    	track.inherited("fillBlock", arguments);
+    	    	// this.inherited("fillBlock", arguments);
 
-    	        // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
-    	        track.heightUpdate(blockHeight, blockIndex);
+    	    	// this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
+    	    	track.heightUpdate(blockHeight, blockIndex);
     	    }
         } else {
-            this.heightUpdate(0, blockIndex);
+        	this.heightUpdate(0, blockIndex);
         }
-                         },
+    },
 
     // heightUpdate: function(height, blockIndex)  {
     //     // console.log("SequenceTrack.heightUpdate: height = " + height + ", bindex = " + blockIndex);
@@ -577,6 +579,13 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         var featDiv =
             this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
+
+        // need to decrease the left boundary by 1% to properly overlay
+//        var left = /-?\d+/.exec($(featDiv).css("left"));
+//        if (left >= 0) {
+//        	$(featDiv).css("left", (left - 1) + "%");
+//        }
+        
 //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
 

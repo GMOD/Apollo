@@ -205,15 +205,17 @@ return declare( JBPlugin,
                 view.oldOnResize();
             }
         };
-
-        });
-
+        
         var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
             constructor: function( args ) {
                 this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
             }
         } );
-        browser.registerExtraFileDriver(customGff3Driver);
+//        browser.registerExtraFileDriver(customGff3Driver);
+        browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+
+        });
+
     },
 
 

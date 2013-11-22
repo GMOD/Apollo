@@ -11,7 +11,7 @@ function EUtils(contextPath, errorHandler) {
 EUtils.prototype.validateId = function(db, id) {
 	var valid;
 	dojo.xhrGet( {
-		url: this.url + "&db=" + db + "&id=" + id,
+		url: this.url + "&operation=search&db=" + db + "&id=" + id,
 		handleAs: "json",
 		timeout: 5000 * 1000, // Time in milliseconds
 		sync: true,
@@ -23,6 +23,23 @@ EUtils.prototype.validateId = function(db, id) {
 		}
 	});
 	return valid;
+};
+
+EUtils.prototype.fetch = function(db, id) {
+	var record;
+	dojo.xhrGet( {
+		url: this.url + "&operation=fetch&db=" + db + "&id=" + id,
+		handleAs: "json",
+		timeout: 5000 * 1000, // Time in milliseconds
+		sync: true,
+		load: function(response, ioArgs) {
+			record = response.PubmedArticleSet.PubmedArticle ? response : null;
+		}, 
+		error: function(response, ioArgs) {
+			errorHandler(response);
+		}
+	});
+	return record;
 };
 
 return EUtils;

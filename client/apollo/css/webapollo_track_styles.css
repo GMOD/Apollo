@@ -678,7 +678,7 @@ div.basic-hist {
 *  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
 */
 .left-edge-match  {
-    border-left: solid red 2px;
+    border-left: solid red 2px !important;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -690,7 +690,7 @@ div.basic-hist {
 *  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
 */
 .right-edge-match  {
-    border-right: solid red 2px;
+    border-right: solid red 2px !important;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -792,3 +792,144 @@ div.canvas-track-control {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
+
+.pseudogene,
+.plus-pseudogene, 
+.minus-pseudogene {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(153,153,255);
+}
+
+.tRNA,
+.plus-tRNA, 
+.minus-tRNA {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.snRNA,
+.plus-snRNA, 
+.minus-snRNA {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.snoRNA,
+.plus-snoRNA, 
+.minus-snoRNA {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.ncRNA,
+.plus-ncRNA, 
+.minus-ncRNA {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.miRNA,
+.plus-miRNA, 
+.minus-miRNA {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.rRNA,
+.plus-rRNA, 
+.minus-rRNA {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: rgb(0,204,0);
+}
+
+.repeat_region,
+.plus-repeat_region, 
+.minus-repeat_region {
+    height: 12px; 
+    /*    margin-top: -4px; */
+    margin-top: 2px;
+    background-color: magenta;
+}
+
+.transposable_element,
+.plus-transposable_element, 
+.minus-transposable_element {
+	height: 12px;
+	border-left-color: blue;
+	border-right-color: blue;
+	border-width: 0px 2px 0px 2px;
+	border-style: solid;
+	background-color: transparent;
+	z-index: 10;
+}
+
+.transposable_element-render {
+    height: 3px;
+    margin-top: 4px;
+    background-color: blue;
+}
+
+.blue-ibeam {
+	height: 12px;
+	border-left-color: blue;
+	border-right-color: blue;
+	border-width: 0px 2px 0px 2px;
+	border-style: solid;
+	background-color: transparent;
+	z-index: 10;
+}
+
+.blue-ibeam-render {
+	height: 3px;
+    margin-top: 4px;
+    background-color: blue;
+}
+
+.magenta-80pct,
+.plus-magenta-80pct, 
+.minus-magenta-80pct {
+	top: 10%;
+	height: 80%;
+    background-color: magenta;
+    border: 1px solid #01F;
+}
+
+.light-purple-80pct,
+.plus-light-purple-80pct, 
+.minus-light-purple-80pct {
+	top: 10%;
+	height: 80%;
+    background-color: rgb(153,153,255);
+    border: 1px solid #01F;
+}
+
+/*
+.transposable_element {
+    position:absolute;
+    height: 2px;
+    background-color: blue;
+    border-style: solid;
+    border-width: 8px 4px 8px 4px;
+    border-color: white blue white blue;
+    cursor: pointer;
+
+    box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    -ms-box-sizing: content-box;
+}
+*/

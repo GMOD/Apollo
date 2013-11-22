@@ -68,6 +68,43 @@ my $user_track_json = '
 			"non_canonical_five_prime_splice_site" : "noncanonical-splice-site", 
 			"non_canonical_three_prime_splice_site" : "noncanonical-splice-site" 
 		},
+		"alternateClasses": {
+			"pseudogene" : {
+				"className" : "light-purple-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"tRNA" : {
+				"className" : "brightgreen-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"snRNA" : {
+				"className" : "brightgreen-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"snoRNA" : {
+				"className" : "brightgreen-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"ncRNA" : {
+				"className" : "brightgreen-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"miRNA" : {
+				"className" : "brightgreen-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"rRNA" : {
+				"className" : "brightgreen-80pct",
+				"renderClassName" : "gray-center-30pct"
+			},
+			"repeat_region" : {
+				"className" : "magenta-80pct"
+			},
+			"transposable_element" : {
+				"className" : "blue-ibeam",
+				"renderClassName" : "blue-ibeam-render"
+			}
+		},
 		"centerSubFeature": {
 			"non_canonical_five_prime_splice_site" : false, 
 			"non_canonical_three_prime_splice_site" : false

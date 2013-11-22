@@ -54,7 +54,7 @@ var FeatureEdgeMatchManager = declare( null,
 		var selected = this.selection_managers[k].getSelection();
 		for (var i = 0; i < selected.length; ++i) {
 		    var selection_record = selected[i];
-		    this.selectionAdded(selection_record);
+//		    this.selectionAdded(selection_record);
 		}
 	    }
         }

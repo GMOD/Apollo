@@ -6,6 +6,8 @@ define( [
             'dijit/Menu',
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
+            'dijit/MenuSeparator',
+            'dijit/PopupMenuItem',
             'dijit/Dialog',
             'jquery',
             'jqueryui/draggable',
@@ -13,7 +15,7 @@ define( [
             'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitDialog, $, draggable, Util, SimpleFeature, SeqOnto ) {
+        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, SimpleFeature, SeqOnto ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -308,7 +310,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
      *  overriding renderFeature to add event handling for mouseover, mousedown, mouseup
      */
     renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale, 
-                            containerStart, containerEnd) {
+                            containerStart, containerEnd, rclass, clsName ) {
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
@@ -321,7 +323,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
             // if renderClassName field exists in trackData.json for this track, then add a child
             //    div to the featdiv with class for CSS styling set to renderClassName value
-            var rclass = this.config.style.renderClassName;
+            if (!rclass) {
+            	rclass = this.config.style.renderClassName;
+            }
             if (rclass)  {
                 // console.log("in FeatureTrack.renderFeature, creating annot div");
                 var rendiv = document.createElement("div");
@@ -329,6 +333,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 dojo.addClass(rendiv, rclass);
                 if (Util.is_ie6) rendiv.appendChild(document.createComment());
                 featdiv.appendChild(rendiv);
+            }
+            if (clsName) {
+            	dojo.removeClass(featdiv.firstChild, feature.get("type"));
+            	dojo.addClass(featdiv.firstChild, clsName);
             }
         }
         return featdiv;
@@ -575,11 +583,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
        (3-((length-frame) mod 3)) mod 3 changes a 3 to a 0, since three bases makes a whole codon, and 1 and 2 are left unchanged.
     */
     renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
-                                  displayStart, displayEnd, priorCdsLength, reverse)  {
+                                  displayStart, displayEnd, priorCdsLength, reverse, UTRclass)  {
         var subStart = subfeature.get('start');
         var subEnd = subfeature.get('end');
         var subLength = subEnd - subStart;
-        var UTRclass, CDSclass;
+        var CDSclass;
 
      //   if (debugFrame)  { console.log("exon: " + subStart); }
 
@@ -591,7 +599,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // look for UTR and CDS subfeature class mapping from trackData
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {  // subfeatureClases defaults set in this._defaultConfig
-            UTRclass = this.config.style.subfeatureClasses["UTR"];  
+            if (!UTRclass) {
+            	UTRclass = this.config.style.subfeatureClasses["UTR"];  
+            }
             CDSclass = this.config.style.subfeatureClasses["CDS"];  
         }
 
@@ -1171,6 +1181,110 @@ var draggableTrack = declare( HTMLFeatureTrack,
     getGenomeCoord: function(mouseEvent)  {
 	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
 //	return this.getUiGenomeCoord(mouseEvent) - 1;
+    },
+    
+    _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
+    	var atrack = this.webapollo.getAnnotTrack();
+
+    	var menu = this.inherited(arguments);
+    	menu.addChild(new dijitMenuSeparator());
+
+    	var createAnnotationMenu = new dijitMenu();
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "gene",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    	        this.selectionManager.clearSelection();
+    			atrack.createAnnotations(selection);
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "pseudogene",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "transcript", null, "pseudogene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "tRNA",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "tRNA", null, "gene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "snRNA",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "snRNA", null, "gene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "snoRNA",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "snoRNA", null, "gene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "ncRNA",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "ncRNA", null, "gene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "rRNA",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "rRNA", null, "gene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "miRNA",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericAnnotations(selFeats, "miRNA", null, "gene");
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "repeat_region",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericOneLevelAnnotations(selFeats, "repeat_region", true);
+    		})
+    	}));
+    	createAnnotationMenu.addChild(new dijitMenuItem( {
+    		label: "transposable_element",
+    		onClick: dojo.hitch(this, function() {
+    			var selection = this.selectionManager.getSelection();
+    			var selFeats = this.selectionManager.getSelectedFeatures();
+    	        this.selectionManager.clearSelection();
+    			atrack.createGenericOneLevelAnnotations(selFeats, "transposable_element", true);
+    		})
+    	}));
+    	
+    	menu.addChild(new dijitPopupMenuItem( {
+    		label: "Create new annotation",
+    		popup: createAnnotationMenu
+    	}));
+    	
     }
 
 });

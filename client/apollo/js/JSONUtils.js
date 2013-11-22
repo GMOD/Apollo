@@ -42,6 +42,7 @@ var JAFeature = declare( SimpleFeature, {
             strand: loc.strand,
             name: afeature.name,
             parent_id: afeature.parent_id,
+            parent_type: afeature.parent_type ? afeature.parent_type.name : undefined,
             type: afeature.type.name, 
 	    properties: afeature.properties
         };
@@ -78,16 +79,22 @@ var JAFeature = declare( SimpleFeature, {
         }
 
         if (!parent) {
-        	var descendants = [];
-        	for (var i = 0; i < afeature.children.length; ++i) {
-        		var child = afeature.children[i];
-        		if (child.children) {
-        			for (var j = 0; j < child.children.length; ++j) {
-        				JSONUtils.flattenFeature(child.children[j], descendants);
+        	if (afeature.children) {
+        		var descendants = [];
+        		for (var i = 0; i < afeature.children.length; ++i) {
+        			var child = afeature.children[i];
+        			if (child.children) {
+        				for (var j = 0; j < child.children.length; ++j) {
+        					JSONUtils.flattenFeature(child.children[j], descendants);
+        				}
         			}
         		}
+        		afeature.children = afeature.children.concat(descendants);
         	}
-        	afeature.children = afeature.children.concat(descendants);
+        	else {
+        		var child = dojo.clone(afeature);
+        		afeature.children = [ child ];
+        	}
         }
         
 	// moved subfeature assignment to bottom of feature construction, since subfeatures may need to call method on their parent
@@ -199,7 +206,7 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 *    ignoring JBrowse ID / name fields for now
 *    currently, for features with lazy-loaded children, ignores children 
 */
-JSONUtils.createApolloFeature = function( jfeature, specified_type, useName )   {
+JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
 
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  { 
@@ -249,6 +256,19 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName )   
     if (useName && name) {
     	afeature.name = name;
     }
+    
+    /*
+    afeature.properties = [];
+    var property = { value : "source_id=" + jfeature.get('id'),
+    		type : {
+                    cv: {
+                    	name: "feature_property"
+                    },
+                    name: "feature_property"
+    		}
+    };
+    afeature.properties.push(property);
+    */
 
     if (diagnose) { console.log("converting to Apollo feature: " + typename); }
     var subfeats;
@@ -260,6 +280,8 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName )   
 	afeature.children = [];
 	var slength = subfeats.length;
 	var cds;
+	var cdsFeatures = [];
+	var foundExons = false;
 	
 	var updateCds = function(subfeat) {
 		if (!cds) {
@@ -277,46 +299,58 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName )   
 				cds.set("end", subfeat.get("end"));
 			}
 		}
-	}
+	};
 	
 	for (var i=0; i<slength; i++)  {
 	    var subfeat = subfeats[i];
 	    var subtype = subfeat.get('type');
-            var converted_subtype = subtype;
-            if (SeqOnto.exonTerms[subtype])  {
-                // definitely an exon, leave exact subtype as is 
-                // converted_subtype = "exon"
+            var converted_subtype = specified_subtype || subtype;
+            if (!specified_subtype) {
+            	if (SeqOnto.exonTerms[subtype])  {
+            		// definitely an exon, leave exact subtype as is 
+            		// converted_subtype = "exon"
+            	}
+            	else if (subtype === "wholeCDS" || subtype === "polypeptide") {
+            		// normalize to "CDS" sequnce ontology term
+            		// converted_subtype = "CDS";
+            		updateCds(subfeat);
+            		converted_subtype = null;
+            	}
+            	else if (SeqOnto.cdsTerms[subtype])  {
+            		// other sequence ontology CDS terms, leave unchanged
+            		updateCds(subfeat);
+            		converted_subtype = null;
+            		cdsFeatures.push(subfeat);
+            	}
+            	else if (SeqOnto.spliceTerms[subtype])  {  
+            		// splice sites -- filter out?  leave unchanged?
+            		// 12/16/2012 filtering out for now, causes errors in AnnotTrack duplication operation
+            		converted_subtype = null;  // filter out
+            	}
+            	else if (SeqOnto.startCodonTerms[subtype] || SeqOnto.stopCodonTerms[subtype])  {
+            		// start and stop codons -- filter out?  leave unchanged?
+            		// 12/16/2012 filtering out for now, causes errors in AnnotTrack createAnnotation operation
+            		converted_subtype = null;  // filter out
+            	}
+            	else if (SeqOnto.intronTerms[subtype])  {
+            		// introns -- filter out?  leave unchanged?
+            		converted_subtype = null;  // filter out
+            	}
+            	/*
+            	else if (SeqOnto.utrTerms[subtype]) {
+            		// filter out UTR
+            		converted_subtype = null;
+            	}
+            	*/
+            	else  { 
+            		// convert everything else to exon???
+            		// need to do this since server only creates exons for "exon" and descendant terms
+            		converted_subtype = "exon";
+            	}
             }
-            else if (subtype === "wholeCDS" || subtype === "polypeptide") {
-                // normalize to "CDS" sequnce ontology term
-                // converted_subtype = "CDS";
-            	updateCds(subfeat);
-            	converted_subtype = null;
+            if (SeqOnto.exonTerms[subtype]) {
+            	foundExons = true;
             }
-            else if (SeqOnto.cdsTerms[subtype])  {
-                // other sequence ontology CDS terms, leave unchanged
-            	updateCds(subfeat);
-            	converted_subtype = null;
-            }
-            else if (SeqOnto.spliceTerms[subtype])  {  
-                // splice sites -- filter out?  leave unchanged?
-                // 12/16/2012 filtering out for now, causes errors in AnnotTrack duplication operation
-                converted_subtype = null;  // filter out
-            }
-            else if (SeqOnto.startCodonTerms[subtype] || SeqOnto.stopCodonTerms[subtype])  {
-                // start and stop codons -- filter out?  leave unchanged?
-                // 12/16/2012 filtering out for now, causes errors in AnnotTrack createAnnotation operation
-                converted_subtype = null;  // filter out
-            }
-            else if (SeqOnto.intronTerms[subtype])  {
-                // introns -- filter out?  leave unchanged?
-                converted_subtype = null;  // filter out
-            }
-	    else  { 
-                // convert everything else to exon???
-                // need to do this since server only creates exons for "exon" and descendant terms
-                converted_subtype = "exon";
-	    }
             if (converted_subtype)  {
 	        afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ) );
                 if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
@@ -327,6 +361,11 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName )   
 	}
 	if (cds) {
 		afeature.children.push( JSONUtils.createApolloFeature( cds, "CDS"));
+		if (!foundExons) {
+			for (var i = 0; i < cdsFeatures.length; ++i) {
+				afeature.children.push(JSONUtils.createApolloFeature(cdsFeatures[i], "exon"));
+			}
+		}
 	}
     }
     else if ( specified_type === 'transcript' )  {
