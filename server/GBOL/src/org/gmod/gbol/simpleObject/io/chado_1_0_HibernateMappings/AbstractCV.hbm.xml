@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractCV" table="cv">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A controlled vocabulary or ontology. A cv is composed of cvterms (AKA terms, classes, types, universals - relations and properties are also stored in cvterm) and
+        the relationships between them.</comment>
+
+        <id name="cvId" type="java.lang.Integer">
+            <column name="cv_id" />
+            <generator class="sequence">
+                <param name="sequence">cv_cv_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="cv_id" insert="false"/>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" not-null="true" unique="true">
+                <comment>The name of the ontology. This corresponds to the obo-format -namespace-. cv names uniquely identify the cv. In OBO file format, the cv.name is known as
+                the namespace.</comment>
+            </column>
+        </property>
+
+        <property name="definition" type="string">
+            <column name="definition">
+                <comment>A text description of the criteria for membership of this ontology.</comment>
+            </column>
+        </property>
+
+        <set name="cvterms" inverse="true">
+            <key>
+                <column name="cv_id" not-null="true">
+                    <comment>The cv or ontology or namespace to which this cvterm belongs.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.CVTerm" />
+        </set>
+    </class>
+</hibernate-mapping>
+

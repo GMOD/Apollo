@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractLibraryFeature" table="library_feature">
+        <meta attribute="chadoModule" inherit="false">library</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>library_feature links a library to the clones which are contained in the library. Examples of such linked features might be "cDNA_clone" or
+        "genomic_clone".</comment>
+
+        <id name="libraryFeatureId" type="java.lang.Integer">
+            <column name="library_feature_id" />
+
+            <generator class="sequence">
+                <param name="sequence">library_feature_library_feature_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="library_feature_id" insert="false" />
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="library" class="org.gmod.gbol.simpleObject.Library" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="library_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

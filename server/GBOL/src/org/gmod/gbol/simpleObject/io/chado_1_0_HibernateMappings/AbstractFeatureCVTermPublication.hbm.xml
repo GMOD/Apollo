@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureCVTermPublication" table="feature_cvterm_pub">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Secondary pubs for an association. Each feature_cvterm association is supported by a single primary publication. Additional secondary pubs can be added using this
+        linking table (in a GO gene association file, these corresponding to any IDs after the pipe symbol in the publications column.</comment>
+
+        <id name="featureCVTermPublicationId" type="java.lang.Integer">
+            <column name="feature_cvterm_pub_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_cvterm_pub_feature_cvterm_pub_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_cvterm_pub_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="featureCVTerm" class="org.gmod.gbol.simpleObject.FeatureCVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_cvterm_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticNodeOrganism" table="phylonode_organism">
+        <meta attribute="chadoModule" inherit="false">phylogeny</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>This linking table should only be used for nodes in taxonomy trees; it provides a mapping between the node and an organism. One node can have zero or one
+        organisms, one organism can have zero or more nodes (although typically it should only have one in the standard NCBI taxonomy tree).</comment>
+
+        <id name="phylogeneticNodeOrganismId" type="java.lang.Integer">
+            <column name="phylonode_organism_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phylonode_organism_phylonode_organism_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phylonode_organism_id" insert="false" />
+
+        <many-to-one name="phylogeneticNode" class="org.gmod.gbol.simpleObject.PhylogeneticNode" fetch="select">
+            <column name="phylonode_id" not-null="true" unique="true">
+                <comment>One phylonode cannot refer to &gt;1 organism.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="organism" class="org.gmod.gbol.simpleObject.Organism" fetch="select">
+            <column name="organism_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

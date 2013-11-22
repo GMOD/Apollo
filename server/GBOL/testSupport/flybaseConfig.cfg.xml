@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory name="SessionFactory">
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://flybase.net:5432/flybase</property>
+        <property name="hibernate.connection.username">flybase</property>
+        <!--  <property name="hibernate.connection.password"></property>-->
+
+        
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+        
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+        
+        
+        <!-- Load up the basic Chado Object Hibernate Mapping Files -->
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibraryPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Phenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractContactRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ContactRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractQuantificationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/QuantificationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractElementResultRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ElementResultRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureCVTermPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTermPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractBiomaterialProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAcquisition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Acquisition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractTableInfo.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/TableInfo.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticTree.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticTree.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractElement.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Element.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAssay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Assay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractMAGEML.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/MAGEML.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractMAGEDocumentation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/MAGEDocumentation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibraryPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyAssay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyAssay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAssayBiomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AssayBiomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPublicationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPublicationDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractTreatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Treatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureCVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibraryProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractExpressionPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractArrayDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ArrayDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCV.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CV.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractQuantificationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/QuantificationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/DBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractExpressionCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureRange.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRange.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureLocation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureLocation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhenotypeCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticNode.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNode.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeaturePhenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePhenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCVTermSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAnalysisFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AnalysisFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureMap.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureMap.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibrary.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Library.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAcquisitionRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AcquisitionRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhenotypeComparison.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeComparison.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Feature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeaturePosition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePosition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyPropertyFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyPropertyFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Publication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCVTermPath.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermPath.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractBiomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Biomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractArrayDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ArrayDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractElementRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ElementRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractDBXrefProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/DBXrefProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeaturePublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Stock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractEImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/EImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticNodePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyFactorValue.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyFactorValue.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudy.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Study.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAssayProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AssayProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractBiomaterialTreatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialTreatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractOrganismDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/OrganismDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractEnvironmentCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/EnvironmentCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractControl.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Control.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureRelationshipPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationshipPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractExpressionImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockCollectionStock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCollectionStock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureExpression.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureExpression.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractProtocol.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Protocol.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureLocationPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureLocationPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureRelationshipProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationshipProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhenotypeComparisonCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeComparisonCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticNodeProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAssayProject.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AssayProject.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAnalysis.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Analysis.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCVTermRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockCollection.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCollection.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureMapPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureMapPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractContact.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Contact.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibraryFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractElementResult.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ElementResult.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractOrganism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Organism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractBiomaterialDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticNodeOrganism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeOrganism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeaturePropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractProtocolParameter.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ProtocolParameter.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticNodeDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractChannel.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Channel.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPublicationAuthor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationAuthor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhenotypeStatement.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeStatement.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractProject.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Project.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStockCollectionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCollectionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhenotypeDescription.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeDescription.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAcquisitionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AcquisitionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractStudyFactor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyFactor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractOrganismProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/OrganismProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractQuantification.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Quantification.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeaturePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractFeatureCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractAnalysisProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AnalysisProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Synonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibraryDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractBiomaterialRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticTreePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticTreePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibraryCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractLibrarySynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibrarySynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Genotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractEnvironment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Environment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractDB.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/DB.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractPhylogeneticNodeRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractExpressionCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/generated/AbstractExpression.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Expression.hbm.xml" />
+        
+    </session-factory>
+</hibernate-configuration>

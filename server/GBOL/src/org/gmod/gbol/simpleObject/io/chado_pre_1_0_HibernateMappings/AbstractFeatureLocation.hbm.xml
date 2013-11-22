@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 9, 2008 2:42:51 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureLocation" table="featureloc">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>The location of a feature relative to another feature. Important: interbase coordinates are used. This is vital as it allows us to represent zero-length features
+        e.g. splice sites, insertion points without an awkward fuzzy system. Features typically have exactly ONE location, but this need not be the case. Some features may not be
+        localized (e.g. a gene that has been characterized genetically but no sequence or molecular information is available). Note on multiple locations: Each feature can have 0
+        or more locations. Multiple locations do NOT indicate non-contiguous locations (if a feature such as a transcript has a non-contiguous location, then the subfeatures such
+        as exons should always be manifested). Instead, multiple featurelocs for a feature designate alternate locations or grouped locations; for instance, a feature designating
+        a blast hit or hsp will have two locations, one on the query feature, one on the subject feature. Features representing sequence variation could have alternate locations
+        instantiated on a feature on the mutant strain. The column:rank is used to differentiate these different locations. Reflexive locations should never be stored - this is
+        for -proper- (i.e. non-self) locations only; nothing should be located relative to itself.</comment>
+
+        <id name="featureLocationId" type="java.lang.Integer">
+            <column name="featureloc_id" />
+
+            <generator class="sequence">
+                <param name="sequence">featureloc_featureloc_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="featureloc_id" insert="false" />
+
+        <many-to-one name="sourceFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <column name="srcfeature_id">
+                <comment>The source feature which this location is relative to. Every location is relative to another feature (however, this column is nullable, because the
+                srcfeature may not be known). All locations are -proper- that is, nothing should be located relative to itself. No cycles are allowed in the featureloc
+                graph.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true">
+                <comment>The feature that is being located. Any feature can have zero or more featurelocs.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="fmin" type="java.lang.Integer">
+            <column name="fmin">
+                <comment>The leftmost/minimal boundary in the linear range represented by the featureloc. Sometimes (e.g. in Bioperl) this is called -start- although this is
+                confusing because it does not necessarily represent the 5-prime coordinate. Important: This is space-based (interbase) coordinates, counting from zero. To convert
+                this to the leftmost position in a base-oriented system (eg GFF, Bioperl), add 1 to fmin.</comment>
+            </column>
+        </property>
+
+        <property name="isFminPartial" type="boolean">
+            <column name="is_fmin_partial" not-null="true">
+                <comment>This is typically false, but may be true if the value for column:fmin is inaccurate or the leftmost part of the range is unknown/unbounded.</comment>
+            </column>
+        </property>
+
+        <property name="fmax" type="java.lang.Integer">
+            <column name="fmax">
+                <comment>The rightmost/maximal boundary in the linear range represented by the featureloc. Sometimes (e.g. in bioperl) this is called -end- although this is
+                confusing because it does not necessarily represent the 3-prime coordinate. Important: This is space-based (interbase) coordinates, counting from zero. No
+                conversion is required to go from fmax to the rightmost coordinate in a base-oriented system that counts from 1 (e.g. GFF, Bioperl).</comment>
+            </column>
+        </property>
+
+        <property name="isFmaxPartial" type="boolean">
+            <column name="is_fmax_partial" not-null="true">
+                <comment>This is typically false, but may be true if the value for column:fmax is inaccurate or the rightmost part of the range is unknown/unbounded.</comment>
+            </column>
+        </property>
+
+        <property name="strand" type="java.lang.Integer">
+            <column name="strand">
+                <comment>The orientation/directionality of the location. Should be 0, -1 or +1.</comment>
+            </column>
+        </property>
+
+        <property name="phase" type="java.lang.Integer">
+            <column name="phase">
+                <comment>Phase of translation with respect to srcfeature_id. Values are 0, 1, 2. It may not be possible to manifest this column for some features such as exons,
+                because the phase is dependant on the spliceform (the same exon can appear in multiple spliceforms). This column is mostly useful for predicted exons and
+                CDSs.</comment>
+            </column>
+        </property>
+
+        <property name="residueInfo" type="string">
+            <column name="residue_info">
+                <comment>Alternative residues, when these differ from feature.residues. For instance, a SNP feature located on a wild and mutant protein would have different
+                alternative residues. for alignment/similarity features, the alternative residues is used to represent the alignment string (CIGAR format). Note on variation
+                features; even if we do not want to instantiate a mutant chromosome/contig feature, we can still represent a SNP etc with 2 locations, one (rank 0) on the genome,
+                the other (rank 1) would have most fields null, except for alternative residues.</comment>
+            </column>
+        </property>
+
+        <property name="locgroup" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="locgroup" not-null="true">
+                <comment>This is used to manifest redundant, derivable extra locations for a feature. The default locgroup=0 is used for the DIRECT location of a feature.
+                Important: most Chado users may never use featurelocs WITH logroup &gt; 0. Transitively derived locations are indicated with locgroup &gt; 0. For example, the
+                position of an exon on a BAC and in global chromosome coordinates. This column is used to differentiate these groupings of locations. The default locgroup 0 is
+                used for the main or primary location, from which the others can be derived via coordinate transformations. Another example of redundant locations is storing ORF
+                coordinates relative to both transcript and genome. Redundant locations open the possibility of the database getting into inconsistent states; this schema gives us
+                the flexibility of both warehouse instantiations with redundant locations (easier for querying) and management instantiations with no redundant locations. An
+                example of using both locgroup and rank: imagine a feature indicating a conserved region between the chromosomes of two different species. We may want to keep
+                redundant locations on both contigs and chromosomes. We would thus have 4 locations for the single conserved region feature - two distinct locgroups (contig level
+                and chromosome level) and two distinct ranks (for the two species).</comment>
+            </column>
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true">
+                <comment>Used when a feature has &gt;1 location, otherwise the default rank 0 is used. Some features (e.g. blast hits and HSPs) have two locations - one on the
+                query and one on the subject. Rank is used to differentiate these. Rank=0 is always used for the query, Rank=1 for the subject. For multiple alignments, assignment
+                of rank is arbitrary. Rank is also used for sequence_variant features, such as SNPs. Rank=0 indicates the wildtype (or baseline) feature, Rank=1 indicates the
+                mutant (or compared) feature.</comment>
+            </column>
+        </property>
+
+        <set name="featureLocationPublications" inverse="true">
+            <key>
+                <column name="featureloc_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureLocationPublication" />
+        </set>
+    </class>
+</hibernate-mapping>
+

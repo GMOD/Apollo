@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractBiomaterialTreatment" table="biomaterial_treatment">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Link biomaterials to treatments. Treatments have an order of operations (rank), and associated measurements (unittype_id, value).</comment>
+
+        <id name="biomaterialTreatmentId" type="java.lang.Integer">
+            <column name="biomaterial_treatment_id" />
+
+            <generator class="sequence">
+                <param name="sequence">biomaterial_treatment_biomaterial_treatment_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="biomaterial_treatment_id" insert="false" />
+
+        <many-to-one name="unitType" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="unittype_id" />
+        </many-to-one>
+
+        <many-to-one name="treatment" class="org.gmod.gbol.simpleObject.Treatment" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="treatment_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="biomaterial" class="org.gmod.gbol.simpleObject.Biomaterial" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="biomaterial_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="java.lang.Float">
+            <column name="value" precision="8" scale="8" />
+        </property>
+
+        <property name="rank" type="int">
+            <column name="rank" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

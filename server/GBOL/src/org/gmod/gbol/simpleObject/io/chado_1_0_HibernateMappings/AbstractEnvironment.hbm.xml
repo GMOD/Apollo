@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractEnvironment" table="environment">
+        <meta attribute="chadoModule" inherit="false">genetic</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>The environmental component of a phenotype description.</comment>
+
+        <id name="environmentId" type="java.lang.Integer">
+            <column name="environment_id" />
+
+            <generator class="sequence">
+                <param name="sequence">environment_environment_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="environment_id" insert="false" />
+
+        <property name="uniquename" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true" unique="true" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <set name="environmentCVTerms" inverse="true">
+            <key>
+                <column name="environment_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.EnvironmentCVTerm" />
+        </set>
+    </class>
+</hibernate-mapping>
+

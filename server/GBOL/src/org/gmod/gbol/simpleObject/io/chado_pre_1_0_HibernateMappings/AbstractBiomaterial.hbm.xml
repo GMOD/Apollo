@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractBiomaterial" table="biomaterial">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A biomaterial represents the MAGE concept of BioSource, BioSample, and LabeledExtract. It is essentially some biological material (tissue, cells, serum) that may
+        have been processed. Processed biomaterials should be traceable back to raw biomaterials via the biomaterialrelationship table.</comment>
+
+        <id name="biomaterialId" type="java.lang.Integer">
+            <column name="biomaterial_id" />
+
+            <generator class="sequence">
+                <param name="sequence">biomaterial_biomaterial_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="biomaterial_id" insert="false" />
+
+        <many-to-one name="taxon" class="org.gmod.gbol.simpleObject.Organism" fetch="select">
+            <column name="taxon_id" />
+        </many-to-one>
+
+        <many-to-one name="sourceProvider" class="org.gmod.gbol.simpleObject.Contact" fetch="select">
+            <column name="biosourceprovider_id" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id" />
+        </many-to-one>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" unique="true" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <set name="biomaterialProperties" inverse="true">
+            <key>
+                <column name="biomaterial_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.BiomaterialProperty" />
+        </set>
+
+        <set name="biomaterialDBXrefs" inverse="true">
+            <key>
+                <column name="biomaterial_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.BiomaterialDBXref" />
+        </set>
+
+        <set name="treatments" inverse="true">
+            <key>
+                <column name="biomaterial_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.Treatment" />
+        </set>
+
+        <set name="parentBiomaterialRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.BiomaterialRelationship" />
+        </set>
+
+        <set name="assayBiomaterials" inverse="true">
+            <key>
+                <column name="biomaterial_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AssayBiomaterial" />
+        </set>
+
+        <set name="childBiomaterialRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.BiomaterialRelationship" />
+        </set>
+
+        <set name="biomaterialTreatments" inverse="true">
+            <key>
+                <column name="biomaterial_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.BiomaterialTreatment" />
+        </set>
+    </class>
+</hibernate-mapping>
+

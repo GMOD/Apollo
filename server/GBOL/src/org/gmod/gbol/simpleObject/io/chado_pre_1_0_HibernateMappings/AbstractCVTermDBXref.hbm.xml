@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractCVTermDBXref" table="cvterm_dbxref">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>In addition to the primary identifier (cvterm.dbxref_id) a cvterm can have zero or more secondary identifiers/dbxrefs, which may refer to records in external
+        databases. The exact semantics of cvterm_dbxref are not fixed. For example: the dbxref could be a pubmed ID that is pertinent to the cvterm, or it could be an equivalent
+        or similar term in another ontology. For example, GO cvterms are typically linked to InterPro IDs, even though the nature of the relationship between them is largely one
+        of statistical association. The dbxref may be have data records attached in the same database instance, or it could be a "hanging" dbxref pointing to some external
+        database. NOTE: If the desired objective is to link two cvterms together, and the nature of the relation is known and holds for all instances of the subject cvterm then
+        consider instead using cvterm_relationship together with a well-defined relation.</comment>
+
+        <id name="cvtermDBXrefId" type="java.lang.Integer">
+            <column name="cvterm_dbxref_id" />
+
+            <generator class="sequence">
+                <param name="sequence">cvterm_dbxref_cvterm_dbxref_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="cvterm_dbxref_id" insert="false" />
+
+        <many-to-one name="cvterm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="cvterm_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="dbxref_id" not-null="true" />
+        </many-to-one>
+
+        <property name="isForDefinition" type="int">
+            <column name="is_for_definition" not-null="true">
+                <comment>A cvterm.definition should be supported by one or more references. If this column is true, the dbxref is not for a term in an external database - it is a
+                dbxref for provenance information for the definition.</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

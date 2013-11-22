@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureLocationPublication" table="featureloc_pub">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Provenance of featureloc. Linking table between featurelocs and publications that mention them.</comment>
+
+        <id name="featureLocationPublicationId" type="java.lang.Integer">
+            <column name="featureloc_pub_id" />
+
+            <generator class="sequence">
+                <param name="sequence">featureloc_pub_featureloc_pub_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="featureloc_pub_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="featureLocation" class="org.gmod.gbol.simpleObject.FeatureLocation" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="featureloc_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

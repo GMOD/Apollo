@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractStudyPropertyFeature" table="studyprop_feature">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="studyPropertyFeatureId" type="java.lang.Integer">
+            <column name="studyprop_feature_id" />
+
+            <generator class="sequence">
+                <param name="sequence">studyprop_feature_studyprop_feature_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="studyprop_feature_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id" />
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="studyProperty" class="org.gmod.gbol.simpleObject.StudyProperty" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="studyprop_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

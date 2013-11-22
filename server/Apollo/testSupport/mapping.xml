@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbol_mappings>
+  <feature_mappings>
+    <type cv="SO" term="region" default="true">
+      <read_class>Region</read_class>
+    </type>
+    <type cv="SO" term="gene" default="true">
+      <read_class>Gene</read_class>
+    </type>
+    <type cv="SO" term="transcript" default="true">
+      <read_class>Transcript</read_class>
+    </type>
+    <type cv="SO" term="exon" default="true">
+      <read_class>Exon</read_class>
+    </type>
+    <type cv="SO" term="chromosome" default="true">
+      <read_class>Chromosome</read_class>
+    </type>
+    <type cv="SO" term="CDS" default="true">
+      <read_class>CDS</read_class>
+    </type>
+    <type cv="SO" term="insertion" default="true">
+      <read_class>Insertion</read_class>
+    </type>
+    <type cv="SO" term="deletion" default="true">
+      <read_class>Deletion</read_class>
+    </type>
+    <type cv="SO" term="substitution" default="true">
+      <read_class>Substitution</read_class>
+    </type>
+    <type cv="SO" term="non_canonical_five_prime_splice_site" default="true">
+      <read_class>NonCanonicalFivePrimeSpliceSite</read_class>
+    </type>
+    <type cv="SO" term="non_canonical_three_prime_splice_site" default="true">
+      <read_class>NonCanonicalThreePrimeSpliceSite</read_class>
+    </type>
+    <type cv="SO" term="flanking_region" default="true">
+      <read_class>FlankingRegion</read_class>
+    </type>
+  </feature_mappings>
+  <feature_property_mappings>
+    <type cv="SOFP" term="comment" default="true">
+      <read_class>Comment</read_class>
+    </type>
+  </feature_property_mappings>
+  <attribute_mappings>
+    <type cv="SO" term="plus_1_frameshift" default="true">
+      <read_class>Plus1Frameshift</read_class>
+    </type>
+    <type cv="SO" term="plus_2_frameshift" default="true">
+      <read_class>Plus2Frameshift</read_class>
+    </type>
+    <type cv="SO" term="minus_1_frameshift" default="true">
+      <read_class>Minus1Frameshift</read_class>
+    </type>
+    <type cv="SO" term="minus_2_frameshift" default="true">
+      <read_class>Minus2Frameshift</read_class>
+    </type>
+  </attribute_mappings>
+  <relationship_mappings>
+    <type cv="relationship" term="part_of" default="true">
+      <read_class>PartOf</read_class>
+    </type>
+  </relationship_mappings>
+</gbol_mappings>

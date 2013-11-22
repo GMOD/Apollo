@@ -1,0 +1,284 @@
+package org.bbop.apollo.web.datastore;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.bbop.apollo.editor.session.DataStore;
+import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
+import org.gmod.gbol.bioObject.SequenceAlteration;
+import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
+import org.gmod.gbol.bioObject.util.BioObjectUtil;
+import org.gmod.gbol.simpleObject.Feature;
+import org.gmod.gbol.simpleObject.FeatureLocation;
+
+public class JEDatabaseSessionDataStore implements DataStore {
+
+	private JEDatabase db;
+	private BioObjectConfiguration conf;
+	private Map<String, String> uniqueNameToStoredUniqueName;
+	private List<String> featureIds;
+	private Feature sourceFeature;
+	private Map<String, AbstractSingleLocationBioFeature> dirtyFeatures;
+	
+	public JEDatabaseSessionDataStore(JEDatabase db, BioObjectConfiguration conf, Feature sourceFeature) {
+		this.db = db;
+		this.conf = conf;
+		this.sourceFeature = sourceFeature;
+		uniqueNameToStoredUniqueName = new HashMap<String, String>();
+		featureIds = new LinkedList<String>();
+		dirtyFeatures = new HashMap<String, AbstractSingleLocationBioFeature>();
+		Iterator<Feature> iter = db.getFeatureIterator();
+		while (iter.hasNext()) {
+			Feature feature = iter.next();
+			indexFeature((AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, conf));
+		}
+	}
+	
+	@Override
+	public List<AbstractSingleLocationBioFeature> getFeatures() {
+		List<AbstractSingleLocationBioFeature> features = new ArrayList<AbstractSingleLocationBioFeature>();
+		Iterator<Feature> iter = db.getFeatureIterator();
+		while (iter.hasNext()) {
+			Feature feature = iter.next();
+			AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, conf);
+			addSourceToFeature(gbolFeature, sourceFeature);
+			features.add(gbolFeature);
+		}
+		return features;
+	}
+
+	@Override
+	public List<SequenceAlteration> getSequenceAlterations() {
+		List<SequenceAlteration> sequenceAlterations = new ArrayList<SequenceAlteration>();
+		Iterator<Feature> iter = db.getSequenceAlterationIterator();
+		while (iter.hasNext()) {
+			sequenceAlterations.add((SequenceAlteration)BioObjectUtil.createBioObject(iter.next(), conf));
+		}
+		return sequenceAlterations;
+	}
+
+	@Override
+	public AbstractSingleLocationBioFeature getFeatureByUniqueName(String uniqueName) {
+		String storedUniqueName = uniqueNameToStoredUniqueName.get(uniqueName);
+		if (storedUniqueName == null) {
+			return null;
+		}
+		if (!dirtyFeatures.containsKey(storedUniqueName)) {
+			Feature gsolFeature = db.getFeatureByUniqueName(storedUniqueName);
+			if (gsolFeature == null) {
+				return null;
+			}
+			AbstractSingleLocationBioFeature feature = findFeature((AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(gsolFeature, conf), uniqueName);
+			if (feature != null) {
+				addSourceToFeature(getTopLevelFeature(feature), sourceFeature);
+			}
+			beginTransactionForFeature(feature);
+			return feature;
+		}
+		else {
+			AbstractSingleLocationBioFeature feature = findFeature(dirtyFeatures.get(storedUniqueName), uniqueName);
+			return feature;
+		}
+	}
+
+	@Override
+	public void addSequenceAlteration(SequenceAlteration sequenceAlteration) {
+		indexFeature(sequenceAlteration);
+	}
+
+	@Override
+	public void deleteSequenceAlteration(SequenceAlteration sequenceAlteration) {
+		unindexFeature(sequenceAlteration);
+	}
+
+	@Override
+	public void addFeature(AbstractSingleLocationBioFeature feature) {
+		if (uniqueNameToStoredUniqueName.containsKey(feature.getUniqueName())) {
+			deleteFeature(feature);
+		}
+		AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
+		featureIds.add(topLevelFeature.getUniqueName());
+		if (getFeatureByUniqueName(topLevelFeature.getUniqueName()) == null) {
+			beginTransactionForFeature(topLevelFeature);
+		}
+		indexFeature(topLevelFeature);
+		Collections.sort(featureIds, new UniqueNamePositionComparator());
+	}
+
+	@Override
+	public void deleteFeature(AbstractSingleLocationBioFeature feature) {
+		UniqueNamePositionComparator comparator = new UniqueNamePositionComparator();
+		int index = Collections.binarySearch(featureIds, feature.getUniqueName(), comparator);
+		if (index >= 0) {
+			while (index > 0) {
+				AbstractSingleLocationBioFeature indexedFeature = getFeatureByUniqueName(featureIds.get(index - 1));
+				if (comparator.compare(indexedFeature, feature) == 0) {
+					--index;
+				}
+				else {
+					break;
+				}
+			}
+			while (index < featureIds.size()) {
+				AbstractSingleLocationBioFeature indexedFeature = getFeatureByUniqueName(featureIds.get(index));
+				if (comparator.compare(indexedFeature, feature) != 0) {
+					break;
+				}
+				if (indexedFeature.equals(feature)) {
+					featureIds.remove(index);
+					unindexFeature(feature);
+					break;
+				}
+				++index;
+			}
+		}
+	}
+
+	@Override
+	public Collection<AbstractSingleLocationBioFeature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands) {
+		LinkedList<AbstractSingleLocationBioFeature> overlappingFeatures =
+				new LinkedList<AbstractSingleLocationBioFeature>();
+		int low = 0;
+		int high = featureIds.size() - 1;
+		int index = -1;
+		while (low <= high) {
+			int mid = low + ((high - low) / 2);
+			AbstractSingleLocationBioFeature feature = getFeatureByUniqueName(featureIds.get(mid));
+			if (feature.overlaps(location, compareStrands)) {
+				index = mid;
+				break;
+			}
+			else if (feature.getFeatureLocation().getFmin() < location.getFmin()) {
+				low = mid + 1;
+			}
+			else {
+				high = mid - 1;
+			}
+		}
+		if (index >= -1) {
+			for (int i = index; i >= 0; --i) {
+				AbstractSingleLocationBioFeature feature = getFeatureByUniqueName(featureIds.get(i));
+				if (feature.overlaps(location, compareStrands)) {
+					overlappingFeatures.addFirst(feature);
+				}
+				else {
+					break;
+				}
+			}
+			for (int i = index + 1; i < featureIds.size(); ++i) {
+				AbstractSingleLocationBioFeature feature = getFeatureByUniqueName(featureIds.get(i));
+				if (feature.overlaps(location, compareStrands)) {
+					overlappingFeatures.addLast(feature);
+				}
+				else {
+					break;
+				}
+			}
+		}
+		return overlappingFeatures;
+	}
+
+	@Override
+	public void indexFeature(AbstractSingleLocationBioFeature feature) {
+		uniqueNameToStoredUniqueName.put(feature.getUniqueName(), getTopLevelFeature(feature).getUniqueName());
+		for (AbstractSingleLocationBioFeature child : feature.getChildren()) {
+			indexFeature(child);
+		}
+	}
+
+	@Override
+	public void unindexFeature(AbstractSingleLocationBioFeature feature) {
+		uniqueNameToStoredUniqueName.remove(feature.getUniqueName());
+		for (AbstractSingleLocationBioFeature child : feature.getChildren()) {
+			unindexFeature(child);
+		}
+	}
+	
+	public void beginTransactionForFeature(AbstractSingleLocationBioFeature feature) {
+		AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
+		if (!dirtyFeatures.containsKey(topLevelFeature.getUniqueName())) {
+			dirtyFeatures.put(topLevelFeature.getUniqueName(), topLevelFeature);
+		}
+		System.out.println("beginTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
+	}
+	
+	public void endTransactionForFeature(AbstractSingleLocationBioFeature feature) {
+		AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
+		dirtyFeatures.remove(topLevelFeature.getUniqueName());
+		System.out.println("endTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
+	}
+
+	
+	private AbstractSingleLocationBioFeature getTopLevelFeature(AbstractSingleLocationBioFeature feature) {
+		Collection<? extends AbstractSingleLocationBioFeature> parents = feature.getParents();
+		if (parents.size() > 0) {
+			return getTopLevelFeature(parents.iterator().next());
+		}
+		else {
+			return feature;
+		}
+	}
+	
+	private AbstractSingleLocationBioFeature findFeature(AbstractSingleLocationBioFeature feature, String uniqueName) {
+		if (feature.getUniqueName().equals(uniqueName)) {
+			return feature;
+		}
+		else {
+			Collection<? extends AbstractSingleLocationBioFeature> children = feature.getChildren();
+			if (children.size() > 0) {
+				for (AbstractSingleLocationBioFeature child : children) {
+					AbstractSingleLocationBioFeature c = findFeature(child, uniqueName);
+					if (c != null) {
+						return c;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private void addSourceToFeature(AbstractSingleLocationBioFeature feature, Feature sourceFeature) {
+		if (feature.getFeatureLocations().size() > 0) {
+			feature.getFeatureLocations().iterator().next().setSourceFeature(sourceFeature);
+		}
+		for (AbstractSingleLocationBioFeature child : feature.getChildren()) {
+			addSourceToFeature(child, sourceFeature);
+		}
+	}
+	
+	private class UniqueNamePositionComparator implements Comparator<String> {
+
+		BioObjectUtil.FeaturePositionComparator<AbstractSingleLocationBioFeature> comparator;
+		
+		public UniqueNamePositionComparator() {
+			comparator = new BioObjectUtil.FeaturePositionComparator<AbstractSingleLocationBioFeature>(false);
+		}
+		
+		public int compare(String uniqueName1, String uniqueName2) {
+			
+			Object foo = getFeatureByUniqueName(uniqueName1);
+			Object bar = getFeatureByUniqueName(uniqueName2);
+			if (foo == null) {
+				getFeatureByUniqueName(uniqueName1);
+			}
+			if (bar == null) {
+				getFeatureByUniqueName(uniqueName2);
+			}
+			
+			return comparator.compare(getFeatureByUniqueName(uniqueName1), getFeatureByUniqueName(uniqueName2));
+		}
+		
+		public int compare(AbstractSingleLocationBioFeature feature1, AbstractSingleLocationBioFeature feature2) {
+			return comparator.compare(feature1, feature2);
+		}
+		
+	}
+
+}

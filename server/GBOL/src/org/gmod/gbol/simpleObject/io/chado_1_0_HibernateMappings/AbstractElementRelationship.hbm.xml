@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractElementRelationship" table="element_relationship">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Sometimes we want to combine measurements from multiple elements to get a composite value. Affymetrix combines many probes to form a probeset measurement, for
+        instance.</comment>
+
+        <id name="elementRelationshipId" type="java.lang.Integer">
+            <column name="element_relationship_id" />
+
+            <generator class="sequence">
+                <param name="sequence">element_relationship_element_relationship_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="element_relationship_id" insert="false" />
+
+        <many-to-one name="subjectElement" class="org.gmod.gbol.simpleObject.Element" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="subject_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="objectElement" class="org.gmod.gbol.simpleObject.Element" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="object_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <column name="value" />
+        </property>
+
+        <property name="rank" type="int">
+            <column name="rank" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

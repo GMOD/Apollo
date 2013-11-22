@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractMAGEDocumentation" table="magedocumentation">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="mageDocumentationId" type="java.lang.Integer">
+            <column name="magedocumentation_id" />
+
+            <generator class="sequence">
+                <param name="sequence">magedocumentation_magedocumentation_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="magedocumentation_id" insert="false" />
+
+        <many-to-one name="tableInfo" class="org.gmod.gbol.simpleObject.TableInfo" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="tableinfo_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="mageml" class="org.gmod.gbol.simpleObject.MAGEML" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="mageml_id" not-null="true" />
+        </many-to-one>
+
+        <property name="rowId" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="row_id" not-null="true" />
+        </property>
+
+        <property name="mageIdentifier" type="string">
+            <column name="mageidentifier" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

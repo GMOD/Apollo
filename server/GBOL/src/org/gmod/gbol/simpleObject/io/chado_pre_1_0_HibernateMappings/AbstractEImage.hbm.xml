@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractEImage" table="eimage">
+        <meta attribute="chadoModule" inherit="false">expression</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="eImageId" type="java.lang.Integer">
+            <column name="eimage_id" />
+
+            <generator class="sequence">
+                <param name="sequence">eimage_eimage_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="eimage_id" insert="false" />
+
+        <property name="data" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="eimage_data">
+                <comment>We expect images in eimage_data (e.g. JPEGs) to be uuencoded.</comment>
+            </column>
+        </property>
+
+        <property name="type" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="eimage_type" not-null="true">
+                <comment>Describes the type of data in eimage_data.</comment>
+            </column>
+        </property>
+
+        <property name="imageUri" type="string">
+            <column name="image_uri" />
+        </property>
+
+        <set name="expressionImages" inverse="true">
+            <key>
+                <column name="eimage_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ExpressionImage" />
+        </set>
+    </class>
+</hibernate-mapping>
+

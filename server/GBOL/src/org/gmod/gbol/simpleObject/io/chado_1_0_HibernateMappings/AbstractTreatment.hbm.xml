@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractTreatment" table="treatment">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A biomaterial may undergo multiple treatments. Examples of treatments: apoxia, fluorophore and biotin labeling.</comment>
+
+        <id name="treatmentId" type="java.lang.Integer">
+            <column name="treatment_id" />
+
+            <generator class="sequence">
+                <param name="sequence">treatment_treatment_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="treatment_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="protocol" class="org.gmod.gbol.simpleObject.Protocol" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="protocol_id" />
+        </many-to-one>
+
+        <many-to-one name="biomaterial" class="org.gmod.gbol.simpleObject.Biomaterial" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="biomaterial_id" not-null="true" />
+        </many-to-one>
+
+        <property name="rank" type="int">
+            <column name="rank" not-null="true" />
+        </property>
+
+        <property name="name" type="string">
+            <column name="name" />
+        </property>
+
+        <set name="biomaterialTreatments" inverse="true">
+            <key>
+                <column name="treatment_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.BiomaterialTreatment" />
+        </set>
+    </class>
+</hibernate-mapping>
+

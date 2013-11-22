@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractExpression" table="expression">
+        <meta attribute="chadoModule" inherit="false">expression</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>The expression table is essentially a bridge table.</comment>
+
+        <id name="expressionId" type="java.lang.Integer">
+            <column name="expression_id" />
+
+            <generator class="sequence">
+                <param name="sequence">expression_expression_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="expression_id" insert="false" />
+
+        <property name="uniquename" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true" unique="true" />
+        </property>
+
+        <property name="md5checksum" type="string">
+            <column name="md5checksum" length="32" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <set name="expressionProperties" inverse="true">
+            <key>
+                <column name="expression_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ExpressionProperty" />
+        </set>
+
+        <set name="expressionPublications" inverse="true">
+            <key>
+                <column name="expression_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ExpressionPublication" />
+        </set>
+
+        <set name="featureExpressions" inverse="true">
+            <key>
+                <column name="expression_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureExpression" />
+        </set>
+
+        <set name="expressionImages" inverse="true">
+            <key>
+                <column name="expression_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ExpressionImage" />
+        </set>
+
+        <set name="expressionCVTerms" inverse="true">
+            <key>
+                <column name="expression_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ExpressionCVTerm" />
+        </set>
+    </class>
+</hibernate-mapping>
+

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractElementResult" table="elementresult">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>An element on an array produces a measurement when hybridized to a biomaterial (traceable through quantification_id). This is the base data from which tables that
+        actually contain data inherit.</comment>
+
+        <id name="elementResultId" type="java.lang.Integer">
+            <column name="elementresult_id" />
+
+            <generator class="sequence">
+                <param name="sequence">elementresult_elementresult_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="elementresult_id" insert="false" />
+
+        <many-to-one name="element" class="org.gmod.gbol.simpleObject.Element" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="element_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="quantification" class="org.gmod.gbol.simpleObject.Quantification" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="quantification_id" not-null="true" />
+        </many-to-one>
+
+        <property name="signal" type="double">
+            <column name="signal" precision="17" scale="17" not-null="true" />
+        </property>
+
+        <set name="childElementResultRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ElementResultRelationship" />
+        </set>
+
+        <set name="parentElementResultRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ElementResultRelationship" />
+        </set>
+    </class>
+</hibernate-mapping>
+

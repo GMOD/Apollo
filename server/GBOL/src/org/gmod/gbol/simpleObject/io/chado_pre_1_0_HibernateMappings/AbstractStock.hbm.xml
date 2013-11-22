@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractStock" table="stock">
+        <meta attribute="chadoModule" inherit="false">stock</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Any stock can be globally identified by the combination of organism, uniquename and stock type. A stock is the physical entities, either living or preserved, held
+        by collections. Stocks belong to a collection; they have IDs, type, organism, description and may have a genotype.</comment>
+
+        <id name="stockId" type="java.lang.Integer">
+            <column name="stock_id" />
+
+            <generator class="sequence">
+                <param name="sequence">stock_stock_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="stock_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>The type_id foreign key links to a controlled vocabulary of stock types. The would include living stock, genomic DNA, preserved specimen. Secondary
+                cvterms for stocks would go in stock_cvterm.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id">
+                <comment>The dbxref_id is an optional primary stable identifier for this stock. Secondary indentifiers and external dbxrefs go in table: stock_dbxref.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="organism" class="org.gmod.gbol.simpleObject.Organism" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="organism_id" not-null="true">
+                <comment>The organism_id is the organism to which the stock belongs. This column is mandatory.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="name" type="string">
+            <column name="name">
+                <comment>The name is a human-readable local name for a stock.</comment>
+            </column>
+        </property>
+
+        <property name="uniqueName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description">
+                <comment>The description is the genetic description provided in the stock list.</comment>
+            </column>
+        </property>
+
+        <property name="isObsolete" type="boolean">
+            <column name="is_obsolete" not-null="true" />
+        </property>
+
+        <set name="parentStockRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true">
+                    <comment>stock_relationship.subject_id is the subject of the subj-predicate-obj sentence. This is typically the substock.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockRelationship" />
+        </set>
+
+        <set name="stockPublications" inverse="true">
+            <key>
+                <column name="stock_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockPublication" />
+        </set>
+
+        <set name="stockDBXrefs" inverse="true">
+            <key>
+                <column name="stock_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockDBXref" />
+        </set>
+
+        <set name="stockProperties" inverse="true">
+            <key>
+                <column name="stock_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockProperty" />
+        </set>
+
+        <set name="childStockRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true">
+                    <comment>stock_relationship.object_id is the object of the subj-predicate-obj sentence. This is typically the container stock.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockRelationship" />
+        </set>
+
+        <set name="stockCVTerms" inverse="true">
+            <key>
+                <column name="stock_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockCVTerm" />
+        </set>
+
+        <set name="stockGenotypes" inverse="true">
+            <key>
+                <column name="stock_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockGenotype" />
+        </set>
+    </class>
+</hibernate-mapping>
+

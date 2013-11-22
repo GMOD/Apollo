@@ -1,0 +1,2534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+    
+  
+  <!-- Ignore views. I don't know why you can't just configure this once but hibernate tools treats views as tables. -->
+  <table-filter match-name="all_feature_names" exclude="true"/>
+  <table-filter exclude="true" match-name="common_ancestor_cvterm"/>
+  <table-filter exclude="true" match-name="common_descendant_cvterm"/>
+  <table-filter exclude="true" match-name="cv_cvterm_count"/>
+  <table-filter exclude="true" match-name="cv_cvterm_count_with_obs"/>
+  <table-filter exclude="true" match-name="cv_leaf"/>
+  <table-filter exclude="true" match-name="cv_link_count"/>
+  <table-filter exclude="true" match-name="cv_path_count"/>
+  <table-filter exclude="true" match-name="cv_root"/>
+  <table-filter exclude="true" match-name="db_dbxref_count"/>
+  <table-filter exclude="true" match-name="dfeatureloc"/>
+  <table-filter exclude="true" match-name="f_loc"/>
+  <table-filter exclude="true" match-name="f_type"/>
+  <table-filter exclude="true" match-name="feature_contains"/>
+  <table-filter exclude="true" match-name="feature_difference"/>
+  <table-filter exclude="true" match-name="feature_disjoint"/>
+  <table-filter exclude="true" match-name="feature_distance"/>
+  <table-filter exclude="true" match-name="feature_intersection"/>
+  <table-filter exclude="true" match-name="feature_meets"/>
+  <table-filter exclude="true" match-name="feature_meets_on_same_strand"/>
+  <table-filter exclude="true" match-name="feature_union"/>
+  <table-filter exclude="true" match-name="featureset_meets"/>
+  <table-filter exclude="true" match-name="fnr_type"/>
+  <table-filter exclude="true" match-name="fp_key"/>
+  <table-filter exclude="true" match-name="gff3atts"/>
+  <table-filter exclude="true" match-name="gff3view"/>
+  <table-filter exclude="true" match-name="gffatts"/>
+  <table-filter exclude="true" match-name="intron_combined_view"/>
+  <table-filter exclude="true" match-name="intronloc_view"/>
+  <table-filter exclude="true" match-name="stats_paths_to_root"/>
+  <table-filter exclude="true" match-name="type_feature_count"/>
+  
+  <table-filter exclude="true" match-name="materialized_view"/>
+  
+    
+  <table-filter match-name=".*" package="org.gmod.gbol.simpleObject" match-schema="public">
+    <meta attribute="extends">org.gmod.gbol.simpleObject.AbstractSimpleObject</meta>
+  </table-filter>
+  
+  
+  <table schema="public" name="acquisition" class="Acquisition">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">acquisition_acquisition_id_seq</param>
+      </generator>
+    </primary-key>
+    
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    
+    <column name="acquisitiondate" property="acquisitionDate"/>
+    <foreign-key constraint-name="acquisition_relationship_subject_id_fkey">
+      <many-to-one property="subjectAcquisition"/>
+      <set property="parentAcquisitionRelationships"/>
+    </foreign-key>  
+    <foreign-key constraint-name="acquisition_relationship_object_id_fkey">
+      <many-to-one property="objectAcquisition"/>
+      <set property="childAcquisitionRelationships"/>
+    </foreign-key>
+    
+  </table>
+    
+  <table schema="public" name="acquisitionprop" class="AcquisitionProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="acquisitionPropertyId">
+      <generator class="sequence">
+        <param name="sequence">acquisitionprop_acquisitionprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="acquisition_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="acquisition_relationship" class="AcquisitionRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">acquisition_relationship_acquisition_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="analysis" class="Analysis">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">analysis</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">analysis_analysis_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="program"><meta attribute="use-in-equals">true</meta></column>
+    <column name="programversion" property="programVersion"><meta attribute="use-in-equals">true</meta></column>
+    <column name="sourcename" property="sourceName"><meta attribute="use-in-equals">true</meta></column>
+    <column name="sourceversion" property="sourceVersion"/>
+    <column name="sourceuri" property="sourceURI"/>
+    <column name="timeexecuted" property="timeExecuted"/>
+    <foreign-key constraint-name="quantification_analysis_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylotree_analysis_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="analysisfeature" class="AnalysisFeature">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">analysis</meta>
+    <primary-key property="analysisFeatureId">
+      <generator class="sequence">
+        <param name="sequence">analysisfeature_analysisfeature_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="rawscore" property="rawScore"/>
+    <column name="normscore" property="normalizedScore"/>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="analysis_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="analysisprop" class="AnalysisProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">analysis</meta>
+    <primary-key property="analysisPropertyId">
+      <generator class="sequence">
+        <param name="sequence">analysisprop_analysisprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="analysis_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="value"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="arraydesign" class="ArrayDesign">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="arrayDesignId">
+      <generator class="sequence">
+        <param name="sequence">arraydesign_arraydesign_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="num_of_elements" property="numberOfElements"/>
+    <column name="num_array_columns" property="numberOfArrayColumns"/>
+    <column name="num_array_rows" property="numberOfArrayRows"/>
+    <column name="num_grid_columns" property="numberOfGridColumns"/>
+    <column name="num_grid_rows" property="numberOfGridRows"/>
+    <column name="num_sub_columns" property="numberOfSubColumns"/>
+    <column name="num_sub_rows" property="numberOfSubRows"/>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="arraydesignprop" class="ArrayDesignProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="arrayDesignPropertyId">
+      <generator class="sequence">
+        <param name="sequence">arraydesignprop_arraydesignprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="arraydesign_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="assay" class="Assay">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">assay_assay_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <column name="assaydate" property="assayDate"/>
+    <column name="arrayidentifier" property="arrayIdentifier"/>
+    <column name="arraybatchidentifier"  property="arrayBatchIdentifier"/>
+    <foreign-key constraint-name="assay_arraydesign_id_fkey">
+      <set property="assays"/>
+    </foreign-key>
+    <foreign-key constraint-name="study_assay_assay_id_fkey">
+      <set property="studyAssays"/>
+    </foreign-key>
+    <foreign-key constraint-name="studyfactorvalue_assay_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    
+  </table>
+  
+  <table schema="public" name="assay_biomaterial" class="AssayBiomaterial">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">assay_biomaterial_assay_biomaterial_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="assay_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="biomaterial_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="channel_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="assay_project" class="AssayProject">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">assay_project_assay_project_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="assay_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="project_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="assayprop" class="AssayProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="assayPropertyId">
+      <generator class="sequence">
+        <param name="sequence">assayprop_assayprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="assay_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="biomaterial" class="Biomaterial">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">biomaterial_biomaterial_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="biomaterial_dbxref" class="BiomaterialDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="biomaterialDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">biomaterial_dbxref_biomaterial_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="biomaterial_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="biomaterial_relationship" class="BiomaterialRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">biomaterial_relationship_biomaterial_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="biomaterial_relationship_subject_id_fkey">
+      <many-to-one property="subjectBiomaterial"/>
+      <set property="parentBiomaterialRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="biomaterial_relationship_object_id_fkey">
+      <many-to-one property="objectBiomaterial"/>
+      <set property="childBiomaterialRelationships"/>
+    </foreign-key>
+
+  </table>
+  
+  <table schema="public" name="biomaterial_treatment" class="BiomaterialTreatment">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">biomaterial_treatment_biomaterial_treatment_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="biomaterial_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="treatment_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="biomaterialprop" class="BiomaterialProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="biomaterialPropertyId">
+      <generator class="sequence">
+        <param name="sequence">biomaterialprop_biomaterialprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="biomaterial_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="channel" class="Channel">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">channel_channel_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="acquisition_channel_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="assay_biomaterial_channel_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    
+  </table>
+  
+  <table schema="public" name="contact" class="Contact">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">contact</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">contact_contact_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="contact_relationship_object_id_fkey">
+      <many-to-one property="objectContact"/>
+      <set property="childContactRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="contact_relationship_subject_id_fkey">
+      <many-to-one property="subjectContact"/>
+      <set property="parentContactRelationships"/>
+    </foreign-key>
+    
+    <foreign-key constraint-name="arraydesign_manufacturer_id_fkey">
+      <many-to-one property="manufacturer"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="assay_operator_id_fkey">
+      <many-to-one property="operator"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="biomaterial_biosourceprovider_id_fkey">
+      <many-to-one property="sourceProvider"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockcollection_contact_id_fkey">
+      <many-to-one property="contact"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="study_contact_id_fkey">
+      <many-to-one property="contact"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="quantification_operator_id_fkey">
+      <many-to-one property="operator"/>
+      <set exclude="true"/>
+    </foreign-key>
+    
+  </table>
+  
+  <table schema="public" name="contact_relationship" class="ContactRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">contact</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">contact_relationship_contact_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="control" class="Control">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">control_control_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="assay_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="tableinfo_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="row_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="cv" class="CV">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">cv_cv_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="cvtermpath_cv_id_fkey">
+      <many-to-one property="cv"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvterm_cv_id_fkey">
+      <many-to-one property="cv"/>
+    </foreign-key>
+    
+  </table>
+  
+  <table schema="public" name="cvterm" class="CVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="cvtermId">
+      <generator class="sequence">
+        <param name="sequence">cvterm_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="cv_id">
+    	<meta attribute="use-in-equals">true</meta>
+    </column>
+    <column name="name">
+    	<meta attribute="use-in-equals">true</meta>
+    </column>
+    <column name="is_obsolete">
+    	<meta attribute="use-in-equals">true</meta>
+    </column>
+    <column name="is_relationshiptype" property="isRelationshipType"/>
+    
+    <foreign-key constraint-name="cvterm_cv_id_fkey">
+      <set property="cvterms"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvterm_relationship_subject_id_fkey">
+      <many-to-one property="subjectCVTerm"/>
+      <set property="parentCVTermRelationships"/>
+    </foreign-key>  
+    <foreign-key constraint-name="cvterm_relationship_object_id_fkey">
+      <many-to-one property="objectCVTerm"/>
+      <set property="childCVTermRelationships"/>
+    </foreign-key>
+    
+    <foreign-key constraint-name="cvtermpath_object_id_fkey">
+      <many-to-one property="objectCVTerm"/>
+      <set property="childCVTermPaths"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvtermpath_subject_id_fkey">
+      <many-to-one property="subjectCVTerm"/>
+      <set property="parentCVTermPaths"/>
+    </foreign-key>
+    
+    <foreign-key constraint-name="acquisitionprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="acquisition_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="analysisprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="arraydesign_platformtype_id_fkey">
+      <many-to-one property="platformType"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="arraydesign_substratetype_id_fkey">
+      <many-to-one property="substrateType"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="arraydesignprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="assayprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="biomaterialprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="biomaterial_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>    
+    <foreign-key constraint-name="biomaterial_treatment_unittype_id_fkey">
+      <many-to-one property="unitType"/>
+      <set exclude="true"/>
+    </foreign-key>  
+    <foreign-key constraint-name="contact_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key> 
+    <foreign-key constraint-name="contact_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="control_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_assay_id_fkey">
+      <many-to-one property="assay"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_attr_id_fkey">
+      <many-to-one property="attribute"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_cvalue_id_fkey">
+      <many-to-one property="cvalue"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_observable_id_fkey">
+      <many-to-one property="observable"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="dbxrefprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonodeprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_expressionprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="quantificationprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="organismprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="libraryprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="pub_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_genotype_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phendesc_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvtermprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvtermprop_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_pubprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockcollection_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="elementresult_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="protocolparam_datatype_id_fkey">
+      <many-to-one property="datatype"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="environment_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="studyprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockcollection_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_relationshipprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="expression_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="expression_cvterm_cvterm_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="expressionprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="treatment_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylotree_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="expression_cvtermprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="synonym_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvterm_dbxref_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvterm_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="studyprop_feature_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="studydesignprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="pubprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featureprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="pub_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="quantification_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="element_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="element_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenstatement_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_cvtermprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_cvterm_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featuremap_unittype_id_fkey">
+      <many-to-one property="unitType"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvtermsynonym_cvterm_id_fkey">
+      <many-to-one property="cvterm"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvtermsynonym_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="protocolparam_datatype_id_fkey">
+      <many-to-one property="dataType"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="protocolparam_unittype_id_fkey">
+      <many-to-one property="unitType"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="protocol_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockcollectionprop_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="studyfactor_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_relationship_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvtermpath_type_id_fkey">
+      <many-to-one property="type"/>
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="cvterm_dbxref" class="CVTermDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="cvtermDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">cvterm_dbxref_cvterm_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="cvterm_relationship" class="CVTermRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="cvtermRelationshipId">
+      <generator class="sequence">
+        <param name="sequence">cvterm_relationship_cvterm_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="cvtermpath" class="CVTermPath">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="cvtermPathId">
+      <generator class="sequence">
+        <param name="sequence">cvtermpath_cvtermpath_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="pathdistance" property="pathDistance"><meta attribute="use-in-equals">true</meta></column>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="cvtermprop" class="CVTermProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="cvtermPropertyId">
+      <generator class="sequence">
+        <param name="sequence">cvtermprop_cvtermprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="value"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="cvtermsynonym" class="CVTermSynonym">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="cvtermSynonym">
+      <generator class="sequence">
+        <param name="sequence">cvtermsynonym_cvtermsynonym_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="synonym"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="db" class="DB">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">general</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">db_db_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <column name="urlprefix" property="urlPrefix"/>
+    
+    <foreign-key constraint-name="dbxref_db_id_fkey">
+      <many-to-one property="db"/>
+      <set exclude="true"/>
+    </foreign-key>
+    
+  </table>
+  
+  <table schema="public" name="dbxref" class="DBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">general</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">dbxref_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="db_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="accession"><meta attribute="use-in-equals">true</meta></column>
+    <column name="version"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="arraydesign_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="assay_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="biomaterial_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="biomaterial_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvterm_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="study_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="protocol_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="dbxrefprop_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set property="dbxrefProperties"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_cvterm_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="pub_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="organism_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="element_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="cvterm_dbxref_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylotree_dbxref_id_fkey">
+      <many-to-one property="dbxref"/>
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="dbxrefprop" class="DBXrefProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">cv</meta>
+    <primary-key property="dbxrefPropertyId">
+      <generator class="sequence">
+        <param name="sequence">dbxrefprop_dbxrefprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="eimage" class="EImage">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key property="eImageId">
+      <generator class="sequence">
+        <param name="sequence">eimage_eimage_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="eimage_data" property="data"><meta attribute="use-in-equals">true</meta></column>
+    <column name="eimage_type" property="type"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="expression_image_eimage_id_fkey">
+      <many-to-one property="eImage"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="element" class="Element">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">element_element_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="arraydesign_id"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="element_relationship_subject_id_fkey">
+      <many-to-one property="subjectElement"/>
+      <set property="parentElementRelationships"/>
+    </foreign-key>  
+    <foreign-key constraint-name="element_relationship_object_id_fkey">
+      <many-to-one property="objectElement"/>
+      <set property="childElementRelationships"/>
+    </foreign-key>
+    
+  </table>
+  
+  <table schema="public" name="elementresult" class="ElementResult">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="elementResultId">
+      <generator class="sequence">
+        <param name="sequence">elementresult_elementresult_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="element_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="quantification_id"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="elementresult_relationship_subject_id_fkey">
+      <many-to-one property="subjectElementResult"/>
+      <set property="parentElementResultRelationships"/>
+    </foreign-key>  
+    <foreign-key constraint-name="elementresult_relationship_object_id_fkey">
+      <many-to-one property="objectElementResult"/>
+      <set property="childElementResultRelationships"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="elementresult_relationship" class="ElementResultRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="elementResultRelationshipId">
+      <generator class="sequence">
+        <param name="sequence">elementresult_relationship_elementresult_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="element_relationship" class="ElementRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">element_relationship_element_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="environment" class="Environment">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">environment_environment_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="uniquename"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="phenotype_comparison_environment2_id_fkey">
+      <many-to-one property="environment2"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_environment1_id_fkey">
+      <many-to-one property="environment1"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenstatement_environment_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phendesc_environment_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="environment_cvterm" class="EnvironmentCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">environment_cvterm_environment_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="environment_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="expression" class="Expression">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">expression_expression_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="uniquename"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="expression_cvterm" class="ExpressionCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key property="expressionCVTermId">
+      <generator class="sequence">
+        <param name="sequence">expression_cvterm_expression_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="expression_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="expression_cvtermprop" class="ExpressionCVTermProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key property="expressionCVTermPropertyId">
+      <generator class="sequence">
+        <param name="sequence">expression_cvtermprop_expression_cvtermprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="expression_cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="expression_image" class="ExpressionImage">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">expression_image_expression_image_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="expression_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="eimage_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="expression_pub" class="ExpressionPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key property="expressionPublicationId">
+      <generator class="sequence">
+        <param name="sequence">expression_pub_expression_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="expression_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="expressionprop" class="ExpressionProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key property="expressionPropertyId">
+      <generator class="sequence">
+        <param name="sequence">expressionprop_expressionprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="expression_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature" class="Feature">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">feature_feature_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <column name="organism_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="seqlen" property="sequenceLength"/>
+    <column name="timeaccessioned" property="timeAccessioned"/>
+    <column name="timelastmodified" property="timeLastModified"/>
+    <foreign-key constraint-name="feature_expression_feature_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featureloc_feature_id_fkey">
+      <many-to-one property="feature"/>
+      <set property="featureLocations"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_genotype_feature_id_fkey">
+      <many-to-one property="feature"/>
+      <set property="featureGenotypes"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurerange_feature_id_fkey">
+      <many-to-one property="feature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_feature_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurerange_leftendf_id_fkey">
+      <many-to-one property="leftEndFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurerange_leftstartf_id_fkey">
+      <many-to-one property="leftStartFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurerange_rightendf_id_fkey">
+      <many-to-one property="rightEndFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurerange_rightstartf_id_fkey">
+      <many-to-one property="rightStartFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featureloc_srcfeature_id_fkey">
+      <many-to-one property="sourceFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    
+    <foreign-key constraint-name="feature_relationship_subject_id_fkey">
+      <many-to-one property="subjectFeature"/>
+      <set property="parentFeatureRelationships"/>
+    </foreign-key>  
+    <foreign-key constraint-name="feature_relationship_object_id_fkey">
+      <many-to-one property="objectFeature"/>
+      <set property="childFeatureRelationships"/>
+    </foreign-key>
+    
+    <foreign-key constraint-name="library_feature_feature_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurepos_feature_id_fkey">
+      <many-to-one property="feature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_genotype_chromosome_id_fkey">
+      <many-to-one property="chromosomeFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="studyprop_feature_feature_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="element_feature_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="analysisfeature_feature_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featurepos_map_feature_id_fkey">
+      <many-to-one property="mapFeature"/>
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="feature_cvterm" class="FeatureCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureCVTermId">
+      <generator class="sequence">
+        <param name="sequence">feature_cvterm_feature_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_cvterm_dbxref" class="FeatureCVTermDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureCVTermDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">feature_cvterm_dbxref_feature_cvterm_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_cvterm_pub" class="FeatureCVTermPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureCVTermPublicationId">
+      <generator class="sequence">
+        <param name="sequence">feature_cvterm_pub_feature_cvterm_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_cvtermprop" class="FeatureCVTermProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureCVTermPropertyId">
+      <generator class="sequence">
+        <param name="sequence">feature_cvtermprop_feature_cvtermprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_dbxref" class="FeatureDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">feature_dbxref_feature_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_expression" class="FeatureExpression">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">feature_expression_feature_expression_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="expression_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_expressionprop" class="FeatureExpressionProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">expression</meta>
+    <primary-key property="featureExpressionPropertyId">
+      <generator class="sequence">
+        <param name="sequence">feature_expressionprop_feature_expressionprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_expression_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_genotype" class="FeatureGenotype">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">feature_genotype_feature_genotype_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="genotype_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="chromosome_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cgroup"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_phenotype" class="FeaturePhenotype">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">feature_phenotype_feature_phenotype_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="phenotype_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_pub" class="FeaturePublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featurePublicationId">
+      <generator class="sequence">
+        <param name="sequence">feature_pub_feature_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_pubprop" class="FeaturePublicationProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featurePublicationPropertyId">
+      <generator class="sequence">
+        <param name="sequence">feature_pubprop_feature_pubprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_pub_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_relationship" class="FeatureRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">feature_relationship_feature_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_relationship_pub" class="FeatureRelationshipPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureRleationshipPublication">
+      <generator class="sequence">
+        <param name="sequence">feature_relationship_pub_feature_relationship_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_relationship_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_relationshipprop" class="FeatureRelationshipProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureRelationshipPropertyId">
+      <generator class="sequence">
+        <param name="sequence">feature_relationshipprop_feature_relationshipprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_relationship_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_relationshipprop_pub" class="FeatureRelationshipPropertyPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureRelationshipPropertyPublicationId">
+      <generator class="sequence">
+        <param name="sequence">feature_relationshipprop_pub_feature_relationshipprop_pub_i_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_relationshipprop_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="feature_synonym" class="FeatureSynonym">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">feature_synonym_feature_synonym_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="synonym_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featureloc" class="FeatureLocation">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureLocationId">
+      <generator class="sequence">
+        <param name="sequence">featureloc_featureloc_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="strand" property="strand" type="java.lang.Integer"/>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="locgroup"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featureloc_pub" class="FeatureLocationPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featureLocationPublicationId">
+      <generator class="sequence">
+        <param name="sequence">featureloc_pub_featureloc_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="featureloc_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featuremap" class="FeatureMap">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">map</meta>
+    <primary-key property="featureMapId">
+      <generator class="sequence">
+        <param name="sequence">featuremap_featuremap_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featuremap_pub" class="FeatureMapPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">map</meta>
+    <primary-key property="featureMapPublicationId">
+      <generator class="sequence">
+        <param name="sequence">featuremap_pub_featuremap_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="featuremap_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featurepos" class="FeaturePosition">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">map</meta>
+    <primary-key property="featurePositionId">
+      <generator class="sequence">
+        <param name="sequence">featurepos_featurepos_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="featuremap_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="map_feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="mappos" property="mapPosition"/>
+  </table>
+  
+  <table schema="public" name="featureprop" class="FeatureProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featurePropertyId">
+      <generator class="sequence">
+        <param name="sequence">featureprop_featureprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featureprop_pub" class="FeaturePropertyPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key property="featurePropertyPublicationId">
+      <generator class="sequence">
+        <param name="sequence">featureprop_pub_featureprop_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="featureprop_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="featurerange" class="FeatureRange">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">map</meta>
+    <primary-key property="featureRangeId">
+      <generator class="sequence">
+        <param name="sequence">featurerange_featurerange_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="featuremap_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rangestr" property="rangeString"/>
+  </table>
+  
+  <table schema="public" name="genotype" class="Genotype">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">genotype_genotype_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="phenotype_comparison_genotype1_id_fkey">
+      <many-to-one property="genotype1"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_genotype2_id_fkey">
+      <many-to-one property="genotype2"/>
+      <set exclude="true"/>
+    </foreign-key>
+    
+    <foreign-key constraint-name="stock_genotype_genotype_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="library" class="Library">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">library_library_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="organism_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <column name="timeaccessioned" property="timeAccessioned"/>
+    <column name="timelastmodified" property="timeLastModified"/>
+  </table>
+  
+  <table schema="public" name="library_cvterm" class="LibraryCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key property="libraryCVTermId">
+      <generator class="sequence">
+        <param name="sequence">library_cvterm_library_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="library_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="library_dbxref" class="LibraryDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key property="libraryDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">library_dbxref_library_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="library_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="library_feature" class="LibraryFeature">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">library_feature_library_feature_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="library_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="library_pub" class="LibraryPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key property="libraryPublicationId">
+      <generator class="sequence">
+        <param name="sequence">library_pub_library_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="library_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="library_synonym" class="LibrarySynonym">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key property="librarySynonymId">
+      <generator class="sequence">
+        <param name="sequence">library_synonym_library_synonym_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="library_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="synonym_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_Id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="libraryprop" class="LibraryProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key property="libraryPropertyId">
+      <generator class="sequence">
+        <param name="sequence">libraryprop_libraryprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="library_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="libraryprop_pub" class="LibraryPropertyPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">library</meta>
+    <primary-key property="libraryPropertyPublicationId">
+      <generator class="sequence">
+        <param name="sequence">libraryprop_pub_libraryprop_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="libraryprop_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="magedocumentation" class="MAGEDocumentation">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="mageDocumentationId">
+      <generator class="sequence">
+        <param name="sequence">magedocumentation_magedocumentation_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="mageml_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="tableinfo_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="row_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="mageidentifier" property="mageIdentifier"/>
+  </table>
+  
+  <table schema="public" name="mageml" class="MAGEML">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">mageml_mageml_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="mage_ml" property="mageml"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="magedocumentation_mageml_id_fkey">
+      <many-to-one property="mageml"/>
+      <set property="mageDocuments"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="organism" class="Organism">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">organism</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">organism_organism_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="genus"><meta attribute="use-in-equals">true</meta></column>
+    <column name="species"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="biomaterial_taxon_id_fkey">
+      <many-to-one property="taxon"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_organism_organism_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_organism_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_organism_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_organism_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_organism_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="organism_dbxref" class="OrganismDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">organism</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">organism_dbxref_organism_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="organism_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="organismprop" class="OrganismProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">organism</meta>
+    <primary-key property="organismPropertyId">
+      <generator class="sequence">
+        <param name="sequence">organismprop_organismprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="organism_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phendesc" class="PhenotypeDescription">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key property="phenotypeDescriptionId">
+      <generator class="sequence">
+        <param name="sequence">phendesc_phendesc_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="genotype_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="environment_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phenotype" class="Phenotype">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">phenotype_phenotype_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="phenotype_comparison_phenotype1_id_fkey">
+      <many-to-one property="phenotype1"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_phenotype2_id_fkey">
+      <many-to-one property="phenotype2"/>
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="phenotype_comparison" class="PhenotypeComparison">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">phenotype_comparison_phenotype_comparison_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="genotype1_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="environment1_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="genotype2_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="environment2_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="phenotype1_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phenotype_comparison_cvterm" class="PhenotypeComparisonCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key property="phenotypeComparisonCVTermId">
+      <generator class="sequence">
+        <param name="sequence">phenotype_comparison_cvterm_phenotype_comparison_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phenotype_comparison_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phenotype_cvterm" class="PhenotypeCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key property="phenotypeCVTermId">
+      <generator class="sequence">
+        <param name="sequence">phenotype_cvterm_phenotype_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phenotype_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phenstatement" class="PhenotypeStatement">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">genetic</meta>
+    <primary-key property="phenotypeStatementId">
+      <generator class="sequence">
+        <param name="sequence">phenstatement_phenstatement_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="genotype_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="phenotype_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="environment_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phylonode" class="PhylogeneticNode">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticNodeId">
+      <generator class="sequence">
+        <param name="sequence">phylonode_phylonode_id_seq</param>
+      </generator>
+    </primary-key>
+    
+    <!-- This is wrong for equals calulation... but needes something-->
+    <column name="label"><meta attribute="use-in-equals">true</meta></column>
+    
+    <column name="left_idx" property="leftIndex"/>
+    <column name="right_idx" property="rightIndex"/>
+    <foreign-key constraint-name="phylonode_parent_phylonode_id_fkey">
+      <many-to-one property="parentPhylogeneticNode"/>
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_relationship_subject_id_fkey">
+      <many-to-one property="subjectPhylogeneticNode"/>
+      <set property="parentPhylogeneticNodeRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_relationship_object_id_fkey">
+      <many-to-one property="objectPhylogeneticNode"/>
+      <set property="childPhylogeneticNodeRelationships"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="phylonode_dbxref" class="PhylogeneticNodeDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticNodeDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">phylonode_dbxref_phylonode_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phylonode_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phylonode_organism" class="PhylogeneticNodeOrganism">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticNodeOrganismId">
+      <generator class="sequence">
+        <param name="sequence">phylonode_organism_phylonode_organism_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phylonode-id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phylonode_pub" class="PhylogeneticNodePublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticNodePublicationId">
+      <generator class="sequence">
+        <param name="sequence">phylonode_pub_phylonode_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phylonode_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phylonode_relationship" class="PhylogeneticNodeRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticNodeRelationshipId">
+      <generator class="sequence">
+        <param name="sequence">phylonode_relationship_phylonode_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phylonodeprop" class="PhylogeneticNodeProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticNodePropertyId">
+      <generator class="sequence">
+        <param name="sequence">phylonodeprop_phylonodeprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phylonode_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="value"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="phylotree" class="PhylogeneticTree">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticTreeId">
+      <generator class="sequence">
+        <param name="sequence">phylotree_phylotree_id_seq</param>
+      </generator>
+    </primary-key>
+    <!-- Probably wrong equals calculation -->
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="phylonode_relationship_phylotree_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="phylotree_pub" class="PhylogeneticTreePublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">phylogeny</meta>
+    <primary-key property="phylogeneticTreePublicationId">
+      <generator class="sequence">
+        <param name="sequence">phylotree_pub_phylotree_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="phylotree_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="project" class="Project">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">general</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">project_project_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="protocol" class="Protocol">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">protocol_protocol_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="protocoldescription" property="protocolDescription"/>
+    <column name="hardwaredescription" property="hardwareDescription"/>
+    <column name="softwaredescription" property="softwareDescription"/>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="treatment_protocol_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="acquisition_protocol_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="arraydesign_protocol_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="assay_protocol_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="quantification_protocol_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="protocolparam" class="ProtocolParameter">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="protocolParameterId">
+      <generator class="sequence">
+        <param name="sequence">protocolparam_protocolparam_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="protocol_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="pub" class="Publication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">publication</meta>
+    <primary-key property="publicationId">
+      <generator class="sequence">
+        <param name="sequence">pub_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="volumetitle" property="volumeTitle"/>
+    <column name="pyear" property="publicationYear"/>
+    <column name="miniref" property="miniReference"/>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pubplace" property="publicationPlace"/>
+    <foreign-key constraint-name="pub_relationship_object_id_fkey">
+      <many-to-one property="objectPublication"/>
+      <set property="childPublicationRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="pub_relationship_subject_id_fkey">
+      <many-to-one property="subjectPublication"/>
+      <set property="parentPublicationRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="expression_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_expression_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_cvterm_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_relationship_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="protocol_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_cvterm_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phendesc_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_synonym_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featuremap_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="pubprop_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featureloc_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="library_synonym_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="study_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockprop_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenstatement_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylotree_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_relationship_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phenotype_comparison_cvterm_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="featureprop_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_cvterm_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_cvterm_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_relationshipprop_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="phylonode_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="libraryprop_pub_pub_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="pub_dbxref" class="PublicationDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">publication</meta>
+    <primary-key property="publicationDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">pub_dbxref_pub_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="pub_relationship" class="PublicationRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">publication</meta>
+    <primary-key property="publicationRelationshipId">
+      <generator class="sequence">
+        <param name="sequence">pub_relationship_pub_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="pubauthor" class="PublicationAuthor">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">publication</meta>
+    <primary-key property="publicationAuthorId">
+      <generator class="sequence">
+        <param name="sequence">pubauthor_pubauthor_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+    <column name="givennames" property="givenNames"/>
+  </table>
+  
+  <table schema="public" name="pubprop" class="PublicationProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">publication</meta>
+    <primary-key property="publicationPropertyId">
+      <generator class="sequence">
+        <param name="sequence">pubprop_pubprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="quantification" class="Quantification">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">quantification_quantification_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <column name="analysis_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="quantificationdate" property="quantificationDate"/>
+    <foreign-key constraint-name="elementresult_quantification_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="quantification_relationship_object_id_fkey">
+      <many-to-one property="objectQuantification"/>
+      <set property="childQuantificationRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="quantification_relationship_subject_id_fkey">
+      <many-to-one property="subjectQuantification"/>
+      <set property="parentQuantificationRelationships"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="quantification_relationship" class="QuantificationRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">quantification_relationship_quantification_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="quantificationprop" class="QuantificationProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="quantificationPropertyId">
+      <generator class="sequence">
+        <param name="sequence">quantificationprop_quantificationprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="quantification_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stock" class="Stock">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">stock_stock_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="organism_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="stock_relationship_object_id_fkey">
+      <many-to-one property="objectStock"/>
+      <set property="childStockRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="stock_relationship_subject_id_fkey">
+      <many-to-one property="subjectStock"/>
+      <set property="parentStockRelationships"/>
+    </foreign-key>
+    <foreign-key constraint-name="stockcollection_stock_stock_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="stock_cvterm" class="StockCVTerm">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockCVTermId">
+      <generator class="sequence">
+        <param name="sequence">stock_cvterm_stock_cvterm_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stock_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="cvterm_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stock_dbxref" class="StockDBXref">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockDBXrefId">
+      <generator class="sequence">
+        <param name="sequence">stock_dbxref_stock_dbxref_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stock_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="dbxref_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stock_genotype" class="StockGenotype">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">stock_genotype_stock_genotype_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stock_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="genotype_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stock_pub" class="StockPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockPublicationId">
+      <generator class="sequence">
+        <param name="sequence">stock_pub_stock_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stock_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stock_relationship" class="StockRelationship">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">stock_relationship_stock_relationship_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="subject_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="object_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stock_relationship_pub" class="StockRelationshipPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockRelationshipPublicationId">
+      <generator class="sequence">
+        <param name="sequence">stock_relationship_pub_stock_relationship_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stock_relationship_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stockcollection" class="StockCollection">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockCollectionId">
+      <generator class="sequence">
+        <param name="sequence">stockcollection_stockcollection_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="uniquename" property="uniqueName"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stockcollection_stock" class="StockCollectionStock">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockCollectionStockId">
+      <generator class="sequence">
+        <param name="sequence">stockcollection_stock_stockcollection_stock_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stockcollection_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="stock_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stockcollectionprop" class="StockCollectionProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockCollectionPropertyId">
+      <generator class="sequence">
+        <param name="sequence">stockcollectionprop_stockcollectionprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stockcollection_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stockprop" class="StockProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockPropertyId">
+      <generator class="sequence">
+        <param name="sequence">stockprop_stockprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stock_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="stockprop_pub" class="StockPropertyPublication">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">stock</meta>
+    <primary-key property="stockPropertyPublicationId">
+      <generator class="sequence">
+        <param name="sequence">stockprop_pub_stockprop_pub_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="stockprop_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="pub_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="study" class="Study">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">study_study_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="study_assay_study_id_fkey">
+      <set property="studyAssays"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="study_assay" class="StudyAssay">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">study_assay_study_assay_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="study_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="assay_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="studydesign" class="StudyDesign">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="studyDesignId">
+      <generator class="sequence">
+        <param name="sequence">studydesign_studydesign_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="study_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="studydesignprop" class="StudyDesignProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="studyDesignPropertyId">
+      <generator class="sequence">
+        <param name="sequence">studydesignprop_studydesignprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="studydesign_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="studyfactor" class="StudyFactor">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="studyFactorId">
+      <generator class="sequence">
+        <param name="sequence">studyfactor_studyfactor_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="studydesign_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="studyfactorvalue" class="StudyFactorValue">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="studyFactorValueId">
+      <generator class="sequence">
+        <param name="sequence">studyfactorvalue_studyfactorvalue_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="factorvalue" property="factorValue"/>
+    <column name="studyfactor_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="assay_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="studyprop" class="StudyProperty">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="studyPropertyId">
+      <generator class="sequence">
+        <param name="sequence">studyprop_studyprop_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="study_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="rank"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="studyprop_feature" class="StudyPropertyFeature">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key property="studyPropertyFeatureId">
+      <generator class="sequence">
+        <param name="sequence">studyprop_feature_studyprop_feature_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="studyprop_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="feature_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  <table schema="public" name="synonym" class="Synonym">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">sequence</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">synonym_synonym_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="synonym_sgml" property="synonymSGML"/>
+    <foreign-key constraint-name="library_synonym_synonym_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+    <foreign-key constraint-name="feature_synonym_synonym_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="tableinfo" class="TableInfo">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">general</meta>
+    <primary-key property="tableInfoId">
+      <generator class="sequence">
+        <param name="sequence">tableinfo_tableinfo_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="name"><meta attribute="use-in-equals">true</meta></column>
+    <foreign-key constraint-name="magedocumentation_tableinfo_id_fkey">
+      <set property="mageDocuments"/>
+    </foreign-key>
+    <foreign-key constraint-name="control_tableinfo_id_fkey">
+      <set exclude="true"/>
+    </foreign-key>
+  </table>
+  
+  <table schema="public" name="treatment" class="Treatment">
+    <meta attribute="scope-class">public abstract</meta>
+    <meta attribute="chadoModule">mage</meta>
+    <primary-key>
+      <generator class="sequence">
+        <param name="sequence">treatment_treatment_id_seq</param>
+      </generator>
+    </primary-key>
+    <column name="biomaterial_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="type_id"><meta attribute="use-in-equals">true</meta></column>
+    <column name="protocol_id"><meta attribute="use-in-equals">true</meta></column>
+  </table>
+  
+  
+</hibernate-reverse-engineering>

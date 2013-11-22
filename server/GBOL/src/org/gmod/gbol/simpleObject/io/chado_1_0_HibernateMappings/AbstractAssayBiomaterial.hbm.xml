@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractAssayBiomaterial" table="assay_biomaterial">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A biomaterial can be hybridized many times (technical replicates), or combined with other biomaterials in a single hybridization (for two-channel
+        arrays).</comment>
+
+        <id name="assayBiomaterialId" type="java.lang.Integer">
+            <column name="assay_biomaterial_id" />
+
+            <generator class="sequence">
+                <param name="sequence">assay_biomaterial_assay_biomaterial_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="assay_biomaterial_id" insert="false" />
+
+        <many-to-one name="assay" class="org.gmod.gbol.simpleObject.Assay" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="assay_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="channel" class="org.gmod.gbol.simpleObject.Channel" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="channel_id" />
+        </many-to-one>
+
+        <many-to-one name="biomaterial" class="org.gmod.gbol.simpleObject.Biomaterial" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="biomaterial_id" not-null="true" />
+        </many-to-one>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

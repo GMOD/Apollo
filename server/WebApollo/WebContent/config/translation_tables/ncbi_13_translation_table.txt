@@ -1,0 +1,7 @@
+AGA	G
+AGG	G
+ATA	M
+TGA	W
+TTG	L	start
+ATA	M	start
+GTG	V	start

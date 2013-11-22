@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhenotypeComparisonCVTerm" table="phenotype_comparison_cvterm">
+        <meta attribute="chadoModule" inherit="false">genetic</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="phenotypeComparisonCVTermId" type="java.lang.Integer">
+            <column name="phenotype_comparison_cvterm_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phenotype_comparison_cvterm_phenotype_comparison_cvterm_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phenotype_comparison_cvterm_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="phenotypeComparison" class="org.gmod.gbol.simpleObject.PhenotypeComparison" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="phenotype_comparison_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="cvterm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="cvterm_id" not-null="true" />
+        </many-to-one>
+
+        <property name="rank" type="int">
+            <column name="rank" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

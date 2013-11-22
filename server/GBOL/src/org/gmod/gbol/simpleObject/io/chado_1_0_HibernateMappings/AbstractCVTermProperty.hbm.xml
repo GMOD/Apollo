@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractCVTermProperty" table="cvtermprop">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Additional extensible properties can be attached to a cvterm using this table. Corresponds to -AnnotationProperty- in W3C OWL format.</comment>
+
+        <id name="cvtermPropertyId" type="java.lang.Integer">
+            <column name="cvtermprop_id" />
+
+            <generator class="sequence">
+                <param name="sequence">cvtermprop_cvtermprop_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="cvtermprop_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>The name of the property or slot is a cvterm. The meaning of the property is defined in that cvterm.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="cvterm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="cvterm_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="value" not-null="true">
+                <comment>The value of the property, represented as text. Numeric values are converted to their text representation.</comment>
+            </column>
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true">
+                <comment>Property-Value ordering. Any cvterm can have multiple values for any particular property type - these are ordered in a list using rank, counting from
+                zero. For properties that are single-valued rather than multi-valued, the default 0 value should be used.</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

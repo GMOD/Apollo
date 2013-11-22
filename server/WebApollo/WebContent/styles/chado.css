@@ -1,0 +1,20 @@
+@CHARSET "UTF-8";
+
+table {
+	border-width: 1px;
+	border-style: double;
+	border-color: black;
+	width: 90%;
+	margin-top: 10px;
+}
+
+td {
+	padding-right: 2em;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
+}
+
+td.uniquename {
+	width: 50%;
+}

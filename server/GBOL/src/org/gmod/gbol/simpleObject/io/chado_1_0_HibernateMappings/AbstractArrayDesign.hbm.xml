@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractArrayDesign" table="arraydesign">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>General properties about an array. An array is a template used to generate physical slides, etc. It contains layout information, as well as global array
+        properties, such as material (glass, nylon) and spot dimensions (in rows/columns).</comment>
+
+        <id name="arrayDesignId" type="java.lang.Integer">
+            <column name="arraydesign_id" />
+
+            <generator class="sequence">
+                <param name="sequence">arraydesign_arraydesign_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="arraydesign_id" insert="false" />
+
+        <property name="version"/>
+        
+
+        <many-to-one name="manufacturer" class="org.gmod.gbol.simpleObject.Contact" fetch="select">
+            <column name="manufacturer_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="platformType" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="platformtype_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="protocol" class="org.gmod.gbol.simpleObject.Protocol" fetch="select">
+            <column name="protocol_id" />
+        </many-to-one>
+
+        <many-to-one name="substrateType" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="substratetype_id" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id" />
+        </many-to-one>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" not-null="true" unique="true" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <property name="arrayDimensions" type="string">
+            <column name="array_dimensions" />
+        </property>
+
+        <property name="elementDimensions" type="string">
+            <column name="element_dimensions" />
+        </property>
+
+        <property name="numberOfElements" type="java.lang.Integer">
+            <column name="num_of_elements" />
+        </property>
+
+        <property name="numberOfArrayColumns" type="java.lang.Integer">
+            <column name="num_array_columns" />
+        </property>
+
+        <property name="numberOfArrayRows" type="java.lang.Integer">
+            <column name="num_array_rows" />
+        </property>
+
+        <property name="numberOfGridColumns" type="java.lang.Integer">
+            <column name="num_grid_columns" />
+        </property>
+
+        <property name="numberOfGridRows" type="java.lang.Integer">
+            <column name="num_grid_rows" />
+        </property>
+
+        <property name="numberOfSubColumns" type="java.lang.Integer">
+            <column name="num_sub_columns" />
+        </property>
+
+        <property name="numberOfSubRows" type="java.lang.Integer">
+            <column name="num_sub_rows" />
+        </property>
+
+        <set name="assays" inverse="true">
+            <key>
+                <column name="arraydesign_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.Assay" />
+        </set>
+
+        <set name="arrayDesignProperties" inverse="true">
+            <key>
+                <column name="arraydesign_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ArrayDesignProperty" />
+        </set>
+
+        <set name="elements" inverse="true">
+            <key>
+                <column name="arraydesign_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.Element" />
+        </set>
+    </class>
+</hibernate-mapping>
+

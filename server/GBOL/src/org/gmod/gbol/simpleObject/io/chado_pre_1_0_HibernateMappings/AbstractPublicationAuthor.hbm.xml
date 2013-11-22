@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPublicationAuthor" table="pubauthor">
+        <meta attribute="chadoModule" inherit="false">publication</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>An author for a publication. Note the denormalisation (hence lack of _ in table name) - this is deliberate as it is in general too hard to assign IDs to
+        authors.</comment>
+
+        <id name="publicationAuthorId" type="java.lang.Integer">
+            <column name="pubauthor_id" />
+
+            <generator class="sequence">
+                <param name="sequence">pubauthor_pubauthor_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="pubauthor_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true">
+                <comment>Order of author in author list for this pub - order is important.</comment>
+            </column>
+        </property>
+
+        <property name="editor" type="java.lang.Boolean">
+            <column name="editor">
+                <comment>Indicates whether the author is an editor for linked publication. Note: this is a boolean field but does not follow the normal chado convention for naming
+                booleans.</comment>
+            </column>
+        </property>
+
+        <property name="surname" type="string">
+            <column name="surname" length="100" not-null="true" />
+        </property>
+
+        <property name="givenNames" type="string">
+            <column name="givennames" length="100">
+                <comment>First name, initials</comment>
+            </column>
+        </property>
+
+        <property name="suffix" type="string">
+            <column name="suffix" length="100">
+                <comment>Jr., Sr., etc</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

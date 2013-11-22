@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- configuration file for FASTA data adapter -->
+
+<fasta_config>
+
+	<!-- path to where to put generated FASTA file.  This path is a
+	relative path that will be where you deployed your WebApollo
+	instance (so that it's accessible from HTTP download requests) -->
+	<tmp_dir>tmp</tmp_dir>
+
+	<!-- feature types to process when dumping FASTA sequence -->
+	<feature_types>
+
+		<!-- feature type to process - one element per type -->
+		<feature_type>sequence:mRNA</feature_type>
+
+		<feature_type>sequence:transcript</feature_type>
+
+	</feature_types>
+
+</fasta_config>

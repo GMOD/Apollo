@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractOrganism" table="organism">
+        <meta attribute="chadoModule" inherit="false">organism</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>The organismal taxonomic classification. Note that phylogenies are represented using the phylogeny module, and taxonomies can be represented using the cvterm
+        module or the phylogeny module.</comment>
+
+        <id name="organismId" type="java.lang.Integer">
+            <column name="organism_id" />
+
+            <generator class="sequence">
+                <param name="sequence">organism_organism_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="organism_id" insert="false" />
+
+        <property name="abbreviation" type="string">
+            <column name="abbreviation" />
+        </property>
+
+        <property name="genus" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="genus" not-null="true" />
+        </property>
+
+        <property name="species" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="species" not-null="true">
+                <comment>A type of organism is always uniquely identified by genus and species. When mapping from the NCBI taxonomy names.dmp file, this column must be used where
+                it is present, as the common_name column is not always unique (e.g. environmental samples). If a particular strain or subspecies is to be represented, this is
+                appended onto the species name. Follows standard NCBI taxonomy pattern.</comment>
+            </column>
+        </property>
+
+        <property name="commonName" type="string">
+            <column name="common_name" />
+        </property>
+
+        <property name="comment" type="string">
+            <column name="comment" />
+        </property>
+
+        <set name="organismProperties" inverse="true">
+            <key>
+                <column name="organism_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.OrganismProperty" />
+        </set>
+
+        <set name="organismDBXrefs" inverse="true">
+            <key>
+                <column name="organism_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.OrganismDBXref" />
+        </set>
+    </class>
+</hibernate-mapping>
+

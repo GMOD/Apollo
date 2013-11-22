@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhenotypeComparison" table="phenotype_comparison">
+        <meta attribute="chadoModule" inherit="false">genetic</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Comparison of phenotypes e.g., genotype1/environment1/phenotype1 "non-suppressible" with respect to genotype2/environment2/phenotype2.</comment>
+
+        <id name="phenotypeComparisonId" type="java.lang.Integer">
+            <column name="phenotype_comparison_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phenotype_comparison_phenotype_comparison_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phenotype_comparison_id" insert="false" />
+
+        <many-to-one name="phenotype1" class="org.gmod.gbol.simpleObject.Phenotype" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="phenotype1_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="genotype1" class="org.gmod.gbol.simpleObject.Genotype" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="genotype1_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="phenotype2" class="org.gmod.gbol.simpleObject.Phenotype" fetch="select">
+            <column name="phenotype2_id" />
+        </many-to-one>
+
+        <many-to-one name="environment2" class="org.gmod.gbol.simpleObject.Environment" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="environment2_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="environment1" class="org.gmod.gbol.simpleObject.Environment" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="environment1_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="genotype2" class="org.gmod.gbol.simpleObject.Genotype" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="genotype2_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="organism" class="org.gmod.gbol.simpleObject.Organism" fetch="select">
+            <column name="organism_id" not-null="true" />
+        </many-to-one>
+
+        <set name="phenotypeComparisonCVTerms" inverse="true">
+            <key>
+                <column name="phenotype_comparison_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhenotypeComparisonCVTerm" />
+        </set>
+    </class>
+</hibernate-mapping>
+

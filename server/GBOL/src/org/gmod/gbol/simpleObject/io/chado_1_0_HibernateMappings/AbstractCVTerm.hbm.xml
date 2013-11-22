@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractCVTerm" table="cvterm">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A term, class, universal or type within an ontology or controlled vocabulary. This table is also used for relations and properties. cvterms constitute nodes in
+        the graph defined by the collection of cvterms and cvterm_relationships.</comment>
+
+        <id name="cvtermId" type="java.lang.Integer">
+            <column name="cvterm_id" />
+
+            <generator class="sequence">
+                <param name="sequence">cvterm_cvterm_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="cvterm_id" insert="false" />
+
+        <many-to-one name="cv" class="org.gmod.gbol.simpleObject.CV" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="cv_id" not-null="true">
+                <comment>The cv or ontology or namespace to which this cvterm belongs.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id" not-null="true" unique="true">
+                <comment>Primary identifier dbxref - The unique global OBO identifier for this cvterm. Note that a cvterm may have multiple secondary dbxrefs - see also table:
+                cvterm_dbxref.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" length="1024" not-null="true">
+                <comment>A concise human-readable name or label for the cvterm. Uniquely identifies a cvterm within a cv.</comment>
+            </column>
+        </property>
+
+        <property name="definition" type="string">
+            <column name="definition">
+                <comment>A human-readable text definition.</comment>
+            </column>
+        </property>
+
+        <property name="isObsolete" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="is_obsolete" not-null="true">
+                <comment>Boolean 0=false,1=true; see GO documentation for details of obsoletion. Note that two terms with different primary dbxrefs may exist if one is
+                obsolete.</comment>
+            </column>
+        </property>
+
+        <property name="isRelationshipType" type="int">
+            <column name="is_relationshiptype" not-null="true">
+                <comment>Boolean 0=false,1=true relations or relationship types (also known as Typedefs in OBO format, or as properties or slots) form a cv/ontology in themselves.
+                We use this flag to indicate whether this cvterm is an actual term/class/universal or a relation. Relations may be drawn from the OBO Relations ontology, but are
+                not exclusively drawn from there.</comment>
+            </column>
+        </property>
+
+        <set name="childCVTermRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true">
+                    <comment>The object of the subj-predicate-obj sentence. The cvterm_relationship refers to the object. In a graph, this typically corresponds to the parent
+                    node.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.CVTermRelationship" />
+        </set>
+
+        <set name="parentCVTermRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true">
+                    <comment>The subject of the subj-predicate-obj sentence. The cvterm_relationship is about the subject. In a graph, this typically corresponds to the child
+                    node.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.CVTermRelationship" />
+        </set>
+
+        <set name="parentCVTermPaths" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.CVTermPath" />
+        </set>
+
+        <set name="childCVTermPaths" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.CVTermPath" />
+        </set>
+    </class>
+</hibernate-mapping>
+

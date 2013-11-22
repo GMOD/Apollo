@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractDBXrefProperty" table="dbxrefprop">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Metadata about a dbxref. Note that this is not defined in the dbxref module, as it depends on the cvterm table. This table has a structure analagous to
+        cvtermprop.</comment>
+
+        <id name="dbxrefPropertyId" type="java.lang.Integer">
+            <column name="dbxrefprop_id" />
+
+            <generator class="sequence">
+                <param name="sequence">dbxrefprop_dbxrefprop_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="dbxrefprop_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="dbxref_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <column name="value" not-null="true" />
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

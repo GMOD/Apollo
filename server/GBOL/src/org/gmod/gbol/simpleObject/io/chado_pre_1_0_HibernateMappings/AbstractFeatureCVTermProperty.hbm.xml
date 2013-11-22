@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureCVTermProperty" table="feature_cvtermprop">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Extensible properties for feature to cvterm associations. Examples: GO evidence codes; qualifiers; metadata such as the date on which the entry was curated and
+        the source of the association. See the featureprop table for meanings of type_id, value and rank.</comment>
+
+        <id name="featureCVTermPropertyId" type="java.lang.Integer">
+            <column name="feature_cvtermprop_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_cvtermprop_feature_cvtermprop_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_cvtermprop_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>The name of the property/slot is a cvterm. The meaning of the property is defined in that cvterm. cvterms may come from the OBO evidence code
+                cv.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="featureCVTerm" class="org.gmod.gbol.simpleObject.FeatureCVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_cvterm_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <column name="value">
+                <comment>The value of the property, represented as text. Numeric values are converted to their text representation. This is less efficient than using native
+                database types, but is easier to query.</comment>
+            </column>
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true">
+                <comment>Property-Value ordering. Any feature_cvterm can have multiple values for any particular property type - these are ordered in a list using rank, counting
+                from zero. For properties that are single-valued rather than multi-valued, the default 0 value should be used.</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

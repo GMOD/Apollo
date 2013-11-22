@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractAnalysisProperty" table="analysisprop">
+        <meta attribute="chadoModule" inherit="false">analysis</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="analysisPropertyId" type="java.lang.Integer">
+            <column name="analysisprop_id" />
+
+            <generator class="sequence">
+                <param name="sequence">analysisprop_analysisprop_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="analysisprop_id" insert="false" />
+
+        <many-to-one name="analysis" class="org.gmod.gbol.simpleObject.Analysis" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="analysis_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="value" />
+        </property>
+    </class>
+</hibernate-mapping>
+

@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractAssay" table="assay">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>An assay consists of a physical instance of an array, combined with the conditions used to create the array (protocols, technician information). The assay can be
+        thought of as a hybridization.</comment>
+
+        <id name="assayId" type="java.lang.Integer">
+            <column name="assay_id" />
+
+            <generator class="sequence">
+                <param name="sequence">assay_assay_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="assay_id" insert="false" />
+
+        <many-to-one name="operator" class="org.gmod.gbol.simpleObject.Contact" fetch="select">
+            <column name="operator_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="arrayDesign" class="org.gmod.gbol.simpleObject.ArrayDesign" fetch="select">
+            <column name="arraydesign_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="protocol" class="org.gmod.gbol.simpleObject.Protocol" fetch="select">
+            <column name="protocol_id" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id" />
+        </many-to-one>
+
+        <property name="assayDate" type="timestamp">
+            <column name="assaydate" length="29" />
+        </property>
+
+        <property name="arrayIdentifier" type="string">
+            <column name="arrayidentifier" />
+        </property>
+
+        <property name="arrayBatchIdentifier" type="string">
+            <column name="arraybatchidentifier" />
+        </property>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" unique="true" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <set name="studyAssays" inverse="true">
+            <key>
+                <column name="assay_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StudyAssay" />
+        </set>
+
+        <set name="controls" inverse="true">
+            <key>
+                <column name="assay_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.Control" />
+        </set>
+
+        <set name="assayBiomaterials" inverse="true">
+            <key>
+                <column name="assay_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AssayBiomaterial" />
+        </set>
+
+        <set name="assayProperties" inverse="true">
+            <key>
+                <column name="assay_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AssayProperty" />
+        </set>
+
+        <set name="acquisitions" inverse="true">
+            <key>
+                <column name="assay_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.Acquisition" />
+        </set>
+
+        <set name="assayProjects" inverse="true">
+            <key>
+                <column name="assay_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AssayProject" />
+        </set>
+    </class>
+</hibernate-mapping>
+

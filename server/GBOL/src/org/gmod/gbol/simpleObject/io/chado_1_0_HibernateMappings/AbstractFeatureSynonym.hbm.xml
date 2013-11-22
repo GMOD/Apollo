@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureSynonym" table="feature_synonym">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Linking table between feature and synonym.</comment>
+
+        <id name="featureSynonymId" type="java.lang.Integer">
+            <column name="feature_synonym_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_synonym_feature_synonym_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_synonym_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true">
+                <comment>The pub_id link is for relating the usage of a given synonym to the publication in which it was used.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="synonym" class="org.gmod.gbol.simpleObject.Synonym" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="synonym_id" not-null="true" />
+        </many-to-one>
+
+        <property name="isCurrent" type="boolean">
+            <column name="is_current" not-null="true">
+                <comment>The is_current boolean indicates whether the linked synonym is the current -official- symbol for the linked feature.</comment>
+            </column>
+        </property>
+
+        <property name="isInternal" type="boolean">
+            <column name="is_internal" not-null="true">
+                <comment>Typically a synonym exists so that somebody querying the db with an obsolete name can find the object theyre looking for (under its current name. If the
+                synonym has been used publicly and deliberately (e.g. in a paper), it may also be listed in reports as a synonym. If the synonym was not used deliberately (e.g.
+                there was a typo which went public), then the is_internal boolean may be set to -true- so that it is known that the synonym is -internal- and should be queryable
+                but should not be listed in reports as a valid synonym.</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

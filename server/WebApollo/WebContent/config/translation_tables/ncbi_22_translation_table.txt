@@ -1,0 +1,2 @@
+TCA	*
+TAG	L

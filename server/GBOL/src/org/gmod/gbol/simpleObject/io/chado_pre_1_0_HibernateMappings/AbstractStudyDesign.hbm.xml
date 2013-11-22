@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractStudyDesign" table="studydesign">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="studyDesignId" type="java.lang.Integer">
+            <column name="studydesign_id" />
+
+            <generator class="sequence">
+                <param name="sequence">studydesign_studydesign_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="studydesign_id" insert="false" />
+
+        <many-to-one name="study" class="org.gmod.gbol.simpleObject.Study" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="study_id" not-null="true" />
+        </many-to-one>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <set name="studyDesignProperties" inverse="true">
+            <key>
+                <column name="studydesign_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StudyDesignProperty" />
+        </set>
+
+        <set name="studyFactors" inverse="true">
+            <key>
+                <column name="studydesign_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StudyFactor" />
+        </set>
+    </class>
+</hibernate-mapping>
+

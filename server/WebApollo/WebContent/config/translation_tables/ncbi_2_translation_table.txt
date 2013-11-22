@@ -1,0 +1,4 @@
+AGA	*
+AGG	*
+AUA	M
+TGA	W

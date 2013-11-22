@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticTree" table="phylotree">
+        <meta attribute="chadoModule" inherit="false">phylogeny</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Global anchor for phylogenetic tree.</comment>
+
+        <id name="phylogeneticTreeId" type="java.lang.Integer">
+            <column name="phylotree_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phylotree_phylotree_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phylotree_id" insert="false" />
+
+        <many-to-one name="analysis" class="org.gmod.gbol.simpleObject.Analysis" fetch="select">
+            <column name="analysis_id" />
+        </many-to-one>
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id">
+                <comment>Type: protein, nucleotide, taxonomy, for example. The type should be any SO type, or "taxonomy".</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="dbxref_id" not-null="true" />
+        </many-to-one>
+
+        <property name="name" type="string">
+            <column name="name" />
+        </property>
+
+        <property name="comment" type="string">
+            <column name="comment" />
+        </property>
+
+        <set name="phylogeneticNodes" inverse="true">
+            <key>
+                <column name="phylotree_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNode" />
+        </set>
+
+        <set name="phylogeneticTreePublications" inverse="true">
+            <key>
+                <column name="phylotree_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticTreePublication" />
+        </set>
+    </class>
+</hibernate-mapping>
+

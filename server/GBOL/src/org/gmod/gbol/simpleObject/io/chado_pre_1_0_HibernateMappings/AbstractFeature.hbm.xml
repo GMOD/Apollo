@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeature" table="feature">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A feature is a biological sequence or a section of a biological sequence, or a collection of such sections. Examples include genes, exons, transcripts, regulatory
+        regions, polypeptides, protein domains, chromosome sequences, sequence variations, cross-genome match regions such as hits and HSPs and so on; see the Sequence Ontology
+        for more. The combination of organism_id, uniquename and type_id should be unique.</comment>
+
+        <id name="featureId" type="java.lang.Integer">
+            <column name="feature_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_feature_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>A required reference to a table:cvterm giving the feature type. This will typically be a Sequence Ontology identifier. This column is thus used to
+                subclass the feature table.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id">
+                <comment>An optional primary public stable identifier for this feature. Secondary identifiers and external dbxrefs go in the table feature_dbxref.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="organism" class="org.gmod.gbol.simpleObject.Organism" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="organism_id" not-null="true">
+                <comment>The organism to which this feature belongs. This column is mandatory.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="name" type="string">
+            <column name="name">
+                <comment>The optional human-readable common name for a feature, for display purposes.</comment>
+            </column>
+        </property>
+
+        <property name="uniqueName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true">
+                <comment>The unique name for a feature; may not be necessarily be particularly human-readable, although this is preferred. This name must be unique for this type
+                of feature within this organism.</comment>
+            </column>
+        </property>
+
+        <property name="residues" type="string" lazy="true">
+            <column name="residues">
+                <comment>A sequence of alphabetic characters representing biological residues (nucleic acids, amino acids). This column does not need to be manifested for all
+                features; it is optional for features such as exons where the residues can be derived from the featureloc. It is recommended that the value for this column be
+                manifested for features which may may non-contiguous sublocations (e.g. transcripts), since derivation at query time is non-trivial. For expressed sequence, the
+                DNA sequence should be used rather than the RNA sequence.</comment>
+            </column>
+        </property>
+
+        <property name="sequenceLength" type="java.lang.Integer">
+            <column name="seqlen">
+                <comment>The length of the residue feature. See column:residues. This column is partially redundant with the residues column, and also with featureloc. This column
+                is required because the location may be unknown and the residue sequence may not be manifested, yet it may be desirable to store and query the length of the
+                feature. The seqlen should always be manifested where the length of the sequence is known.</comment>
+            </column>
+        </property>
+
+        <property name="md5checksum" type="string">
+            <column name="md5checksum" length="32">
+                <comment>The 32-character checksum of the sequence, calculated using the MD5 algorithm. This is practically guaranteed to be unique for any feature. This column
+                thus acts as a unique identifier on the mathematical sequence.</comment>
+            </column>
+        </property>
+
+        <property name="isAnalysis" type="boolean">
+            <column name="is_analysis" not-null="true">
+                <comment>Boolean indicating whether this feature is annotated or the result of an automated analysis. Analysis results also use the companalysis module. Note that
+                the dividing line between analysis and annotation may be fuzzy, this should be determined on a per-project basis in a consistent manner. One requirement is that
+                there should only be one non-analysis version of each wild-type gene feature in a genome, whereas the same gene feature can be predicted multiple times in
+                different analyses.</comment>
+            </column>
+        </property>
+
+        <property name="isObsolete" type="boolean">
+            <column name="is_obsolete" not-null="true">
+                <comment>Boolean indicating whether this feature has been obsoleted. Some chado instances may choose to simply remove the feature altogether, others may choose to
+                keep an obsolete row in the table.</comment>
+            </column>
+        </property>
+
+        <property name="timeAccessioned" type="timestamp">
+            <column name="timeaccessioned" length="29" not-null="true">
+                <comment>For handling object accession or modification timestamps (as opposed to database auditing data, handled elsewhere). The expectation is that these fields
+                would be available to software interacting with chado.</comment>
+            </column>
+        </property>
+
+        <property name="timeLastModified" type="timestamp">
+            <column name="timelastmodified" length="29" not-null="true">
+                <comment>For handling object accession or modification timestamps (as opposed to database auditing data, handled elsewhere). The expectation is that these fields
+                would be available to software interacting with chado.</comment>
+            </column>
+        </property>
+
+        <set name="featureLocations" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true">
+                    <comment>The feature that is being located. Any feature can have zero or more featurelocs.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureLocation" />
+        </set>
+
+        <set name="featureGenotypes" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureGenotype" />
+        </set>
+
+        <set name="parentFeatureRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true">
+                    <comment>The subject of the subj-predicate-obj sentence. This is typically the subfeature.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureRelationship" />
+        </set>
+
+        <set name="childFeatureRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true">
+                    <comment>The object of the subj-predicate-obj sentence. This is typically the container feature.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureRelationship" />
+        </set>
+
+        <set name="featureCVTerms" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureCVTerm" />
+        </set>
+
+        <set name="featureSynonyms" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureSynonym" />
+        </set>
+
+        <set name="featureDBXrefs" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureDBXref" />
+        </set>
+
+        <set name="featurePublications" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeaturePublication" />
+        </set>
+
+        <set name="featurePhenotypes" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeaturePhenotype" />
+        </set>
+
+        <set name="featureProperties" inverse="true">
+            <key>
+                <column name="feature_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureProperty" />
+        </set>
+    </class>
+</hibernate-mapping>
+

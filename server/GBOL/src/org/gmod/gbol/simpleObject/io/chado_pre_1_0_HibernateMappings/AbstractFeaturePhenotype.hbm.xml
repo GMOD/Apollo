@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeaturePhenotype" table="feature_phenotype">
+        <meta attribute="chadoModule" inherit="false">genetic</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="featurePhenotypeId" type="java.lang.Integer">
+            <column name="feature_phenotype_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_phenotype_feature_phenotype_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_phenotype_id" insert="false" />
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="phenotype" class="org.gmod.gbol.simpleObject.Phenotype" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="phenotype_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

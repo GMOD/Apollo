@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+
+<class 
+    name="org.gmod.gbol.simpleObject.generated.AbstractDBXref"
+    table="dbxref"
+   
+>
+  <meta attribute="chadoModule" inherit="false">general</meta>
+  <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+ <comment>A unique, global, public, stable identifier. Not necessarily an external reference - can reference data items inside the particular chado instance being used. Typically a row in a table can be uniquely identified with a primary identifier (called dbxref_id); a table may also have secondary identifiers (in a linking table T_dbxref). A dbxref is generally written as DB:ACCESSION or as DB:ACCESSION:VERSION.</comment>
+	<id 
+        name="dbxrefId"
+        type="java.lang.Integer"
+    >
+    
+<column name="dbxref_id" />
+	    <generator class="sequence">
+            <param name="sequence">dbxref_dbxref_id_seq</param>
+		</generator>
+    </id>
+
+	<discriminator column="dbxref_id" insert="false"/>
+    <property name="version"/>
+
+
+    <many-to-one
+	    name="db"
+	    class="org.gmod.gbol.simpleObject.DB"
+	    
+        fetch="select"
+    >
+  <meta attribute="use-in-equals" inherit="false">true</meta>
+<column name="db_id" not-null="true" />
+	
+   </many-to-one>
+    <property
+        name="accession"
+        type="string"
+    >
+  <meta attribute="use-in-equals" inherit="false">true</meta>
+<column name="accession" not-null="true" >
+<comment>The local part of the identifier. Guaranteed by the db authority to be unique for that db.</comment>
+</column>  </property>
+
+    <property
+        name="description"
+        type="string"
+    >
+<column name="description" />
+  </property>
+
+	<set
+		name="dbxrefProperties"
+		inverse="true"
+		>
+		<key> 
+<column name="dbxref_id" not-null="true" />
+        </key>
+		<one-to-many 
+			 class="org.gmod.gbol.simpleObject.DBXrefProperty"
+			/>			
+	</set>
+
+</class>
+
+</hibernate-mapping>

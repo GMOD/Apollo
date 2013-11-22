@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractAcquisition" table="acquisition">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>This represents the scanning of hybridized material. The output of this process is typically a digital image of an array.</comment>
+
+        <id name="acquisitionId" type="java.lang.Integer">
+            <column name="acquisition_id" />
+
+            <generator class="sequence">
+                <param name="sequence">acquisition_acquisition_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="acquisition_id" insert="false" />
+
+        <many-to-one name="assay" class="org.gmod.gbol.simpleObject.Assay" fetch="select">
+            <column name="assay_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="channel" class="org.gmod.gbol.simpleObject.Channel" fetch="select">
+            <column name="channel_id" />
+        </many-to-one>
+
+        <many-to-one name="protocol" class="org.gmod.gbol.simpleObject.Protocol" fetch="select">
+            <column name="protocol_id" />
+        </many-to-one>
+
+        <property name="acquisitionDate" type="timestamp">
+            <column name="acquisitiondate" length="29" />
+        </property>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" unique="true" />
+        </property>
+
+        <property name="uri" type="string">
+            <column name="uri" />
+        </property>
+
+        <set name="quantifications" inverse="true">
+            <key>
+                <column name="acquisition_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.Quantification" />
+        </set>
+
+        <set name="acquisitionProperties" inverse="true">
+            <key>
+                <column name="acquisition_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AcquisitionProperty" />
+        </set>
+
+        <set name="parentAcquisitionRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AcquisitionRelationship" />
+        </set>
+
+        <set name="childAcquisitionRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AcquisitionRelationship" />
+        </set>
+    </class>
+</hibernate-mapping>
+

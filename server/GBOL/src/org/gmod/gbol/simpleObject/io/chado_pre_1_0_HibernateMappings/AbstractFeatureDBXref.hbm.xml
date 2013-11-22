@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureDBXref" table="feature_dbxref">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Links a feature to dbxrefs. This is for secondary identifiers; primary identifiers should use feature.dbxref_id.</comment>
+
+        <id name="featureDBXrefId" type="java.lang.Integer">
+            <column name="feature_dbxref_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_dbxref_feature_dbxref_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_dbxref_id" insert="false" />
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="dbxref_id" not-null="true" />
+        </many-to-one>
+
+        <property name="isCurrent" type="boolean">
+            <column name="is_current" not-null="true">
+                <comment>True if this secondary dbxref is the most up to date accession in the corresponding db. Retired accessions should set this field to false</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

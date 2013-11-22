@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureProperty" table="featureprop">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A feature can have any number of slot-value property tags attached to it. This is an alternative to hardcoding a list of columns in the relational schema, and is
+        completely extensible.</comment>
+
+        <id name="featurePropertyId" type="java.lang.Integer">
+            <column name="featureprop_id" />
+
+            <generator class="sequence">
+                <param name="sequence">featureprop_featureprop_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="featureprop_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>The name of the property/slot is a cvterm. The meaning of the property is defined in that cvterm. Certain property types will only apply to certain
+                feature types (e.g. the anticodon property will only apply to tRNA features) ; the types here come from the sequence feature property ontology.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <column name="value">
+                <comment>The value of the property, represented as text. Numeric values are converted to their text representation. This is less efficient than using native
+                database types, but is easier to query.</comment>
+            </column>
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true">
+                <comment>Property-Value ordering. Any feature can have multiple values for any particular property type - these are ordered in a list using rank, counting from
+                zero. For properties that are single-valued rather than multi-valued, the default 0 value should be used</comment>
+            </column>
+        </property>
+
+        <set name="featurePropertyPublications" inverse="true">
+            <key>
+                <column name="featureprop_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeaturePropertyPublication" />
+        </set>
+    </class>
+</hibernate-mapping>
+

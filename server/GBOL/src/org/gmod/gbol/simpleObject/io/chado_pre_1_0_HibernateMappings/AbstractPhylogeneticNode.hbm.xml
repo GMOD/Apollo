@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticNode" table="phylonode">
+        <meta attribute="chadoModule" inherit="false">phylogeny</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>This is the most pervasive element in the phylogeny module, cataloging the "phylonodes" of tree graphs. Edges are implied by the parent_phylonode_id reflexive
+        closure. For all nodes in a nested set implementation the left and right index will be *between* the parents left and right indexes.</comment>
+
+        <id name="phylogeneticNodeId" type="java.lang.Integer">
+            <column name="phylonode_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phylonode_phylonode_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phylonode_id" insert="false" />
+
+        <many-to-one name="parentPhylogeneticNode" class="org.gmod.gbol.simpleObject.PhylogeneticNode" fetch="select">
+            <column name="parent_phylonode_id">
+                <comment>Root phylonode can have null parent_phylonode_id value.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id">
+                <comment>Type: e.g. root, interior, leaf.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <column name="feature_id">
+                <comment>Phylonodes can have optional features attached to them e.g. a protein or nucleotide sequence usually attached to a leaf of the phylotree for non-leaf
+                nodes, the feature may be a feature that is an instance of SO:match; this feature is the alignment of all leaf features beneath it.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="phylogeneticTree" class="org.gmod.gbol.simpleObject.PhylogeneticTree" fetch="select">
+            <column name="phylotree_id" not-null="true" />
+        </many-to-one>
+
+        <property name="leftIndex" type="int">
+            <column name="left_idx" not-null="true" />
+        </property>
+
+        <property name="rightIndex" type="int">
+            <column name="right_idx" not-null="true" />
+        </property>
+
+        <property name="label" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="label" />
+        </property>
+
+        <property name="distance" type="java.lang.Double">
+            <column name="distance" precision="17" scale="17" />
+        </property>
+
+        <set name="childPhylogeneticNodeRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNodeRelationship" />
+        </set>
+
+        <set name="phylogeneticNodeOrganisms" inverse="true">
+            <key>
+                <column name="phylonode_id" not-null="true" unique="true">
+                    <comment>One phylonode cannot refer to &gt;1 organism.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNodeOrganism" />
+        </set>
+
+        <set name="phylogeneticNodePublications" inverse="true">
+            <key>
+                <column name="phylonode_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNodePublication" />
+        </set>
+
+        <set name="parentPhylogeneticNodeRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNodeRelationship" />
+        </set>
+
+        <set name="phylogeneticNodeDBXrefs" inverse="true">
+            <key>
+                <column name="phylonode_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNodeDBXref" />
+        </set>
+
+        <set name="phylogeneticNodeProperties" inverse="true">
+            <key>
+                <column name="phylonode_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhylogeneticNodeProperty" />
+        </set>
+    </class>
+</hibernate-mapping>
+

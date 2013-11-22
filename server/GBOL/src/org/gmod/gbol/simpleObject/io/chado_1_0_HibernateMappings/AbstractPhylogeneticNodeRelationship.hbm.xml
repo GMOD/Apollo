@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticNodeRelationship" table="phylonode_relationship">
+        <meta attribute="chadoModule" inherit="false">phylogeny</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>This is for relationships that are not strictly hierarchical; for example, horizontal gene transfer. Most phylogenetic trees are strictly hierarchical,
+        nevertheless it is here for completeness.</comment>
+
+        <id name="phylogeneticNodeRelationshipId" type="java.lang.Integer">
+            <column name="phylonode_relationship_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phylonode_relationship_phylonode_relationship_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phylonode_relationship_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="objectPhylogeneticNode" class="org.gmod.gbol.simpleObject.PhylogeneticNode" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="object_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="subjectPhylogeneticNode" class="org.gmod.gbol.simpleObject.PhylogeneticNode" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="subject_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="phylogeneticTree" class="org.gmod.gbol.simpleObject.PhylogeneticTree" fetch="select">
+            <column name="phylotree_id" not-null="true" />
+        </many-to-one>
+
+        <property name="rank" type="java.lang.Integer">
+            <column name="rank" />
+        </property>
+    </class>
+</hibernate-mapping>
+

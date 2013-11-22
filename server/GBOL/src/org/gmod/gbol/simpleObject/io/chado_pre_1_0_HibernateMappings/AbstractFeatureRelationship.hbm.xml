@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureRelationship" table="feature_relationship">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Features can be arranged in graphs, e.g. "exon part_of transcript part_of gene"; If type is thought of as a verb, the each arc or edge makes a statement [Subject
+        Verb Object]. The object can also be thought of as parent (containing feature), and subject as child (contained feature or subfeature). We include the relationship
+        rank/order, because even though most of the time we can order things implicitly by sequence coordinates, we can not always do this - e.g. transpliced genes. It is also
+        useful for quickly getting implicit introns.</comment>
+
+        <id name="featureRelationshipId" type="java.lang.Integer">
+            <column name="feature_relationship_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_relationship_feature_relationship_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_relationship_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>Relationship type between subject and object. This is a cvterm, typically from the OBO relationship ontology, although other relationship types are
+                allowed. The most common relationship type is OBO_REL:part_of. Valid relationship types are constrained by the Sequence Ontology.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="objectFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="object_id" not-null="true">
+                <comment>The object of the subj-predicate-obj sentence. This is typically the container feature.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="subjectFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="subject_id" not-null="true">
+                <comment>The subject of the subj-predicate-obj sentence. This is typically the subfeature.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="value" type="string">
+            <column name="value">
+                <comment>Additional notes or comments.</comment>
+            </column>
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true">
+                <comment>The ordering of subject features with respect to the object feature may be important (for example, exon ordering on a transcript - not always derivable if
+                you take trans spliced genes into consideration). Rank is used to order these; starts from zero.</comment>
+            </column>
+        </property>
+
+        <set name="featureRelationshipProperties" inverse="true">
+            <key>
+                <column name="feature_relationship_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureRelationshipProperty" />
+        </set>
+
+        <set name="featureRelationshipPublications" inverse="true">
+            <key>
+                <column name="feature_relationship_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureRelationshipPublication" />
+        </set>
+    </class>
+</hibernate-mapping>
+

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractStockPropertyPublication" table="stockprop_pub">
+        <meta attribute="chadoModule" inherit="false">stock</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Provenance. Any stockprop assignment can optionally be supported by a publication.</comment>
+
+        <id name="stockPropertyPublicationId" type="java.lang.Integer">
+            <column name="stockprop_pub_id" />
+
+            <generator class="sequence">
+                <param name="sequence">stockprop_pub_stockprop_pub_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="stockprop_pub_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="stockProperty" class="org.gmod.gbol.simpleObject.StockProperty" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="stockprop_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

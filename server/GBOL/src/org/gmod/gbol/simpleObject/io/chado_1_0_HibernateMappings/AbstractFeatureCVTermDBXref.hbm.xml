@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureCVTermDBXref" table="feature_cvterm_dbxref">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Additional dbxrefs for an association. Rows in the feature_cvterm table may be backed up by dbxrefs. For example, a feature_cvterm association that was inferred
+        via a protein-protein interaction may be backed by by refering to the dbxref for the alternate protein. Corresponds to the WITH column in a GO gene association file (but
+        can also be used for other analagous associations). See http://www.geneontology.org/doc/GO.annotation.shtml#file for more details.</comment>
+
+        <id name="featureCVTermDBXrefId" type="java.lang.Integer">
+            <column name="feature_cvterm_dbxref_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_cvterm_dbxref_feature_cvterm_dbxref_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_cvterm_dbxref_id" insert="false" />
+
+        <many-to-one name="featureCVTerm" class="org.gmod.gbol.simpleObject.FeatureCVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_cvterm_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="dbxref_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

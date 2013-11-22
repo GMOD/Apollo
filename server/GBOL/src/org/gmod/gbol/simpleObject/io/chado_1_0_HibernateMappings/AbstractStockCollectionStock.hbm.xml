@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractStockCollectionStock" table="stockcollection_stock">
+        <meta attribute="chadoModule" inherit="false">stock</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>stockcollection_stock links a stock collection to the stocks which are contained in the collection.</comment>
+
+        <id name="stockCollectionStockId" type="java.lang.Integer">
+            <column name="stockcollection_stock_id" />
+
+            <generator class="sequence">
+                <param name="sequence">stockcollection_stock_stockcollection_stock_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="stockcollection_stock_id" insert="false" />
+
+        <many-to-one name="stockCollection" class="org.gmod.gbol.simpleObject.StockCollection" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="stockcollection_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="stock" class="org.gmod.gbol.simpleObject.Stock" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="stock_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

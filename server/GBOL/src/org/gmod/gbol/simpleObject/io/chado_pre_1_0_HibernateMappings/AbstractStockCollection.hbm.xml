@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractStockCollection" table="stockcollection">
+        <meta attribute="chadoModule" inherit="false">stock</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>The lab or stock center distributing the stocks in their collection.</comment>
+
+        <id name="stockCollectionId" type="java.lang.Integer">
+            <column name="stockcollection_id" />
+
+            <generator class="sequence">
+                <param name="sequence">stockcollection_stockcollection_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="stockcollection_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>type_id is the collection type cv.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="contact" class="org.gmod.gbol.simpleObject.Contact" fetch="select">
+            <column name="contact_id">
+                <comment>contact_id links to the contact information for the collection.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="name" type="string">
+            <column name="name">
+                <comment>name is the collection.</comment>
+            </column>
+        </property>
+
+        <property name="uniqueName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true">
+                <comment>uniqename is the value of the collection cv.</comment>
+            </column>
+        </property>
+
+        <set name="stockCollectionProperties" inverse="true">
+            <key>
+                <column name="stockcollection_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockCollectionProperty" />
+        </set>
+
+        <set name="stockCollectionStocks" inverse="true">
+            <key>
+                <column name="stockcollection_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.StockCollectionStock" />
+        </set>
+    </class>
+</hibernate-mapping>
+

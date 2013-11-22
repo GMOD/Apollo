@@ -1,0 +1,5 @@
+AAA	N
+AGA	S
+AGG	S
+TGA	W
+GTG	V	start

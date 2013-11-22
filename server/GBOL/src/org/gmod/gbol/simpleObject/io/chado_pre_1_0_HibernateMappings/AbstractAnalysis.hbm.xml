@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractAnalysis" table="analysis">
+        <meta attribute="chadoModule" inherit="false">analysis</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>An analysis is a particular type of a computational analysis; it may be a blast of one sequence against another, or an all by all blast, or a different kind of
+        analysis altogether. It is a single unit of computation.</comment>
+
+        <id name="analysisId" type="java.lang.Integer">
+            <column name="analysis_id" />
+
+            <generator class="sequence">
+                <param name="sequence">analysis_analysis_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="analysis_id" insert="false" />
+
+        <property name="name" type="string">
+            <column name="name">
+                <comment>A way of grouping analyses. This should be a handy short identifier that can help people find an analysis they want. For instance "tRNAscan", "cDNA",
+                "FlyPep", "SwissProt", and it should not be assumed to be unique. For instance, there may be lots of separate analyses done against a cDNA database.</comment>
+            </column>
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <property name="program" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="program" not-null="true">
+                <comment>Program name, e.g. blastx, blastp, sim4, genscan.</comment>
+            </column>
+        </property>
+
+        <property name="programVersion" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="programversion" not-null="true">
+                <comment>Version description, e.g. TBLASTX 2.0MP-WashU [09-Nov-2000].</comment>
+            </column>
+        </property>
+
+        <property name="algorithm" type="string">
+            <column name="algorithm">
+                <comment>Algorithm name, e.g. blast.</comment>
+            </column>
+        </property>
+
+        <property name="sourceName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="sourcename">
+                <comment>Source name, e.g. cDNA, SwissProt.</comment>
+            </column>
+        </property>
+
+        <property name="sourceVersion" type="string">
+            <column name="sourceversion" />
+        </property>
+
+        <property name="sourceURI" type="string">
+            <column name="sourceuri">
+                <comment>This is an optional, permanent URL or URI for the source of the analysis. The idea is that someone could recreate the analysis directly by going to this
+                URI and fetching the source data (e.g. the blast database, or the training model).</comment>
+            </column>
+        </property>
+
+        <property name="timeExecuted" type="timestamp">
+            <column name="timeexecuted" length="29" not-null="true" />
+        </property>
+
+        <set name="analysisFeatures" inverse="true">
+            <key>
+                <column name="analysis_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AnalysisFeature" />
+        </set>
+
+        <set name="analysisProperties" inverse="true">
+            <key>
+                <column name="analysis_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.AnalysisProperty" />
+        </set>
+    </class>
+</hibernate-mapping>
+

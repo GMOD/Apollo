@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractExpressionImage" table="expression_image">
+        <meta attribute="chadoModule" inherit="false">expression</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="expressionImageId" type="java.lang.Integer">
+            <column name="expression_image_id" />
+
+            <generator class="sequence">
+                <param name="sequence">expression_image_expression_image_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="expression_image_id" insert="false" />
+
+        <many-to-one name="eImage" class="org.gmod.gbol.simpleObject.EImage" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="eimage_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="expression" class="org.gmod.gbol.simpleObject.Expression" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="expression_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhenotypeDescription" table="phendesc">
+        <meta attribute="chadoModule" inherit="false">genetic</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A summary of a _set_ of phenotypic statements for any one gcontext made in any one publication.</comment>
+
+        <id name="phenotypeDescriptionId" type="java.lang.Integer">
+            <column name="phendesc_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phendesc_phendesc_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phendesc_id" insert="false" />
+
+        <many-to-one name="environment" class="org.gmod.gbol.simpleObject.Environment" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="environment_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="genotype" class="org.gmod.gbol.simpleObject.Genotype" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="genotype_id" not-null="true" />
+        </many-to-one>
+
+        <property name="description" type="string">
+            <column name="description" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

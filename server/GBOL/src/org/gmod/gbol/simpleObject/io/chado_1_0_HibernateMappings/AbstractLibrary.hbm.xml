@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractLibrary" table="library">
+        <meta attribute="chadoModule" inherit="false">library</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <id name="libraryId" type="java.lang.Integer">
+            <column name="library_id" />
+
+            <generator class="sequence">
+                <param name="sequence">library_library_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="library_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>The type_id foreign key links to a controlled vocabulary of library types. Examples of this would be: "cDNA_library" or "genomic_library"</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="organism" class="org.gmod.gbol.simpleObject.Organism" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="organism_id" not-null="true" />
+        </many-to-one>
+
+        <property name="name" type="string">
+            <column name="name" />
+        </property>
+
+        <property name="uniqueName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true" />
+        </property>
+
+        <property name="isObsolete" type="int">
+            <column name="is_obsolete" not-null="true" />
+        </property>
+
+        <property name="timeAccessioned" type="timestamp">
+            <column name="timeaccessioned" length="29" not-null="true" />
+        </property>
+
+        <property name="timeLastModified" type="timestamp">
+            <column name="timelastmodified" length="29" not-null="true" />
+        </property>
+
+        <set name="librarySynonyms" inverse="true">
+            <key>
+                <column name="library_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.LibrarySynonym" />
+        </set>
+
+        <set name="libraryDBXrefs" inverse="true">
+            <key>
+                <column name="library_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.LibraryDBXref" />
+        </set>
+
+        <set name="libraryCVTerms" inverse="true">
+            <key>
+                <column name="library_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.LibraryCVTerm" />
+        </set>
+
+        <set name="libraryProperties" inverse="true">
+            <key>
+                <column name="library_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.LibraryProperty" />
+        </set>
+
+        <set name="libraryFeatures" inverse="true">
+            <key>
+                <column name="library_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.LibraryFeature" />
+        </set>
+
+        <set name="libraryPublications" inverse="true">
+            <key>
+                <column name="library_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.LibraryPublication" />
+        </set>
+    </class>
+</hibernate-mapping>
+

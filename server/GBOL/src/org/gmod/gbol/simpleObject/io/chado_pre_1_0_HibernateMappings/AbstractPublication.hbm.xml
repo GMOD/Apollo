@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPublication" table="pub">
+        <meta attribute="chadoModule" inherit="false">publication</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A documented provenance artefact - publications, documents, personal communication.</comment>
+
+        <id name="publicationId" type="java.lang.Integer">
+            <column name="pub_id" />
+
+            <generator class="sequence">
+                <param name="sequence">pub_pub_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="pub_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id" not-null="true">
+                <comment>The type of the publication (book, journal, poem, graffiti, etc). Uses pub cv.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="title" type="string">
+            <column name="title">
+                <comment>Descriptive general heading.</comment>
+            </column>
+        </property>
+
+        <property name="volumeTitle" type="string">
+            <column name="volumetitle">
+                <comment>Title of part if one of a series.</comment>
+            </column>
+        </property>
+
+        <property name="volume" type="string">
+            <column name="volume" />
+        </property>
+
+        <property name="seriesName" type="string">
+            <column name="series_name">
+                <comment>Full name of (journal) series.</comment>
+            </column>
+        </property>
+
+        <property name="issue" type="string">
+            <column name="issue" />
+        </property>
+
+        <property name="publicationYear" type="string">
+            <column name="pyear" />
+        </property>
+
+        <property name="pages" type="string">
+            <column name="pages">
+                <comment>Page number range[s], e.g. 457--459, viii + 664pp, lv--lvii.</comment>
+            </column>
+        </property>
+
+        <property name="miniReference" type="string">
+            <column name="miniref" />
+        </property>
+
+        <property name="uniqueName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true" unique="true" />
+        </property>
+
+        <property name="isObsolete" type="java.lang.Boolean">
+            <column name="is_obsolete" />
+        </property>
+
+        <property name="publisher" type="string">
+            <column name="publisher" />
+        </property>
+
+        <property name="publicationPlace" type="string">
+            <column name="pubplace" />
+        </property>
+
+        <set name="childPublicationRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PublicationRelationship" />
+        </set>
+
+        <set name="publicationAuthors" inverse="true">
+            <key>
+                <column name="pub_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PublicationAuthor" />
+        </set>
+
+        <set name="publicationDBXrefs" inverse="true">
+            <key>
+                <column name="pub_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PublicationDBXref" />
+        </set>
+
+        <set name="parentPublicationRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PublicationRelationship" />
+        </set>
+    </class>
+</hibernate-mapping>
+

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractProtocol" table="protocol">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Procedural notes on how data was prepared and processed.</comment>
+
+        <id name="protocolId" type="java.lang.Integer">
+            <column name="protocol_id" />
+
+            <generator class="sequence">
+                <param name="sequence">protocol_protocol_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="protocol_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <column name="pub_id" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id" />
+        </many-to-one>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" not-null="true" unique="true" />
+        </property>
+
+        <property name="uri" type="string">
+            <column name="uri" />
+        </property>
+
+        <property name="protocolDescription" type="string">
+            <column name="protocoldescription" />
+        </property>
+
+        <property name="hardwareDescription" type="string">
+            <column name="hardwaredescription" />
+        </property>
+
+        <property name="softwareDescription" type="string">
+            <column name="softwaredescription" />
+        </property>
+
+        <set name="protocolParameters" inverse="true">
+            <key>
+                <column name="protocol_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ProtocolParameter" />
+        </set>
+    </class>
+</hibernate-mapping>
+

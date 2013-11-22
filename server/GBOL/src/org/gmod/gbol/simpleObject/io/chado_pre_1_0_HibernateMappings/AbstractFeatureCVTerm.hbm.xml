@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureCVTerm" table="feature_cvterm">
+        <meta attribute="chadoModule" inherit="false">sequence</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Associate a term from a cv with a feature, for example, GO annotation.</comment>
+
+        <id name="featureCVTermId" type="java.lang.Integer">
+            <column name="feature_cvterm_id" />
+
+            <generator class="sequence">
+                <param name="sequence">feature_cvterm_feature_cvterm_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="feature_cvterm_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true">
+                <comment>Provenance for the annotation. Each annotation should have a single primary publication (which may be of the appropriate type for computational analyses)
+                where more details can be found. Additional provenance dbxrefs can be attached using feature_cvterm_dbxref.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="cvterm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="cvterm_id" not-null="true" />
+        </many-to-one>
+
+        <property name="isNot" type="boolean">
+            <column name="is_not" not-null="true">
+                <comment>If this is set to true, then this annotation is interpreted as a NEGATIVE annotation - i.e. the feature does NOT have the specified function, process,
+                component, part, etc. See GO docs for more details.</comment>
+            </column>
+        </property>
+
+
+        <set name="featureCVTermProperties" inverse="true">
+            <key>
+                <column name="feature_cvterm_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureCVTermProperty" />
+        </set>
+
+        <set name="featureCVTermPublications" inverse="true">
+            <key>
+                <column name="feature_cvterm_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureCVTermPublication" />
+        </set>
+
+        <set name="featureCVTermDBXrefs" inverse="true">
+            <key>
+                <column name="feature_cvterm_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeatureCVTermDBXref" />
+        </set>
+    </class>
+</hibernate-mapping>
+

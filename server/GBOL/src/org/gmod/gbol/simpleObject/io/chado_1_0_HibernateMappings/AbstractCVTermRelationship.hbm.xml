@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractCVTermRelationship" table="cvterm_relationship">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A relationship linking two cvterms. Each cvterm_relationship constitutes an edge in the graph defined by the collection of cvterms and cvterm_relationships. The
+        meaning of the cvterm_relationship depends on the definition of the cvterm R refered to by type_id. However, in general the definitions are such that the statement "all
+        SUBJs REL some OBJ" is true. The cvterm_relationship statement is about the subject, not the object. For example "insect wing part_of thorax".</comment>
+
+        <id name="cvtermRelationshipId" type="java.lang.Integer">
+            <column name="cvterm_relationship_id" />
+
+            <generator class="sequence">
+                <param name="sequence">cvterm_relationship_cvterm_relationship_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="cvterm_relationship_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true">
+                <comment>The nature of the relationship between subject and object. Note that relations are also housed in the cvterm table, typically from the OBO relationship
+                ontology, although other relationship types are allowed.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="subjectCVTerm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="subject_id" not-null="true">
+                <comment>The subject of the subj-predicate-obj sentence. The cvterm_relationship is about the subject. In a graph, this typically corresponds to the child
+                node.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="objectCVTerm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="object_id" not-null="true">
+                <comment>The object of the subj-predicate-obj sentence. The cvterm_relationship refers to the object. In a graph, this typically corresponds to the parent
+                node.</comment>
+            </column>
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

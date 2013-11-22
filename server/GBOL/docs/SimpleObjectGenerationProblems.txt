@@ -1,0 +1,18 @@
+Things that need to be fixed after generating the Abstract* classes:
+
+1) There are some auto generated comment tags inserted in AbstractDBXref.hbm.xml that 
+have "<" and ">" in them. Those screw up the hbm xml parsing and need to be 
+removed or escaped or something.  
+
+2) The current version of hibernate tools for some reason can't deal with class property 
+mappings of columns called "version" for some reason. So in AbstractDBXref.hbm.xml, replace  
+
+    <version name="version" type="string">
+		<column name="version" not-null="true" />
+	</version>
+
+with
+
+	<property name="version"/>
+
+Also need to make that change in AbstractArrayDesign.hbm.xml

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhenotype" table="phenotype">
+        <meta attribute="chadoModule" inherit="false">genetic</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>A phenotypic statement, or a single atomic phenotypic observation, is a controlled sentence describing observable effects of non-wild type function. E.g. Obs=eye,
+        attribute=color, cvalue=red.</comment>
+
+        <id name="phenotypeId" type="java.lang.Integer">
+            <column name="phenotype_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phenotype_phenotype_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phenotype_id" insert="false" />
+
+        <many-to-one name="attribute" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="attr_id">
+                <comment>Phenotypic attribute (quality, property, attribute, character) - drawn from PATO.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="cvalue" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="cvalue_id">
+                <comment>Phenotype attribute value (state).</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="assay" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="assay_id">
+                <comment>Evidence type.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="observable" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="observable_id">
+                <comment>The entity: e.g. anatomy_part, biological_process.</comment>
+            </column>
+        </many-to-one>
+
+        <property name="uniqueName" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="uniquename" not-null="true" unique="true" />
+        </property>
+
+        <property name="value" type="string">
+            <column name="value">
+                <comment>Value of attribute - unconstrained free text. Used only if cvalue_id is not appropriate.</comment>
+            </column>
+        </property>
+
+        <set name="phenotypeCVTerms" inverse="true">
+            <key>
+                <column name="phenotype_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhenotypeCVTerm" />
+        </set>
+
+        <set name="phenotypeStatements" inverse="true">
+            <key>
+                <column name="phenotype_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.PhenotypeStatement" />
+        </set>
+
+        <set name="featurePhenotypes" inverse="true">
+            <key>
+                <column name="phenotype_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.FeaturePhenotype" />
+        </set>
+    </class>
+</hibernate-mapping>
+

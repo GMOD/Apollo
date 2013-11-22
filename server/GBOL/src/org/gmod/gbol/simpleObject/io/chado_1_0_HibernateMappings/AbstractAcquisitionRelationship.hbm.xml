@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractAcquisitionRelationship" table="acquisition_relationship">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Multiple monochrome images may be merged to form a multi-color image. Red-green images of 2-channel hybridizations are an example of this.</comment>
+
+        <id name="acquisitionRelationshipId" type="java.lang.Integer">
+            <column name="acquisition_relationship_id" />
+
+            <generator class="sequence">
+                <param name="sequence">acquisition_relationship_acquisition_relationship_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="acquisition_relationship_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="subjectAcquisition" class="org.gmod.gbol.simpleObject.Acquisition" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="subject_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="objectAcquisition" class="org.gmod.gbol.simpleObject.Acquisition" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="object_id" not-null="true" />
+        </many-to-one>
+
+        <property name="value" type="string">
+            <column name="value" />
+        </property>
+
+        <property name="rank" type="int">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="rank" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
+

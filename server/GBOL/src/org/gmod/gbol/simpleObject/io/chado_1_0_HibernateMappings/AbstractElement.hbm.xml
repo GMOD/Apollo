@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractElement" table="element">
+        <meta attribute="chadoModule" inherit="false">mage</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Represents a feature of the array. This is typically a region of the array coated or bound to DNA.</comment>
+
+        <id name="elementId" type="java.lang.Integer">
+            <column name="element_id" />
+
+            <generator class="sequence">
+                <param name="sequence">element_element_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="element_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id" />
+        </many-to-one>
+
+        <many-to-one name="arrayDesign" class="org.gmod.gbol.simpleObject.ArrayDesign" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="arraydesign_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" />
+        </many-to-one>
+
+        <many-to-one name="dbxref" class="org.gmod.gbol.simpleObject.DBXref" fetch="select">
+            <column name="dbxref_id" />
+        </many-to-one>
+
+        <set name="parentElementRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ElementRelationship" />
+        </set>
+
+        <set name="elementResults" inverse="true">
+            <key>
+                <column name="element_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ElementResult" />
+        </set>
+
+        <set name="childElementRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true" />
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ElementRelationship" />
+        </set>
+    </class>
+</hibernate-mapping>
+

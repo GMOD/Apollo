@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractContact" table="contact">
+        <meta attribute="chadoModule" inherit="false">contact</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Model persons, institutes, groups, organizations, etc.</comment>
+
+        <id name="contactId" type="java.lang.Integer">
+            <column name="contact_id" />
+
+            <generator class="sequence">
+                <param name="sequence">contact_contact_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="contact_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <column name="type_id">
+                <comment>What type of contact is this? E.g. "person", "lab".</comment>
+            </column>
+        </many-to-one>
+
+        <property name="name" type="string">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="name" not-null="true" unique="true" />
+        </property>
+
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+
+        <set name="parentContactRelationships" inverse="true">
+            <key>
+                <column name="subject_id" not-null="true">
+                    <comment>The subject of the subj-predicate-obj sentence. In a DAG, this corresponds to the child node.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ContactRelationship" />
+        </set>
+
+        <set name="childContactRelationships" inverse="true">
+            <key>
+                <column name="object_id" not-null="true">
+                    <comment>The object of the subj-predicate-obj sentence. In a DAG, this corresponds to the parent node.</comment>
+                </column>
+            </key>
+
+            <one-to-many class="org.gmod.gbol.simpleObject.ContactRelationship" />
+        </set>
+    </class>
+</hibernate-mapping>
+

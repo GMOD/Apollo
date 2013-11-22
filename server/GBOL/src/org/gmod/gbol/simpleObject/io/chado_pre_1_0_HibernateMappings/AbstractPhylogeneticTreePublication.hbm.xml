@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticTreePublication" table="phylotree_pub">
+        <meta attribute="chadoModule" inherit="false">phylogeny</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>Tracks citations global to the tree e.g. multiple sequence alignment supporting tree construction.</comment>
+
+        <id name="phylogeneticTreePublicationId" type="java.lang.Integer">
+            <column name="phylotree_pub_id" />
+
+            <generator class="sequence">
+                <param name="sequence">phylotree_pub_phylotree_pub_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="phylotree_pub_id" insert="false" />
+
+        <many-to-one name="publication" class="org.gmod.gbol.simpleObject.Publication" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pub_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="phylogeneticTree" class="org.gmod.gbol.simpleObject.PhylogeneticTree" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="phylotree_id" not-null="true" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>
+

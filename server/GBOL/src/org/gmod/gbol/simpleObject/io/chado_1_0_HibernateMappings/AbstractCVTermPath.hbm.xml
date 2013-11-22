@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractCVTermPath" table="cvtermpath">
+        <meta attribute="chadoModule" inherit="false">cv</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>The reflexive transitive closure of the cvterm_relationship relation.</comment>
+
+        <id name="cvtermPathId" type="java.lang.Integer">
+            <column name="cvtermpath_id" />
+
+            <generator class="sequence">
+                <param name="sequence">cvtermpath_cvtermpath_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="cvtermpath_id" insert="false" />
+
+        <many-to-one name="type" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="type_id">
+                <comment>The relationship type that this is a closure over. If null, then this is a closure over ALL relationship types. If non-null, then this references a
+                relationship cvterm - note that the closure will apply to both this relationship AND the OBO_REL:is_a (subclass) relationship.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="subjectCVTerm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="subject_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="cv" class="org.gmod.gbol.simpleObject.CV" fetch="select">
+            <column name="cv_id" not-null="true">
+                <comment>Closures will mostly be within one cv. If the closure of a relationship traverses a cv, then this refers to the cv of the object_id cvterm.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="objectCVTerm" class="org.gmod.gbol.simpleObject.CVTerm" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="object_id" not-null="true" />
+        </many-to-one>
+
+        <property name="pathDistance" type="java.lang.Integer">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="pathdistance">
+                <comment>The number of steps required to get from the subject cvterm to the object cvterm, counting from zero (reflexive relationship).</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>
+

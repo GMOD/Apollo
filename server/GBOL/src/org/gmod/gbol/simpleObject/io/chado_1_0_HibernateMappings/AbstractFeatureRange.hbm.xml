@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Sep 3, 2008 1:58:22 PM by Hibernate Tools 3.2.1.GA -->
+<hibernate-mapping>
+    <class name="org.gmod.gbol.simpleObject.generated.AbstractFeatureRange" table="featurerange">
+        <meta attribute="chadoModule" inherit="false">map</meta>
+
+        <meta attribute="scope-class" inherit="false">public abstract</meta>
+
+        <comment>In cases where the start and end of a mapped feature is a range, leftendf and rightstartf are populated. leftstartf_id, leftendf_id, rightstartf_id, rightendf_id
+        are the ids of features with respect to which the feature is being mapped. These may be cytological bands.</comment>
+
+        <id name="featureRangeId" type="java.lang.Integer">
+            <column name="featurerange_id" />
+
+            <generator class="sequence">
+                <param name="sequence">featurerange_featurerange_id_seq</param>
+            </generator>
+        </id>
+
+        <discriminator column="featurerange_id" insert="false" />
+
+        <many-to-one name="rightEndFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <column name="rightendf_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="leftEndFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <column name="leftendf_id" />
+        </many-to-one>
+
+        <many-to-one name="feature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="feature_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="featureMap" class="org.gmod.gbol.simpleObject.FeatureMap" fetch="select">
+            <meta attribute="use-in-equals" inherit="false">true</meta>
+
+            <column name="featuremap_id" not-null="true">
+                <comment>featuremap_id is the id of the feature being mapped.</comment>
+            </column>
+        </many-to-one>
+
+        <many-to-one name="leftStartFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <column name="leftstartf_id" not-null="true" />
+        </many-to-one>
+
+        <many-to-one name="rightStartFeature" class="org.gmod.gbol.simpleObject.Feature" fetch="select">
+            <column name="rightstartf_id" />
+        </many-to-one>
+
+        <property name="rangeString" type="string">
+            <column name="rangestr" />
+        </property>
+    </class>
+</hibernate-mapping>
+
