@@ -7,7 +7,6 @@ import java.util.Iterator;
 
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
 import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
 import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
 
 import com.sleepycat.je.Cursor;
