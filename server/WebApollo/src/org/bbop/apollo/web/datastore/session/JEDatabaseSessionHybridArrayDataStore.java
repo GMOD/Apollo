@@ -18,6 +18,7 @@ import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureLocation;
+import org.gmod.gbol.simpleObject.FeatureRelationship;
 
 public class JEDatabaseSessionHybridArrayDataStore implements DataStore {
 
@@ -92,6 +93,7 @@ public class JEDatabaseSessionHybridArrayDataStore implements DataStore {
 					return null;
 				}
 			}
+			fixParentFeatureRelationships(gsolFeature);
 			AbstractSingleLocationBioFeature feature = findFeature((AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(gsolFeature, conf), uniqueName);
 			if (feature != null) {
 				addSourceToFeature(getTopLevelFeature(feature), sourceFeature);
@@ -470,6 +472,18 @@ public class JEDatabaseSessionHybridArrayDataStore implements DataStore {
 		
 		public int compare(AbstractSingleLocationBioFeature feature1, AbstractSingleLocationBioFeature feature2) {
 			return compare(new FeatureData(feature1), new FeatureData(feature2));
+		}
+	}
+	
+	private void fixParentFeatureRelationships(Feature feature) {
+		for (FeatureRelationship childFr : feature.getChildFeatureRelationships()) {
+			Feature child = childFr.getSubjectFeature();
+			for (FeatureRelationship parentFr : child.getParentFeatureRelationships()) {
+				if (parentFr.getObjectFeature().getUniqueName().equals(feature.getUniqueName()) && parentFr.getObjectFeature() != feature) {
+					parentFr.setObjectFeature(feature);
+				}
+				fixParentFeatureRelationships(child);
+			}
 		}
 	}
 	
