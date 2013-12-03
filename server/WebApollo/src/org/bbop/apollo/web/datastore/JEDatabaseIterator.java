@@ -7,18 +7,21 @@ import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
+import com.sleepycat.je.Transaction;
 
 public class JEDatabaseIterator<T> implements Iterator<T> {
 	
 	private T next;
 	private Cursor cursor;
+	private Transaction transaction;
 	private DatabaseEntry key;
 	private DatabaseEntry value;
 	private boolean fetched;
 	private JESerializedDatabase<T> serializedDb;
 
 	public JEDatabaseIterator(Database db, JESerializedDatabase<T> serializedDb) {
-		cursor = db.openCursor(null, null);
+		transaction = db.getEnvironment().beginTransaction(null, null);
+		cursor = db.openCursor(transaction, null);
 		key = new DatabaseEntry();
 		value = new DatabaseEntry();
 		this.serializedDb = serializedDb;
@@ -35,6 +38,7 @@ public class JEDatabaseIterator<T> implements Iterator<T> {
 		else {
 			next = null;
 			cursor.close();
+			transaction.commit();
 		}
 		return next != null;
 	}
@@ -47,7 +51,7 @@ public class JEDatabaseIterator<T> implements Iterator<T> {
 
 	@Override
 	public void remove() {
+		cursor.delete();
 	}
-
 
 }
