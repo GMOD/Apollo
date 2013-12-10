@@ -364,8 +364,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     }, 
 
-    createAnnotationChangeListener: function() {
+    createAnnotationChangeListener: function(retryNumber) {
         var track = this;
+    	if (retryNumber === undefined) {
+    		retryNumber = 0;
+    	}
+    	// server error if tried connecting 5 times and failed
+    	if (retryNumber > 5) {
+			track.handleError({responseText: '{ error: "Server connection error" }'});
+			window.location.reload();
+			return;
+    	}
 //        if (listeners[track.getUniqueTrackName()]) {
 //            if (listeners[track.getUniqueTrackName()].fired == -1) {
 //                    listeners[track.getUniqueTrackName()].cancel();
@@ -455,17 +464,22 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 			track.createAnnotationChangeListener();
 			return;
 		}
+		if (ioArgs.xhr.status == 0) {
+			setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
+			return;
+		}
 		// bad gateway
-		if (ioArgs.xhr.status == 502) {
+		else if (ioArgs.xhr.status == 502) {
 			track.createAnnotationChangeListener();
 			return;
 		}
 		// server killed
-		if (ioArgs.xhr.status == 503 || ioArgs.xhr.status == 0) {
+		else if (ioArgs.xhr.status == 503) {
 			track.handleError({responseText: '{ error: "Server connection error" }'});
 			window.location.reload();
 			return;
 		}
+		
 		// server timeout
 		else if (ioArgs.xhr.status == 504){
 		    console.log("received server timeoout");
