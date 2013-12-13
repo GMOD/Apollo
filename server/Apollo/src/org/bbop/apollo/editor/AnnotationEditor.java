@@ -1120,6 +1120,9 @@ public class AnnotationEditor {
 	}
 	
 	private void updateGeneBoundaries(Gene gene) {
+		if (gene == null) {
+			return;
+		}
 		int geneFmax = Integer.MIN_VALUE;
 		int geneFmin = Integer.MAX_VALUE;
 		for (Transcript t : gene.getTranscripts()) {
