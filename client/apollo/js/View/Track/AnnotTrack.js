@@ -182,7 +182,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		var cfg = this.config.style.alternateClasses[clsName];
     		utrClass = cfg.className;
     	}
-    	DraggableFeatureTrack.prototype.renderExonSegments.call(this, subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass);
+    	return DraggableFeatureTrack.prototype.renderExonSegments.call(this, subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass);
     },
 
     _defaultConfig: function() {
@@ -5435,58 +5435,60 @@ makeTrackMenu: function()  {
             if (scale === charSize.width && track.useResiduesOverlay)  {
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
-                    var block = this.blocks[bindex];
+                    var blk = this.blocks[bindex];
 		    // seqTrack.getRange(block.startBase, block.endBase,
                     //  seqTrack.sequenceStore.getRange(this.refSeq, block.startBase, block.endBase,
 //		    seqTrack.sequenceStore.getFeatures({ ref: this.refSeq.name, start: block.startBase, end: block.endBase },
 //	                    function(feat) {
             seqTrack.sequenceStore.getReferenceSequence(
-            		{ ref: this.refSeq.name, start: block.startBase, end: block.endBase },
-            		function( seq ) {
-//				var start = feat.get('start');
-//				var end   = feat.get('end');
-//				var seq   = feat.get('seq');
-            	var start = block.startBase;
-            	var end = block.endBase;
-			    
-                            // var ypos = $(topfeat).position().top;
-                            // +2 hardwired adjustment to center (should be calc'd based on feature div dims?
-                            var ypos = selectionYPosition + 2;
-                            // checking to see if residues for this "row" of the block are already present
-                            //    ( either from another selection in same row, or previous rendering
-                            //        of same selection [which often happens when scrolling] )
-                            // trying to avoid duplication both for efficiency and because re-rendering of text can
-                            //    be slighly off from previous rendering, leading to bold / blurry text when overlaid
+            		{ ref: this.refSeq.name, start: blk.startBase, end: blk.endBase },
+            		function( block ) {
+            			return function(seq) {
+//          				var start = feat.get('start');
+//          				var end   = feat.get('end');
+//          				var seq   = feat.get('seq');
+            				var start = block.startBase;
+            				var end = block.endBase;
 
-                            var $seqdivs = $("div.annot-sequence", block.domNode);
-                            var sindex = $seqdivs.length;
-                            var add_residues = true;
-                            if ($seqdivs && sindex > 0)  {
-                                for (var i=0; i<sindex; i++) {
-                                    var sdiv = $seqdivs[i];
-                                    if ($(sdiv).position().top === ypos)  {
-                                        // console.log("residues already present in block: " + bindex);
-                                        add_residues = false;
-                                    }
-                                }
-                            }
-                            if (add_residues)  {
-                                var seqNode = document.createElement("div");
-                                seqNode.className = "annot-sequence";
-				if (strand == '-' || strand == -1)  {
-				    // seq = track.reverseComplement(seq);
-				    seq = track.getSequenceTrack().complement(seq);
-				}
-                                seqNode.appendChild(document.createTextNode(seq));
-                                // console.log("ypos: " + ypos);
-                                seqNode.style.cssText = "top: " + ypos + "px;";
-                                block.domNode.appendChild(seqNode);
-                                if (track.FADEIN_RESIDUES)  {
-                                    $(seqNode).hide();
-                                    $(seqNode).fadeIn(1500);
-                                }
-                            }
-                        } );
+            				// var ypos = $(topfeat).position().top;
+            				// +2 hardwired adjustment to center (should be calc'd based on feature div dims?
+            				var ypos = selectionYPosition + 2;
+            				// checking to see if residues for this "row" of the block are already present
+            				//    ( either from another selection in same row, or previous rendering
+            				//        of same selection [which often happens when scrolling] )
+            				// trying to avoid duplication both for efficiency and because re-rendering of text can
+            				//    be slighly off from previous rendering, leading to bold / blurry text when overlaid
+
+            				var $seqdivs = $("div.annot-sequence", block.domNode);
+            				var sindex = $seqdivs.length;
+            				var add_residues = true;
+            				if ($seqdivs && sindex > 0)  {
+            					for (var i=0; i<sindex; i++) {
+            						var sdiv = $seqdivs[i];
+            						if ($(sdiv).position().top === ypos)  {
+            							// console.log("residues already present in block: " + bindex);
+            							add_residues = false;
+            						}
+            					}
+            				}
+            				if (add_residues)  {
+            					var seqNode = document.createElement("div");
+            					seqNode.className = "annot-sequence";
+            					if (strand == '-' || strand == -1)  {
+            						// seq = track.reverseComplement(seq);
+            						seq = track.getSequenceTrack().complement(seq);
+            					}
+            					seqNode.appendChild(document.createTextNode(seq));
+            					// console.log("ypos: " + ypos);
+            					seqNode.style.cssText = "top: " + ypos + "px;";
+            					block.domNode.appendChild(seqNode);
+            					if (track.FADEIN_RESIDUES)  {
+            						$(seqNode).hide();
+            						$(seqNode).fadeIn(1500);
+            					}
+            				}
+            			};
+            		}(blk) );
 
                 }
             }
