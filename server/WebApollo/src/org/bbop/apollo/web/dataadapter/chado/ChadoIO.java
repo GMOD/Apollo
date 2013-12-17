@@ -112,8 +112,12 @@ public class ChadoIO {
 			DBXref cloneDbxref = handler.getDBXref(cloneFeatureDbxref.getDbxref().getDb().getName(), cloneFeatureDbxref.getDbxref().getAccession());
 			if (cloneDbxref == null) {
 				cloneDbxref = new DBXref(cloneFeatureDbxref.getDbxref());
-				DB db = handler.getDB(cloneDbxref.getDb().getName());
-				cloneDbxref.setDb(db);
+				DB cloneDb = handler.getDB(cloneDbxref.getDb().getName());
+				if (cloneDb == null) {
+					cloneDb = new DB(cloneDbxref.getDb().getName());
+					handler.write(cloneDb);
+				}
+				cloneDbxref.setDb(cloneDb);
 				if (cloneDbxref.getVersion() == null) {
 					cloneDbxref.setVersion("");
 				}
