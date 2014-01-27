@@ -234,38 +234,72 @@ function cleanup_user_item() {
 	$("#user_item").parent().attr("id", "user_item_menu");
 };
 
+function hasWebSocketSupport() {
+	return "WebSocket" in window || "MozWebSocket" in window;
+}
+
 function createListener() {
-	$.ajax({
-		url: "AnnotationChangeNotificationService?track=<%=username + "_" + session.getId()%>",
-		success: function() {
-			createListener();
-		},
-		error: function(jqXHR, textStatus, errorThrown) {
-			var status = jqXHR.status;
-			switch (status) {
-			case 0:
-				if (textStatus == "timeout") {
+	if (!hasWebSocketSupport()) {
+		$.ajax({
+			url: "AnnotationChangeNotificationService?track=<%=username + "_" + session.getId()%>",
+			success: function() {
+				createListener();
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				var status = jqXHR.status;
+				switch (status) {
+				case 0:
+					if (textStatus == "timeout") {
+						createListener();
+					}
+					break;
+				case 403:
+					alert("Logged out");
+					location.reload();
+					break;
+				case 502:
 					createListener();
+					break;
+				case 504:
+					createListener();
+					break;
+				default:
+					alert("Server connection error");
+					location.reload();
+					break;			
 				}
-				break;
-			case 403:
-				alert("Logged out");
-				location.reload();
-				break;
-			case 502:
-				createListener();
-				break;
-			case 504:
-				createListener();
+			},
+			timeout: 5 * 60 * 1000
+		});
+	}
+	else {
+	    var host = "<%=String.format("ws://%s:%d%s/AnnotationEditor/%s", request.getServerName(), request.getServerPort(), request.getContextPath(), username + "_" + session.getId())%>";
+        if ('WebSocket' in window) {
+            this.socket = new WebSocket(host);
+        }
+        else {
+            this.socket = new MozWebSocket(host);
+        }
+        this.socket.onclose = function(event) {
+	    	switch (event.code) {
+	    	case 1000:
+	        	var reason = event.reason;
+	        	if (reason == "Logged out") {
+	        		alert("Logged out");
+	    			window.location.reload();
+	        	}
+	        	break;
+	    	case 1001:
+				alert("Server connection error");
+				window.location.reload();
 				break;
 			default:
 				alert("Server connection error");
-				location.reload();
-				break;			
-			}
-		},
-		timeout: 5 * 60 * 1000
-	});
+				window.location.reload();
+				break;
+	    	}
+	    };
+	}
 };
 
 function write_data(adapter, tracks, options, successMessage) {

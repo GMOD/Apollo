@@ -18,7 +18,11 @@
     <listener>
     	<listener-class>org.bbop.apollo.web.AnnotationChangeNotificationService</listener-class>
     </listener>
-    
+
+    <listener>
+    	<listener-class>org.bbop.apollo.web.Login</listener-class>
+    </listener>
+
     <filter>
     	<filter-name>GzipFilter</filter-name>
 		<filter-class>org.mortbay.servlet.GzipFilter</filter-class>

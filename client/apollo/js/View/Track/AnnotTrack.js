@@ -36,14 +36,15 @@ define( [
     'bbop/jquery',
     'bbop/search_box',
     'dojo/request/xhr',
-    'dojox/widget/Standby'
+    'dojox/widget/Standby',
+    'WebApollo/View/Track/AnnotTrackSocket'
         ],
         function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
 		  dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
                   dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby ) {
+		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Socket ) {
 
 //var listeners = [];
 //var listener;
@@ -145,9 +146,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	
         this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
         	if (currRegion.ref != this.refSeq.name) {
+        		if (this.listener) {
+        			this.listener.close();
+        		}
+        		/*
         		if (this.listener && this.listener.fired == -1 ) {
         			this.listener.cancel();
         		}
+        		*/
         		
         		/*
             	loginButton.destroyRecursive();
@@ -260,7 +266,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.initPopupDialog();
 
         if (success) {
-            track.createAnnotationChangeListener();
+            track.createAnnotationChangeListener(0);
             xhr(context_path + "/AnnotationEditorService", {
             	handleAs: "json",
             	data: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
@@ -364,159 +370,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     }, 
 
-    createAnnotationChangeListener: function(retryNumber) {
-        var track = this;
-    	if (retryNumber === undefined) {
-    		retryNumber = 0;
-    	}
-    	// server error if tried connecting 5 times and failed
-    	if (retryNumber > 5) {
-			track.handleError({responseText: '{ error: "Server connection error" }'});
-			window.location.reload();
-			return;
-    	}
-//        if (listeners[track.getUniqueTrackName()]) {
-//            if (listeners[track.getUniqueTrackName()].fired == -1) {
-//                    listeners[track.getUniqueTrackName()].cancel();
-//            }
-//        }
-
-        this.listener = dojo.xhrGet( {
-            url: context_path + "/AnnotationChangeNotificationService",
-            content: {
-                track: track.getUniqueTrackName()
-            },
-            handleAs: "json",
-	    /*  WARNING: 
-                MUST set preventCache to true, at least with Dojo 1.? (7?) 
-		otherwise with AnnotationChangeNotificationService dojo.xhrGet, dojo will cache the response till page reload
-		(seems to do this regardless of whether web browser caching is enabled or not)
-		result is infinite loop due to recursive createAnnotationChangeListener() call in xhr.load, 
-		  with each loop just receiving cached response without ever going back out to server after first response.
-	     */
-	    preventCache: true, 
-            // timeout: 1000 * 1000, // Time in milliseconds
-            timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no timeout set
-            // The LOAD function will be called on a successful response.
-            load: function(response, ioArgs) {
-                    if (response == null) {
-                            track.createAnnotationChangeListener();
-                    }
-                    //else if (response.error) {
-                    //        track.handleError({ responseText: JSON.stringify(response) });
-                    // }
-                    else {
-                            for (var i in response) {
-                                
-                                    var changeData = response[i];
-                                    if (track.verbose_server_notification) {
-                                            console.log(changeData.operation + " command from server: ");
-                                            console.log(changeData);                                        
-                                    }
-                                    if (changeData.operation == "ADD") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                            }
-                                            else {
-                                                    track.annotationsAddedNotification(changeData.features);
-                                            }
-                                    }
-                                    else if (changeData.operation == "DELETE") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                            }
-                                            else {
-                                                    track.annotationsDeletedNotification(changeData.features);
-                                            }
-                                    }
-                                    else if (changeData.operation == "UPDATE") {
-                                            if (changeData.sequenceAlterationEvent) {
-						track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                                                 //   track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                                 //   track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                            }
-                                            else {
-						track.annotationsUpdatedNotification(changeData.features);
-                                                //    track.annotationsDeletedNotification(changeData.features);
-                                                //    track.annotationsAddedNotification(changeData.features);
-                                            }
-                                    }
-                                    else  {
-                                        // unknown command from server, null-op?
-                                    }
-                            }
-                            // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
-                            track.changed();
-                            track.createAnnotationChangeListener();
-                    }
-            },
-            // The ERROR function will be called in an error case.
-            error: function(response, ioArgs) { //
-		// client cancel
-                    if (response.dojoType == "cancel") {
-			console.log("AnnotationChangeNotification  XHR returned with error of type CANCEL");
-			track.handleError(response);
-
-                            return;
-                    }
-		// client timeout
-		if (response.dojoType == "timeout") {
-			track.createAnnotationChangeListener();
-			return;
-		}
-		if (ioArgs.xhr.status == 0) {
-			setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
-			return;
-		}
-		// bad gateway
-		else if (ioArgs.xhr.status == 502) {
-			track.createAnnotationChangeListener();
-			return;
-		}
-		// server killed
-		else if (ioArgs.xhr.status == 503) {
-			track.handleError({responseText: '{ error: "Server connection error" }'});
-			window.location.reload();
-			return;
-		}
-		
-		// server timeout
-		else if (ioArgs.xhr.status == 504){
-		    console.log("received server timeoout");
-			track.createAnnotationChangeListener();
-		    console.log("created new AnnotationChangeListener");
-		    // fiddling with supressing dojo.xhrGet internal Deferred stuff 
-		    //    firing errors
-		    // setting error.log = false may override...
-		    response.log = false;
-			return;
-		}
-		// forbidden
-		else if (ioArgs.xhr.status == 403) {
-			track.hide();
-			track.changed();
-			track.handleError({responseText: '{ error: "Logged out" }'});
-			window.location.reload();
-			return;
-		}
-		// actual error
-                    if (response.responseText) {
-                            track.handleError(response);
-		    track.comet_working = false;
-		    console.error("HTTP status code: ", ioArgs.xhr.status); //
-		    return response;
-                    }
-		// everything else
-                    else {
-                            track.handleError({responseText: '{ error: "Server connection error" }'});
-			return;
-                    }
-		
-            },
-            failOk: true
-        });
-//        listeners[track.getUniqueTrackName()] = listener;
-
+    createAnnotationChangeListener: function(numTry) {
+    	this.listener = new Socket(context_path, this);
     },
 
     /** 
@@ -4462,8 +4317,7 @@ getAnnotationInformation: function()  {
     handleError: function(response) {
         console.log("ERROR: ");
         console.log(response);  // in Firebug, allows retrieval of stack trace, jump to code, etc.
-	console.log(response.stack);
-        var error = eval('(' + response.responseText + ')');
+        var error = response.responseText ? JSON.parse(response.responseText) : response.response.data;
         //      var error = response.error ? response : eval('(' + response.responseText + ')');
         if (error && error.error) {
             alert(error.error);
@@ -5532,11 +5386,20 @@ makeTrackMenu: function()  {
     // };
 
     executeUpdateOperation: function(postData, loadCallback) {
+    	/*
     	var track = this;
+        if (!this.listener) {
+        	this.handleError({responseText: '{ error: "Server connection error - try reloading the page" }'});
+        	return;
+        }
+        */
+    	this.listener.send(postData, loadCallback);
+    	/*
         if (!this.listener || this.listener.fired != -1 ) {
         	this.handleError({responseText: '{ error: "Server connection error - try reloading the page" }'});
         	return;
         }
+        */
         /*
         dojo.xhrPost( {
             postData: postData,
@@ -5557,6 +5420,7 @@ makeTrackMenu: function()  {
             }
         });
         */
+        /*
         xhr(context_path + "/AnnotationEditorService", {
         	handleAs: "json",
         	data: postData,
@@ -5571,6 +5435,12 @@ makeTrackMenu: function()  {
         }, function(response, ioArgs) {
         	track.handleError({responseText: response.response.text });
         });
+        */
+        
+        /*
+        this.listener.sendUpdate(postData, loadCallback);
+        */
+        
     },
     
     isProteinCoding: function(feature) {

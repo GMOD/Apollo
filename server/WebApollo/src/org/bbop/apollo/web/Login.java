@@ -9,14 +9,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 
 import org.bbop.apollo.web.config.ServerConfiguration;
+import org.bbop.apollo.web.sockets.AnnotationEditorSessionManager;
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
@@ -27,7 +32,7 @@ import org.json.JSONObject;
  * Servlet implementation class LoginDynamic
  */
 @WebServlet("/Login")
-public class Login extends HttpServlet {
+public class Login extends HttpServlet implements HttpSessionListener {
 	private static final long serialVersionUID = 1L;
 
 	private UserAuthentication userAuthentication;
@@ -126,6 +131,15 @@ public class Login extends HttpServlet {
 		}
 		catch (JSONException e2) {
 		}
+	}
+
+	@Override
+	public void sessionCreated(HttpSessionEvent event) {
+	}
+
+	@Override
+	public void sessionDestroyed(HttpSessionEvent event) {
+		AnnotationEditorSessionManager.getInstance().sessionDestroyed(event);
 	}
 
 }
