@@ -771,7 +771,7 @@ public class AnnotationEditorService extends HttpServlet {
 
 					// search_sequence
 					else if (operation.equals("search_sequence")) {
-						searchSequence(editor, json.getJSONObject("search"), out);
+						searchSequence(editor, session, json.getJSONObject("search"), out);
 					}
 
 					// get_sequence_search_tools
@@ -1807,7 +1807,7 @@ public class AnnotationEditorService extends HttpServlet {
 		out.write(featureContainer.toString());
 	}
 	
-	private void searchSequence(AnnotationEditor editor, JSONObject search, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException, SequenceSearchToolException {
+	private void searchSequence(AnnotationEditor editor, HttpSession session, JSONObject search, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException, SequenceSearchToolException {
 		if (sequenceSearchTools.size() == 0) {
 			throw new AnnotationEditorServiceException("No search tools configured");
 		}
@@ -1819,7 +1819,7 @@ public class AnnotationEditorService extends HttpServlet {
 		String query = search.getString("residues");
 		String databaseId = search.has("database_id") ? search.getString("database_id") : null;
 		
-		for (Match match : sequenceSearchTool.search(query, databaseId)) {
+		for (Match match : sequenceSearchTool.search(session.getId(), query, databaseId)) {
 			matchContainer.getJSONArray("matches").put(JSONUtil.convertMatchToJSON(match));
 		}
 		out.write(matchContainer.toString());

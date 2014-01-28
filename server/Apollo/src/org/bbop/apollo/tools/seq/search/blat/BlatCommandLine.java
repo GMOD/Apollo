@@ -33,6 +33,7 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 	private boolean removeTmpDir;
 	protected String [] blatOptions;
 	
+	@Override
 	public void parseConfiguration(InputStream config) throws SequenceSearchToolException {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -47,7 +48,7 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 			if (tmpDirNode == null) {
 				throw new SequenceSearchToolException("Configuration missing required 'tmp_dir' element");
 			}
-			tmpDir = tmpDirNode.getTextContent() + "/" + System.nanoTime();
+			tmpDir = tmpDirNode.getTextContent();
 			Node databaseNode = doc.getElementsByTagName("database").item(0);
 			if (databaseNode == null) {
 				throw new SequenceSearchToolException("Configuration missing required 'database' element");
@@ -64,10 +65,12 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 		}
 	}
 
-	public Collection<Match> search(String query, String databaseId) throws SequenceSearchToolException {
+	@Override
+	public Collection<Match> search(String uniqueToken, String query, String databaseId) throws SequenceSearchToolException {
+		File dir = null;
 		try {
-			createTmpDir();
-			return runSearch(query, databaseId);
+			dir = createTmpDir(uniqueToken);
+			return runSearch(dir, query, databaseId);
 		}
 		catch (IOException e) {
 			throw new SequenceSearchToolException("Error running search: " + e.getMessage(), e);
@@ -80,16 +83,16 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 		}
 		finally {
 			if (removeTmpDir) {
-				deleteTmpDir();
+				deleteTmpDir(dir);
 			}
 		}
 	}
 	
-	private Collection<Match> runSearch(String query, String databaseId) throws IOException, AlignmentParsingException, InterruptedException {
-		PrintWriter log = new PrintWriter(new BufferedWriter(new FileWriter(tmpDir + "/search.log")));
-		String queryArg = createQueryFasta(query);
+	private Collection<Match> runSearch(File dir, String query, String databaseId) throws IOException, AlignmentParsingException, InterruptedException {
+		PrintWriter log = new PrintWriter(new BufferedWriter(new FileWriter(dir + "/search.log")));
+		String queryArg = createQueryFasta(dir, query);
 		String databaseArg = database + (databaseId != null ? ":" + databaseId : "");
-		String outputArg = tmpDir + "/results.tab";
+		String outputArg = dir.getAbsolutePath() + "/results.tab";
 		List<String> commands = new ArrayList<String>();
 		commands.add(blatBin);
 		if (blatOptions != null) {
@@ -138,8 +141,7 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 		return matches;
 	}
 
-	private void deleteTmpDir() {
-		File dir = new File(tmpDir);
+	private void deleteTmpDir(File dir) {
 		if (!dir.exists()) {
 			return;
 		}
@@ -149,8 +151,8 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 		dir.delete();
 	}
 	
-	private File createTmpDir() throws SequenceSearchToolException {
-		File dir = new File(tmpDir);
+	private File createTmpDir(String uniqueToken) throws SequenceSearchToolException {
+		File dir = new File(tmpDir + "/" + uniqueToken + "_" + System.nanoTime());
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
 				throw new SequenceSearchToolException("Error creating tmp dir: " + dir.getAbsolutePath());
@@ -159,8 +161,8 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
 		return dir;
 	}
 	
-	private String createQueryFasta(String query) throws IOException {
-		String queryFileName = tmpDir + "/query.fa";
+	private String createQueryFasta(File dir, String query) throws IOException {
+		String queryFileName = dir.getAbsolutePath() + "/query.fa";
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(queryFileName)));
 		out.println(">query");
 		out.println(query);
