@@ -493,6 +493,9 @@ public abstract class AbstractBioFeature extends AbstractBioObject {
 	 * @return Date when this feature was last modified
 	 */
 	public Date getTimeLastModified() {
+		if (feature.getTimeLastModified() == null) {
+			feature.setTimeLastModified(new Date(feature.getTimeAccessioned().getTime()));
+		}
 		return feature.getTimeLastModified();
 	}
 	
