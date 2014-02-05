@@ -2101,12 +2101,14 @@ public class AnnotationEditorService extends HttpServlet {
 				spliceSite.setTimeAccessioned(new Date());
 			}
 			spliceSite.setTimeLastModified(new Date());
+			spliceSite.setOwner(transcript.getOwner());
 		}
 		for (NonCanonicalThreePrimeSpliceSite spliceSite : transcript.getNonCanonicalThreePrimeSpliceSites()) {
 			if (spliceSite.getTimeAccessioned() == null) {
 				spliceSite.setTimeAccessioned(new Date());
 			}
 			spliceSite.setTimeLastModified(new Date());
+			spliceSite.setOwner(transcript.getOwner());
 		}
 	}
 	
