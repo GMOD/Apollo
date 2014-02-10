@@ -24,10 +24,11 @@ define(
 	   './FeatureSelectionManager',
            './TrackConfigTransformer', 
 	   './View/Track/AnnotTrack', 
+	   './View/TrackList/Hierarchical', 
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
     function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, GFF3Driver ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, GFF3Driver ) {
 
 return declare( JBPlugin,
 {
@@ -52,7 +53,6 @@ return declare( JBPlugin,
         if (! browser.config.helpUrl)  {
 	    browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
         }
-
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
