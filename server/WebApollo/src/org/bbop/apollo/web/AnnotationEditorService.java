@@ -948,16 +948,19 @@ public class AnnotationEditorService extends HttpServlet {
 		}
 	}
 
-	private void addFeature(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException {
+	private void addFeature(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
 		addFeature(editor, session, dataStore, historyStore, features, track, username, out, true);
 	}
 	
-	private void addFeature(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, boolean fireUpdateChange) throws JSONException, IOException {
+	private void addFeature(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, boolean fireUpdateChange) throws JSONException, IOException, AnnotationEditorServiceException {
 		JSONObject featureContainer = createJSONFeatureContainer();
 		for (int i = 0; i < features.length(); ++i) {
 			Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 			updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
 			AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(gsolFeature, bioObjectConfiguration);
+			if (gbolFeature.getFmin() < 0 || gbolFeature.getFmax() < 0) {
+				throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+			}
 			setOwner(gbolFeature, (String)session.getAttribute("username"));
 			editor.addFeature(gbolFeature);
 			if (gbolFeature instanceof Gene) {
@@ -2124,6 +2127,9 @@ public class AnnotationEditorService extends HttpServlet {
 			Feature gsolExon = JSONUtil.convertJSONToFeature(jsonExon, bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 			updateNewGsolFeatureAttributes(gsolExon, trackToSourceFeature.get(track));
 			Exon gbolExon = (Exon)BioObjectUtil.createBioObject(gsolExon, bioObjectConfiguration);
+			if (gbolExon.getFmin() < 0 || gbolExon.getFmax() < 0) {
+				throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+			}
 			editor.addExon(transcript, gbolExon);
 			calculateCDS(editor, transcript);
 			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
@@ -2399,13 +2405,17 @@ public class AnnotationEditorService extends HttpServlet {
 		fireDataStoreChange(new DataStoreChangeEvent(this, updateContainer, track, DataStoreChangeEvent.Operation.UPDATE), new DataStoreChangeEvent(this, addContainer, track, DataStoreChangeEvent.Operation.ADD));
 	}
 	
-	private void addSequenceAlteration(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException {
+	private void addSequenceAlteration(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
 		JSONObject updateFeatureContainer = createJSONFeatureContainer();
 		JSONObject addFeatureContainer = createJSONFeatureContainer();
 		for (int i = 0; i < features.length(); ++i) {
 			Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 			updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
 			SequenceAlteration sequenceAlteration = (SequenceAlteration)BioObjectUtil.createBioObject(gsolFeature, bioObjectConfiguration);
+			if (sequenceAlteration.getFmin() < 0 || sequenceAlteration.getFmax() < 0) {
+				throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+			}
+
 			setOwner(sequenceAlteration, (String)session.getAttribute("username"));
 			editor.addSequenceAlteration(sequenceAlteration);
 			if (dataStore != null) {
@@ -2545,6 +2555,9 @@ public class AnnotationEditorService extends HttpServlet {
 			JSONObject jsonLocation = jsonFeature.getJSONObject("location");
 			int fmin = jsonLocation.getInt("fmin");
 			int fmax = jsonLocation.getInt("fmax");
+			if (fmin < 0 || fmax < 0) {
+				throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+			}
 			Exon exon = (Exon)editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
 			Transcript transcript = exon.getTranscript();
 			Transcript oldTranscript = cloneTranscript(transcript);
@@ -3864,12 +3877,16 @@ public class AnnotationEditorService extends HttpServlet {
 		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 	}
 	
-	private Transcript addTranscript(AnnotationEditor editor, HttpSession session, JSONObject jsonTranscript, String track, AbstractNameAdapter nameAdapter, boolean isPseudogene) throws JSONException {
+	private Transcript addTranscript(AnnotationEditor editor, HttpSession session, JSONObject jsonTranscript, String track, AbstractNameAdapter nameAdapter, boolean isPseudogene) throws JSONException, AnnotationEditorServiceException {
 		Gene gene = jsonTranscript.has("parent_id") ? (Gene)editor.getSession().getFeatureByUniqueName(jsonTranscript.getString("parent_id")) : null;
 		Transcript transcript = null;
 		if (gene != null) {
 			Feature gsolTranscript = JSONUtil.convertJSONToFeature(jsonTranscript, bioObjectConfiguration, trackToSourceFeature.get(track), nameAdapter);
 			transcript = (Transcript)BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
+			if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
+				throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+			}
+
 			setOwner(transcript, (String)session.getAttribute("username"));
 			if (!useCDS || transcript.getCDS() == null) {
 				calculateCDS(editor, transcript);
@@ -3886,6 +3903,9 @@ public class AnnotationEditorService extends HttpServlet {
 					Feature gsolTranscript = JSONUtil.convertJSONToFeature(jsonTranscript, bioObjectConfiguration, trackToSourceFeature.get(track), nameAdapter);
 					updateNewGsolFeatureAttributes(gsolTranscript, trackToSourceFeature.get(track));
 					Transcript tmpTranscript = (Transcript)BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
+					if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
+						throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+					}
 					setOwner(tmpTranscript, (String)session.getAttribute("username"));
 					if (!useCDS || tmpTranscript.getCDS() == null) {
 						calculateCDS(editor, tmpTranscript);
@@ -3915,6 +3935,9 @@ public class AnnotationEditorService extends HttpServlet {
 			Feature gsolGene = JSONUtil.convertJSONToFeature(jsonGene, bioObjectConfiguration, trackToSourceFeature.get(track), nameAdapter);
 			updateNewGsolFeatureAttributes(gsolGene, trackToSourceFeature.get(track));
 			gene = (Gene)BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
+			if (gene.getFmin() < 0 || gene.getFmax() < 0) {
+				throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+			}
 			setOwner(gene, (String)session.getAttribute("username"));
 			transcript = gene.getTranscripts().iterator().next();
 			if (!useCDS || transcript.getCDS() == null) {
