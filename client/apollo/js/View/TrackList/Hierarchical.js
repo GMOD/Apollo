@@ -7,10 +7,10 @@ function(declare,Hierarchical) {
 	{
 		// Subclass method for track selector to remove webapollo specific tracks
 		addTracks: function( tracks, inStartup ) {
-			for(i=0;i<tracks.length;i++) {
-				if(tracks[i].label=="Annotations" || tracks[i].label=="DNA") {
+			for(var i=0;i<tracks.length;i++) {
+				if(tracks[i]["track type"]=="WebApollo/View/Track/AnnotTrack" || tracks[i]["track type"]=="WebApollo/View/Track/AnnotSequenceTrack") {
 					tracks.splice(i,1);
-					i=0;//restart for safety
+					--i;
 				}
 			}
 			//call superclass
