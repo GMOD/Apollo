@@ -159,6 +159,16 @@ return declare( JBPlugin,
             var track_config = track_configs[i];
             this.trackTransformer.transform(track_config);
         }
+        
+        // update track selector to WebApollo's if needed
+        // if no track selector set, use WebApollo's Hierarchical selector
+        if (!browser.config.trackSelector) {
+        	browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
+        }
+        // if using JBrowse's Hierarchical selector, switch to WebApollo's
+        else if (browser.config.trackSelector.type == "Hierarchical") {
+        	browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
+        }
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
