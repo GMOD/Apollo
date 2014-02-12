@@ -206,6 +206,16 @@ public abstract class AbstractBioFeature extends AbstractBioObject {
 				return new Owner(fp, conf);
 			}
 		}
+		
+		// if no owner found, try to get the first owner found in an ancestor
+		for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
+			AbstractBioFeature parent = (AbstractBioFeature)BioObjectUtil.createBioObject(fr.getObjectFeature(), getConfiguration());
+			Owner parentOwner = parent.getOwner();
+			if (parentOwner != null) {
+				return parentOwner;
+			}
+		}
+
 		return null;
 	}
 	

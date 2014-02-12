@@ -77,18 +77,5 @@ public class SpliceSite extends AbstractSingleLocationBioFeature {
 		}
 		return null;
 	}
-
-	@Override
-	public Owner getOwner() {
-		Owner owner = super.getOwner();
-		if (owner == null) {
-			Transcript transcript = getTranscript();
-			if (transcript != null) {
-				owner = transcript.getOwner();
-				setOwner(owner);
-			}
-		}
-		return owner;
-	}
 	
 }
