@@ -1882,7 +1882,7 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(historyContainer.toString());
 	}	
 	
-	private Transcript flipTranscriptStrand(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, Transcript oldTranscript, String track, String username, AbstractNameAdapter nameAdapter) throws JSONException {
+	private Transcript flipTranscriptStrand(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, Transcript oldTranscript, String track, String username, AbstractNameAdapter nameAdapter) throws JSONException, AnnotationEditorServiceException {
 		boolean isPseudogene = oldTranscript.getGene().isPseudogene();
 		Gene oldGene = oldTranscript.getGene();
 		editor.deleteTranscript(oldGene, oldTranscript);
