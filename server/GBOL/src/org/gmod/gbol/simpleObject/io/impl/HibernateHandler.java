@@ -312,7 +312,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (Feature)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No feature found for " + uniquename + "(" + type + ") [" + organism + "]");
 		}
 	}
 
@@ -321,8 +321,9 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 	 * @param cvtermName - String for the name of the cvterm
 	 * @param cvName - String for the name of the cv
 	 * @return CVTerm corresponding the cvterm and cv names
+	 * @throws SimpleObjectIOException 
 	 */
-	public CVTerm getCVTerm(String cvtermName, String cvName) {
+	public CVTerm getCVTerm(String cvtermName, String cvName) throws SimpleObjectIOException {
 		String hql = "from CVTerm where name=? and cv.name=?";
 		Session session = getCurrentSession();
 		Query query = session.createQuery(hql);
@@ -333,7 +334,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (CVTerm)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No cvterm found for " + cvName + ":" + cvtermName);
 		}
 	}
 
@@ -341,8 +342,9 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 	 * 
 	 * @param cvName - String for the name of the cv
 	 * @return CV corresponding the cv name
+	 * @throws SimpleObjectIOException 
 	 */
-	public CV getCV(String cvName) {
+	public CV getCV(String cvName) throws SimpleObjectIOException {
 		String hql = "from CV where name=?";
 		Session session = getCurrentSession();
 		Query query = session.createQuery(hql);
@@ -352,7 +354,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (CV)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No cv found for " + cvName);
 		}
 	}
 
@@ -361,8 +363,9 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 	 * @param genus - String for the organism's genus
 	 * @param species - String for the oragnism's species
 	 * @return Organism corresponding to the genus and species
+	 * @throws SimpleObjectIOException 
 	 */
-	public Organism getOrganism(String genus, String species) {
+	public Organism getOrganism(String genus, String species) throws SimpleObjectIOException {
 		String hql = "from Organism where genus=? and species=?";
 		Session session = getCurrentSession();
 		Query query = session.createQuery(hql);
@@ -373,7 +376,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (Organism)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No organism found for " + genus + " " + species);
 		}
 	}
 
@@ -455,8 +458,9 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 	 * 
 	 * @param abbreviation - Organism abbreviation
 	 * @return Organism corresponding to the abbreviation
+	 * @throws SimpleObjectIOException 
 	 */
-	public Organism getOrganismByAbbreviation(String abbreviation){
+	public Organism getOrganismByAbbreviation(String abbreviation) throws SimpleObjectIOException{
 		String hql = "from Organism where abbreviation=?";
 		Session session = getCurrentSession();
 		Query query = session.createQuery(hql);
@@ -467,11 +471,11 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (Organism)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No organism found for " + abbreviation);
 		}
 	}
 	
-	public DBXref getDBXref(String dbName, String accession) {
+	public DBXref getDBXref(String dbName, String accession) throws SimpleObjectIOException {
 		String hql = "from DBXref where db.name=? and accession=?";
 		Session session = getCurrentSession();
 		Query query = session.createQuery(hql);
@@ -483,11 +487,11 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (DBXref)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No dbxref found for " + dbName + ":" + accession);
 		}
 	}
 
-	public DB getDB(String dbName) {
+	public DB getDB(String dbName) throws SimpleObjectIOException {
 		String hql = "from DB where name=?";
 		Session session = getCurrentSession();
 		Query query = session.createQuery(hql);
@@ -498,7 +502,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 			return (DB)i.next();
 		}
 		else {
-			return null;
+			throw new SimpleObjectIOException("No db found for " + dbName);
 		}
 	}
 	

@@ -46,7 +46,7 @@ public class ChadoIO {
 		}
 	}
 	
-	public void setOrganism(String genus, String species) {
+	public void setOrganism(String genus, String species) throws SimpleObjectIOException {
 		organism = handler.getOrganism(genus, species);
 	}
 	
@@ -66,7 +66,13 @@ public class ChadoIO {
 		deleteFeatures(sourceFeature);
 		handler.beginTransaction();
 		for (Feature feature : features) {
-			writeFeature(feature, sourceFeature);
+			try {
+				writeFeature(feature, sourceFeature);
+			}
+			catch (SimpleObjectIOException e) {
+				handler.rollbackTransaction();
+				throw e;
+			}
 		}
 		handler.commitTransaction();
 	}
