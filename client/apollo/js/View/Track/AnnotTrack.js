@@ -36,14 +36,15 @@ define( [
     'bbop/jquery',
     'bbop/search_box',
     'dojo/request/xhr',
-    'dojox/widget/Standby'
+    'dojox/widget/Standby',
+    'WebApollo/FormatUtils',
         ],
         function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
 		  dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
                   dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby ) {
+		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, FormatUtils ) {
 
 //var listeners = [];
 //var listener;
@@ -2023,7 +2024,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         dojo.place(annotContent, content);
         ++numItems;
         dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-        track.openDialog("Annotation Info Editor", content);
+        track.openDialog("Information Editor", content);
         track.popupDialog.resize();
         track.popupDialog._position();
     },
@@ -2075,6 +2076,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var descriptionLabel = dojo.create("label", { innerHTML: "Description", class: "annotation_info_editor_label" }, descriptionDiv);
     	var descriptionField = new dijitTextBox({ class: "annotation_editor_field"});
     	dojo.place(descriptionField.domNode, descriptionDiv);
+
+        var descriptionDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+    	var descriptionLabel = dojo.create("label", { innerHTML: "Description", class: "annotation_info_editor_label" }, descriptionDiv);
+    	var descriptionField = new dijitTextBox({ class: "annotation_editor_field"});
+    	dojo.place(descriptionField.domNode, descriptionDiv);
+    	
+        var dateCreationDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+    	var dateCreationLabel = dojo.create("label", { innerHTML: "Created", class: "annotation_info_editor_label" }, dateCreationDiv);
+    	var dateCreationField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
+    	dojo.place(dateCreationField.domNode, dateCreationDiv);
+
+        var dateLastModifiedDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+    	var dateLastModifiedLabel = dojo.create("label", { innerHTML: "Last modified", class: "annotation_info_editor_label" }, dateLastModifiedDiv);
+    	var dateLastModifiedField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
+    	dojo.place(dateLastModifiedField.domNode, dateLastModifiedDiv);
     	
     	var statusDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
     	var statusLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Status" }, statusDiv);
@@ -2161,6 +2177,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             		initName(feature);
             		initSymbol(feature);
             		initDescription(feature);
+            		initDates(feature);
             		initStatus(feature, config);
             		initDbxrefs(feature, config);
             		initAttributes(feature, config);
@@ -2221,6 +2238,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 					updateDescription(newDescription);
 				}
 			});
+        };
+        
+        var initDates = function(feature) {
+    		if (feature.date_creation) {
+    			dateCreationField.set("value", FormatUtils.formatDate(feature.date_creation));
+    		}
+    		if (feature.date_last_modified) {
+    			dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
+    		}
         };
         
         var initStatus = function(feature, config) {
@@ -4090,7 +4116,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //  	this.openDialog("History", content);
     }, 
 
-getAnnotationInformation: function()  {
+    getAnnotationInformation: function()  {
         var selected = this.selectionManager.getSelection();
         this.getInformationForSelectedAnnotations(selected);
     },
@@ -4599,6 +4625,7 @@ getAnnotationInformation: function()  {
     annot_context_menu = new dijit.Menu({});
     var permission = thisObj.permission;
     var index = 0;
+    /*
     annot_context_menu.addChild(new dijit.MenuItem( {
     	label: "Information",
     	onClick: function(event) {
@@ -4606,6 +4633,7 @@ getAnnotationInformation: function()  {
     	}
     } ));
     contextMenuItems["information"] = index++;
+    */
     annot_context_menu.addChild(new dijit.MenuItem( {
     	label: "Get sequence",
     	onClick: function(event) {
@@ -4630,7 +4658,7 @@ getAnnotationInformation: function()  {
     	annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
     	annot_context_menu.addChild(new dijit.MenuItem( {
-    		label: "Annotation Info Editor",
+    		label: "Information Editor",
     		onClick: function(event) {
     			thisObj.getAnnotationInfoEditor();
     		}
@@ -4763,7 +4791,7 @@ getAnnotationInformation: function()  {
     	annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
     	annot_context_menu.addChild(new dijit.MenuItem( {
-    		label: "Annotation Info Editor",
+    		label: "Information Editor",
     		onClick: function(event) {
     			thisObj.getAnnotationInfoEditor();
     		}
