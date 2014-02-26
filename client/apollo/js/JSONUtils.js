@@ -75,9 +75,12 @@ var JAFeature = declare( SimpleFeature, {
         			this.data.manuallySetTranslationStart = true;   // so can call feat.get('manuallySetTranslationStart')
         			if (this.parent())  { parent.data.manuallySetTranslationStart = true; }
         		}
+        		else if (property.type.name == "owner") {
+        			this.data.owner = property.value;
+        		}
         	}
         }
-
+        
         if (!parent) {
         	if (afeature.children) {
         		var descendants = [];
