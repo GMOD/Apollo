@@ -61,12 +61,12 @@ public class LocalDbUserAuthentication implements UserAuthentication {
 
 	@Override
 	public String getUserLoginPageURL() {
-		return "/user_interfaces/localdb/login.html";
+		return "user_interfaces/localdb/login.html";
 	}
 	
 	@Override
 	public String getAddUserURL() {
-		return "/user_interfaces/localdb/addUser.jsp";
+		return "user_interfaces/localdb/addUser.jsp";
 	}
 
 }
