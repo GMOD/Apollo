@@ -50,9 +50,6 @@ import org.bbop.apollo.web.datastore.history.JEHistoryDatabase;
 import org.bbop.apollo.web.datastore.history.Transaction;
 import org.bbop.apollo.web.datastore.history.TransactionList;
 import org.bbop.apollo.web.datastore.session.JEDatabaseSessionHybridArrayDataStore;
-import org.bbop.apollo.web.datastore.session.JEDatabaseSessionHybridDataStore;
-import org.bbop.apollo.web.datastore.session.JEDatabaseSessionHybridWithTreeDataStore;
-import org.bbop.apollo.web.datastore.session.JEDatabaseSessionHybridWithTreeDataStore;
 import org.bbop.apollo.web.datastore.session.JEDatabaseSessionMemoryDataStore;
 import org.bbop.apollo.web.name.FeatureNameAdapter;
 import org.bbop.apollo.web.name.HttpSessionTimeStampNameAdapter;
@@ -1762,6 +1759,12 @@ public class AnnotationEditorService extends HttpServlet {
 			}
 			if (feature.getDescription() != null) {
 				jsonFeature.put("description", feature.getDescription().getDescription());
+			}
+			if (feature.getTimeAccessioned() != null) {
+				jsonFeature.put("date_creation", feature.getTimeAccessioned().getTime());
+			}
+			if (feature.getTimeLastModified() != null) {
+				jsonFeature.put("date_last_modified", feature.getTimeLastModified().getTime());
 			}
 			ServerConfiguration.AnnotationInfoEditorConfiguration conf = annotationInfoEditorConfigurations.get(feature.getType());
 			if (conf == null) {
