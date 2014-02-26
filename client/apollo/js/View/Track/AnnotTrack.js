@@ -37,6 +37,7 @@ define( [
     'bbop/search_box',
     'dojo/request/xhr',
     'dojox/widget/Standby',
+    'dijit/Tooltip',
     'WebApollo/FormatUtils',
         ],
         function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
@@ -44,7 +45,7 @@ define( [
 		  dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
                   dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, FormatUtils ) {
+		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Tooltip, FormatUtils ) {
 
 //var listeners = [];
 //var listener;
@@ -632,6 +633,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             } );
         }
+        
+        new Tooltip({
+        	connectId: featDiv,
+        	label: "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified),
+        	position: ["above"],
+        	showDelay: 600
+        });
+        
         return featDiv;
     },
 
