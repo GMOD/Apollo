@@ -201,7 +201,9 @@ public class JSONUtil {
 				}
 			}
 			Date timeLastModified = gsolFeature.getTimeLastModified() != null ? gsolFeature.getTimeLastModified() : gsolFeature.getTimeAccessioned();
-			jsonFeature.put("date_last_modified", timeLastModified.getTime());
+			if (timeLastModified != null) {
+				jsonFeature.put("date_last_modified", timeLastModified.getTime());
+			}
 		}
 		catch (JSONException e) {
 			return null;
