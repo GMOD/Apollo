@@ -200,6 +200,8 @@ public class JSONUtil {
 					dbxrefs.put(dbxref);
 				}
 			}
+			Date timeLastModified = gsolFeature.getTimeLastModified() != null ? gsolFeature.getTimeLastModified() : gsolFeature.getTimeAccessioned();
+			jsonFeature.put("date_last_modified", timeLastModified.getTime());
 		}
 		catch (JSONException e) {
 			return null;
