@@ -2034,8 +2034,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         ++numItems;
         dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
         track.openDialog("Information Editor", content);
-        track.popupDialog.resize();
-        track.popupDialog._position();
+        AnnotTrack.popupDialog.resize();
+        AnnotTrack.popupDialog._position();
     },
     
     getAnnotationInfoEditorConfigs: function(trackName) {
@@ -2349,7 +2349,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         			structure: dbxrefTableLayout
         		});
         		
-        		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+        		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
             		dojo.place(dbxrefTable.domNode, dbxrefsTable, "first");
             		dbxrefTable.startup();
             		dojo.disconnect(handle);
@@ -2457,7 +2457,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         			structure: attributeTableLayout
         		});
         		
-        		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+        		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
             		dojo.place(attributeTable.domNode, attributesTable, "first");
             		attributeTable.startup();
             		dojo.disconnect(handle);
@@ -2557,7 +2557,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         			structure: pubmedIdTableLayout
         		});
         		
-        		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+        		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
             		dojo.place(pubmedIdTable.domNode, pubmedIdsTable, "first");
             		pubmedIdTable.startup();
             		dojo.disconnect(handle);
@@ -2675,7 +2675,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         			structure: goIdTableLayout
         		});
         		
-        		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+        		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
             		dojo.place(goIdTable.domNode, goIdsTable, "first");
             		goIdTable.startup();
             		dojo.disconnect(handle);
@@ -2768,7 +2768,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         			updateDelay: 0
         		});
         		
-        		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+        		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
         			dojo.place(commentTable.domNode, commentsTable, "first");
         			commentTable.startup();
         			dojo.disconnect(handle);
@@ -3118,7 +3118,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			structure: dbxrefTableLayout
             		});
             		
-            		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                 		dojo.place(dbxrefTable.domNode, dbxrefsTable, "first");
                 		dbxrefTable.startup();
                 		dojo.disconnect(handle);
@@ -3284,7 +3284,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			structure: attributeTableLayout
             		});
             		
-            		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                 		dojo.place(attributeTable.domNode, attributesTable, "first");
                 		attributeTable.startup();
                 		dojo.disconnect(handle);
@@ -3481,7 +3481,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			structure: pubmedIdTableLayout
             		});
             		
-            		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                 		dojo.place(pubmedIdTable.domNode, pubmedIdsTable, "first");
                 		pubmedIdTable.startup();
                 		dojo.disconnect(handle);
@@ -3689,7 +3689,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			structure: goIdTableLayout
             		});
             		
-            		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                 		dojo.place(goIdTable.domNode, goIdsTable, "first");
                 		goIdTable.startup();
                 		dojo.disconnect(handle);
@@ -3828,7 +3828,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             			updateDelay: 0
             		});
             		
-            		var handle = dojo.connect(track.popupDialog, "onFocus", function() {
+            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
             			dojo.place(commentTable.domNode, commentsTable, "first");
             			commentTable.startup();
             			dojo.disconnect(handle);
@@ -4119,8 +4119,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     	fetchHistory();
     	this.openDialog("History", content);
-        track.popupDialog.resize();
-        track.popupDialog._position();
+        AnnotTrack.popupDialog.resize();
+        AnnotTrack.popupDialog._position();
 //  	this.popupDialog.hide();
 //  	this.openDialog("History", content);
     }, 
@@ -4337,13 +4337,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		if (id == track.refSeq.name) {
 		        // track.gview.browser.navigateTo(loc);
                         track.gview.browser.showRegionWithHighlight(locobj);
-			track.popupDialog.hide();
+//			AnnotTrack.popupDialog.hide();
 		}
 		else {
 			// var url = window.location.toString().replace(/loc=.+/, "loc=" + loc);
 			// window.location.replace(url);
                         track.gview.browser.showRegionWithHighlight(locobj);
-			track.popupDialog.hide();
+//			AnnotTrack.popupDialog.hide();
 		}
 	});
 	search.setErrorCallback(function(response) {
@@ -4981,6 +4981,9 @@ makeTrackMenu: function()  {
     },
 
     initPopupDialog: function() {
+    	if (AnnotTrack.popupDialog) {
+    		return;
+    	}
     	var track = this;
     	var id = "popup_dialog";
 
@@ -4989,13 +4992,13 @@ makeTrackMenu: function()  {
     	if (widget) {
     		widget.destroy();
     	}
-    	track.popupDialog = new dojoxDialogSimple({
+    	AnnotTrack.popupDialog = new dojoxDialogSimple({
     		preventCache: true,
     		refreshOnShow: true,
     		executeScripts: true,
     		id: id
     	});
-    	dojo.connect(track.popupDialog, "onHide", track.popupDialog, function() {
+    	dojo.connect(AnnotTrack.popupDialog, "onHide", AnnotTrack.popupDialog, function() {
     		document.activeElement.blur();
     		track.selectionManager.clearSelection();
     		if (track.getSequenceTrack())  {
@@ -5008,13 +5011,13 @@ makeTrackMenu: function()  {
     		
     	});
 
-    	dojo.connect(track.popupDialog, 'onShow', function() { 
+    	dojo.connect(AnnotTrack.popupDialog, 'onShow', function() { 
     		dojo.style(dojo.body(), 'overflow', 'hidden'); 
     		document.body.scroll = 'no'; // needed for ie6/7
     	});
     	
     	
-    	track.popupDialog.startup();
+    	AnnotTrack.popupDialog.startup();
 
     },
 
@@ -5023,10 +5026,10 @@ makeTrackMenu: function()  {
     },
 
     openDialog: function(title, data, width, height) {
-        this.popupDialog.set("title", title);
-        this.popupDialog.set("content", data);
-        this.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
-        this.popupDialog.show();
+        AnnotTrack.popupDialog.set("title", title);
+        AnnotTrack.popupDialog.set("content", data);
+        AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
+        AnnotTrack.popupDialog.show();
     },
 
     updateMenu: function() {
