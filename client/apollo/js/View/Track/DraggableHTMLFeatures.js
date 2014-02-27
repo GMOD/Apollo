@@ -1132,13 +1132,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     }, 
 
 
-    /* bypassing HTMLFeatures floating of arrows to keep them in view, too buggy for now */
-    /*
-    updateFeatureArrowPositions: function( coords ) {
-        return;
-    },
-    */ 
-
 /*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
  *  WARNING: returns base position relative to UI coordinate system 
