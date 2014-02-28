@@ -953,56 +953,160 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var target_track = this;
             var featuresToAdd = new Array();
             var parentFeatures = new Object();
+            var subfeatures = [];
+            var strand;
+            var parentFeature;
             for (var i in selection_records)  {
-                    var dragfeat = selection_records[i].feature;
+            	var dragfeat = selection_records[i].feature;
+            	var is_subfeature = !! dragfeat.parent();  // !! is shorthand for returning true if value is defined and non-null
+            	
+            	var parent = is_subfeature ? dragfeat.parent() : dragfeat;
+            	var parentId = parent.id();
+            	parentFeatures[parentId] = parent;
+            	/*
+            	if (parentFeatures[parentId] === undefined) {
+            		parentFeatures[parentId] = new Array();
+            		parentFeatures[parentId].isSubfeature = is_subfeature;
+            	}
+            	parentFeatures[parentId].push(dragfeat);
+            	*/
+            	
+            	if (strand == undefined) {
+            		strand = dragfeat.get("strand");
+            	}
+            	else if (strand != dragfeat.get("strand")) {
+            		strand = -2;
+//            		alert("Cannot create annotation with children with opposite strands");
+//            		return;
+            	}
+            	
+            	if (is_subfeature) {
+            		subfeatures.push(dragfeat);
+            		if (!parentFeature) {
+            			parentFeature = dragfeat.parent();
+            		}
+            	}
+            	else {
+            		var children = dragfeat.get("subfeatures");
+            		for (var j = 0; j < children.length; ++j) {
+            			subfeatures.push(children[j]);
+            		}
+            		if (!parentFeature) {
+            			parentFeature = dragfeat;
+            		}
+            	}
+            }
+            
+            function process() {
+                var keys = Object.keys(parentFeatures);
+                var singleParent = keys.length == 1;
+                var featureToAdd;
+                if (singleParent) {
+                	featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
+                }
+                else {
+                    featureToAdd = new SimpleFeature({ data: { strand : strand } });
+                }
+                featureToAdd.set("strand", strand);
+//                var featureToAdd = new SimpleFeature(data); //JSONUtils.makeSimpleFeature(parentFeature);
+        		var fmin = undefined;
+        		var fmax = undefined;
+        		featureToAdd.set('subfeatures', new Array());
+                for (var i = 0; i < subfeatures.length; ++i) {
+                	var subfeature = subfeatures[i];
+                	if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
+                		continue;
+                	}
+                	var dragfeat = JSONUtils.makeSimpleFeature(subfeature);
+                	dragfeat.set("strand", strand);
+                	var childFmin = dragfeat.get('start');
+                	var childFmax = dragfeat.get('end');
+                	if (fmin === undefined || childFmin < fmin) {
+                		fmin = childFmin;
+                	}
+                	if (fmax === undefined || childFmax > fmax) {
+                		fmax = childFmax;
+                	}
+                	featureToAdd.get("subfeatures").push( dragfeat );
+                }
+        		featureToAdd.set( "start", fmin );
+        		featureToAdd.set( "end",   fmax );
+        		var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA", true );
+        		featuresToAdd.push(afeat);	
+                
+                /*
+                for (var i in parentFeatures) {
+                	var featArray = parentFeatures[i];
+                	if (featArray.isSubfeature) {
+                		var parentFeature = featArray[0].parent();
+                		var fmin = undefined;
+                		var fmax = undefined;
+                		// var featureToAdd = $.extend({}, parentFeature);
+                		var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
+                		featureToAdd.set('subfeatures', new Array());
+                		for (var k = 0; k < featArray.length; ++k) {
+                			// var dragfeat = featArray[k];
+                			var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
+                			var childFmin = dragfeat.get('start');
+                			var childFmax = dragfeat.get('end');
+                			if (fmin === undefined || childFmin < fmin) {
+                				fmin = childFmin;
+                			}
+                			if (fmax === undefined || childFmax > fmax) {
+                				fmax = childFmax;
+                			}
+                			featureToAdd.get("subfeatures").push( dragfeat );
+                		}
+                		featureToAdd.set( "start", fmin );
+                		featureToAdd.set( "end",   fmax );
+                		var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA" );
+                		featuresToAdd.push(afeat);
+                	}
+                	else {
+                		for (var k = 0; k < featArray.length; ++k) {
+                			var dragfeat = featArray[k];
+                			var afeat = JSONUtils.createApolloFeature( dragfeat, "mRNA", true);
+                			featuresToAdd.push(afeat);
+                		}
+                	}
+                }
+                */
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
+                target_track.executeUpdateOperation(postData);
 
-                    var is_subfeature = !! dragfeat.parent();  // !! is shorthand for returning true if value is defined and non-null
-                    var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
-
-                    if (parentFeatures[parentId] === undefined) {
-                            parentFeatures[parentId] = new Array();
-                            parentFeatures[parentId].isSubfeature = is_subfeature;
-                    }
-                    parentFeatures[parentId].push(dragfeat);
+            };
+            
+            if (strand == -2) {
+            	var content = dojo.create("div");
+            	var message = dojo.create("div", { className: "confirm_message", innerHTML: "Creating annotation with subfeatures in opposing strands.  Choose strand:" }, content);
+            	var buttonsDiv = dojo.create("div", { className: "confirm_buttons" }, content);
+            	var plusButton = dojo.create("button", { className: "confirm_button", innerHTML: "Plus" }, buttonsDiv);
+            	var minusButton = dojo.create("button", { className: "confirm_button", innerHTML: "Minus" }, buttonsDiv);
+            	var cancelButton = dojo.create("button", { className: "confirm_button", innerHTML: "Cancel" }, buttonsDiv);
+            	dojo.connect(plusButton, "onclick", function() {
+            		strand = 1;
+            		AnnotTrack.popupDialog.hide();
+            	});
+            	dojo.connect(minusButton, "onclick", function() {
+            		strand = -1;
+            		AnnotTrack.popupDialog.hide();
+            	});
+            	dojo.connect(cancelButton, "onclick", function() {
+            		AnnotTrack.popupDialog.hide();
+            	});
+            	var handle = dojo.connect(AnnotTrack.popupDialog, "onHide", function() {
+            		dojo.disconnect(handle);
+            		if (strand != -2) {
+            			process();
+            		}
+            	});
+            	this.openDialog("Confirm", content);
+            	return;
+            }
+            else {
+            	process();
             }
 
-            for (var i in parentFeatures) {
-                    var featArray = parentFeatures[i];
-                    if (featArray.isSubfeature) {
-                    	var parentFeature = featArray[0].parent();
-                    	var fmin = undefined;
-                    	var fmax = undefined;
-                    	// var featureToAdd = $.extend({}, parentFeature);
-                    	var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                    	featureToAdd.set('subfeatures', new Array());
-                    	for (var k = 0; k < featArray.length; ++k) {
-                    		// var dragfeat = featArray[k];
-                    		var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
-                    		var childFmin = dragfeat.get('start');
-                    		var childFmax = dragfeat.get('end');
-                    		if (fmin === undefined || childFmin < fmin) {
-                    			fmin = childFmin;
-                    		}
-                    		if (fmax === undefined || childFmax > fmax) {
-                    			fmax = childFmax;
-                    		}
-                    		featureToAdd.get("subfeatures").push( dragfeat );
-                    	}
-                    	featureToAdd.set( "start", fmin );
-                    	featureToAdd.set( "end",   fmax );
-                    	var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA" );
-                    	featuresToAdd.push(afeat);
-                    }
-                    else {
-                            for (var k = 0; k < featArray.length; ++k) {
-                                    var dragfeat = featArray[k];
-                                    var afeat = JSONUtils.createApolloFeature( dragfeat, "mRNA", true);
-                                    featuresToAdd.push(afeat);
-                            }
-                    }
-            }
-            var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
-            target_track.executeUpdateOperation(postData);
     },
     
     createGenericAnnotations: function(feats, type, subfeatType, topLevelType) {
