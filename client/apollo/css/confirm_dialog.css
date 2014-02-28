@@ -1,0 +1,19 @@
+@CHARSET "UTF-8";
+
+.confirm_message {
+	
+}
+
+.confirm_buttons {
+	margin-top: 0.5em;
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;	
+}
+
+.confirm_button {
+	width: 5em;
+	margin: 0.4em;	
+}
+
+
