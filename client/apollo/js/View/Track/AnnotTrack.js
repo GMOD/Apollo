@@ -1515,9 +1515,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         track.executeUpdateOperation(postData);
     },
 
-    setTranslationStart: function(event)  {
+    setTranslationStart: function(event, setStart)  {
         // var selected = this.selectionManager.getSelection();
-	var selfeats = this.selectionManager.getSelectedFeatures();
+    	var selfeats = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
         this.setTranslationStartInCDS(selfeats, event);
     },
@@ -1533,9 +1533,37 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var coordinate = this.getGenomeCoord(event);
     	console.log("called setTranslationStartInCDS to: " + coordinate);
 
+    	var setStart = annot.parent() ? !annot.parent().get("manuallySetTranslationStart") : !annot.get("manuallySetTranslationStart");
     	var uid = annot.parent() ? annot.parent().id() : annot.id();
-    	var features = '"features": [ { "uniquename": "' + uid + '", "location": { "fmin": ' + coordinate + ' } } ]';
+    	var features = '"features": [ { "uniquename": "' + uid + '"' + (setStart ? ', "location": { "fmin": ' + coordinate + ' }' : '') + ' } ]';
     	var operation = "set_translation_start";
+    	var trackName = track.getUniqueTrackName();
+    	var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+    	track.executeUpdateOperation(postData);
+    },
+
+    setTranslationEnd: function(event)  {
+        // var selected = this.selectionManager.getSelection();
+    	var selfeats = this.selectionManager.getSelectedFeatures();
+    	this.selectionManager.clearSelection();
+    	this.setTranslationEndInCDS(selfeats, event);
+    },
+
+    setTranslationEndInCDS: function(annots, event) {
+    	if (annots.length > 1) {
+    		return;
+    	}
+    	var track = this;
+    	var annot = annots[0];
+    	// var coordinate = this.gview.getGenomeCoord(event);
+//  	var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
+    	var coordinate = this.getGenomeCoord(event);
+    	console.log("called setTranslationEndInCDS to: " + coordinate);
+
+    	var setEnd = annot.parent() ? !annot.parent().get("manuallySetTranslationEnd") : !annot.get("manuallySetTranslationEnd");
+    	var uid = annot.parent() ? annot.parent().id() : annot.id();
+    	var features = '"features": [ { "uniquename": "' + uid + '"' + (setEnd ? ', "location": { "fmax": ' + coordinate + ' }' : '') + ' } ]';
+    	var operation = "set_translation_end";
     	var trackName = track.getUniqueTrackName();
     	var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
     	track.executeUpdateOperation(postData);
@@ -1621,7 +1649,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         for (var i in selection)  {
             var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
-	    var atrack = selection[i].track;
+            var atrack = selection[i].track;
             var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from this track
             if (atrack === track)  {
@@ -4841,19 +4869,33 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	} ));
     	contextMenuItems["make_intron"] = index++;
     	annot_context_menu.addChild(new dijit.MenuItem( {
+    		label: "Flip strand",
+    		onClick: function(event) {
+    			thisObj.flipStrand();
+    		}
+    	} ));
+    	contextMenuItems["flip_strand"] = index++;
+    	annot_context_menu.addChild(new dijit.MenuSeparator());
+    	index++;
+
+    	annot_context_menu.addChild(new dijit.MenuItem( {
     		label: "Set translation start",
     		// use annot_context_mousedown instead of current event, since want to split 
     		//    at mouse position of event that triggered annot_context_menu popup
     		onClick: function(event) {
-    			if (thisObj.getMenuItem("set_translation_start").get("label") == "Set translation start") {
-    				thisObj.setTranslationStart(thisObj.annot_context_mousedown);
-    			}
-    			else {
-    				thisObj.setLongestORF();
-    			}
+    			thisObj.setTranslationStart(thisObj.annot_context_mousedown);
     		}
     	} ));
     	contextMenuItems["set_translation_start"] = index++;
+    	annot_context_menu.addChild(new dijit.MenuItem( {
+    		label: "Set translation end",
+    		// use annot_context_mousedown instead of current event, since want to split 
+    		//    at mouse position of event that triggered annot_context_menu popup
+    		onClick: function(event) {
+    			thisObj.setTranslationEnd(thisObj.annot_context_mousedown);
+    		}
+    	} ));
+    	contextMenuItems["set_translation_end"] = index++;
     	annot_context_menu.addChild(new dijit.MenuItem( {
     		label: "Set longest ORF",
     		// use annot_context_mousedown instead of current event, since want to split 
@@ -4870,13 +4912,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		}
     	} ));
     	contextMenuItems["set_readthrough_stop_codon"] = index++;
-    	annot_context_menu.addChild(new dijit.MenuItem( {
-    		label: "Flip strand",
-    		onClick: function(event) {
-    			thisObj.flipStrand();
-    		}
-    	} ));
-    	contextMenuItems["flip_strand"] = index++;
     	annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
     	
@@ -5138,6 +5173,7 @@ makeTrackMenu: function()  {
 
     updateMenu: function() {
         this.updateSetTranslationStartMenuItem();
+        this.updateSetTranslationEndMenuItem();
         this.updateSetLongestOrfMenuItem();
         this.updateSetReadthroughStopCodonMenuItem();
         this.updateMergeMenuItem();
@@ -5180,6 +5216,32 @@ makeTrackMenu: function()  {
         }
         else {
             menuItem.set("label", "Set translation start");
+        }
+    },
+
+    updateSetTranslationEndMenuItem: function() {
+        var menuItem = this.getMenuItem("set_translation_end");
+        var selected = this.selectionManager.getSelection();
+        if (selected.length > 1) {
+            menuItem.set("disabled", true);
+            return;
+        }
+        for (var i = 0; i < selected.length; ++i) {
+        	if (!this.isProteinCoding(selected[i].feature)) {
+                menuItem.set("disabled", true);
+                return;
+        	}
+        }
+        menuItem.set("disabled", false);
+        var selectedFeat = selected[0].feature;
+        if (selectedFeat.parent()) {
+            selectedFeat = selectedFeat.parent();
+        }
+        if (selectedFeat.get('manuallySetTranslationEnd')) {
+            menuItem.set("label", "Unset translation end");
+        }
+        else {
+            menuItem.set("label", "Set translation end");
         }
     },
 

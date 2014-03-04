@@ -430,7 +430,7 @@ public class AnnotationEditorService extends HttpServlet {
 							if ((permission & Permission.WRITE) == 0) {
 								throw new AnnotationEditorServiceException("You do not have editing permissions");
 							}
-							setTranslationEnd(editor, dataStore, json.getJSONArray("features").getJSONObject(0), track, out);
+							setTranslationEnd(editor, dataStore, historyStore, json.getJSONArray("features").getJSONObject(0), track, username, out);
 						}
 
 						// set_translation_ends
@@ -2005,12 +2005,43 @@ public class AnnotationEditorService extends HttpServlet {
 	private void setTranslationStart(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonTranscript, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
 		Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
 		Transcript oldTranscript = cloneTranscript(transcript);
-		JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
-		editor.setTranslationStart(transcript, jsonCDSLocation.getInt("fmin"), true);
+		boolean setStart = jsonTranscript.has("location");
+		if (!setStart) {
+			editor.setManuallySetTranslationStart(transcript.getCDS(), false);
+			calculateCDS(editor, transcript);
+		}
+		else {
+			JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
+			editor.setTranslationStart(transcript, jsonCDSLocation.getInt("fmin"), true);
+		}
 		if (historyStore != null) {
-			Transaction transaction = new Transaction(Transaction.Operation.SET_TRANSLATION_START, transcript.getUniqueName(), username);
-//			transaction.addOldFeature(oldTranscript.getCDS());
-//			transaction.addNewFeature(transcript.getCDS());
+			Transaction transaction = new Transaction(setStart ? Transaction.Operation.SET_TRANSLATION_START : Transaction.Operation.UNSET_TRANSLATION_START, transcript.getUniqueName(), username);
+			transaction.addOldFeature(oldTranscript);
+			transaction.addNewFeature(transcript);
+			writeHistoryToStore(historyStore, transaction);
+		}
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
+		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
+		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
+
+	private void setTranslationEnd(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonTranscript, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
+		Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
+		Transcript oldTranscript = cloneTranscript(transcript);
+		boolean setEnd = jsonTranscript.has("location");
+		if (!setEnd) {
+			editor.setManuallySetTranslationEnd(transcript.getCDS(), false);
+			calculateCDS(editor, transcript);
+		}
+		else {
+			JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
+			editor.setTranslationEnd(transcript, jsonCDSLocation.getInt("fmax"));
+		}
+		if (historyStore != null) {
+			Transaction transaction = new Transaction(setEnd ? Transaction.Operation.SET_TRANSLATION_END : Transaction.Operation.UNSET_TRANSLATION_END, transcript.getUniqueName(), username);
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
@@ -2023,6 +2054,7 @@ public class AnnotationEditorService extends HttpServlet {
 		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 	}
 	
+	/*
 	private void setTranslationEnd(AnnotationEditor editor, AbstractDataStore dataStore, JSONObject jsonTranscript, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
 		Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
 		JSONObject jsonCDSLocation = jsonTranscript.getJSONArray("children").getJSONObject(0).getJSONObject("location");
@@ -2032,12 +2064,13 @@ public class AnnotationEditorService extends HttpServlet {
 		}
 		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 	}
+	*/
 
 	private void setTranslationEnds(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonTranscript, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
 		Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
 		Transcript oldTranscript = cloneTranscript(transcript);
 		JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
-		editor.setTranslationEnds(transcript, jsonCDSLocation.getInt("fmin"), jsonCDSLocation.getInt("fmax"));
+		editor.setTranslationEnds(transcript, jsonCDSLocation.getInt("fmin"), jsonCDSLocation.getInt("fmax"), jsonTranscript.has("manually_set_start") ? jsonTranscript.getBoolean("manually_set_start") : false, jsonTranscript.has("manually_set_end") ? jsonTranscript.getBoolean("manually_set_end") : false);
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.SET_TRANSLATION_ENDS, transcript.getUniqueName(), username);
 //			transaction.addOldFeature(oldTranscript.getCDS());
@@ -2076,7 +2109,7 @@ public class AnnotationEditorService extends HttpServlet {
 
 	private void calculateCDS(AnnotationEditor editor, Transcript transcript) {
 		if (transcript.isProteinCoding() && (transcript.getGene() == null || !transcript.getGene().isPseudogene())) {
-			calculateCDS(editor, transcript, false);
+			calculateCDS(editor, transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
 		}
 	}
 	
@@ -3105,6 +3138,38 @@ public class AnnotationEditorService extends HttpServlet {
 				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation);
 				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
 			}
+			else if (transaction.getOperation().equals(Transaction.Operation.UNSET_TRANSLATION_START)) {
+				Transcript oldTranscript = (Transcript)transaction.getOldFeatures().get(0);
+				CDS oldCDS = oldTranscript.getCDS();
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", oldCDS.getFmin());
+				jsonLocation.put("fmax", oldCDS.getFmax());
+				jsonLocation.put("strand", oldCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation).put("manually_set_start", true);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			else if (transaction.getOperation().equals(Transaction.Operation.SET_TRANSLATION_END)) {
+				Transcript oldTranscript = (Transcript)transaction.getOldFeatures().get(0);
+				CDS oldCDS = oldTranscript.getCDS();
+//				CDS oldCDS = (CDS)transaction.getOldFeatures().get(0);
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", oldCDS.getFmin());
+				jsonLocation.put("fmax", oldCDS.getFmax());
+				jsonLocation.put("strand", oldCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			else if (transaction.getOperation().equals(Transaction.Operation.UNSET_TRANSLATION_END)) {
+				Transcript oldTranscript = (Transcript)transaction.getOldFeatures().get(0);
+				CDS oldCDS = oldTranscript.getCDS();
+//				CDS oldCDS = (CDS)transaction.getOldFeatures().get(0);
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", oldCDS.getFmin());
+				jsonLocation.put("fmax", oldCDS.getFmax());
+				jsonLocation.put("strand", oldCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation).put("manually_set_end", true);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
 			else if (transaction.getOperation().equals(Transaction.Operation.FLIP_STRAND)) {
 				JSONArray jsonFeatures = new JSONArray();
 				for (AbstractSingleLocationBioFeature feature : transaction.getNewFeatures()) {
@@ -3356,6 +3421,7 @@ public class AnnotationEditorService extends HttpServlet {
 				splitTranscript(editor, session, new PreDefinedNameAdapter(transcript2.getUniqueName()), geneNameAdapter, dataStore, historyStore, jsonFeatures, track, transaction.getEditor(), out, false, true);
 
 			}
+			/*
 			else if (transaction.getOperation().equals(Transaction.Operation.SET_TRANSLATION_START)) {
 				Transcript newTranscript = (Transcript)transaction.getNewFeatures().get(0);
 				CDS newCDS = newTranscript.getCDS();
@@ -3365,6 +3431,57 @@ public class AnnotationEditorService extends HttpServlet {
 				jsonLocation.put("fmin", fmin);
 				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation);
 				setTranslationStart(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			else if (transaction.getOperation().equals(Transaction.Operation.SET_TRANSLATION_END)) {
+				Transcript newTranscript = (Transcript)transaction.getNewFeatures().get(0);
+				CDS newCDS = newTranscript.getCDS();
+//				CDS newCDS = (CDS)transaction.getNewFeatures().get(0);
+				int fmax = newCDS.getStrand().equals(-1) ? newCDS.getFmin() - 1 : newCDS.getFmax();
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmax", fmax);
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation);
+				setTranslationEnd(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			*/
+			else if (transaction.getOperation().equals(Transaction.Operation.SET_TRANSLATION_START)) {
+				Transcript newTranscript = (Transcript)transaction.getNewFeatures().get(0);
+				CDS newCDS = newTranscript.getCDS();
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", newCDS.getFmin());
+				jsonLocation.put("fmax", newCDS.getFmax());
+				jsonLocation.put("strand", newCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation).put("manually_set_start", true);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			else if (transaction.getOperation().equals(Transaction.Operation.UNSET_TRANSLATION_START)) {
+				Transcript newTranscript = (Transcript)transaction.getNewFeatures().get(0);
+				CDS newCDS = newTranscript.getCDS();
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", newCDS.getFmin());
+				jsonLocation.put("fmax", newCDS.getFmax());
+				jsonLocation.put("strand", newCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			else if (transaction.getOperation().equals(Transaction.Operation.SET_TRANSLATION_END)) {
+				Transcript newTranscript = (Transcript)transaction.getNewFeatures().get(0);
+				CDS newCDS = newTranscript.getCDS();
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", newCDS.getFmin());
+				jsonLocation.put("fmax", newCDS.getFmax());
+				jsonLocation.put("strand", newCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation).put("manually_set_end", true);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
+			}
+			else if (transaction.getOperation().equals(Transaction.Operation.UNSET_TRANSLATION_END)) {
+				Transcript newTranscript = (Transcript)transaction.getNewFeatures().get(0);
+				CDS newCDS = newTranscript.getCDS();
+				JSONObject jsonLocation = new JSONObject();
+				jsonLocation.put("fmin", newCDS.getFmin());
+				jsonLocation.put("fmax", newCDS.getFmax());
+				jsonLocation.put("strand", newCDS.getStrand());
+				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName).put("location", jsonLocation);
+				setTranslationEnds(editor, dataStore, null, jsonTranscript, track, null, out);
 			}
 			else if (transaction.getOperation().equals(Transaction.Operation.SET_LONGEST_ORF)) {
 				JSONObject jsonTranscript = new JSONObject().put("uniquename", uniqueName);

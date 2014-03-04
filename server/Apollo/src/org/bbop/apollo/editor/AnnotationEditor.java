@@ -32,6 +32,7 @@ import org.gmod.gbol.util.SequenceUtil;
 public class AnnotationEditor {
 	
 	private static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
+	private static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
 	
 	private AnnotationSession session;
 	private Configuration configuration;
@@ -288,6 +289,12 @@ public class AnnotationEditor {
 		return splitTranscript;
 	}
 
+	/** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+	 *  Instantiates the CDS object for the transcript if it doesn't already exist.
+	 * 
+	 * @param transcript - Transcript to set the translation start in
+	 * @param translationStart - Coordinate of the start of translation
+	 */
 	public void setTranslationStart(Transcript transcript, int translationStart) {
 		setTranslationStart(transcript, translationStart, false);
 	}
@@ -297,9 +304,10 @@ public class AnnotationEditor {
 	 * 
 	 * @param transcript - Transcript to set the translation start in
 	 * @param translationStart - Coordinate of the start of translation
+	 * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
 	 */
-	public void setTranslationStart(Transcript transcript, int translationStart, boolean readThroughStopCodon) {
-		setTranslationStart(transcript, translationStart, false, null, readThroughStopCodon);
+	public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
+		setTranslationStart(transcript, translationStart, setTranslationEnd, false);
 	}
 	
 	/** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
@@ -308,15 +316,12 @@ public class AnnotationEditor {
 	 * @param transcript - Transcript to set the translation start in
 	 * @param translationStart - Coordinate of the start of translation
 	 * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+	 * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
 	 */
 	public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
 		setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configuration.getTranslationTable() : null, readThroughStopCodon);
 	}
 
-	public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, SequenceUtil.TranslationTable translationTable) {
-		setTranslationStart(transcript, translationStart, setTranslationEnd, translationTable, false);
-	}
-	
 	/** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
 	 *  Instantiates the CDS object for the transcript if it doesn't already exist.
 	 * 
@@ -324,6 +329,7 @@ public class AnnotationEditor {
 	 * @param translationStart - Coordinate of the start of translation
 	 * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
 	 * @param translationTable - Translation table that defines the codon translation
+	 * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
 	 */
 	public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, SequenceUtil.TranslationTable translationTable, boolean readThroughStopCodon) {
 		CDS cds = transcript.getCDS();
@@ -390,25 +396,113 @@ public class AnnotationEditor {
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
 	}
-
+	
 	/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
 	 *  Instantiates the CDS object for the transcript if it doesn't already exist.
 	 * 
 	 * @param transcript - Transcript to set the translation start in
 	 * @param translationEnd - Coordinate of the end of translation
 	 */
+	/*
 	public void setTranslationEnd(Transcript transcript, int translationEnd) {
 		CDS cds = transcript.getCDS();
 		if (cds == null) {
 			cds = createCDS(transcript);
 			transcript.setCDS(cds);
 		}
-		cds.setFmax(translationEnd);
+		if (transcript.getStrand() == -1) {
+			cds.setFmin(translationEnd + 1);
+		}
+		else {
+			cds.setFmax(translationEnd);
+		}
+		setManuallySetTranslationEnd(cds, true);
+		cds.deleteStopCodonReadThrough();
 
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
 	}
+	*/
+	
+	/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+	 *  Instantiates the CDS object for the transcript if it doesn't already exist.
+	 * 
+	 * @param transcript - Transcript to set the translation end in
+	 * @param translationEnd - Coordinate of the end of translation
+	 */
+	public void setTranslationEnd(Transcript transcript, int translationEnd) {
+		setTranslationEnd(transcript, translationEnd, false);
+	}
+	
+	/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+	 *  Instantiates the CDS object for the transcript if it doesn't already exist.
+	 * 
+	 * @param transcript - Transcript to set the translation end in
+	 * @param translationEnd - Coordinate of the end of translation
+	 * @param setTranslationStart - if set to true, will search for the nearest in frame start
+	 */
+	public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
+		setTranslationEnd(transcript, translationEnd, setTranslationStart, setTranslationStart ? configuration.getTranslationTable() : null);
+	}
+
+	/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+	 *  Instantiates the CDS object for the transcript if it doesn't already exist.
+	 * 
+	 * @param transcript - Transcript to set the translation end in
+	 * @param translationEnd - Coordinate of the end of translation
+	 * @param setTranslationStart - if set to true, will search for the nearest in frame start codon
+	 * @param translationTable - Translation table that defines the codon translation
+	 */
+	public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, SequenceUtil.TranslationTable translationTable) {
+		CDS cds = transcript.getCDS();
+		if (cds == null) {
+			cds = createCDS(transcript);
+			transcript.setCDS(cds);
+		}
+		if (transcript.getStrand() == -1) {
+			cds.setFmin(translationEnd);
+		}
+		else {
+			cds.setFmax(translationEnd + 1);
+		}
+		setManuallySetTranslationEnd(cds, true);
+		cds.deleteStopCodonReadThrough();
+		if (setTranslationStart && translationTable != null) {
+			String mrna = getSession().getResiduesWithAlterationsAndFrameshifts(transcript);
+			if (mrna == null || mrna.equals("null")) {
+				return;
+			}
+			for (int i = transcript.convertSourceCoordinateToLocalCoordinate(translationEnd) - 3; i >= 0; i -= 3) {
+				if (i - 3 < 0) {
+					break;
+				}
+				String codon = mrna.substring(i, i + 3);
+				if (translationTable.getStartCodons().contains(codon)) {
+					if (transcript.getStrand() == -1) {
+						cds.setFmax(transcript.convertLocalCoordinateToSourceCoordinate(i + 3));
+					}
+					else {
+						cds.setFmin(transcript.convertLocalCoordinateToSourceCoordinate(i + 2));
+					}
+					return;
+				}
+			}
+			if (transcript.getStrand() == -1) {
+				cds.setFmin(transcript.getFmin());
+				cds.setFminPartial(true);
+			}
+			else {
+				cds.setFmax(transcript.getFmax());
+				cds.setFmaxPartial(true);
+			}
+		}
+
+		// event fire
+		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+		
+	}
+	
 
 	/** Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
 	 *  feature.  Instantiates the CDS object for the transcript if it doesn't already exist.
@@ -416,11 +510,14 @@ public class AnnotationEditor {
 	 * @param transcript - Transcript to set the translation start in
 	 * @param translationStart - Coordinate of the start of translation
 	 * @param translationEnd - Coordinate of the end of translation
+	 * @param manuallySetStart - whether the start was manually set
+	 * @param manuallySetEnd - whether the end was manually set
 	 */
-	public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd) {
+	public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
 		setTranslationFmin(transcript, translationStart);
 		setTranslationFmax(transcript, translationEnd);
-		setManuallySetTranslationStart(transcript.getCDS(), false);
+		setManuallySetTranslationStart(transcript.getCDS(), manuallySetStart);
+		setManuallySetTranslationEnd(transcript.getCDS(), manuallySetEnd);
 
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
@@ -459,11 +556,23 @@ public class AnnotationEditor {
 	
 	public void calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
 		CDS cds = transcript.getCDS();
-		if (cds == null || !isManuallySetTranslationStart(cds)) {
+		if (cds == null) {
+			setLongestORF(transcript, readThroughStopCodon);
+			return;
+		}
+		boolean manuallySetStart = isManuallySetTranslationStart(cds);
+		boolean manuallySetEnd = isManuallySetTranslationEnd(cds);
+		if (manuallySetStart && manuallySetEnd) {
+			return;
+		}
+		if (!manuallySetStart && !manuallySetEnd) {
 			setLongestORF(transcript, readThroughStopCodon);
 		}
-		else {
+		else if (manuallySetStart) {
 			setTranslationStart(transcript, cds.getStrand().equals(-1) ? cds.getFmax() - 1 : cds.getFmin(), true, readThroughStopCodon);
+		}
+		else {
+			setTranslationEnd(transcript, cds.getStrand().equals(-1) ? cds.getFmin() : cds.getFmax() - 1, true);
 		}
 	}
 
@@ -568,6 +677,7 @@ public class AnnotationEditor {
 			cds.deleteStopCodonReadThrough();
 		}
 		setManuallySetTranslationStart(cds, false);
+		setManuallySetTranslationEnd(cds, false);
 
 		if (needCdsIndex) {
 			getSession().indexFeature(cds);
@@ -1018,6 +1128,30 @@ public class AnnotationEditor {
 		}
 		if (!manuallySetTranslationStart) {
 			cds.deleteComment(MANUALLY_SET_TRANSLATION_START);
+		}
+	}
+
+	public boolean isManuallySetTranslationEnd(CDS cds) {
+		for (Comment comment : cds.getComments()) {
+			if (comment.getComment().equals(MANUALLY_SET_TRANSLATION_END)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void setManuallySetTranslationEnd(CDS cds, boolean manuallySetTranslationEnd) {
+		if (manuallySetTranslationEnd && isManuallySetTranslationEnd(cds)) {
+			return;
+		}
+		if (!manuallySetTranslationEnd && !isManuallySetTranslationEnd(cds)) {
+			return;
+		}
+		if (manuallySetTranslationEnd) {
+			cds.addComment(MANUALLY_SET_TRANSLATION_END);
+		}
+		if (!manuallySetTranslationEnd) {
+			cds.deleteComment(MANUALLY_SET_TRANSLATION_END);
 		}
 	}
 
