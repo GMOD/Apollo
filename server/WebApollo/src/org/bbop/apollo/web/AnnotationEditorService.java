@@ -1201,13 +1201,13 @@ public class AnnotationEditorService extends HttpServlet {
 			try {
 				Transcript transcript = addTranscript(editor, session, jsonTranscript, track, nameAdapter, false);
 				featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+				if (dataStore != null) {
+					writeFeatureToStore(editor, dataStore, transcript.getGene(), track);
+				}
 				if (historyStore != null) {
 					Transaction transaction = new Transaction(Transaction.Operation.ADD_TRANSCRIPT, transcript.getUniqueName(), username);
 					transaction.addNewFeature(transcript);
 					writeHistoryToStore(historyStore, transaction);
-				}
-				if (dataStore != null) {
-					writeFeatureToStore(editor, dataStore, transcript.getGene(), track);
 				}
 			}
 			catch (Exception e) {
@@ -1894,11 +1894,6 @@ public class AnnotationEditorService extends HttpServlet {
 		}
 		editor.flipStrand(oldTranscript);
 		Transcript newTranscript = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(oldTranscript), track, nameAdapter, isPseudogene);
-		if (historyStore != null) {
-			Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
-			transaction.addNewFeature(newTranscript);
-			writeHistoryToStore(historyStore, transaction);
-		}
 		if (dataStore != null) {
 			if (oldGene.getTranscripts().size() == 0) {
 				deleteFeatureFromStore(dataStore, oldGene);
@@ -1908,19 +1903,24 @@ public class AnnotationEditorService extends HttpServlet {
 			}
 			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(newTranscript), track);
 		}
+		if (historyStore != null) {
+			Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
+			transaction.addNewFeature(newTranscript);
+			writeHistoryToStore(historyStore, transaction);
+		}
 		return newTranscript;
 
 	}
 
-	private AbstractSingleLocationBioFeature flipFeatureStrand(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, AbstractSingleLocationBioFeature feature, String track, String username) {
+	private AbstractSingleLocationBioFeature flipFeatureStrand(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, AbstractSingleLocationBioFeature feature, String track, String username) throws AnnotationEditorServiceException {
 		editor.flipStrand(feature);
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, feature, track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, feature.getUniqueName(), username);
 			transaction.addNewFeature(feature);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, feature, track);
 		}
 		return feature;
 	}
@@ -2014,14 +2014,14 @@ public class AnnotationEditorService extends HttpServlet {
 			JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
 			editor.setTranslationStart(transcript, jsonCDSLocation.getInt("fmin"), true);
 		}
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(setStart ? Transaction.Operation.SET_TRANSLATION_START : Transaction.Operation.UNSET_TRANSLATION_START, transcript.getUniqueName(), username);
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 		}
 		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
@@ -2040,14 +2040,14 @@ public class AnnotationEditorService extends HttpServlet {
 			JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
 			editor.setTranslationEnd(transcript, jsonCDSLocation.getInt("fmax"));
 		}
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(setEnd ? Transaction.Operation.SET_TRANSLATION_END : Transaction.Operation.UNSET_TRANSLATION_END, transcript.getUniqueName(), username);
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 		}
 		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
@@ -2071,6 +2071,9 @@ public class AnnotationEditorService extends HttpServlet {
 		Transcript oldTranscript = cloneTranscript(transcript);
 		JSONObject jsonCDSLocation = jsonTranscript.getJSONObject("location");
 		editor.setTranslationEnds(transcript, jsonCDSLocation.getInt("fmin"), jsonCDSLocation.getInt("fmax"), jsonTranscript.has("manually_set_start") ? jsonTranscript.getBoolean("manually_set_start") : false, jsonTranscript.has("manually_set_end") ? jsonTranscript.getBoolean("manually_set_end") : false);
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.SET_TRANSLATION_ENDS, transcript.getUniqueName(), username);
 //			transaction.addOldFeature(oldTranscript.getCDS());
@@ -2078,9 +2081,6 @@ public class AnnotationEditorService extends HttpServlet {
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 		}
 		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
@@ -2091,6 +2091,9 @@ public class AnnotationEditorService extends HttpServlet {
 		Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
 		Transcript oldTranscript = cloneTranscript(transcript);
 		setLongestORF(editor, transcript);
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.SET_LONGEST_ORF, transcript.getUniqueName(), username);
 //			transaction.addOldFeature(oldTranscript.getCDS());
@@ -2098,9 +2101,6 @@ public class AnnotationEditorService extends HttpServlet {
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 		}
 		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
@@ -2171,12 +2171,12 @@ public class AnnotationEditorService extends HttpServlet {
 			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
 			updateTranscriptAttributes(transcript);
 		}
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
 		if (historyStore != null) {
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 		}
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
 		out.write(featureContainer.toString());
@@ -2204,14 +2204,14 @@ public class AnnotationEditorService extends HttpServlet {
 		calculateCDS(editor, exon1.getTranscript());
 		findNonCanonicalAcceptorDonorSpliceSites(editor, exon1.getTranscript());
 		updateTranscriptAttributes(exon1.getTranscript());
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon1.getTranscript()), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.MERGE_EXONS, transcript.getUniqueName(), username);
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon1.getTranscript()), track);
 		}
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon1.getTranscript()));
 		out.write(featureContainer.toString());
@@ -2227,14 +2227,14 @@ public class AnnotationEditorService extends HttpServlet {
 		calculateCDS(editor, exon.getTranscript());
 		findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
 		updateTranscriptAttributes(exon.getTranscript());
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.SPLIT_EXON, exon.getTranscript().getUniqueName(), username);
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(exon.getTranscript());
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
 		}
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
 		out.write(featureContainer.toString());
@@ -2254,14 +2254,14 @@ public class AnnotationEditorService extends HttpServlet {
 		calculateCDS(editor, exon.getTranscript());
 		findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
 		updateTranscriptAttributes(exon.getTranscript());
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(Transaction.Operation.SPLIT_EXON, exon.getTranscript().getUniqueName(), username);
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(exon.getTranscript());
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
 		}
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
 		out.write(featureContainer.toString());
@@ -2608,14 +2608,14 @@ public class AnnotationEditorService extends HttpServlet {
 			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
 			updateTranscriptAttributes(transcript);
 			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+			if (dataStore != null) {
+				writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+			}
 			if (historyStore != null) {
 				Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
 				transaction.addOldFeature(oldTranscript);
 				transaction.addNewFeature(transcript);
 				writeHistoryToStore(historyStore, transaction);
-			}
-			if (dataStore != null) {
-				writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 			}
 		}
 		out.write(featureContainer.toString());
@@ -2636,14 +2636,14 @@ public class AnnotationEditorService extends HttpServlet {
 			AbstractSingleLocationBioFeature oldFeature = cloneFeature(feature);
 			editor.setBoundaries(feature, fmin, fmax);
 			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(feature));
+			if (dataStore != null) {
+				writeFeatureToStore(editor, dataStore, feature, track);
+			}
 			if (historyStore != null) {
 				Transaction transaction = new Transaction(Transaction.Operation.SET_BOUNDARIES, feature.getUniqueName(), username);
 				transaction.addOldFeature(oldFeature);
 				transaction.addNewFeature(feature);
 				writeHistoryToStore(historyStore, transaction);
-			}
-			if (dataStore != null) {
-				writeFeatureToStore(editor, dataStore, feature, track);
 			}
 		}
 		out.write(featureContainer.toString());
@@ -3742,13 +3742,20 @@ public class AnnotationEditorService extends HttpServlet {
         return sessionData;
 	}
 
+	private void checkValidity(AbstractSingleLocationBioFeature feature) throws AnnotationEditorServiceException {
+		if (feature instanceof Transcript && ((Transcript)feature).getGene() == null) {
+			throw new AnnotationEditorServiceException("Transcript does not have a gene parent: " + feature.getUniqueName());
+		}
+	}
+	
 	private void writeHistoryToStore(AbstractHistoryStore historyStore, Transaction transaction) {
 		synchronized (historyStore) {
 			historyStore.addTransaction(transaction);
 		}
 	}
 	
-	private void writeFeatureToStore(AnnotationEditor editor, AbstractDataStore dataStore, AbstractSingleLocationBioFeature feature, String track) {
+	private void writeFeatureToStore(AnnotationEditor editor, AbstractDataStore dataStore, AbstractSingleLocationBioFeature feature, String track) throws AnnotationEditorServiceException {
+		checkValidity(feature);
 		SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
 		Feature gsolFeature = (Feature)iterator.next();
 		removeSourceFromFeature(gsolFeature);
@@ -4111,6 +4118,9 @@ public class AnnotationEditorService extends HttpServlet {
 		Transcript oldTranscript = cloneTranscript(transcript);
 		boolean readThroughStopCodon = jsonTranscript.getBoolean("readthrough_stop_codon");
 		calculateCDS(editor, transcript, readThroughStopCodon);
+		if (dataStore != null) {
+			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+		}
 		if (historyStore != null) {
 			Transaction transaction = new Transaction(readThroughStopCodon ? Transaction.Operation.SET_READTHROUGH_STOP_CODON : Transaction.Operation.UNSET_READTHROUGH_STOP_CODON, transcript.getUniqueName(), username);
 //			transaction.addOldFeature(oldTranscript.getCDS());
@@ -4118,9 +4128,6 @@ public class AnnotationEditorService extends HttpServlet {
 			transaction.addOldFeature(oldTranscript);
 			transaction.addNewFeature(transcript);
 			writeHistoryToStore(historyStore, transaction);
-		}
-		if (dataStore != null) {
-			writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
 		}
 		out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 		JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
