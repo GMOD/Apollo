@@ -56,7 +56,18 @@ public class RemoveOrphanFeatures {
 	
 	public static void main(String[] args) {
 		try {
-			String[] typesToRemove = new String[] { "sequence:transcript", "sequence:exon", "sequence:CDS" };
+			String[] typesToRemove = new String[] {
+					"sequence:transcript",
+					"sequence:mRNA",
+					"sequence:tRNA",
+					"sequence:snRNA",
+					"sequence:snoRNA",
+					"sequence:ncRNA",
+					"sequence:miRNA",
+					"sequence:rRNA",
+					"sequence:exon",
+					"sequence:CDS"
+			};
 			CommandLine line = parseOptions(args);
 			fixDbs(line.getOptionValues('i'), line.getOptionValue('o'), line.hasOption('f'), new HashSet<String>(Arrays.asList(typesToRemove)));
 		}
