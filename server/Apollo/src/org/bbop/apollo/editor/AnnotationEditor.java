@@ -72,6 +72,7 @@ public class AnnotationEditor {
 	 */
 	public void setName(AbstractSingleLocationBioFeature feature, String name) {
 		feature.setName(name);
+		feature.setTimeAccessioned(new Date());
 	}
 	
 	/** Add a feature to the underlying session.
@@ -117,6 +118,7 @@ public class AnnotationEditor {
 	 */
 	public void setFrameShift(Transcript transcript, Frameshift frameshift) {
 		transcript.addFrameshift(frameshift);
+		transcript.setTimeLastModified(new Date());
 //		setLongestORF(transcript);
 
 		// event fire
@@ -167,6 +169,7 @@ public class AnnotationEditor {
 		updateGeneBoundaries(gene);
 		
 		getSession().indexFeature(transcript);
+
 		// event fire
 		fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.ADD);
 		
@@ -198,9 +201,11 @@ public class AnnotationEditor {
 	 * @param transcript - Transcript to be duplicated
 	 */
 	public void duplicateTranscript(Transcript transcript) {
+		Date date = new Date();
 		Transcript duplicate = (Transcript)transcript.cloneFeature(transcript.getUniqueName() + "-copy");
 		if (transcript.getGene() != null) {
 			transcript.getGene().addTranscript(duplicate);
+			transcript.getGene().setTimeLastModified(date);
 		}
 		// copy exons
 		for (Exon exon : transcript.getExons()) {
@@ -210,6 +215,9 @@ public class AnnotationEditor {
 		if (transcript.getCDS() != null) {
 			duplicate.setCDS(new CDS(transcript.getCDS(), transcript.getCDS().getUniqueName() + "-copy"));
 		}
+
+		duplicate.setTimeAccessioned(date);
+		duplicate.setTimeLastModified(date);
 		
 		/*
 		// event fire
@@ -224,12 +232,17 @@ public class AnnotationEditor {
 	 * @param transcript2 - Transcript to be merged from
 	 */
 	public void mergeTranscripts(Transcript transcript1, Transcript transcript2) {
+		Date date = new Date();
 		getSession().unindexFeature(transcript1);
 		getSession().unindexFeature(transcript2);
 		// Merging transcripts basically boils down to moving all exons from one transcript to the other
 		for (Exon exon : transcript2.getExons()) {
 			transcript2.deleteExon(exon);
 			transcript1.addExon(exon);
+		}
+		transcript1.setTimeLastModified(date);
+		if (transcript1.getGene() != null) {
+			transcript1.getGene().setTimeLastModified(date);
 		}
 		// if the parent genes aren't the same, this leads to a merge of the genes
 		if (transcript1.getGene() != null && transcript2.getGene() != null) {
@@ -286,6 +299,9 @@ public class AnnotationEditor {
 				}
 			}
 		}
+		Date date = new Date();
+		transcript.setTimeLastModified(date);
+		splitTranscript.setTimeAccessioned(date);
 		return splitTranscript;
 	}
 
@@ -392,6 +408,10 @@ public class AnnotationEditor {
 			}
 		}
 
+		Date date = new Date();
+		cds.setTimeLastModified(date);
+		transcript.setTimeLastModified(date);
+		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -498,6 +518,10 @@ public class AnnotationEditor {
 			}
 		}
 
+		Date date = new Date();
+		cds.setTimeLastModified(date);
+		transcript.setTimeLastModified(date);
+
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -519,12 +543,16 @@ public class AnnotationEditor {
 		setManuallySetTranslationStart(transcript.getCDS(), manuallySetStart);
 		setManuallySetTranslationEnd(transcript.getCDS(), manuallySetEnd);
 
+		Date date = new Date();
+		transcript.getCDS().setTimeLastModified(date);
+		transcript.setTimeLastModified(date);
+		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
 	}
 	
-	public void setTranslationFmin(Transcript transcript, int translationFmin) {
+	private void setTranslationFmin(Transcript transcript, int translationFmin) {
 		CDS cds = transcript.getCDS();
 		if (cds == null) {
 			cds = createCDS(transcript);
@@ -537,7 +565,7 @@ public class AnnotationEditor {
 		
 	}
 
-	public void setTranslationFmax(Transcript transcript, int translationFmax) {
+	private void setTranslationFmax(Transcript transcript, int translationFmax) {
 		CDS cds = transcript.getCDS();
 		if (cds == null) {
 			cds = createCDS(transcript);
@@ -682,6 +710,10 @@ public class AnnotationEditor {
 		if (needCdsIndex) {
 			getSession().indexFeature(cds);
 		}
+
+		Date date = new Date();
+		cds.setTimeLastModified(date);
+		transcript.setTimeLastModified(date);
 		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
@@ -701,6 +733,8 @@ public class AnnotationEditor {
 		
 		getSession().indexFeature(exon);
 		getSession().indexFeature(exon);
+
+		transcript.setTimeLastModified(new Date());
 		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
@@ -752,6 +786,8 @@ public class AnnotationEditor {
 		getSession().unindexFeature(exon);
 		getSession().indexFeature(transcript);
 		
+		transcript.setTimeLastModified(new Date());
+		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -785,6 +821,10 @@ public class AnnotationEditor {
 		}
 //		setLongestORF(exon1.getTranscript());
 		removeExonOverlapsAndAdjacencies(transcript);
+		
+		Date date = new Date();
+		exon1.setTimeLastModified(date);
+		transcript.setTimeLastModified(date);
 
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
@@ -813,6 +853,12 @@ public class AnnotationEditor {
 		
 		// event fire
 		fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
+		
+		Date date = new Date();
+		exon.setTimeLastModified(date);
+		rightExon.setTimeAccessioned(date);
+		rightExon.setTimeLastModified(date);
+		exon.getTranscript().setTimeLastModified(date);
 		
 		return rightExon;
 	}
@@ -867,6 +913,12 @@ public class AnnotationEditor {
 		// event fire
 		fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
+		Date date = new Date();
+		exon.setTimeLastModified(date);
+		splitExon.setTimeAccessioned(date);
+		splitExon.setTimeLastModified(date);
+		exon.getTranscript().setTimeLastModified(date);
+		
 		return splitExon;
 	}
 
@@ -878,6 +930,8 @@ public class AnnotationEditor {
 	public void addFrameshift(Transcript transcript, Frameshift frameshift) {
 		transcript.addFrameshift(frameshift);
 
+		transcript.setTimeLastModified(new Date());
+		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -890,6 +944,8 @@ public class AnnotationEditor {
 	 */
 	public void deleteFrameshift(Transcript transcript, Frameshift frameshift) {
 		transcript.deleteFrameshift(frameshift);
+
+		transcript.setTimeLastModified(new Date());
 
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
@@ -912,6 +968,11 @@ public class AnnotationEditor {
 
 		session.unindexFeature(transcript);
 		session.indexFeature(transcript);
+		
+		Date date = new Date();
+		exon.setTimeLastModified(date);
+		exon.getTranscript().setTimeLastModified(date);
+		
 		// event fire
 		fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -923,6 +984,14 @@ public class AnnotationEditor {
 		session.unindexFeature(feature);
 		session.indexFeature(feature);
 
+		Date date = new Date();
+		AbstractSingleLocationBioFeature f = feature;
+		while (f != null) {
+			f.setTimeLastModified(date);
+			Collection<? extends AbstractSingleLocationBioFeature> parents = f.getParents();
+			f = parents.size() > 0 ? parents.iterator().next() : null;
+		}
+		
 		// event fire
 		fireAnnotationChangeEvent(feature, getTopLevelFeature(feature), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -943,6 +1012,8 @@ public class AnnotationEditor {
 		for (AbstractSingleLocationBioFeature childFeature : feature.getChildren()) {
 			flipStrand(childFeature);
 		}
+		
+		feature.setTimeLastModified(new Date());
 
 		// event fire
 		fireAnnotationChangeEvent(feature, getTopLevelFeature(feature), AnnotationChangeEvent.Operation.UPDATE);
@@ -1008,6 +1079,8 @@ public class AnnotationEditor {
 			}
 		}
 
+		transcript.setTimeLastModified(new Date());
+		
 		// event fire
 		fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
@@ -1023,6 +1096,7 @@ public class AnnotationEditor {
 		spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
 		spliceSite.setFmin(position);
 		spliceSite.setFmax(position);
+		spliceSite.setTimeLastModified(new Date());
 		return spliceSite;
 	}
 
@@ -1036,6 +1110,7 @@ public class AnnotationEditor {
 		spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
 		spliceSite.setFmin(position);
 		spliceSite.setFmax(position);
+		spliceSite.setTimeLastModified(new Date());
 		return spliceSite;
 	}
 	
@@ -1098,12 +1173,15 @@ public class AnnotationEditor {
 	}
 	
 	private CDS createCDS(Transcript transcript) {
+		Date date = new Date();
 		String uniqueName = transcript.getUniqueName() + "-CDS";
 		CDS cds = new CDS(transcript.getOrganism(), uniqueName, transcript.isAnalysis(),
-				transcript.isObsolete(), new Timestamp(new Date().getTime()), transcript.getConfiguration());
+				transcript.isObsolete(), null, transcript.getConfiguration());
 		cds.setFeatureLocation(new FeatureLocation());
 		cds.setStrand(transcript.getStrand());
 		cds.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
+		cds.setTimeAccessioned(date);
+		cds.setTimeLastModified(date);
 		return cds;
 	}
 	
@@ -1157,16 +1235,19 @@ public class AnnotationEditor {
 
 	public void addComment(AbstractSingleLocationBioFeature feature, String comment) {
 		feature.addComment(comment);
+//		feature.setTimeLastModified(new Date());
 	}
 
 	public void deleteComment(AbstractSingleLocationBioFeature feature, String comment) {
 		feature.deleteComment(comment);
+//		feature.setTimeLastModified(new Date());
 	}
 
 	public void updateComment(AbstractSingleLocationBioFeature feature, String oldComment, String newComment) {
 		for (Comment comment : feature.getComments()) {
 			if (comment.getComment().equals(oldComment)) {
 				comment.setComment(newComment);
+//				feature.setTimeLastModified(new Date());
 				break;
 			}
 		}
@@ -1174,26 +1255,32 @@ public class AnnotationEditor {
 	
 	public void setDescription(AbstractSingleLocationBioFeature feature, String description) {
 		feature.setDescription(description);
+//		feature.setTimeLastModified(new Date());
 	}
 
 	public void setSymbol(AbstractSingleLocationBioFeature feature, String symbol) {
 		feature.setSymbol(symbol);
+//		feature.setTimeLastModified(new Date());
 	}
 
 	public void setStatus(AbstractSingleLocationBioFeature feature, String status) {
 		feature.setStatus(status);
+//		feature.setTimeLastModified(new Date());
 	}
 	
 	public void deleteStatus(AbstractSingleLocationBioFeature feature) {
 		feature.deleteStatus();
+//		feature.setTimeLastModified(new Date());
 	}
 	
 	public void addNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String db, String accession) {
 		feature.addNonPrimaryDBXref(db, accession);
+//		feature.setTimeLastModified(new Date());
 	}
 	
 	public void deleteNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String db, String accession) {
 		feature.deleteNonPrimaryDBXref(db, accession);
+//		feature.setTimeLastModified(new Date());
 	}
 
 	public void updateNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String oldDb, String oldAccession, String newDb, String newAccession) {
@@ -1201,16 +1288,20 @@ public class AnnotationEditor {
 			if (dbxref.getDb().getName().equals(oldDb) && dbxref.getAccession().equals(oldAccession)) {
 				dbxref.getDb().setName(newDb);
 				dbxref.setAccession(newAccession);
+//				feature.setTimeLastModified(new Date());
+				break;
 			}
 		}
 	}
 	
 	public void addNonReservedProperty(AbstractSingleLocationBioFeature feature, String tag, String value) {
 		feature.addNonReservedProperty(tag, value);
+//		feature.setTimeLastModified(new Date());
 	}
 	
 	public void deleteNonReservedProperty(AbstractSingleLocationBioFeature feature, String tag, String value) {
 		feature.deleteNonReservedProperty(tag, value);
+//		feature.setTimeLastModified(new Date());
 	}
 
 	public void updateNonReservedProperty(AbstractSingleLocationBioFeature feature, String oldTag, String oldValue, String newTag, String newValue) {
@@ -1218,17 +1309,22 @@ public class AnnotationEditor {
 			if (property.getTag().equals(oldTag) && property.getValue().equals(oldValue)) {
 				property.setTag(newTag);
 				property.setValue(newValue);
+//				feature.setTimeLastModified(new Date());
+				break;
 			}
 		}
 	}
 	
 	private StopCodonReadThrough createStopCodonReadThrough(CDS cds) {
+		Date date = new Date();
 		String uniqueName = cds.getUniqueName() + "-stop_codon_read_through";
 		StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(cds.getOrganism(), uniqueName, cds.isAnalysis(),
-				cds.isObsolete(), new Timestamp(new Date().getTime()), cds.getConfiguration());
+				cds.isObsolete(), null, cds.getConfiguration());
 		stopCodonReadThrough.setFeatureLocation(new FeatureLocation());
 		stopCodonReadThrough.setStrand(cds.getStrand());
 		stopCodonReadThrough.getFeatureLocation().setSourceFeature(cds.getFeatureLocation().getSourceFeature());
+		stopCodonReadThrough.setTimeAccessioned(date);
+		stopCodonReadThrough.setTimeLastModified(date);
 		return stopCodonReadThrough;
 	}
 	
@@ -1269,6 +1365,7 @@ public class AnnotationEditor {
 		}
 		gene.setFmin(geneFmin);
 		gene.setFmax(geneFmax);
+		gene.setTimeLastModified(new Date());
 	}
 	
 	public void addAnnotationChangeListener(AnnotationChangeListener listener) {
