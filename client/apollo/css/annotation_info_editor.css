@@ -133,3 +133,13 @@
 .ui-autocomplete {
 	max-width: 75%;
 }
+
+.annotation_info_editor_selector {
+	margin-bottom: 1.5em;
+}
+
+.annotation_info_editor_selector_label {
+	text-align: right;
+	padding-right: 10px;
+	float: left;
+}

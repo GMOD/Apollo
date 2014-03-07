@@ -39,13 +39,16 @@ define( [
     'dojox/widget/Standby',
     'dijit/Tooltip',
     'WebApollo/FormatUtils',
+    'dijit/form/Select',
+    'dojo/store/Memory',
+    'dojo/data/ObjectStore'
         ],
         function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
 		  dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
 		  dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
                   dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
 		  DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Tooltip, FormatUtils ) {
+		  SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
 //var listeners = [];
 //var listener;
@@ -172,6 +175,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
         this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
 		
+        this.topLevelParents = {};
     },
     
     renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
@@ -275,6 +279,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 	while (i < responseFeatures.length) {
                         var jfeat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
                         track.store.insert(jfeat);
+                        track.processParent(responseFeatures[i], "ADD");
                         if ((i++ % 100) == 0) {
                         	window.setTimeout(func, 1);
                         	return;
@@ -530,6 +535,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var id = responseFeatures[i].uniquename;
 		if (! this.store.getFeatureById(id))  {
                     this.store.insert(feat);
+                    this.processParent(responseFeatures[i], "ADD");
                 }
             }
     },
@@ -541,6 +547,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id_to_delete = responseFeatures[i].uniquename;
             this.store.deleteFeatureById(id_to_delete);
+            this.processParent(responseFeatures[i], "DELETE");
         }
     },
 
@@ -573,6 +580,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 */
             var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
             this.store.replace(feat);
+            this.processParent(responseFeatures[i], "UPDATE");
         }
     },
 
@@ -1756,386 +1764,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         track.executeUpdateOperation(postData);
     },
     
-    editComments: function()  {
-        var selected = this.selectionManager.getSelection();
-        this.editCommentsForSelectedFeatures(selected);
-    },
-
-    editCommentsForSelectedFeatures: function(records) {
-            var track = this;
-	var record = records[0];
-	var seltrack = record.track;
-            var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
-            // just checking to ensure that all features in selection are from this track
-            if (seltrack !== track)  {
-                    return;
-            }
-            var content = dojo.create("div");
-            // if annotation has parent, get comments for parent
-            if(annot.afeature.parent_id) {
-                var parentContent = this.createEditCommentsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
-                    dojo.attr(parentContent, "class", "parent_comments_div");
-                    dojo.place(parentContent, content);
-            }
-            var annotContent = this.createEditCommentsPanelForFeature(annot.id(), track.getUniqueTrackName());
-            dojo.place(annotContent, content);
-            track.openDialog("Comments for " + annot.get('name'), content);
-    },
-
-    createEditCommentsPanelForFeature: function(uniqueName, trackName) {
-    	var track = this;
-    	var content = dojo.create("div");
-    	var header = dojo.create("div", { className: "comment_header" }, content);
-    	var table = dojo.create("table", { className: "comments" }, content);
-    	var addButtonDiv = dojo.create("div", { className: "comment_add_button_div" }, content);
-    	var addButton = dojo.create("button", { className: "comment_button", innerHTML: "Add comment" }, addButtonDiv);
-    	var cannedCommentsDiv = dojo.create("div", { }, content);
-    	var cannedCommentsComboBox = dojo.create("select", { }, cannedCommentsDiv);
-    	var comments;
-    	var commentTextFields;
-    	var cannedComments;
-    	var showCannedComments = false;
-
-    	var getComments = function() {
-    		var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-    		var operation = "get_comments";
-    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-    		dojo.xhrPost( {
-    			postData: postData,
-    			url: context_path + "/AnnotationEditorService",
-    			handleAs: "json",
-    			sync: true,
-    			timeout: 5000 * 1000, // Time in milliseconds
-    			load: function(response, ioArgs) {
-    				var feature = response.features[0];
-    				comments = feature.comments;
-    				header.innerHTML = "Comments for " + feature.type.name;
-    			},
-    			// The ERROR function will be called in an error case.
-    			error: function(response, ioArgs) {
-    				track.handleError(response);
-    				console.error("HTTP status code: ", ioArgs.xhr.status);
-    				return response;
-    			}
-
-    		});
-    	};
-
-    	var addComment = function(comment) {
-    		var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
-    		var operation = "add_comments";
-    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-    		track.executeUpdateOperation(postData);
-    	};
-
-    	var deleteComment = function(comment) {
-    		var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
-    		var operation = "delete_comments";
-    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-    		track.executeUpdateOperation(postData);
-    	};
-
-        var updateComment = function(oldComment, newComment) {
-        	if (oldComment == newComment) {
-        		return;
-        	}
-            var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
-            var operation = "update_comments";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            track.executeUpdateOperation(postData);
-
-        };
-
-        var updateTable = function() {
-            while (table.hasChildNodes()) {
-                table.removeChild(table.lastChild);
-            }
-            commentTextFields = new Array();
-            for (var i = 0; i < comments.length; ++i) {
-                var row = dojo.create("tr", { }, table);
-                var col1 = dojo.create("td", { }, row);
-                var comment = dojo.create("textarea", { rows: 1, innerHTML: comments[i], readonly: true, className: "comment_area" }, col1);
-                commentTextFields.push(comment);
-                dojo.connect(comment, "onclick", comment, function() {
-                                 if (!showCannedComments) {
-                                     dojo.style(cannedCommentsDiv, { display: "none" } );
-                                 }
-                             });
-                dojo.connect(comment, "onblur", comment, function(index) {
-                                 return function() {
-                                     showCannedComments = false;
-                                     var newComment = dojo.attr(this, "value");
-                                     var oldComment = comments[index];
-                                     comments[index] = newComment;
-                                     dojo.attr(this, "readonly", true);
-                                     if (newComment && newComment.length > 0) {
-                                         if (oldComment.length == 0) {
-                                             addComment(newComment);
-                                         }
-                                         else {
-                                             updateComment(oldComment, newComment);
-                                         }
-                                         dojo.style(cannedCommentsDiv, { display: "none" } );
-                                     }
-                                 };
-                             }(i));
-                dojo.connect(comment, "onkeyup", comment, function() {
-                                 var newComment = dojo.attr(this, "value");
-                                 if (newComment && newComment.length > 0) {
-                                     dojo.style(cannedCommentsDiv, { display: "none" } );
-                                 }
-                                 else if (showCannedComments) {
-                                     dojo.style(cannedCommentsDiv, { display: "block" } );
-                                 }
-                             });
-                var col2 = dojo.create("td", { }, row);
-                var delButton = dojo.create("button", { className: "comment_button", innerHTML: "Delete" /* "<img class='table_icon' src='img/trash.png' />" */}, col2);
-                dojo.connect(delButton, "onfocus", delButton, function() {
-                                 showCannedComments = false;
-                                 dojo.style(cannedCommentsDiv, { display: "none" } );
-                             });
-                dojo.connect(delButton, "onclick", delButton, function(index) {
-                                 return function() {
-                                     showCannedComments = false;
-                                     dojo.style(cannedCommentsDiv, { display: "none" } );
-                                     var oldComment = comments[index];
-                                     comments.splice(index, 1);
-                                     updateTable();
-                                     deleteComment(oldComment);
-                                 };
-                             }(i));
-                var col3 = dojo.create("td", { }, row);
-                var editButton = dojo.create("button", { className: "comment_button", innerHTML: "Edit" /*"<img class='table_icon' src='img/pencil.png' />*/}, col3);
-                dojo.connect(editButton, "onfocus", editButton, function() {
-                                 showCannedComments = false;
-                                 dojo.style(cannedCommentsDiv, { display: "none" } );
-                             });
-                dojo.connect(editButton, "onclick", editButton, function(index) {
-                                 return function() {
-                                     showCannedComments = false;
-                                     dojo.style(cannedCommentsDiv, { display: "none" } );
-                                     dojo.attr(commentTextFields[index], "readonly", false);
-                                     commentTextFields[index].focus();
-                                 };
-                             }(i));
-            }
-        };
-
-        var getCannedComments = function() {
-            dojo.style(cannedCommentsDiv, { display: "none"} );
-
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_canned_comments";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                              postData: postData,
-                              url: context_path + "/AnnotationEditorService",
-                              handleAs: "json",
-                              sync: true,
-                              timeout: 5000 * 1000, // Time in milliseconds
-                              load: function(response, ioArgs) {
-                                  var feature = response.features[0];
-                                  cannedComments = feature.comments;
-                                  cannedComments.unshift("Choose a comment");
-                              },
-                              // The ERROR function will be called in an error case.
-                              error: function(response, ioArgs) {
-                                  track.handleError(response);
-                                  console.error("HTTP status code: ", ioArgs.xhr.status);
-                                  return response;
-                              }
-                          });
-
-            for (var i = 0; i < cannedComments.length; ++i) {
-                dojo.create("option", { value: cannedComments[i], innerHTML: cannedComments[i] }, cannedCommentsComboBox);
-            }
-            dojo.connect(cannedCommentsComboBox, "onchange", cannedCommentsComboBox, function() {
-                             var commentTextField = commentTextFields[commentTextFields.length - 1];
-                             if (this.selectedIndex > 0) {
-                                 dojo.attr(commentTextField, "value", dojo.attr(this, "value"));
-                                 commentTextField.focus();
-                                 dojo.style(cannedCommentsDiv, { display : "none" });
-                             }
-                         });
-        };
-
-        dojo.connect(addButton, "onclick", null, function() {
-                         showCannedComments = true;
-                         comments.push("");
-                         updateTable();
-                         var comment = commentTextFields[commentTextFields.length - 1];
-                         dojo.attr(comment, "readonly", false);
-                         dojo.style(cannedCommentsDiv, { display: "block" });
-                         cannedCommentsComboBox.selectedIndex = 0;
-                         comment.focus();
-                     });
-
-        updateTable();
-        return content;
-    },
-
-    editDbxrefs: function()  {
-        var selected = this.selectionManager.getSelection();
-        this.editDbxrefsForSelectedFeatures(selected);
-    },
-
-    editDbxrefsForSelectedFeatures: function(records) {
-        var track = this;
-	var record = records[0];
-        var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
-	var seltrack = record.track;
-        // just checking to ensure that all features in selection are from this track
-        if ( seltrack !== track )  {
-            return;
-        }
-        var content = dojo.create("div");
-        // if annotation has parent, get comments for parent
-        if ( annot.afeature.parent_id ) {
-            var parentContent = this.createEditDbxrefsPanelForFeature( annot.afeature.parent_id, track.getUniqueTrackName());
-            dojo.attr(parentContent, "class", "parent_dbxrefs_div");
-            dojo.place(parentContent, content);
-        }
-        var annotContent = this.createEditDbxrefsPanelForFeature(annot.id(), track.getUniqueTrackName());
-        dojo.place(annotContent, content);
-        track.openDialog("Dbxrefs for " + annot.get("name"), content);
-    },
-
-    createEditDbxrefsPanelForFeature: function(uniqueName, trackName) {
-        var track = this;
-        var content = dojo.create("div");
-        var header = dojo.create("div", { className: "dbxref_header" }, content);
-        var tableHeader = dojo.create("div", { className: "dbxref_header", innerHTML: "<span class='dbxref_table_header_field'>Database</span><span class='dbxref_table_header_field'>Accession</span>" }, content);
-        var table = dojo.create("div", { className: "dbxrefs" }, content);
-        var addButtonDiv = dojo.create("div", { className: "dbxref_add_button_div" }, content);
-        var addButton = dojo.create("button", { className: "dbxref_button", innerHTML: "Add DBXref" }, addButtonDiv);
-        var dbxrefs;
-        var dbxrefTextFields;
-        
-        var getDbxrefs = function() {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                              postData: postData,
-                              url: context_path + "/AnnotationEditorService",
-                              handleAs: "json",
-                              sync: true,
-                              timeout: 5000 * 1000, // Time in milliseconds
-                              load: function(response, ioArgs) {
-                                  var feature = response.features[0];
-                                  dbxrefs = feature.dbxrefs;
-                                  header.innerHTML = "DBXRefs for " + feature.type.name;
-                              },
-                              // The ERROR function will be called in an error case.
-                              error: function(response, ioArgs) {
-                                  track.handleError(response);
-                                  console.error("HTTP status code: ", ioArgs.xhr.status);
-                                  return response;
-                              }
-
-                          });
-
-        };
-
-        var addDbxref = function(db, accession) {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
-            var operation = "add_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            track.executeUpdateOperation(postData);
-        };
-
-        var deleteDbxref = function(db, accession) {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
-            var operation = "delete_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            track.executeUpdateOperation(postData);
-        };
-
-        var updateDbxref = function(oldDb, oldAccession, newDb, newAccession) {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
-            var operation = "update_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            track.executeUpdateOperation(postData);
-        };
-
-        var handleDbxrefUpdate = function(index) {
-            var newDb = dojo.attr(dbxrefTextFields[index][0], "value");
-            var oldDb = dbxrefs[index].db;
-            var newAccession = dojo.attr(dbxrefTextFields[index][1], "value");
-            var oldAccession = dbxrefs[index].accession;
-            if (oldDb != newDb || oldAccession != newAccession) {
-                dbxrefs[index].db = newDb;
-                dbxrefs[index].accession = newAccession;
-                if (newDb && newDb.length > 0 && newAccession && newAccession.length > 0) {
-                    if (oldDb.length == 0 || oldAccession.length == 0) {
-                        addDbxref(newDb, newAccession);
-                    }
-                    else {
-                        updateDbxref(oldDb, oldAccession, newDb, newAccession);
-                    }
-                }
-            }
-        };
-
-        var updateTable = function() {
-            while (table.hasChildNodes()) {
-                table.removeChild(table.lastChild);
-            }
-            dbxrefTextFields = new Array();
-            for (var i = 0; i < dbxrefs.length; ++i) {
-                var dbxref = dbxrefs[i];
-                var row = dojo.create("div", { }, table);
-                var col1 = dojo.create("span", { }, row);
-                var db = dojo.create("input", { type: "text", rows: 1, value: dbxref.db, readonly: true, className: "dbxref_field" }, col1);
-                var col2 = dojo.create("span", { }, row);
-                var accession = dojo.create("input", { type: "text", rows: 1, value: dbxref.accession, readonly: true, className: "dbxref_field" }, col2);
-                dbxrefTextFields.push([db, accession]);
-                dojo.connect(db, "onblur", db, function(index) {
-                                 return function() {
-                                     handleDbxrefUpdate(index);
-                                 };
-                             }(i));
-                dojo.connect(accession, "onblur", accession, function(index) {
-                                 return function() {
-                                     handleDbxrefUpdate(index);
-                                 };
-                             }(i));
-                var col3 = dojo.create("span", { }, row);
-                var delButton = dojo.create("button", { className: "dbxref_button", innerHTML: "Delete" }, col3);
-                dojo.connect(delButton, "onclick", delButton, function(index) {
-                                 return function() {
-                                     var oldDbxref = dbxrefs[index];
-                                     dbxrefs.splice(index, 1);
-                                     updateTable();
-                                     deleteDbxref(oldDbxref.db, oldDbxref.accession);
-                                 };
-                             }(i));
-                var col4 = dojo.create("span", { }, row);
-                var editButton = dojo.create("button", { className: "dbxref_button", innerHTML: "Edit" }, col4);
-                dojo.connect(editButton, "onclick", editButton, function(index) {
-                                 return function() {
-                                     dojo.attr(dbxrefTextFields[index][0], "readonly", false);
-                                     dojo.attr(dbxrefTextFields[index][1], "readonly", false);
-                                     dbxrefTextFields[index][0].focus();
-                                 };
-                             }(i));
-            }
-        };
-        dojo.connect(addButton, "onclick", null, function() {
-                         dbxrefs.push( { db: "", accession: "" } );
-                         updateTable();
-                         var dbxref = dbxrefTextFields[dbxrefTextFields.length - 1];
-                         dojo.attr(dbxref[0], "readonly", false);
-                         dojo.attr(dbxref[1], "readonly", false);
-                         dbxref[0].focus();
-                     });
-
-        getDbxrefs();
-        updateTable();
-        return content;
-
-    },
-    
     getAnnotationInfoEditor: function()  {
         var selected = this.selectionManager.getSelection();
         this.getAnnotationInfoEditorForSelectedFeatures(selected);
@@ -2151,7 +1779,36 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             return;
         }
         track.getAnnotationInfoEditorConfigs(track.getUniqueTrackName());
-        var content = dojo.create("div", { class: "annotation_info_editor_container "});
+        var content = dojo.create("div", { class: "annotation_info_editor_container" });
+        if (annot.afeature.parent_id) {
+        	var selectorDiv = dojo.create("div", { class: "annotation_info_editor_selector" }, content);
+        	var selectorLabel = dojo.create("label", { innerHTML: "Select " + annot.get("type"), class: "annotation_info_editor_selector_label" }, selectorDiv);
+        	var data = [];
+        	var feats = track.topLevelParents[annot.afeature.parent_id];
+        	for (var i in feats) {
+        		var feat = feats[i];
+        		data.push({ id: feat.uniquename, label: feat.name });
+        	}
+        	var store = new Memory({
+        		data: data
+        	});
+        	var os = new ObjectStore({ objectStore: store });
+        	var selector = new Select({ store: os });
+        	selector.placeAt(selectorDiv);
+        	selector.attr("value", annot.afeature.uniquename);
+        	selector.attr("style", "width: 50%;");
+        	var first = true;
+        	dojo.connect(selector, "onChange", function(id) {
+        		if (!first) {
+        			dojo.destroy("child_annotation_info_editor");
+        			annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
+        			dojo.attr(annotContent, "class", "annotation_info_editor");
+        			dojo.attr(annotContent, "id", "child_annotation_info_editor");
+        			dojo.place(annotContent, content);
+        		}
+    			first = false;
+        	});
+        }
         var numItems = 0;
         // if annotation has parent, get comments for parent
         if (annot.afeature.parent_id) {
@@ -2160,8 +1817,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.place(parentContent, content);
             ++numItems;
         }
-        var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName());
+        var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
         dojo.attr(annotContent, "class", "annotation_info_editor");
+        dojo.attr(annotContent, "id", "child_annotation_info_editor");
         dojo.place(annotContent, content);
         ++numItems;
         dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
@@ -2195,7 +1853,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	});
     },
     
-    createAnnotationInfoEditorPanelForFeature: function(uniqueName, trackName) {
+    createAnnotationInfoEditorPanelForFeature: function(uniqueName, trackName, selector, reload) {
     	var track = this;
     	var hasWritePermission = this.permission & Permission.WRITE;
     	var content = dojo.create("span");
@@ -2218,11 +1876,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var descriptionField = new dijitTextBox({ class: "annotation_editor_field"});
     	dojo.place(descriptionField.domNode, descriptionDiv);
 
-        var descriptionDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
-    	var descriptionLabel = dojo.create("label", { innerHTML: "Description", class: "annotation_info_editor_label" }, descriptionDiv);
-    	var descriptionField = new dijitTextBox({ class: "annotation_editor_field"});
-    	dojo.place(descriptionField.domNode, descriptionDiv);
-    	
         var dateCreationDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
     	var dateCreationLabel = dojo.create("label", { innerHTML: "Created", class: "annotation_info_editor_label" }, dateCreationDiv);
     	var dateCreationField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
@@ -2240,7 +1893,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     	var dbxrefsDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
     	var dbxrefsLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "DBXRefs" }, dbxrefsDiv);
-    	var dbxrefsTable = dojo.create("div", { class: "dbxrefs" }, dbxrefsDiv);
+    	var dbxrefsTable = dojo.create("div", { class: "dbxrefs", id: "dbxrefs_" + (selector ? "child" : "parent") }, dbxrefsDiv);
     	var dbxrefButtonsContainer = dojo.create("div", { style: "text-align: center;" }, dbxrefsDiv);
     	var dbxrefButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, dbxrefButtonsContainer);
     	var addDbxrefButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, dbxrefButtons);
@@ -2248,7 +1901,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     	var attributesDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
     	var attributesLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Attributes" }, attributesDiv);
-    	var attributesTable = dojo.create("div", { class: "attributes" }, attributesDiv);
+    	var attributesTable = dojo.create("div", { class: "attributes", id: "attributes_" + (selector ? "child" : "parent")  }, attributesDiv);
     	var attributeButtonsContainer = dojo.create("div", { style: "text-align: center;" }, attributesDiv);
     	var attributeButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, attributeButtonsContainer);
     	var addAttributeButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, attributeButtons);
@@ -2256,7 +1909,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     	var pubmedIdsDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
     	var pubmedIdsLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Pubmed IDs" }, pubmedIdsDiv);
-    	var pubmedIdsTable = dojo.create("div", { class: "pubmed_ids" }, pubmedIdsDiv);
+    	var pubmedIdsTable = dojo.create("div", { class: "pubmed_ids", id: "pubmd_ids_" + (selector ? "child" : "parent")  }, pubmedIdsDiv);
     	var pubmedIdButtonsContainer = dojo.create("div", { style: "text-align: center;" }, pubmedIdsDiv);
     	var pubmedIdButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, pubmedIdButtonsContainer);
     	var addPubmedIdButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, pubmedIdButtons);
@@ -2264,7 +1917,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	
     	var goIdsDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
     	var goIdsLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Gene Ontology IDs" }, goIdsDiv);
-    	var goIdsTable = dojo.create("div", { class: "go_ids" }, goIdsDiv);
+    	var goIdsTable = dojo.create("div", { class: "go_ids", id: "go_ids_" + (selector ? "child" : "parent")  }, goIdsDiv);
     	var goIdButtonsContainer = dojo.create("div", { style: "text-align: center;" }, goIdsDiv);
     	var goIdButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, goIdButtonsContainer);
     	var addGoIdButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, goIdButtons);
@@ -2272,7 +1925,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     	var commentsDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
     	var commentsLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Comments" }, commentsDiv);
-    	var commentsTable = dojo.create("div", { class: "comments" }, commentsDiv);
+    	var commentsTable = dojo.create("div", { class: "comments", id: "comments_" + (selector ? "child" : "parent")  }, commentsDiv);
     	var commentButtonsContainer = dojo.create("div", { style: "text-align: center;" }, commentsDiv);
     	var commentButtons = dojo.create("div", { class: "annotation_info_editor_button_group" }, commentButtonsContainer);
     	var addCommentButton = dojo.create("button", { innerHTML: "Add", class: "annotation_info_editor_button" }, commentButtons);
@@ -2282,6 +1935,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		nameField.set("disabled", true);
     		symbolField.set("disabled", true);
     		descriptionField.set("disabled", true);
+    		dateCreationField.set("disabled", true);
+    		dateLastModifiedField.set("disabled", true);
     		dojo.attr(addDbxrefButton, "disabled", true);
     		dojo.attr(deleteDbxrefButton, "disabled", true);
     		dojo.attr(addAttributeButton, "disabled", true);
@@ -2297,8 +1952,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var pubmedIdDb = "PMID";
         var goIdDb = "GO";
         
+        var timeout = 100;
+        
         var escapeString = function(str) {
-        	return str.replace(/(["'])/g, "\\$1")
+        	return str.replace(/(["'])/g, "\\$1");
         };
         
         function init() {
@@ -2329,6 +1986,20 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             });
         };
         
+        function initTable(domNode, tableNode, table, timeout) {
+        	var id = dojo.attr(tableNode, "id");
+        	var node = dojo.byId(id);
+        	if (!node) {
+        		setTimeout(function() {
+        			initTable(domNode, tableNode, table, timeout);
+        			return;
+        		}, timeout);
+        		return;
+        	}
+        	dojo.place(domNode, tableNode, "first");
+        	table.startup();
+        }
+        
         var initType = function(feature) {
     		header.innerHTML = feature.type.name;
         };
@@ -2345,6 +2016,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		var newName = nameField.get("value");
         		if (oldName != newName) {
         			updateName(newName);
+        			if (selector) {
+        				var select = selector.store.get(feature.uniquename).then(function(select) {
+        					selector.store.setValue(select, "label", newName);
+        				});
+        			}
         		}
         	});
         };
@@ -2482,10 +2158,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		});
         		
         		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-            		dojo.place(dbxrefTable.domNode, dbxrefsTable, "first");
-            		dbxrefTable.startup();
+        			initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable);
             		dojo.disconnect(handle);
         		});
+        		if (reload) {
+        			initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable, timeout);
+        		}
+        		
+        		
         		var dirty = false;
         		dojo.connect(dbxrefTable, "onStartEdit", function(inCell, inRowIndex) {
         			if (!dirty) {
@@ -2590,11 +2270,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		});
         		
         		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-            		dojo.place(attributeTable.domNode, attributesTable, "first");
-            		attributeTable.startup();
+            		initTable(attributeTable.domNode, attributesTable, attributeTable);
             		dojo.disconnect(handle);
         		});
-
+        		if (reload) {
+            		initTable(attributeTable.domNode, attributesTable, attributeTable, timeout);
+        		}
         		
         		var dirty = false;
 
@@ -2690,10 +2371,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		});
         		
         		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-            		dojo.place(pubmedIdTable.domNode, pubmedIdsTable, "first");
-            		pubmedIdTable.startup();
+            		initTable(pubmedIdTable.domNode, pubmedIdsTable, pubmedIdTable);
             		dojo.disconnect(handle);
         		});
+        		if (reload) {
+            		initTable(pubmedIdTable.domNode, pubmedIdsTable, pubmedIdTable, timeout);
+        		}
 
         		dojo.connect(pubmedIdTable, "onStartEdit", function(inCell, inRowIndex) {
         			oldPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
@@ -2808,10 +2491,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		});
         		
         		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-            		dojo.place(goIdTable.domNode, goIdsTable, "first");
-            		goIdTable.startup();
+            		initTable(goIdTable.domNode, goIdsTable, goIdTable);
             		dojo.disconnect(handle);
         		});
+        		if (reload) {
+            		initTable(goIdTable.domNode, goIdsTable, goIdTable, timeout);
+        		}
         		
         		dojo.connect(goIdTable, "onStartEdit", function(inCell, inRowIndex) {
         			editingRow = inRowIndex;
@@ -2901,10 +2586,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		});
         		
         		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-        			dojo.place(commentTable.domNode, commentsTable, "first");
-        			commentTable.startup();
+        			initTable(commentTable.domNode, commentsTable, commentTable);
         			dojo.disconnect(handle);
         		});
+        		if (reload) {
+        			initTable(commentTable.domNode, commentsTable, commentTable, timeout);
+        		}
 
         		dojo.connect(commentTable, "onStartEdit", function(inCell, inRowIndex) {
         			oldComment = commentTable.store.getValue(commentTable.getItem(inRowIndex), "comment");
@@ -3007,39 +2694,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
     	};
-    	
-    	var getName = function() {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_name";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-            		header.innerHTML = feature.type.name; //feature.type.name.charAt(0).toUpperCase() + feature.type.name.slice(1);
-            		featureType = feature.type.cv.name + ":" + feature.type.name;
-            		if (feature.name) {
-//            			dojo.attr(nameField, "value", feature.name);
-            			nameField.set("value", feature.name);
-            		}
-            	}
-            });
-
-           	var oldName;
-        	dojo.connect(nameField, "onFocus", function() {
-        		oldName = nameField.get("value");
-        	});
-        	dojo.connect(nameField, "onBlur", function() {
-        		var newName = nameField.get("value");
-        		if (oldName != newName) {
-        			updateName(newName);
-        		}
-        	});
-    	};
 
     	var updateSymbol = function(symbol) {
     		symbol = escapeString(symbol);
@@ -3049,70 +2703,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.executeUpdateOperation(postData);
     	};
     	
-    	var getSymbol = function() {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_symbol";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-            		if (feature.symbol) {
-            			symbolField.set("value", feature.symbol);
-            		}
-            	}
-            });
-            var oldSymbol;
-        	dojo.connect(symbolField, "onFocus", function() {
-        		oldSymbol = symbolField.get("value");
-        	});
-        	dojo.connect(symbolField, "onBlur", function() {
-        		var newSymbol = symbolField.get("value");
-        		if (oldSymbol != newSymbol) {
-        			updateSymbol(newSymbol);
-        		}
-        	});
-    	};
-    	
     	var updateDescription = function(description) {
     		description = escapeString(description);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
             var operation = "set_description";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
-    	};
-    	
-    	var getDescription = function() {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_description";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-            		if (feature.description) {
-            			descriptionField.set("value", feature.description);
-            		}
-            	}
-            });
-        	var oldDescription;
-        	dojo.connect(descriptionField, "onFocus", function() {
-        		oldDescription = descriptionField.get("value");
-        	});
-        	dojo.connect(descriptionField, "onBlur", function() {
-        		var newDescription = descriptionField.get("value");
-        		if (oldDescription != newDescription) {
-        			updateDescription(newDescription);
-        		}
-        	});
     	};
     	
     	var deleteStatus = function() {
@@ -3128,36 +2724,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
     	};
-    	
-    	var getStatus = function() {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_status";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-            		if (feature.status) {
-            			statusRadios[feature.status].set("checked", true);
-            		}
-            	}
-            });
-        	var oldDescription;
-        	dojo.connect(descriptionField, "onFocus", function() {
-        		oldDescription = descriptionField.get("value");
-        	});
-        	dojo.connect(descriptionField, "onBlur", function() {
-        		var newDescription = descriptionField.get("value");
-        		if (oldDescription != newDescription) {
-        			updateDescription(newDescription);
-        		}
-        	});
-    	};
-    	
+   	
         var addDbxref = function(db, accession) {
         	db = escapeString(db);
         	accession = escapeString(accession);
@@ -3188,144 +2755,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
         };
-    	
-        var getDbxrefs = function() {
-        	var oldDb;
-        	var oldAccession;
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-                	var dbxrefs = new dojoItemFileWriteStore({
-                		data: {
-                			items: []
-                		}
-                	});
-            		for (var i = 0; i < feature.dbxrefs.length; ++ i) {
-            			var dbxref = feature.dbxrefs[i];
-            			if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb) {
-            				dbxrefs.newItem({ db: dbxref.db, accession: dbxref.accession });
-            			}
-            		}
-            		var dbxrefTableLayout = [{
-            			cells: [
-            			        {
-            			        	name: 'DB',
-            			        	field: 'db',
-            			        	width: '40%',
-            			        	formatter: function(db) {
-            			        		if (!db) {
-            			        			return "Enter new DB";
-            			        		}
-            			        		return db;
-            			        	},
-            			        	editable: hasWritePermission
-            			        },
-            			        {
-            			        	name: 'Accession',
-            			        	field: 'accession',
-            			        	width: '60%',
-            			        	formatter: function(accession) {
-            			        		if (!accession) {
-            			        			return "Enter new accession";
-            			        		}
-            			        		return accession;
-            			        	},
-            			        	editable: hasWritePermission
-            			        }
-            			       ]
-            		}];
 
-            		var dbxrefTable = new dojoxDataGrid({
-                		singleClickEdit: true,
-                		store: dbxrefs,
-            			updateDelay: 0,
-            			structure: dbxrefTableLayout
-            		});
-            		
-            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-                		dojo.place(dbxrefTable.domNode, dbxrefsTable, "first");
-                		dbxrefTable.startup();
-                		dojo.disconnect(handle);
-            		});
-
-//            		var dbxrefTable = new dojoxDataGrid({
-//            			store: dbxrefs,
-//            			updateDelay: 0,
-//            			structure: dbxrefTableLayout
-//            		});
-//            		dojo.place(dbxrefTable.domNode, dbxrefsTable, "first");
-//            		dbxrefTable.startup();
-            		
-            		var dirty = false;
-            		
-            		dojo.connect(dbxrefTable, "onStartEdit", function(inCell, inRowIndex) {
-            			if (!dirty) {
-	            			oldDb = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "db");
-	            			oldAccession = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "accession");
-	            			dirty = true;
-            			}
-            		});
-            		
-            		dojo.connect(dbxrefTable, "onCancelEdit", function(inRowIndex) {
-            			dbxrefTable.store.setValue(dbxrefTable.getItem(inRowIndex), "db", oldDb);
-            			dbxrefTable.store.setValue(dbxrefTable.getItem(inRowIndex), "accession", oldAccession);
-            			dirty = false;
-            		});
-            		
-            		dojo.connect(dbxrefTable, "onApplyEdit", function(inRowIndex) {
-            			var newDb = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "db");
-            			var newAccession = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "accession");
-            			if (!newDb || !newAccession) {
-            			}
-            			else if (!oldDb || !oldAccession) {
-            				addDbxref(newDb, newAccession);
-            			}
-            			else {
-            				if (newDb != oldDb || newAccession != oldAccession) {
-            					updateDbxref(oldDb, oldAccession, newDb, newAccession);
-            				}
-            			}
-            			dirty = false;
-            		});
-            		
-                    dojo.connect(addDbxrefButton, "onclick", function() {
-                    	dbxrefTable.store.newItem({ db: "", accession: "" });
-                      	dbxrefTable.scrollToRow(dbxrefTable.rowCount);
-                    });
-                    
-                    dojo.connect(deleteDbxrefButton, "onclick", function() {
-                    	var toBeDeleted = new Array();
-                    	var selected = dbxrefTable.selection.getSelected();
-                    	for (var i = 0; i < selected.length; ++i) {
-                    		var item = selected[i];
-                    		var db = dbxrefTable.store.getValue(item, "db");
-                    		var accession = dbxrefTable.store.getValue(item, "accession");
-                    		toBeDeleted.push({ db: db, accession: accession });
-                    	}
-                    	dbxrefTable.removeSelectedRows();
-                    	deleteDbxrefs(toBeDeleted);
-                    });
-
-            	},
-            	// The ERROR function will be called in an error case.
-            	error: function(response, ioArgs) {
-            		track.handleError(response);
-            		console.error("HTTP status code: ", ioArgs.xhr.status);
-            		return response;
-            	}
-
-            });
-
-        };
-        
         var addAttribute = function(tag, value) {
         	tag = escapeString(tag);
         	value = escapeString(value);
@@ -3355,134 +2785,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "update_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
-        };
-    	
-        var getAttributes = function() {
-        	var oldTag;
-        	var oldValue;
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_non_reserved_properties";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-                	var attributes = new dojoItemFileWriteStore({
-                		data: {
-                			items: []
-                		}
-                	});
-            		for (var i = 0; i < feature.non_reserved_properties.length; ++ i) {
-            			var attribute = feature.non_reserved_properties[i];
-        				attributes.newItem({ tag: attribute.tag, value: attribute.value });
-            		}
-            		var attributeTableLayout = [{
-            			cells: [
-            			        {
-            			        	name: 'Tag',
-            			        	field: 'tag',
-            			        	width: '40%',
-            			        	formatter: function(tag) {
-            			        		if (!tag) {
-            			        			return "Enter new tag";
-            			        		}
-            			        		return tag;
-            			        	},
-            			        	editable: hasWritePermission
-            			        },
-            			        {
-            			        	name: 'Value',
-            			        	field: 'value',
-            			        	width: '60%',
-            			        	formatter: function(value) {
-            			        		if (!value) {
-            			        			return "Enter new value";
-            			        		}
-            			        		return value;
-            			        	},
-            			        	editable: hasWritePermission
-            			        }
-            			       ]
-            		}];
-
-            		var attributeTable = new dojoxDataGrid({
-                		singleClickEdit: true,
-                		store: attributes,
-            			updateDelay: 0,
-            			structure: attributeTableLayout
-            		});
-            		
-            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-                		dojo.place(attributeTable.domNode, attributesTable, "first");
-                		attributeTable.startup();
-                		dojo.disconnect(handle);
-            		});
-
-            		
-            		var dirty = false;
-
-            		dojo.connect(attributeTable, "onStartEdit", function(inCell, inRowIndex) {
-            			if (!dirty) {
-	            			oldTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
-	            			oldValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
-	            			dirty = true;
-            			}
-            		});
-            		
-            		dojo.connect(attributeTable, "onCancelEdit", function(inRowIndex) {
-            			attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "tag", oldTag);
-            			attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "value", oldValue);
-            			dirty = false;
-            		});
-            		
-            		dojo.connect(attributeTable, "onApplyEdit", function(inRowIndex) {
-            			var newTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
-            			var newValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
-            			if (!newTag || !newValue) {
-            			}
-            			else if (!oldTag || !oldValue) {
-            				addAttribute(newTag, newValue);
-            			}
-            			else {
-            				if (newTag != oldTag || newValue != oldValue) {
-            					updateAttribute(oldTag, oldValue, newTag, newValue);
-            				}
-            			}
-            			dirty = false;
-            		});
-            		
-                    dojo.connect(addAttributeButton, "onclick", function() {
-                    	attributeTable.store.newItem({ tag: "", value: "" });
-                      	attributeTable.scrollToRow(attributeTable.rowCount);
-                    });
-                    
-                    dojo.connect(deleteAttributeButton, "onclick", function() {
-                    	var toBeDeleted = new Array();
-                    	var selected = attributeTable.selection.getSelected();
-                    	for (var i = 0; i < selected.length; ++i) {
-                    		var item = selected[i];
-                    		var tag = attributeTable.store.getValue(item, "tag");
-                    		var value = attributeTable.store.getValue(item, "value");
-                    		toBeDeleted.push({ tag: tag, value: value });
-                    	}
-                    	attributeTable.removeSelectedRows();
-                    	deleteAttributes(toBeDeleted);
-                    });
-
-            	},
-            	// The ERROR function will be called in an error case.
-            	error: function(response, ioArgs) {
-            		track.handleError(response);
-            		console.error("HTTP status code: ", ioArgs.xhr.status);
-            		return response;
-            	}
-
-            });
-
         };
 
         var confirmPubmedEntry = function(record) {
@@ -3554,151 +2856,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     			pubmedIdTable.store.setValue(pubmedIdTable.getItem(row), "pubmed_id", oldPubmedId);
         	}
         };
-    	
-        var getPubmedIds = function() {
-        	var oldPubmedId;
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var feature = response.features[0];
-                	var pubmedIds = new dojoItemFileWriteStore({
-                		data: {
-                			items: []
-                		}
-                	});
-            		for (var i = 0; i < feature.dbxrefs.length; ++ i) {
-            			var dbxref = feature.dbxrefs[i];
-            			if (dbxref.db == pubmedIdDb) {
-	            			pubmedIds.newItem({ pubmed_id: dbxref.accession });
-            			}
-            		}
-            		var pubmedIdTableLayout = [{
-            			cells: [
-            			        {
-            			        	name: 'Pubmed ID',
-            			        	field: 'pubmed_id',
-            			        	width: '100%',
-//	    							type: dojox.grid.cells._Widget,
-            			        	formatter: function(pubmedId) {
-            			        		if (!pubmedId) {
-            			        			return "Enter new PubMed ID";
-            			        		}
-            			        		/*
-            			        		return new dijitValidationTextBox({
-            			        			value: pubmedId,
-            			        			validator: function(value, constraints) {
-            			        				var foo;
-            			        				return false;
-            			        			}
-            			        		});
-            			        		*/
-            			        		return pubmedId;
-            			        	},
-            			        	editable: hasWritePermission
-            			        }
-            			       ]
-            		}];
-
-            		var pubmedIdTable = new dojoxDataGrid({
-                		singleClickEdit: true,
-                		store: pubmedIds,
-            			updateDelay: 0,
-            			structure: pubmedIdTableLayout
-            		});
-            		
-            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-                		dojo.place(pubmedIdTable.domNode, pubmedIdsTable, "first");
-                		pubmedIdTable.startup();
-                		dojo.disconnect(handle);
-            		});
-
-//            		var dbxrefTable = new dojoxDataGrid({
-//            			store: dbxrefs,
-//            			updateDelay: 0,
-//            			structure: dbxrefTableLayout
-//            		});
-//            		dojo.place(dbxrefTable.domNode, dbxrefsTable, "first");
-//            		dbxrefTable.startup();
-            		
-            		dojo.connect(pubmedIdTable, "onStartEdit", function(inCell, inRowIndex) {
-            			oldPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
-            		});
-            		
-            		dojo.connect(pubmedIdTable, "onApplyEdit", function(inRowIndex) {
-            			var newPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
-            			if (!newPubmedId) {
-            			}
-            			else if (!oldPubmedId) {
-            				addPubmedId(pubmedIdTable, inRowIndex, newPubmedId);
-            			}
-            			else {
-            				if (newPubmedId != oldPubmedId) {
-            					updatePubmedId(pubmedIdTable, inRowIndex, oldPubmedId, newPubmedId);
-            				}
-            			}
-            		});
-            		
-            		/*
-            		pubmedIdTable.edit.apply = function() {
-            			if (!pubmedIdTable.edit.info.cell) {
-            				return;
-            			}
-            			var pubmedId = pubmedIdTable.edit.info.cell.getValue(pubmedIdTable.edit.info.rowIndex);
-            			EUtils.validateId("pubmed", pubmedId, function() {
-                			if(pubmedIdTable.edit.isEditing() && pubmedIdTable.edit._isValidInput()){
-                				pubmedIdTable.edit.grid.beginUpdate();
-                				pubmedIdTable.edit.editorApply();
-                				pubmedIdTable.edit.applyRowEdit();
-                				pubmedIdTable.edit.info = {};
-                				pubmedIdTable.edit.grid.endUpdate();
-                				pubmedIdTable.edit.grid.focus.focusGrid();
-                				pubmedIdTable.edit._doCatchBoomerang();
-                			}
-            			},
-            			function(error) {
-                			if(pubmedIdTable.edit.isEditing() && pubmedIdTable.edit._isValidInput()){
-                				pubmedIdTable.edit.grid.beginUpdate();
-                			}
-            				alert(error);
-            			});
-            		};
-            		*/
-            		            		
-                    dojo.connect(addPubmedIdButton, "onclick", function() {
-                    	pubmedIdTable.store.newItem({ pubmed_id: "" });
-                      	pubmedIdTable.scrollToRow(pubmedIdTable.rowCount);
-                    });
-                    
-                    dojo.connect(deletePubmedIdButton, "onclick", function() {
-                    	var toBeDeleted = new Array();
-                    	var selected = pubmedIdTable.selection.getSelected();
-                    	for (var i = 0; i < selected.length; ++i) {
-                    		var item = selected[i];
-                    		var pubmedId = pubmedIdTable.store.getValue(item, "pubmed_id");
-                    		toBeDeleted.push({ db: pubmedIdDb, accession: pubmedId });
-                    	}
-                    	pubmedIdTable.removeSelectedRows();
-                    	deletePubmedIds(toBeDeleted);
-                    });
-
-            	},
-            	// The ERROR function will be called in an error case.
-            	error: function(response, ioArgs) {
-            		track.handleError(response);
-            		console.error("HTTP status code: ", ioArgs.xhr.status);
-            		return response;
-            	}
-
-            });
-
-        };
         
         var validateGoId = function(goId) {
         	var regex = new RegExp("^" + goIdDb + ":(\\d{7})$");
@@ -3744,142 +2901,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     			goIdTable.store.setValue(item, "go_id", oldGoId);
         	}
         };
-    	
-        var getGoIds = function() {
-        	var oldGoId;
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_non_primary_dbxrefs";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-            	sync: true,
-            	postData: postData,
-            	url: context_path + "/AnnotationEditorService",
-            	handleAs: "json",
-            	timeout: 5000 * 1000, // Time in milliseconds
-            	load: function(response, ioArgs) {
-            		var editingRow = 0;
-            		var feature = response.features[0];
-                	var goIds = new dojoItemFileWriteStore({
-                		data: {
-                			items: []
-                		}
-                	});
-            		for (var i = 0; i < feature.dbxrefs.length; ++ i) {
-            			var dbxref = feature.dbxrefs[i];
-            			if (dbxref.db == goIdDb) {
-	            			goIds.newItem({ go_id: goIdDb + ":" + dbxref.accession });
-            			}
-            		}
-            		var goIdTableLayout = [{
-            			cells: [
-            			        {
-            			        	name: 'Gene Ontology ID',
-            			        	field: 'go_id', //'_item',
-            			        	width: '100%',
-	    							type: declare(dojox.grid.cells._Widget, {
-	    								widgetClass: dijitTextBox,
-	    								createWidget: function(inNode, inDatum, inRowIndex) {
-	    									var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
-	    									var oldTextBox = widget.domNode.childNodes[0].childNodes[0];
-	    									widget.domNode.childNodes[0].removeChild(widget.domNode.childNodes[0].lastChild);
-	    									var textBox = dojo.create("input", { type: "text", class: oldTextBox.className, id: oldTextBox.id, value: oldTextBox.value }, widget.domNode);
-//	    									var textBox = widget.domNode.childNodes[0].childNodes[0];
-	            			                var gserv = 'http://golr.berkeleybop.org/';
-	            			                var gconf = new bbop.golr.conf(amigo.data.golr);
-	            			                var args = {
-	            			                        label_template: '{{annotation_class_label}} [{{annotation_class}}]',
-	            			                        value_template: '{{annotation_class}}',
-	            			                        list_select_callback: function(doc) {
-	            			                        	goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
-	            			                        }
-	            			                };
-	            			                var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
-	            			                auto.set_personality('bbop_term_ac');
-	            			                auto.add_query_filter('document_category', 'ontology_class');
-	            			                auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
-	            			                textBox.focus();
-	            			                textBox.select();
-	    									return widget;
-	    								}
-	    							}),
-//	    								 dojox.grid.cells._Widget,
-            			        	formatter: function(goId, rowIndex, cell) { //item, rowIndex, cell) {
-            			        		if (!goId) {
-            			        			return "Enter new Gene Ontology ID";
-            			        		}
-            			        		return goId;
-            			        	},
-            			        	editable: hasWritePermission
-            			        }
-            			       ]
-            		}];
-
-            		var goIdTable = new dojoxDataGrid({
-                		singleClickEdit: true,
-                		store: goIds,
-            			updateDelay: 0,
-            			structure: goIdTableLayout
-            		});
-            		
-            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-                		dojo.place(goIdTable.domNode, goIdsTable, "first");
-                		goIdTable.startup();
-                		dojo.disconnect(handle);
-            		});
-            		
-            		dojo.connect(goIdTable, "onStartEdit", function(inCell, inRowIndex) {
-            			editingRow = inRowIndex;
-            			oldGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex), "go_id");
-            		});
-            		
-            		dojo.connect(goIdTable, "onStartEdit", function(inCell, inRowIndex) {
-            			if (inCell.widget) {
-            				inCell.widget = null;
-            			}
-            		});
-            		
-            		dojo.connect(goIdTable, "onApplyEdit", function(inRowIndex) {
-            			var newGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex), "go_id");
-            			if (!newGoId) {
-            			}
-            			else if (!oldGoId) {
-            				addGoId(goIdTable, inRowIndex, newGoId);
-            			}
-            			else {
-            				if (newGoId != oldGoId) {
-            					updateGoId(goIdTable, inRowIndex, oldGoId, newGoId);
-            				}
-            			}
-            		});
-            		            		
-                    dojo.connect(addGoIdButton, "onclick", function() {
-                    	goIdTable.store.newItem({ go_id: "" });
-                      	goIdTable.scrollToRow(goIdTable.rowCount);
-                    });
-                    
-                    dojo.connect(deleteGoIdButton, "onclick", function() {
-                    	var toBeDeleted = new Array();
-                    	var selected = goIdTable.selection.getSelected();
-                    	for (var i = 0; i < selected.length; ++i) {
-                    		var item = selected[i];
-                    		var goId = goIdTable.store.getValue(item, "go_id");
-                    		toBeDeleted.push({ db: goIdDb, accession: goId.substr(goIdDb.length + 1) });
-                    	}
-                    	goIdTable.removeSelectedRows();
-                    	deleteGoIds(toBeDeleted);
-                    });
-
-            	},
-            	// The ERROR function will be called in an error case.
-            	error: function(response, ioArgs) {
-            		track.handleError(response);
-            		console.error("HTTP status code: ", ioArgs.xhr.status);
-            		return response;
-            	}
-
-            });
-
-        };
         
     	var addComment = function(comment) {
     		comment = escapeString(comment);
@@ -3912,106 +2933,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         };
 
-    	var getComments = function() {
-            var oldComment;
-    		var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-    		var operation = "get_comments";
-    		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-    		dojo.xhrPost( {
-            	sync: true,
-    			postData: postData,
-    			url: context_path + "/AnnotationEditorService",
-    			handleAs: "json",
-    			sync: true,
-    			timeout: 5000 * 1000, // Time in milliseconds
-    			load: function(response, ioArgs) {
-            		var feature = response.features[0];
-                	var comments = new dojoItemFileWriteStore({
-                		data: {
-                			items: []
-                		}
-                	});
-            		for (var i = 0; i < feature.comments.length; ++ i) {
-            			var comment = feature.comments[i];
-            			comments.newItem({ comment: comment });
-            		}
-    				var commentTableLayout = [{
-    					cells: [
-    					        {
-	    							name: 'Comment',
-	    							field: 'comment',
-            			        	editable: hasWritePermission,
-	    							type: dojox.grid.cells.ComboBox, 
-	    							options: cannedComments,
-	    							formatter: function(comment) {
-	    								if (!comment) {
-	    									return "Enter new comment";
-	    								}
-	    								return comment;
-	    							},
-	    							width: "100%"
-    					        }
-    					       ]
-    				}];
-            		var commentTable = new dojoxDataGrid({
-                		singleClickEdit: true,
-            			store: comments,
-            			structure: commentTableLayout,
-            			updateDelay: 0
-            		});
-            		
-            		var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
-            			dojo.place(commentTable.domNode, commentsTable, "first");
-            			commentTable.startup();
-            			dojo.disconnect(handle);
-            		});
-
-            		dojo.connect(commentTable, "onStartEdit", function(inCell, inRowIndex) {
-            			oldComment = commentTable.store.getValue(commentTable.getItem(inRowIndex), "comment");
-            		});
-            		
-            		dojo.connect(commentTable, "onApplyCellEdit", function(inValue, inRowIndex, inFieldIndex) {
-            			var newComment = inValue;
-            			if (!newComment) {
-//            				alert("No comment");
-            			}
-            			else if (!oldComment) {
-            				addComment(newComment);
-            			}
-            			else {
-            				if (newComment != oldComment) {
-            					updateComment(oldComment, newComment);
-            				}
-            			}
-            		});
-            		
-                    dojo.connect(addCommentButton, "onclick", function() {
-                    	commentTable.store.newItem({ comment: undefined });
-                      	commentTable.scrollToRow(commentTable.rowCount);
-                    });
-                    
-                    dojo.connect(deleteCommentButton, "onclick", function() {
-                    	var toBeDeleted = new Array();
-                    	var selected = commentTable.selection.getSelected();
-                    	for (var i = 0; i < selected.length; ++i) {
-                    		var comment = commentTable.store.getValue(selected[i], "comment");
-                    		toBeDeleted.push(comment);
-                    	}
-                    	commentTable.removeSelectedRows();
-                    	deleteComments(toBeDeleted);
-                    });
-            		
-    			},
-    			// The ERROR function will be called in an error case.
-    			error: function(response, ioArgs) {
-    				track.handleError(response);
-    				console.error("HTTP status code: ", ioArgs.xhr.status);
-    				return response;
-    			}
-
-    		});
-    	};
-    	
         var getCannedComments = function() {
             var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
             var operation = "get_canned_comments";
@@ -4036,10 +2957,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
         
         init();
-//		getName();
-//        getSymbol();
-//        getDescription();
-//        processOtherMetadata();
         return content;
     },
     
@@ -5785,7 +4702,26 @@ makeTrackMenu: function()  {
     		return true;
     	}
     	return false;
-    }
+    },
+    
+    processParent: function(feature, operation) {
+        var parentId = feature.parent_id;
+        if (parentId) {
+            var topLevelFeatures = this.topLevelParents[parentId] || (this.topLevelParents[parentId] = {});
+            switch (operation) {
+            case "ADD":
+            	topLevelFeatures[feature.uniquename] = feature;
+            	break;
+            case "DELETE":
+            	delete topLevelFeatures[feature.uniquename];
+            	break;
+            case "UPDATE":
+            	topLevelFeatures[feature.uniquename] = feature;
+            	break;
+        }
+        }
+
+    } 
 
 });
 
