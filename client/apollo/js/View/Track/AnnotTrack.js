@@ -644,7 +644,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         
         new Tooltip({
         	connectId: featDiv,
-        	label: "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified),
+        	label: "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified),
         	position: ["above"],
         	showDelay: 600
         });
