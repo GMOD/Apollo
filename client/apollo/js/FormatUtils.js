@@ -11,5 +11,12 @@ function() {
 		return year + "-" + month + "-" + day;
 	};
 	
+	FormatUtils.formatTime = function(millis) {
+		var date = new Date(millis);
+		var hours = date.getHours();
+		var minutes = date.getMinutes();
+		return + hours + ":" + minutes;
+	};
+	
 	return FormatUtils;
 });
