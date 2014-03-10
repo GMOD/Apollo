@@ -6,8 +6,11 @@ function() {
 	FormatUtils.formatDate = function(millis) {
 		var date = new Date(millis);
 		var year = date.getFullYear();
-		var month = ("" + date.getMonth()).length == 1 ? "0" + date.getMonth() : date.getMonth();
+		var month = date.getMonth() + 1;
 		var day = ("" + date.getDate()).length == 1 ? "0" + date.getDate() : date.getDate();
+		if (new String(month).length == 1) {
+			month = "0" + month;
+		}
 		return year + "-" + month + "-" + day;
 	};
 	
