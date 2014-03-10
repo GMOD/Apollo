@@ -1193,7 +1193,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	    	    var features = '[ { ' + feature + ' } ]';
 	    	    var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
 	    	    track.annotTrack.executeUpdateOperation(postData);
-	    	    track.annotTrack.popupDialog.hide();
+	    	    track.annotTrack.closeDialog();
 	    	}
 	    }
 	};

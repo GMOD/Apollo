@@ -1093,14 +1093,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             	var cancelButton = dojo.create("button", { className: "confirm_button", innerHTML: "Cancel" }, buttonsDiv);
             	dojo.connect(plusButton, "onclick", function() {
             		strand = 1;
-            		AnnotTrack.popupDialog.hide();
+            		target_track.closeDialog();
             	});
             	dojo.connect(minusButton, "onclick", function() {
             		strand = -1;
-            		AnnotTrack.popupDialog.hide();
+            		target_track.closeDialog();
             	});
             	dojo.connect(cancelButton, "onclick", function() {
-            		AnnotTrack.popupDialog.hide();
+            		target_track.closeDialog();
             	});
             	var handle = dojo.connect(AnnotTrack.popupDialog, "onHide", function() {
             		dojo.disconnect(handle);
@@ -3864,23 +3864,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	contextMenuItems["annotation_info_editor"] = index++;
     	annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
-    	
-    	/*
-    	annot_context_menu.addChild(new dijit.MenuItem( {
-    		label: "Comments",
-    		onClick: function(event) {
-    			thisObj.editComments();
-    		}
-    	} ));
-    	contextMenuItems["edit_comments"] = index++;
-    	annot_context_menu.addChild(new dijit.MenuItem( {
-    		label: "DBXRefs",
-    		onClick: function(event) {
-    			thisObj.editDbxrefs();
-    		}
-    	} ));
-    	contextMenuItems["edit_dbxrefs"] = index++;
-    	*/
     	annot_context_menu.addChild(new dijit.MenuItem( {
     		label: "Undo",
     		onClick: function(event) {
@@ -4086,6 +4069,10 @@ makeTrackMenu: function()  {
         AnnotTrack.popupDialog.set("content", data);
         AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
         AnnotTrack.popupDialog.show();
+    },
+    
+    closeDialog: function() {
+    	AnnotTrack.popupDialog.hide();
     },
 
     updateMenu: function() {
@@ -4426,6 +4413,7 @@ makeTrackMenu: function()  {
         }
         menuItem.set("disabled", false);
     },
+    
     updateSetBothEndsMenuItem: function() {
         var menuItem = this.getMenuItem("set_both_ends");
         var selectedAnnots = this.selectionManager.getSelection();
