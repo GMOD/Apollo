@@ -30,4 +30,8 @@
 	</metadata_to_export>
 	-->
 
+	<!-- whether to export underlying genomic sequence - optional.
+	Defaults to true -->
+	<export_genomic_sequence>true</export_genomic_sequence>
+
 </gff3_config>

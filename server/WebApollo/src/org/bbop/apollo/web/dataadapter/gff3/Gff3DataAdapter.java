@@ -43,6 +43,7 @@ public class Gff3DataAdapter extends DataAdapter {
 	private String path;
 	private String source;
 	private Set<String> metaDataToExport;
+	private boolean exportSourceGenomicSequence;
 	
 	private enum Output {
 		DISPLAY,
@@ -88,7 +89,8 @@ public class Gff3DataAdapter extends DataAdapter {
 				metaDataToExport.add("go_ids");
 				metaDataToExport.add("comments");
 			}
-
+			Node exportSourceGenomicSequenceNode = doc.getElementsByTagName("export_source_genomic_sequence").item(0);
+			exportSourceGenomicSequence = exportSourceGenomicSequenceNode != null ? Boolean.parseBoolean(exportSourceGenomicSequenceNode.getTextContent()) : true;
 			bioObjectConfiguration = new BioObjectConfiguration(basePath + serverConfig.getGBOLMappingFile());
 			dataStoreDirectory = serverConfig.getDataStoreDirectory();
 			for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
@@ -170,8 +172,13 @@ public class Gff3DataAdapter extends DataAdapter {
     			sourceFeatures.add(sourceFeature);
     			sequenceAlterations.addAll(gff3IO.writeFeatures(sourceFeature, source));
     		}
-    		gff3IO.writeFasta(sourceFeatures);
-    		gff3IO.writeFasta(sequenceAlterations, false, false);
+    		if (exportSourceGenomicSequence) {
+    			gff3IO.writeFasta(sourceFeatures);
+    			gff3IO.writeFasta(sequenceAlterations, false, false);
+    		}
+    		else {
+    			gff3IO.writeFasta(sequenceAlterations, true, false);
+    		}
     		gff3IO.close();
 
     		tmpFile.renameTo(doneFile);
