@@ -400,7 +400,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     	    				}
 							if (args.leftBase == -1) {
 								var idx = seq.lastIndexOf(" ");
-								seq = seq.substring(0, idx) + "N" + seq.substring(idx + 1);
+								seq = seq.substring(0, idx) + SequenceTrack.nbsp + seq.substring(idx + 1);
 							}
 
     	    				var blockStart = start + 2;
@@ -1269,10 +1269,14 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	}
         if (! classname) { classname = "text-highlight"; }
         var item = $(element);
-        var str = item.data("origHTML");
+        var str = item.text();
         if (!str) {
             str = item.html();
             item.data("origHTML", str);
+        }
+        var highlighted_base=str.substr(start, end - start + 1);
+        if(highlighted_base==SequenceTrack.nbsp) {
+            return;
         }
         str = str.substr(0, start) +
             '<span class="' + classname + '">' +
