@@ -335,7 +335,9 @@ function open_search_dialog() {
 	}
 %>	
 	search.setRedirectCallback(function(id, fmin, fmax) {
-		window.open('jbrowse/?loc=' + id + ":" + (fmin-(fmax-fmin)*0.2) + ".." + (fmax+(fmax-fmin)*0.2)+"&highlight="+id+":"+fmin + ".." + fmax);
+		 var flank = Math.round((fmax - fmin) * 0.2);
+		 var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+fmin + ".." + fmax;
+		 window.open(url);
 	});
 	search.setErrorCallback(function(response) {
 		var error = eval('(' + response.responseText + ')');
