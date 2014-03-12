@@ -171,7 +171,7 @@ return declare( JBPlugin,
         }
         
         // turn on highlightSearchedRegions if not explicitly set on config
-        if (!browser.config.highlightSearchedRegions) {
+        if (browser.config.highlightSearchedRegions == undefined) {
         	browser.config.highlightSearchedRegions = true;
         }
 
