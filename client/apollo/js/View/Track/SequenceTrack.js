@@ -389,9 +389,19 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     	    				// fill with leading blanks if the
     	    				// sequence does not extend all the way
     	    				// across our range
+    	    				/*
     	    				for( ; start < 0; start++ ) {
     	    					seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
     	    				}
+    	    				*/
+
+    	    				if (start < 0) {
+    	    					start = 0;
+    	    				}
+							if (args.leftBase == -1) {
+								var idx = seq.lastIndexOf(" ");
+								seq = seq.substring(0, idx) + "N" + seq.substring(idx + 1);
+							}
 
     	    				var blockStart = start + 2;
     	    				var blockEnd = end - 2;
@@ -480,7 +490,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     	    				} );
     	    				$(forwardDNA).bind("mousemove", function(event) {
     	    					var gcoord = track.getGenomeCoord(event);
-    	    					if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
+    	    					if (gcoord >= 0 && ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord))) {
     	    						var blockCoord = gcoord - leftBase;
     	    						track.last_dna_coord = gcoord;
     	    						track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
@@ -494,6 +504,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     	    							}
     	    						}
     	    					}
+    	    					else if (gcoord < 0) {
+    	    						track.clearHighlightedBases();
+    	    					}
     	    				} );
     	    				if (reverseDNA) {
     	    					$(reverseDNA).bind("mouseleave", function(event) {
@@ -503,7 +516,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     	    					} );
     	    					$(reverseDNA).bind("mousemove", function(event) {
     	    						var gcoord = track.getGenomeCoord(event);
-    	    						if ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord)) {
+    	    						if (gcoord >= 0 && ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord))) {
     	    							var blockCoord = gcoord - leftBase;
     	    							track.last_dna_coord = gcoord;
     	    							track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
@@ -513,6 +526,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     	    								track.lastHighlightedReverseDNA = reverseDNA;
     	    							}
     	    						}
+        	    					else if (gcoord < 0) {
+        	    						track.clearHighlightedBases();
+        	    					}
     	    					} );
     	    				}
 
