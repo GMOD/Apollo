@@ -1294,7 +1294,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 	    return;
 	}
         var item = $(element);
-        var str = item.data("origHTML");
+        var str = item.text();
         if (str) {
 	    item.html(str);
         }
