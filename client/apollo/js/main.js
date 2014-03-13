@@ -170,11 +170,6 @@ return declare( JBPlugin,
         	browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
         }
         
-        // turn on highlightSearchedRegions if not explicitly set on config
-        if (!browser.config.highlightSearchedRegions) {
-        	browser.config.highlightSearchedRegions = true;
-        }
-
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
         //    dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );

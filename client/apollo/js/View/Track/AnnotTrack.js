@@ -3378,20 +3378,26 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	var search = new SequenceSearch(context_path);
 	search.setRedirectCallback(function(id, fmin, fmax) {
 		var loc = id + ":" + fmin + "-" + fmax;
-                var locobj = {
-                    ref: id, 
-                    start: fmin, 
-                    end: fmax
-                };
+		var locobj = {
+				ref: id, 
+				start: fmin, 
+				end: fmax
+		};
 		if (id == track.refSeq.name) {
-		        // track.gview.browser.navigateTo(loc);
-                        track.gview.browser.showRegionWithHighlight(locobj);
+			// track.gview.browser.navigateTo(loc);
+			var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
+			track.gview.browser.config.highlightSearchedRegions = true;
+			track.gview.browser.showRegionWithHighlight(locobj);
+			track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
 //			AnnotTrack.popupDialog.hide();
 		}
 		else {
 			// var url = window.location.toString().replace(/loc=.+/, "loc=" + loc);
 			// window.location.replace(url);
-                        track.gview.browser.showRegionWithHighlight(locobj);
+			var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
+			track.gview.browser.config.highlightSearchedRegions = true;
+			track.gview.browser.showRegionWithHighlight(locobj);
+			track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
 //			AnnotTrack.popupDialog.hide();
 		}
 	});
