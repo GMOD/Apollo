@@ -336,7 +336,7 @@ function open_search_dialog() {
 %>	
 	search.setRedirectCallback(function(id, fmin, fmax) {
 		 var flank = Math.round((fmax - fmin) * 0.2);
-		 var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+fmin + ".." + fmax;
+		 var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+(fmin+1) + ".." + fmax;
 		 window.open(url);
 	});
 	search.setErrorCallback(function(response) {
