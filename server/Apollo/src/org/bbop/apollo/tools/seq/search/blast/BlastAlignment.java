@@ -100,8 +100,8 @@ public class BlastAlignment implements Alignment {
 		Feature query = new Feature();
 		query.setType(conf.getDefaultCVTermForClass("Region"));
 		query.setUniqueName(getQueryId());
-		int queryFmin = getQueryStart() - 1;
-		int queryFmax = getQueryEnd() - 1;
+		int queryFmin = getQueryStart();
+		int queryFmax = getQueryEnd();
 		int queryStrand = 1;
 		if (queryFmin > queryFmax) {
 			int tmp = queryFmin;
@@ -109,12 +109,13 @@ public class BlastAlignment implements Alignment {
 			queryFmax = tmp;
 			queryStrand = -1;
 		}
+		--queryFmin;
 		match.setQueryFeatureLocation(queryFmin, queryFmax, queryStrand, new Region(query, conf));
 		Feature subject = new Feature();
 		subject.setType(conf.getDefaultCVTermForClass("Region"));
 		subject.setUniqueName(getSubjectId());
-		int subjectFmin = getSubjectStart() - 1;
-		int subjectFmax = getSubjectEnd() - 1;
+		int subjectFmin = getSubjectStart();
+		int subjectFmax = getSubjectEnd();
 		int subjectStrand = 1;
 		if (subjectFmin > subjectFmax) {
 			int tmp = subjectFmin;
@@ -122,6 +123,7 @@ public class BlastAlignment implements Alignment {
 			subjectFmax = tmp;
 			subjectStrand = -1;
 		}
+		--subjectFmin;
 		match.setSubjectFeatureLocation(subjectFmin, subjectFmax, subjectStrand, new Region(subject, conf));
 		match.setIdentity(getPercentId());
 		return match;
