@@ -997,7 +997,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             	else {
             		var children = dragfeat.get("subfeatures");
                         if(!children) {
-                            alert("This element cannot be annoated as a gene. Please choose a different type of annotation");
+                            alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
                             return;
                         }
             		for (var j = 0; j < children.length; ++j) {
