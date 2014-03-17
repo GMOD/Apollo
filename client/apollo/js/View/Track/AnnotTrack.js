@@ -1252,7 +1252,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 else {
                         for (var k = 0; k < featArray.length; ++k) {
                                 var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
-                                dragfeat.get("subfeatures").length = 0;
+                                var subfeat=dragfeat.get("subfeatures");
+                                if(subfeat) subfeat.length=0; //clear subfeatures
                             	if (strandless) {
                             		dragfeat.set( "strand", 0 );
                             	}
