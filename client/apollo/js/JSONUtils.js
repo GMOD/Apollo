@@ -101,6 +101,7 @@ var JAFeature = declare( SimpleFeature, {
         	else {
         		var child = dojo.clone(afeature);
         		child.uniquename += "-clone";
+        		this.set("cloned_subfeatures", true);
         		afeature.children = [ child ];
         	}
         }
@@ -112,6 +113,13 @@ var JAFeature = declare( SimpleFeature, {
 		return new JAFeature( s, pfeat);
 	} );
 
+    },
+    
+    getUniqueName: function() {
+    	if (this.parent() && this.parent().get("cloned_subfeatures")) {
+    		return this.parent().id();
+    	}
+    	return this.id();
     }
 });
 

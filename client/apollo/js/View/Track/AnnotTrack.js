@@ -1369,7 +1369,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	    var record = records[i];
 	    var selfeat = record.feature;
 	    var seltrack = record.track;
-            var uniqueName = selfeat.id();
+            var uniqueName = selfeat.getUniqueName();
             // just checking to ensure that all features in selection are from this track --
             //   if not, then don't try and delete them
             if (seltrack === track)  {
