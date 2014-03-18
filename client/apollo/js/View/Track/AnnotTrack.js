@@ -1345,6 +1345,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             		this.createGenericAnnotations([feature], feature.get("type"), feature.get("subfeatures")[0].get("type"), feature.afeature.parent_type.name);
             	}
             	else {
+            		if (!feature.get("name")) {
+            			feature.set("name", feature.afeature.name);
+            		}
             		var feats = [feature];
             		this.createGenericOneLevelAnnotations([feature], feature.get("type"), feature.get("strand") == 0);
             	}

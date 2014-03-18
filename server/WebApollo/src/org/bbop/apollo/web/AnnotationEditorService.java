@@ -973,6 +973,7 @@ public class AnnotationEditorService extends HttpServlet {
 						}
 					}
 					findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+					updateTranscriptAttributes(transcript);
 					featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
 				}
 			}
