@@ -4515,6 +4515,35 @@ makeTrackMenu: function()  {
     */
     },
 
+    _getLayout: function( ) {
+        console.log('my getlayout');
+        track=this; 
+        var layout=this.inherited( arguments ); 
+        return dojo.safeMixin(layout, { 
+            addRect: function( id, left, right, height, data ) {
+                console.log('my addrect');
+                var current_top=track.getCurrentYCoord( id ); 
+                var top=this.inherited(arguments); 
+                if(track.isCurrentlyAnnotating()) { 
+                    return current_top; 
+                } else {
+                    return top; 
+                }
+            }
+        });
+            
+        return this.inherited(arguments);
+    },
+
+    isCurrentlyAnnotating: function () {
+        return false;
+    },
+
+    getCurrentYCoord: function( id ) {
+        return 0;
+    },
+
+
     /**
      * handles adding overlay of sequence residues to "row" of selected feature
      *   (also handled in similar manner in fillBlock());
