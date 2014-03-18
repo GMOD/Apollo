@@ -100,6 +100,7 @@ var JAFeature = declare( SimpleFeature, {
         	}
         	else {
         		var child = dojo.clone(afeature);
+        		child.uniquename += "-clone";
         		afeature.children = [ child ];
         	}
         }
