@@ -43,9 +43,9 @@ public class FastaJEDatabaseIO extends FastaIO {
 		jeDatabase = new JEDatabase(databaseDir, readOnly);
 	}
 
-	public void writeFeatures(Feature sourceFeature, String seqType, Set<String> featureTypes) throws SimpleObjectIOException, IOException {
+	public void writeFeatures(Feature sourceFeature, String seqType, Set<String> featureTypes, Set<String> metaDataToExport) throws SimpleObjectIOException, IOException {
 		FeatureIterator featureIterator = new FeatureIterator(jeDatabase.getFeatureIterator(), sourceFeature, conf);
-		writeFeatures(featureIterator, seqType, featureTypes);
+		writeFeatures(featureIterator, seqType, featureTypes, metaDataToExport);
 	}
 	
 	@Override

@@ -19,4 +19,21 @@
 
 	</feature_types>
 
+	<!-- which metadata to export as an attribute - optional.
+	Default does not export any metadata -->
+	<metadata_to_export>
+	<!--
+		<metadata type="name" />
+		<metadata type="symbol" />
+		<metadata type="description" />
+		<metadata type="status" />
+		<metadata type="dbxrefs" />
+		<metadata type="attributes" />
+		<metadata type="comments" />
+		<metadata type="owner" />
+		<metadata type="date_creation" />
+		<metadata type="date_last_modified" />
+	</metadata_to_export>
+	-->
+
 </fasta_config>

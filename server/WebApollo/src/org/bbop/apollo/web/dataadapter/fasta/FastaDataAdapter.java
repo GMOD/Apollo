@@ -45,6 +45,7 @@ public class FastaDataAdapter extends DataAdapter {
 	private String path;
 	private Map<String, TranslationTable> trackToTranslationTable;
 	private Set<String> featureTypes;
+	private Set<String> metaDataToExport;
 	
 	private enum Output {
 		DISPLAY,
@@ -72,7 +73,15 @@ public class FastaDataAdapter extends DataAdapter {
 			for (int i = 0; i < featureTypeNodes.getLength(); ++i) {
 				featureTypes.add(featureTypeNodes.item(i).getTextContent());
 			}
-
+			metaDataToExport = new HashSet<String>();
+			NodeList metaDataNodes = doc.getElementsByTagName("metadata");
+			for (int i = 0; i < metaDataNodes.getLength(); ++i) {
+				Node metaDataNode = metaDataNodes.item(i).getAttributes().getNamedItem("type");
+				if (metaDataNode != null) {
+					metaDataToExport.add(metaDataNode.getTextContent());
+				}
+			}
+			
 			bioObjectConfiguration = new BioObjectConfiguration(basePath + serverConfig.getGBOLMappingFile());
 			dataStoreDirectory = serverConfig.getDataStoreDirectory();
 			Map<String, SequenceUtil.TranslationTable> ttables = new HashMap<String, SequenceUtil.TranslationTable>();
@@ -127,6 +136,7 @@ public class FastaDataAdapter extends DataAdapter {
 								ttable.getStartCodons().remove(codon);
 							}
 						}
+						reader.close();
 					}
 					ttables.put(track.getTranslationTable(), ttable);
 					trackToTranslationTable.put(track.getName(), ttable);
@@ -194,7 +204,7 @@ public class FastaDataAdapter extends DataAdapter {
     				fastaIO.setJeDatabase(jePath, false);
     			}
     			Feature sourceFeature = trackToSourceFeature.get(track);
-    			fastaIO.writeFeatures(sourceFeature, seqTypeParameter, featureTypes);
+    			fastaIO.writeFeatures(sourceFeature, seqTypeParameter, featureTypes, metaDataToExport);
     		}
     		fastaIO.close();
 
