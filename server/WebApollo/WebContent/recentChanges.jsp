@@ -6,6 +6,7 @@
 <%@ page import="org.bbop.apollo.web.user.UserManager"%>
 <%@ page import="org.bbop.apollo.web.user.Permission"%>
 <%@ page import="org.bbop.apollo.web.track.TrackNameComparator"%>
+<%@ page import="org.bbop.apollo.web.datastore.JEDatabase"%>
 <%@ page import="java.util.Map"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Collection"%>
@@ -21,6 +22,7 @@ if (!UserManager.getInstance().isInitialized()) {
 	ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
 	UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
 }
+String databaseDir = serverConfig.getDataStoreDirectory()
 String username = (String)session.getAttribute("username");
 Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUser(username);
 %>
@@ -76,30 +78,28 @@ while ((line = in.readLine()) != null) {
 	out.println(line);	
 }
 %>
+var tracks = new Array();
+<%
+Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 
-jQuery.fn.dataTableExt.oSort['track-name-asc']  = function(a, b) {
-	/*
-	var tmp1 = $(a).text();
-	var tmp2 = $(b).text();
-	return track_name_comparator(tmp1, tmp2);
-	*/
-	var regex = />(.*)</;
-	var match1 = regex.exec(a);
-	var match2 = regex.exec(b);
-	return track_name_comparator(match1[1], match2[1]);
-};
-
-jQuery.fn.dataTableExt.oSort['track-name-desc']  = function(a, b) {
-	/*
-	var tmp1 = $(a).text();
-	var tmp2 = $(b).text();
-	return track_name_comparator(tmp2, tmp1);
-	*/
-	var regex = />(.*)</;
-	var match1 = regex.exec(a);
-	var match2 = regex.exec(b);
-	return track_name_comparator(match2[1], match1[1]);
-};
+boolean isAdmin = false;
+if (username != null) {
+        for (ServerConfiguration.TrackConfiguration track : tracks) {
+                Integer permission = permissions.get(track.getName());
+                if (permission == null) {
+                        permission = 0;
+                }
+                if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
+                        isAdmin = true;
+                }
+                if ((permission & Permission.READ) == Permission.READ) {
+                        out.println("var track = new Array();");
+                        out.println("tracks.push(track);");
+                        out.println(String.format("recent_changes.push('<p>%s</p>');", database.entry()));
+                }
+        }
+}
+%>
 
 
 google.load("dojo", "1.5");
@@ -109,19 +109,7 @@ $(function() {
 	$("#login_dialog").dialog( { draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false } );
 	$("#data_adapter_dialog").dialog( { draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false } );
 	$("#search_sequences_dialog").dialog( { draggable: true, modal: true, autoOpen: false, resizable: false, closeOnEscape: false, width: "auto" } );
-	table = $("#tracks").dataTable({
-		aaSorting: [[2, "asc"]],
-		aaData: tracks,
-		oLanguage: {
-			sSearch: "Filter: "
-		},
-		aoColumns: [
-		    { bSortable: false, bSearchable: false },
-			{ sTitle: "Organism", bSortable: false },
-			{ sTitle: "Name", sType: "track-name" },
-			{ sTitle: "Length" }
-		]
-	});
+	table = $("#recent_changes").html(recent_changes);
 	$(".adapter_button").button( { icons: { primary: "ui-icon-folder-collapsed" } } );
 	$("#checkbox_menu").menu( { } );
 	$("#menu").menubar( {
