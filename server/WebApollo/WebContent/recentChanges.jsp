@@ -98,7 +98,7 @@ if (username != null) {
                 if ((permission & Permission.READ) == Permission.READ) {
                         try {
                                 Collection<Feature> features = new ArrayList<Feature>();
-                                String my_database=databaseDir+"Annotations-"+track.getSourceFeature().getUniqueName();
+                                String my_database=databaseDir + "/" + track.getName();
                                 if(new File(my_database).exists()) {
                                         JEDatabase dataStore = new JEDatabase(my_database,false);
                                         dataStore.readFeatures(features);
