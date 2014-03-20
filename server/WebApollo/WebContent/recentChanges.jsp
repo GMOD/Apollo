@@ -39,7 +39,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
 
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
+<link rel="stylesheet" type="text/css" href="styles/recentChanges.css" />
 <link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
 <link rel="stylesheet" type="text/css" href="styles/userPermissions.css" />
 
@@ -79,6 +79,7 @@ while ((line = in.readLine()) != null) {
 	out.println(line);	
 }
 %>
+
 var recent_changes = new Array();
 <%
 Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
@@ -97,10 +98,13 @@ if (username != null) {
                                 Collection<Feature> features = new ArrayList<Feature>();
                                 String my_database=databaseDir+"Annotations-"+track.getSourceFeature().getUniqueName();
                                 JEDatabase dataStore = new JEDatabase(my_database,true);
-                                out.println(String.format("recent_changes.push('<p>%s noexception</p>');", my_database));
+                                dataStore.readFeatures(features);
                                 for(Feature feature : features) {
-                                        out.println("var recent_changes = new Array();");
-                                        out.println(String.format("recent_changes.push('<p>%s</p>');", feature));
+                                        out.println(String.format("var record=new Array();"));
+                                        out.println(String.format("record.push('%s');",track.getSourceFeature().getUniqueName()));
+                                        out.println(String.format("record.push('%s');", feature.getName()));
+                                        out.println(String.format("record.push('%s');", feature.getTimeLastModified()));
+                                        out.println("recent_changes.push(record);");
                                 }
                         } catch(IllegalArgumentException e) {
                                 //out.println("recent_changes.push('exception');");
@@ -109,18 +113,27 @@ if (username != null) {
         }
 }
 
-out.println("$('#recent_changes').text(recent_changes);");
 %>
 
 
 google.load("dojo", "1.5");
-
 var table;
 $(function() {
 	$("#login_dialog").dialog( { draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false } );
 	$("#data_adapter_dialog").dialog( { draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false } );
 	$("#search_sequences_dialog").dialog( { draggable: true, modal: true, autoOpen: false, resizable: false, closeOnEscape: false, width: "auto" } );
-	table = $("#recent_changes").html(recent_changes);
+	table = $("#recent_changes").dataTable({
+                aaData: recent_changes,
+                oLanguage: {
+                        sSearch: "Filter: "
+                },
+                aoColumns: [
+                        { sTitle: "Track", bSortable:true },
+                        { sTitle: "Feature name", bSortable:true },
+                        { sTitle: "Last modified", bSortable:true }
+                ]
+        });
+
 	$(".adapter_button").button( { icons: { primary: "ui-icon-folder-collapsed" } } );
 	$("#checkbox_menu").menu( { } );
 	$("#menu").menubar( {
@@ -414,6 +427,17 @@ function open_user_manager_dialog() {
 %>
 </ul>
 </div>
+<div id="checkbox_menu_div">
+<ul id="checkbox_menu">
+    <li><a><input type="checkbox" id="checkbox_option"/></a>
+    <ul>
+        <li><a id="check_all">All</a></li>
+        <li><a id="check_displayed">Displayed</a>
+        <li><a id="check_none">None</a></li>
+    </ul>
+    </li>
+</ul>
+</div>
 <div id="search_sequences_dialog" title="Search sequences" style="display:none"></div>
 <!--
 <div id="user_manager_dialog" title="Manage users" style="display:none"></div>
@@ -425,7 +449,7 @@ function open_user_manager_dialog() {
 <div id="login_dialog" title="Login">
 </div>
 <div id="recent_changes_div">
-<table id="changes"></table>
+<table id="recent_changes"></table>
 </div>
 </body>
 </html>
