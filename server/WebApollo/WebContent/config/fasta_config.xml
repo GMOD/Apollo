@@ -21,8 +21,8 @@
 
 	<!-- which metadata to export as an attribute - optional.
 	Default does not export any metadata -->
-	<metadata_to_export>
 	<!--
+	<metadata_to_export>
 		<metadata type="name" />
 		<metadata type="symbol" />
 		<metadata type="description" />
