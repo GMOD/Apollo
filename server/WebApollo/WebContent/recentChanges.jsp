@@ -7,6 +7,7 @@
 <%@ page import="org.bbop.apollo.web.user.Permission"%>
 <%@ page import="org.bbop.apollo.web.track.TrackNameComparator"%>
 <%@ page import="org.bbop.apollo.web.datastore.JEDatabase"%>
+<%@ page import="org.gmod.gbol.simpleObject.Feature" %>
 <%@ page import="java.util.Map"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Collection"%>
@@ -22,7 +23,7 @@ if (!UserManager.getInstance().isInitialized()) {
 	ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
 	UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
 }
-String databaseDir = serverConfig.getDataStoreDirectory()
+String databaseDir = serverConfig.getDataStoreDirectory();
 String username = (String)session.getAttribute("username");
 Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUser(username);
 %>
@@ -78,10 +79,9 @@ while ((line = in.readLine()) != null) {
 	out.println(line);	
 }
 %>
-var tracks = new Array();
+var recent_changes = new Array();
 <%
 Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
-
 boolean isAdmin = false;
 if (username != null) {
         for (ServerConfiguration.TrackConfiguration track : tracks) {
@@ -93,12 +93,23 @@ if (username != null) {
                         isAdmin = true;
                 }
                 if ((permission & Permission.READ) == Permission.READ) {
-                        out.println("var track = new Array();");
-                        out.println("tracks.push(track);");
-                        out.println(String.format("recent_changes.push('<p>%s</p>');", database.entry()));
+                        try {
+                                Collection<Feature> features = new ArrayList<Feature>();
+                                String my_database=databaseDir+"Annotations-"+track.getSourceFeature().getUniqueName();
+                                JEDatabase dataStore = new JEDatabase(my_database,true);
+                                out.println(String.format("recent_changes.push('<p>%s noexception</p>');", my_database));
+                                for(Feature feature : features) {
+                                        out.println("var recent_changes = new Array();");
+                                        out.println(String.format("recent_changes.push('<p>%s</p>');", feature));
+                                }
+                        } catch(IllegalArgumentException e) {
+                                //out.println("recent_changes.push('exception');");
+                        }
                 }
         }
 }
+
+out.println("$('#recent_changes').text(recent_changes);");
 %>
 
 
