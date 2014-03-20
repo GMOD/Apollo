@@ -8,6 +8,7 @@
 <%@ page import="org.bbop.apollo.web.track.TrackNameComparator"%>
 <%@ page import="org.bbop.apollo.web.datastore.JEDatabase"%>
 <%@ page import="org.gmod.gbol.simpleObject.Feature" %>
+<%@ page import="org.gmod.gbol.simpleObject.FeatureLocation" %>
 <%@ page import="java.util.Map"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Collection"%>
@@ -34,7 +35,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
-<title>Select track</title>
+<title>Recent changes</title>
 
 <link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
@@ -100,9 +101,12 @@ if (username != null) {
                                 JEDatabase dataStore = new JEDatabase(my_database,true);
                                 dataStore.readFeatures(features);
                                 for(Feature feature : features) {
+                                        FeatureLocation floc=feature.getFeatureLocations().iterator().next();
                                         out.println(String.format("var record=new Array();"));
+
+                                        out.println(String.format("record.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');", track.getName()));
                                         out.println(String.format("record.push('%s');",track.getSourceFeature().getUniqueName()));
-                                        out.println(String.format("record.push('%s');", feature.getName()));
+                                        out.println(String.format("record.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>');", track.getSourceFeature().getUniqueName(), floc.getFmin(), floc.getFmax(), feature.getName()));
                                         out.println(String.format("record.push('%s');", feature.getTimeLastModified()));
                                         out.println("recent_changes.push(record);");
                                 }
@@ -128,6 +132,7 @@ $(function() {
                         sSearch: "Filter: "
                 },
                 aoColumns: [
+                        { bSortable: false, bSearchable: false },
                         { sTitle: "Track", bSortable:true },
                         { sTitle: "Feature name", bSortable:true },
                         { sTitle: "Last modified", bSortable:true }
