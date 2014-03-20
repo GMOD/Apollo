@@ -16,6 +16,7 @@
 <%@ page import="java.util.Collections"%>
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.InputStreamReader" %>
+<%@ page import="java.io.File" %>
 <%@ page import="java.net.URL" %>
 
 <%
@@ -98,17 +99,19 @@ if (username != null) {
                         try {
                                 Collection<Feature> features = new ArrayList<Feature>();
                                 String my_database=databaseDir+"Annotations-"+track.getSourceFeature().getUniqueName();
-                                JEDatabase dataStore = new JEDatabase(my_database,true);
-                                dataStore.readFeatures(features);
-                                for(Feature feature : features) {
-                                        FeatureLocation floc=feature.getFeatureLocations().iterator().next();
-                                        out.println(String.format("var record=new Array();"));
+                                if(new File(my_database).exists()) {
+                                        JEDatabase dataStore = new JEDatabase(my_database,false);
+                                        dataStore.readFeatures(features);
+                                        for(Feature feature : features) {
+                                                FeatureLocation floc=feature.getFeatureLocations().iterator().next();
+                                                out.println(String.format("var record=new Array();"));
 
-                                        out.println(String.format("record.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');", track.getName()));
-                                        out.println(String.format("record.push('%s');",track.getSourceFeature().getUniqueName()));
-                                        out.println(String.format("record.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>');", track.getSourceFeature().getUniqueName(), floc.getFmin(), floc.getFmax(), feature.getName()));
-                                        out.println(String.format("record.push('%s');", feature.getTimeLastModified()));
-                                        out.println("recent_changes.push(record);");
+                                                out.println(String.format("record.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');", track.getName()));
+                                                out.println(String.format("record.push('%s');",track.getSourceFeature().getUniqueName()));
+                                                out.println(String.format("record.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>');", track.getSourceFeature().getUniqueName(), floc.getFmin(), floc.getFmax(), feature.getName()));
+                                                out.println(String.format("record.push('%s');", feature.getTimeLastModified()));
+                                                out.println("recent_changes.push(record);");
+                                        }
                                 }
                         } catch(IllegalArgumentException e) {
                                 //out.println("recent_changes.push('exception');");
