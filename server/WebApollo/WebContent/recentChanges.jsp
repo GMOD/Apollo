@@ -116,9 +116,7 @@ private ArrayList<String> generateFeatureRecord(Feature feature, ServerConfigura
 		ArrayList<String> builder=new ArrayList<String>();
         String type=feature.getType().getName();
         if(type.equals("gene")) {
-                Iterator<FeatureRelationship> it=feature.getChildFeatureRelationships().iterator(); 
-                while(it.hasNext()) {
-                        FeatureRelationship relationship=it.next();
+                for(FeatureRelationship relationship : feature.getChildFeatureRelationships()) {
                         Feature subfeature=relationship.getSubjectFeature();
                         CVTerm subtype=subfeature.getType();
                         builder.add(generateFeatureRecordJSON(subfeature,track)); 
@@ -147,17 +145,21 @@ if (username != null) {
                 if ((permission & Permission.READ) == Permission.READ) {
 		                Collection<Feature> features = new ArrayList<Feature>();
 		                String my_database=databaseDir + "/" + track.getName();
-		                if(new File(my_database).exists()) {
-		                        JEDatabase dataStore = new JEDatabase(my_database,false);
-		                        dataStore.readFeatures(features);
-		                        for(Feature feature : features) {
-		
-		                            	ArrayList<String> record=generateFeatureRecord(feature,track);
-		                                Iterator<String> i=record.iterator();
-		                                while(i.hasNext()) {
-		                                		out.println("recent_changes.push("+i.next()+");\n");
-		                                }
-		                        }
+		                
+		                //check that database exists
+		                File database=new File(my_database);
+		                if(!database.exists()) {
+		                	continue;
+		                }
+		                // load database
+                        JEDatabase dataStore = new JEDatabase(my_database,false);
+                        dataStore.readFeatures(features);
+                        for(Feature feature : features) {
+                        		// use list of records to get objects that have subfeatures
+                            	ArrayList<String> record=generateFeatureRecord(feature,track);
+                                for(String s : record) {
+                                		out.println("recent_changes.push("+s+");\n");
+                                }
 		                }
                 }
         }
