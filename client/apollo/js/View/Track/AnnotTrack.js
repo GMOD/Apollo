@@ -1374,29 +1374,62 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var features = '"features": [';
         var uniqueNames = [];
+    	var parents = {};
+    	var toBeDeleted = [];
         for (var i in records)  {
-	    var record = records[i];
-	    var selfeat = record.feature;
-	    var seltrack = record.track;
+        	var record = records[i];
+        	var selfeat = record.feature;
+        	var seltrack = record.track;
             var uniqueName = selfeat.getUniqueName();
             // just checking to ensure that all features in selection are from this track --
             //   if not, then don't try and delete them
             if (seltrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
-
-                if (i > 0) {
-                    features += ',';
-                }
-                var ok = true;
                 if (!selfeat.parent()) {
-                	ok = confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?");
+                	if (confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?")) {
+                    	toBeDeleted.push(uniqueName);
+                	}
                 }
-                if (ok) {
-                	features += ' { "uniquename": "' + uniqueName + '" } ';
-                	uniqueNames.push(uniqueName);
+                else {
+                	var children = parents[selfeat.parent().id()] || (parents[selfeat.parent().id()] = []);
+                	children.push(selfeat);
                 }
             }
+        }
+        for (var id in parents) {
+        	var children = parents[id];
+        	if (SequenceOntologyUtils.exonTerms[children[0].get("type")]) {
+        		var numExons = 0;
+        		var subfeatures = children[0].parent().get("subfeatures");
+        		for (var i = 0; i < subfeatures.length; ++i) {
+        			if (SequenceOntologyUtils.exonTerms[subfeatures[i].get("type")]) {
+        				++numExons;
+        			}
+        		}
+        		if (numExons == children.length) {
+                	if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
+                		toBeDeleted.push(id);
+                	}
+            		continue;
+        		}
+        	}
+        	else if (children.length == children[0].parent().get("subfeatures").length) {
+            	if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
+            		toBeDeleted.push(id);
+            	}
+        		continue;
+        	}
+        	for (var i = 0; i < children.length; ++i) {
+        		toBeDeleted.push(children[i].getUniqueName());
+        	}
+        }
+        for (var i = 0; i < toBeDeleted.length; ++i) {
+            if (i > 0) {
+                features += ',';
+            }
+        	features += ' { "uniquename": "' + toBeDeleted[i] + '" } ';
+        	uniqueNames.push(toBeDeleted[i]);
         }
         features += ']';
         if (uniqueNames.length == 0) {
