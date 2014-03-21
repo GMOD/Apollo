@@ -802,7 +802,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     					// var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
     					// var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
     					var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
-    					var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.id() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
+    					var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
     					track.executeUpdateOperation(postData);
     					// console.log(subfeat);
     					// track.hideAll();   shouldn't need to call hideAll() before changed() anymore
@@ -3319,7 +3319,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		var record = records[i];
                 var annot = record.feature;
 		var seltrack = record.track;
-                var uniqueName = annot.id();
+                var uniqueName = annot.getUniqueName();
                 // just checking to ensure that all features in selection are from this track
                 if (seltrack === track)  {
                     var trackdiv = track.div;
