@@ -116,12 +116,10 @@ private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.Tra
 private ArrayList<String> generateFeatureRecord(Feature feature, ServerConfiguration.TrackConfiguration track) {
 	ArrayList<String> builder=new ArrayList<String>();
 	String type=feature.getType().getName();
-	if(type.equals("gene")) {
-		for(FeatureRelationship relationship : feature.getChildFeatureRelationships()) {
-			Feature subfeature=relationship.getSubjectFeature();
-			CVTerm subtype=subfeature.getType();
-			builder.add(generateFeatureRecordJSON(subfeature,track)); 
-		}
+	for(FeatureRelationship relationship : feature.getChildFeatureRelationships()) {
+		Feature subfeature=relationship.getSubjectFeature();
+		CVTerm subtype=subfeature.getType();
+		builder.add(generateFeatureRecordJSON(subfeature,track)); 
 	}
 
 	builder.add(generateFeatureRecordJSON(feature,track));
