@@ -176,6 +176,7 @@ $(function() {
 	$("#search_sequences_dialog").dialog( { draggable: true, modal: true, autoOpen: false, resizable: false, closeOnEscape: false, width: "auto" } );
 	table = $("#recent_changes").dataTable({
                 aaData: recent_changes,
+                aaSorting: [[4, "desc"]],
                 oLanguage: {
                         sSearch: "Filter: "
                 },
