@@ -88,31 +88,45 @@ while ((line = in.readLine()) != null) {
 %>
 
 var recent_changes = new Array();
-<%!
 
-private String generateFeatureRecord(Feature feature, ServerConfiguration.TrackConfiguration track, String builder) {
+<%!
+/** Generate a record for a feature that includes the name, type, link to browser, and last modified date.
+ *
+ * @return String representation of the record in JSON format
+ */
+private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.TrackConfiguration track) {
+        
+        String builder="";
         FeatureLocation floc=feature.getFeatureLocations().iterator().next();
+        long flank=Math.round((floc.getFmax()-floc.getFmin())*0.5);
+        builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
+        builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
+        builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
+        	track.getSourceFeature().getUniqueName(), floc.getFmin()-flank, floc.getFmax()+flank, feature.getName());
+       	builder+=String.format("'%s',", feature.getType().getName());
+       	builder+=String.format("'%s']", feature.getTimeLastModified());
+        return builder;
+}
+
+/** Generate a list of records for a feature that may include subfeatures
+*
+* @return non-empty ArrayList of Strings with records in JSON format
+*/
+private ArrayList<String> generateFeatureRecord(Feature feature, ServerConfiguration.TrackConfiguration track) {
+		ArrayList<String> builder=new ArrayList<String>();
         String type=feature.getType().getName();
-        builder+="console.log('"+type+"');\n";
         if(type.equals("gene")) {
-            	builder+="console.log('If  "+type+" "+feature.getChildFeatureRelationships().size()+"');\n";
                 Iterator<FeatureRelationship> it=feature.getChildFeatureRelationships().iterator(); 
                 while(it.hasNext()) {
                         FeatureRelationship relationship=it.next();
                         Feature subfeature=relationship.getSubjectFeature();
                         CVTerm subtype=subfeature.getType();
-                        builder+="console.log('Part "+subtype.getName()+"');\n";
-                        builder+=generateFeatureRecord(subfeature,track,builder); 
+                        builder.add(generateFeatureRecordJSON(subfeature,track)); 
                 }
         }
-        builder+="var record=new Array();\n";
-        builder+=String.format("record.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');\n", track.getName());
-        builder+=String.format("record.push('%s');\n",track.getSourceFeature().getUniqueName());
-        builder+=String.format("record.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>');\n", 
-        	track.getSourceFeature().getUniqueName(), floc.getFmin(), floc.getFmax(), feature.getName());
-       	builder+=String.format("record.push('%s');\n", feature.getType().getName());
-       	builder+=String.format("record.push('%s');\n", feature.getTimeLastModified());
-        builder+="recent_changes.push(record);\n";
+        
+
+        builder.add(generateFeatureRecordJSON(feature,track));
         return builder;
 }
 
@@ -131,20 +145,20 @@ if (username != null) {
                         isAdmin = true;
                 }
                 if ((permission & Permission.READ) == Permission.READ) {
-                        try {
-                                Collection<Feature> features = new ArrayList<Feature>();
-                                String my_database=databaseDir + "/" + track.getName();
-                                if(new File(my_database).exists()) {
-                                        JEDatabase dataStore = new JEDatabase(my_database,false);
-                                        dataStore.readFeatures(features);
-                                        for(Feature feature : features) {
-                                                String ret=generateFeatureRecord(feature,track,"");
-                                                out.println(ret);
-                                        }
-                                }
-                        } catch(IllegalArgumentException e) {
-                                //out.println("recent_changes.push('exception');");
-                        }
+		                Collection<Feature> features = new ArrayList<Feature>();
+		                String my_database=databaseDir + "/" + track.getName();
+		                if(new File(my_database).exists()) {
+		                        JEDatabase dataStore = new JEDatabase(my_database,false);
+		                        dataStore.readFeatures(features);
+		                        for(Feature feature : features) {
+		
+		                            	ArrayList<String> record=generateFeatureRecord(feature,track);
+		                                Iterator<String> i=record.iterator();
+		                                while(i.hasNext()) {
+		                                		out.println("recent_changes.push("+i.next()+");\n");
+		                                }
+		                        }
+		                }
                 }
         }
 }
