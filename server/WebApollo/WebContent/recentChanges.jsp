@@ -8,12 +8,17 @@
 <%@ page import="org.bbop.apollo.web.track.TrackNameComparator"%>
 <%@ page import="org.bbop.apollo.web.datastore.JEDatabase"%>
 <%@ page import="org.gmod.gbol.simpleObject.Feature" %>
+<%@ page import="org.gmod.gbol.simpleObject.FeatureRelationship" %>
+<%@ page import="org.gmod.gbol.simpleObject.CVTerm" %>
 <%@ page import="org.gmod.gbol.simpleObject.FeatureLocation" %>
 <%@ page import="java.util.Map"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Collection"%>
 <%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.Collections"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Iterator"%>
+<%@ page import="java.util.TreeSet"%>
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.io.File" %>
@@ -83,6 +88,36 @@ while ((line = in.readLine()) != null) {
 %>
 
 var recent_changes = new Array();
+<%!
+
+private String generateFeatureRecord(Feature feature, ServerConfiguration.TrackConfiguration track, String builder) {
+        FeatureLocation floc=feature.getFeatureLocations().iterator().next();
+        String type=feature.getType().getName();
+        builder+="console.log('"+type+"');\n";
+        if(type.equals("gene")) {
+            	builder+="console.log('If  "+type+" "+feature.getChildFeatureRelationships().size()+"');\n";
+                Iterator<FeatureRelationship> it=feature.getChildFeatureRelationships().iterator(); 
+                while(it.hasNext()) {
+                        FeatureRelationship relationship=it.next();
+                        Feature subfeature=relationship.getSubjectFeature();
+                        CVTerm subtype=subfeature.getType();
+                        builder+="console.log('Part "+subtype.getName()+"');\n";
+                        builder+=generateFeatureRecord(subfeature,track,builder); 
+                }
+        }
+        builder+="var record=new Array();\n";
+        builder+=String.format("record.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');\n", track.getName());
+        builder+=String.format("record.push('%s');\n",track.getSourceFeature().getUniqueName());
+        builder+=String.format("record.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>');\n", 
+        	track.getSourceFeature().getUniqueName(), floc.getFmin(), floc.getFmax(), feature.getName());
+       	builder+=String.format("record.push('%s');\n", feature.getType().getName());
+       	builder+=String.format("record.push('%s');\n", feature.getTimeLastModified());
+        builder+="recent_changes.push(record);\n";
+        return builder;
+}
+
+%>
+
 <%
 Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 boolean isAdmin = false;
@@ -103,14 +138,8 @@ if (username != null) {
                                         JEDatabase dataStore = new JEDatabase(my_database,false);
                                         dataStore.readFeatures(features);
                                         for(Feature feature : features) {
-                                                FeatureLocation floc=feature.getFeatureLocations().iterator().next();
-                                                out.println(String.format("var record=new Array();"));
-
-                                                out.println(String.format("record.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');", track.getName()));
-                                                out.println(String.format("record.push('%s');",track.getSourceFeature().getUniqueName()));
-                                                out.println(String.format("record.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>');", track.getSourceFeature().getUniqueName(), floc.getFmin(), floc.getFmax(), feature.getName()));
-                                                out.println(String.format("record.push('%s');", feature.getTimeLastModified()));
-                                                out.println("recent_changes.push(record);");
+                                                String ret=generateFeatureRecord(feature,track,"");
+                                                out.println(ret);
                                         }
                                 }
                         } catch(IllegalArgumentException e) {
@@ -138,6 +167,7 @@ $(function() {
                         { bSortable: false, bSearchable: false },
                         { sTitle: "Track", bSortable:true },
                         { sTitle: "Feature name", bSortable:true },
+                        { sTitle: "Feature type", bSortable:true },
                         { sTitle: "Last modified", bSortable:true }
                 ]
         });
