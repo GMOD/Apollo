@@ -51,14 +51,14 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <link rel="stylesheet" type="text/css" href="styles/userPermissions.css" />
 
 <link rel="stylesheet" href="jslib/jquery-ui-menubar/jquery.ui.all.css" />
-<script src="jslib/jquery-ui-menubar/jquery-1.8.2.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.core.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.widget.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.position.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.button.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.menu.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js"></script>
-<script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js"></script>
+<script src="jslib/jquery-ui-menubar/jquery-1.8.2.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.core.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.widget.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.position.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.button.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.menu.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js" type="text/javascript"></script>
+<script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js" type="text/javascript"></script>
 
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
@@ -95,17 +95,16 @@ var recent_changes = new Array();
  * @return String representation of the record in JSON format
  */
 private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.TrackConfiguration track) {
-        
-        String builder="";
-        FeatureLocation floc=feature.getFeatureLocations().iterator().next();
-        long flank=Math.round((floc.getFmax()-floc.getFmin())*0.5);
-        builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
-        builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
-        builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
-        	track.getSourceFeature().getUniqueName(), floc.getFmin()-flank, floc.getFmax()+flank, feature.getName());
-       	builder+=String.format("'%s',", feature.getType().getName());
-       	builder+=String.format("'%s']", feature.getTimeLastModified());
-        return builder;
+	String builder="";
+	FeatureLocation floc=feature.getFeatureLocations().iterator().next();
+	long flank=Math.round((floc.getFmax()-floc.getFmin())*0.5);
+	builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
+	builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
+	builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
+		track.getSourceFeature().getUniqueName(), floc.getFmin()-flank, floc.getFmax()+flank, feature.getName());
+	builder+=String.format("'%s',", feature.getType().getName());
+	builder+=String.format("'%s']", feature.getTimeLastModified());
+	return builder;
 }
 
 /** Generate a list of records for a feature that may include subfeatures
@@ -113,56 +112,57 @@ private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.Tra
 * @return non-empty ArrayList of Strings with records in JSON format
 */
 private ArrayList<String> generateFeatureRecord(Feature feature, ServerConfiguration.TrackConfiguration track) {
-		ArrayList<String> builder=new ArrayList<String>();
-        String type=feature.getType().getName();
-        if(type.equals("gene")) {
-                for(FeatureRelationship relationship : feature.getChildFeatureRelationships()) {
-                        Feature subfeature=relationship.getSubjectFeature();
-                        CVTerm subtype=subfeature.getType();
-                        builder.add(generateFeatureRecordJSON(subfeature,track)); 
-                }
-        }
-        
+	ArrayList<String> builder=new ArrayList<String>();
+	String type=feature.getType().getName();
+	if(type.equals("gene")) {
+		for(FeatureRelationship relationship : feature.getChildFeatureRelationships()) {
+			Feature subfeature=relationship.getSubjectFeature();
+			CVTerm subtype=subfeature.getType();
+			builder.add(generateFeatureRecordJSON(subfeature,track)); 
+		}
+	}
 
-        builder.add(generateFeatureRecordJSON(feature,track));
-        return builder;
+	builder.add(generateFeatureRecordJSON(feature,track));
+	return builder;
 }
 
 %>
 
-<%
-Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
+<%Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 boolean isAdmin = false;
 if (username != null) {
-        for (ServerConfiguration.TrackConfiguration track : tracks) {
-                Integer permission = permissions.get(track.getName());
-                if (permission == null) {
-                        permission = 0;
-                }
-                if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
-                        isAdmin = true;
-                }
-                if ((permission & Permission.READ) == Permission.READ) {
-		                Collection<Feature> features = new ArrayList<Feature>();
-		                String my_database=databaseDir + "/" + track.getName();
-		                
-		                //check that database exists
-		                File database=new File(my_database);
-		                if(!database.exists()) {
-		                	continue;
-		                }
-		                // load database
-                        JEDatabase dataStore = new JEDatabase(my_database,false);
-                        dataStore.readFeatures(features);
-                        for(Feature feature : features) {
-                        		// use list of records to get objects that have subfeatures
-                            	ArrayList<String> record=generateFeatureRecord(feature,track);
-                                for(String s : record) {
-                                		out.println("recent_changes.push("+s+");\n");
-                                }
-		                }
-                }
-        }
+	for (ServerConfiguration.TrackConfiguration track : tracks) {
+		Integer permission = permissions.get(track.getName());
+		if (permission == null) {
+			permission = 0;
+		}
+		if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
+			isAdmin = true;
+		}
+		if ((permission & Permission.READ) == Permission.READ) {
+			Collection<Feature> features = new ArrayList<Feature>();
+			String my_database = databaseDir + "/"
+					+ track.getName();
+
+			//check that database exists
+			File database = new File(my_database);
+			if (!database.exists()) {
+				continue;
+			}
+			// load database
+			JEDatabase dataStore = new JEDatabase(my_database,
+					false);
+			dataStore.readFeatures(features);
+			for (Feature feature : features) {
+				// use list of records to get objects that have subfeatures
+				ArrayList<String> record = generateFeatureRecord(
+						feature, track);
+				for (String s : record) {
+					out.println("recent_changes.push(" + s + ");\n");
+				}
+			}
+		}
+	}
 }
 
 %>
@@ -175,19 +175,19 @@ $(function() {
 	$("#data_adapter_dialog").dialog( { draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false } );
 	$("#search_sequences_dialog").dialog( { draggable: true, modal: true, autoOpen: false, resizable: false, closeOnEscape: false, width: "auto" } );
 	table = $("#recent_changes").dataTable({
-                aaData: recent_changes,
-                aaSorting: [[4, "desc"]],
-                oLanguage: {
-                        sSearch: "Filter: "
-                },
-                aoColumns: [
-                        { bSortable: false, bSearchable: false },
-                        { sTitle: "Track", bSortable:true },
-                        { sTitle: "Feature name", bSortable:true },
-                        { sTitle: "Feature type", bSortable:true },
-                        { sTitle: "Last modified", bSortable:true }
-                ]
-        });
+		aaData: recent_changes,
+		aaSorting: [[4, "desc"]],
+		oLanguage: {
+			sSearch: "Filter: "
+		},
+		aoColumns: [
+			{ bSortable: false, bSearchable: false },
+			{ sTitle: "Track", bSortable:true },
+			{ sTitle: "Feature name", bSortable:true },
+			{ sTitle: "Feature type", bSortable:true },
+			{ sTitle: "Last modified", bSortable:true }
+		]
+	});
 
 	$(".adapter_button").button( { icons: { primary: "ui-icon-folder-collapsed" } } );
 	$("#checkbox_menu").menu( { } );
@@ -428,7 +428,7 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
 <ul id="menu">
-	<li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()"/></a></li>
+	<li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
 	<li><a id="file_item">File</a>
 		<ul id="file_menu">
 			<li><a id="export_menu">Export</a>
@@ -488,17 +488,17 @@ function open_user_manager_dialog() {
     <ul>
         <li><a id="check_all">All</a></li>
         <li><a id="check_displayed">Displayed</a>
-        <li><a id="check_none">None</a></li>
+        </li><li><a id="check_none">None</a></li>
     </ul>
     </li>
 </ul>
 </div>
-<div id="search_sequences_dialog" title="Search sequences" style="display:none"></div>
+<div id="search_sequences_dialog" title="Search sequences" style="display: none"></div>
 <!--
 <div id="user_manager_dialog" title="Manage users" style="display:none"></div>
 -->
 <div id="data_adapter_dialog" title="Data adapter">
-	<div id="data_adapter_loading"><img src="images/loading.gif"/></div>
+	<div id="data_adapter_loading"><img src="images/loading.gif" alt=""/></div>
 	<div id="data_adapter_message"></div>
 </div>
 <div id="login_dialog" title="Login">
