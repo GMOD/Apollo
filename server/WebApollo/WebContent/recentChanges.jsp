@@ -98,10 +98,12 @@ private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.Tra
 	String builder="";
 	FeatureLocation floc=feature.getFeatureLocations().iterator().next();
 	long flank=Math.round((floc.getFmax()-floc.getFmin())*0.5);
+	long left=Math.max(floc.getFmin()-flank,1);
+	long right=Math.min(floc.getFmax()+flank,track.getSourceFeature().getSequenceLength()-1);
 	builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
 	builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
 	builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
-		track.getSourceFeature().getUniqueName(), floc.getFmin()-flank, floc.getFmax()+flank, feature.getName());
+		track.getSourceFeature().getUniqueName(), left, right, feature.getName());
 	builder+=String.format("'%s',", feature.getType().getName());
 	builder+=String.format("'%s']", feature.getTimeLastModified());
 	return builder;
@@ -128,7 +130,8 @@ private ArrayList<String> generateFeatureRecord(Feature feature, ServerConfigura
 
 %>
 
-<%Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
+<%
+Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 boolean isAdmin = false;
 if (username != null) {
 	for (ServerConfiguration.TrackConfiguration track : tracks) {
@@ -141,8 +144,7 @@ if (username != null) {
 		}
 		if ((permission & Permission.READ) == Permission.READ) {
 			Collection<Feature> features = new ArrayList<Feature>();
-			String my_database = databaseDir + "/"
-					+ track.getName();
+			String my_database = databaseDir + "/"+ track.getName();
 
 			//check that database exists
 			File database = new File(my_database);
@@ -150,13 +152,11 @@ if (username != null) {
 				continue;
 			}
 			// load database
-			JEDatabase dataStore = new JEDatabase(my_database,
-					false);
+			JEDatabase dataStore = new JEDatabase(my_database,false);
 			dataStore.readFeatures(features);
 			for (Feature feature : features) {
 				// use list of records to get objects that have subfeatures
-				ArrayList<String> record = generateFeatureRecord(
-						feature, track);
+				ArrayList<String> record = generateFeatureRecord(feature, track);
 				for (String s : record) {
 					out.println("recent_changes.push(" + s + ");\n");
 				}
