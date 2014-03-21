@@ -430,8 +430,9 @@ function open_user_manager_dialog() {
 	<li><a id="file_item">File</a>
 		<ul id="file_menu">
 			<li><a id="export_menu">Export</a>
-			<ul>
+			<ul><li><a class='none'>N/A</a></li>
 <%
+/*
 	for (DataAdapterGroupConfiguration groupConf : serverConfig.getDataAdapters().values()) {
 		if (groupConf.isGroup()) {
 			out.println(String.format("\t\t\t\t\t<li><a>%s</a>", groupConf.getKey()));
@@ -447,7 +448,7 @@ function open_user_manager_dialog() {
 			}
 		}
 	}
-/*
+
 	for (Map.Entry<String, String> dataAdapter : dataAdapters.entrySet()) {
 		out.println(String.format("\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", dataAdapter.getValue(), dataAdapter.getKey()));
 	}
