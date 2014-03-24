@@ -171,6 +171,7 @@ public class GFF3Handler {
 	}
 	
 	public void writeFasta(Feature feature, boolean writeFastaDirective, boolean useLocation) {
+		int lineLength = 60;
 		if (writeFastaDirective) {
 			writeFastaDirective();
 		}
@@ -184,7 +185,11 @@ public class GFF3Handler {
 		}
 		if (residues != null) {
 			out.println(">" + feature.getUniqueName());
-			out.println(residues);
+			int idx = 0;
+			while (idx < residues.length()) {
+				out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())));
+				idx += lineLength;
+			}
 		}
 	}
 	

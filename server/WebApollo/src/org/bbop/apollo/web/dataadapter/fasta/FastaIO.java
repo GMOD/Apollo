@@ -41,17 +41,17 @@ public class FastaIO {
 		this.translationTable = translationTable;
 	}
 	
-	public void writeFeatures(Collection<? extends AbstractSingleLocationBioFeature> features, String seqType) throws IOException {
-		handler.writeFeatures(features, seqType);
+	public void writeFeatures(Collection<? extends AbstractSingleLocationBioFeature> features, String seqType, Set<String> metaDataToExport) throws IOException {
+		handler.writeFeatures(features, seqType, metaDataToExport);
 	}
 	
-	public void writeFeatures(Iterator<? extends AbstractSingleLocationBioFeature> iterator, String seqType, Set<String> featureTypes) throws IOException {
+	public void writeFeatures(Iterator<? extends AbstractSingleLocationBioFeature> iterator, String seqType, Set<String> featureTypes, Set<String> metaDataToExport) throws IOException {
 		while (iterator.hasNext()) {
 			List<AbstractSingleLocationBioFeature> matchingFeatures = new ArrayList<AbstractSingleLocationBioFeature>();
 			getMatchingFeature(iterator.next(), featureTypes, matchingFeatures);
 			for (AbstractSingleLocationBioFeature feature : matchingFeatures) {
 				feature.setResidues(getUpdatedSequence(feature, seqType, 0));
-				handler.writeFeature(feature, seqType);
+				handler.writeFeature(feature, seqType, metaDataToExport);
 			}
 		}
 	}

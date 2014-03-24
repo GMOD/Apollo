@@ -739,76 +739,82 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	// var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
 	var featdiv = track.getLowestFeatureDiv(elem);
 
-        if (featdiv && (featdiv != null))  {
-            if (dojo.hasClass(featdiv, "ui-resizable"))  {
-                if (verbose_resize)  {
-                    console.log("already resizable");
-                    console.log(featdiv);
-                }
-            }
-            else {
-                if (verbose_resize)  {
-                    console.log("making annotation resizable");
-                    console.log(featdiv);
-                }
-                var scale = track.gview.bpToPx(1);
-
-                // if zoomed int to showing sequence residues, then make edge-dragging snap to interbase pixels
-		var gridvals;
-                var charSize = track.webapollo.getSequenceCharacterSize();
-                if (scale === charSize.width) { gridvals = [track.gview.charWidth, 1]; }
-                else  { gridvals = false; }
-
-                $(featdiv).resizable( {
-                    handles: "e, w",
-                    helper: "ui-resizable-helper",
-                    autohide: false,
-                    grid: gridvals,
-
-                    stop: function(event, ui)  {
-                        if( verbose_resize ) {
-                            console.log("resizable.stop() called, event:");
-                            console.dir(event);
-                            console.log("ui:");
-                            console.dir(ui);
-                        }
-                        var gview = track.gview;
-                        var oldPos = ui.originalPosition;
-                        var newPos = ui.position;
-                        var oldSize = ui.originalSize;
-                        var newSize = ui.size;
-                        var leftDeltaPixels = newPos.left - oldPos.left;
-                        var leftDeltaBases = Math.round(gview.pxToBp(leftDeltaPixels));
-                        var oldRightEdge = oldPos.left + oldSize.width;
-                        var newRightEdge = newPos.left + newSize.width;
-                        var rightDeltaPixels = newRightEdge - oldRightEdge;
-                        var rightDeltaBases = Math.round(gview.pxToBp(rightDeltaPixels));
-                        if (verbose_resize)  {
-                            console.log("left edge delta pixels: " + leftDeltaPixels);
-                            console.log("left edge delta bases: " + leftDeltaBases);
-                            console.log("right edge delta pixels: " + rightDeltaPixels);
-                            console.log("right edge delta bases: " + rightDeltaBases);
-                        }
-                        var subfeat = ui.originalElement[0].subfeature;
-                        // console.log(subfeat);
-
-                        var fmin = subfeat.get('start') + leftDeltaBases;
-                        var fmax = subfeat.get('end') + rightDeltaBases;
-                        // var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
-                        // var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
-                        var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.id() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
-                        track.executeUpdateOperation(postData);
-                        // console.log(subfeat);
-                        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
-                        track.changed();
-                    }
-                } );
-            }
-        }
+	this.currentResizableFeature = featdiv.subfeature;
+	this.makeResizable(featdiv);
         event.stopPropagation();
     },
 
+    makeResizable: function(featdiv) {
+    	var track = this;
+    	var verbose_resize = this.verbose_resize;
+    	if (featdiv && (featdiv != null))  {
+    		if (dojo.hasClass(featdiv, "ui-resizable"))  {
+    			if (verbose_resize) {
+    				console.log("already resizable");
+    				console.log(featdiv);
+    			}
+    		}
+    		else {
+    			if (verbose_resize)  {
+    				console.log("making annotation resizable");
+    				console.log(featdiv);
+    			}
+    			var scale = track.gview.bpToPx(1);
+    			
+    			// if zoomed int to showing sequence residues, then make edge-dragging snap to interbase pixels
+    			var gridvals;
+    			var charSize = track.webapollo.getSequenceCharacterSize();
+    			if (scale === charSize.width) { gridvals = [track.gview.charWidth, 1]; }
+    			else  { gridvals = false; }
+    			$(featdiv).resizable( {
+    				handles: "e, w",
+    				helper: "ui-resizable-helper",
+    				autohide: false,
+    				grid: gridvals,
+
+    				stop: function(event, ui)  {
+    					if( verbose_resize ) {
+    						console.log("resizable.stop() called, event:");
+    						console.dir(event);
+    						console.log("ui:");
+    						console.dir(ui);
+    					}
+    					var gview = track.gview;
+    					var oldPos = ui.originalPosition;
+    					var newPos = ui.position;
+    					var oldSize = ui.originalSize;
+    					var newSize = ui.size;
+    					var leftDeltaPixels = newPos.left - oldPos.left;
+    					var leftDeltaBases = Math.round(gview.pxToBp(leftDeltaPixels));
+    					var oldRightEdge = oldPos.left + oldSize.width;
+    					var newRightEdge = newPos.left + newSize.width;
+    					var rightDeltaPixels = newRightEdge - oldRightEdge;
+    					var rightDeltaBases = Math.round(gview.pxToBp(rightDeltaPixels));
+    					if (verbose_resize)  {
+    						console.log("left edge delta pixels: " + leftDeltaPixels);
+    						console.log("left edge delta bases: " + leftDeltaBases);
+    						console.log("right edge delta pixels: " + rightDeltaPixels);
+    						console.log("right edge delta bases: " + rightDeltaBases);
+    					}
+    					var subfeat = ui.originalElement[0].subfeature;
+    					// console.log(subfeat);
+
+    					var fmin = subfeat.get('start') + leftDeltaBases;
+    					var fmax = subfeat.get('end') + rightDeltaBases;
+    					// var fmin = subfeat[track.subFields["start"]] + leftDeltaBases;
+    					// var fmax = subfeat[track.subFields["end"]] + rightDeltaBases;
+    					var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
+    					var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
+    					track.executeUpdateOperation(postData);
+    					// console.log(subfeat);
+    					// track.hideAll();   shouldn't need to call hideAll() before changed() anymore
+    					track.changed();
+    				}
+    			} );
+    		}
+    	}
+    },
+    
     /**
      *  feature click no-op (to override FeatureTrack.onFeatureClick, which conflicts with mouse-down selection
      */
@@ -1347,6 +1353,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             		this.createGenericAnnotations([feature], feature.get("type"), feature.get("subfeatures")[0].get("type"), feature.afeature.parent_type.name);
             	}
             	else {
+            		if (!feature.get("name")) {
+            			feature.set("name", feature.afeature.name);
+            		}
             		var feats = [feature];
             		this.createGenericOneLevelAnnotations([feature], feature.get("type"), feature.get("strand") == 0);
             	}
@@ -1367,29 +1376,62 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var features = '"features": [';
         var uniqueNames = [];
+    	var parents = {};
+    	var toBeDeleted = [];
         for (var i in records)  {
-	    var record = records[i];
-	    var selfeat = record.feature;
-	    var seltrack = record.track;
-            var uniqueName = selfeat.id();
+        	var record = records[i];
+        	var selfeat = record.feature;
+        	var seltrack = record.track;
+            var uniqueName = selfeat.getUniqueName();
             // just checking to ensure that all features in selection are from this track --
             //   if not, then don't try and delete them
             if (seltrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
-
-                if (i > 0) {
-                    features += ',';
-                }
-                var ok = true;
                 if (!selfeat.parent()) {
-                	ok = confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?");
+                	if (confirm("Deleting feature " + selfeat.get("name") + " cannot be undone.  Are you sure you want to delete?")) {
+                    	toBeDeleted.push(uniqueName);
+                	}
                 }
-                if (ok) {
-                	features += ' { "uniquename": "' + uniqueName + '" } ';
-                	uniqueNames.push(uniqueName);
+                else {
+                	var children = parents[selfeat.parent().id()] || (parents[selfeat.parent().id()] = []);
+                	children.push(selfeat);
                 }
             }
+        }
+        for (var id in parents) {
+        	var children = parents[id];
+        	if (SequenceOntologyUtils.exonTerms[children[0].get("type")]) {
+        		var numExons = 0;
+        		var subfeatures = children[0].parent().get("subfeatures");
+        		for (var i = 0; i < subfeatures.length; ++i) {
+        			if (SequenceOntologyUtils.exonTerms[subfeatures[i].get("type")]) {
+        				++numExons;
+        			}
+        		}
+        		if (numExons == children.length) {
+                	if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
+                		toBeDeleted.push(id);
+                	}
+            		continue;
+        		}
+        	}
+        	else if (children.length == children[0].parent().get("subfeatures").length) {
+            	if (confirm("Deleting feature " + children[0].parent().get("name") + " cannot be undone.  Are you sure you want to delete?")) {
+            		toBeDeleted.push(id);
+            	}
+        		continue;
+        	}
+        	for (var i = 0; i < children.length; ++i) {
+        		toBeDeleted.push(children[i].getUniqueName());
+        	}
+        }
+        for (var i = 0; i < toBeDeleted.length; ++i) {
+            if (i > 0) {
+                features += ',';
+            }
+        	features += ' { "uniquename": "' + toBeDeleted[i] + '" } ';
+        	uniqueNames.push(toBeDeleted[i]);
         }
         features += ']';
         if (uniqueNames.length == 0) {
@@ -3279,7 +3321,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 		var record = records[i];
                 var annot = record.feature;
 		var seltrack = record.track;
-                var uniqueName = annot.id();
+                var uniqueName = annot.getUniqueName();
                 // just checking to ensure that all features in selection are from this track
                 if (seltrack === track)  {
                     var trackdiv = track.div;
@@ -4573,7 +4615,6 @@ makeTrackMenu: function()  {
     selectionAdded: function( rec, smanager)  {
         var feat = rec.feature;
         this.inherited( arguments );
-
         var track = this;
 
 	// switched to only have most recent selected annot have residues overlay if zoomed to base level, 
@@ -4589,6 +4630,9 @@ makeTrackMenu: function()  {
         var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
 	if (featdiv)  {
+        if (this.currentResizableFeature && feat.id() == this.currentResizableFeature.id()) {
+        	this.makeResizable(this.getFeatDiv(feat));
+        }
 	    var strand = topfeat.get('strand');
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
@@ -4667,6 +4711,7 @@ makeTrackMenu: function()  {
 	    // remove sequence text nodes
 	    // console.log("removing base residued text from selected annot");
 	    $("div.annot-sequence", track.div).remove();
+	    delete this.currentResizableFeature;
 	}
     }, 
 
