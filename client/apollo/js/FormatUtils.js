@@ -17,7 +17,7 @@ function() {
 	FormatUtils.formatTime = function(millis) {
 		var date = new Date(millis);
 		var hours = date.getHours();
-		var minutes = date.getMinutes();
+		var minutes = ("" + date.getMinutes()).length == 1 ? "0" + date.getMinutes() : date.getMinutes();
 		return + hours + ":" + minutes;
 	};
 	
