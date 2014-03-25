@@ -2734,12 +2734,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         };
     	
+        function updateTimeLastUpdated() {
+        	var date = new Date();
+        	dateLastModifiedField.set("value", FormatUtils.formatDate(date.getTime()));
+        };
+        
     	var updateName = function(name) {
     		name = escapeString(name);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
             var operation = "set_name";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
 
     	var updateSymbol = function(symbol) {
@@ -2748,6 +2754,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "set_symbol";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
     	
     	var updateDescription = function(description) {
@@ -2756,6 +2763,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "set_description";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
     	
     	var deleteStatus = function() {
@@ -2763,6 +2771,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "delete_status";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
     	
     	var updateStatus = function(status) {
@@ -2770,6 +2779,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "set_status";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
    	
         var addDbxref = function(db, accession) {
@@ -2779,6 +2789,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "add_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var deleteDbxrefs = function(dbxrefs) {
@@ -2790,6 +2801,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "delete_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var updateDbxref = function(oldDb, oldAccession, newDb, newAccession) {
@@ -2801,6 +2813,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "update_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var addAttribute = function(tag, value) {
@@ -2810,6 +2823,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "add_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var deleteAttributes = function(attributes) {
@@ -2821,6 +2835,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "delete_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var updateAttribute = function(oldTag, oldValue, newTag, newValue) {
@@ -2832,6 +2847,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "update_non_reserved_properties";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var confirmPubmedEntry = function(record) {
@@ -2848,6 +2864,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	        		var operation = "add_non_primary_dbxrefs";
 	        		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
 	        		track.executeUpdateOperation(postData);
+	                updateTimeLastUpdated();
         		}
         		else {
             		pubmedIdTable.store.deleteItem(pubmedIdTable.getItem(row));
@@ -2881,6 +2898,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "delete_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
         var updatePubmedId = function(pubmedIdTable, row, oldPubmedId, newPubmedId) {
@@ -2893,6 +2911,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         			var operation = "update_non_primary_dbxrefs";
         			var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
         			track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
         		}
         		else {
         			pubmedIdTable.store.setValue(pubmedIdTable.getItem(row), "pubmed_id", oldPubmedId);
@@ -2917,6 +2936,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		var operation = "add_non_primary_dbxrefs";
         		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
         		track.executeUpdateOperation(postData);
+                updateTimeLastUpdated();
         	}
         	else {
     			alert("Invalid ID " + goId + " - Must be formatted as 'GO:#######' - Removing entry");
@@ -2929,6 +2949,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "delete_non_primary_dbxrefs";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
         };
 
 //        var updateGoId = function(goIdTable, row, oldGoId, newGoId) {
@@ -2941,6 +2962,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var operation = "update_non_primary_dbxrefs";
                 var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
                 track.executeUpdateOperation(postData);
+                updateTimeLastUpdated();
         	}
         	else {
     			alert("Invalid ID " + newGoId + " - Undoing update");
@@ -2955,6 +2977,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		var operation = "add_comments";
     		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
     		track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
 
     	var deleteComments = function(comments) {
@@ -2965,6 +2988,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		var operation = "delete_comments";
     		var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
     		track.executeUpdateOperation(postData);
+            updateTimeLastUpdated();
     	};
 
         var updateComment = function(oldComment, newComment) {
@@ -2977,7 +3001,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "update_comments";
             var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
             track.executeUpdateOperation(postData);
-
+            updateTimeLastUpdated();
         };
 
         var getCannedComments = function() {
