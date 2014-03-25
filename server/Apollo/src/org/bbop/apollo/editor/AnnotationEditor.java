@@ -72,7 +72,7 @@ public class AnnotationEditor {
 	 */
 	public void setName(AbstractSingleLocationBioFeature feature, String name) {
 		feature.setName(name);
-		feature.setTimeAccessioned(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 	
 	/** Add a feature to the underlying session.
@@ -1235,19 +1235,19 @@ public class AnnotationEditor {
 
 	public void addComment(AbstractSingleLocationBioFeature feature, String comment) {
 		feature.addComment(comment);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 
 	public void deleteComment(AbstractSingleLocationBioFeature feature, String comment) {
 		feature.deleteComment(comment);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 
 	public void updateComment(AbstractSingleLocationBioFeature feature, String oldComment, String newComment) {
 		for (Comment comment : feature.getComments()) {
 			if (comment.getComment().equals(oldComment)) {
 				comment.setComment(newComment);
-//				feature.setTimeLastModified(new Date());
+				feature.setTimeLastModified(new Date());
 				break;
 			}
 		}
@@ -1255,32 +1255,32 @@ public class AnnotationEditor {
 	
 	public void setDescription(AbstractSingleLocationBioFeature feature, String description) {
 		feature.setDescription(description);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 
 	public void setSymbol(AbstractSingleLocationBioFeature feature, String symbol) {
 		feature.setSymbol(symbol);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 
 	public void setStatus(AbstractSingleLocationBioFeature feature, String status) {
 		feature.setStatus(status);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 	
 	public void deleteStatus(AbstractSingleLocationBioFeature feature) {
 		feature.deleteStatus();
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 	
 	public void addNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String db, String accession) {
 		feature.addNonPrimaryDBXref(db, accession);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 	
 	public void deleteNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String db, String accession) {
 		feature.deleteNonPrimaryDBXref(db, accession);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 
 	public void updateNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String oldDb, String oldAccession, String newDb, String newAccession) {
@@ -1288,7 +1288,7 @@ public class AnnotationEditor {
 			if (dbxref.getDb().getName().equals(oldDb) && dbxref.getAccession().equals(oldAccession)) {
 				dbxref.getDb().setName(newDb);
 				dbxref.setAccession(newAccession);
-//				feature.setTimeLastModified(new Date());
+				feature.setTimeLastModified(new Date());
 				break;
 			}
 		}
@@ -1296,12 +1296,12 @@ public class AnnotationEditor {
 	
 	public void addNonReservedProperty(AbstractSingleLocationBioFeature feature, String tag, String value) {
 		feature.addNonReservedProperty(tag, value);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 	
 	public void deleteNonReservedProperty(AbstractSingleLocationBioFeature feature, String tag, String value) {
 		feature.deleteNonReservedProperty(tag, value);
-//		feature.setTimeLastModified(new Date());
+		feature.setTimeLastModified(new Date());
 	}
 
 	public void updateNonReservedProperty(AbstractSingleLocationBioFeature feature, String oldTag, String oldValue, String newTag, String newValue) {
@@ -1309,7 +1309,7 @@ public class AnnotationEditor {
 			if (property.getTag().equals(oldTag) && property.getValue().equals(oldValue)) {
 				property.setTag(newTag);
 				property.setValue(newValue);
-//				feature.setTimeLastModified(new Date());
+				feature.setTimeLastModified(new Date());
 				break;
 			}
 		}
