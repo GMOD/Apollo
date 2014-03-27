@@ -571,7 +571,7 @@ public class AnnotationEditorService extends HttpServlet {
 							if ((permission & Permission.WRITE) == 0) {
 								throw new AnnotationEditorServiceException("You do not have editing permissions");
 							}
-							undo(editor, session, dataStore, historyStore, json, track, out);
+							undo(editor, session, dataStore, historyStore, json, track, out, json.has("count") ? json.getInt("count") : 1);
 						}
 
 						// redo
@@ -579,7 +579,7 @@ public class AnnotationEditorService extends HttpServlet {
 							if ((permission & Permission.WRITE) == 0) {
 								throw new AnnotationEditorServiceException("You do not have editing permissions");
 							}
-							redo(editor, session, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
+							redo(editor, session, dataStore, historyStore, json.getJSONArray("features"), track, username, out, json.has("count") ? json.getInt("count") : 1);
 						}
 
 						// get_information
@@ -2651,11 +2651,14 @@ public class AnnotationEditorService extends HttpServlet {
 		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 	}
 	
-	private void undo(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject json, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException, AnnotationEditorException {
+	private void undo(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject json, String track, BufferedWriter out, int count) throws JSONException, IOException, AnnotationEditorServiceException, AnnotationEditorException {
 		JSONArray features = json.getJSONArray("features");
 		for (int i = 0; i< features.length(); ++i) {
 			JSONObject jsonFeature = features.getJSONObject(i);
 			String uniqueName = jsonFeature.getString("uniquename");
+			for (int j = 1; j < count; ++j) {
+				historyStore.setToPreviousTransactionForFeature(uniqueName);
+			}
 			Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
 			if (transaction == null) {
 				return;
@@ -3189,14 +3192,16 @@ public class AnnotationEditorService extends HttpServlet {
 		}
 	}
 	
-	private void redo(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException, AnnotationEditorException {
+	private void redo(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, int count) throws JSONException, IOException, AnnotationEditorServiceException, AnnotationEditorException {
 		for (int i = 0; i< features.length(); ++i) {
 			JSONObject jsonFeature = features.getJSONObject(i);
 			String uniqueName = jsonFeature.getString("uniquename");
-			if (historyStore.getCurrentIndexForFeature(uniqueName) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
+			if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 				continue;
 			}
-			historyStore.setToNextTransactionForFeature(uniqueName);
+			for (int j = 0; j < count; ++j) {
+				historyStore.setToNextTransactionForFeature(uniqueName);
+			}
 			Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
 			if (transaction == null) {
 				return;
