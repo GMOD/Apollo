@@ -1,3 +1,5 @@
+<%@page import="org.gmod.gbol.bioObject.util.BioObjectUtil"%>
+<%@page import="org.gmod.gbol.bioObject.conf.BioObjectConfiguration"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 <%@page import="org.bbop.apollo.web.config.ServerConfiguration.DataAdapterConfiguration"%>
@@ -11,6 +13,7 @@
 <%@ page import="org.gmod.gbol.simpleObject.FeatureRelationship" %>
 <%@ page import="org.gmod.gbol.simpleObject.CVTerm" %>
 <%@ page import="org.gmod.gbol.simpleObject.FeatureLocation" %>
+<%@ page import="org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature" %>
 <%@ page import="java.util.Map"%>
 <%@ page import="java.util.HashMap"%>
 <%@ page import="java.util.Collection"%>
@@ -23,9 +26,12 @@
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.io.File" %>
 <%@ page import="java.net.URL" %>
+<%@ page import="java.io.InputStream" %>
 
 <%
 ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
+BioObjectConfiguration bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
 if (!UserManager.getInstance().isInitialized()) {
 	ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
 	UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
@@ -94,18 +100,18 @@ var recent_changes = new Array();
  *
  * @return String representation of the record in JSON format
  */
-private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.TrackConfiguration track) {
+private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature feature,ServerConfiguration.TrackConfiguration track) {
 	String builder="";
-	FeatureLocation floc=feature.getFeatureLocations().iterator().next();
-	long flank=Math.round((floc.getFmax()-floc.getFmin())*0.5);
-	long left=Math.max(floc.getFmin()-flank,1);
-	long right=Math.min(floc.getFmax()+flank,track.getSourceFeature().getSequenceLength()-1);
+	long flank=Math.round((feature.getFmax()-feature.getFmin())*0.5);
+	long left=Math.max(feature.getFmin()-flank,1);
+	long right=Math.min(feature.getFmax()+flank,track.getSourceFeature().getSequenceLength()-1);
 	builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
 	builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
 	builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
 		track.getSourceFeature().getUniqueName(), left, right, feature.getName());
-	builder+=String.format("'%s',", feature.getType().getName());
-	builder+=String.format("'%s']", feature.getTimeLastModified());
+	builder+=String.format("'%s',", feature.getType().split(":")[1]);
+	builder+=String.format("'%s',", feature.getTimeLastModified());
+	builder+=String.format("'%s']", feature.getOwner().getOwner());
 	return builder;
 }
 
@@ -113,15 +119,12 @@ private String generateFeatureRecordJSON(Feature feature,ServerConfiguration.Tra
 *
 * @return non-empty ArrayList of Strings with records in JSON format
 */
-private ArrayList<String> generateFeatureRecord(Feature feature, ServerConfiguration.TrackConfiguration track) {
+private ArrayList<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track) {
 	ArrayList<String> builder=new ArrayList<String>();
-	String type=feature.getType().getName();
-	for(FeatureRelationship relationship : feature.getChildFeatureRelationships()) {
-		Feature subfeature=relationship.getSubjectFeature();
-		CVTerm subtype=subfeature.getType();
+	String type=feature.getType().split(":")[1];
+	for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
 		builder.add(generateFeatureRecordJSON(subfeature,track)); 
 	}
-
 	builder.add(generateFeatureRecordJSON(feature,track));
 	return builder;
 }
@@ -154,7 +157,7 @@ if (username != null) {
 			dataStore.readFeatures(features);
 			for (Feature feature : features) {
 				// use list of records to get objects that have subfeatures
-				ArrayList<String> record = generateFeatureRecord(feature, track);
+				ArrayList<String> record = generateFeatureRecord((AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration), track);
 				for (String s : record) {
 					out.println("recent_changes.push(" + s + ");\n");
 				}
@@ -183,7 +186,8 @@ $(function() {
 			{ sTitle: "Track", bSortable:true },
 			{ sTitle: "Feature name", bSortable:true },
 			{ sTitle: "Feature type", bSortable:true },
-			{ sTitle: "Last modified", bSortable:true }
+			{ sTitle: "Last modified", bSortable:true },
+			{ sTitle: "Owner", bSortable:true }
 		]
 	});
 
