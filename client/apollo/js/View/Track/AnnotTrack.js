@@ -588,7 +588,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      *  overriding renderFeature to add event handling right-click context menu
      */
     renderFeature:  function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
-                              containerStart, containerEnd ) {
+                              containerStart, containerEnd, history ) {
         //  if (uniqueId.length > 20)  {
         //    feature.short_id = uniqueId;
         //  }
@@ -611,7 +611,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	}
     	var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, rclass, clsName);
 
-        if (featDiv && featDiv != null)  {
+        if (featDiv && featDiv != null && !history)  {
             annot_context_menu.bindDomNode(featDiv);
             $(featDiv).droppable(  {
                 accept: ".selected-feature",   // only accept draggables that are selected feature divs
@@ -642,12 +642,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } );
         }
         
-        new Tooltip({
-        	connectId: featDiv,
-        	label: "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified),
-        	position: ["above"],
-        	showDelay: 600
-        });
+        if (!history) {
+        	new Tooltip({
+        		connectId: featDiv,
+        		label: "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified),
+        		position: ["above"],
+        		showDelay: 600
+        	});
+        }
         
         return featDiv;
     },
@@ -3039,38 +3041,47 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     undoSelectedFeatures: function(records) {
         var track = this;
-        var features = '"features": [';
+        var uniqueNames = [];
         for (var i in records)  {
-	    var record = records[i];
-	    var selfeat = record.feature;
-	    var seltrack = record.track;
-            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
-            var uniqueName = topfeat.id();
-            // just checking to ensure that all features in selection are from this track
-            if (seltrack === track)  {
-                var trackdiv = track.div;
-                var trackName = track.getUniqueTrackName();
+        	var record = records[i];
+        	var selfeat = record.feature;
+        	var seltrack = record.track;
+        	var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+        	var uniqueName = topfeat.id();
+        	// just checking to ensure that all features in selection are from this track
+        	if (seltrack === track)  {
+        		var trackdiv = track.div;
+        		var trackName = track.getUniqueTrackName();
+        		uniqueNames.push(uniqueName);
+        	}
+        }
+        this.undoFeaturesByUniqueName(uniqueNames, 1);
+    },
 
-                if (i > 0) {
-                    features += ',';
-                }
-                features += ' { "uniquename": "' + uniqueName + '" } ';
+    undoFeaturesByUniqueName: function(uniqueNames, count) {
+    	var track = this;
+        var features = '"features": [';
+        for (var i = 0; i < uniqueNames.length; ++i) {
+        	var uniqueName = uniqueNames[i];
+            if (i > 0) {
+                features += ',';
             }
+            features += ' { "uniquename": "' + uniqueName + '" } ';
         }
         features += ']';
         var operation = "undo";
-        var trackName = track.getUniqueTrackName();
-        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-        track.executeUpdateOperation(postData, function(response) {
-            if (response && response.confirm) {
-                if (track.handleConfirm(response.confirm)) {
-                	postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }';
-                	track.executeUpdateOperation(postData);
-                }
-            }
+        var trackName = this.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+        this.executeUpdateOperation(postData, function(response) {
+        	if (response && response.confirm) {
+        		if (track.handleConfirm(response.confirm)) {
+        			postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }';
+        			track.executeUpdateOperation(postData);
+        		}
+        	}
         });
     },
-
+    
     redo: function()  {
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
@@ -3079,30 +3090,37 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     redoSelectedFeatures: function(records) {
         var track = this;
+        var uniqueNames = [];
         var features = '"features": [';
         for (var i in records)  {
-	    var record = records[i];
-	    var selfeat = record.feature;
-	    var seltrack = record.track;
+        	var record = records[i];
+        	var selfeat = record.feature;
+        	var seltrack = record.track;
             var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
             var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from this track
             if (seltrack === track)  {
-                var trackdiv = track.div;
-                var trackName = track.getUniqueTrackName();
-
-                if (i > 0) {
-                    features += ',';
-                }
-                features += ' { "uniquename": "' + uniqueName + '" } ';
+            	uniqueNames.push(uniqueName);
             }
+        }
+        this.redoFeaturesByUniqueName(uniqueNames, 1);
+    },
+    
+    redoFeaturesByUniqueName: function(uniqueNames, count) {
+        var features = '"features": [';
+        for (var i = 0; i < uniqueNames.length; ++i) {
+        	var uniqueName = uniqueNames[i];
+            if (i > 0) {
+                features += ',';
+            }
+            features += ' { "uniquename": "' + uniqueName + '" } ';
         }
         features += ']';
         var operation = "redo";
-        var trackName = track.getUniqueTrackName();
-        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-        track.executeUpdateOperation(postData);
-    }, 
+        var trackName = this.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+        this.executeUpdateOperation(postData);
+    },
 
     getHistory: function()  {
     	var selected = this.selectionManager.getSelection();
@@ -3122,13 +3140,39 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var selectedIndex = 0;
     	var minFmin = undefined;
     	var maxFmax = undefined;
-
+    	var current;
+    	var historyMenu;
+    	
+    	function initMenu() {
+    		historyMenu = new dijitMenu({ });
+    		historyMenu.addChild(new dijitMenuItem({
+    			label: "Set as current",
+    			onClick: function() {
+    				if (selectedIndex == current) {
+    					return;
+    				}
+    				if (selectedIndex < current) {
+    					track.undoFeaturesByUniqueName([ history[0].features[0].uniquename ], current - selectedIndex);
+    				}
+    				else if (selectedIndex > current) {
+    					track.redoFeaturesByUniqueName([ history[0].features[0].uniquename ], selectedIndex - current);
+    				}
+    				history[selectedIndex].current = true;
+    				history[current].current = false;
+    	    		dojo.attr(historyRows.childNodes.item(selectedIndex), "class", history[selectedIndex].current ? "history_row history_row_current" : "history_row");
+    	    		dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
+    	    		current = selectedIndex;
+    			}
+    		}));
+    		historyMenu.startup();
+    	}
+    	
     	var cleanupDiv = function(div) {
     		if (div.style.top) {
     			div.style.top = null;
     		}
     		if (div.style.visibility)  { div.style.visibility = null; }
-    		annot_context_menu.unBindDomNode(div);
+//    		annot_context_menu.unBindDomNode(div);
     		$(div).unbind();
     		for (var i = 0; i < div.childNodes.length; ++i) {
     			cleanupDiv(div.childNodes[i]);
@@ -3149,8 +3193,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		historyPreviewDiv.endBase = maxFmax + (maxLength * 0.1);
     		var coords = dojo.position(historyPreviewDiv);
     		// setting labelScale and descriptionScale parameter to 100 px/bp, so neither should get triggered
-    		var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (maxLength), 100, 100, minFmin, maxFmax);
+    		var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (maxLength), 100, 100, minFmin, maxFmax, true);
     		cleanupDiv(featDiv);
+    		
+    		historyMenu.bindDomNode(featDiv);
+    		
     		while (historyPreviewDiv.hasChildNodes()) {
     			historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
     		}
@@ -3161,7 +3208,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	};
 	
     	var displayHistory = function() {
-    		var current;
     		for (var i = 0; i < history.length; ++i) {
     			var historyItem = history[i];
     			var rowCssClass = "history_row";
@@ -3189,6 +3235,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     					displayPreview(index);
     				};
     			}(i));
+
+    			dojo.connect(row, "oncontextmenu", row, function(index) {
+    				return function() {
+    					displayPreview(index);
+    				};
+    			}(i));
+
+    			historyMenu.bindDomNode(row);
+
     		}
 			displayPreview(current);
 			var coords = dojo.position(row);
@@ -3237,6 +3292,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		});
     	};
 
+    	initMenu();
     	fetchHistory();
     	this.openDialog("History", content);
         AnnotTrack.popupDialog.resize();
