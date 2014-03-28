@@ -25,10 +25,11 @@ define(
            './TrackConfigTransformer', 
 	   './View/Track/AnnotTrack', 
 	   './View/TrackList/Hierarchical', 
+	   './View/TrackList/Faceted', 
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
     function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, GFF3Driver ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, GFF3Driver ) {
 
 return declare( JBPlugin,
 {
@@ -168,6 +169,10 @@ return declare( JBPlugin,
         // if using JBrowse's Hierarchical selector, switch to WebApollo's
         else if (browser.config.trackSelector.type == "Hierarchical") {
         	browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
+        }
+        // if using JBrowse's Hierarchical selector, switch to WebApollo's
+        else if (browser.config.trackSelector.type == "Faceted") {
+        	browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Faceted' };
         }
         
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
