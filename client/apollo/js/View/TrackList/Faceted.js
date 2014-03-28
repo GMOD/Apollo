@@ -6,11 +6,16 @@ function(declare,Faceted) {
 	return declare('WebApollo.View.TrackList.Faceted',Faceted,
 	{
 		// Subclass method for track selector to remove webapollo specific tracks
-		constructor: function() {
+		constructor: function(args) {
             console.log('WebApollo/View/TrackList/Faceted');
-			this.inherited(arguments);
-			shift(this.config.trackConfigs);//Remove sequence track
-			shift(this.config.trackConfigs);//Remove user-created annotations
+            for(var index in args.trackMetaData.identIndex) {
+                if(args.trackMetaData.identIndex[index]["track type"]=="WebApollo/View/Track/AnnotTrack" || 
+                   args.trackMetaData.identIndex[index]["track type"]=="WebApollo/View/Track/AnnotSequenceTrack") {
+                    delete args.trackMetaData.identIndex[index];
+                }   
+            }
+            
+			this.inherited(args);
 		}
 	});
 });
