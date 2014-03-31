@@ -1324,6 +1324,14 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             }
 	}
 	return this.annotTrack;
+    },
+    
+    hide: function() {
+    	this.inherited(arguments);
+    	var annotTrack = this.getAnnotTrack();
+    	if (annotTrack && annotTrack.username == undefined) {
+    		dojo.style(this.genomeView.pinUnderlay, "display", "none");
+    	}
     }
 
 });
