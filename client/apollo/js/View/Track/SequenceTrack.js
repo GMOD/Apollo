@@ -1329,7 +1329,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     hide: function() {
     	this.inherited(arguments);
     	var annotTrack = this.getAnnotTrack();
-    	if (annotTrack && annotTrack.username == undefined) {
+    	if (annotTrack && !annotTrack.isLoggedIn()) {
     		dojo.style(this.genomeView.pinUnderlay, "display", "none");
     	}
     }

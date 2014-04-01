@@ -4828,6 +4828,10 @@ makeTrackMenu: function()  {
     	return false;
     },
     
+    isLoggedIn: function() {
+    	return this.username != undefined;
+    },
+    
     processParent: function(feature, operation) {
         var parentId = feature.parent_id;
         if (parentId) {
