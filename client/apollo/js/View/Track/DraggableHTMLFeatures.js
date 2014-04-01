@@ -1292,7 +1292,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     
     updateContextMenu: function() {
     	var atrack = this.webapollo.getAnnotTrack();
-    	if (!atrack || !atrack.isLoggedIn()) {
+    	if (!atrack || !atrack.isLoggedIn() || !atrack.hasWritePermission()) {
     		this.contextMenuItems["create_annotation"].set("disabled", true);
     	}
     	else {

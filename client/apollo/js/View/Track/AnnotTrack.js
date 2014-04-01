@@ -1904,7 +1904,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     createAnnotationInfoEditorPanelForFeature: function(uniqueName, trackName, selector, reload) {
     	var track = this;
-    	var hasWritePermission = this.permission & Permission.WRITE;
+    	var hasWritePermission = this.hasWritePermission();
     	var content = dojo.create("span");
     	
         var header = dojo.create("div", { className: "annotation_info_editor_header" }, content);
@@ -4830,6 +4830,10 @@ makeTrackMenu: function()  {
     
     isLoggedIn: function() {
     	return this.username != undefined;
+    },
+    
+    hasWritePermission: function() {
+    	return this.permission & Permission.WRITE;
     },
     
     processParent: function(feature, operation) {
