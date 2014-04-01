@@ -1183,6 +1183,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     	var menu = this.inherited(arguments);
     	menu.addChild(new dijitMenuSeparator());
+    	
+    	this.contextMenuItems = {};
 
     	var createAnnotationMenu = new dijitMenu();
     	createAnnotationMenu.addChild(new dijitMenuItem( {
@@ -1275,11 +1277,28 @@ var draggableTrack = declare( HTMLFeatureTrack,
     		})
     	}));
     	
-    	menu.addChild(new dijitPopupMenuItem( {
+    	var createAnnotationMenuItem = new dijitPopupMenuItem( {
     		label: "Create new annotation",
     		popup: createAnnotationMenu
+    	} );
+    	this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;
+    	menu.addChild(createAnnotationMenuItem);
+    	
+    	dojo.connect(menu, "onOpen", dojo.hitch(this, function() {
+    		this.updateContextMenu();
     	}));
     	
+    },
+    
+    updateContextMenu: function() {
+    	var atrack = this.webapollo.getAnnotTrack();
+    	if (!atrack || !atrack.isLoggedIn()) {
+    		this.contextMenuItems["create_annotation"].set("disabled", true);
+    	}
+    	else {
+    		this.contextMenuItems["create_annotation"].set("disabled", false);
+    	}
+
     }
 
 });
