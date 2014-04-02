@@ -409,18 +409,23 @@ function open_user_manager_dialog() {
 			<li><a id="export_menu">Export</a>
 			<ul>
 <%
+	int permission = !permissions.isEmpty() ? permissions.values().iterator().next() : 0;
 	for (DataAdapterGroupConfiguration groupConf : serverConfig.getDataAdapters().values()) {
 		if (groupConf.isGroup()) {
-			out.println(String.format("\t\t\t\t\t<li><a>%s</a>", groupConf.getKey()));
-			out.println("<ul>");
-			for (DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
-				out.println(String.format("\t\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
+			if ((permission & Permission.getValueForPermission(groupConf.getPermission())) >= 1) {
+				out.println(String.format("\t\t\t\t\t<li><a>%s</a>", groupConf.getKey()));
+				out.println("<ul>");
+				for (DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
+					out.println(String.format("\t\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
+				}
+				out.println("</ul></li>");
 			}
-			out.println("</ul></li>");
 		}
 		else {
-			for (DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
-				out.println(String.format("\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
+			if ((permission & Permission.getValueForPermission(groupConf.getPermission())) >= 1) {
+				for (DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
+					out.println(String.format("\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
+				}
 			}
 		}
 	}
