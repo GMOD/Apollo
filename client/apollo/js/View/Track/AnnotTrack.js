@@ -4753,6 +4753,7 @@ makeTrackMenu: function()  {
 	    // console.log("removing base residued text from selected annot");
 	    $("div.annot-sequence", track.div).remove();
 	    delete this.currentResizableFeature;
+	    $(featdiv).resizable("destroy");
 	}
     }, 
 
