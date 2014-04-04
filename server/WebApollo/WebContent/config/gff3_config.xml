@@ -32,6 +32,6 @@
 
 	<!-- whether to export underlying genomic sequence - optional.
 	Defaults to true -->
-	<export_genomic_sequence>true</export_genomic_sequence>
+	<export_source_genomic_sequence>true</export_source_genomic_sequence>
 
 </gff3_config>
