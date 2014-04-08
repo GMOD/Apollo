@@ -99,7 +99,7 @@ return declare( null,
     _indexOf: function( rec ) {
         var index = -1;
         for( var i = 0; i < this.selected.length; i++ ) {
-            if( this.selected[i].feature === rec.feature && this.selected[i].track == rec.track )
+            if( this.selected[i].feature.id() == rec.feature.id() && this.selected[i].track == rec.track )
                 index = i;
         }
         return index;
