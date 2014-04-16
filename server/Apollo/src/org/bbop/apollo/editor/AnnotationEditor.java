@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.EventListener;
 import java.util.EventObject;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.session.AnnotationSession;
@@ -977,7 +979,134 @@ public class AnnotationEditor {
 		fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
 		
 	}
+	
+	public void setToDownstreamDonor(Exon exon) throws AnnotationEditorException {
+		Transcript transcript = exon.getTranscript();
+		Gene gene = transcript.getGene();
+		List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true);
+		Integer nextExonFmin = null;
+		Integer nextExonFmax = null;
+		for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
+			Exon e = iter.next();
+			if (e.getUniqueName().equals(exon.getUniqueName())) {
+				if (iter.hasNext()) {
+					Exon e2 = iter.next();
+					nextExonFmin = e2.getFmin();
+					nextExonFmax = e2.getFmax();
+					break;
+				}
+			}
+		}
+		int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) + 2 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) + 1;
+		String residues = gene.getResidues();
+		while (coordinate < residues.length()) {
+			int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
+			if (nextExonFmin != null && (c >= nextExonFmin && c <= nextExonFmax + 1)) {
+				throw new AnnotationEditorException("Cannot set to downstream donor - will overlap next exon");
+			}
+			String seq = residues.substring(coordinate, coordinate + 2);
+			if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
+				if (exon.getStrand() == -1) {
+					setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
+				}
+				else {
+					setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
+				}
+				return;
+			}
+			++coordinate;
+		}
+	}
 
+	public void setToUpstreamDonor(Exon exon) throws AnnotationEditorException {
+		Transcript transcript = exon.getTranscript();
+		Gene gene = transcript.getGene();
+		int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) - 1;
+		int exonStart = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) - 1 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin());
+		String residues = gene.getResidues();
+		while (coordinate > 0) {
+			if (coordinate <= exonStart) {
+				throw new AnnotationEditorException("Cannot set to upstream donor - will remove exon");
+			}
+			String seq = residues.substring(coordinate, coordinate + 2);
+			if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
+				if (exon.getStrand() == -1) {
+					setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
+				}
+				else {
+					setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
+				}
+				return;
+			}
+			--coordinate;
+		}
+	}
+
+	public void setToDownstreamAcceptor(Exon exon) throws AnnotationEditorException {
+		Transcript transcript = exon.getTranscript();
+		Gene gene = transcript.getGene();
+		int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin());
+		int exonEnd = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) - 1;
+		String residues = gene.getResidues();
+		while (coordinate < residues.length()) {
+			if (coordinate >= exonEnd) {
+				throw new AnnotationEditorException("Cannot set to downstream acceptor - will remove exon");
+			}
+			String seq = residues.substring(coordinate, coordinate + 2);
+			if (SequenceUtil.getSpliceAcceptorSites().contains(seq)) {
+				if (exon.getStrand() == -1) {
+					setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate) - 1);
+				}
+				else {
+					setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 2, exon.getFmax());
+				}
+				return;
+			}
+			++coordinate;
+		}
+	}
+
+	public void setToUpstreamAcceptor(Exon exon) throws AnnotationEditorException {
+		Transcript transcript = exon.getTranscript();
+		Gene gene = transcript.getGene();
+		List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true);
+		Integer prevExonFmin = null;
+		Integer prevExonFmax = null;
+		for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
+			Exon e = iter.next();
+			if (e.getUniqueName().equals(exon.getUniqueName())) {
+				if (iter.hasPrevious()) {
+					iter.previous();
+					if (iter.hasPrevious()) {
+						Exon e2 = iter.previous();
+						prevExonFmin = e2.getFmin();
+						prevExonFmax = e2.getFmax();
+					}
+				}
+				break;
+			}
+		}
+		int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax() + 2) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin() - 3);
+		String residues = gene.getResidues();
+		while (coordinate >= 0) {
+			int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
+			if (prevExonFmin != null && (c >= prevExonFmin && c <= prevExonFmax - 2)) {
+				throw new AnnotationEditorException("Cannot set to upstream acceptor - will overlap previous exon");
+			}
+			String seq = residues.substring(coordinate, coordinate + 2);
+			if (SequenceUtil.getSpliceAcceptorSites().contains(seq)) {
+				if (exon.getStrand() == -1) {
+					setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate) - 1);
+				}
+				else {
+					setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 2, exon.getFmax());
+				}
+				return;
+			}
+			--coordinate;
+		}
+	}
+	
 	public void setBoundaries(AbstractSingleLocationBioFeature feature, int fmin, int fmax) {
 		feature.setFmin(fmin);
 		feature.setFmax(fmax);

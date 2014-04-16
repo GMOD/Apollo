@@ -1813,6 +1813,74 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         track.executeUpdateOperation(postData);
     },
     
+    setToDownstreamDonor: function() {
+        var selectedAnnots = this.selectionManager.getSelection();
+        this.selectionManager.clearAllSelection();
+        this.setToDownstreamDonorForSelectedFeatures(selectedAnnots);
+    },
+
+    setToDownstreamDonorForSelectedFeatures: function(selectedAnnots) {
+        var track = this;
+        var annot = selectedAnnots[0].feature;
+        var uniqueName = annot.id();
+        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+        var operation = "set_to_downstream_donor";
+        var trackName = track.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+        track.executeUpdateOperation(postData);
+    },
+
+    setToUpstreamDonor: function() {
+        var selectedAnnots = this.selectionManager.getSelection();
+        this.selectionManager.clearAllSelection();
+        this.setToUpstreamDonorForSelectedFeatures(selectedAnnots);
+    },
+
+    setToUpstreamDonorForSelectedFeatures: function(selectedAnnots) {
+        var track = this;
+        var annot = selectedAnnots[0].feature;
+        var uniqueName = annot.id();
+        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+        var operation = "set_to_upstream_donor";
+        var trackName = track.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+        track.executeUpdateOperation(postData);
+    },
+
+    setToDownstreamAcceptor: function() {
+        var selectedAnnots = this.selectionManager.getSelection();
+        this.selectionManager.clearAllSelection();
+        this.setToDownstreamAcceptorForSelectedFeatures(selectedAnnots);
+    },
+
+    setToDownstreamAcceptorForSelectedFeatures: function(selectedAnnots) {
+        var track = this;
+        var annot = selectedAnnots[0].feature;
+        var uniqueName = annot.id();
+        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+        var operation = "set_to_downstream_acceptor";
+        var trackName = track.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+        track.executeUpdateOperation(postData);
+    },
+
+    setToUpstreamAcceptor: function() {
+        var selectedAnnots = this.selectionManager.getSelection();
+        this.selectionManager.clearAllSelection();
+        this.setToUpstreamAcceptorForSelectedFeatures(selectedAnnots);
+    },
+
+    setToUpstreamAcceptorForSelectedFeatures: function(selectedAnnots) {
+        var track = this;
+        var annot = selectedAnnots[0].feature;
+        var uniqueName = annot.id();
+        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+        var operation = "set_to_upstream_acceptor";
+        var trackName = track.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+        track.executeUpdateOperation(postData);
+    },
+
     getAnnotationInfoEditor: function()  {
         var selected = this.selectionManager.getSelection();
         this.getAnnotationInfoEditorForSelectedFeatures(selected);
@@ -3986,7 +4054,37 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		}
     	} ));
     	contextMenuItems["set_both_ends"] = index++;
-    	annot_context_menu.addChild(new dijit.MenuSeparator());
+        annot_context_menu.addChild(new dijit.MenuSeparator());
+        index++;
+        contextMenuItems["set_downstream_donor"] = index++;
+        annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set to downstream splice donor",
+                onClick: function(event) {
+                        thisObj.setToDownstreamDonor();
+                }
+        }));
+        contextMenuItems["set_upstream_donor"] = index++;
+        annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set to upstream splice donor",
+                onClick: function(event) {
+                        thisObj.setToUpstreamDonor();
+                }
+        }));
+        contextMenuItems["set_downstream_acceptor"] = index++;
+        annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set to downstream splice acceptor",
+                onClick: function(event) {
+                        thisObj.setToDownstreamAcceptor();
+                }
+        }));
+        contextMenuItems["set_upstream_acceptor"] = index++;
+        annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set to upstream splice acceptor",
+                onClick: function(event) {
+                        thisObj.setToUpstreamAcceptor();
+                }
+        }));
+        annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
     	annot_context_menu.addChild(new dijit.MenuItem( {
     		label: "Information Editor",
@@ -4228,6 +4326,10 @@ makeTrackMenu: function()  {
         this.updateSetAsFivePrimeEndMenuItem();
         this.updateSetAsThreePrimeEndMenuItem();
         this.updateSetBothEndsMenuItem();
+        this.updateSetNextDonorMenuItem();
+        this.updateSetPreviousDonorMenuItem();
+        this.updateSetNextAcceptorMenuItem();
+        this.updateSetPreviousAcceptorMenuItem();
     },
 
     updateSetTranslationStartMenuItem: function() {
@@ -4524,6 +4626,7 @@ makeTrackMenu: function()  {
         }
         menuItem.set("disabled", false);
     },
+
     updateSetAsThreePrimeEndMenuItem: function() {
         var menuItem = this.getMenuItem("set_as_three_prime_end");
         var selectedAnnots = this.selectionManager.getSelection();
@@ -4569,7 +4672,155 @@ makeTrackMenu: function()  {
         }
         menuItem.set("disabled", false);
     },
-    
+
+    updateSetNextDonorMenuItem: function() {
+    	var menuItem = this.getMenuItem("set_downstream_donor");
+    	var selectedAnnots = this.selectionManager.getSelection();
+    	if (selectedAnnots.length != 1) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var feature = selectedAnnots[0].feature;
+    	if (!SequenceOntologyUtils.exonTerms[feature.get("type")]) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	if (!feature.parent()) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var subfeatures = feature.parent().get("subfeatures");
+    	var exons = [];
+    	for (var i = 0; i < subfeatures.length; ++i) {
+    		exons.push(subfeatures[i]);
+    	}
+    	this.sortAnnotationsByLocation(exons);
+    	if (feature.get("strand") == -1) {
+    		if (feature.id() == exons[0].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	else {
+    		if (feature.id() == exons[exons.length - 1].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	menuItem.set("disabled", false);
+    },
+
+    updateSetPreviousDonorMenuItem: function() {
+    	var menuItem = this.getMenuItem("set_upstream_donor");
+    	var selectedAnnots = this.selectionManager.getSelection();
+    	if (selectedAnnots.length > 1) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var feature = selectedAnnots[0].feature;
+    	if (!SequenceOntologyUtils.exonTerms[feature.get("type")]) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	if (!feature.parent()) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var subfeatures = feature.parent().get("subfeatures");
+    	var exons = [];
+    	for (var i = 0; i < subfeatures.length; ++i) {
+    		exons.push(subfeatures[i]);
+    	}
+    	this.sortAnnotationsByLocation(exons);
+    	if (feature.get("strand") == -1) {
+    		if (feature.id() == exons[0].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	else {
+    		if (feature.id() == exons[exons.length - 1].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	menuItem.set("disabled", false);
+    },
+
+    updateSetNextAcceptorMenuItem: function() {
+    	var menuItem = this.getMenuItem("set_downstream_acceptor");
+    	var selectedAnnots = this.selectionManager.getSelection();
+    	if (selectedAnnots.length > 1) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var feature = selectedAnnots[0].feature;
+    	if (!SequenceOntologyUtils.exonTerms[feature.get("type")]) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	if (!feature.parent()) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var subfeatures = feature.parent().get("subfeatures");
+    	var exons = [];
+    	for (var i = 0; i < subfeatures.length; ++i) {
+    		exons.push(subfeatures[i]);
+    	}
+    	this.sortAnnotationsByLocation(exons);
+    	if (feature.get("strand") == -1) {
+    		if (feature.id() == exons[exons.length - 1].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	else {
+    		if (feature.id() == exons[0].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	menuItem.set("disabled", false);
+    },
+
+    updateSetPreviousAcceptorMenuItem: function() {
+    	var menuItem = this.getMenuItem("set_upstream_acceptor");
+    	var selectedAnnots = this.selectionManager.getSelection();
+    	if (selectedAnnots.length > 1) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var feature = selectedAnnots[0].feature;
+    	if (!SequenceOntologyUtils.exonTerms[feature.get("type")]) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	if (!feature.parent()) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var subfeatures = feature.parent().get("subfeatures");
+    	var exons = [];
+    	for (var i = 0; i < subfeatures.length; ++i) {
+    		exons.push(subfeatures[i]);
+    	}
+    	this.sortAnnotationsByLocation(exons);
+    	if (feature.get("strand") == -1) {
+    		if (feature.id() == exons[exons.length - 1].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	else {
+    		if (feature.id() == exons[0].id()) {
+    			menuItem.set("disabled", true);
+    			return;
+    		}
+    	}
+    	menuItem.set("disabled", false);
+    },
+
     getMenuItem: function(operation) {
         return annot_context_menu.getChildren()[contextMenuItems[operation]];
     },

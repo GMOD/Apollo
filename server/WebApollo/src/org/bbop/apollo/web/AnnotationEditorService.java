@@ -565,6 +565,38 @@ public class AnnotationEditorService extends HttpServlet {
 							}
 							setBoundaries(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
 						}
+						
+						// set_to_downstream_donor
+						else if (operation.equals("set_to_downstream_donor")) {
+							if ((permission & Permission.WRITE) == 0) {
+								throw new AnnotationEditorServiceException("You do not have editing permissions");
+							}
+							setToDownstreamDonor(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
+						}
+
+						// set_to_upstream_donor
+						else if (operation.equals("set_to_upstream_donor")) {
+							if ((permission & Permission.WRITE) == 0) {
+								throw new AnnotationEditorServiceException("You do not have editing permissions");
+							}
+							setToUpstreamDonor(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
+						}
+
+						// set_to_downstream_acceptor
+						else if (operation.equals("set_to_downstream_acceptor")) {
+							if ((permission & Permission.WRITE) == 0) {
+								throw new AnnotationEditorServiceException("You do not have editing permissions");
+							}
+							setToDownstreamAcceptor(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
+						}
+
+						// set_to_upstream_acceptor
+						else if (operation.equals("set_to_upstream_acceptor")) {
+							if ((permission & Permission.WRITE) == 0) {
+								throw new AnnotationEditorServiceException("You do not have editing permissions");
+							}
+							setToUpstreamAcceptor(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
+						}
 
 						// undo
 						else if (operation.equals("undo")) {
@@ -2644,6 +2676,110 @@ public class AnnotationEditorService extends HttpServlet {
 				Transaction transaction = new Transaction(Transaction.Operation.SET_BOUNDARIES, feature.getUniqueName(), username);
 				transaction.addOldFeature(oldFeature);
 				transaction.addNewFeature(feature);
+				writeHistoryToStore(historyStore, transaction);
+			}
+		}
+		out.write(featureContainer.toString());
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
+	
+	private void setToDownstreamDonor(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
+		JSONObject featureContainer = createJSONFeatureContainer();
+		for (int i = 0; i < features.length(); ++i) {
+			JSONObject jsonFeature = features.getJSONObject(i);
+			Exon exon = (Exon)editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+			Transcript transcript = exon.getTranscript();
+			Transcript oldTranscript = cloneTranscript(transcript);
+			editor.setToDownstreamDonor(exon);
+			calculateCDS(editor, transcript);
+			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+			updateTranscriptAttributes(transcript);
+			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+			if (dataStore != null) {
+				writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+			}
+			if (historyStore != null) {
+				Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
+				transaction.addOldFeature(oldTranscript);
+				transaction.addNewFeature(transcript);
+				writeHistoryToStore(historyStore, transaction);
+			}
+		}
+		out.write(featureContainer.toString());
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
+
+	private void setToUpstreamDonor(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
+		JSONObject featureContainer = createJSONFeatureContainer();
+		for (int i = 0; i < features.length(); ++i) {
+			JSONObject jsonFeature = features.getJSONObject(i);
+			Exon exon = (Exon)editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+			Transcript transcript = exon.getTranscript();
+			Transcript oldTranscript = cloneTranscript(transcript);
+			editor.setToUpstreamDonor(exon);
+			calculateCDS(editor, transcript);
+			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+			updateTranscriptAttributes(transcript);
+			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+			if (dataStore != null) {
+				writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+			}
+			if (historyStore != null) {
+				Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
+				transaction.addOldFeature(oldTranscript);
+				transaction.addNewFeature(transcript);
+				writeHistoryToStore(historyStore, transaction);
+			}
+		}
+		out.write(featureContainer.toString());
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
+
+	private void setToDownstreamAcceptor(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
+		JSONObject featureContainer = createJSONFeatureContainer();
+		for (int i = 0; i < features.length(); ++i) {
+			JSONObject jsonFeature = features.getJSONObject(i);
+			Exon exon = (Exon)editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+			Transcript transcript = exon.getTranscript();
+			Transcript oldTranscript = cloneTranscript(transcript);
+			editor.setToDownstreamAcceptor(exon);
+			calculateCDS(editor, transcript);
+			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+			updateTranscriptAttributes(transcript);
+			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+			if (dataStore != null) {
+				writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+			}
+			if (historyStore != null) {
+				Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
+				transaction.addOldFeature(oldTranscript);
+				transaction.addNewFeature(transcript);
+				writeHistoryToStore(historyStore, transaction);
+			}
+		}
+		out.write(featureContainer.toString());
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
+
+	private void setToUpstreamAcceptor(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
+		JSONObject featureContainer = createJSONFeatureContainer();
+		for (int i = 0; i < features.length(); ++i) {
+			JSONObject jsonFeature = features.getJSONObject(i);
+			Exon exon = (Exon)editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+			Transcript transcript = exon.getTranscript();
+			Transcript oldTranscript = cloneTranscript(transcript);
+			editor.setToUpstreamAcceptor(exon);
+			calculateCDS(editor, transcript);
+			findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+			updateTranscriptAttributes(transcript);
+			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+			if (dataStore != null) {
+				writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+			}
+			if (historyStore != null) {
+				Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
+				transaction.addOldFeature(oldTranscript);
+				transaction.addNewFeature(transcript);
 				writeHistoryToStore(historyStore, transaction);
 			}
 		}
