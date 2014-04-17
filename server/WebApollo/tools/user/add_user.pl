@@ -6,6 +6,7 @@ use warnings;
 use DBI;
 use Getopt::Long qw(:config no_ignore_case bundling);
 use File::Basename;
+use Digest::MD5;
 
 my $USER_TABLE = "users";
 
@@ -60,8 +61,11 @@ sub add_user {
 		print "User $username already exists\n";
 		return;
 	}
+	my $md5 = new Digest::MD5();
+	$md5->add($password);
+	my $digest = $md5->hexdigest();
 	my $sql = "INSERT INTO $USER_TABLE(username, password) " .
-		  "VALUES('$username', '$password')";
+		  "VALUES('$username', '$digest')";
 	$dbh->do($sql);
 }
 

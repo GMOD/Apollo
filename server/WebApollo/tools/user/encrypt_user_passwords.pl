@@ -15,7 +15,7 @@ my $username;
 my $password;
 
 parse_options();
-change_password();
+encrypt_passwords();
 cleanup();
 
 sub parse_options {
@@ -30,13 +30,9 @@ sub parse_options {
 		   "dbname|D=s"		=> \$dbname,
 		   "dbusername|U=s"	=> \$dbusername,
 		   "dbpassword|P=s"	=> \$dbpassword,
-		   "username|u=s"	=> \$username,
-		   "password|p=s"	=> \$password,
 		   "help|h"		=> \$help);
 	print_usage() if $help;
 	die "Database name is required\n" if !$dbname;
-	die "User name for existing user required\n" if !$username;
-	die "New password for existing user required\n" if !$password;
 	my $connect_string = "dbi:Pg:host=$host;port=$port;dbname=$dbname";
 	$dbh = DBI->connect($connect_string, $dbusername, $dbpassword);
 }
@@ -50,31 +46,30 @@ usage: $progname
 	-D|--dbname <user_database_name>
 	[-U|--dbusername <user_database_username>]
 	[-P|--dbpassword <user_database_password>]
-	-u|--username <username_for_user_to_be_added>
-	-p|--password <password_for_user_to_be_added>
 	[-h|--help]
 END
 }
 
-sub change_password {
-	my $user_id = get_user_id();
-	if (!$user_id) {
-		print "User $username does not exist\n";
-		return;
-	}
+sub encrypt_passwords {
 	my $md5 = new Digest::MD5();
-	$md5->add($password);
-	my $digest = $md5->hexdigest();
-	my $sql = "UPDATE $USER_TABLE " .
-		  "SET password='$digest' " .
-		  "WHERE user_id=$user_id";
-	$dbh->do($sql);
+	my $passwords = get_passwords();
+	foreach my $row (@{$passwords}) {
+		my $user_id = $row->[0];
+		my $password = $row->[1];
+		print "Updating user id $user_id\n";
+		$md5->add($password);
+		my $digest = $md5->hexdigest();
+		my $sql = "UPDATE $USER_TABLE " .
+			  "SET password='$digest' " .
+			  "WHERE user_id=$user_id";
+		$dbh->do($sql);
+	}
 }
 
-sub get_user_id {
-	my $sql = "SELECT * FROM $USER_TABLE WHERE username='$username'";
+sub get_passwords {
+	my $sql = "SELECT user_id, password FROM $USER_TABLE";
 	my $results = $dbh->selectall_arrayref($sql);
-	return $results ? $results->[0]->[0] : undef;
+	return $results;
 }
 
 sub cleanup {

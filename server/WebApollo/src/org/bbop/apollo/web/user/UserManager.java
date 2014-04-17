@@ -1,5 +1,8 @@
 package org.bbop.apollo.web.user;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -107,7 +110,8 @@ public class UserManager {
 		ResultSet rs = stmt.executeQuery();
 		boolean valid = false;
 		if (rs.next()) {
-			valid = rs.getString(2).equals(password);
+			String digest = getMd5Digest(password);
+			valid = rs.getString(2).equals(digest);
 		}
 		conn.close();
 		return valid;
@@ -164,7 +168,7 @@ public class UserManager {
 		Connection conn = getConnection();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO users(username, password) VALUES(?, ?)");
 		stmt.setString(1, username);
-		stmt.setString(2, password);
+		stmt.setString(2, getMd5Digest(password));
 		stmt.executeUpdate();
 		conn.close();
 	}
@@ -206,6 +210,19 @@ public class UserManager {
 			trackNames.put(rs.getString(1), rs.getInt(2));
 		}
 		return trackNames;
+	}
+	
+	private String getMd5Digest(String str) {
+		try {
+			MessageDigest m = MessageDigest.getInstance("MD5");
+			m.reset();
+			m.update(str.getBytes());
+			BigInteger bigInt = new BigInteger(1, m.digest());
+			return bigInt.toString(16);
+		}
+		catch (NoSuchAlgorithmException e) {
+		}
+		return null;
 	}
 	
 	private Connection getConnection() throws SQLException {
