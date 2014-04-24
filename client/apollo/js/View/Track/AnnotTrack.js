@@ -3210,26 +3210,30 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var maxFmax = undefined;
     	var current;
     	var historyMenu;
+
+    	function revert() {
+			if (selectedIndex == current) {
+				return;
+			}
+			if (selectedIndex < current) {
+				track.undoFeaturesByUniqueName([ history[0].features[0].uniquename ], current - selectedIndex);
+			}
+			else if (selectedIndex > current) {
+				track.redoFeaturesByUniqueName([ history[0].features[0].uniquename ], selectedIndex - current);
+			}
+			history[selectedIndex].current = true;
+			history[current].current = false;
+    		dojo.attr(historyRows.childNodes.item(selectedIndex), "class", history[selectedIndex].current ? "history_row history_row_current" : "history_row");
+    		dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
+    		current = selectedIndex;
+    	};
     	
     	function initMenu() {
     		historyMenu = new dijitMenu({ });
     		historyMenu.addChild(new dijitMenuItem({
     			label: "Set as current",
     			onClick: function() {
-    				if (selectedIndex == current) {
-    					return;
-    				}
-    				if (selectedIndex < current) {
-    					track.undoFeaturesByUniqueName([ history[0].features[0].uniquename ], current - selectedIndex);
-    				}
-    				else if (selectedIndex > current) {
-    					track.redoFeaturesByUniqueName([ history[0].features[0].uniquename ], selectedIndex - current);
-    				}
-    				history[selectedIndex].current = true;
-    				history[current].current = false;
-    	    		dojo.attr(historyRows.childNodes.item(selectedIndex), "class", history[selectedIndex].current ? "history_row history_row_current" : "history_row");
-    	    		dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
-    	    		current = selectedIndex;
+    				revert();
     			}
     		}));
     		historyMenu.startup();
@@ -3284,6 +3288,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     			dojo.create("span", { className: columnCssClass + " history_column_operation ", innerHTML: historyItem.operation }, row);
     			dojo.create("span", { className: columnCssClass, innerHTML: historyItem.editor }, row);
     			dojo.create("span", { className: columnCssClass + " history_column_date", innerHTML: historyItem.date }, row);
+    			var revertButton = new dijitButton( {
+    				label: "Revert",
+    				showLabel: false,
+    				iconClass: "dijitIconUndo",
+    				class: "revert_button",
+    				onClick: function(index) {
+    					return function() {
+    						selectedIndex = index;
+    						revert();
+    					}
+    				}(i)
+    			});
+    			dojo.place(revertButton.domNode, row);
     			var afeature = historyItem.features[0];
         		var fmin = afeature.location.fmin;
         		var fmax = afeature.location.fmax;

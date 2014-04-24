@@ -52,3 +52,8 @@
 	height: 2em;
 	padding-top: 3em;
 }
+
+.revert_button.dijitButton .dijitButtonNode {
+	padding: 0px;
+	margin: 0px;
+}
