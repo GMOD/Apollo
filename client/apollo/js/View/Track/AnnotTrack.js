@@ -3504,21 +3504,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var fetchSequence = function(type) {
             var features = '"features": [';
             for (var i = 0; i < records.length; ++i)  {
-		var record = records[i];
-                var annot = record.feature;
-		var seltrack = record.track;
-                var uniqueName = annot.getUniqueName();
-                // just checking to ensure that all features in selection are
-				// from this track
-                if (seltrack === track)  {
-                    var trackdiv = track.div;
-                    var trackName = track.getUniqueTrackName();
+            	var record = records[i];
+            	var annot = record.feature;
+            	var seltrack = record.track;
+            	var uniqueName = annot.getUniqueName();
+            	// just checking to ensure that all features in selection are
+            	// from this track
+            	if (seltrack === track)  {
+            		var trackdiv = track.div;
+            		var trackName = track.getUniqueTrackName();
 
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
-                }
+            		if (i > 0) {
+            			features += ',';
+            		}
+            		features += ' { "uniquename": "' + uniqueName + '" } ';
+            	}
             }
             features += ']';
             var operation = "get_sequence";
@@ -3542,7 +3542,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 var feature = response.features[i];
                                 var cvterm = feature.type;
                                 var residues = feature.residues;
-                                textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
+                                var loc = feature.location;
+                                textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] ["+ type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
                                 var lineLength = 70;
                                 for (var j = 0; j < residues.length; j += lineLength) {
                                         textAreaContent += residues.substr(j, lineLength) + "\n";
