@@ -253,7 +253,16 @@ public class GFF3Handler {
 			}
 			int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
 			int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
-			String phase = Integer.toString(length % 3);
+			String phase;
+			if (length % 3 == 0) {
+				phase = "0";
+			}
+			else if (length % 3 == 1) {
+				phase = "2";
+			}
+			else {
+				phase = "1";
+			}
 			length += fmax - fmin;
 			GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
 			entry.setAttributes(extractAttributes(cds));
