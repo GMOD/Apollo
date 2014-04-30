@@ -3706,6 +3706,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             while (selfeat.parent()) {
                 selfeat = selfeat.parent();
             }
+            // only support scrolling if the feature isn't fully visible
+            if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
+            	return;
+            }
             var coordDelta = Number.MAX_VALUE;
             var pmin = selfeat.get('start');
             var pmax = selfeat.get('end');
@@ -3752,6 +3756,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // if to right,
             while (selfeat.parent()) {
                 selfeat = selfeat.parent();
+            }
+            // only support scrolling if the feature isn't fully visible
+            if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
+            	return;
             }
             var coordDelta = Number.MAX_VALUE;
             var pmin = selfeat.get('start');
