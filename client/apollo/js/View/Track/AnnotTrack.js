@@ -356,7 +356,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         	this.show();
         }
         else {
-			this.hide();
+			if (this.config.disableJBrowseMode) {
+				this.login();
+			}
+			else {
+				this.hide();
+			}
         }
 
     }, 
@@ -3898,7 +3903,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             handleAs: "text",
             timeout: 5 * 60,
             load: function(response, ioArgs) {
-                track.openDialog("Login", response);
+//                track.openDialog("Login", response);
+            	var dialog = new dojoxDialogSimple({
+            		preventCache: true,
+            		refreshOnShow: true,
+            		executeScripts: true
+            	});
+            	if (track.config.disableJBrowseMode) {
+            		dialog.hide = function() { };
+            	}
+            	dialog.startup();
+                dialog.set("title", "Login");
+                dialog.set("content", response);
+            	dialog.show();
             }
         });
     },

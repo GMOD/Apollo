@@ -52,11 +52,12 @@ my $j = JSON->new->pretty->relaxed;
 
 my $user_track_json = '
       {
+         "disableJBrowseMode": false,
          "label" : "Annotations",
          "type" : "WebApollo/View/Track/AnnotTrack", 
 	 "storeClass" : "WebApollo/Store/SeqFeature/ScratchPad", 
-            "autocomplete" : "none",
-            "style" : {
+         "autocomplete" : "none",
+         "style" : {
 	       "renderClassName" : "annot-render", 
 	       "uniqueIdField" : "id", 
                "className" : "annot",
