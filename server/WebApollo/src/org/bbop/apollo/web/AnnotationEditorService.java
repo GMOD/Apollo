@@ -597,6 +597,22 @@ public class AnnotationEditorService extends HttpServlet {
 							}
 							setToUpstreamAcceptor(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
 						}
+						
+						// lock_feature
+						else if (operation.equals("lock_feature")) {
+							if ((permission & Permission.WRITE) == 0) {
+								throw new AnnotationEditorServiceException("You do not have editing permissions");
+							}
+							lockFeature(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, permission, out);
+						}
+
+						// unlock_feature
+						else if (operation.equals("unlock_feature")) {
+							if ((permission & Permission.WRITE) == 0) {
+								throw new AnnotationEditorServiceException("You do not have editing permissions");
+							}
+							unlockFeature(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, permission, out);
+						}
 
 						// undo
 						else if (operation.equals("undo")) {
@@ -2786,7 +2802,62 @@ public class AnnotationEditorService extends HttpServlet {
 		out.write(featureContainer.toString());
 		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 	}
+
+	private void lockFeature(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, int permission, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
+		JSONObject featureContainer = createJSONFeatureContainer();
+		for (int i = 0; i < features.length(); ++i) {
+			JSONObject jsonFeature = features.getJSONObject(i);
+			AbstractSingleLocationBioFeature feature = editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+			if (!feature.getOwner().getOwner().equals(username) && (permission & Permission.ADMIN) == 0) {
+				throw new AnnotationEditorServiceException("Cannot lock someone else's annotation");
+			}
+			feature.addNonReservedProperty("locked", "true");
+			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(feature));
+			if (dataStore != null) {
+				if (feature instanceof Transcript) {
+					writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript)feature), track);
+				}
+				else {
+					writeFeatureToStore(editor, dataStore, feature, track);
+				}
+			}
+		}
+		out.write(featureContainer.toString());
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
+
+	private void unlockFeature(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, int permission, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
+		JSONObject featureContainer = createJSONFeatureContainer();
+		for (int i = 0; i < features.length(); ++i) {
+			JSONObject jsonFeature = features.getJSONObject(i);
+			AbstractSingleLocationBioFeature feature = editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+			if (!feature.getOwner().getOwner().equals(username) && (permission & Permission.ADMIN) == 0) {
+				throw new AnnotationEditorServiceException("Cannot unlock someone else's annotation");
+			}
+			feature.deleteNonReservedProperty("locked", "true");
+			featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(feature));
+			if (dataStore != null) {
+				if (feature instanceof Transcript) {
+					writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript)feature), track);
+				}
+				else {
+					writeFeatureToStore(editor, dataStore, feature, track);
+				}
+			}
+		}
+		out.write(featureContainer.toString());
+		fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+	}
 	
+	private boolean isLockedFeature(AbstractSingleLocationBioFeature feature) {
+		for (GenericFeatureProperty fp : feature.getNonReservedProperties()) {
+			if (fp.getTag().equals("locked") && fp.getValue().equals("true")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void undo(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject json, String track, BufferedWriter out, int count) throws JSONException, IOException, AnnotationEditorServiceException, AnnotationEditorException {
 		JSONArray features = json.getJSONArray("features");
 		for (int i = 0; i< features.length(); ++i) {

@@ -82,6 +82,11 @@ var JAFeature = declare( SimpleFeature, {
         		else if (property.type.name == "owner") {
         			this.data.owner = property.value;
         		}
+        		else if (property.type.name == "feature_property") {
+        			if (property.value == "locked=true") {
+        				this.data.locked = true;
+        			}
+        		}
         	}
         }
         

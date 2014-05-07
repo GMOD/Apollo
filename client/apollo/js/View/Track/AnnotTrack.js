@@ -647,12 +647,20 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         
         if (!history) {
+        	var label = "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
+        	if (feature.get("locked")) {
+        		label += "<br/>[Locked]";
+        	}
         	new Tooltip({
         		connectId: featDiv,
-        		label: "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified),
+        		label: label,
         		position: ["above"],
         		showDelay: 600
         	});
+        }
+        
+        if (feature.get("locked")) {
+        	dojo.addClass(featDiv, "locked-annotation");
         }
         
         return featDiv;
@@ -662,13 +670,16 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 displayStart, displayEnd, block) {
         var subdiv = this.inherited( arguments );
 
-        /**
-		 * setting up annotation resizing via pulling of left/right edges but if
-		 * subfeature is not selectable, do not bind mouse down
-		 */
-        if (subdiv && subdiv != null && (! this.selectionManager.unselectableTypes[subfeature.get('type')]) )  {
-            $(subdiv).bind("mousedown", this.annotMouseDown);
+        if (this.canEdit(feature)) {
+            /**
+    		 * setting up annotation resizing via pulling of left/right edges but if
+    		 * subfeature is not selectable, do not bind mouse down
+    		 */
+            if (subdiv && subdiv != null && (! this.selectionManager.unselectableTypes[subfeature.get('type')]) )  {
+                $(subdiv).bind("mousedown", this.annotMouseDown);
+            }
         }
+        
         return subdiv;
     },
 
@@ -1898,6 +1909,23 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         track.executeUpdateOperation(postData);
     },
 
+    lockAnnotation: function() {
+        var selectedAnnots = this.selectionManager.getSelection();
+        this.selectionManager.clearAllSelection();
+        this.lockAnnotationForSelectedFeatures(selectedAnnots);
+    },
+    
+    lockAnnotationForSelectedFeatures: function(selectedAnnots) {
+        var track = this;
+        var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
+        var uniqueName = annot.id();
+        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+        var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
+        var trackName = track.getUniqueTrackName();
+        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+        track.executeUpdateOperation(postData);
+    },
+
     getAnnotationInfoEditor: function()  {
         var selected = this.selectionManager.getSelection();
         this.getAnnotationInfoEditorForSelectedFeatures(selected);
@@ -1990,7 +2018,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     createAnnotationInfoEditorPanelForFeature: function(uniqueName, trackName, selector, reload) {
     	var track = this;
-    	var hasWritePermission = this.hasWritePermission();
+//    	var hasWritePermission = this.hasWritePermission();
+    	var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
     	var content = dojo.create("span");
     	
         var header = dojo.create("div", { className: "annotation_info_editor_header" }, content);
@@ -3234,6 +3263,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var maxFmax = undefined;
     	var current;
     	var historyMenu;
+    	var canEdit = this.canEdit(selected[0].feature);
 
     	function revert() {
 			if (selectedIndex == current) {
@@ -3325,6 +3355,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     					}
     				}(i)
     			});
+    			if (!canEdit) {
+    				revertButton.set("disabled", true);
+    			}
     			dojo.place(revertButton.domNode, row);
     			var afeature = historyItem.features[0];
         		var fmin = afeature.location.fmin;
@@ -4255,6 +4288,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		}
     	} ));
     	contextMenuItems["history"] = index++;
+    	annot_context_menu.addChild(new dijit.MenuSeparator());
+    	index++;
+    	annot_context_menu.addChild(new dijit.MenuItem( {
+    		label: "Lock annotation",
+    		onClick: function(event) {
+    			thisObj.lockAnnotation();
+    		}
+    	} ));
+    	contextMenuItems["lock_annotation"] = index++;
     }
 
 	annot_context_menu.onOpen = function(event) {
@@ -4451,6 +4493,7 @@ makeTrackMenu: function()  {
     },
 
     updateMenu: function() {
+    	this.updateDeleteMenuItem();
         this.updateSetTranslationStartMenuItem();
         this.updateSetTranslationEndMenuItem();
         this.updateSetLongestOrfMenuItem();
@@ -4459,8 +4502,6 @@ makeTrackMenu: function()  {
         this.updateSplitMenuItem();
         this.updateMakeIntronMenuItem();
         this.updateFlipStrandMenuItem();
-// this.updateEditCommentsMenuItem();
-// this.updateEditDbxrefsMenuItem();
         this.updateAnnotationInfoEditorMenuItem();
         this.updateUndoMenuItem();
         this.updateRedoMenuItem();
@@ -4474,6 +4515,19 @@ makeTrackMenu: function()  {
         this.updateSetPreviousDonorMenuItem();
         this.updateSetNextAcceptorMenuItem();
         this.updateSetPreviousAcceptorMenuItem();
+        this.updateLockAnnotationMenuItem();
+    },
+    
+    updateDeleteMenuItem: function() {
+        var menuItem = this.getMenuItem("delete");
+        var selected = this.selectionManager.getSelection();
+        for (var i = 0; i < selected.length; ++i) {
+        	if (!this.canEdit(selected[i].feature)) {
+                menuItem.set("disabled", true);
+                return;
+        	}
+        }
+        menuItem.set("disabled", false);
     },
 
     updateSetTranslationStartMenuItem: function() {
@@ -4493,6 +4547,10 @@ makeTrackMenu: function()  {
         var selectedFeat = selected[0].feature;
         if (selectedFeat.parent()) {
             selectedFeat = selectedFeat.parent();
+        }
+        if (!this.canEdit(selectedFeat)) {
+        	menuItem.set("disabled", true);
+        	return;
         }
         if (selectedFeat.get('manuallySetTranslationStart')) {
             menuItem.set("label", "Unset translation start");
@@ -4520,6 +4578,10 @@ makeTrackMenu: function()  {
         if (selectedFeat.parent()) {
             selectedFeat = selectedFeat.parent();
         }
+        if (!this.canEdit(selectedFeat)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
         if (selectedFeat.get('manuallySetTranslationEnd')) {
             menuItem.set("label", "Unset translation end");
         }
@@ -4540,6 +4602,10 @@ makeTrackMenu: function()  {
                 menuItem.set("disabled", true);
                 return;
         	}
+            if (!this.canEdit(selected[i].feature)) {
+            	menuItem.set("disabled", true);
+            	return;
+            }
         }
 
         menuItem.set("disabled", false);
@@ -4557,6 +4623,10 @@ makeTrackMenu: function()  {
                 menuItem.set("disabled", true);
                 return;
         	}
+            if (!this.canEdit(selected[i].feature)) {
+            	menuItem.set("disabled", true);
+            	return;
+            }
         }
         menuItem.set("disabled", false);
         var selectedFeat = selected[0].feature;
@@ -4594,6 +4664,10 @@ makeTrackMenu: function()  {
                     menuItem.set("disabled", true);
                     return;
             }
+            if (!this.canEdit(selected[i].feature)) {
+            	menuItem.set("disabled", true);
+            	return;
+            }
         }
         menuItem.set("disabled", false);
     },
@@ -4614,6 +4688,10 @@ makeTrackMenu: function()  {
             	menuItem.set("disabled", true);
             	return;
             }
+            if (!this.canEdit(selected[0].feature)) {
+            	menuItem.set("disabled", true);
+            	return;
+            }
         }
         var parent = selected[0].feature.parent();
         if (!parent) {
@@ -4624,6 +4702,10 @@ makeTrackMenu: function()  {
             if (selected[i].feature.parent() != parent) {
                 menuItem.set("disabled", true);
                 return;
+            }
+            if (!this.canEdit(selected[i].feature)) {
+            	menuItem.set("disabled", true);
+            	return;
             }
         }
         menuItem.set("disabled", false);
@@ -4637,6 +4719,10 @@ makeTrackMenu: function()  {
             return;
         }
         if (!selected[0].feature.parent()) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
+        if (!this.canEdit(selected[0].feature)) {
         	menuItem.set("disabled", true);
         	return;
         }
@@ -4655,36 +4741,14 @@ makeTrackMenu: function()  {
         		menuItem.set("disabled", true);
         		return;
         	}
-        }
-
-    },
-
-    updateEditCommentsMenuItem: function() {
-        var menuItem = this.getMenuItem("edit_comments");
-        var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
-        for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
-                menuItem.set("disabled", true);
-                return;
+            if (!this.canEdit(selected[i].feature)) {
+            	menuItem.set("disabled", true);
+            	return;
             }
         }
-        menuItem.set("disabled", false);
+
     },
 
-    updateEditDbxrefsMenuItem: function() {
-        var menuItem = this.getMenuItem("edit_dbxrefs");
-        var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
-        for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
-                menuItem.set("disabled", true);
-                return;
-            }
-        }
-        menuItem.set("disabled", false);
-    },
-    
     updateAnnotationInfoEditorMenuItem: function() {
         var menuItem = this.getMenuItem("annotation_info_editor");
         var selected = this.selectionManager.getSelection();
@@ -4705,6 +4769,10 @@ makeTrackMenu: function()  {
             menuItem.set("disabled", true);
             return;
         }
+        if (!this.canEdit(selected[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
         menuItem.set("disabled", false);
     },
 
@@ -4715,18 +4783,22 @@ makeTrackMenu: function()  {
             menuItem.set("disabled", true);
             return;
         }
+        if (!this.canEdit(selected[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
         menuItem.set("disabled", false);
     },
 
 
     updateHistoryMenuItem: function() {
-	var menuItem = this.getMenuItem("history");
-	var selected = this.selectionManager.getSelection();
-	if (selected.length > 1) {
-    	    menuItem.set("disabled", true);
-    	    return;
-	}
-	menuItem.set("disabled", false);
+    	var menuItem = this.getMenuItem("history");
+    	var selected = this.selectionManager.getSelection();
+    	if (selected.length > 1) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	menuItem.set("disabled", false);
     }, 
 
     updateZoomToBaseLevelMenuItem: function() {
@@ -4772,6 +4844,10 @@ makeTrackMenu: function()  {
         	menuItem.set("disabled", true);
         	return;
         }
+        if (!this.canEdit(selectedAnnots[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
         menuItem.set("disabled", false);
     },
 
@@ -4792,6 +4868,10 @@ makeTrackMenu: function()  {
         	return;
         }
         if (selectedAnnots[0].feature.get("strand") != selectedEvidence[0].feature.get("strand")) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
+        if (!this.canEdit(selectedAnnots[0].feature)) {
         	menuItem.set("disabled", true);
         	return;
         }
@@ -4818,6 +4898,10 @@ makeTrackMenu: function()  {
         	menuItem.set("disabled", true);
         	return;
         }
+        if (!this.canEdit(selectedAnnots[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
         menuItem.set("disabled", false);
     },
 
@@ -4837,6 +4921,10 @@ makeTrackMenu: function()  {
     		menuItem.set("disabled", true);
     		return;
     	}
+        if (!this.canEdit(selectedAnnots[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
@@ -4874,6 +4962,10 @@ makeTrackMenu: function()  {
     		menuItem.set("disabled", true);
     		return;
     	}
+        if (!this.canEdit(selectedAnnots[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
@@ -4911,6 +5003,10 @@ makeTrackMenu: function()  {
     		menuItem.set("disabled", true);
     		return;
     	}
+        if (!this.canEdit(selectedAnnots[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
@@ -4948,6 +5044,10 @@ makeTrackMenu: function()  {
     		menuItem.set("disabled", true);
     		return;
     	}
+        if (!this.canEdit(selectedAnnots[0].feature)) {
+        	menuItem.set("disabled", true);
+        	return;
+        }
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
@@ -4965,6 +5065,26 @@ makeTrackMenu: function()  {
     			menuItem.set("disabled", true);
     			return;
     		}
+    	}
+    },
+    
+    updateLockAnnotationMenuItem: function() {
+        var menuItem = this.getMenuItem("lock_annotation");
+        var selectedAnnots = this.selectionManager.getSelection();
+    	if (selectedAnnots.length > 1) {
+    		menuItem.set("disabled", true);
+    		return;
+    	}
+    	var feature = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
+    	if (feature.get("locked")) {
+            menuItem.set("label", "Unlock annotation");
+        }
+        else {
+            menuItem.set("label", "Lock annotation");
+        }
+    	if (feature.get("owner") != this.username && !this.isAdmin()) {
+    		menuItem.set("disabled", true);
+    		return;
     	}
     	menuItem.set("disabled", false);
     },
@@ -5237,6 +5357,17 @@ makeTrackMenu: function()  {
     
     hasWritePermission: function() {
     	return this.permission & Permission.WRITE;
+    },
+    
+    isAdmin: function() {
+    	return this.permission & Permission.ADMIN;
+    },
+    
+    canEdit: function(feature) {
+    	if (feature) {
+    		feature = AnnotTrack.getTopLevelAnnotation(feature);
+    	}
+    	return this.hasWritePermission() && (feature ? !feature.get("locked") : true);
     },
     
     processParent: function(feature, operation) {

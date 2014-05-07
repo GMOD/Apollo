@@ -917,19 +917,8 @@ div.canvas-track-control {
     border: 1px solid #01F;
 }
 
-/*
-.transposable_element {
-    position:absolute;
-    height: 2px;
-    background-color: blue;
-    border-style: solid;
-    border-width: 8px 4px 8px 4px;
-    border-color: white blue white blue;
-    cursor: pointer;
-
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -ms-box-sizing: content-box;
+.locked-annotation  {
+    outline-style: solid;
+    outline-color: blue;
+    outline-width: 3px;
 }
-*/

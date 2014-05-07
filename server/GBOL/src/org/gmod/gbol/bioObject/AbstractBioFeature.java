@@ -466,8 +466,10 @@ public abstract class AbstractBioFeature extends AbstractBioObject {
 		excludeCvterms.addAll(conf.getCVTermsForClass("Symbol"));
 		excludeCvterms.addAll(conf.getCVTermsForClass("Status"));
 		excludeCvterms.addAll(conf.getCVTermsForClass("ReadthroughStopCodon"));
+		Collection<String> excludeGenericProperties = new ArrayList<String>();
+		excludeGenericProperties.add("feature_property:locked=true");
 		for (FeatureProperty fp : feature.getFeatureProperties()) {
-			if (!excludeCvterms.contains(fp.getType())) {
+			if (!excludeCvterms.contains(fp.getType()) && !excludeGenericProperties.contains(fp.getType().getName() + ":" + fp.getValue())) {
 				props.add(new GenericFeatureProperty(fp, conf));
 			}
 		}
