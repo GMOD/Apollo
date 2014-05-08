@@ -1917,7 +1917,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     lockAnnotationForSelectedFeatures: function(selectedAnnots) {
         var track = this;
-        var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
+        var annot = AnnotTrack.getTopLevelAnnotation(selectedAnots[0].feature);
         var uniqueName = annot.id();
         var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
         var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
@@ -4288,6 +4288,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		}
     	} ));
     	contextMenuItems["history"] = index++;
+    	/*
     	annot_context_menu.addChild(new dijit.MenuSeparator());
     	index++;
     	annot_context_menu.addChild(new dijit.MenuItem( {
@@ -4297,6 +4298,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     		}
     	} ));
     	contextMenuItems["lock_annotation"] = index++;
+    	*/
     }
 
 	annot_context_menu.onOpen = function(event) {
@@ -4515,7 +4517,7 @@ makeTrackMenu: function()  {
         this.updateSetPreviousDonorMenuItem();
         this.updateSetNextAcceptorMenuItem();
         this.updateSetPreviousAcceptorMenuItem();
-        this.updateLockAnnotationMenuItem();
+//        this.updateLockAnnotationMenuItem();
     },
     
     updateDeleteMenuItem: function() {
