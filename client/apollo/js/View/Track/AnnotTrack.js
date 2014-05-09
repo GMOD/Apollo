@@ -1917,7 +1917,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     lockAnnotationForSelectedFeatures: function(selectedAnnots) {
         var track = this;
-        var annot = AnnotTrack.getTopLevelAnnotation(selectedAnots[0].feature);
+        var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
         var uniqueName = annot.id();
         var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
         var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
