@@ -4938,7 +4938,9 @@ makeTrackMenu: function()  {
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
-    		exons.push(subfeatures[i]);
+    		if (SequenceOntologyUtils.exonTerms[subfeatures[i].get("type")]) {
+    			exons.push(subfeatures[i]);
+    		}
     	}
     	this.sortAnnotationsByLocation(exons);
     	if (feature.get("strand") == -1) {
@@ -4979,7 +4981,9 @@ makeTrackMenu: function()  {
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
-    		exons.push(subfeatures[i]);
+    		if (SequenceOntologyUtils.exonTerms[subfeatures[i].get("type")]) {
+    			exons.push(subfeatures[i]);
+    		}
     	}
     	this.sortAnnotationsByLocation(exons);
     	if (feature.get("strand") == -1) {
@@ -5020,7 +5024,9 @@ makeTrackMenu: function()  {
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
-    		exons.push(subfeatures[i]);
+    		if (SequenceOntologyUtils.exonTerms[subfeatures[i].get("type")]) {
+    			exons.push(subfeatures[i]);
+    		}
     	}
     	this.sortAnnotationsByLocation(exons);
     	if (feature.get("strand") == -1) {
@@ -5061,7 +5067,9 @@ makeTrackMenu: function()  {
     	var subfeatures = feature.parent().get("subfeatures");
     	var exons = [];
     	for (var i = 0; i < subfeatures.length; ++i) {
-    		exons.push(subfeatures[i]);
+    		if (SequenceOntologyUtils.exonTerms[subfeatures[i].get("type")]) {
+    			exons.push(subfeatures[i]);
+    		}
     	}
     	this.sortAnnotationsByLocation(exons);
     	if (feature.get("strand") == -1) {
@@ -5076,6 +5084,7 @@ makeTrackMenu: function()  {
     			return;
     		}
     	}
+    	menuItem.set("disabled", false);
     },
     
     updateLockAnnotationMenuItem: function() {
