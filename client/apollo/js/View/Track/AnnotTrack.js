@@ -3872,15 +3872,23 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	var to = features.length - 1;
     	while (from <= to) {
     		var mid = from + ((to - from) >> 1);
-    		if (feature.get("start") == features[mid].get("start") && feature.get("end") == features[mid].get("end")) {
+    		if (feature.get("start") == features[mid].get("start") && feature.get("end") == features[mid].get("end") && feature.id() == features[mid].id()) {
     			return mid;
     		}
     		if (feature.get("start") == features[mid].get("start")) {
     			if (feature.get("end") < features[mid].get("end")) {
     				to = mid - 1;
     			}
-    			else {
+    			else if (feature.get("end") > features[mid].get("end")) {
     				from = mid + 1;
+    			}
+    			else {
+    				if (feature.id() < features[mid].id()) {
+    					to = mid - 1;
+    				}
+    				else {
+    					from = mid + 1;
+    				}
     			}
     		}
     		else if (feature.get("start") < features[mid].get("start")) {
@@ -5105,7 +5113,7 @@ makeTrackMenu: function()  {
 
                                if (start1 != start2)  { return start1 - start2; }
                                else if (end1 != end2) { return end1 - end2; }
-                               else                   { return 0; }
+                               else                   { return annot1.id().localeCompare(annot2.id()); }
                                /*
 								 * if (annot1[track.fields["start"]] !=
 								 * annot2[track.fields["start"]]) { return
