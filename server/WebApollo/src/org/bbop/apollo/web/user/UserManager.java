@@ -3,6 +3,7 @@ package org.bbop.apollo.web.user;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,6 +12,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import net.crackstation.PasswordHash;
 
 public class UserManager {
 
@@ -110,8 +113,15 @@ public class UserManager {
 		ResultSet rs = stmt.executeQuery();
 		boolean valid = false;
 		if (rs.next()) {
-			String digest = getMd5Digest(password);
-			valid = rs.getString(2).equals(digest);
+			try {
+				valid = PasswordHash.validatePassword(password, rs.getString(2));
+			}
+			catch (NoSuchAlgorithmException e) {
+				valid = false;
+			}
+			catch (InvalidKeySpecException e) {
+				valid = false;
+			}
 		}
 		conn.close();
 		return valid;
@@ -165,10 +175,18 @@ public class UserManager {
 	}
 	
 	public void addUser(String username, String password) throws SQLException {
+		String encrypted = null;
+		try {
+			encrypted = PasswordHash.createHash(password);
+		}
+		catch (NoSuchAlgorithmException e) {
+		}
+		catch (InvalidKeySpecException e) {
+		}
 		Connection conn = getConnection();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO users(username, password) VALUES(?, ?)");
 		stmt.setString(1, username);
-		stmt.setString(2, getMd5Digest(password));
+		stmt.setString(2, encrypted);
 		stmt.executeUpdate();
 		conn.close();
 	}
@@ -210,19 +228,6 @@ public class UserManager {
 			trackNames.put(rs.getString(1), rs.getInt(2));
 		}
 		return trackNames;
-	}
-	
-	private String getMd5Digest(String str) {
-		try {
-			MessageDigest m = MessageDigest.getInstance("MD5");
-			m.reset();
-			m.update(str.getBytes());
-			BigInteger bigInt = new BigInteger(1, m.digest());
-			return bigInt.toString(16);
-		}
-		catch (NoSuchAlgorithmException e) {
-		}
-		return null;
 	}
 	
 	private Connection getConnection() throws SQLException {
