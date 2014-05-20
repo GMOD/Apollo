@@ -3730,10 +3730,31 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     scrollToNextEdge: function(event)  {
         // var coordinate = this.getGenomeCoord(event);
+    	var track = this;
         var vregion = this.gview.visibleRegion();
         var coordinate = (vregion.start + vregion.end)/2;
         var selected = this.selectionManager.getSelection();
         if (selected && (selected.length > 0)) {
+        	
+        	function centerAtBase(position) {
+                track.gview.centerAtBase(position, false);
+                track.selectionManager.removeFromSelection(selected[0]);
+                var subfeats = selfeat.get("subfeatures");
+                for (var i = 0; i < subfeats.length; ++i) {
+                	if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
+                		continue;
+                	}
+                	// skip CDS features
+                	if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
+                		continue;
+                	}
+                	if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
+                		track.selectionManager.addToSelection( { feature: subfeats[i], track: track } );
+                		break;
+                	}
+                }
+        	};
+        	
             var selfeat = selected[0].feature;
             // find current center genome coord, compare to subfeatures,
             // figure out nearest subfeature right of center of view
@@ -3752,7 +3773,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var pmin = selfeat.get('start');
             var pmax = selfeat.get('end');
             if ((coordinate - pmax) > 10) {
-                this.gview.centerAtBase(pmin, false);
+                centerAtBase(pmin);
             }
             else  {
                 var childfeats = selfeat.children();                
@@ -3772,7 +3793,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // find closest edge right of current coord
                 if (coordDelta != Number.MAX_VALUE)  {
                     var newCenter = coordinate + coordDelta;
-                    this.gview.centerAtBase(newCenter, false);
+                    centerAtBase(newCenter);
                 }
             }
         }
@@ -3780,11 +3801,31 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
    scrollToPreviousEdge: function(event) {
         // var coordinate = this.getGenomeCoord(event);
+	   var track = this;
         var vregion = this.gview.visibleRegion();
         var coordinate = (vregion.start + vregion.end)/2;
         var selected = this.selectionManager.getSelection();
         if (selected && (selected.length > 0)) {
             
+        	function centerAtBase(position) {
+                track.gview.centerAtBase(position, false);
+                track.selectionManager.removeFromSelection(selected[0]);
+                var subfeats = selfeat.get("subfeatures");
+                for (var i = 0; i < subfeats.length; ++i) {
+                	if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
+                		continue;
+                	}
+                	// skip CDS features
+                	if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
+                		continue;
+                	}
+                	if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
+                		track.selectionManager.addToSelection( { feature: subfeats[i], track: track } );
+                		break;
+                	}
+                }
+        	};
+        	
             var selfeat = selected[0].feature;
             // find current center genome coord, compare to subfeatures,
             // figure out nearest subfeature right of center of view
@@ -3803,7 +3844,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var pmin = selfeat.get('start');
             var pmax = selfeat.get('end');
             if ((pmin - coordinate) > 10) {
-                this.gview.centerAtBase(pmax, false);
+                centerAtBase(pmax);
             }
             else  {
                 var childfeats = selfeat.children();                
@@ -3823,7 +3864,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // find closest edge right of current coord
                 if (coordDelta != Number.MAX_VALUE)  {
                     var newCenter = coordinate - coordDelta;
-                    this.gview.centerAtBase(newCenter, false);
+                    centerAtBase(newCenter);
                 }
             }
         }
