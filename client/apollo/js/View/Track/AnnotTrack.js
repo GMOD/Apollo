@@ -3699,7 +3699,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 	dojo.xhrGet( {
 		url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
 		handleAs: "text",
-		timeout: 5000 * 1000, // Time in milliseconds
+//		timeout: 5000 * 1000, // Time in milliseconds
 		load: function(response, ioArgs) {
 		    console.log("/IOService returned, called load()");
 		    dojo.style(waitingDiv, { display: "none" } );
