@@ -5,6 +5,7 @@
 <%@page import="org.bbop.apollo.web.config.ServerConfiguration.DataAdapterConfiguration"%>
 <%@page import="org.bbop.apollo.web.config.ServerConfiguration.DataAdapterGroupConfiguration"%>
 <%@ page import="org.bbop.apollo.web.config.ServerConfiguration"%>
+<%@ page import="org.bbop.apollo.web.config.ServerConfiguration.UserDatabaseConfiguration"%>
 <%@ page import="org.bbop.apollo.web.user.UserManager"%>
 <%@ page import="org.bbop.apollo.web.user.Permission"%>
 
@@ -76,7 +77,21 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 
 <script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
+
+
+
+
 -->
+
+<style>
+label:nth-child(even) {
+   background-color: #ddd;
+   display:block;
+}
+
+
+</style>
+
 <script type="text/javascript">
 
 <%
@@ -151,12 +166,22 @@ $(function() {
 
 function initialize_config_settings() {
 	$("#datastore_directory").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
-	$('#webapollo_config_form').submit(function(){
-		serverConfig.setDataStoreDirectory($("#datastore_directory").text());
-	});
+	$("#mapping_file").attr("value","<% out.print(serverConfig.getGBOLMappingFile()); %>");
+	$("#minimum_intron_size").attr("value","<% out.print(serverConfig.getDefaultMinimumIntronSize()); %>");
+	$("#history_size").attr("value","<% out.print(serverConfig.getHistorySize()); %>");
+	$("#use_cds_for_new_transcripts").attr("value","<% out.print(serverConfig.getUseCDS()); %>");
+	$("#track_name_comparator").attr("value","<% out.print(serverConfig.getTrackNameComparator()); %>");
+	$("#overlapper_class").attr("value","<% out.print(serverConfig.getOverlapperClass()); %>");
+	
 	
 
-	$("#user_database").attr("value","<% out.print(serverConfig.getUserDatabase()); %>");
+
+	$("#database_username").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
+	$("#database_password").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
+	$("#database_driver").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
+	$("#database_url").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
+
+	
 }
 
 
@@ -310,16 +335,82 @@ function open_user_manager_dialog() {
 <div id="login_dialog" title="Login">
 </div>
 
-<form id="webapollo_config_form" >
-<label>Annotations data store directory: </label>
-<input type="text" value="test" id="datastore_directory"></input>
+<%
+if ("POST".equalsIgnoreCase(request.getMethod())) {
+    // Form was submitted.
+    out.println("<p>Settings saved</p>");
+    
+	serverConfig.setDataStoreDirectory(request.getParameter("datastore_directory"));
+	serverConfig.setGBOLMappingFile(request.getParameter("mapping_file"));
+	serverConfig.setDefaultMinimumIntronSize(Integer.parseInt(request.getParameter("minimum_intron_size")));
+	serverConfig.setHistorySize(Integer.parseInt(request.getParameter("history_size")));
+	serverConfig.setOverlapperClass(request.getParameter("overlapper_class"));
+	serverConfig.setUseCDS(Boolean.parseBoolean(request.getParameter("use_cds_for_new_transcripts")));
+	serverConfig.setTrackNameComparator(request.getParameter("track_name_comparator"));
+	
+	/*ServerConfiguration.UserDatabaseConfiguration udc=
+			serverConfig.new UserDatabaseConfiguration(
+			request.getParameter("database_driver"),
+			request.getParameter("database_url"),
+			request.getParameter("database_username"),
+			request.getParameter("database_password"));
+	
+	serverConfig.setUserDatabase(udc);*/
+	
+}
+%>
+
+<p>Basic configuration</p>
+
+
+<form id="webapollo_config_form">
+<fieldset class="formLayout">
+
+<label>GBOL Mapping file:
+<input type="text" id="mapping_file"></input> </label>
+
+<label>Annotations data directory:
+<input type="text" id="datastore_directory"></input> </label>
+
+<label>Minimum intron size:
+<input type="text" id="minimum_intron_size"></input> </label>
+
+
+<label>History tracking size:
+<input type="text" id="history_size"></input> </label>
+
+
+<label>Overlapper class:
+<input type="text" id="overlapper_class"></input> </label>
+
+<label>Track name comparator:
+<input type="text" id="track_name_comparator"></input> </label>
+
+<label>Use existing CDS when creating new transcript:
+<input type="text" id="use_cds_for_new_transcripts"></input> </label>
+
+
+</fieldset>
+<br />
 <br />
 
-<label>User database: </label>
-<input type="text" value="test" id="user_database"></input>
+<p>User database configuration</p>
+<fieldset class="formLayout">
+
+<label>Username:
+<input type="text" id="database_username"></input> </label>
+
+<label>Password:
+<input type="password" id="database_password"></input> </label>
+
+<label>Driver:
+<input type="text" id="database_driver"></input> </label>
+
+<label>URL:
+<input type="text" id="database_url"></input> </label>
+
+</fieldset>
 <br />
-
-
 <input type="submit" value="Submit"></input>
 </form>
 
