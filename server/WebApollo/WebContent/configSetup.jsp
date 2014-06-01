@@ -67,21 +67,12 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
 
 
 
 
--->
+
+
 
 <style>
 label:nth-child(even) {
@@ -123,9 +114,13 @@ if (username != null) {
 var recent_changes = new Array();
 
 
-google.load("dojo", "1.5");
+//google.load("dojo", "1.5");
 var table;
+var tracks_configuration_list={};
+
 $(function() {
+	
+	initialize_config_settings();
 	$("#menu").menubar( {
 		autoExpand: false,
 		select: function(event, ui) {
@@ -157,14 +152,13 @@ $(function() {
 	$("#user_manager_item").click(function() {
 		open_user_manager_dialog();
 	});
-	
-	initialize_config_settings();
 
 	cleanup_user_item();
 } );
 
 
 function initialize_config_settings() {
+	
 	$("#datastore_directory").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
 	$("#mapping_file").attr("value","<% out.print(serverConfig.getGBOLMappingFile()); %>");
 	$("#minimum_intron_size").attr("value","<% out.print(serverConfig.getDefaultMinimumIntronSize()); %>");
@@ -172,16 +166,46 @@ function initialize_config_settings() {
 	$("#use_cds_for_new_transcripts").attr("value","<% out.print(serverConfig.getUseCDS()); %>");
 	$("#track_name_comparator").attr("value","<% out.print(serverConfig.getTrackNameComparator()); %>");
 	$("#overlapper_class").attr("value","<% out.print(serverConfig.getOverlapperClass()); %>");
-	
-	
 
 
-	$("#database_username").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
-	$("#database_password").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
-	$("#database_driver").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
-	$("#database_url").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
 
+
+	$("#database_username").attr("value","<% out.print(serverConfig.getUserDatabase().getUserName()); %>");
+	$("#database_password").attr("value","<% out.print(serverConfig.getUserDatabase().getPassword()); %>");
+	$("#database_driver").attr("value","<% out.print(serverConfig.getUserDatabase().getDriver()); %>");
+	$("#database_url").attr("value","<% out.print(serverConfig.getUserDatabase().getURL()); %>");
+
+	<%
+	//Get tracklist configuration
+	Map<String,ServerConfiguration.TrackConfiguration> trackmap=serverConfig.getTracks();
+	for(String trackname : trackmap.keySet()) {
+		ServerConfiguration.TrackConfiguration track=trackmap.get(trackname);
+		out.println("tracks_configuration_list[\""+track.getName()+
+		                  "\"]={ \"organism\": \""+track.getOrganism()+"\","+ 
+		                        "\"translation_table\": \""+track.getTranslationTable()+"\","+
+		                        "\"sequence_cvterm\": \""+track.getSourceFeature().getType()+"\","+
+		                        "\"refseqs_json\": \""+track.getSourceFeature().getSequenceDirectory()+"\","+
+		                        "\"donor_site\": \""+track.getSpliceDonorSites()+"\","+
+		                        "\"acceptor_site\": \""+track.getSpliceAcceptorSites()+"\""+
+		
+				"};");
+		
+	}
+	%>
 	
+	
+	var init_refseqs_config=function(){
+		var track_selection=$("#track_options_list").attr("value");
+		$("#organism_name").attr("value",tracks_configuration_list[track_selection].organism);
+		$("#refseqs_json").attr("value",tracks_configuration_list[track_selection].refseqs_json);
+		$("#sequence_cvterm").attr("value",tracks_configuration_list[track_selection].sequence_cvterm);
+		$("#acceptor_site").attr("value",tracks_configuration_list[track_selection].acceptor_site);
+		$("#donor_site").attr("value",tracks_configuration_list[track_selection].donor_site);
+		$("#translation_table").attr("value",tracks_configuration_list[track_selection].translation_table);
+	}
+	
+	$("#track_options_list").click(init_refseqs_config);
+	init_refseqs_config();
 }
 
 
@@ -339,7 +363,7 @@ function open_user_manager_dialog() {
 if ("POST".equalsIgnoreCase(request.getMethod())) {
     // Form was submitted.
     out.println("<p>Settings saved</p>");
-    
+    /*
 	serverConfig.setDataStoreDirectory(request.getParameter("datastore_directory"));
 	serverConfig.setGBOLMappingFile(request.getParameter("mapping_file"));
 	serverConfig.setDefaultMinimumIntronSize(Integer.parseInt(request.getParameter("minimum_intron_size")));
@@ -348,7 +372,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 	serverConfig.setUseCDS(Boolean.parseBoolean(request.getParameter("use_cds_for_new_transcripts")));
 	serverConfig.setTrackNameComparator(request.getParameter("track_name_comparator"));
 	
-	/*ServerConfiguration.UserDatabaseConfiguration udc=
+	ServerConfiguration.UserDatabaseConfiguration udc=
 			serverConfig.new UserDatabaseConfiguration(
 			request.getParameter("database_driver"),
 			request.getParameter("database_url"),
@@ -410,6 +434,48 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 <input type="text" id="database_url"></input> </label>
 
 </fieldset>
+
+
+<p>Annotation track configuration</p>
+
+<select id="track_options_list">
+<%
+//Output tracknames
+
+for(String trackname : trackmap.keySet()) {
+	ServerConfiguration.TrackConfiguration track=trackmap.get(trackname);
+	out.println("<option>"+track.getName()+"</option>");
+	
+}
+%>
+</select>
+<fieldset class="formLayout">
+
+<label>Refseqs.json location:
+<input type="text" id="refseqs_json"></input> </label>
+
+<label>Annotation database prefix:
+<input type="text" id="database_prefix"></input> </label>
+
+<label>Organism name:
+<input type="text" id="organism_name"></input> </label>
+
+<label>Sequence CV term:
+<input type="text" id="sequence_cvterm"></input> </label>
+
+
+<label>Translation table:
+<input type="text" id="translation_table"></input> </label>
+
+
+<label>Splice acceptor site:
+<input type="text" id="acceptor_site"></input> </label>
+
+<label>Splice donor site:
+<input type="text" id="donor_site"></input> </label>
+</fieldset>
+
+
 <br />
 <input type="submit" value="Submit"></input>
 </form>
