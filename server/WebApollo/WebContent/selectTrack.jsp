@@ -220,6 +220,9 @@ $(function() {
 	$("#search_sequence_item").click(function() {
 		open_search_dialog();
 	});
+	$("#recent_changes").click(function() {
+		window.location="recentChanges.jsp";
+	});
 	$("#user_manager_item").click(function() {
 		open_user_manager_dialog();
 	});
@@ -439,6 +442,13 @@ function open_user_manager_dialog() {
 			</li>
 		</ul>
 	</li>
+	
+	<li><a id="view_item">View</a>
+		<ul id="view_menu">
+			<li><a id="recent_changes">Recent changes</a></li>
+		</ul>
+	</li>
+			
 	<li><a id="tools_item">Tools</a>
 		<ul id="tools_menu">
 			<li><a id="search_sequence_item">Search sequence</a></li>

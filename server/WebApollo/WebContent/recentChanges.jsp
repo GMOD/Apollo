@@ -9,6 +9,8 @@
 <%@ page import="org.bbop.apollo.web.user.Permission"%>
 <%@ page import="org.bbop.apollo.web.track.TrackNameComparator"%>
 <%@ page import="org.bbop.apollo.web.datastore.JEDatabase"%>
+<%@ page import="org.bbop.apollo.web.datastore.history.JEHistoryDatabase"%>
+<%@ page import="org.bbop.apollo.web.datastore.history.Transaction"%>
 <%@ page import="org.gmod.gbol.simpleObject.Feature" %>
 <%@ page import="org.gmod.gbol.simpleObject.FeatureRelationship" %>
 <%@ page import="org.gmod.gbol.simpleObject.CVTerm" %>
@@ -100,17 +102,23 @@ var recent_changes = new Array();
  *
  * @return String representation of the record in JSON format
  */
-private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature feature,ServerConfiguration.TrackConfiguration track) {
+private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature feature,ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
 	String builder="";
 	long flank=Math.round((feature.getFmax()-feature.getFmin())*0.5);
 	long left=Math.max(feature.getFmin()-flank,1);
 	long right=Math.min(feature.getFmax()+flank,track.getSourceFeature().getSequenceLength()-1);
+	
+
+	Transaction t=historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
+	
+	
 	builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
 	builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
 	builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
 		track.getSourceFeature().getUniqueName(), left, right, feature.getName());
 	builder+=String.format("'%s',", feature.getType().split(":")[1]);
 	builder+=String.format("'%s',", feature.getTimeLastModified());
+	builder+=String.format("'%s',", t!=null?t.getEditor():"null");
 	builder+=String.format("'%s']", feature.getOwner().getOwner());
 	return builder;
 }
@@ -119,13 +127,13 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
 *
 * @return non-empty ArrayList of Strings with records in JSON format
 */
-private ArrayList<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track) {
+private ArrayList<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
 	ArrayList<String> builder=new ArrayList<String>();
 	String type=feature.getType().split(":")[1];
 	for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
-		builder.add(generateFeatureRecordJSON(subfeature,track)); 
+		builder.add(generateFeatureRecordJSON(subfeature,track, historyDataStore)); 
 	}
-	builder.add(generateFeatureRecordJSON(feature,track));
+	builder.add(generateFeatureRecordJSON(feature,track, historyDataStore));
 	return builder;
 }
 
@@ -154,10 +162,13 @@ if (username != null) {
 			}
 			// load database
 			JEDatabase dataStore = new JEDatabase(my_database,false);
+			JEHistoryDatabase historyDataStore = new JEHistoryDatabase(my_database+"_history",false,0);
+			
 			dataStore.readFeatures(features);
 			for (Feature feature : features) {
 				// use list of records to get objects that have subfeatures
-				ArrayList<String> record = generateFeatureRecord((AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration), track);
+				AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
+				ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
 				for (String s : record) {
 					out.println("recent_changes.push(" + s + ");\n");
 				}
@@ -187,6 +198,7 @@ $(function() {
 			{ sTitle: "Feature name", bSortable:true },
 			{ sTitle: "Feature type", bSortable:true },
 			{ sTitle: "Last modified", bSortable:true },
+			{ sTitle: "Editor", bSortable:true },
 			{ sTitle: "Owner", bSortable:true }
 		]
 	});
@@ -244,6 +256,11 @@ $(function() {
 		});
 		write_data($(this).text(), tracks, $(this).attr("_options"));
 	});
+
+	$("#select_tracks").click(function() {
+		window.location="selectTrack.jsp";
+	});
+	
 	$("#search_sequence_item").click(function() {
 		open_search_dialog();
 	});
@@ -462,6 +479,13 @@ function open_user_manager_dialog() {
 			</li>
 		</ul>
 	</li>
+	
+	<li><a id="view_item">View</a>
+		<ul id="view_menu">
+			<li><a id="select_tracks">Select tracks</a></li>
+		</ul>
+	</li>
+	
 	<li><a id="tools_item">Tools</a>
 		<ul id="tools_menu">
 			<li><a id="search_sequence_item">Search sequence</a></li>
