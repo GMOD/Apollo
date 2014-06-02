@@ -65,7 +65,7 @@ sub add_user {
 	$md5->add($password);
 	my $digest = $md5->hexdigest();
 	my $sql = "INSERT INTO $USER_TABLE(username, password) " .
-		  "VALUES('$username', '$digest')";
+		  "VALUES('$username', '$password')";
 	$dbh->do($sql);
 }
 

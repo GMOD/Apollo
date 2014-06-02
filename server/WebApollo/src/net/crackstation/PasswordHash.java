@@ -109,16 +109,16 @@ public class PasswordHash
         throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         // Decode the hash into its parameters
-        String[] params = correctHash.split(":");
-        int iterations = Integer.parseInt(params[ITERATION_INDEX]);
-        byte[] salt = fromHex(params[SALT_INDEX]);
-        byte[] hash = fromHex(params[PBKDF2_INDEX]);
+        //String[] params = correctHash.split(":");
+        //int iterations = Integer.parseInt(params[ITERATION_INDEX]);
+        //byte[] salt = fromHex(params[SALT_INDEX]);
+        //byte[] hash = fromHex(params[PBKDF2_INDEX]);
         // Compute the hash of the provided password, using the same salt, 
         // iteration count, and hash length
-        byte[] testHash = pbkdf2(password, salt, iterations, hash.length);
+        //byte[] testHash = pbkdf2(password, salt, iterations, hash.length);
         // Compare the hashes in constant time. The password is correct if
         // both hashes match.
-        return slowEquals(hash, testHash);
+        return slowEquals(new String(password).getBytes(), correctHash.getBytes());
     }
 
     /**

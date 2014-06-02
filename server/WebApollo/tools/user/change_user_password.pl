@@ -66,7 +66,7 @@ sub change_password {
 	$md5->add($password);
 	my $digest = $md5->hexdigest();
 	my $sql = "UPDATE $USER_TABLE " .
-		  "SET password='$digest' " .
+		  "SET password='$password' " .
 		  "WHERE user_id=$user_id";
 	$dbh->do($sql);
 }
