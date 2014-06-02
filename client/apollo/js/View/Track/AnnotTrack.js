@@ -1063,10 +1063,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var singleParent = keys.length == 1;
                 var featureToAdd;
                 if (singleParent) {
+                	
                 	featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
                 }
                 else {
                     featureToAdd = new SimpleFeature({ data: { strand : strand } });
+                }
+                if(!featureToAdd.get('name')) {
+                    featureToAdd.set('name',featureToAdd.get('id'));
                 }
                 featureToAdd.set("strand", strand);
 // var featureToAdd = new SimpleFeature(data);
