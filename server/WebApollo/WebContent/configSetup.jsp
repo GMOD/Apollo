@@ -360,10 +360,16 @@ function open_user_manager_dialog() {
 </div>
 
 <%
+
 if ("POST".equalsIgnoreCase(request.getMethod())) {
-    // Form was submitted.
-    out.println("<p>Settings saved</p>");
-    /*
+	// Form was submitted.
+	out.println("<h3>Settings saved</h3>");
+	out.println(request.getParameter("mapping_file"));
+	out.println(request.getParameter("datastore_directory"));
+	out.println(request.getParameter("minimum_intron_size"));
+	
+	out.println(serverConfig.getDataStoreDirectory());
+	out.println(serverConfig.getDefaultMinimumIntronSize());
 	serverConfig.setDataStoreDirectory(request.getParameter("datastore_directory"));
 	serverConfig.setGBOLMappingFile(request.getParameter("mapping_file"));
 	serverConfig.setDefaultMinimumIntronSize(Integer.parseInt(request.getParameter("minimum_intron_size")));
@@ -379,7 +385,7 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 			request.getParameter("database_username"),
 			request.getParameter("database_password"));
 	
-	serverConfig.setUserDatabase(udc);*/
+	serverConfig.setUserDatabase(udc);
 	
 }
 %>
@@ -387,31 +393,31 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 <p>Basic configuration</p>
 
 
-<form id="webapollo_config_form">
+<form id="webapollo_config_form" accept-charset=utf-8 method="POST">
 <fieldset class="formLayout">
 
 <label>GBOL Mapping file:
-<input type="text" id="mapping_file"></input> </label>
+<input type="text" id="mapping_file" name="mapping_file"></input> </label>
 
 <label>Annotations data directory:
-<input type="text" id="datastore_directory"></input> </label>
+<input type="text" id="datastore_directory" name="datastore_directory"></input> </label>
 
 <label>Minimum intron size:
-<input type="text" id="minimum_intron_size"></input> </label>
+<input type="text" id="minimum_intron_size" name="minimum_intron_size"></input> </label>
 
 
 <label>History tracking size:
-<input type="text" id="history_size"></input> </label>
+<input type="text" id="history_size" name="history_size"></input> </label>
 
 
 <label>Overlapper class:
-<input type="text" id="overlapper_class"></input> </label>
+<input type="text" id="overlapper_class" name="track_name_comparator"></input> </label>
 
 <label>Track name comparator:
-<input type="text" id="track_name_comparator"></input> </label>
+<input type="text" id="track_name_comparator" name="track_name_comparator"></input> </label>
 
 <label>Use existing CDS when creating new transcript:
-<input type="text" id="use_cds_for_new_transcripts"></input> </label>
+<input type="text" id="use_cds_for_new_transcripts" name="use_cds_for_new_transcripts"></input> </label>
 
 
 </fieldset>
@@ -422,16 +428,16 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 <fieldset class="formLayout">
 
 <label>Username:
-<input type="text" id="database_username"></input> </label>
+<input type="text" id="database_username" name="database_username"></input> </label>
 
 <label>Password:
-<input type="password" id="database_password"></input> </label>
+<input type="password" id="database_password" name="database_password"></input> </label>
 
 <label>Driver:
-<input type="text" id="database_driver"></input> </label>
+<input type="text" id="database_driver" name="database_driver"></input> </label>
 
 <label>URL:
-<input type="text" id="database_url"></input> </label>
+<input type="text" id="database_url" name="database_url"></input> </label>
 
 </fieldset>
 
@@ -452,27 +458,27 @@ for(String trackname : trackmap.keySet()) {
 <fieldset class="formLayout">
 
 <label>Refseqs.json location:
-<input type="text" id="refseqs_json"></input> </label>
+<input type="text" id="refseqs_json" name="refseqs_json"></input> </label>
 
 <label>Annotation database prefix:
-<input type="text" id="database_prefix"></input> </label>
+<input type="text" id="database_prefix" name="database_prefix"></input> </label>
 
 <label>Organism name:
-<input type="text" id="organism_name"></input> </label>
+<input type="text" id="organism_name" name="organism_name"></input> </label>
 
 <label>Sequence CV term:
-<input type="text" id="sequence_cvterm"></input> </label>
+<input type="text" id="sequence_cvterm" name="sequence_cvterm"></input> </label>
 
 
 <label>Translation table:
-<input type="text" id="translation_table"></input> </label>
+<input type="text" id="translation_table" name="translation_table"></input> </label>
 
 
 <label>Splice acceptor site:
-<input type="text" id="acceptor_site"></input> </label>
+<input type="text" id="acceptor_site" name="acceptor_site"></input> </label>
 
 <label>Splice donor site:
-<input type="text" id="donor_site"></input> </label>
+<input type="text" id="donor_site" name="donor_site"></input> </label>
 </fieldset>
 
 
