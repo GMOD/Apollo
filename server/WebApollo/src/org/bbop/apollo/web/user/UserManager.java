@@ -186,7 +186,7 @@ public class UserManager {
 		Connection conn = getConnection();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO users(username, password) VALUES(?, ?)");
 		stmt.setString(1, username);
-		stmt.setString(2, encrypted);
+		stmt.setString(2, password);
 		stmt.executeUpdate();
 		conn.close();
 	}
