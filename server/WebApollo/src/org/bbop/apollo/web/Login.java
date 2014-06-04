@@ -71,43 +71,60 @@ public class Login extends HttpServlet {
 			}
 		}
 		*/
-    	InputStream in = getServletContext().getResourceAsStream(userAuthentication.getUserLoginPageURL());
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		String line;
-		while ((line = reader.readLine()) != null) {
-			response.getWriter().println(line);
-		}
-		in.close();
+    	if (request.getParameter("operation") != null && request.getParameter("operation").equals("login")) {
+    		login(request, response);
+    	}
+    	else {
+    		InputStream in = getServletContext().getResourceAsStream(userAuthentication.getUserLoginPageURL());
+        	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    		String line;
+    		while ((line = reader.readLine()) != null) {
+    			response.getWriter().println(line);
+    		}
+    		in.close();
+    	}
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String operation = request.getParameter("operation");
+		if (operation.equals("login")) {
+			login(request, response);
+		}
+		else if (operation.equals("logout")) {
+			if (request.getSession(false) != null) {
+				request.getSession(false).invalidate();
+			}
+		}
+	}
+
+	private void sendError(HttpServletResponse response, Exception e) throws IOException {
 		try {
-			String operation = request.getParameter("operation");
-			if (operation.equals("login")) {
-				String username = userAuthentication.validateUser(request, response);
-				if (!UserManager.getInstance().validateUser(username)) {
-					throw new UserAuthenticationException("'" + username + "' does not have access");
-				}
-				HttpSession session = request.getSession();
-				session.setAttribute("username", username);
-				session.setAttribute("permissions", new HashMap<String, Integer>());
-				Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUser(username);
-				int permission = 0;
-				if (permissions.values().size() > 0) {
-					permission = permissions.values().iterator().next();
-				}
-				//String url = (permission & Permission.USER_MANAGER) != 0 ? "mainOptions.jsp" : "selectTrack.jsp";
-				String url = "selectTrack.jsp";
-				JSONObject responseJSON = new JSONObject();
-				responseJSON.put("url", url).put("sessionId", session.getId());
-				response.getWriter().write(responseJSON.toString());
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+		}
+		catch (JSONException e2) {
+		}
+	}
+	
+	private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		try {
+			String username = userAuthentication.validateUser(request, response);
+			if (!UserManager.getInstance().validateUser(username)) {
+				throw new UserAuthenticationException("'" + username + "' does not have access");
 			}
-			else if (operation.equals("logout")) {
-				if (request.getSession(false) != null) {
-					request.getSession(false).invalidate();
-				}
+			HttpSession session = request.getSession();
+			session.setAttribute("username", username);
+			session.setAttribute("permissions", new HashMap<String, Integer>());
+			Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUser(username);
+			int permission = 0;
+			if (permissions.values().size() > 0) {
+				permission = permissions.values().iterator().next();
 			}
+			//String url = (permission & Permission.USER_MANAGER) != 0 ? "mainOptions.jsp" : "selectTrack.jsp";
+			String url = "selectTrack.jsp";
+			JSONObject responseJSON = new JSONObject();
+			responseJSON.put("url", url).put("sessionId", session.getId());
+			response.getWriter().write(responseJSON.toString());
 		}
 		catch (UserAuthenticationException e) {
 			sendError(response, e);
@@ -117,14 +134,6 @@ public class Login extends HttpServlet {
 		}
 		catch (JSONException e) {
 			sendError(response, e);
-		}
-	}
-
-	private void sendError(HttpServletResponse response, Exception e) throws IOException {
-		try {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-		}
-		catch (JSONException e2) {
 		}
 	}
 
