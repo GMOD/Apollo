@@ -72,7 +72,8 @@ public class Login extends HttpServlet {
 		}
 		*/
     	if (request.getParameter("operation") != null && request.getParameter("operation").equals("login")) {
-    		login(request, response);
+    		boolean forceRedirect = request.getParameter("forceRedirect") != null ? Boolean.parseBoolean(request.getParameter("forceRedirect")) : false;
+    		login(request, response, forceRedirect);
     	}
     	else {
     		InputStream in = getServletContext().getResourceAsStream(userAuthentication.getUserLoginPageURL());
@@ -107,6 +108,10 @@ public class Login extends HttpServlet {
 	}
 	
 	private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		login(request, response, false);
+	}
+	
+	private void login(HttpServletRequest request, HttpServletResponse response, boolean forceRedirect) throws IOException {
 		try {
 			String username = userAuthentication.validateUser(request, response);
 			if (!UserManager.getInstance().validateUser(username)) {
@@ -122,9 +127,14 @@ public class Login extends HttpServlet {
 			}
 			//String url = (permission & Permission.USER_MANAGER) != 0 ? "mainOptions.jsp" : "selectTrack.jsp";
 			String url = "selectTrack.jsp";
-			JSONObject responseJSON = new JSONObject();
-			responseJSON.put("url", url).put("sessionId", session.getId());
-			response.getWriter().write(responseJSON.toString());
+			if (forceRedirect) {
+				response.sendRedirect(url);
+			}
+			else {
+				JSONObject responseJSON = new JSONObject();
+				responseJSON.put("url", url).put("sessionId", session.getId());
+				response.getWriter().write(responseJSON.toString());
+			}
 		}
 		catch (UserAuthenticationException e) {
 			sendError(response, e);
