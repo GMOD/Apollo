@@ -26,10 +26,11 @@ define(
 	   './View/Track/AnnotTrack', 
 	   './View/TrackList/Hierarchical', 
 	   './View/TrackList/Faceted', 
+	   './InformationEditor', 
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
     function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, GFF3Driver ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver ) {
 
 return declare( JBPlugin,
 {
@@ -219,6 +220,8 @@ return declare( JBPlugin,
             else  {
                 view.oldOnResize();
             }
+
+
         };
         
         var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
@@ -230,6 +233,8 @@ return declare( JBPlugin,
         browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
+            thisB.myInformationEditor=new InformationEditor();
+            thisB.tabContainer.addChild(thisB.myInformationEditor);
 
     },
 
