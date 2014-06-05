@@ -6,6 +6,8 @@
 <%@ page import="org.w3c.dom.Node" %>
 <% 
 
+String Provider_Name = null;
+String Provider_Logo = null;
 String Client_ID = null;
 String Client_Secret = null;
 String Auth_URL = null;
@@ -18,6 +20,9 @@ FileInputStream fstream = new FileInputStream(config_path);
 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 DocumentBuilder db = dbf.newDocumentBuilder();
 Document doc = db.parse(fstream);
+
+Provider_Name  = doc.getElementsByTagName("provider_name").item(0).getFirstChild().getNodeValue();
+Provider_Logo  = doc.getElementsByTagName("provider_logo").item(0).getFirstChild().getNodeValue();
 Client_ID = doc.getElementsByTagName("client_id").item(0).getFirstChild().getNodeValue();
 Client_Secret = doc.getElementsByTagName("client_secret").item(0).getFirstChild().getNodeValue();
 Auth_URL = doc.getElementsByTagName("auth_url").item(0).getFirstChild().getNodeValue();
@@ -58,7 +63,14 @@ Uname_Field = doc.getElementsByTagName("uname_field").item(0).getFirstChild().ge
 </head>
 <body>
 <div>
-<button id="login_button"><img id="sign_in_image" /></button>
+Login with <b><%=Provider_Name%></b> 
+<button id="login_button">
+<%
+if (Provider_Logo != null) {
+	out.print("<img id=\"sign_in_image\" src=\"" + Provider_Logo + "\"><br>");
+}
+%>
+</button>
 <div id="message">
 </div>
 </div>

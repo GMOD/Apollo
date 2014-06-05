@@ -5,7 +5,7 @@
 	<gbol_mapping>/config/mapping.xml</gbol_mapping>
 
 	<!-- directory where JE database will be created -->
-	<datastore_directory>ENTER_DATASTORE_DIRECTORY_HERE</datastore_directory>
+	<datastore_directory>/home/ficklin/scratch</datastore_directory>
 
 	<!-- minimum size for introns created -->
 	<default_minimum_intron_size>1</default_minimum_intron_size>
@@ -36,26 +36,26 @@
 			<driver>org.postgresql.Driver</driver>
 
 			<!-- JDBC URL for user database -->
-			<url>ENTER_USER_DATABASE_JDBC_URL</url>
+			<url>jdbc:postgresql://localhost/web_apollo_users</url>
 
 			<!-- username for user database -->
-			<username>ENTER_USER_DATABASE_USERNAME</username>
+			<username>web_apollo_admin</username>
 
 			<!-- password for user database -->
-			<password>ENTER_USER_DATABASE_PASSWORD</password>
+			<password>testing123</password>
 
 		</database>
 
 		<!-- class for generating user authentication page
 		(login page) -->
-		<authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>
+		<authentication_class>org.bbop.apollo.web.user.oauth.OauthUserAuthentication</authentication_class>
 
 	</user>
 
 	<tracks>
 
 		<!-- path to JBrowse refSeqs.json file -->
-		<refseqs>ENTER_PATH_TO_REFSEQS_JSON_FILE</refseqs>
+		<refseqs>/home/ficklin/projects/jbrowse/data/seq/refSeqs.json</refseqs>
 
 		<!-- annotation track name the current convention is to append
 		the genomic region id to the the name of the annotation track
@@ -65,11 +65,11 @@
 		<annotation_track_name>Annotations</annotation_track_name>
 
 	 	<!-- organism being annotated -->
-		<organism>ENTER_ORGANISM</organism>
+		<organism>Pithum</organism>
 
 		<!-- CV term for the genomic sequences - should be in the form
 		of "CV:term".  This applies to all sequences -->
-		<sequence_type>ENTER_CVTERM_FOR_SEQUENCE</sequence_type>
+		<sequence_type>contig</sequence_type>
 
 		<!-- path to file containing translation table.
 		optional - defaults to NCBI translation table 1 if

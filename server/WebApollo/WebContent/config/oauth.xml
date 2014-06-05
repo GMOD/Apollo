@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <oauth_configuration>
-  <!-- Oauth provider authentication URL -->
-  <auth_url>ENTER_OAUTH_PROVIDER_AUTH_URL</auth_url>
+
+  <!-- The common name of the Oauth provider (e.g. Google) -->
+  <provider_name>Google</provider_name>
   
-    <!-- Oauth provider token URL -->
-  <token_url>ENTER_OAUTH_PROVIDER_TOKEN_URL</token_url>
+  <!-- A logo image for the provider -->
+  <provider_logo>/WebApollo/images/google-icon.jpeg</provider_logo>
+
+  <!-- Oauth provider authentication URL -->
+  <auth_url>https://accounts.google.com/o/oauth2/auth</auth_url>
+  
+  <!-- Oauth provider token URL -->
+  <token_url>https://accounts.google.com/o/oauth2/token</token_url>
   
   <!-- client ID from Oauth provider -->
-  <client_id>ENTER_OAUTH_PROVIDER_ASSIGNED_CLIENT_ID</client_id>
+  <client_id>710510379117-asv3bvo6i8g1uofvo137fg30sms8iu5a.apps.googleusercontent.com</client_id>
 
   <!-- client secret from Oauth provider -->
-  <client_secret>ENTER_OAUTH_PROVIDER_ASSIGNED_CLIENT_SECRET</client_secret>
+  <client_secret>6JRmX6bun64hhtqqy9XONiKy</client_secret>
   
   <!-- field from scope corresponding to username -->
-  <uname_field>ENTER_OAUTH_PROVIDER_SCOPE_FIELD_FOR_USERNAME</uname_field>
+  <uname_field>email</uname_field>
 
 </oauth_configuration>

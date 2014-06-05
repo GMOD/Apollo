@@ -37,6 +37,7 @@ import com.google.api.client.json.jackson.JacksonFactory;
 
 public class OauthUserAuthentication implements UserAuthentication {
 	
+	private String Provider_Name = null;
 	private String Client_ID = null;
 	private String Client_Secret = null;
 	private String Auth_URL = null;
@@ -52,26 +53,14 @@ public class OauthUserAuthentication implements UserAuthentication {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(fstream);
-			Node client_id_node = doc.getElementsByTagName("client_id").item(0);
-			if (client_id_node != null) {
-				Client_ID = client_id_node.getTextContent();
-			}
-			Node client_secret_node = doc.getElementsByTagName("client_secret").item(0);
-			if (client_secret_node != null) {
-				Client_Secret = client_secret_node.getTextContent();
-			}
-			Node auth_url_node = doc.getElementsByTagName("auth_url").item(0);
-			if (auth_url_node != null) {
-				Auth_URL = auth_url_node.getTextContent();
-			}
-			Node token_url_node = doc.getElementsByTagName("token_url").item(0);
-			if (token_url_node != null) {
-				Token_URL = token_url_node.getTextContent();
-			}
-			Node auth_uname_field = doc.getElementsByTagName("uname_field").item(0);
-			if (auth_uname_field != null) {
-				Uname_Field = auth_uname_field.getTextContent();
-			}
+			
+			Provider_Name  = doc.getElementsByTagName("provider_name").item(0).getFirstChild().getNodeValue();
+			Client_ID = doc.getElementsByTagName("client_id").item(0).getFirstChild().getNodeValue();
+			Client_Secret = doc.getElementsByTagName("client_secret").item(0).getFirstChild().getNodeValue();
+			Auth_URL = doc.getElementsByTagName("auth_url").item(0).getFirstChild().getNodeValue();
+			Token_URL = doc.getElementsByTagName("token_url").item(0).getFirstChild().getNodeValue();
+			Uname_Field = doc.getElementsByTagName("uname_field").item(0).getFirstChild().getNodeValue();
+			
 		} 
 		catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
