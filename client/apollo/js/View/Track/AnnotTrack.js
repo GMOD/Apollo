@@ -3985,7 +3985,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     login: function() {
     	var track = this;
         dojo.xhrGet( {
-            url: context_path + "/Login?operation=login",
+            url: context_path + "/Login",
             handleAs: "text",
             timeout: 5 * 60,
             load: function(response, ioArgs) {
