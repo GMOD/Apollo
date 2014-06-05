@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,10 @@ public class Login extends HttpServlet {
     		login(request, response, forceRedirect);
     	}
     	else {
-    		InputStream in = getServletContext().getResourceAsStream(userAuthentication.getUserLoginPageURL());
+    		String url = request.getRequestURL() + "/../" + userAuthentication.getUserLoginPageURL();
+    		URL userLoginUrl = new URL(url);
+    		System.out.println(userLoginUrl);
+    		InputStream in = userLoginUrl.openStream();
         	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
     		String line;
     		while ((line = reader.readLine()) != null) {
