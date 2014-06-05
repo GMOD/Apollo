@@ -79,7 +79,6 @@ public class Login extends HttpServlet {
     	else {
     		String url = request.getRequestURL() + "/../" + userAuthentication.getUserLoginPageURL();
     		URL userLoginUrl = new URL(url);
-    		System.out.println(userLoginUrl);
     		InputStream in = userLoginUrl.openStream();
         	BufferedReader reader = new BufferedReader(new InputStreamReader(in));
     		String line;
