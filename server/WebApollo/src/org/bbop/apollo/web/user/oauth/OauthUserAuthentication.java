@@ -129,7 +129,6 @@ public class OauthUserAuthentication implements UserAuthentication {
 			e.printStackTrace();
 		}
 	    return username;
-
 	}
 
 	@Override

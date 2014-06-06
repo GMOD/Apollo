@@ -40,10 +40,8 @@ Uname_Field = doc.getElementsByTagName("uname_field").item(0).getFirstChild().ge
     var pathname = location.pathname;
     context = /^\/([^\/]+)\//.exec(pathname)[1];
     $("#login_button").click(function() {
-      
       login();
     });
-    $("#sign_in_image").attr("src", "/" + context + "/images/sign_in_green.png");
   });
   
   function login() {
@@ -63,16 +61,14 @@ Uname_Field = doc.getElementsByTagName("uname_field").item(0).getFirstChild().ge
 </head>
 <body>
 <div>
-Login with <b><%=Provider_Name%></b> 
-<button id="login_button">
+<button id="login_button" style="margin-left: auto; margin-right: auto; display: block; min-width: 100px; min-height: 30px" alt="Login with <%=Provider_Name%>" title="Login with <%=Provider_Name%>">
 <%
 if (Provider_Logo != null) {
-	out.print("<img id=\"sign_in_image\" src=\"" + Provider_Logo + "\"><br>");
+	out.print("<img style=\"max-width: 14em\" id=\"sign_in_image\" src=\"" + Provider_Logo + "\" border=\"0\">");
 }
 %>
 </button>
-<div id="message">
-</div>
+<div id="message"></div>
 </div>
 </body>
 </html>
