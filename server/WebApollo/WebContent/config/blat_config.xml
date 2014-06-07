@@ -5,18 +5,18 @@
 <blat_config>
 
 	<!-- path to Blat binary -->
-	<blat_bin>ENTER_PATH_TO_BLAT_BINARY</blat_bin>
+	<blat_bin>/Users/biocmd/Code/UCSC-tools</blat_bin>
 
 	<!-- path to where to put temporary data -->
-	<tmp_dir>ENTER_PATH_FOR_TEMPORARY_DATA</tmp_dir>
+	<tmp_dir>/Users/biocmd/Code/UCSC-tools/tmp</tmp_dir>
 
 	<!-- path to Blat database -->
-	<database>ENTER_PATH_TO_BLAT_DATABASE</database>
+	<database>/Users/biocmd/Code/UCSC-tools/database/out.2bit</database>
 
 	<!-- any Blat options (directly passed to Blat) e.g., -minMatch -->
-	<blat_options>ENTER_ANY_BLAT_OPTIONS</blat_options>
+	<blat_options></blat_options>
 
 	<!-- true to remove temporary data path after search (set to false for debugging purposes) -->
-	<remove_tmp_dir>true</remove_tmp_dir>
+	<remove_tmp_dir>false</remove_tmp_dir>
 	
 </blat_config>

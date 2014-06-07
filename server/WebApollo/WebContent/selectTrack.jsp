@@ -339,7 +339,10 @@ function open_search_dialog() {
 %>	
 	search.setRedirectCallback(function(id, fmin, fmax) {
 		 var flank = Math.round((fmax - fmin) * 0.2);
-		 var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+(fmin+1) + ".." + fmax;
+		 var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+
+				"&highlight="+id+":"+(fmin+1) + ".." + fmax + "&addFeatures=[{\"seq_id\":\"BLAT_HIT\",\
+				\"start\": "+fmin+", \"end\": "+fmax+", \"name\": \"MyBLATHit\"}]&addTracks=[{\"label\":\"blat\",\"store\":\"url\",\
+				\"type\":\"JBrowse/View/Track/HTMLFeatures\", \"key\":\"BlastHSP Results\"}]";
 		 window.open(url);
 	});
 	search.setErrorCallback(function(response) {
