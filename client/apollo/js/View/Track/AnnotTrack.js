@@ -5219,34 +5219,6 @@ makeTrackMenu: function()  {
 	 */
     },
 
-                console.log('my addrect '+current_top+' '+top);
-                // don't change the y-coordinate if we are annotating
-                //if(track.isCurrentlyAnnotating()) { 
-                //    setCurrentYCoord(id,current_top);
-                //    return current_top; 
-                //} else {
-                //    setCurrentYCoord(id,top);
-                //    return top; 
-                //}
-                return 1;
-            }
-        });
-    },
-
-    isCurrentlyAnnotating: function () {
-        return currently_annotating;
-    },
-    setCurrentlyAnnotating: function(flag) {
-        currently_annotating=flag;
-    },
-
-    getCurrentYCoord: function(id) {
-        return list_of_positions[id];
-    },
-    setCurrentYCoord: function(id, top) {
-        list_of_positions[id]=top;
-    },
-
 
     /**
 	 * handles adding overlay of sequence residues to "row" of selected feature
