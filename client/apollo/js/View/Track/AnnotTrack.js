@@ -1969,22 +1969,31 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         		if (!first) {
         			dojo.destroy("child_annotation_info_editor");
         			annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
+        			var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(id, track.getUniqueTrackName(), selector, true);
+        			//console.log("var3"+annotContentSideBar);
+        			//dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
         			dojo.attr(annotContent, "class", "annotation_info_editor");
         			dojo.attr(annotContent, "id", "child_annotation_info_editor");
         			dojo.place(annotContent, content);
         		}
-    			first = false;
+        		first = false;
         	});
         }
         var numItems = 0;
         // if annotation has parent, get comments for parent
         if (annot.afeature.parent_id) {
             var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
+            var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.afeature.parent_id, track.getUniqueTrackName());
+            //console.log("var1"+annotContentSideBar);
+            //dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
             dojo.attr(parentContent, "class", "parent_annotation_info_editor");
             dojo.place(parentContent, content);
             ++numItems;
         }
         var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
+        var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.id(), track.getUniqueTrackName(), selector, true);
+        console.log("var2"+annotContentSideBar);
+        dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
         dojo.attr(annotContent, "class", "annotation_info_editor");
         dojo.attr(annotContent, "id", "child_annotation_info_editor");
         dojo.place(annotContent, content);
@@ -2020,6 +2029,69 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     	});
     },
     
+    
+    createAnnotationInfoEditorPanelForFeatureSideBar: function(uniqueName, trackName, selector, reload) {
+    	console.log("createAnnotationInfoEditorPanelForFeatureSideBar");
+    	var track = this;
+//    	var hasWritePermission = this.hasWritePermission();
+    	var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
+    	var content = dojo.create("span");
+        var header = dojo.create("div", { className: "annotation_info_editor_header" }, content);
+
+        var nameDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+    	var nameLabel = dojo.create("label", { innerHTML: "Name", class: "annotation_info_editor_label" }, nameDiv);
+    	var nameField = new dijitTextBox({ class: "annotation_editor_field"});
+    	dojo.place(nameField.domNode, nameDiv);
+    	
+    	if (!hasWritePermission) {
+    		nameField.set("disabled", true);
+    	}
+        var timeout = 100;
+        
+        var escapeString = function(str) {
+        	return str.replace(/(["'])/g, "\\$1");
+        };
+        
+        function init() {
+        	var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+        	var operation = "get_annotation_info_editor_data";
+            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+            dojo.xhrPost( {
+            	sync: true,
+            	postData: postData,
+            	url: context_path + "/AnnotationEditorService",
+            	handleAs: "json",
+            	timeout: 5000 * 1000, // Time in milliseconds
+            	load: function(response, ioArgs) {
+            		var feature = response.features[0];
+                	var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
+            		initName(feature);
+            	}
+            });
+        };
+        var initName = function(feature) {
+    		if (feature.name) {
+    			nameField.set("value", feature.name);
+    		}
+           	var oldName;
+        	dojo.connect(nameField, "onFocus", function() {
+        		oldName = nameField.get("value");
+        	});
+        	dojo.connect(nameField, "onBlur", function() {
+        		var newName = nameField.get("value");
+        		if (oldName != newName) {
+        			updateName(newName);
+        			if (selector) {
+        				var select = selector.store.get(feature.uniquename).then(function(select) {
+        					selector.store.setValue(select, "label", newName);
+        				});
+        			}
+        		}
+        	});
+        };
+        init();
+        return content;
+    },
     createAnnotationInfoEditorPanelForFeature: function(uniqueName, trackName, selector, reload) {
     	var track = this;
 //    	var hasWritePermission = this.hasWritePermission();
