@@ -52,7 +52,6 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
-<script type="text/javascript" src="<%=new URL(request.getRequestURL().toString()).getProtocol()%>://www.google.com/jsapi"></script>
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
@@ -144,7 +143,7 @@ if (username != null) {
 }
 %>
 
-google.load("dojo", "1.5");
+
 
 var table;
 $(function() {
