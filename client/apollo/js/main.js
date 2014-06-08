@@ -185,7 +185,10 @@ return declare( JBPlugin,
                 browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
                 browser.poweredByLink.target = "_blank";
             } 
-            
+                     
+            browser.informationEditor=new InformationEditor();
+            browser.tabContainer.addChild(browser.informationEditor);
+
            var view = browser.view;
            view.oldOnResize = view.onResize;
   
@@ -233,8 +236,7 @@ return declare( JBPlugin,
         browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
-            thisB.myInformationEditor=new InformationEditor();
-            thisB.tabContainer.addChild(thisB.myInformationEditor);
+       
 
     },
 

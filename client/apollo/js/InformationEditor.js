@@ -19,7 +19,17 @@ define(
     ) { 
 
 var dojof = Util.dojof;
-return declare( 'WebApollo.View.InformationEditor', null,
+return declare( 'WebApollo.View.InformationEditor', [ ContentPane ],
+{
+    region: 'left',
+    splitter: true,
+    style: 'width: 25%',
+
+    id: 'informationEditor',
+    baseClass: 'webapolloInformationEditor',
+    title: 'Info Editor'
+},
+
    /** 
     * @lends WebApollo.View.InformationEditor
     */  
@@ -30,15 +40,6 @@ return declare( 'WebApollo.View.InformationEditor', null,
      * @constructs
      */  
    constructor: function(args) {
-        console.log('Test panel');
-        var topPane = new ContentPane({ className: 'header' }); 
-        this.addChild( topPane );
-        dom.create(
-            'h2',
-            { className: 'title',
-              innerHTML: 'Information Editor'
-            },  
-            topPane.contentNode ); 
    }
 });
 
