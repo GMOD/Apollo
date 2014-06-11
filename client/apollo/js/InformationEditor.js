@@ -40,6 +40,17 @@ return declare( 'WebApollo.View.InformationEditor', [ ContentPane ],
      * @constructs
      */  
    constructor: function(args) {
+       var topPane = new ContentPane({ className: 'header' }); 
+       this.addChild( topPane );
+       dom.create(
+           'h2',
+           { className: 'title',
+             innerHTML: 'Annotation Information Editor'
+           },  
+           topPane.containerNode );
+       
+       var contentPane = new ContentPane({ className: 'uncategorized', id: 'informationEditorContent' }); 
+       this.addChild( this.contentPane );
    }
 });
 
