@@ -779,13 +779,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
         console.log("genome coord: " + this.getGenomeCoord(event));
         }
 
-    // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
-    //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
+        // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
+        //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
         // if (this.drag_create)  { this.drag_create = null; return; }
         this.handleFeatureSelection(event);
-    if (this.drag_enabled)  {
-        this.handleFeatureDragSetup(event);
-    }
+        if (this.drag_enabled)  {
+            this.handleFeatureDragSetup(event);
+        }
    },
 
    handleFeatureSelection: function( event )  {
@@ -912,107 +912,107 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 var ablock = ( atrack ? atrack.getEquivalentBlock(fblock) : fblock);
 
                 $featdiv.draggable(   // draggable() adds "ui-draggable" class to div
-                    {
-                        zIndex: 200, 
-                        appendTo: ablock.domNode, // would default to featdiv's parent div
-                        // custom helper for pseudo-multi-drag ("pseudo" because multidrag is visual only --
-                        //      handling of draggable when dropped is already done through selection)
-                        //    strategy for custom helper is to make a "holder" div with same dimensionsas featdiv
-                        //       that's (mostly) a clone of the featdiv draggable is being called on
-                        //       (since draggable seems to like that),
-                        //     then add clones of all selected feature divs (including another clone of featdiv)
-                        //        to holder, with dimensions of each clone recalculated as pixels and set relative to
-                        //        featdiv that the drag is actually initiated on (and thus relative to the holder's
-                        //        dimensions)
+                {
+                    zIndex: 200, 
+                    appendTo: ablock.domNode, // would default to featdiv's parent div
+                    // custom helper for pseudo-multi-drag ("pseudo" because multidrag is visual only --
+                    //      handling of draggable when dropped is already done through selection)
+                    //    strategy for custom helper is to make a "holder" div with same dimensionsas featdiv
+                    //       that's (mostly) a clone of the featdiv draggable is being called on
+                    //       (since draggable seems to like that),
+                    //     then add clones of all selected feature divs (including another clone of featdiv)
+                    //        to holder, with dimensions of each clone recalculated as pixels and set relative to
+                    //        featdiv that the drag is actually initiated on (and thus relative to the holder's
+                    //        dimensions)
 
-                       // helper: 'clone',
-                       helper: function() {
-                            // var $featdiv_copy = $featdiv.clone();
-                            var $pfeatdiv;
-                            // get top-level feature (assumes one or two-level feature hierarchy)
-                            if (featdiv.subfeature) {
-                                $pfeatdiv = $(featdiv.parentNode); 
-                            }
-                            else  {
-                                 $pfeatdiv = $(featdiv);
-                            }
-                            var $holder = $pfeatdiv.clone();
-                            $holder.removeClass();
-                            // just want the shell of the top-level feature, so remove children 
-                            //      (selected children will be added back in below)
-                            $holder.empty(); 
-                            $holder.addClass("custom-multifeature-draggable-helper");
-                            var holder = $holder[0];
-                            // var featdiv_copy = $featdiv_copy[0];
+                   // helper: 'clone',
+                   helper: function() {
+                        // var $featdiv_copy = $featdiv.clone();
+                        var $pfeatdiv;
+                        // get top-level feature (assumes one or two-level feature hierarchy)
+                        if (featdiv.subfeature) {
+                            $pfeatdiv = $(featdiv.parentNode); 
+                        }
+                        else  {
+                             $pfeatdiv = $(featdiv);
+                        }
+                        var $holder = $pfeatdiv.clone();
+                        $holder.removeClass();
+                        // just want the shell of the top-level feature, so remove children 
+                        //      (selected children will be added back in below)
+                        $holder.empty(); 
+                        $holder.addClass("custom-multifeature-draggable-helper");
+                        var holder = $holder[0];
+                        // var featdiv_copy = $featdiv_copy[0];
 
-                            var foffset = $pfeatdiv.offset();
-                            var fheight = $pfeatdiv.height();
-                            var fwidth = $pfeatdiv.width();
-                            var ftop = foffset.top;
-                            var fleft = foffset.left;
-                            if (this.verbose_drag)  {
-                                console.log("featdiv dimensions: ");
-                                console.log(foffset); console.log("height: " + fheight + ", width: " + fwidth);
-                            }
-                            var selection = ftrack.selectionManager.getSelection();
-                            var selength = selection.length;
-                            for (var i=0; i<selength; i++)  {
-                                var srec = selection[i];
-                                var strack = srec.track;
-                                var sfeat = srec.feature;
-                                var sfeatdiv = strack.getFeatDiv( sfeat );
-                                // if (sfeatdiv && (sfeatdiv !== featdiv))  {
-                                if (sfeatdiv)  {
-                                    var $sfeatdiv = $(sfeatdiv);
-                                    var $divclone = $sfeatdiv.clone();
-                                    var soffset = $sfeatdiv.offset();
-                                    var sheight = $sfeatdiv.height();
-                                    var swidth =$sfeatdiv.width();
-                                    var seltop = soffset.top;
-                                    var sleft = soffset.left;
-                                    $divclone.width(swidth);
-                                    $divclone.height(sheight);
-                                    var delta_top = seltop - ftop;
-                                    var delta_left = sleft - fleft;
-                                    if (this.verbose_drag)  {
-                                        console.log(sfeatdiv);
-                                        console.log("delta_left: " + delta_left + ", delta_top: " + delta_top);
-                                    }
-                                    //  setting left and top by pixel, based on delta relative to moused-on feature
-                                    //    tried using $divclone.position( { ...., "offset": delta_left + " " + delta_top } );,
-                                    //    but position() not working for negative deltas? (ends up using absolute value)
-                                    //    so doing more directly with "left and "top" css calls
-                                    $divclone.css("left", delta_left);
-                                    $divclone.css("top", delta_top);
-                                    var divclone = $divclone[0];
-                                    holder.appendChild(divclone);
+                        var foffset = $pfeatdiv.offset();
+                        var fheight = $pfeatdiv.height();
+                        var fwidth = $pfeatdiv.width();
+                        var ftop = foffset.top;
+                        var fleft = foffset.left;
+                        if (this.verbose_drag)  {
+                            console.log("featdiv dimensions: ");
+                            console.log(foffset); console.log("height: " + fheight + ", width: " + fwidth);
+                        }
+                        var selection = ftrack.selectionManager.getSelection();
+                        var selength = selection.length;
+                        for (var i=0; i<selength; i++)  {
+                            var srec = selection[i];
+                            var strack = srec.track;
+                            var sfeat = srec.feature;
+                            var sfeatdiv = strack.getFeatDiv( sfeat );
+                            // if (sfeatdiv && (sfeatdiv !== featdiv))  {
+                            if (sfeatdiv)  {
+                                var $sfeatdiv = $(sfeatdiv);
+                                var $divclone = $sfeatdiv.clone();
+                                var soffset = $sfeatdiv.offset();
+                                var sheight = $sfeatdiv.height();
+                                var swidth =$sfeatdiv.width();
+                                var seltop = soffset.top;
+                                var sleft = soffset.left;
+                                $divclone.width(swidth);
+                                $divclone.height(sheight);
+                                var delta_top = seltop - ftop;
+                                var delta_left = sleft - fleft;
+                                if (this.verbose_drag)  {
+                                    console.log(sfeatdiv);
+                                    console.log("delta_left: " + delta_left + ", delta_top: " + delta_top);
                                 }
+                                //  setting left and top by pixel, based on delta relative to moused-on feature
+                                //    tried using $divclone.position( { ...., "offset": delta_left + " " + delta_top } );,
+                                //    but position() not working for negative deltas? (ends up using absolute value)
+                                //    so doing more directly with "left and "top" css calls
+                                $divclone.css("left", delta_left);
+                                $divclone.css("top", delta_top);
+                                var divclone = $divclone[0];
+                                holder.appendChild(divclone);
                             }
-                            if (this.verbose_drag)  { console.log(holder); }
-                            return holder;
-                        },
-                        opacity: 0.5,
-            axis: 'y'
-            // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
-            //     but not with different JQuery 1.7+ strategy
-                // , create: function(event, ui)  { ftrack.drag_create = true; }
-                    } );
+                        }
+                        if (this.verbose_drag)  { console.log(holder); }
+                        return holder;
+                    },
+                    opacity: 0.5,
+                    axis: 'y'
+                    // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
+                    //     but not with different JQuery 1.7+ strategy
+                    // , create: function(event, ui)  { ftrack.drag_create = true; }
+                } );
 
-        // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
-        // to do this need to retrigger/simulate the mousedown event again
+                // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
+                // to do this need to retrigger/simulate the mousedown event again
                 // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5:
                 //       $featdiv.trigger(event) and ftrack.drag_create 
                 // to new hacky approach using JQuery 1.7+:
                 //       data("draggable")._mouseDown(event);
-        // _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
+                // _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
                 //
                 // see also http://stackoverflow.com/questions/9634639/why-does-this-break-in-jquery-1-7-x
                 //     for more explanation of event handling changes in JQuery 1.7
 
-        // _mouseDown(event) triggering boostrapping of feature drag 
-        // $featdiv.data("draggable")._mouseDown(event);  
-        $featdiv.draggable().data("draggable")._mouseDown(event);
-        // $featdiv.trigger(event);
+                // _mouseDown(event) triggering boostrapping of feature drag 
+                // $featdiv.data("draggable")._mouseDown(event);  
+                $featdiv.draggable().data("draggable")._mouseDown(event);
+                // $featdiv.trigger(event);
             }
         }
     }, 
@@ -1174,8 +1174,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
  * 
  */
     getGenomeCoord: function(mouseEvent)  {
-    return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
-//  return this.getUiGenomeCoord(mouseEvent) - 1;
+        return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
+        //  return this.getUiGenomeCoord(mouseEvent) - 1;
     },
     
     _makeFeatureContextMenu: function( featDiv, menuTemplate ) {

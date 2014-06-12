@@ -72,7 +72,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 {
     constructor: function( args ) {
                 // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
-    this.isWebApolloAnnotTrack = true;
+        this.isWebApolloAnnotTrack = true;
         // trackMeta: object with:
         // key: display text track name
         // label: internal track name (no spaces, odd characters)
@@ -87,7 +87,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.has_custom_context_menu = true;
         this.exportAdapters = [];
 
-    this.selectionManager = this.setSelectionManager( this.webapollo.annotSelectionManager );
+        this.selectionManager = this.setSelectionManager( this.webapollo.annotSelectionManager );
 
         this.selectionClass = "selected-annotation";
         this.annot_under_mouse = null;
@@ -104,7 +104,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          * map keeping track of set of y positions for top-level feature divs of
          * selected features (for better residue-overlay to be implemented TBD)
          */
-    // this.selectionYPosition = null;
+        // this.selectionYPosition = null;
 
         var thisObj = this;
         /*
@@ -112,9 +112,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          * thisObj.renderSubfeature(param.feature, param.featDiv, val); };
          */
         // define fields meta data
-    // this.fields = AnnotTrack.fields;
+        // this.fields = AnnotTrack.fields;
         this.comet_working = true;
-    // this.remote_edit_working = false;
+        // this.remote_edit_working = false;
 
         this.annotMouseDown = function(event)  {
             thisObj.onAnnotMouseDown(event);
@@ -134,7 +134,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         var track = this;
 
-    dojo.addOnUnload(this, function() {
+        dojo.addOnUnload(this, function() {
             /*
              * var track = this; if( listeners[track.getUniqueTrackName()] ) {
              * if( listeners[track.getUniqueTrackName()].fired == -1 ) {
@@ -174,12 +174,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
     
     renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
-            displayStart, displayEnd, priorCdsLength, reverse)  {
+        displayStart, displayEnd, priorCdsLength, reverse)  {
         var utrClass;
         var parentType = subfeature.parent().afeature.parent_type;
         if (!this.isProteinCoding(subfeature.parent())) {
-// utrClass = parentType && parentType.name == "pseudogene" ? "pseudogene" :
-// subfeature.parent().get("type");
+            // utrClass = parentType && parentType.name == "pseudogene" ? "pseudogene" :
+            // subfeature.parent().get("type");
             var clsName = parentType && parentType.name == "pseudogene" ? "pseudogene" : subfeature.parent().get("type");
             var cfg = this.config.style.alternateClasses[clsName];
             utrClass = cfg.className;
@@ -188,26 +188,26 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     _defaultConfig: function() {
-    var thisConfig = this.inherited(arguments);
-    // nulling out menuTemplate to suppress default JBrowse feature contextual
-    // menu
-    thisConfig.menuTemplate = null;
-    thisConfig.noExport = true;  // turn off default "Save track data" "
-    thisConfig.style.centerChildrenVertically = false;
+        var thisConfig = this.inherited(arguments);
+        // nulling out menuTemplate to suppress default JBrowse feature contextual
+        // menu
+        thisConfig.menuTemplate = null;
+        thisConfig.noExport = true;  // turn off default "Save track data" "
+        thisConfig.style.centerChildrenVertically = false;
         thisConfig.pinned = true;
-    return thisConfig;
-    /*
-     * start of alternative to nulling out JBrowse feature contextual menu,
-     * instead attempt to merge in AnnotTrack-specific menu items var
-     * superConfig = this.inherited(arguments); var track = this; var
-     * superMenuTemplate = superConfig.menuTemplate; var thisConfig =
-     * Util.deepUpdate( // dojo.clone( this.inherited(arguments) ), dojo.clone(
-     * superConfig ), { menuTemplate: [ { label: "Delete", action: function() {
-     * track.deleteSelectedFeatures(); } } ] } ); var thisMenuTemplate =
-     * thisConfig.menuTemplate; for (var i=0; i<superMenuTemplate.length; i++) {
-     * thisMenuTemplate.push(superMenuTemplate[i]); }
-     * console.log(thisMenuTemplate);
-     */
+        return thisConfig;
+        /*
+         * start of alternative to nulling out JBrowse feature contextual menu,
+         * instead attempt to merge in AnnotTrack-specific menu items var
+         * superConfig = this.inherited(arguments); var track = this; var
+         * superMenuTemplate = superConfig.menuTemplate; var thisConfig =
+         * Util.deepUpdate( // dojo.clone( this.inherited(arguments) ), dojo.clone(
+         * superConfig ), { menuTemplate: [ { label: "Delete", action: function() {
+         * track.deleteSelectedFeatures(); } } ] } ); var thisMenuTemplate =
+         * thisConfig.menuTemplate; for (var i=0; i<superMenuTemplate.length; i++) {
+         * thisMenuTemplate.push(superMenuTemplate[i]); }
+         * console.log(thisMenuTemplate);
+         */
 
     },
 
@@ -228,11 +228,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                            widthPct, widthPx, scale ) {
                    
         this.inherited( arguments );
-    var track = this;
+        var track = this;
 
-// this.getPermission( dojo.hitch(this, initAnnotContextMenu) ); // calling back
-// to initAnnotContextMenu() once permissions are returned by server
-    var success = this.getPermission( function()  { 
+        // this.getPermission( dojo.hitch(this, initAnnotContextMenu) ); // calling back
+        // to initAnnotContextMenu() once permissions are returned by server
+        var success = this.getPermission( function()  { 
                                               track.initAnnotContextMenu(); 
                                           } );  // calling back to
                                                 // initAnnotContextMenu() once
@@ -245,10 +245,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          */
         // track.initLoginMenu();
 
-    var standby = new Standby({target: track.div, color: "transparent"});
-   document.body.appendChild(standby.domNode);
-    standby.startup();
-    standby.show();
+        var standby = new Standby({target: track.div, color: "transparent"});
+        document.body.appendChild(standby.domNode);
+        standby.startup();
+        standby.show();
 
 
         if (!this.webapollo.loginMenuInitialized) {
@@ -314,7 +314,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                  */
             }, function(response, ioArgs) { //
                 console.log("Annotation server error--maybe you forgot to login to the server?");
-// console.error("HTTP status code: ", ioArgs.xhr.status); //
+                // console.error("HTTP status code: ", ioArgs.xhr.status); //
                 track.handleError({ responseText: response.response.text } );
                 // dojo.byId("replace").innerHTML = 'Loading the resource from
                 // the server did not work'; //
@@ -377,11 +377,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             window.location.reload();
             return;
         }
-// if (listeners[track.getUniqueTrackName()]) {
-// if (listeners[track.getUniqueTrackName()].fired == -1) {
-// listeners[track.getUniqueTrackName()].cancel();
-// }
-// }
+        // if (listeners[track.getUniqueTrackName()]) {
+        // if (listeners[track.getUniqueTrackName()].fired == -1) {
+        // listeners[track.getUniqueTrackName()].cancel();
+        // }
+        // }
 
         this.listener = dojo.xhrGet( {
             url: context_path + "/AnnotationChangeNotificationService",
@@ -389,140 +389,139 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 track: track.getUniqueTrackName()
             },
             handleAs: "json",
-        /*
-         * WARNING: MUST set preventCache to true, at least with Dojo 1.? (7?)
-         * otherwise with AnnotationChangeNotificationService dojo.xhrGet, dojo
-         * will cache the response till page reload (seems to do this regardless
-         * of whether web browser caching is enabled or not) result is infinite
-         * loop due to recursive createAnnotationChangeListener() call in
-         * xhr.load, with each loop just receiving cached response without ever
-         * going back out to server after first response.
-         */
-        preventCache: true, 
+            /*
+             * WARNING: MUST set preventCache to true, at least with Dojo 1.? (7?)
+             * otherwise with AnnotationChangeNotificationService dojo.xhrGet, dojo
+             * will cache the response till page reload (seems to do this regardless
+             * of whether web browser caching is enabled or not) result is infinite
+             * loop due to recursive createAnnotationChangeListener() call in
+             * xhr.load, with each loop just receiving cached response without ever
+             * going back out to server after first response.
+             */
+            preventCache: true, 
             // timeout: 1000 * 1000, // Time in milliseconds
             timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no
                                         // timeout set
             // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) {
-                    if (response == null) {
-                            track.createAnnotationChangeListener();
-                    }
-                    // else if (response.error) {
-                    // track.handleError({ responseText:
-                    // JSON.stringify(response) });
-                    // }
-                    else {
-                            for (var i in response) {
-                                
-                                    var changeData = response[i];
-                                    if (track.verbose_server_notification) {
-                                            console.log(changeData.operation + " command from server: ");
-                                            console.log(changeData);                                        
-                                    }
-                                    if (changeData.operation == "ADD") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                            }
-                                            else {
-                                                    track.annotationsAddedNotification(changeData.features);
-                                            }
-                                    }
-                                    else if (changeData.operation == "DELETE") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                    track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                            }
-                                            else {
-                                                    track.annotationsDeletedNotification(changeData.features);
-                                            }
-                                    }
-                                    else if (changeData.operation == "UPDATE") {
-                                            if (changeData.sequenceAlterationEvent) {
-                        track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                                                 // track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                                 // track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                            }
-                                            else {
-                        track.annotationsUpdatedNotification(changeData.features);
-                                                // track.annotationsDeletedNotification(changeData.features);
-                                                // track.annotationsAddedNotification(changeData.features);
-                                            }
-                                    }
-                                    else  {
-                                        // unknown command from server, null-op?
-                                    }
+                if (response == null) {
+                        track.createAnnotationChangeListener();
+                }
+                // else if (response.error) {
+                // track.handleError({ responseText:
+                // JSON.stringify(response) });
+                // }
+                else {
+                    for (var i in response) {
+                        var changeData = response[i];
+                        if (track.verbose_server_notification) {
+                            console.log(changeData.operation + " command from server: ");
+                            console.log(changeData);                                        
+                        }
+                        if (changeData.operation == "ADD") {
+                            if (changeData.sequenceAlterationEvent) {
+                                    track.getSequenceTrack().annotationsAddedNotification(changeData.features);
                             }
-                            // track.hideAll(); shouldn't need to call hideAll()
-                            // before changed() anymore
-                            track.changed();
-                            track.createAnnotationChangeListener();
+                            else {
+                                    track.annotationsAddedNotification(changeData.features);
+                            }
+                        }
+                        else if (changeData.operation == "DELETE") {
+                            if (changeData.sequenceAlterationEvent) {
+                                    track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                            }
+                            else {
+                                    track.annotationsDeletedNotification(changeData.features);
+                            }
+                        }
+                        else if (changeData.operation == "UPDATE") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
+                                 // track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                                 // track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsUpdatedNotification(changeData.features);
+                                // track.annotationsDeletedNotification(changeData.features);
+                                // track.annotationsAddedNotification(changeData.features);
+                            }
+                        }
+                        else  {
+                            // unknown command from server, null-op?
+                        }
                     }
+                    // track.hideAll(); shouldn't need to call hideAll()
+                    // before changed() anymore
+                    track.changed();
+                    track.createAnnotationChangeListener();
+                }
             },
             // The ERROR function will be called in an error case.
             error: function(response, ioArgs) { //
-        // client cancel
-                    if (response.dojoType == "cancel") {
-            console.log("AnnotationChangeNotification  XHR returned with error of type CANCEL");
-            track.handleError(response);
+                // client cancel
+                if (response.dojoType == "cancel") {
+                    console.log("AnnotationChangeNotification  XHR returned with error of type CANCEL");
+                    track.handleError(response);
 
-                            return;
-                    }
-        // client timeout
-        if (response.dojoType == "timeout") {
-            track.createAnnotationChangeListener();
-            return;
-        }
-        if (ioArgs.xhr.status == 0) {
-            setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
-            return;
-        }
-        // bad gateway
-        else if (ioArgs.xhr.status == 502) {
-            track.createAnnotationChangeListener();
-            return;
-        }
-        // server killed
-        else if (ioArgs.xhr.status == 503) {
-            track.handleError({responseText: '{ error: "Server connection error" }'});
-            window.location.reload();
-            return;
-        }
-        
-        // server timeout
-        else if (ioArgs.xhr.status == 504){
-            console.log("received server timeoout");
-            track.createAnnotationChangeListener();
-            console.log("created new AnnotationChangeListener");
-            // fiddling with supressing dojo.xhrGet internal Deferred stuff
-            // firing errors
-            // setting error.log = false may override...
-            response.log = false;
-            return;
-        }
-        // forbidden
-        else if (ioArgs.xhr.status == 403) {
-            track.hide();
-            track.changed();
-            track.handleError({responseText: '{ error: "Logged out" }'});
-            window.location.reload();
-            return;
-        }
-        // actual error
-                    if (response.responseText) {
-                            track.handleError(response);
-            track.comet_working = false;
-            console.error("HTTP status code: ", ioArgs.xhr.status); //
-            return response;
-                    }
-        // everything else
-                    else {
-                            track.handleError({responseText: '{ error: "Server connection error" }'});
-            return;
-                    }
-        
+                    return;
+                }
+                // client timeout
+                if (response.dojoType == "timeout") {
+                    track.createAnnotationChangeListener();
+                    return;
+                }
+                if (ioArgs.xhr.status == 0) {
+                    setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
+                    return;
+                }
+                // bad gateway
+                else if (ioArgs.xhr.status == 502) {
+                    track.createAnnotationChangeListener();
+                    return;
+                }
+                // server killed
+                else if (ioArgs.xhr.status == 503) {
+                    track.handleError({responseText: '{ error: "Server connection error" }'});
+                    window.location.reload();
+                    return;
+                }
+                
+                // server timeout
+                else if (ioArgs.xhr.status == 504){
+                    console.log("received server timeoout");
+                    track.createAnnotationChangeListener();
+                    console.log("created new AnnotationChangeListener");
+                    // fiddling with supressing dojo.xhrGet internal Deferred stuff
+                    // firing errors
+                    // setting error.log = false may override...
+                    response.log = false;
+                    return;
+                }
+                // forbidden
+                else if (ioArgs.xhr.status == 403) {
+                    track.hide();
+                    track.changed();
+                    track.handleError({responseText: '{ error: "Logged out" }'});
+                    window.location.reload();
+                    return;
+                }
+                // actual error
+                if (response.responseText) {
+                    track.handleError(response);
+                    track.comet_working = false;
+                    console.error("HTTP status code: ", ioArgs.xhr.status); //
+                    return response;
+                }
+                // everything else
+                else {
+                    track.handleError({responseText: '{ error: "Server connection error" }'});
+                    return;
+                }
+                
             },
             failOk: true
         });
-// listeners[track.getUniqueTrackName()] = listener;
+    // listeners[track.getUniqueTrackName()] = listener;
 
     },
 
@@ -531,14 +530,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      * annotations were added
      */
     annotationsAddedNotification: function(responseFeatures) {
-            for (var i = 0; i < responseFeatures.length; ++i) {
-                var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
-                var id = responseFeatures[i].uniquename;
-        if (! this.store.getFeatureById(id))  {
-                    this.store.insert(feat);
-                    this.processParent(responseFeatures[i], "ADD");
-                }
+        for (var i = 0; i < responseFeatures.length; ++i) {
+            var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
+            var id = responseFeatures[i].uniquename;
+            if (! this.store.getFeatureById(id))  {
+                this.store.insert(feat);
+                this.processParent(responseFeatures[i], "ADD");
             }
+        }
     },
 
     /**
@@ -565,14 +564,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id = responseFeatures[i].uniquename;
-/*
- * if update deleted a selected child, select the parent?? var oldfeat =
- * this.store.getFeatureById(id); var children_selected; if (oldfeat) { var
- * childfeats = oldfeat.children(); if (childfeats) { for (var k=0; k<childfeats.length;
- * k++) { var child = childfeats[k]; if (this.selectionManager.isSelected( {
- * feature: child, track: this })) { if (! children_selected) {
- * children_selected = []; } children_selected .push(child); } } } }
- */
+            /*
+             * if update deleted a selected child, select the parent?? var oldfeat =
+             * this.store.getFeatureById(id); var children_selected; if (oldfeat) { var
+             * childfeats = oldfeat.children(); if (childfeats) { for (var k=0; k<childfeats.length;
+             * k++) { var child = childfeats[k]; if (this.selectionManager.isSelected( {
+             * feature: child, track: this })) { if (! children_selected) {
+             * children_selected = []; } children_selected .push(child); } } } }
+             */
             var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
             this.store.replace(feat);
             this.processParent(responseFeatures[i], "UPDATE");
@@ -696,8 +695,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-// if (tracks[i] instanceof SequenceTrack) {
-// if (tracks[i].config.type == "WebApollo/View/Track/AnnotSequenceTrack") {
+                // if (tracks[i] instanceof SequenceTrack) {
+                // if (tracks[i].config.type == "WebApollo/View/Track/AnnotSequenceTrack") {
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
                    // tracks[i].setAnnotTrack(this);
@@ -743,17 +742,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      */
     onAnnotMouseDown: function(event)  {
         var track = this;
-    // track.last_mousedown_event = event;
+        // track.last_mousedown_event = event;
         var verbose_resize = track.verbose_resize;
         if (verbose_resize || track.verbose_mousedown)  { console.log("AnnotTrack.onAnnotMouseDown called"); }
         event = event || window.event;
         var elem = (event.currentTarget || event.srcElement);
         // need to redo getLowestFeatureDiv
-    // var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
-    var featdiv = track.getLowestFeatureDiv(elem);
+        // var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
+        var featdiv = track.getLowestFeatureDiv(elem);
 
-    this.currentResizableFeature = featdiv.subfeature;
-    this.makeResizable(featdiv);
+        this.currentResizableFeature = featdiv.subfeature;
+        this.makeResizable(featdiv);
         event.stopPropagation();
     },
 
@@ -853,80 +852,80 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     addToAnnotation: function(annot, feature_records)  {
         var target_track = this;
 
-                var subfeats = [];
-                var allSameStrand = 1;
-                for (var i = 0; i < feature_records.length; ++i)  { 
-                    var feature_record = feature_records[i];
+        var subfeats = [];
+        var allSameStrand = 1;
+        for (var i = 0; i < feature_records.length; ++i)  { 
+            var feature_record = feature_records[i];
             var original_feat = feature_record.feature;
             var feat = JSONUtils.makeSimpleFeature( original_feat );
-                        var isSubfeature = !! feat.parent();  // !! is
-                                                                // shorthand for
-                                                                // returning
-                                                                // true if value
-                                                                // is defined
-                                                                // and non-null
-                        var annotStrand = annot.get('strand');
-                        if (isSubfeature)  {
-                                var featStrand = feat.get('strand');
-                                var featToAdd = feat;
-                                if (featStrand != annotStrand) {
-                                        allSameStrand = 0;
-                                        featToAdd.set('strand', annotStrand);
-                                }
-                                subfeats.push(featToAdd);
-                        }
-                        else  {  // top-level feature
-                            var source_track = feature_record.track;
-                            var subs = feat.get('subfeatures');
-                            if ( subs && subs.length > 0 ) {  // top-level
-                                                                // feature with
-                                                                // subfeatures
-                                    for (var i = 0; i < subs.length; ++i) {
-                                        var subfeat = subs[i];
-                                        var featStrand = subfeat.get('strand');
-                                        var featToAdd = subfeat;
-                                        if (featStrand != annotStrand) {
-                                            allSameStrand = 0;
-                                            featToAdd.set('strand', annotStrand);
-                                        }
-                                        subfeats.push(featToAdd);
-                                    }
-                    // $.merge(subfeats, subs);
+            var isSubfeature = !! feat.parent();  // !! is
+                                                    // shorthand for
+                                                    // returning
+                                                    // true if value
+                                                    // is defined
+                                                    // and non-null
+            var annotStrand = annot.get('strand');
+            if (isSubfeature)  {
+                    var featStrand = feat.get('strand');
+                    var featToAdd = feat;
+                    if (featStrand != annotStrand) {
+                            allSameStrand = 0;
+                            featToAdd.set('strand', annotStrand);
+                    }
+                    subfeats.push(featToAdd);
+            }
+            else  {  // top-level feature
+                var source_track = feature_record.track;
+                var subs = feat.get('subfeatures');
+                if ( subs && subs.length > 0 ) {  // top-level
+                                                    // feature with
+                                                    // subfeatures
+                        for (var i = 0; i < subs.length; ++i) {
+                            var subfeat = subs[i];
+                            var featStrand = subfeat.get('strand');
+                            var featToAdd = subfeat;
+                            if (featStrand != annotStrand) {
+                                allSameStrand = 0;
+                                featToAdd.set('strand', annotStrand);
                             }
-                            else  {  // top-level feature without subfeatures
-                                // make exon feature
-                                var featStrand = feat.get('strand');
-                                var featToAdd = feat;
-                                if (featStrand != annotStrand) {
-                                        allSameStrand = 0;
-                                        featToAdd.set('strand', annotStrand);
-                                }
-                                featToAdd.set('type', 'exon');
-                                subfeats.push(featToAdd);
-                            }
+                            subfeats.push(featToAdd);
                         }
+        // $.merge(subfeats, subs);
                 }
+                else  {  // top-level feature without subfeatures
+                    // make exon feature
+                    var featStrand = feat.get('strand');
+                    var featToAdd = feat;
+                    if (featStrand != annotStrand) {
+                            allSameStrand = 0;
+                            featToAdd.set('strand', annotStrand);
+                    }
+                    featToAdd.set('type', 'exon');
+                    subfeats.push(featToAdd);
+                }
+            }
+        }
 
-                if (!allSameStrand && !confirm("Adding features of opposite strand.  Continue?")) {
-                        return;
-                }
+        if (!allSameStrand && !confirm("Adding features of opposite strand.  Continue?")) {
+                return;
+        }
 
-                var featuresString = "";
-                for (var i = 0; i < subfeats.length; ++i) {
-                        var subfeat = subfeats[i];
-                        // if (subfeat[target_track.subFields["type"]] !=
-                        // "wholeCDS") {
-                        var source_track = subfeat.track;
-                        if ( subfeat.get('type') != "wholeCDS") {
-                                var jsonFeature = JSONUtils.createApolloFeature( subfeats[i], "exon");
-                                featuresString += ", " + JSON.stringify( jsonFeature );
-                        }
-                }
-// var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
-// target_track.subfields);
-// parent.uniquename = annot[target_track.fields["name"]];
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
-                target_track.executeUpdateOperation(postData);
+        var featuresString = "";
+        for (var i = 0; i < subfeats.length; ++i) {
+            var subfeat = subfeats[i];
+            // if (subfeat[target_track.subFields["type"]] !=
+            // "wholeCDS") 
+            var source_track = subfeat.track;
+            if ( subfeat.get('type') != "wholeCDS") {
+                var jsonFeature = JSONUtils.createApolloFeature( subfeats[i], "exon");
+                featuresString += ", " + JSON.stringify( jsonFeature );
+            }
+        }
+        // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
+        // target_track.subfields);
+        // parent.uniquename = annot[target_track.fields["name"]];
+        var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
+        target_track.executeUpdateOperation(postData);
     },
 
     makeTrackDroppable: function() {
@@ -939,7 +938,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         $(target_trackdiv).droppable(  {
             // only accept draggables that are selected feature divs
-    accept: ".selected-feature",   
+            accept: ".selected-feature",   
             // switched to using deactivate() rather than drop() for drop
             // handling
             // this fixes bug where drop targets within track (feature divs)
@@ -964,12 +963,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // drop: function(event, ui) {
             over: function(event, ui) {
                 target_track.track_under_mouse_drag = true;
-        if (target_track.verbose_drop) { console.log("droppable entered AnnotTrack") };
+                if (target_track.verbose_drop) { console.log("droppable entered AnnotTrack") };
             },
             out: function(event, ui) {
                 target_track.track_under_mouse_drag = false;
-        if (target_track.verbose_drop) { console.log("droppable exited AnnotTrack") };
-
+                if (target_track.verbose_drop) { console.log("droppable exited AnnotTrack") };
             },
             deactivate: function(event, ui)  {
                 // console.log("trackdiv droppable detected: draggable
@@ -978,7 +976,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
 
-        var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
+                var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
                 // problem with making individual annotations droppable, so
                 // checking for "drop" on annotation here,
                 // and if so re-routing to add to existing annotation
@@ -1004,87 +1002,195 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     createAnnotations: function(selection_records)  {
-            var target_track = this;
-            var featuresToAdd = new Array();
-            var parentFeatures = new Object();
-            var subfeatures = [];
-            var strand;
-            var parentFeature;
-            for (var i in selection_records)  {
-                var dragfeat = selection_records[i].feature;
-                var is_subfeature = !! dragfeat.parent();  // !! is shorthand
-                                                            // for returning
-                                                            // true if value is
-                                                            // defined and
-                                                            // non-null
-                
-                var parent = is_subfeature ? dragfeat.parent() : dragfeat;
-                var parentId = parent.id();
-                parentFeatures[parentId] = parent;
-                /*
-                 * if (parentFeatures[parentId] === undefined) {
-                 * parentFeatures[parentId] = new Array();
-                 * parentFeatures[parentId].isSubfeature = is_subfeature; }
-                 * parentFeatures[parentId].push(dragfeat);
-                 */
-                
-                if (strand == undefined) {
-                    strand = dragfeat.get("strand");
-                }
-                else if (strand != dragfeat.get("strand")) {
-                    strand = -2;
-// alert("Cannot create annotation with children with opposite strands");
-// return;
-                }
-                
-                if (is_subfeature) {
-                    subfeatures.push(dragfeat);
-                    if (!parentFeature) {
-                        parentFeature = dragfeat.parent();
-                    }
-                }
-                else {
-                    var children = dragfeat.get("subfeatures");
-                        if(!children) {
-                            alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
-                            return;
-                        }
-                    for (var j = 0; j < children.length; ++j) {
-                        subfeatures.push(children[j]);
-                    }
-                    if (!parentFeature) {
-                        parentFeature = dragfeat;
-                    }
-                }
+        var target_track = this;
+        var featuresToAdd = new Array();
+        var parentFeatures = new Object();
+        var subfeatures = [];
+        var strand;
+        var parentFeature;
+        for (var i in selection_records)  {
+            var dragfeat = selection_records[i].feature;
+            var is_subfeature = !! dragfeat.parent();  // !! is shorthand
+                                                        // for returning
+                                                        // true if value is
+                                                        // defined and
+                                                        // non-null
+            
+            var parent = is_subfeature ? dragfeat.parent() : dragfeat;
+            var parentId = parent.id();
+            parentFeatures[parentId] = parent;
+            /*
+             * if (parentFeatures[parentId] === undefined) {
+             * parentFeatures[parentId] = new Array();
+             * parentFeatures[parentId].isSubfeature = is_subfeature; }
+             * parentFeatures[parentId].push(dragfeat);
+             */
+            
+            if (strand == undefined) {
+                strand = dragfeat.get("strand");
+            }
+            else if (strand != dragfeat.get("strand")) {
+                strand = -2;
+                // alert("Cannot create annotation with children with opposite strands");
+                // return;
             }
             
-            function process() {
-                var keys = Object.keys(parentFeatures);
-                var singleParent = keys.length == 1;
-                var featureToAdd;
-                if (singleParent) {
-                    
-                    featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
+            if (is_subfeature) {
+                subfeatures.push(dragfeat);
+                if (!parentFeature) {
+                    parentFeature = dragfeat.parent();
                 }
-                else {
-                    featureToAdd = new SimpleFeature({ data: { strand : strand } });
+            }
+            else {
+                var children = dragfeat.get("subfeatures");
+                    if(!children) {
+                        alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
+                        return;
+                    }
+                for (var j = 0; j < children.length; ++j) {
+                    subfeatures.push(children[j]);
                 }
-                if(!featureToAdd.get('name')) {
-                    featureToAdd.set('name',featureToAdd.get('id'));
+                if (!parentFeature) {
+                    parentFeature = dragfeat;
                 }
-                featureToAdd.set("strand", strand);
-// var featureToAdd = new SimpleFeature(data);
-// //JSONUtils.makeSimpleFeature(parentFeature);
+            }
+        }
+        
+        function process() {
+            var keys = Object.keys(parentFeatures);
+            var singleParent = keys.length == 1;
+            var featureToAdd;
+            if (singleParent) {
+                
+                featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
+            }
+            else {
+                featureToAdd = new SimpleFeature({ data: { strand : strand } });
+            }
+            if(!featureToAdd.get('name')) {
+                featureToAdd.set('name',featureToAdd.get('id'));
+            }
+            featureToAdd.set("strand", strand);
+            // var featureToAdd = new SimpleFeature(data);
+            // //JSONUtils.makeSimpleFeature(parentFeature);
+            var fmin = undefined;
+            var fmax = undefined;
+            featureToAdd.set('subfeatures', new Array());
+            for (var i = 0; i < subfeatures.length; ++i) {
+                var subfeature = subfeatures[i];
+                if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
+                    continue;
+                }
+                var dragfeat = JSONUtils.makeSimpleFeature(subfeature);
+                dragfeat.set("strand", strand);
+                var childFmin = dragfeat.get('start');
+                var childFmax = dragfeat.get('end');
+                if (fmin === undefined || childFmin < fmin) {
+                    fmin = childFmin;
+                }
+                if (fmax === undefined || childFmax > fmax) {
+                    fmax = childFmax;
+                }
+                featureToAdd.get("subfeatures").push( dragfeat );
+            }
+            featureToAdd.set( "start", fmin );
+            featureToAdd.set( "end",   fmax );
+            var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA", true );
+            featuresToAdd.push(afeat);  
+            
+            /*
+             * for (var i in parentFeatures) { var featArray =
+             * parentFeatures[i]; if (featArray.isSubfeature) { var
+             * parentFeature = featArray[0].parent(); var fmin = undefined;
+             * var fmax = undefined; // var featureToAdd = $.extend({},
+             * parentFeature); var featureToAdd =
+             * JSONUtils.makeSimpleFeature(parentFeature);
+             * featureToAdd.set('subfeatures', new Array()); for (var k = 0;
+             * k < featArray.length; ++k) { // var dragfeat = featArray[k];
+             * var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]); var
+             * childFmin = dragfeat.get('start'); var childFmax =
+             * dragfeat.get('end'); if (fmin === undefined || childFmin <
+             * fmin) { fmin = childFmin; } if (fmax === undefined ||
+             * childFmax > fmax) { fmax = childFmax; }
+             * featureToAdd.get("subfeatures").push( dragfeat ); }
+             * featureToAdd.set( "start", fmin ); featureToAdd.set( "end",
+             * fmax ); var afeat = JSONUtils.createApolloFeature(
+             * featureToAdd, "mRNA" ); featuresToAdd.push(afeat); } else {
+             * for (var k = 0; k < featArray.length; ++k) { var dragfeat =
+             * featArray[k]; var afeat = JSONUtils.createApolloFeature(
+             * dragfeat, "mRNA", true); featuresToAdd.push(afeat); } } }
+             */
+            var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
+            target_track.executeUpdateOperation(postData);
+
+        };
+        
+        if (strand == -2) {
+            var content = dojo.create("div");
+            var message = dojo.create("div", { className: "confirm_message", innerHTML: "Creating annotation with subfeatures in opposing strands.  Choose strand:" }, content);
+            var buttonsDiv = dojo.create("div", { className: "confirm_buttons" }, content);
+            var plusButton = dojo.create("button", { className: "confirm_button", innerHTML: "Plus" }, buttonsDiv);
+            var minusButton = dojo.create("button", { className: "confirm_button", innerHTML: "Minus" }, buttonsDiv);
+            var cancelButton = dojo.create("button", { className: "confirm_button", innerHTML: "Cancel" }, buttonsDiv);
+            dojo.connect(plusButton, "onclick", function() {
+                strand = 1;
+                target_track.closeDialog();
+            });
+            dojo.connect(minusButton, "onclick", function() {
+                strand = -1;
+                target_track.closeDialog();
+            });
+            dojo.connect(cancelButton, "onclick", function() {
+                target_track.closeDialog();
+            });
+            var handle = dojo.connect(AnnotTrack.popupDialog, "onHide", function() {
+                dojo.disconnect(handle);
+                if (strand != -2) {
+                    process();
+                }
+            });
+            this.openDialog("Confirm", content);
+            return;
+        }
+        else {
+            process();
+        }
+
+    },
+    
+    createGenericAnnotations: function(feats, type, subfeatType, topLevelType) {
+        var target_track = this;
+        var featuresToAdd = new Array();
+        var parentFeatures = new Object();
+        for (var i in feats)  {
+            var dragfeat = feats[i];
+
+            var is_subfeature = !! dragfeat.parent();  // !! is shorthand
+                                                        // for returning
+                                                        // true if value is
+                                                        // defined and
+                                                        // non-null
+            var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
+
+            if (parentFeatures[parentId] === undefined) {
+                parentFeatures[parentId] = new Array();
+                parentFeatures[parentId].isSubfeature = is_subfeature;
+            }
+            parentFeatures[parentId].push(dragfeat);
+        }
+
+        for (var i in parentFeatures) {
+            var featArray = parentFeatures[i];
+            if (featArray.isSubfeature) {
+                var parentFeature = featArray[0].parent();
                 var fmin = undefined;
                 var fmax = undefined;
+                // var featureToAdd = $.extend({}, parentFeature);
+                var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
                 featureToAdd.set('subfeatures', new Array());
-                for (var i = 0; i < subfeatures.length; ++i) {
-                    var subfeature = subfeatures[i];
-                    if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
-                        continue;
-                    }
-                    var dragfeat = JSONUtils.makeSimpleFeature(subfeature);
-                    dragfeat.set("strand", strand);
+                for (var k = 0; k < featArray.length; ++k) {
+                    // var dragfeat = featArray[k];
+                    var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
                     var childFmin = dragfeat.get('start');
                     var childFmax = dragfeat.get('end');
                     if (fmin === undefined || childFmin < fmin) {
@@ -1097,115 +1203,22 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
                 featureToAdd.set( "start", fmin );
                 featureToAdd.set( "end",   fmax );
-                var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA", true );
-                featuresToAdd.push(afeat);  
-                
-                /*
-                 * for (var i in parentFeatures) { var featArray =
-                 * parentFeatures[i]; if (featArray.isSubfeature) { var
-                 * parentFeature = featArray[0].parent(); var fmin = undefined;
-                 * var fmax = undefined; // var featureToAdd = $.extend({},
-                 * parentFeature); var featureToAdd =
-                 * JSONUtils.makeSimpleFeature(parentFeature);
-                 * featureToAdd.set('subfeatures', new Array()); for (var k = 0;
-                 * k < featArray.length; ++k) { // var dragfeat = featArray[k];
-                 * var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]); var
-                 * childFmin = dragfeat.get('start'); var childFmax =
-                 * dragfeat.get('end'); if (fmin === undefined || childFmin <
-                 * fmin) { fmin = childFmin; } if (fmax === undefined ||
-                 * childFmax > fmax) { fmax = childFmax; }
-                 * featureToAdd.get("subfeatures").push( dragfeat ); }
-                 * featureToAdd.set( "start", fmin ); featureToAdd.set( "end",
-                 * fmax ); var afeat = JSONUtils.createApolloFeature(
-                 * featureToAdd, "mRNA" ); featuresToAdd.push(afeat); } else {
-                 * for (var k = 0; k < featArray.length; ++k) { var dragfeat =
-                 * featArray[k]; var afeat = JSONUtils.createApolloFeature(
-                 * dragfeat, "mRNA", true); featuresToAdd.push(afeat); } } }
-                 */
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
-                target_track.executeUpdateOperation(postData);
-
-            };
-            
-            if (strand == -2) {
-                var content = dojo.create("div");
-                var message = dojo.create("div", { className: "confirm_message", innerHTML: "Creating annotation with subfeatures in opposing strands.  Choose strand:" }, content);
-                var buttonsDiv = dojo.create("div", { className: "confirm_buttons" }, content);
-                var plusButton = dojo.create("button", { className: "confirm_button", innerHTML: "Plus" }, buttonsDiv);
-                var minusButton = dojo.create("button", { className: "confirm_button", innerHTML: "Minus" }, buttonsDiv);
-                var cancelButton = dojo.create("button", { className: "confirm_button", innerHTML: "Cancel" }, buttonsDiv);
-                dojo.connect(plusButton, "onclick", function() {
-                    strand = 1;
-                    target_track.closeDialog();
-                });
-                dojo.connect(minusButton, "onclick", function() {
-                    strand = -1;
-                    target_track.closeDialog();
-                });
-                dojo.connect(cancelButton, "onclick", function() {
-                    target_track.closeDialog();
-                });
-                var handle = dojo.connect(AnnotTrack.popupDialog, "onHide", function() {
-                    dojo.disconnect(handle);
-                    if (strand != -2) {
-                        process();
-                    }
-                });
-                this.openDialog("Confirm", content);
-                return;
+                var afeat = JSONUtils.createApolloFeature( featureToAdd, type, true, subfeatType );
+                if (topLevelType) {
+                    var topLevel = new Object();
+                    topLevel.location = dojo.clone(afeat.location);
+                    topLevel.type = dojo.clone(afeat.type);
+                    topLevel.type.name = topLevelType;
+                    topLevel.children = new Array();
+                    topLevel.children.push(afeat);
+                    afeat = topLevel;
+                }
+                featuresToAdd.push(afeat);
             }
             else {
-                process();
-            }
-
-    },
-    
-    createGenericAnnotations: function(feats, type, subfeatType, topLevelType) {
-        var target_track = this;
-        var featuresToAdd = new Array();
-        var parentFeatures = new Object();
-        for (var i in feats)  {
-                var dragfeat = feats[i];
-
-                var is_subfeature = !! dragfeat.parent();  // !! is shorthand
-                                                            // for returning
-                                                            // true if value is
-                                                            // defined and
-                                                            // non-null
-                var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
-
-                if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
-                        parentFeatures[parentId].isSubfeature = is_subfeature;
-                }
-                parentFeatures[parentId].push(dragfeat);
-        }
-
-        for (var i in parentFeatures) {
-                var featArray = parentFeatures[i];
-                if (featArray.isSubfeature) {
-                    var parentFeature = featArray[0].parent();
-                    var fmin = undefined;
-                    var fmax = undefined;
-                    // var featureToAdd = $.extend({}, parentFeature);
-                    var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                    featureToAdd.set('subfeatures', new Array());
-                    for (var k = 0; k < featArray.length; ++k) {
-                        // var dragfeat = featArray[k];
-                        var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
-                        var childFmin = dragfeat.get('start');
-                        var childFmax = dragfeat.get('end');
-                        if (fmin === undefined || childFmin < fmin) {
-                            fmin = childFmin;
-                        }
-                        if (fmax === undefined || childFmax > fmax) {
-                            fmax = childFmax;
-                        }
-                        featureToAdd.get("subfeatures").push( dragfeat );
-                    }
-                    featureToAdd.set( "start", fmin );
-                    featureToAdd.set( "end",   fmax );
-                    var afeat = JSONUtils.createApolloFeature( featureToAdd, type, true, subfeatType );
+                for (var k = 0; k < featArray.length; ++k) {
+                    var dragfeat = featArray[k];
+                    var afeat = JSONUtils.createApolloFeature( dragfeat, type, true, subfeatType);
                     if (topLevelType) {
                         var topLevel = new Object();
                         topLevel.location = dojo.clone(afeat.location);
@@ -1217,22 +1230,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     featuresToAdd.push(afeat);
                 }
-                else {
-                        for (var k = 0; k < featArray.length; ++k) {
-                                var dragfeat = featArray[k];
-                                var afeat = JSONUtils.createApolloFeature( dragfeat, type, true, subfeatType);
-                                if (topLevelType) {
-                                    var topLevel = new Object();
-                                    topLevel.location = dojo.clone(afeat.location);
-                                    topLevel.type = dojo.clone(afeat.type);
-                                    topLevel.type.name = topLevelType;
-                                    topLevel.children = new Array();
-                                    topLevel.children.push(afeat);
-                                    afeat = topLevel;
-                                }
-                                featuresToAdd.push(afeat);
-                        }
-                }
+            }
         }
         var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
         target_track.executeUpdateOperation(postData);
@@ -1243,83 +1241,83 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var featuresToAdd = new Array();
         var parentFeatures = new Object();
         for (var i in feats)  {
-                var dragfeat = feats[i];
+            var dragfeat = feats[i];
 
-                var is_subfeature = !! dragfeat.parent();  // !! is shorthand
-                                                            // for returning
-                                                            // true if value is
-                                                            // defined and
-                                                            // non-null
-                var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
+            var is_subfeature = !! dragfeat.parent();  // !! is shorthand
+                                                        // for returning
+                                                        // true if value is
+                                                        // defined and
+                                                        // non-null
+            var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
-                if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
-                        parentFeatures[parentId].isSubfeature = is_subfeature;
-                }
-                parentFeatures[parentId].push(dragfeat);
+            if (parentFeatures[parentId] === undefined) {
+                parentFeatures[parentId] = new Array();
+                parentFeatures[parentId].isSubfeature = is_subfeature;
+            }
+            parentFeatures[parentId].push(dragfeat);
         }
 
         for (var i in parentFeatures) {
-                var featArray = parentFeatures[i];
-                if (featArray.isSubfeature) {
-                    var parentFeature = featArray[0].parent();
-                    var fmin = undefined;
-                    var fmax = undefined;
-                    // var featureToAdd = $.extend({}, parentFeature);
-                    var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                    featureToAdd.set('subfeatures', new Array());
-                    for (var k = 0; k < featArray.length; ++k) {
-                        // var dragfeat = featArray[k];
-                        var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
-                        var childFmin = dragfeat.get('start');
-                        var childFmax = dragfeat.get('end');
-                        if (fmin === undefined || childFmin < fmin) {
-                            fmin = childFmin;
-                        }
-                        if (fmax === undefined || childFmax > fmax) {
-                            fmax = childFmax;
-                        }
-                        // featureToAdd.get("subfeatures").push( dragfeat );
+            var featArray = parentFeatures[i];
+            if (featArray.isSubfeature) {
+                var parentFeature = featArray[0].parent();
+                var fmin = undefined;
+                var fmax = undefined;
+                // var featureToAdd = $.extend({}, parentFeature);
+                var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
+                featureToAdd.set('subfeatures', new Array());
+                for (var k = 0; k < featArray.length; ++k) {
+                    // var dragfeat = featArray[k];
+                    var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
+                    var childFmin = dragfeat.get('start');
+                    var childFmax = dragfeat.get('end');
+                    if (fmin === undefined || childFmin < fmin) {
+                        fmin = childFmin;
                     }
-                    featureToAdd.set( "start", fmin );
-                    featureToAdd.set( "end",   fmax );
+                    if (fmax === undefined || childFmax > fmax) {
+                        fmax = childFmax;
+                    }
+                    // featureToAdd.get("subfeatures").push( dragfeat );
+                }
+                featureToAdd.set( "start", fmin );
+                featureToAdd.set( "end",   fmax );
+                if (strandless) {
+                    featureToAdd.set( "strand", 0 );
+                }
+                var afeat = JSONUtils.createApolloFeature( featureToAdd, type, true );
+                /*
+                 * if (topLevelType) { var topLevel = new Object();
+                 * topLevel.location = dojo.clone(afeat.location);
+                 * topLevel.type = dojo.clone(afeat.type);
+                 * topLevel.type.name = topLevelType; topLevel.children =
+                 * new Array(); topLevel.children.push(afeat); afeat =
+                 * topLevel; }
+                 */
+                featuresToAdd.push(afeat);
+            }
+            else {
+                for (var k = 0; k < featArray.length; ++k) {
+                    var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
+                    var subfeat=dragfeat.get("subfeatures");
+                    if(subfeat) subfeat.length=0; // clear
+                                                    // subfeatures
                     if (strandless) {
-                        featureToAdd.set( "strand", 0 );
+                        dragfeat.set( "strand", 0 );
                     }
-                    var afeat = JSONUtils.createApolloFeature( featureToAdd, type, true );
+                    dragfeat.set("name", featArray[k].get("name"));
+                    var afeat = JSONUtils.createApolloFeature( dragfeat, type, true);
                     /*
-                     * if (topLevelType) { var topLevel = new Object();
-                     * topLevel.location = dojo.clone(afeat.location);
-                     * topLevel.type = dojo.clone(afeat.type);
-                     * topLevel.type.name = topLevelType; topLevel.children =
-                     * new Array(); topLevel.children.push(afeat); afeat =
+                     * if (topLevelType) { var topLevel = new
+                     * Object(); topLevel.location =
+                     * dojo.clone(afeat.location); topLevel.type =
+                     * dojo.clone(afeat.type); topLevel.type.name =
+                     * topLevelType; topLevel.children = new
+                     * Array(); topLevel.children.push(afeat); afeat =
                      * topLevel; }
                      */
                     featuresToAdd.push(afeat);
                 }
-                else {
-                        for (var k = 0; k < featArray.length; ++k) {
-                                var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
-                                var subfeat=dragfeat.get("subfeatures");
-                                if(subfeat) subfeat.length=0; // clear
-                                                                // subfeatures
-                                if (strandless) {
-                                    dragfeat.set( "strand", 0 );
-                                }
-                                dragfeat.set("name", featArray[k].get("name"));
-                                var afeat = JSONUtils.createApolloFeature( dragfeat, type, true);
-                                /*
-                                 * if (topLevelType) { var topLevel = new
-                                 * Object(); topLevel.location =
-                                 * dojo.clone(afeat.location); topLevel.type =
-                                 * dojo.clone(afeat.type); topLevel.type.name =
-                                 * topLevelType; topLevel.children = new
-                                 * Array(); topLevel.children.push(afeat); afeat =
-                                 * topLevel; }
-                                 */
-                                featuresToAdd.push(afeat);
-                        }
-                }
+            }
         }
         var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
         target_track.executeUpdateOperation(postData);
@@ -1327,78 +1325,78 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     duplicateSelectedFeatures: function() {
         var selected = this.selectionManager.getSelection();
-    var selfeats = this.selectionManager.getSelectedFeatures();
+        var selfeats = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
         this.duplicateAnnotations(selfeats);
     },
 
     duplicateAnnotations: function(feats)  {
-            var track = this;
-            var featuresToAdd = new Array();
-            var subfeaturesToAdd = new Array();
-            var proteinCoding = false;
-            for( var i in feats )  {
-                    var feat = feats[i];
-                    var is_subfeature = !! feat.parent() ;  // !! is shorthand
-                                                            // for returning
-                                                            // true if value is
-                                                            // defined and
-                                                            // non-null
-                    if (is_subfeature) {
-                            subfeaturesToAdd.push(feat);
-                    }
-                    else {
-// featuresToAdd.push( JSONUtils.createApolloFeature( feat, "transcript") );
-                        featuresToAdd.push(feat);
-                    }
+        var track = this;
+        var featuresToAdd = new Array();
+        var subfeaturesToAdd = new Array();
+        var proteinCoding = false;
+        for( var i in feats )  {
+            var feat = feats[i];
+            var is_subfeature = !! feat.parent() ;  // !! is shorthand
+                                                    // for returning
+                                                    // true if value is
+                                                    // defined and
+                                                    // non-null
+            if (is_subfeature) {
+                    subfeaturesToAdd.push(feat);
             }
-            if (subfeaturesToAdd.length > 0) {
-                    var feature = new SimpleFeature();
-                    var subfeatures = new Array();
-                    feature.set( 'subfeatures', subfeatures );
-                    var fmin = undefined;
-                    var fmax = undefined;
-                    var strand = undefined;
-                    for (var i = 0; i < subfeaturesToAdd.length; ++i) {
-                            var subfeature = subfeaturesToAdd[i];
-                            if (fmin === undefined || subfeature.get('start') < fmin) {
-                                    fmin = subfeature.get('start');
-                            }
-                            if (fmax === undefined || subfeature.get('end') > fmax) {
-                                    fmax = subfeature.get('end');
-                            }
-                            if (strand === undefined) {
-                                    strand = subfeature.get('strand');
-                            }
-                            subfeatures.push(subfeature);
-                    }
-                    feature.set('start', fmin );
-                    feature.set('end', fmax );
-                    feature.set('strand', strand );
-                    feature.set('type', subfeaturesToAdd[0].parent().get('type'));
-                    feature.afeature = subfeaturesToAdd[0].parent().afeature;
-// featuresToAdd.push( JSONUtils.createApolloFeature( feature, "transcript") );
-                    featuresToAdd.push(feature);
+            else {
+                // featuresToAdd.push( JSONUtils.createApolloFeature( feat, "transcript") );
+                featuresToAdd.push(feat);
             }
-            for (var i = 0; i < featuresToAdd.length; ++i) {
-                var feature = featuresToAdd[i];
-                if (this.isProteinCoding(feature)) {
-                    var feats = [JSONUtils.createApolloFeature( feature, "mRNA")];
-                    var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" }';
-                    track.executeUpdateOperation(postData);
+        }
+        if (subfeaturesToAdd.length > 0) {
+            var feature = new SimpleFeature();
+            var subfeatures = new Array();
+            feature.set( 'subfeatures', subfeatures );
+            var fmin = undefined;
+            var fmax = undefined;
+            var strand = undefined;
+            for (var i = 0; i < subfeaturesToAdd.length; ++i) {
+                var subfeature = subfeaturesToAdd[i];
+                if (fmin === undefined || subfeature.get('start') < fmin) {
+                    fmin = subfeature.get('start');
                 }
-                else if (feature.afeature.parent_id) {
-                    var feats = [feature];
-                    this.createGenericAnnotations([feature], feature.get("type"), feature.get("subfeatures")[0].get("type"), feature.afeature.parent_type.name);
+                if (fmax === undefined || subfeature.get('end') > fmax) {
+                    fmax = subfeature.get('end');
                 }
-                else {
-                    if (!feature.get("name")) {
-                        feature.set("name", feature.afeature.name);
-                    }
-                    var feats = [feature];
-                    this.createGenericOneLevelAnnotations([feature], feature.get("type"), feature.get("strand") == 0);
+                if (strand === undefined) {
+                    strand = subfeature.get('strand');
                 }
+                subfeatures.push(subfeature);
             }
+            feature.set('start', fmin );
+            feature.set('end', fmax );
+            feature.set('strand', strand );
+            feature.set('type', subfeaturesToAdd[0].parent().get('type'));
+            feature.afeature = subfeaturesToAdd[0].parent().afeature;
+            // featuresToAdd.push( JSONUtils.createApolloFeature( feature, "transcript") );
+            featuresToAdd.push(feature);
+        }
+        for (var i = 0; i < featuresToAdd.length; ++i) {
+            var feature = featuresToAdd[i];
+            if (this.isProteinCoding(feature)) {
+                var feats = [JSONUtils.createApolloFeature( feature, "mRNA")];
+                var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" }';
+                track.executeUpdateOperation(postData);
+            }
+            else if (feature.afeature.parent_id) {
+                var feats = [feature];
+                this.createGenericAnnotations([feature], feature.get("type"), feature.get("subfeatures")[0].get("type"), feature.afeature.parent_type.name);
+            }
+            else {
+                if (!feature.get("name")) {
+                    feature.set("name", feature.afeature.name);
+                }
+                var feats = [feature];
+                this.createGenericOneLevelAnnotations([feature], feature.get("type"), feature.get("strand") == 0);
+            }
+        }
     },
 
     /**
@@ -1678,14 +1676,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var features = '"features": [';
         var i = 0;
         for (var uniqueName in uniqueNames) {
-                var trackdiv = track.div;
-                var trackName = track.getUniqueTrackName();
+            var trackdiv = track.div;
+            var trackName = track.getUniqueTrackName();
 
-                if (i > 0) {
-                    features += ',';
-                }
-                features += ' { "uniquename": "' + uniqueName + '" } ';
-                ++i;
+            if (i > 0) {
+                features += ',';
+            }
+            features += ' { "uniquename": "' + uniqueName + '" } ';
+            ++i;
         }
         features += ']';
         var operation = "flip_strand";
@@ -2032,7 +2030,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var nameLabel = dojo.create("label", { innerHTML: "Name", class: "annotation_info_editor_label" }, nameDiv);
         var nameField = new dijitTextBox({ class: "annotation_editor_field"});
         dojo.place(nameField.domNode, nameDiv);
- // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
+         // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
         var symbolDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
         var symbolLabel = dojo.create("label", { innerHTML: "Symbol", class: "annotation_info_editor_label" }, symbolDiv);
@@ -2605,50 +2603,50 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
                 var goIdTableLayout = [{
                     cells: [
-                            {
-                                name: 'Gene Ontology ID',
-                                field: 'go_id', // '_item',
-                                width: '100%',
-                                type: declare(dojox.grid.cells._Widget, {
-                                    widgetClass: dijitTextBox,
-                                    createWidget: function(inNode, inDatum, inRowIndex) {
-                                        var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
-                                        var textBox = widget.domNode.childNodes[0].childNodes[0];
-                                        dojo.connect(textBox, "onkeydown", function(event) {
-                                            if (event.keyCode == dojo.keys.ENTER) {
-                                                if (dirty) {
-                                                    dirty = false;
-                                                    valid = validateGoId(textBox.value) ? true : false;
-                                                }
+                        {
+                            name: 'Gene Ontology ID',
+                            field: 'go_id', // '_item',
+                            width: '100%',
+                            type: declare(dojox.grid.cells._Widget, {
+                                widgetClass: dijitTextBox,
+                                createWidget: function(inNode, inDatum, inRowIndex) {
+                                    var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
+                                    var textBox = widget.domNode.childNodes[0].childNodes[0];
+                                    dojo.connect(textBox, "onkeydown", function(event) {
+                                        if (event.keyCode == dojo.keys.ENTER) {
+                                            if (dirty) {
+                                                dirty = false;
+                                                valid = validateGoId(textBox.value) ? true : false;
                                             }
-                                        });
-                                        var gserv = 'http://golr.berkeleybop.org/';
-                                        var gconf = new bbop.golr.conf(amigo.data.golr);
-                                        var args = {
-                                                label_template: '{{annotation_class_label}} [{{annotation_class}}]',
-                                                value_template: '{{annotation_class}}',
-                                                list_select_callback: function(doc) {
-                                                    dirty = false;
-                                                    valid = true;
-                                                    goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
-                                                }
-                                        };
-                                        var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
-                                        auto.set_personality('bbop_term_ac');
-                                        auto.add_query_filter('document_category', 'ontology_class');
-                                        auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
-                                        return widget;
-                                    }
-                                }),
-                                formatter: function(goId, rowIndex, cell) {
-                                    if (!goId) {
-                                        return "Enter new Gene Ontology ID";
-                                    }
-                                    return goId;
-                                },
-                                editable: hasWritePermission
-                            }
-                           ]
+                                        }
+                                    });
+                                    var gserv = 'http://golr.berkeleybop.org/';
+                                    var gconf = new bbop.golr.conf(amigo.data.golr);
+                                    var args = {
+                                            label_template: '{{annotation_class_label}} [{{annotation_class}}]',
+                                            value_template: '{{annotation_class}}',
+                                            list_select_callback: function(doc) {
+                                                dirty = false;
+                                                valid = true;
+                                                goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
+                                            }
+                                    };
+                                    var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
+                                    auto.set_personality('bbop_term_ac');
+                                    auto.add_query_filter('document_category', 'ontology_class');
+                                    auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
+                                    return widget;
+                                }
+                            }),
+                            formatter: function(goId, rowIndex, cell) {
+                                if (!goId) {
+                                    return "Enter new Gene Ontology ID";
+                                }
+                                return goId;
+                            },
+                            editable: hasWritePermission
+                        }
+                       ]
                 }];
 
                 var goIdTable = new dojoxDataGrid({
@@ -2672,14 +2670,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     dirty = true;
                 });
                 
-// dojo.connect(goIdTable, "onApplyCellEdit", function(inValue, inRowIndex,
-// inCellIndex) {
+                // dojo.connect(goIdTable, "onApplyCellEdit", function(inValue, inRowIndex, inCellIndex) {
                 dojo.connect(goIdTable.store, "onSet", function(item, attribute, oldValue, newValue) {
                     if (dirty) {
                         return;
                     }
-// var newGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex),
-// "go_id");
+                    // var newGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex),
+                    // "go_id");
                     var newGoId = newValue;
                     if (!newGoId) {
                     }
@@ -2688,7 +2685,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     else {
                         if (newGoId != oldGoId) {
-// updateGoId(goIdTable, editingRow, oldGoId, newGoId);
+                            // updateGoId(goIdTable, editingRow, oldGoId, newGoId);
                             updateGoId(goIdTable, item, oldGoId, newGoId, valid);
                         }
                     }
@@ -2770,7 +2767,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.connect(commentTable, "onApplyCellEdit", function(inValue, inRowIndex, inFieldIndex) {
                     var newComment = inValue;
                     if (!newComment) {
-// alert("No comment");
+                        // alert("No comment");
                     }
                     else if (!oldComment) {
                         addComment(newComment);
@@ -2981,7 +2978,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var eutils = new EUtils(context_path, track.handleError);
             var record = eutils.fetch("pubmed", pubmedId);
             if (record) {
-// if (eutils.validateId("pubmed", pubmedId)) {
+                // if (eutils.validateId("pubmed", pubmedId)) {
                 if (confirmPubmedEntry(record)) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + pubmedId + '" } ] } ]';
                     var operation = "add_non_primary_dbxrefs";
@@ -2997,7 +2994,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 alert("Invalid ID " + pubmedId + " - Removing entry");
                 pubmedIdTable.store.deleteItem(pubmedIdTable.getItem(row));
             }
-// EUtils.validateId("pubmed", pubmedId, function() {
+            // EUtils.validateId("pubmed", pubmedId, function() {
                 /*
                  * var features = '"features": [ { "uniquename": "' + uniqueName +
                  * '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' +
@@ -3029,7 +3026,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var updatePubmedId = function(pubmedIdTable, row, oldPubmedId, newPubmedId) {
             var eutils = new EUtils(context_path, track.handleError);
             var record = eutils.fetch("pubmed", newPubmedId);
-// if (eutils.validateId("pubmed", newPubmedId)) {
+            // if (eutils.validateId("pubmed", newPubmedId)) {
             if (record) {
                 if (confirmPubmedEntry(record)) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + oldPubmedId + '" } ], "new_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + newPubmedId + '" } ] } ]';
@@ -3054,7 +3051,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
         
         var addGoId = function(goIdTable, row, goId, valid) {
-// if (match = validateGoId(goId)) {
+        // if (match = validateGoId(goId)) {
             if (valid) {
                 var goAccession = goId.substr(goIdDb.length + 1);
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + goAccession + '" } ] } ]';
@@ -3607,29 +3604,29 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 });
         };
         var callback = function(event) {
-                var type;
-                var target = event.target || event.srcElement;
-                if (target == peptideButton || target == peptideButtonLabel) {
-                        dojo.attr(peptideButton, "checked", true);
-                        type = "peptide";
-                }
-                else if (target == cdnaButton || target == cdnaButtonLabel) {
-                        dojo.attr(cdnaButton, "checked", true);
-                        type = "cdna";
-                }
-                else if (target == cdsButton || target == cdsButtonLabel) {
-                        dojo.attr(cdsButton, "checked", true);
-                        type = "cds";
-                }
-                else if (target == genomicButton || target == genomicButtonLabel) {
-                        dojo.attr(genomicButton, "checked", true);
-                        type = "genomic";
-                }
-                else if (target == genomicWithFlankButton || target == genomicWithFlankButtonLabel) {
-                        dojo.attr(genomicWithFlankButton, "checked", true);
-                        type = "genomic_with_flank";
-                }
-                fetchSequence(type);
+            var type;
+            var target = event.target || event.srcElement;
+            if (target == peptideButton || target == peptideButtonLabel) {
+                    dojo.attr(peptideButton, "checked", true);
+                    type = "peptide";
+            }
+            else if (target == cdnaButton || target == cdnaButtonLabel) {
+                    dojo.attr(cdnaButton, "checked", true);
+                    type = "cdna";
+            }
+            else if (target == cdsButton || target == cdsButtonLabel) {
+                    dojo.attr(cdsButton, "checked", true);
+                    type = "cds";
+            }
+            else if (target == genomicButton || target == genomicButtonLabel) {
+                    dojo.attr(genomicButton, "checked", true);
+                    type = "genomic";
+            }
+            else if (target == genomicWithFlankButton || target == genomicWithFlankButtonLabel) {
+                    dojo.attr(genomicWithFlankButton, "checked", true);
+                    type = "genomic_with_flank";
+            }
+            fetchSequence(type);
         };
 
         dojo.connect(peptideButton, "onchange", null, callback);
@@ -3648,81 +3645,81 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     searchSequence: function() {
-    var track = this;
-    var starts = new Object();
-    var browser = track.gview.browser;
-    for (i in browser.allRefs) {
-        var refSeq = browser.allRefs[i];
-        starts[refSeq.name] = refSeq.start;
-    }
-    var search = new SequenceSearch(context_path);
-    search.setRedirectCallback(function(id, fmin, fmax) {
-        var loc = id + ":" + fmin + "-" + fmax;
-        var locobj = {
-                ref: id, 
-                start: fmin, 
-                end: fmax
-        };
-        if (id == track.refSeq.name) {
-            // track.gview.browser.navigateTo(loc);
-            var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
-            track.gview.browser.config.highlightSearchedRegions = true;
-            track.gview.browser.showRegionWithHighlight(locobj);
-            track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-// AnnotTrack.popupDialog.hide();
+        var track = this;
+        var starts = new Object();
+        var browser = track.gview.browser;
+        for (i in browser.allRefs) {
+            var refSeq = browser.allRefs[i];
+            starts[refSeq.name] = refSeq.start;
         }
-        else {
-            // var url = window.location.toString().replace(/loc=.+/, "loc=" +
-            // loc);
-            // window.location.replace(url);
-            var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
-            track.gview.browser.config.highlightSearchedRegions = true;
-            track.gview.browser.showRegionWithHighlight(locobj);
-            track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-// AnnotTrack.popupDialog.hide();
+        var search = new SequenceSearch(context_path);
+        search.setRedirectCallback(function(id, fmin, fmax) {
+            var loc = id + ":" + fmin + "-" + fmax;
+            var locobj = {
+                    ref: id, 
+                    start: fmin, 
+                    end: fmax
+            };
+            if (id == track.refSeq.name) {
+                // track.gview.browser.navigateTo(loc);
+                var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
+                track.gview.browser.config.highlightSearchedRegions = true;
+                track.gview.browser.showRegionWithHighlight(locobj);
+                track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
+                // AnnotTrack.popupDialog.hide();
+            }
+            else {
+                // var url = window.location.toString().replace(/loc=.+/, "loc=" +
+                // loc);
+                // window.location.replace(url);
+                var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
+                track.gview.browser.config.highlightSearchedRegions = true;
+                track.gview.browser.showRegionWithHighlight(locobj);
+                track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
+                // AnnotTrack.popupDialog.hide();
+            }
+        });
+        search.setErrorCallback(function(response) {
+            track.handleError(response);
+        });
+        var content = search.searchSequence(track.getUniqueTrackName(), track.refSeq.name, starts);
+        if (content) {
+            this.openDialog("Search sequence", content);
         }
-    });
-    search.setErrorCallback(function(response) {
-        track.handleError(response);
-    });
-    var content = search.searchSequence(track.getUniqueTrackName(), track.refSeq.name, starts);
-    if (content) {
-        this.openDialog("Search sequence", content);
-    }
     }, 
 
     exportData: function(key, options) {
-    var track = this;
-    var adapter = key;
-    var content = dojo.create("div");
-    var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />" }, content);
-    var responseDiv = dojo.create("div", { className: "export_response" }, content);
-// var responseIFrame = dojo.create("iframe", { class: "export_response_iframe"
-// }, responseDiv);
+        var track = this;
+        var adapter = key;
+        var content = dojo.create("div");
+        var waitingDiv = dojo.create("div", { innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />" }, content);
+        var responseDiv = dojo.create("div", { className: "export_response" }, content);
+        // var responseIFrame = dojo.create("iframe", { class: "export_response_iframe"
+        // }, responseDiv);
 
-    dojo.xhrGet( {
-        url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
-        handleAs: "text",
-        timeout: 5000 * 1000, // Time in milliseconds
-        load: function(response, ioArgs) {
-            console.log("/IOService returned, called load()");
-            dojo.style(waitingDiv, { display: "none" } );
-            response = response.replace("href='", "href='../");
+        dojo.xhrGet( {
+            url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
+            handleAs: "text",
+            timeout: 5000 * 1000, // Time in milliseconds
+            load: function(response, ioArgs) {
+                console.log("/IOService returned, called load()");
+                dojo.style(waitingDiv, { display: "none" } );
+                response = response.replace("href='", "href='../");
 
-            /*
-             * var iframeDoc = responseIFrame.contentWindow.document;
-             * iframeDoc.open(); iframeDoc.write(response); iframeDoc.close();
-             */
-            responseDiv.innerHTML = response;
-        }, 
-        // The ERROR function will be called in an error case.
-        error: function(response, ioArgs) {
-            dojo.style(waitingDiv, { display: "none" } );
-            responseDiv.innerHTML = "Unable to export data";
-            track.handleError(response);
-        }
-    });
-    track.openDialog("Export " + key, content);
+                /*
+                 * var iframeDoc = responseIFrame.contentWindow.document;
+                 * iframeDoc.open(); iframeDoc.write(response); iframeDoc.close();
+                 */
+                responseDiv.innerHTML = response;
+            }, 
+            // The ERROR function will be called in an error case.
+            error: function(response, ioArgs) {
+                dojo.style(waitingDiv, { display: "none" } );
+                responseDiv.innerHTML = "Unable to export data";
+                track.handleError(response);
+            }
+        });
+        track.openDialog("Export " + key, content);
     }, 
 
     zoomToBaseLevel: function(event) {
@@ -4008,44 +4005,44 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     initLoginMenu: function() {
         var track = this;
-    var browser = this.gview.browser;
+        var browser = this.gview.browser;
         if (this.permission)  {   // permission only set if permission request
                                     // succeeded
             browser.addGlobalMenuItem( 'user',
-                    new dijitMenuItem(
-                        {
-                            label: 'Logout',
-                            onClick: function()  { console.log("clicked stub for logging out");
-                                                   // attempted to do
-                                                    // client-side session
-                                                    // cookie deletion, but
-                                                    // doesn't
-                                                   // work because JSESSIONID
-                                                    // is flagged as "HttpOnly"
-                                                   // document.cookie =
-                                                    // "JSESSIONID=;
-                                                    // path=/ApolloWeb/";
+                new dijitMenuItem({
+                    label: 'Logout',
+                    onClick: function()  { 
+                        console.log("clicked stub for logging out");
+                        // attempted to do
+                        // client-side session
+                        // cookie deletion, but
+                        // doesn't
+                        // work because JSESSIONID
+                        // is flagged as "HttpOnly"
+                        // document.cookie =
+                        // "JSESSIONID=;
+                        // path=/ApolloWeb/";
 
-                                                   // reload page after
-                                                    // removing session cookie?
-                                                    dojo.xhrPost( {
-                                                        url: context_path + "/Login?operation=logout",
-                                                        handleAs: "json",
-                                                        timeout: 5 * 1000, // Time
-                                                                            // in
-                                                                            // milliseconds
-                                                        // The LOAD function
-                                                        // will be called on a
-                                                        // successful response.
-                                                        load: function(response, ioArgs) { //
-                                                        },
-                                                        error: function(response, ioArgs) { //
-                        // track.handleError(response);
-                                                        }
-                                                    });
-                                                 }
-                        })
-             );
+                        // reload page after
+                        // removing session cookie?
+                        dojo.xhrPost( {
+                            url: context_path + "/Login?operation=logout",
+                            handleAs: "json",
+                            timeout: 5 * 1000, // Time
+                                                // in
+                                                // milliseconds
+                            // The LOAD function
+                            // will be called on a
+                            // successful response.
+                            load: function(response, ioArgs) { //
+                            },
+                            error: function(response, ioArgs) { //
+                            // track.handleError(response);
+                            }
+                        });
+                    }
+                })
+            );
             var userMenu = browser.makeGlobalMenu('user');
             loginButton = new dijitDropDownButton(
                 { className: 'user',
@@ -4101,394 +4098,393 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         });
     }, 
     
-  initAnnotContextMenu: function() {
-    var thisObj = this;
-    contextMenuItems = new Array();
-    annot_context_menu = new dijit.Menu({});
-    var permission = thisObj.permission;
-    var index = 0;
-    /*
-     * annot_context_menu.addChild(new dijit.MenuItem( { label: "Information",
-     * onClick: function(event) { thisObj.getAnnotationInformation(); } } ));
-     * contextMenuItems["information"] = index++;
-     */
-    annot_context_menu.addChild(new dijit.MenuItem( {
-        label: "Get sequence",
-        onClick: function(event) {
-            thisObj.getSequence();
-        }
-    } ));
-    contextMenuItems["get_sequence"] = index++;
-
-    annot_context_menu.addChild(new dijit.MenuItem( {
-        label: "Zoom to base level",
-        onClick: function(event) {
-            if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
-                thisObj.zoomToBaseLevel(thisObj.annot_context_mousedown);
-            }
-            else {
-                thisObj.zoomBackOut(thisObj.annot_context_mousedown);
-            }
-        }
-    } ));
-    contextMenuItems["zoom_to_base_level"] = index++;
-    if (!(permission & Permission.WRITE)) {
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Information Editor",
-            onClick: function(event) {
-                thisObj.getAnnotationInfoEditor();
-            }
-        } ));
-        contextMenuItems["annotation_info_editor"] = index++;
-    }
-/*
- * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on next
- * edge", onClick: function(event) {
- * thisObj.scrollToNextEdge(thisObj.annot_context_mousedown); } } ));
- * contextMenuItems["next_subfeature_edge"] = index++;
- * 
- * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on previous
- * edge", onClick: function(event) {
- * thisObj.scrollToPreviousEdge(thisObj.annot_context_mousedown); } } ));
- * contextMenuItems["next_subfeature_edge"] = index++;
- */
-
-    if (permission & Permission.WRITE) {
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Delete",
-            onClick: function() {
-                thisObj.deleteSelectedFeatures();
-            }
-        } ));
-        contextMenuItems["delete"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Merge",
-            onClick: function() {
-                thisObj.mergeSelectedFeatures();
-            }
-        } ));
-        contextMenuItems["merge"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Split",
-            onClick: function(event) {
-                // use annot_context_mousedown instead of current event, since
-                // want to split
-                // at mouse position of event that triggered annot_context_menu
-                // popup
-                thisObj.splitSelectedFeatures(thisObj.annot_context_mousedown);
-            }
-        } ));
-        contextMenuItems["split"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Duplicate",
-            onClick: function(event) {
-                // use annot_context_mousedown instead of current event, since
-                // want to split
-                // at mouse position of event that triggered annot_context_menu
-                // popup
-                thisObj.duplicateSelectedFeatures(thisObj.annot_context_mousedown);
-            }
-        } ));
-        contextMenuItems["duplicate"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Make intron",
-            // use annot_context_mousedown instead of current event, since want
-            // to split
-            // at mouse position of event that triggered annot_context_menu
-            // popup
-            onClick: function(event) {
-                thisObj.makeIntron(thisObj.annot_context_mousedown);
-            }
-        } ));
-        contextMenuItems["make_intron"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Flip strand",
-            onClick: function(event) {
-                thisObj.flipStrand();
-            }
-        } ));
-        contextMenuItems["flip_strand"] = index++;
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set translation start",
-            // use annot_context_mousedown instead of current event, since want
-            // to split
-            // at mouse position of event that triggered annot_context_menu
-            // popup
-            onClick: function(event) {
-                thisObj.setTranslationStart(thisObj.annot_context_mousedown);
-            }
-        } ));
-        contextMenuItems["set_translation_start"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set translation end",
-            // use annot_context_mousedown instead of current event, since want
-            // to split
-            // at mouse position of event that triggered annot_context_menu
-            // popup
-            onClick: function(event) {
-                thisObj.setTranslationEnd(thisObj.annot_context_mousedown);
-            }
-        } ));
-        contextMenuItems["set_translation_end"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set longest ORF",
-            // use annot_context_mousedown instead of current event, since want
-            // to split
-            // at mouse position of event that triggered annot_context_menu
-            // popup
-            onClick: function(event) {
-                thisObj.setLongestORF();
-            }
-        } ));
-        contextMenuItems["set_longest_orf"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set readthrough stop codon",
-            onClick: function(event) {
-                thisObj.setReadthroughStopCodon();
-            }
-        } ));
-        contextMenuItems["set_readthrough_stop_codon"] = index++;
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-        
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set as 5' end",
-            onClick: function(event) {
-                thisObj.setAsFivePrimeEnd();
-            }
-        } ));
-        contextMenuItems["set_as_five_prime_end"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set as 3' end",
-            onClick: function(event) {
-                thisObj.setAsThreePrimeEnd();
-            }
-        } ));
-        contextMenuItems["set_as_three_prime_end"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Set both ends",
-            onClick: function(event) {
-                thisObj.setBothEnds();
-            }
-        } ));
-        contextMenuItems["set_both_ends"] = index++;
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-        contextMenuItems["set_downstream_donor"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set to downstream splice donor",
-                onClick: function(event) {
-                        thisObj.setToDownstreamDonor();
-                }
-        }));
-        contextMenuItems["set_upstream_donor"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set to upstream splice donor",
-                onClick: function(event) {
-                        thisObj.setToUpstreamDonor();
-                }
-        }));
-        contextMenuItems["set_downstream_acceptor"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set to downstream splice acceptor",
-                onClick: function(event) {
-                        thisObj.setToDownstreamAcceptor();
-                }
-        }));
-        contextMenuItems["set_upstream_acceptor"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set to upstream splice acceptor",
-                onClick: function(event) {
-                        thisObj.setToUpstreamAcceptor();
-                }
-        }));
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Information Editor",
-            onClick: function(event) {
-                thisObj.getAnnotationInfoEditor();
-            }
-        } ));
-        contextMenuItems["annotation_info_editor"] = index++;
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Undo",
-            onClick: function(event) {
-                thisObj.undo();
-            }
-        } ));
-        contextMenuItems["undo"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Redo",
-            onClick: function(event) {
-                thisObj.redo();
-            }
-        } ));
-        contextMenuItems["redo"] = index++;
-        annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "History",
-            onClick: function(event) {
-                thisObj.getHistory();
-            }
-        } ));
-        contextMenuItems["history"] = index++;
+    initAnnotContextMenu: function() {
+        var thisObj = this;
+        contextMenuItems = new Array();
+        annot_context_menu = new dijit.Menu({});
+        var permission = thisObj.permission;
+        var index = 0;
         /*
-        annot_context_menu.addChild(new dijit.MenuSeparator());
-        index++;
+         * annot_context_menu.addChild(new dijit.MenuItem( { label: "Information",
+         * onClick: function(event) { thisObj.getAnnotationInformation(); } } ));
+         * contextMenuItems["information"] = index++;
+         */
         annot_context_menu.addChild(new dijit.MenuItem( {
-            label: "Lock annotation",
+            label: "Get sequence",
             onClick: function(event) {
-                thisObj.lockAnnotation();
+                thisObj.getSequence();
             }
         } ));
-        contextMenuItems["lock_annotation"] = index++;
-        */
-    }
+        contextMenuItems["get_sequence"] = index++;
 
-    annot_context_menu.onOpen = function(event) {
-        // keeping track of mousedown event that triggered annot_context_menu
-        // popup,
-        // because need mouse position of that event for some actions
-        thisObj.annot_context_mousedown = thisObj.last_mousedown_event;
-        if (thisObj.permission & Permission.WRITE) {
-            thisObj.updateMenu();
+        annot_context_menu.addChild(new dijit.MenuItem( {
+            label: "Zoom to base level",
+            onClick: function(event) {
+                if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
+                    thisObj.zoomToBaseLevel(thisObj.annot_context_mousedown);
+                }
+                else {
+                    thisObj.zoomBackOut(thisObj.annot_context_mousedown);
+                }
+            }
+        } ));
+        contextMenuItems["zoom_to_base_level"] = index++;
+        if (!(permission & Permission.WRITE)) {
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Information Editor",
+                onClick: function(event) {
+                    thisObj.getAnnotationInfoEditor();
+                }
+            } ));
+            contextMenuItems["annotation_info_editor"] = index++;
         }
-        dojo.forEach(this.getChildren(), function(item, idx, arr) {
-            if (item instanceof dijit.MenuItem) {
-                item._setSelected(false);
-                                // check for _onUnhover, since latest
-                                // dijit.MenuItem does not have _onUnhover()
-                                // method
-                            if (item._onUnhover) { item._onUnhover(); }
-                
+        /*
+         * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on next
+         * edge", onClick: function(event) {
+         * thisObj.scrollToNextEdge(thisObj.annot_context_mousedown); } } ));
+         * contextMenuItems["next_subfeature_edge"] = index++;
+         * 
+         * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on previous
+         * edge", onClick: function(event) {
+         * thisObj.scrollToPreviousEdge(thisObj.annot_context_mousedown); } } ));
+         * contextMenuItems["next_subfeature_edge"] = index++;
+         */
+
+        if (permission & Permission.WRITE) {
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Delete",
+                onClick: function() {
+                    thisObj.deleteSelectedFeatures();
+                }
+            } ));
+            contextMenuItems["delete"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Merge",
+                onClick: function() {
+                    thisObj.mergeSelectedFeatures();
+                }
+            } ));
+            contextMenuItems["merge"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Split",
+                onClick: function(event) {
+                    // use annot_context_mousedown instead of current event, since
+                    // want to split
+                    // at mouse position of event that triggered annot_context_menu
+                    // popup
+                    thisObj.splitSelectedFeatures(thisObj.annot_context_mousedown);
+                }
+            } ));
+            contextMenuItems["split"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Duplicate",
+                onClick: function(event) {
+                    // use annot_context_mousedown instead of current event, since
+                    // want to split
+                    // at mouse position of event that triggered annot_context_menu
+                    // popup
+                    thisObj.duplicateSelectedFeatures(thisObj.annot_context_mousedown);
+                }
+            } ));
+            contextMenuItems["duplicate"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Make intron",
+                // use annot_context_mousedown instead of current event, since want
+                // to split
+                // at mouse position of event that triggered annot_context_menu
+                // popup
+                onClick: function(event) {
+                    thisObj.makeIntron(thisObj.annot_context_mousedown);
+                }
+            } ));
+            contextMenuItems["make_intron"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Flip strand",
+                onClick: function(event) {
+                    thisObj.flipStrand();
+                }
+            } ));
+            contextMenuItems["flip_strand"] = index++;
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set translation start",
+                // use annot_context_mousedown instead of current event, since want
+                // to split
+                // at mouse position of event that triggered annot_context_menu
+                // popup
+                onClick: function(event) {
+                    thisObj.setTranslationStart(thisObj.annot_context_mousedown);
+                }
+            } ));
+            contextMenuItems["set_translation_start"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set translation end",
+                // use annot_context_mousedown instead of current event, since want
+                // to split
+                // at mouse position of event that triggered annot_context_menu
+                // popup
+                onClick: function(event) {
+                    thisObj.setTranslationEnd(thisObj.annot_context_mousedown);
+                }
+            } ));
+            contextMenuItems["set_translation_end"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set longest ORF",
+                // use annot_context_mousedown instead of current event, since want
+                // to split
+                // at mouse position of event that triggered annot_context_menu
+                // popup
+                onClick: function(event) {
+                    thisObj.setLongestORF();
+                }
+            } ));
+            contextMenuItems["set_longest_orf"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set readthrough stop codon",
+                onClick: function(event) {
+                    thisObj.setReadthroughStopCodon();
+                }
+            } ));
+            contextMenuItems["set_readthrough_stop_codon"] = index++;
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set as 5' end",
+                onClick: function(event) {
+                    thisObj.setAsFivePrimeEnd();
+                }
+            } ));
+            contextMenuItems["set_as_five_prime_end"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set as 3' end",
+                onClick: function(event) {
+                    thisObj.setAsThreePrimeEnd();
+                }
+            } ));
+            contextMenuItems["set_as_three_prime_end"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Set both ends",
+                onClick: function(event) {
+                    thisObj.setBothEnds();
+                }
+            } ));
+            contextMenuItems["set_both_ends"] = index++;
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            contextMenuItems["set_downstream_donor"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                    label: "Set to downstream splice donor",
+                    onClick: function(event) {
+                            thisObj.setToDownstreamDonor();
+                    }
+            }));
+            contextMenuItems["set_upstream_donor"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                    label: "Set to upstream splice donor",
+                    onClick: function(event) {
+                            thisObj.setToUpstreamDonor();
+                    }
+            }));
+            contextMenuItems["set_downstream_acceptor"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                    label: "Set to downstream splice acceptor",
+                    onClick: function(event) {
+                            thisObj.setToDownstreamAcceptor();
+                    }
+            }));
+            contextMenuItems["set_upstream_acceptor"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                    label: "Set to upstream splice acceptor",
+                    onClick: function(event) {
+                            thisObj.setToUpstreamAcceptor();
+                    }
+            }));
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Information Editor",
+                onClick: function(event) {
+                    thisObj.getAnnotationInfoEditor();
+                }
+            } ));
+            contextMenuItems["annotation_info_editor"] = index++;
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Undo",
+                onClick: function(event) {
+                    thisObj.undo();
+                }
+            } ));
+            contextMenuItems["undo"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Redo",
+                onClick: function(event) {
+                    thisObj.redo();
+                }
+            } ));
+            contextMenuItems["redo"] = index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "History",
+                onClick: function(event) {
+                    thisObj.getHistory();
+                }
+            } ));
+            contextMenuItems["history"] = index++;
+            /*
+            annot_context_menu.addChild(new dijit.MenuSeparator());
+            index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Lock annotation",
+                onClick: function(event) {
+                    thisObj.lockAnnotation();
+                }
+            } ));
+            contextMenuItems["lock_annotation"] = index++;
+            */
+        }
+
+        annot_context_menu.onOpen = function(event) {
+            // keeping track of mousedown event that triggered annot_context_menu
+            // popup,
+            // because need mouse position of that event for some actions
+            thisObj.annot_context_mousedown = thisObj.last_mousedown_event;
+            if (thisObj.permission & Permission.WRITE) {
+                thisObj.updateMenu();
+            }
+            dojo.forEach(this.getChildren(), function(item, idx, arr) {
+                if (item instanceof dijit.MenuItem) {
+                    item._setSelected(false);
+                    // check for _onUnhover, since latest
+                    // dijit.MenuItem does not have _onUnhover()
+                    // method
+                    if (item._onUnhover) { item._onUnhover(); }
+                }
+            });
+        };
+        
+        annot_context_menu.startup();
+    }, 
+
+
+    /**
+     * Add AnnotTrack data save option to track label pulldown menu Trying to make
+     * it a replacement for default JBrowse data save option from ExportMixin
+     * (turned off JBrowse default via config.noExport = true)
+     */
+    initSaveMenu: function()  {
+        var track = this;
+        dojo.xhrPost( {
+            sync: true,
+            postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
+            url: context_path + "/AnnotationEditorService",
+            handleAs: "json",
+            timeout: 5 * 1000, // Time in milliseconds
+            // The LOAD function will be called on a successful response.
+            load: function(response, ioArgs) { //
+                var dataAdapters = response.data_adapters;
+                for (var i = 0; i < dataAdapters.length; ++i) {
+                    var dataAdapter = dataAdapters[i];
+                    if (track.permission & dataAdapter.permission) {
+                        track.exportAdapters.push( dataAdapter );
+                    }
+                }
+                // remake track label pulldown menu so will include
+                // dataAdapter submenu
+                track.makeTrackMenu();
+            },
+            error: function(response, ioArgs) { //
+                // track.handleError(response);
             }
         });
-    };
-    
-    annot_context_menu.startup();
-}, 
+    }, 
 
-
-/**
- * Add AnnotTrack data save option to track label pulldown menu Trying to make
- * it a replacement for default JBrowse data save option from ExportMixin
- * (turned off JBrowse default via config.noExport = true)
- */
-initSaveMenu: function()  {
-    var track = this;
-    dojo.xhrPost( {
-        sync: true,
-        postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
-        url: context_path + "/AnnotationEditorService",
-        handleAs: "json",
-        timeout: 5 * 1000, // Time in milliseconds
-        // The LOAD function will be called on a successful response.
-        load: function(response, ioArgs) { //
-            var dataAdapters = response.data_adapters;
-            for (var i = 0; i < dataAdapters.length; ++i) {
-            var dataAdapter = dataAdapters[i];
-            if (track.permission & dataAdapter.permission) {
-                            track.exportAdapters.push( dataAdapter );
-            }
-            }
-                    // remake track label pulldown menu so will include
-                    // dataAdapter submenu
-                    track.makeTrackMenu();
-        },
-        error: function(response, ioArgs) { //
-// track.handleError(response);
-        }
-    });
-}, 
-
-makeTrackMenu: function()  {
-    this.inherited( arguments );
-    var track = this;
-    var options = this._trackMenuOptions();
-    if( options && options.length && this.label && this.labelMenuButton && this.exportAdapters.length > 0) {
-        var dataAdaptersMenu = new dijit.Menu();
-        for (var i=0; i<this.exportAdapters.length; i++) {
-            var dataAdapter = this.exportAdapters[i];
-            if (dataAdapter.data_adapters) {
-                var submenu = new dijit.Menu({
-                    label: dataAdapter.key,
-                });
-                dataAdaptersMenu.addChild(new dijit.PopupMenuItem({
-                    label: dataAdapter.key,
-                    popup: submenu
-                }));
-                for (var j = 0; j < dataAdapter.data_adapters.length; ++j) {
-                    var subAdapter = dataAdapter.data_adapters[j];
-                    submenu.addChild(new dijit.MenuItem( {
-                        label: subAdapter.key,
+    makeTrackMenu: function()  {
+        this.inherited( arguments );
+        var track = this;
+        var options = this._trackMenuOptions();
+        if( options && options.length && this.label && this.labelMenuButton && this.exportAdapters.length > 0) {
+            var dataAdaptersMenu = new dijit.Menu();
+            for (var i=0; i<this.exportAdapters.length; i++) {
+                var dataAdapter = this.exportAdapters[i];
+                if (dataAdapter.data_adapters) {
+                    var submenu = new dijit.Menu({
+                        label: dataAdapter.key,
+                    });
+                    dataAdaptersMenu.addChild(new dijit.PopupMenuItem({
+                        label: dataAdapter.key,
+                        popup: submenu
+                    }));
+                    for (var j = 0; j < dataAdapter.data_adapters.length; ++j) {
+                        var subAdapter = dataAdapter.data_adapters[j];
+                        submenu.addChild(new dijit.MenuItem( {
+                            label: subAdapter.key,
+                            onClick: function(key, options) {
+                                return function() {
+                                    track.exportData(key, options);
+                                };
+                            }(subAdapter.key, subAdapter.options)
+                        } ) );
+                    }
+                }
+                else {
+                    dataAdaptersMenu.addChild(new dijit.MenuItem( {
+                        label: dataAdapter.key,
                         onClick: function(key, options) {
                             return function() {
                                 track.exportData(key, options);
                             };
-                        }(subAdapter.key, subAdapter.options)
+                        }(dataAdapter.key, dataAdapter.options)
                     } ) );
                 }
             }
-            else {
-                dataAdaptersMenu.addChild(new dijit.MenuItem( {
-                    label: dataAdapter.key,
-                    onClick: function(key, options) {
-                        return function() {
-                            track.exportData(key, options);
-                        };
-                    }(dataAdapter.key, dataAdapter.options)
-                } ) );
+            // if there's a menu separator, add right before first seperator (which
+            // is where default save is added),
+            // otherwise add at end
+            var mitems = this.trackMenu.getChildren();
+            for (var mindex=0; mindex < mitems.length; mindex++) {
+                if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
             }
+             
+            var savePopup = new dijit.PopupMenuItem({
+                    label: "Save track data",
+                    iconClass: 'dijitIconSave',
+                    popup: dataAdaptersMenu });
+            this.trackMenu.addChild(savePopup, mindex);
         }
-        // if there's a menu separator, add right before first seperator (which
-        // is where default save is added),
-        // otherwise add at end
-        var mitems = this.trackMenu.getChildren();
-        for (var mindex=0; mindex < mitems.length; mindex++) {
-            if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
-        }
-         
-        var savePopup = new dijit.PopupMenuItem({
-                label: "Save track data",
-                iconClass: 'dijitIconSave',
-                popup: dataAdaptersMenu });
-        this.trackMenu.addChild(savePopup, mindex);
-    }
-}, 
+    }, 
 
     getPermission: function( callback ) {
-    var thisObj = this;
-    var loadCallback = callback;
-    var success = true;
-    dojo.xhrPost( {
-        sync: true,
-        postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
-        url: context_path + "/AnnotationEditorService",
-        handleAs: "json",
-        timeout: 5 * 1000, // Time in milliseconds
-        // The LOAD function will be called on a successful response.
-        load: function(response, ioArgs) { //
-            var permission = response.permission;
-            thisObj.permission = permission;
-            var username = response.username;
-            thisObj.username = username;
-            if (loadCallback)  { loadCallback(permission); };
-        },
-        error: function(response, ioArgs) { //
-// thisObj.handleError(response);
-            success = false;
-        }
-    });
-    return success;
+        var thisObj = this;
+        var loadCallback = callback;
+        var success = true;
+        dojo.xhrPost( {
+            sync: true,
+            postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
+            url: context_path + "/AnnotationEditorService",
+            handleAs: "json",
+            timeout: 5 * 1000, // Time in milliseconds
+            // The LOAD function will be called on a successful response.
+            load: function(response, ioArgs) { //
+                var permission = response.permission;
+                thisObj.permission = permission;
+                var username = response.username;
+                thisObj.username = username;
+                if (loadCallback)  { loadCallback(permission); };
+            },
+            error: function(response, ioArgs) { //
+    // thisObj.handleError(response);
+                success = false;
+            }
+        });
+        return success;
     },
 
     initPopupDialog: function() {
@@ -5238,10 +5234,10 @@ makeTrackMenu: function()  {
         this.inherited( arguments );
         var track = this;
 
-    // switched to only have most recent selected annot have residues overlay if
-    // zoomed to base level,
-    // rather than all selected annots
-    // therefore want to revove all prior residues overlay divs
+        // switched to only have most recent selected annot have residues overlay if
+        // zoomed to base level,
+        // rather than all selected annots
+        // therefore want to revove all prior residues overlay divs
         if (rec.track === track)  {
             // remove sequence text nodes
             $("div.annot-sequence", track.div).remove();
@@ -5252,11 +5248,11 @@ makeTrackMenu: function()  {
         // rendered...)
         var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
-    if (featdiv)  {
-        if (this.currentResizableFeature && feat.id() == this.currentResizableFeature.id()) {
-            this.makeResizable(this.getFeatDiv(feat));
-        }
-        var strand = topfeat.get('strand');
+        if (featdiv)  {
+            if (this.currentResizableFeature && feat.id() == this.currentResizableFeature.id()) {
+                this.makeResizable(this.getFeatDiv(feat));
+            }
+            var strand = topfeat.get('strand');
             var selectionYPosition = $(featdiv).position().top;
             var scale = track.gview.bpToPx(1);
             var charSize = track.webapollo.getSequenceCharacterSize();
@@ -5264,19 +5260,19 @@ makeTrackMenu: function()  {
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
                     var blk = this.blocks[bindex];
-            // seqTrack.getRange(block.startBase, block.endBase,
+                    // seqTrack.getRange(block.startBase, block.endBase,
                     // seqTrack.sequenceStore.getRange(this.refSeq,
                     // block.startBase, block.endBase,
-// seqTrack.sequenceStore.getFeatures({ ref: this.refSeq.name, start:
-// block.startBase, end: block.endBase },
-// function(feat) {
-            seqTrack.sequenceStore.getReferenceSequence(
+                    // seqTrack.sequenceStore.getFeatures({ ref: this.refSeq.name, start:
+                    // block.startBase, end: block.endBase },
+                    // function(feat) {
+                    seqTrack.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: blk.startBase, end: blk.endBase },
                     function( block ) {
                         return function(seq) {
-// var start = feat.get('start');
-// var end = feat.get('end');
-// var seq = feat.get('seq');
+                            // var start = feat.get('start');
+                            // var end = feat.get('end');
+                            // var seq = feat.get('seq');
                             var start = block.startBase;
                             var end = block.endBase;
 
@@ -5326,26 +5322,24 @@ makeTrackMenu: function()  {
                             }
                         };
                     }(blk) );
-
                 }
             }
         }
-
     },
 
     selectionRemoved: function(selected_record, smanager)  {
-    // console.log("AnnotTrack.selectionRemoved() called");
-    this.inherited( arguments );
-    var track = this;
-    if (selected_record.track === track)  {
-        var feat = selected_record.feature;
-        var featdiv = this.getFeatDiv(feat);
-        // remove sequence text nodes
-        // console.log("removing base residued text from selected annot");
-        $("div.annot-sequence", track.div).remove();
-        delete this.currentResizableFeature;
-        $(featdiv).resizable("destroy");
-    }
+        // console.log("AnnotTrack.selectionRemoved() called");
+        this.inherited( arguments );
+        var track = this;
+        if (selected_record.track === track)  {
+            var feat = selected_record.feature;
+            var featdiv = this.getFeatDiv(feat);
+            // remove sequence text nodes
+            // console.log("removing base residued text from selected annot");
+            $("div.annot-sequence", track.div).remove();
+            delete this.currentResizableFeature;
+            $(featdiv).resizable("destroy");
+        }
     }, 
 
     startZoom: function(destScale, destStart, destEnd) {
