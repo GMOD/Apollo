@@ -45,7 +45,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             dojo.clone( this.inherited(arguments) ),
             {
                 style: {
-		    // className: "{type}",   // feature classname gets set to feature.get('type')
+            // className: "{type}",   // feature classname gets set to feature.get('type')
                     className: "container-16px", 
                     renderClassName: "gray-center-30pct", 
                     arrowheadClass: "webapollo-arrowhead", 
@@ -61,23 +61,23 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }, 
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
-		    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
-		    minSubfeatureWidth: 1, 
-	            centerChildrenVertically: false
+            // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
+            minSubfeatureWidth: 1, 
+                centerChildrenVertically: false
                 },
                 events: {
-		    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
-		    //     (JBrowse default is feature detail popup)
+            // need to map click to a null-op, to override default JBrowse click behavior for click on features 
+            //     (JBrowse default is feature detail popup)
                     click:     function(event) {
-			// not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
-			//    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
+            // not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
+            //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
                         event.stopPropagation();
-		    }
-		    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
-		    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
-		    //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
-		    // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
-		    // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
+            }
+            // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
+            //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
+            //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
+            // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
+            // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
                     // , dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
@@ -94,7 +94,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-	this.setSelectionManager( this.webapollo.featSelectionManager );
+    this.setSelectionManager( this.webapollo.featSelectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
@@ -110,15 +110,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose_selection = false;
         this.verbose_selection_notification = false;
         this.verbose_drag = false;
-	this.drag_enabled = true;
+    this.drag_enabled = true;
 
         this.feature_context_menu = null; 
 
-	/** hack to determine which tracks to apply edge matching to 
-	    would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
-	        but use of dojo.declare() for classes means track object's class is actually base Object. 
-	*/
-	this.edge_matching_enabled = true;
+    /** hack to determine which tracks to apply edge matching to 
+        would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
+            but use of dojo.declare() for classes means track object's class is actually base Object. 
+    */
+    this.edge_matching_enabled = true;
     },
 
 
@@ -314,8 +314,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
-	    var $featdiv = $(featdiv);
-	    $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
+        var $featdiv = $(featdiv);
+        $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
             $featdiv.bind("dblclick",  dojo.hitch( this, 'onFeatureDoubleClick') );
             if (this.feature_context_menu  && (! this.has_custom_context_menu)) {
                 this.feature_context_menu.bindDomNode(featdiv);
@@ -324,7 +324,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // if renderClassName field exists in trackData.json for this track, then add a child
             //    div to the featdiv with class for CSS styling set to renderClassName value
             if (!rclass) {
-            	rclass = this.config.style.renderClassName;
+                rclass = this.config.style.renderClassName;
             }
             if (rclass)  {
                 // console.log("in FeatureTrack.renderFeature, creating annot div");
@@ -335,8 +335,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 featdiv.appendChild(rendiv);
             }
             if (clsName) {
-            	dojo.removeClass(featdiv.firstChild, feature.get("type"));
-            	dojo.addClass(featdiv.firstChild, clsName);
+                dojo.removeClass(featdiv.firstChild, feature.get("type"));
+                dojo.addClass(featdiv.firstChild, clsName);
             }
         }
         return featdiv;
@@ -505,8 +505,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
     handleSubFeatures: function( feature, featDiv,
                                     displayStart, displayEnd, block )  {
 
-        var subfeats = feature.get('subfeatures');	
-	if (! subfeats)  { return; }
+        var subfeats = feature.get('subfeatures');  
+        if (! subfeats)  { return; }
 
         if (! feature.normalized )  {
             this._processTranslation( feature );
@@ -547,7 +547,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             else  {
                 subfeat = subfeats[i];
             }
-	    var uid = this.getId(subfeat);
+            var uid = this.getId(subfeat);
             subtype = subfeat.get('type');
             // don't render "wholeCDS" type
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
@@ -600,7 +600,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {  // subfeatureClases defaults set in this._defaultConfig
             if (!UTRclass) {
-            	UTRclass = this.config.style.subfeatureClasses["UTR"];  
+                UTRclass = this.config.style.subfeatureClasses["UTR"];  
             }
             CDSclass = this.config.style.subfeatureClasses["CDS"];  
         }
@@ -615,8 +615,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if( render )  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-		dojo.addClass(segDiv, "subfeature");
-		dojo.addClass(segDiv, UTRclass);
+                dojo.addClass(segDiv, "subfeature");
+                dojo.addClass(segDiv, UTRclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
@@ -656,14 +656,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (render)  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-		dojo.addClass(segDiv, "subfeature");
-		dojo.addClass(segDiv, CDSclass);
+                dojo.addClass(segDiv, "subfeature");
+                dojo.addClass(segDiv, CDSclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
                 if (this.config.style.colorCdsFrame || this.webapollo.colorCdsByFrame) {
-		    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
+                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
                 }
                 subDiv.appendChild(segDiv);
             }
@@ -712,8 +712,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (render)  {
                     segDiv = document.createElement("div");
                     // not worrying about appending "plus-"/"minus-" based on strand yet
-		    dojo.addClass(segDiv, "subfeature");
-		    dojo.addClass(segDiv, UTRclass);
+                    dojo.addClass(segDiv, "subfeature");
+                    dojo.addClass(segDiv, UTRclass);
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
@@ -725,8 +725,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // make CDS segment
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
-		dojo.addClass(segDiv, "subfeature");
-		dojo.addClass(segDiv, CDSclass);
+                dojo.addClass(segDiv, "subfeature");
+                dojo.addClass(segDiv, CDSclass);
                 if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
@@ -745,8 +745,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (render)  {
                     segDiv = document.createElement("div");
                     // not worrying about appending "plus-"/"minus-" based on strand yet
-		    dojo.addClass(segDiv, "subfeature");
-		    dojo.addClass(segDiv, UTRclass);
+                    dojo.addClass(segDiv, "subfeature");
+                    dojo.addClass(segDiv, UTRclass);
                     if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
@@ -776,16 +776,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // event.stopPropagation();
         if( this.verbose_selection || this.verbose_drag ) { 
             console.log("DFT.onFeatureMouseDown called"); 
-	    console.log("genome coord: " + this.getGenomeCoord(event));
+        console.log("genome coord: " + this.getGenomeCoord(event));
         }
 
-	// drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
-	//   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
+    // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
+    //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
         // if (this.drag_create)  { this.drag_create = null; return; }
         this.handleFeatureSelection(event);
-	if (this.drag_enabled)  {
-	    this.handleFeatureDragSetup(event);
-	}
+    if (this.drag_enabled)  {
+        this.handleFeatureDragSetup(event);
+    }
    },
 
    handleFeatureSelection: function( event )  {
@@ -879,14 +879,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
 /*
 // simple version for testing
 // (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
-	if (selected)  {  
-	    var $featdiv = $(featdiv);
-	    $featdiv.draggable(   { 
-		helper: 'clone', 
-		opacity: 0.5,
-		axis: 'y', 
-	    } );
-	}
+    if (selected)  {  
+        var $featdiv = $(featdiv);
+        $featdiv.draggable(   { 
+        helper: 'clone', 
+        opacity: 0.5,
+        axis: 'y', 
+        } );
+    }
 */
             /**
              *  ideally would only make $.draggable call once for each selected div
@@ -992,27 +992,27 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             return holder;
                         },
                         opacity: 0.5,
-			axis: 'y'
-			// drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
-			//     but not with different JQuery 1.7+ strategy
-		        // , create: function(event, ui)  { ftrack.drag_create = true; }
+            axis: 'y'
+            // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
+            //     but not with different JQuery 1.7+ strategy
+                // , create: function(event, ui)  { ftrack.drag_create = true; }
                     } );
 
-		// Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
-		// to do this need to retrigger/simulate the mousedown event again
+        // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
+        // to do this need to retrigger/simulate the mousedown event again
                 // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5:
                 //       $featdiv.trigger(event) and ftrack.drag_create 
                 // to new hacky approach using JQuery 1.7+:
                 //       data("draggable")._mouseDown(event);
-		// _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
+        // _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
                 //
                 // see also http://stackoverflow.com/questions/9634639/why-does-this-break-in-jquery-1-7-x
                 //     for more explanation of event handling changes in JQuery 1.7
 
-		// _mouseDown(event) triggering boostrapping of feature drag 
-		// $featdiv.data("draggable")._mouseDown(event);  
-		$featdiv.draggable().data("draggable")._mouseDown(event);
-		// $featdiv.trigger(event);
+        // _mouseDown(event) triggering boostrapping of feature drag 
+        // $featdiv.data("draggable")._mouseDown(event);  
+        $featdiv.draggable().data("draggable")._mouseDown(event);
+        // $featdiv.trigger(event);
             }
         }
     }, 
@@ -1151,7 +1151,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
  */
  /*   getUiGenomeCoord: function(mouseEvent)  {
-	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
+    return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
     }, 
 */
 
@@ -1174,136 +1174,136 @@ var draggableTrack = declare( HTMLFeatureTrack,
  * 
  */
     getGenomeCoord: function(mouseEvent)  {
-	return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
-//	return this.getUiGenomeCoord(mouseEvent) - 1;
+    return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
+//  return this.getUiGenomeCoord(mouseEvent) - 1;
     },
     
     _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
-    	var atrack = this.webapollo.getAnnotTrack();
+        var atrack = this.webapollo.getAnnotTrack();
 
-    	var menu = this.inherited(arguments);
-    	menu.addChild(new dijitMenuSeparator());
-    	
-    	this.contextMenuItems = {};
+        var menu = this.inherited(arguments);
+        menu.addChild(new dijitMenuSeparator());
+        
+        this.contextMenuItems = {};
 
-    	var createAnnotationMenu = new dijitMenu();
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "gene",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    	        this.selectionManager.clearSelection();
-    			atrack.createAnnotations(selection);
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "pseudogene",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "transcript", null, "pseudogene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "tRNA",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "tRNA", null, "gene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "snRNA",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "snRNA", null, "gene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "snoRNA",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "snoRNA", null, "gene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "ncRNA",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "ncRNA", null, "gene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "rRNA",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "rRNA", null, "gene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "miRNA",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericAnnotations(selFeats, "miRNA", null, "gene");
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "repeat_region",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericOneLevelAnnotations(selFeats, "repeat_region", true);
-    		})
-    	}));
-    	createAnnotationMenu.addChild(new dijitMenuItem( {
-    		label: "transposable_element",
-    		onClick: dojo.hitch(this, function() {
-    			var selection = this.selectionManager.getSelection();
-    			var selFeats = this.selectionManager.getSelectedFeatures();
-    	        this.selectionManager.clearSelection();
-    			atrack.createGenericOneLevelAnnotations(selFeats, "transposable_element", true);
-    		})
-    	}));
-    	
-    	var createAnnotationMenuItem = new dijitPopupMenuItem( {
-    		label: "Create new annotation",
-    		popup: createAnnotationMenu
-    	} );
-    	this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;
-    	menu.addChild(createAnnotationMenuItem);
-    	
-    	dojo.connect(menu, "onOpen", dojo.hitch(this, function() {
-    		this.updateContextMenu();
-    	}));
-    	
+        var createAnnotationMenu = new dijitMenu();
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "gene",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                atrack.createAnnotations(selection);
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "pseudogene",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "transcript", null, "pseudogene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "tRNA",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "tRNA", null, "gene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "snRNA",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "snRNA", null, "gene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "snoRNA",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "snoRNA", null, "gene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "ncRNA",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "ncRNA", null, "gene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "rRNA",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "rRNA", null, "gene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "miRNA",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericAnnotations(selFeats, "miRNA", null, "gene");
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "repeat_region",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericOneLevelAnnotations(selFeats, "repeat_region", true);
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "transposable_element",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericOneLevelAnnotations(selFeats, "transposable_element", true);
+            })
+        }));
+        
+        var createAnnotationMenuItem = new dijitPopupMenuItem( {
+            label: "Create new annotation",
+            popup: createAnnotationMenu
+        } );
+        this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;
+        menu.addChild(createAnnotationMenuItem);
+        
+        dojo.connect(menu, "onOpen", dojo.hitch(this, function() {
+            this.updateContextMenu();
+        }));
+        
     },
     
     updateContextMenu: function() {
-    	var atrack = this.webapollo.getAnnotTrack();
-    	if (!atrack || !atrack.isLoggedIn() || !atrack.hasWritePermission()) {
-    		this.contextMenuItems["create_annotation"].set("disabled", true);
-    	}
-    	else {
-    		this.contextMenuItems["create_annotation"].set("disabled", false);
-    	}
+        var atrack = this.webapollo.getAnnotTrack();
+        if (!atrack || !atrack.isLoggedIn() || !atrack.hasWritePermission()) {
+            this.contextMenuItems["create_annotation"].set("disabled", true);
+        }
+        else {
+            this.contextMenuItems["create_annotation"].set("disabled", false);
+        }
 
     }
 
 });
 
-	    return draggableTrack;
+        return draggableTrack;
 });
 
  /*
