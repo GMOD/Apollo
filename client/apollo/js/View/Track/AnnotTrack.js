@@ -3697,14 +3697,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // var responseIFrame = dojo.create("iframe", { class: "export_response_iframe"
         // }, responseDiv);
 
-        dojo.xhrGet( {
-            url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
-            handleAs: "text",
-            timeout: 5000 * 1000, // Time in milliseconds
-            load: function(response, ioArgs) {
-                console.log("/IOService returned, called load()");
-                dojo.style(waitingDiv, { display: "none" } );
-                response = response.replace("href='", "href='../");
+	dojo.xhrGet( {
+		url: context_path + "/IOService?operation=write&adapter=" + adapter + "&tracks=" + track.getUniqueTrackName() + "&" + options,
+		handleAs: "text",
+//		timeout: 5000 * 1000, // Time in milliseconds
+		load: function(response, ioArgs) {
+		    console.log("/IOService returned, called load()");
+		    dojo.style(waitingDiv, { display: "none" } );
+		    response = response.replace("href='", "href='../");
 
                 /*
                  * var iframeDoc = responseIFrame.contentWindow.document;
@@ -3982,7 +3982,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     login: function() {
         var track = this;
         dojo.xhrGet( {
-            url: context_path + "/Login?operation=login",
+            url: context_path + "/Login",
             handleAs: "text",
             timeout: 5 * 60,
             load: function(response, ioArgs) {

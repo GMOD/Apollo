@@ -98,7 +98,12 @@ public class ChadoIO {
 				property.getType().setName(property.getValue().substring(0, idx));
 				property.setValue(property.getValue().substring(idx + 1));
 			}
-			CVTerm propCvterm = handler.getCVTerm(property.getType().getName(), property.getType().getCv().getName());
+			CVTerm propCvterm = null;
+			try {
+				propCvterm = handler.getCVTerm(property.getType().getName(), property.getType().getCv().getName());
+			}
+			catch (SimpleObjectIOException e) {
+			}
 			if (propCvterm == null) {
 				DBXref dbxref = new DBXref(handler.getDB("SOFP"), property.getType().getName());
 				dbxref.setVersion("");
