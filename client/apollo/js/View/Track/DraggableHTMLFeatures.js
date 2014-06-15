@@ -15,7 +15,9 @@ define( [
             'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, SimpleFeature, SeqOnto ) {
+        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, 
+          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, 
+          SimpleFeature, SeqOnto ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
@@ -61,23 +63,23 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }, 
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
-            // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
-            minSubfeatureWidth: 1, 
-                centerChildrenVertically: false
+                    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
+                    minSubfeatureWidth: 1, 
+                    centerChildrenVertically: false
                 },
                 events: {
-            // need to map click to a null-op, to override default JBrowse click behavior for click on features 
-            //     (JBrowse default is feature detail popup)
+                    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
+                    //     (JBrowse default is feature detail popup)
                     click:     function(event) {
-            // not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
-            //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
+                        // not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
+                        //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
                         event.stopPropagation();
-            }
-            // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
-            //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
-            //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
-            // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
-            // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
+                    }
+                    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
+                    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
+                    //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
+                    // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
+                    // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
                     // , dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
@@ -94,7 +96,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // DraggableFeatureTracks all share the same FeatureSelectionManager
         //    if want subclasses to have different selection manager,
         //    call this.setSelectionManager in subclass (after calling parent constructor)
-    this.setSelectionManager( this.webapollo.featSelectionManager );
+        this.setSelectionManager( this.webapollo.featSelectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
@@ -110,15 +112,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose_selection = false;
         this.verbose_selection_notification = false;
         this.verbose_drag = false;
-    this.drag_enabled = true;
+        this.drag_enabled = true;
 
         this.feature_context_menu = null; 
 
-    /** hack to determine which tracks to apply edge matching to 
-        would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
-            but use of dojo.declare() for classes means track object's class is actually base Object. 
-    */
-    this.edge_matching_enabled = true;
+        /** hack to determine which tracks to apply edge matching to 
+            would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
+                but use of dojo.declare() for classes means track object's class is actually base Object. 
+        */
+        this.edge_matching_enabled = true;
     },
 
 
@@ -142,17 +144,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
         return selman;
     },
 
-/**
- *   only called once, during track setup ???
- *
- *   doublclick in track whitespace is used by JBrowse for zoom
- *      but WebApollo/JBrowse uses single click in whitespace to clear selection
- *
- *   so this sets up mousedown/mouseup/doubleclick
- *      kludge to restore selection after a double click to whatever selection was before
- *      initiation of doubleclick (first mousedown/mouseup)
- *
- */
+    /**
+     *   only called once, during track setup ???
+     *
+     *   doublclick in track whitespace is used by JBrowse for zoom
+     *      but WebApollo/JBrowse uses single click in whitespace to clear selection
+     *
+     *   so this sets up mousedown/mouseup/doubleclick
+     *      kludge to restore selection after a double click to whatever selection was before
+     *      initiation of doubleclick (first mousedown/mouseup)
+     *
+     */
     setViewInfo: function(genomeView, numBlocks,
                           trackDiv, labelDiv,
                           widthPct, widthPx, scale) {
@@ -365,7 +367,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         else if ( as > bs ) { return 1; }
         else if ( as < bs ) { return -1; }
         else  { return 0; /* shouldn't fall through to here */ }
-    }, 
+    },
 
 
     /**
@@ -497,7 +499,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         feature.filteredsubs = newsubs;
         feature.normalized = true;
     }, 
-    
+
 
     /**
      * overriding handleSubFeatures for customized handling of UTR/CDS-segment rendering within exon divs
@@ -589,7 +591,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subLength = subEnd - subStart;
         var CDSclass;
 
-     //   if (debugFrame)  { console.log("exon: " + subStart); }
+        //   if (debugFrame)  { console.log("exon: " + subStart); }
 
         // if the feature has been truncated to where it doesn't cover
         // this subfeature anymore, just skip this subfeature
@@ -605,7 +607,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             CDSclass = this.config.style.subfeatureClasses["CDS"];  
         }
 
-    //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
+        //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
 
         var segDiv;
         // console.log("render sub frame");
@@ -625,13 +627,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
         }
 
-    /*
-     Frame is calculated as (3 - ((length-frame) mod 3)) mod 3.
-        (length-frame) is the length of the previous feature starting at the first whole codon (and thus the frame subtracted out).
-        (length-frame) mod 3 is the number of bases on the 3' end beyond the last whole codon of the previous feature.
-        3-((length-frame) mod 3) is the number of bases left in the codon after removing those that are represented at the 3' end of the feature.
-        (3-((length-frame) mod 3)) mod 3 changes a 3 to a 0, since three bases makes a whole codon, and 1 and 2 are left unchanged.
-    */
+        /*
+         Frame is calculated as (3 - ((length-frame) mod 3)) mod 3.
+            (length-frame) is the length of the previous feature starting at the first whole codon (and thus the frame subtracted out).
+            (length-frame) mod 3 is the number of bases on the 3' end beyond the last whole codon of the previous feature.
+            3-((length-frame) mod 3) is the number of bases left in the codon after removing those that are represented at the 3' end of the feature.
+            (3-((length-frame) mod 3)) mod 3 changes a 3 to a 0, since three bases makes a whole codon, and 1 and 2 are left unchanged.
+        */
         // whole exon is translated
         else if (cdsMin <= subStart && cdsMax >= subEnd) {
             var overhang = priorCdsLength % 3;  // number of bases overhanging from previous CDS
@@ -874,27 +876,27 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 track.div.style.zIndex = 7;
             }
         } );
-*/
+        */
 
-/*
-// simple version for testing
-// (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
-    if (selected)  {  
-        var $featdiv = $(featdiv);
-        $featdiv.draggable(   { 
-        helper: 'clone', 
-        opacity: 0.5,
-        axis: 'y', 
-        } );
-    }
-*/
-            /**
-             *  ideally would only make $.draggable call once for each selected div
-             *  but having problems with draggability disappearing from selected divs
-             *       that $.draggable was already called on
-             *  therefore whenever mousedown on a previously selected div also want to
-             *       check that draggability and redo if missing
-             */
+        /*
+        // simple version for testing
+        // (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
+            if (selected)  {  
+                var $featdiv = $(featdiv);
+                $featdiv.draggable(   { 
+                helper: 'clone', 
+                opacity: 0.5,
+                axis: 'y', 
+                } );
+            }
+        */
+        /**
+         *  ideally would only make $.draggable call once for each selected div
+         *  but having problems with draggability disappearing from selected divs
+         *       that $.draggable was already called on
+         *  therefore whenever mousedown on a previously selected div also want to
+         *       check that draggability and redo if missing
+         */
         if (selected)  {
             var $featdiv = $(featdiv);
             if (! $featdiv.hasClass("ui-draggable"))  {
@@ -925,8 +927,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     //        featdiv that the drag is actually initiated on (and thus relative to the holder's
                     //        dimensions)
 
-                   // helper: 'clone',
-                   helper: function() {
+                    // helper: 'clone',
+                    helper: function() {
                         // var $featdiv_copy = $featdiv.clone();
                         var $pfeatdiv;
                         // get top-level feature (assumes one or two-level feature hierarchy)
@@ -1055,7 +1057,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //  (but stop propagation for both features and subfeatures)
         // GAH TODO:  make this work for feature hierarchies > 2 levels deep
         var subfeat = featdiv.subfeature;
-       // if (subfeat && (! unselectableTypes[subfeat.get('type')]))  {  // only allow double-click parent selection for selectable features
+        // if (subfeat && (! unselectableTypes[subfeat.get('type')]))  {  // only allow double-click parent selection for selectable features
         if( subfeat && selman.isSelected({ feature: subfeat, track: ftrack }) ) {  // only allow double-click of child for parent selection if child is already selected
             var parent = subfeat.parent();
             // select parent feature
@@ -1150,8 +1152,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
  */
- /*   getUiGenomeCoord: function(mouseEvent)  {
-    return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
+
+/*   
+    getUiGenomeCoord: function(mouseEvent)  {
+        return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
     }, 
 */
 
