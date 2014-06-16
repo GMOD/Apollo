@@ -185,9 +185,19 @@ return declare( JBPlugin,
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
                 browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
                 browser.poweredByLink.target = "_blank";
-            } 
-                     
-            browser.informationEditor=new InformationEditor();
+            }
+
+            // Initialize information editor with similar style to track selector
+            console.log('testing');
+            browser.informationEditor=new InformationEditor(
+                dojo.mixin(
+                        dojo.clone( browser.config.bookmarkPanel ) || {},
+                        {
+                            browser: browser,
+                            title: "Info Editor"
+                        }
+                )
+            );
             browser.tabContainer.addChild(browser.informationEditor);
 
             var view = browser.view;
@@ -230,7 +240,7 @@ return declare( JBPlugin,
                 constructor: function( args ) {
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
                 }
-            } );
+            });
             // browser.registerExtraFileDriver(customGff3Driver);
             browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 

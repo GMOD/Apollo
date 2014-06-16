@@ -6,7 +6,8 @@ define(
         'dijit/TitlePane',
         'dijit/layout/ContentPane',
         'JBrowse/Util',
-        'dojo/dom-construct'
+        'dojo/dom-construct',
+        'JBrowse/View/TrackList/_TextFilterMixin'
     ],  
     function (
         declare,
@@ -15,11 +16,14 @@ define(
         TitlePane,
         ContentPane,
         Util,
-        dom
+        dom,
+        _TextFilterMixin
     ) { 
 
 var dojof = Util.dojof;
-return declare( 'WebApollo.View.InformationEditor', [ ContentPane ],
+return declare(
+        'WebApollo.View.InformationEditor',
+        [ ContentPane, _TextFilterMixin ],
 {
     region: 'left',
     splitter: true,
@@ -27,31 +31,42 @@ return declare( 'WebApollo.View.InformationEditor', [ ContentPane ],
 
     id: 'informationEditor',
     baseClass: 'webapolloInformationEditor',
-    title: 'Info Editor'
-},
 
-   /** 
-    * @lends WebApollo.View.InformationEditor
-    */  
-   {   
+    /** 
+      * Track selector with facets and text searching.
+      * @constructs
+      */  
+    constructor: function() {
+        console.log('Testing InformationEditor');
+    },
 
-   /** 
-     * Track selector with facets and text searching.
-     * @constructs
-     */  
-   constructor: function(args) {
-       var topPane = new ContentPane({ className: 'header' }); 
-       this.addChild( topPane );
-       dom.create(
-           'h2',
-           { className: 'title',
-             innerHTML: 'Annotation Information Editor'
-           },  
-           topPane.containerNode );
+    postCreate: function() {
+        console.log('Testing InformationEditor postCreate');
+        this.placeAt( this.browser.container );
+    },
+    buildRendering: function() {
+        this.inherited(arguments);
        
-       var contentPane = new ContentPane({ className: 'uncategorized', id: 'informationEditorContent' }); 
-       this.addChild( this.contentPane );
-   }
+        var topPane = new ContentPane({ className: 'header' }); 
+        this.addChild( topPane );
+        dom.create(
+            'h2',
+            { className: 'title',
+              innerHTML: 'Annotation Information Editor'
+            },
+            topPane.containerNode );
+
+        this._makeTextFilterNodes(
+            dom.create('div',
+                { className: 'textfilterContainer' },
+            topPane.containerNode )
+        );  
+        this._updateTextFilterControl();
+
+        this.informationList =
+        { pane: new ContentPane({ className: 'information_list' }).placeAt( this.containerNode ),
+        };
+    }
 });
 
 });
