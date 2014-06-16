@@ -105,27 +105,6 @@ public class UserManager {
 		conn.close();
 		return trackNames;
 	}
-	
-	public boolean validateUser(String username, String password) throws SQLException {
-		Connection conn = getConnection();
-		PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM users WHERE username=?");
-		stmt.setString(1, username);
-		ResultSet rs = stmt.executeQuery();
-		boolean valid = false;
-		if (rs.next()) {
-			try {
-				valid = PasswordHash.validatePassword(password, rs.getString(2));
-			}
-			catch (NoSuchAlgorithmException e) {
-				valid = false;
-			}
-			catch (InvalidKeySpecException e) {
-				valid = false;
-			}
-		}
-		conn.close();
-		return valid;
-	}
 
 	public boolean validateUser(String username) throws SQLException {
 		Connection conn = getConnection();
@@ -230,7 +209,7 @@ public class UserManager {
 		return trackNames;
 	}
 	
-	private Connection getConnection() throws SQLException {
+	public Connection getConnection() throws SQLException {
 		if (getDatabaseUserName() != null) {
 			return DriverManager.getConnection(databaseURL, getDatabaseUserName(), getDatabasePassword());
 		}
