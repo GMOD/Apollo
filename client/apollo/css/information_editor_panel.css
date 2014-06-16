@@ -29,7 +29,7 @@
 .webapolloInformationEditor label.tracklist-label {
     display: block;
 }
-.webapolloInformationEditor > .uncategorized {
+.webapolloInformationEditor > .information_list {
     background: white;
     padding: 10px;
     border: 1px solid #bfbfbf;

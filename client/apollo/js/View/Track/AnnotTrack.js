@@ -1990,8 +1990,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
         var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.id(), track.getUniqueTrackName(), selector, true);
-        console.log("var2"+annotContentSideBar);
-        dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
+        dojo.place(annotContentSideBar,dojo.byId('informationEditorList'));
         dojo.attr(annotContent, "class", "annotation_info_editor");
         dojo.attr(annotContent, "id", "child_annotation_info_editor");
         dojo.place(annotContent, content);
@@ -2036,11 +2035,36 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var content = dojo.create("span");
         var header = dojo.create("div", { className: "annotation_sidebar_header" }, content);
 
-        var nameDiv = dojo.create("div", { class: "annotation_sidebar_field_section" }, content);
-        var nameLabel = dojo.create("label", { innerHTML: "Name", class: "annotation_sidebar_label" }, nameDiv);
-        var nameField = new dijitTextBox({ class: "annotation_sidebar_field"});
+        var nameDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+        var nameLabel = dojo.create("label", { innerHTML: "Name", class: "annotation_info_editor_label" }, nameDiv);
+        var nameField = new dijitTextBox({ class: "annotation_editor_field"});
         dojo.place(nameField.domNode, nameDiv);
         
+        var symbolDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+        var symbolLabel = dojo.create("label", { innerHTML: "Symbol", class: "annotation_info_editor_label" }, symbolDiv);
+        var symbolField = new dijitTextBox({ class: "annotation_editor_field"});
+        dojo.place(symbolField.domNode, symbolDiv);
+        
+        var descriptionDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+        var descriptionLabel = dojo.create("label", { innerHTML: "Description", class: "annotation_info_editor_label" }, descriptionDiv);
+        var descriptionField = new dijitTextBox({ class: "annotation_editor_field"});
+        dojo.place(descriptionField.domNode, descriptionDiv);
+        
+        var dateCreationDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+        var dateCreationLabel = dojo.create("label", { innerHTML: "Created", class: "annotation_info_editor_label" }, dateCreationDiv);
+        var dateCreationField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
+        dojo.place(dateCreationField.domNode, dateCreationDiv);
+
+        var dateLastModifiedDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
+        var dateLastModifiedLabel = dojo.create("label", { innerHTML: "Last modified", class: "annotation_info_editor_label" }, dateLastModifiedDiv);
+        var dateLastModifiedField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
+        dojo.place(dateLastModifiedField.domNode, dateLastModifiedDiv);
+        
+        var statusDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
+        var statusLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Status" }, statusDiv);
+        var statusFlags = dojo.create("div", { class: "status" }, statusDiv);
+        var statusRadios = new Object();
+
         if (!hasWritePermission) {
             nameField.set("disabled", true);
         }
@@ -2064,6 +2088,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     var feature = response.features[0];
                     var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
                     initName(feature);
+                    initSymbol(feature);
+                    initDescription(feature);
+                    initDates(feature);
+                    initStatus(feature, config);
                 }
             });
         };
@@ -2086,6 +2114,86 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                 }
             });
+        };
+        
+        var initSymbol = function(feature) {
+            if (feature.symbol) {
+                symbolField.set("value", feature.symbol);
+            }
+            var oldSymbol;
+            dojo.connect(symbolField, "onFocus", function() {
+                oldSymbol = symbolField.get("value");
+            });
+            dojo.connect(symbolField, "onBlur", function() {
+                var newSymbol = symbolField.get("value");
+                if (oldSymbol != newSymbol) {
+                    updateSymbol(newSymbol);
+                }
+            });
+        };
+        
+        var initDescription = function(feature) {
+            if (feature.description) {
+                descriptionField.set("value", feature.description);
+            }
+            var oldDescription;
+            dojo.connect(descriptionField, "onFocus", function() {
+                oldDescription = descriptionField.get("value");
+            });
+            dojo.connect(descriptionField, "onBlur", function() {
+                var newDescription = descriptionField.get("value");
+                if (oldDescription != newDescription) {
+                    updateDescription(newDescription);
+                }
+            });
+        };
+        var initDates = function(feature) {
+            if (feature.date_creation) {
+                dateCreationField.set("value", FormatUtils.formatDate(feature.date_creation));
+            }
+            if (feature.date_last_modified) {
+                dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
+            }
+        };
+        
+        var initStatus = function(feature, config) {
+            var maxLength = 0;
+            var status = config.status;
+            if (status) {
+                for (var i = 0; i < status.length; ++i) {
+                    if (status[i].length > maxLength) {
+                        maxLength = status[i].length;
+                    }
+                }
+                for (var i = 0; i < status.length; ++i) {
+                    var statusRadioDiv = dojo.create("span", { class: "annotation_info_editor_radio", style: "width:" + (maxLength * 0.75) + "em;" }, statusFlags);
+                    var statusRadio = new dijitRadioButton({ value: status[i], name: "status_" + uniqueName, checked: status[i] == feature.status ? true : false });
+                    if (!hasWritePermission) {
+                        statusRadio.set("disabled", true);
+                    }
+                    dojo.place(statusRadio.domNode, statusRadioDiv);
+                    var statusLabel = dojo.create("label", { innerHTML: status[i], class: "annotation_info_editor_radio_label" }, statusRadioDiv);
+                    statusRadios[status[i]] = statusRadio;
+                    dojo.connect(statusRadio, "onMouseDown", function(div, radio, label) {
+                        return function(event) {
+                            if (radio.checked) {
+                                deleteStatus();
+                                dojo.place(new dijitRadioButton({ value: status[i], name: "status_" + uniqueName, checked: false }).domNode, radio.domNode, "replace");
+                            }
+                        };
+                    }(statusRadioDiv, statusRadio, statusLabel));
+                    dojo.connect(statusRadio, "onChange", function(label) {
+                        return function(selected) {
+                            if (selected && hasWritePermission) {
+                                updateStatus(label);
+                            }
+                        };
+                    }(status[i]));
+                }
+            }
+            else {
+                dojo.style(statusDiv, "display", "none");
+            }
         };
         init();
         return content;

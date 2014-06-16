@@ -64,7 +64,7 @@ return declare(
         this._updateTextFilterControl();
 
         this.informationList =
-        { pane: new ContentPane({ className: 'information_list' }).placeAt( this.containerNode ),
+        { pane: new ContentPane({ id: 'informationEditorList', className: 'information_list' }).placeAt( this.containerNode ),
         };
     }
 });
