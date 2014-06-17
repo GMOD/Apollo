@@ -48,7 +48,7 @@ define( [
           dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
           dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
           dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
-          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
+          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,InformationEditorDialog,
           SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
 // var listeners = [];
@@ -69,7 +69,7 @@ var context_path = "..";
 
 var non_annot_context_menu;
 
-var AnnotTrack = declare( DraggableFeatureTrack,
+var AnnotTrack = declare( [DraggableFeatureTrack,InformationEditorDialog],
 {
     constructor: function( args ) {
                 // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
@@ -1968,7 +1968,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (!first) {
                     dojo.destroy("child_annotation_info_editor");
                     annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
-                    var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(id, track.getUniqueTrackName(), selector, true);
+                    //var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(id, track.getUniqueTrackName(), selector, true);
                     //console.log("var3"+annotContentSideBar);
                     //dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
                     dojo.attr(annotContent, "class", "annotation_info_editor");
@@ -1982,7 +1982,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // if annotation has parent, get comments for parent
         if (annot.afeature.parent_id) {
             var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
-            var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.afeature.parent_id, track.getUniqueTrackName());
+            //var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.afeature.parent_id, track.getUniqueTrackName());
             //console.log("var1"+annotContentSideBar);
             //dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
             dojo.attr(parentContent, "class", "parent_annotation_info_editor");
@@ -1990,8 +1990,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             ++numItems;
         }
         var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
-        var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.id(), track.getUniqueTrackName(), selector, true);
-        dojo.place(annotContentSideBar,dojo.byId('informationEditorList'));
+        //var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.id(), track.getUniqueTrackName(), selector, true);
+        //dojo.place(annotContentSideBar,dojo.byId('informationEditorList'));
         dojo.attr(annotContent, "class", "annotation_info_editor");
         dojo.attr(annotContent, "id", "child_annotation_info_editor");
         dojo.place(annotContent, content);

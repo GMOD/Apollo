@@ -1,16 +1,34 @@
 define( [
             'dojo/_base/declare',
-            'WebApollo/View/Track/DraggableHTMLFeatures',
-            'WebApollo/FeatureSelectionManager',
+            'dijit/Menu',
+            'dijit/MenuItem', 
+            'dijit/MenuSeparator', 
+            'dijit/PopupMenuItem',
+            'dijit/form/Button',
+            'dijit/form/DropDownButton',
+            'dijit/DropDownMenu',
+            'dijit/form/ComboBox',
+            'dijit/form/TextBox',
+            'dijit/form/ValidationTextBox',
+            'dijit/form/RadioButton',
+            'dojox/widget/DialogSimple',
+            'dojox/grid/DataGrid',
+            'dojox/grid/cells/dijit',
+            'dojo/data/ItemFileWriteStore',
             'WebApollo/JSONUtils',
             'WebApollo/BioFeatureUtils',
             'WebApollo/Permission', 
             'WebApollo/SequenceSearch', 
             'WebApollo/EUtils',
-            'WebApollo/SequenceOntologyUtils'
+            'WebApollo/SequenceOntologyUtils',
+            'WebApollo/FormatUtils'
         ],
-function(declare,DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils) {
+function(declare, dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton,
+        dijitDropDownButton, dijitDropDownMenu, dijitComboBox, dijitTextBox, dijitValidationTextBox, 
+        dijitRadioButton, dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore,
+        JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils, FormatUtils) {
 
+var context_path = "..";
 
 return declare(null,
 {
@@ -18,108 +36,7 @@ return declare(null,
     
     },
 
-    getAnnotationInfoEditor: function()  {
-        var selected = this.selectionManager.getSelection();
-        this.getAnnotationInfoEditorForSelectedFeatures(selected);
-    },
-
-    getAnnotationInfoEditorForSelectedFeatures: function(records) {
-        var track = this;
-        var record = records[0];
-        var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
-        var seltrack = record.track;
-        // just checking to ensure that all features in selection are from this
-        // track
-        if (seltrack !== track)  {
-            return;
-        }
-        track.getAnnotationInfoEditorConfigs(track.getUniqueTrackName());
-        var content = dojo.create("div", { class: "annotation_info_editor_container" });
-        if (annot.afeature.parent_id) {
-            var selectorDiv = dojo.create("div", { class: "annotation_info_editor_selector" }, content);
-            var selectorLabel = dojo.create("label", { innerHTML: "Select " + annot.get("type"), class: "annotation_info_editor_selector_label" }, selectorDiv);
-            var data = [];
-            var feats = track.topLevelParents[annot.afeature.parent_id];
-            for (var i in feats) {
-                var feat = feats[i];
-                data.push({ id: feat.uniquename, label: feat.name });
-            }
-            var store = new Memory({
-                data: data
-            });
-            var os = new ObjectStore({ objectStore: store });
-            var selector = new Select({ store: os });
-            selector.placeAt(selectorDiv);
-            selector.attr("value", annot.afeature.uniquename);
-            selector.attr("style", "width: 50%;");
-            var first = true;
-            dojo.connect(selector, "onChange", function(id) {
-                if (!first) {
-                    dojo.destroy("child_annotation_info_editor");
-                    annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
-                    var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(id, track.getUniqueTrackName(), selector, true);
-                    //console.log("var3"+annotContentSideBar);
-                    //dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
-                    dojo.attr(annotContent, "class", "annotation_info_editor");
-                    dojo.attr(annotContent, "id", "child_annotation_info_editor");
-                    dojo.place(annotContent, content);
-                }
-                first = false;
-            });
-        }
-        var numItems = 0;
-        // if annotation has parent, get comments for parent
-        if (annot.afeature.parent_id) {
-            var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
-            var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.afeature.parent_id, track.getUniqueTrackName());
-            //console.log("var1"+annotContentSideBar);
-            //dojo.place(annotContentSideBar,this.browser.informationEditor.domNode);
-            dojo.attr(parentContent, "class", "parent_annotation_info_editor");
-            dojo.place(parentContent, content);
-            ++numItems;
-        }
-        var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
-        var annotContentSideBar = track.createAnnotationInfoEditorPanelForFeatureSideBar(annot.id(), track.getUniqueTrackName(), selector, true);
-        console.log("var2"+annotContentSideBar);
-        console.log(this.browser.informationEditor.domNode);
-        console.log(dojo.byId('information_list'));
-        dojo.place(annotContentSideBar,dojo.byId('information_list'));
-        dojo.attr(annotContent, "class", "annotation_info_editor");
-        dojo.attr(annotContent, "id", "child_annotation_info_editor");
-        dojo.place(annotContent, content);
-        ++numItems;
-        dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-        track.openDialog("Information Editor", content);
-        AnnotTrack.popupDialog.resize();
-        AnnotTrack.popupDialog._position();
-    },
-    
-    getAnnotationInfoEditorConfigs: function(trackName) {
-        var track = this;
-        if (track.annotationInfoEditorConfigs) {
-            return;
-        }
-        var operation = "get_annotation_info_editor_configuration";
-        var postData = '{ "track": "' + trackName + '", "operation": "' + operation + '" }';
-        dojo.xhrPost( {
-            sync: true,
-            postData: postData,
-            url: context_path + "/AnnotationEditorService",
-            handleAs: "json",
-            timeout: 5000 * 1000, // Time in milliseconds
-            load: function(response, ioArgs) {
-                track.annotationInfoEditorConfigs = {};
-                for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
-                    var config = response.annotation_info_editor_configs[i];
-                    for (var j = 0; j < config.supported_types.length; ++j) {
-                        track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
-                    }
-                }
-            }
-        });
-    },
-    
-    
+   
     createAnnotationInfoEditorPanelForFeatureSideBar: function(uniqueName, trackName, selector, reload) {
         console.log("createAnnotationInfoEditorPanelForFeatureSideBar");
         var track = this;
