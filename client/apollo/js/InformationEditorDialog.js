@@ -404,7 +404,7 @@ return declare(null,
                     structure: dbxrefTableLayout
                 });
                 
-                var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                var handle = dojo.connect(this.popupDialog, "onFocus", function() {
                     initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable);
                     dojo.disconnect(handle);
                 });
@@ -516,7 +516,7 @@ return declare(null,
                     structure: attributeTableLayout
                 });
                 
-                var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                var handle = dojo.connect(this.popupDialog, "onFocus", function() {
                     initTable(attributeTable.domNode, attributesTable, attributeTable);
                     dojo.disconnect(handle);
                 });
@@ -617,7 +617,7 @@ return declare(null,
                     structure: pubmedIdTableLayout
                 });
                 
-                var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                var handle = dojo.connect(this.popupDialog, "onFocus", function() {
                     initTable(pubmedIdTable.domNode, pubmedIdsTable, pubmedIdTable);
                     dojo.disconnect(handle);
                 });
@@ -737,7 +737,7 @@ return declare(null,
                     structure: goIdTableLayout
                 });
                 
-                var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                var handle = dojo.connect(this.popupDialog, "onFocus", function() {
                     initTable(goIdTable.domNode, goIdsTable, goIdTable);
                     dojo.disconnect(handle);
                 });
@@ -833,7 +833,7 @@ return declare(null,
                     updateDelay: 0
                 });
                 
-                var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                var handle = dojo.connect(this.popupDialog, "onFocus", function() {
                     initTable(commentTable.domNode, commentsTable, commentTable);
                     dojo.disconnect(handle);
                 });
