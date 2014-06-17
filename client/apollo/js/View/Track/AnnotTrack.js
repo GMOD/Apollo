@@ -30,6 +30,7 @@ define( [
             'WebApollo/EUtils',
             'WebApollo/SequenceOntologyUtils',
             'WebApollo/InformationEditorDialog',
+            'WebApollo/SequenceFeatureDialog',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Util', 
             'JBrowse/View/GranularRectLayout',
@@ -48,8 +49,8 @@ define( [
           dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
           dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
           dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
-          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,InformationEditorDialog,
-          SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
+          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
+          InformationEditorDialog, SequenceFeatureDialog, SimpleFeature, Util, Layout, golr, jquery, bbop, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
 // var listeners = [];
 // var listener;
@@ -69,7 +70,7 @@ var context_path = "..";
 
 var non_annot_context_menu;
 
-var AnnotTrack = declare( [DraggableFeatureTrack,InformationEditorDialog],
+var AnnotTrack = declare( [DraggableFeatureTrack,InformationEditorDialog,SequenceFeatureDialog],
 {
     constructor: function( args ) {
                 // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
@@ -2026,180 +2027,7 @@ var AnnotTrack = declare( [DraggableFeatureTrack,InformationEditorDialog],
             }
         });
     },
-    
-    
-    createAnnotationInfoEditorPanelForFeatureSideBar: function(uniqueName, trackName, selector, reload) {
-        console.log("createAnnotationInfoEditorPanelForFeatureSideBar");
-        var track = this;
-//      var hasWritePermission = this.hasWritePermission();
-        var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
-        var content = dojo.create("span");
-        var header = dojo.create("div", { className: "annotation_sidebar_header" }, content);
 
-        var nameDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
-        var nameLabel = dojo.create("label", { innerHTML: "Name", class: "annotation_info_editor_label" }, nameDiv);
-        var nameField = new dijitTextBox({ class: "annotation_editor_field"});
-        dojo.place(nameField.domNode, nameDiv);
-        
-        var symbolDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
-        var symbolLabel = dojo.create("label", { innerHTML: "Symbol", class: "annotation_info_editor_label" }, symbolDiv);
-        var symbolField = new dijitTextBox({ class: "annotation_editor_field"});
-        dojo.place(symbolField.domNode, symbolDiv);
-        
-        var descriptionDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
-        var descriptionLabel = dojo.create("label", { innerHTML: "Description", class: "annotation_info_editor_label" }, descriptionDiv);
-        var descriptionField = new dijitTextBox({ class: "annotation_editor_field"});
-        dojo.place(descriptionField.domNode, descriptionDiv);
-        
-        var dateCreationDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
-        var dateCreationLabel = dojo.create("label", { innerHTML: "Created", class: "annotation_info_editor_label" }, dateCreationDiv);
-        var dateCreationField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
-        dojo.place(dateCreationField.domNode, dateCreationDiv);
-
-        var dateLastModifiedDiv = dojo.create("div", { class: "annotation_info_editor_field_section" }, content);
-        var dateLastModifiedLabel = dojo.create("label", { innerHTML: "Last modified", class: "annotation_info_editor_label" }, dateLastModifiedDiv);
-        var dateLastModifiedField = new dijitTextBox({ class: "annotation_editor_field", readonly: true });
-        dojo.place(dateLastModifiedField.domNode, dateLastModifiedDiv);
-        
-        var statusDiv = dojo.create("div", { class: "annotation_info_editor_section" }, content);
-        var statusLabel = dojo.create("div", { class: "annotation_info_editor_section_header", innerHTML: "Status" }, statusDiv);
-        var statusFlags = dojo.create("div", { class: "status" }, statusDiv);
-        var statusRadios = new Object();
-
-        if (!hasWritePermission) {
-            nameField.set("disabled", true);
-        }
-        var timeout = 100;
-        
-        var escapeString = function(str) {
-            return str.replace(/(["'])/g, "\\$1");
-        };
-        
-        function init() {
-            var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-            var operation = "get_annotation_info_editor_data";
-            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-            dojo.xhrPost( {
-                sync: true,
-                postData: postData,
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    var feature = response.features[0];
-                    var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
-                    initName(feature);
-                    initSymbol(feature);
-                    initDescription(feature);
-                    initDates(feature);
-                    initStatus(feature, config);
-                }
-            });
-        };
-        var initName = function(feature) {
-            if (feature.name) {
-                nameField.set("value", feature.name);
-            }
-            var oldName;
-            dojo.connect(nameField, "onFocus", function() {
-                oldName = nameField.get("value");
-            });
-            dojo.connect(nameField, "onBlur", function() {
-                var newName = nameField.get("value");
-                if (oldName != newName) {
-                    updateName(newName);
-                    if (selector) {
-                        var select = selector.store.get(feature.uniquename).then(function(select) {
-                            selector.store.setValue(select, "label", newName);
-                        });
-                    }
-                }
-            });
-        };
-        
-        var initSymbol = function(feature) {
-            if (feature.symbol) {
-                symbolField.set("value", feature.symbol);
-            }
-            var oldSymbol;
-            dojo.connect(symbolField, "onFocus", function() {
-                oldSymbol = symbolField.get("value");
-            });
-            dojo.connect(symbolField, "onBlur", function() {
-                var newSymbol = symbolField.get("value");
-                if (oldSymbol != newSymbol) {
-                    updateSymbol(newSymbol);
-                }
-            });
-        };
-        
-        var initDescription = function(feature) {
-            if (feature.description) {
-                descriptionField.set("value", feature.description);
-            }
-            var oldDescription;
-            dojo.connect(descriptionField, "onFocus", function() {
-                oldDescription = descriptionField.get("value");
-            });
-            dojo.connect(descriptionField, "onBlur", function() {
-                var newDescription = descriptionField.get("value");
-                if (oldDescription != newDescription) {
-                    updateDescription(newDescription);
-                }
-            });
-        };
-        var initDates = function(feature) {
-            if (feature.date_creation) {
-                dateCreationField.set("value", FormatUtils.formatDate(feature.date_creation));
-            }
-            if (feature.date_last_modified) {
-                dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
-            }
-        };
-        
-        var initStatus = function(feature, config) {
-            var maxLength = 0;
-            var status = config.status;
-            if (status) {
-                for (var i = 0; i < status.length; ++i) {
-                    if (status[i].length > maxLength) {
-                        maxLength = status[i].length;
-                    }
-                }
-                for (var i = 0; i < status.length; ++i) {
-                    var statusRadioDiv = dojo.create("span", { class: "annotation_info_editor_radio", style: "width:" + (maxLength * 0.75) + "em;" }, statusFlags);
-                    var statusRadio = new dijitRadioButton({ value: status[i], name: "status_" + uniqueName, checked: status[i] == feature.status ? true : false });
-                    if (!hasWritePermission) {
-                        statusRadio.set("disabled", true);
-                    }
-                    dojo.place(statusRadio.domNode, statusRadioDiv);
-                    var statusLabel = dojo.create("label", { innerHTML: status[i], class: "annotation_info_editor_radio_label" }, statusRadioDiv);
-                    statusRadios[status[i]] = statusRadio;
-                    dojo.connect(statusRadio, "onMouseDown", function(div, radio, label) {
-                        return function(event) {
-                            if (radio.checked) {
-                                deleteStatus();
-                                dojo.place(new dijitRadioButton({ value: status[i], name: "status_" + uniqueName, checked: false }).domNode, radio.domNode, "replace");
-                            }
-                        };
-                    }(statusRadioDiv, statusRadio, statusLabel));
-                    dojo.connect(statusRadio, "onChange", function(label) {
-                        return function(selected) {
-                            if (selected && hasWritePermission) {
-                                updateStatus(label);
-                            }
-                        };
-                    }(status[i]));
-                }
-            }
-            else {
-                dojo.style(statusDiv, "display", "none");
-            }
-        };
-        init();
-        return content;
-    },
-    
     undo: function()  {
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
@@ -2563,133 +2391,6 @@ var AnnotTrack = declare( [DraggableFeatureTrack,InformationEditorDialog],
         this.getSequenceForSelectedFeatures(selected);
     },
 
-    getSequenceForSelectedFeatures: function(records) {
-        var track = this;
-
-        var content = dojo.create("div", { className: "get_sequence" });
-        var textArea = dojo.create("textarea", { className: "sequence_area", readonly: true }, content);
-        var form = dojo.create("form", { }, content);
-        var peptideButtonDiv = dojo.create("div", { className: "first_button_div" }, form);
-        var peptideButton = dojo.create("input", { type: "radio", name: "type", checked: true }, peptideButtonDiv);
-        var peptideButtonLabel = dojo.create("label", { innerHTML: "Peptide sequence", className: "button_label" }, peptideButtonDiv);
-        var cdnaButtonDiv = dojo.create("div", { className: "button_div" }, form);
-        var cdnaButton = dojo.create("input", { type: "radio", name: "type" }, cdnaButtonDiv);
-        var cdnaButtonLabel = dojo.create("label", { innerHTML: "cDNA sequence", className: "button_label" }, cdnaButtonDiv);
-        var cdsButtonDiv = dojo.create("div", { className: "button_div" }, form);
-        var cdsButton = dojo.create("input", { type: "radio", name: "type" }, cdsButtonDiv);
-        var cdsButtonLabel = dojo.create("label", { innerHTML: "CDS sequence", className: "button_label" }, cdsButtonDiv);
-        var genomicButtonDiv = dojo.create("div", { className: "button_div" }, form);
-        var genomicButton = dojo.create("input", { type: "radio", name: "type" }, genomicButtonDiv);
-        var genomicButtonLabel = dojo.create("label", { innerHTML: "Genomic sequence", className: "button_label" }, genomicButtonDiv);
-        var genomicWithFlankButtonDiv = dojo.create("div", { className: "button_div" }, form);
-        var genomicWithFlankButton = dojo.create("input", { type: "radio", name: "type" }, genomicWithFlankButtonDiv);
-        var genomicWithFlankButtonLabel = dojo.create("label", { innerHTML: "Genomic sequence +/-", className: "button_label" }, genomicWithFlankButtonDiv);
-        var genomicWithFlankField = dojo.create("input", { type: "text", size: 5, className: "button_field", value: "500" }, genomicWithFlankButtonDiv);
-        var genomicWithFlankFieldLabel = dojo.create("label", { innerHTML: "bases", className: "button_label" }, genomicWithFlankButtonDiv);
-
-        var fetchSequence = function(type) {
-            var features = '"features": [';
-            for (var i = 0; i < records.length; ++i)  {
-                var record = records[i];
-                var annot = record.feature;
-                var seltrack = record.track;
-                var uniqueName = annot.getUniqueName();
-                // just checking to ensure that all features in selection are
-                // from this track
-                if (seltrack === track)  {
-                    var trackdiv = track.div;
-                    var trackName = track.getUniqueTrackName();
-
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
-                }
-            }
-            features += ']';
-            var operation = "get_sequence";
-            var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
-                var flank = 0;
-                if (type == "genomic_with_flank") {
-                        flank = dojo.attr(genomicWithFlankField, "value");
-                        postData += ', "flank": ' + flank;
-                        type = "genomic";
-                }
-                postData += ', "type": "' + type + '" }';
-                dojo.xhrPost( {
-                    postData: postData,
-                    url: context_path + "/AnnotationEditorService",
-                    handleAs: "json",
-                    timeout: 5000 * 1000, // Time in milliseconds
-                    load: function(response, ioArgs) {
-                        var textAreaContent = "";
-                        for (var i = 0; i < response.features.length; ++i) {
-                                var feature = response.features[i];
-                                var cvterm = feature.type;
-                                var residues = feature.residues;
-                                var loc = feature.location;
-                                textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] ["+ type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
-                                var lineLength = 70;
-                                for (var j = 0; j < residues.length; j += lineLength) {
-                                        textAreaContent += residues.substr(j, lineLength) + "\n";
-                                }
-                        }
-                        dojo.attr(textArea, "innerHTML", textAreaContent);
-                    },
-                    // The ERROR function will be called in an error case.
-                    error: function(response, ioArgs) {
-                                track.handleError(response);
-                        console.log("Annotation server error--maybe you forgot to login to the server?");
-                        console.error("HTTP status code: ", ioArgs.xhr.status);
-                        //
-                        // dojo.byId("replace").innerHTML = 'Loading the
-                        // resource from the server did not work';
-                        return response;
-                    }
-
-                });
-        };
-        var callback = function(event) {
-            var type;
-            var target = event.target || event.srcElement;
-            if (target == peptideButton || target == peptideButtonLabel) {
-                    dojo.attr(peptideButton, "checked", true);
-                    type = "peptide";
-            }
-            else if (target == cdnaButton || target == cdnaButtonLabel) {
-                    dojo.attr(cdnaButton, "checked", true);
-                    type = "cdna";
-            }
-            else if (target == cdsButton || target == cdsButtonLabel) {
-                    dojo.attr(cdsButton, "checked", true);
-                    type = "cds";
-            }
-            else if (target == genomicButton || target == genomicButtonLabel) {
-                    dojo.attr(genomicButton, "checked", true);
-                    type = "genomic";
-            }
-            else if (target == genomicWithFlankButton || target == genomicWithFlankButtonLabel) {
-                    dojo.attr(genomicWithFlankButton, "checked", true);
-                    type = "genomic_with_flank";
-            }
-            fetchSequence(type);
-        };
-
-        dojo.connect(peptideButton, "onchange", null, callback);
-        dojo.connect(peptideButtonLabel, "onclick", null, callback);
-        dojo.connect(cdnaButton, "onchange", null, callback);
-        dojo.connect(cdnaButtonLabel, "onclick", null, callback);
-        dojo.connect(cdsButton, "onchange", null, callback);
-        dojo.connect(cdsButtonLabel, "onclick", null, callback);
-        dojo.connect(genomicButton, "onchange", null, callback);
-        dojo.connect(genomicButtonLabel, "onclick", null, callback);
-        dojo.connect(genomicWithFlankButton, "onchange", null, callback);
-        dojo.connect(genomicWithFlankButtonLabel, "onclick", null, callback);
-
-        fetchSequence("peptide");
-        this.openDialog("Sequence", content);
-    },
 
     searchSequence: function() {
         var track = this;
