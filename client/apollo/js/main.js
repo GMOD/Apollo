@@ -188,7 +188,6 @@ return declare( JBPlugin,
             }
 
             // Initialize information editor with similar style to track selector
-            console.log('testing');
             browser.informationEditor=new InformationEditor(
                 dojo.mixin(
                         dojo.clone( browser.config.bookmarkPanel ) || {},
