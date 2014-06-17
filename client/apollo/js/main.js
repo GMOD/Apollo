@@ -188,7 +188,7 @@ return declare( JBPlugin,
             }
 
             // Initialize information editor with similar style to track selector
-            browser.informationEditor=new InformationEditor(
+            /*browser.informationEditor=new InformationEditor(
                 dojo.mixin(
                         dojo.clone( browser.config.bookmarkPanel ) || {},
                         {
@@ -198,7 +198,7 @@ return declare( JBPlugin,
                 )
             );
             browser.tabContainer.addChild(browser.informationEditor);
-
+            */
             var view = browser.view;
             view.oldOnResize = view.onResize;
   
