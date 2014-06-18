@@ -1,4 +1,4 @@
-package org.bbop.apollo.web.user.localdb;
+package org.bbop.apollo.web.user.encryptedlocaldb;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.crackstation.PasswordHash;
+
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
@@ -23,7 +25,7 @@ import org.bbop.apollo.web.util.JSONUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LocalDbUserAuthentication implements UserAuthentication {
+public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
 
 	@Override
 	public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
@@ -62,18 +64,18 @@ public class LocalDbUserAuthentication implements UserAuthentication {
 			throw new UserAuthenticationException(e);
 		}
 	}
-
+	
 
 	@Override
 	public String getUserLoginPageURL() {
 		return "user_interfaces/localdb/login.html";
 	}
-
+	
 	@Override
 	public String getAddUserURL() {
 		return "user_interfaces/localdb/addUser.jsp";
 	}
-
+	
 	private boolean validateUser(String username, String password) throws SQLException {
 		Connection conn = UserManager.getInstance().getConnection();
 		PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM users WHERE username=?");
@@ -81,7 +83,15 @@ public class LocalDbUserAuthentication implements UserAuthentication {
 		ResultSet rs = stmt.executeQuery();
 		boolean valid = false;
 		if (rs.next()) {
-			valid = rs.getString(2).equals(password);
+			try {
+				valid = PasswordHash.validatePassword(password, rs.getString(2));
+			}
+			catch (NoSuchAlgorithmException e) {
+				valid = false;
+			}
+			catch (InvalidKeySpecException e) {
+				valid = false;
+			}
 		}
 		conn.close();
 		return valid;
