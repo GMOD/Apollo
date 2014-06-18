@@ -3952,15 +3952,15 @@ var AnnotTrack = declare( [DraggableFeatureTrack,InformationEditorDialog,Sequenc
         // originally tried (B), but after struggling a bit with
         // SequenceTrack.getRange() etc., now leaning
         // trying (C)
-    /*
-     * var track = this; if (scale === track.browserParams.charWidth) { // need
-     * to float sequence residues over selected row(s) var seqTrack =
-     * this.getSequenceTrack(); seqTrack.getRange(containerStart, containerEnd, //
-     * see // callback, gets called for every block that overlaps with
-     * containerStart->containerEnd range // start = genome coord of first bp of
-     * block // end = genome coord of function(start, end, seq) {
-     *  } ); }
-     */
+        /*
+         * var track = this; if (scale === track.browserParams.charWidth) { // need
+         * to float sequence residues over selected row(s) var seqTrack =
+         * this.getSequenceTrack(); seqTrack.getRange(containerStart, containerEnd, //
+         * see // callback, gets called for every block that overlaps with
+         * containerStart->containerEnd range // start = genome coord of first bp of
+         * block // end = genome coord of function(start, end, seq) {
+         *  } ); }
+         */
     },
 
 

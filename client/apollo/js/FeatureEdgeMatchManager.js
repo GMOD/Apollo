@@ -6,36 +6,36 @@
         function( declare, $, DraggableFeatureTrack, AnnotTrack ) {
 
 var FeatureEdgeMatchManager = declare( null,
-				       
+                                       
 {
 
     constructor: function() {
-	this.SHOW_EDGE_MATCHES = true,
-	this.selection_managers = [];
-	this.unmatchableTypes = {};
+        this.SHOW_EDGE_MATCHES = true,
+        this.selection_managers = [];
+        this.unmatchableTypes = {};
 
         this.verbose_edges = false;
         this.unedgeableTypes = { "wholeCDS" : true };
     },
 
     addSelectionManager: function( manager )  {
-	if ( dojo.indexOf( this.selection_managers, manager ) < 0 ) {
-	    this.selection_managers.push( manager );
-	    manager.addListener(this);
-	    dojo.mixin( this.unmatchableTypes, manager.unselectableTypes );
-	}
+        if ( dojo.indexOf( this.selection_managers, manager ) < 0 ) {
+            this.selection_managers.push( manager );
+            manager.addListener(this);
+            dojo.mixin( this.unmatchableTypes, manager.unselectableTypes );
+        }
 
     }, 
 
     setBrowser: function( browser ) {
         browser.subscribe('/jbrowse/v1/n/tracks/redraw', dojo.hitch( this, function() {
             this.selectionCleared();
-	    for (var k=0; k < this.selection_managers.length; k++)  {
-		var selected = this.selection_managers[k].getSelection();    
-		for (var i = 0; i < selected.length; ++i) {
-        	    this.selectionAdded(selected[i]);
-		}
-	    }
+            for (var k=0; k < this.selection_managers.length; k++)  {
+                var selected = this.selection_managers[k].getSelection();    
+                for (var i = 0; i < selected.length; ++i) {
+                    this.selectionAdded(selected[i]);
+                }
+            }
         }));
     },
 
@@ -50,13 +50,13 @@ var FeatureEdgeMatchManager = declare( null,
         if( this.SHOW_EDGE_MATCHES )  {
             $(".left-edge-match").removeClass("left-edge-match");
             $(".right-edge-match").removeClass("right-edge-match");
-	    for (var k=0; k < this.selection_managers.length; k++)  {
-		var selected = this.selection_managers[k].getSelection();
-		for (var i = 0; i < selected.length; ++i) {
-		    var selection_record = selected[i];
-//		    this.selectionAdded(selection_record);
-		}
-	    }
+            for (var k=0; k < this.selection_managers.length; k++)  {
+                var selected = this.selection_managers[k].getSelection();
+                for (var i = 0; i < selected.length; ++i) {
+                    var selection_record = selected[i];
+//                    this.selectionAdded(selection_record);
+                }
+            }
         }
     },
 
@@ -104,7 +104,7 @@ var FeatureEdgeMatchManager = declare( null,
 
         var ftracks = $("div.track").each( function(index, trackdiv)  {
             var target_track = trackdiv.track;
-	    // only DraggableHTMLFeatures and descendants should have track.edge_matchin_enabled
+            // only DraggableHTMLFeatures and descendants should have track.edge_matchin_enabled
             if (target_track && target_track.store && target_track.edge_matching_enabled)  {
                 if (verbose_edges)  {
                     console.log("edge matching for: " + target_track.name);
@@ -114,10 +114,10 @@ var FeatureEdgeMatchManager = declare( null,
 
                 // only look at features that overlap source_feat min/max
                 // NCList.iterate only calls function for features that overlap qmin/qmax coords
-		var query =  { ref: target_track.refSeq.name, start: qmin, end: qmax };
+                var query =  { ref: target_track.refSeq.name, start: qmin, end: qmax };
                 featureStore.getFeatures(query, function(target_feat, path) {
-		    // some stores invoke the callback (with target_feat = undefined) even if no features meet query, so catching this case
-		    if (! target_feat)  { return; }  
+                    // some stores invoke the callback (with target_feat = undefined) even if no features meet query, so catching this case
+                    if (! target_feat)  { return; }  
                     if (verbose_edges)  {  console.log("========="); console.log("checking feature: "); console.log(target_feat); }
                     var target_subfeats = target_feat.get('subfeatures');
                     if (! target_subfeats) {

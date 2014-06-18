@@ -20,39 +20,39 @@ removeChild: function(child)  {
     var index = children.indexOf(child);
     console.log(index);
     if (index < 0)  {
-	// console.log("BioFeatureUtils ERROR: child not found in parent!!");
-	return parent;
+        // console.log("BioFeatureUtils ERROR: child not found in parent!!");
+        return parent;
     }
     children.splice(index, 1);
     //    console.log(children);
     var clength = children.length;
     if (children.length === 0)  {
-	// console.log("parent has no more children");
-	return null;
+        // console.log("parent has no more children");
+        return null;
     }
     else  {
-	// console.log("rechecking parent bounds");
-	var prevmin = parent[fields["start"]];
-	var prevmax = parent[fields["end"]];
-	var sibling = children[0];
-	var newmin = sibling[subfields["start"]];
-	var newmax = sibling[subfields["end"]];
-	for (var cindex = 1; cindex<clength; cindex++)  {
-	    sibling = children[cindex];
-	    newmin = Math.min(newmin, sibling[subfields["start"]]);
-	    newmax = Math.max(newmax, sibling[subfields["end"]]);
-	}
-	// console.log("checked all child bounds");
-	if (newmin !== prevmin)  {
-	    // console.log("changing parent min: " + newmin);
-	    parent[fields["start"]] = newmin;
-	}
-	if (newmax !=  prevmax)  {
-	    // console.log("changing parent max: " + newmin);
-	    parent[fields["end"]] = newmax;
-	}
-	// console.log("returning from BioFeatureUtils.removeChild");
-	return parent;
+        // console.log("rechecking parent bounds");
+        var prevmin = parent[fields["start"]];
+        var prevmax = parent[fields["end"]];
+        var sibling = children[0];
+        var newmin = sibling[subfields["start"]];
+        var newmax = sibling[subfields["end"]];
+        for (var cindex = 1; cindex<clength; cindex++)  {
+            sibling = children[cindex];
+            newmin = Math.min(newmin, sibling[subfields["start"]]);
+            newmax = Math.max(newmax, sibling[subfields["end"]]);
+        }
+        // console.log("checked all child bounds");
+        if (newmin !== prevmin)  {
+            // console.log("changing parent min: " + newmin);
+            parent[fields["start"]] = newmin;
+        }
+        if (newmax !=  prevmax)  {
+            // console.log("changing parent max: " + newmin);
+            parent[fields["end"]] = newmax;
+        }
+        // console.log("returning from BioFeatureUtils.removeChild");
+        return parent;
     }
 }
 });
