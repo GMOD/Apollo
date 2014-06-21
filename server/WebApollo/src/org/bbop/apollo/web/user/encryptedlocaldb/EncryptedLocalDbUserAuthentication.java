@@ -64,18 +64,18 @@ public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
 			throw new UserAuthenticationException(e);
 		}
 	}
-	
+
 
 	@Override
 	public String getUserLoginPageURL() {
-		return "user_interfaces/localdb/login.html";
+		return "user_interfaces/encryptedlocaldb/login.html";
 	}
-	
+
 	@Override
 	public String getAddUserURL() {
-		return "user_interfaces/localdb/addUser.jsp";
+		return "user_interfaces/encryptedlocaldb/addUser.jsp";
 	}
-	
+
 	private boolean validateUser(String username, String password) throws SQLException {
 		Connection conn = UserManager.getInstance().getConnection();
 		PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM users WHERE username=?");

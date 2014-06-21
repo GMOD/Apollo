@@ -19,6 +19,7 @@ import org.bbop.apollo.web.user.UserManager;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
+import net.crackstation.PasswordHash;
 
 /**
  * Servlet implementation class UserManagerService
@@ -26,7 +27,7 @@ import org.json.JSONObject;
 @WebServlet("/UserManagerService")
 public class UserManagerService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -49,7 +50,7 @@ public class UserManagerService extends HttpServlet {
 			throw new ServletException(e);
 		}
 	}
-	
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -91,7 +92,7 @@ public class UserManagerService extends HttpServlet {
 			}
 		}
 	}
-	
+
 	private void setPermissions(JSONObject permissions) throws JSONException, SQLException {
 		Map<String, Integer> permissionsMap = new HashMap<String, Integer>();
 		for (String username : JSONObject.getNames(permissions)) {
@@ -100,12 +101,22 @@ public class UserManagerService extends HttpServlet {
 		}
 		UserManager.getInstance().updateAllTrackPermissionForUsers(permissionsMap);
 	}
-	
+
 	private void addUser(JSONObject user) throws JSONException, SQLException {
 		String username = user.getString("username");
 		if (user.has("password")) {
 			String password = user.getString("password");
+			if(user.has("encrypted")) {
+			try {
+			String hash=PasswordHash.createHash(password);
+			UserManager.getInstance().addUser(username, hash);
+			}
+			catch(Exception e) {}
+
+			}
+			else {
 			UserManager.getInstance().addUser(username, password);
+			}
 		}
 		else {
 			UserManager.getInstance().addUser(username);
@@ -119,19 +130,19 @@ public class UserManagerService extends HttpServlet {
 		String username = user.getString("username");
 		UserManager.getInstance().deleteUser(username);
 	}
-	
+
 	private class UserManagerServiceException extends Exception {
 
 		private static final long serialVersionUID = 1L;
 
 		/** Constructor.
-		 * 
+		 *
 		 * @param message - String describing the error
 		 */
 		public UserManagerServiceException(String message) {
 			super(message);
 		}
-		
+
 	}
 
 }
