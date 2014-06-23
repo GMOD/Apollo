@@ -12,21 +12,21 @@ import java.util.Collection;
 
 public class MAGEDocumentation extends org.gmod.gbol.simpleObject.generated.AbstractMAGEDocumentation {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public MAGEDocumentation(){
-		super();
-	}
+    public MAGEDocumentation(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

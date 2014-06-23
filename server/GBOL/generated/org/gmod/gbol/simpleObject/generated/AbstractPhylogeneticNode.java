@@ -31,7 +31,7 @@ public abstract class AbstractPhylogeneticNode extends AbstractSimpleObject impl
     public AbstractPhylogeneticNode() {
     }
 
-	
+    
     public AbstractPhylogeneticNode(PhylogeneticTree phylogeneticTree, int leftIndex, int rightIndex) {
         this.phylogeneticTree = phylogeneticTree;
         this.leftIndex = leftIndex;
@@ -163,11 +163,11 @@ public abstract class AbstractPhylogeneticNode extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhylogeneticNode) ) return false;
-		 AbstractPhylogeneticNode castOther = ( AbstractPhylogeneticNode ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhylogeneticNode) ) return false;
+         AbstractPhylogeneticNode castOther = ( AbstractPhylogeneticNode ) other; 
          
-		 return ( (this.getLabel()==castOther.getLabel()) || ( this.getLabel()!=null && castOther.getLabel()!=null && this.getLabel().equals(castOther.getLabel()) ) );
+         return ( (this.getLabel()==castOther.getLabel()) || ( this.getLabel()!=null && castOther.getLabel()!=null && this.getLabel().equals(castOther.getLabel()) ) );
    }
    
    public int hashCode() {
@@ -192,22 +192,22 @@ public abstract class AbstractPhylogeneticNode extends AbstractSimpleObject impl
    }   
 
 public AbstractPhylogeneticNode generateClone() {
-	AbstractPhylogeneticNode cloned = new AbstractPhylogeneticNode; 
-    	   cloned.feature = this.feature;
-    	   cloned.phylogeneticTree = this.phylogeneticTree;
-    	   cloned.parentPhylogeneticNode = this.parentPhylogeneticNode;
-    	   cloned.type = this.type;
-    	   cloned.leftIndex = this.leftIndex;
-    	   cloned.rightIndex = this.rightIndex;
-    	   cloned.label = this.label;
-    	   cloned.distance = this.distance;
-    	   cloned.phylogeneticNodeDBXrefs = this.phylogeneticNodeDBXrefs;
-    	   cloned.childPhylogeneticNodeRelationships = this.childPhylogeneticNodeRelationships;
-    	   cloned.phylogeneticNodeProperties = this.phylogeneticNodeProperties;
-    	   cloned.parentPhylogeneticNodeRelationships = this.parentPhylogeneticNodeRelationships;
-    	   cloned.phylogeneticNodePublications = this.phylogeneticNodePublications;
-    	   cloned.phylogeneticNodeOrganisms = this.phylogeneticNodeOrganisms;
-	return cloned;
+    AbstractPhylogeneticNode cloned = new AbstractPhylogeneticNode; 
+           cloned.feature = this.feature;
+           cloned.phylogeneticTree = this.phylogeneticTree;
+           cloned.parentPhylogeneticNode = this.parentPhylogeneticNode;
+           cloned.type = this.type;
+           cloned.leftIndex = this.leftIndex;
+           cloned.rightIndex = this.rightIndex;
+           cloned.label = this.label;
+           cloned.distance = this.distance;
+           cloned.phylogeneticNodeDBXrefs = this.phylogeneticNodeDBXrefs;
+           cloned.childPhylogeneticNodeRelationships = this.childPhylogeneticNodeRelationships;
+           cloned.phylogeneticNodeProperties = this.phylogeneticNodeProperties;
+           cloned.parentPhylogeneticNodeRelationships = this.parentPhylogeneticNodeRelationships;
+           cloned.phylogeneticNodePublications = this.phylogeneticNodePublications;
+           cloned.phylogeneticNodeOrganisms = this.phylogeneticNodeOrganisms;
+    return cloned;
 }
 
 

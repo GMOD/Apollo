@@ -18,7 +18,7 @@ public abstract class AbstractCVTermSynonym extends AbstractSimpleObject impleme
     public AbstractCVTermSynonym() {
     }
 
-	
+    
     public AbstractCVTermSynonym(CVTerm cvterm, String synonym) {
         this.cvterm = cvterm;
         this.synonym = synonym;
@@ -61,11 +61,11 @@ public abstract class AbstractCVTermSynonym extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCVTermSynonym) ) return false;
-		 AbstractCVTermSynonym castOther = ( AbstractCVTermSynonym ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCVTermSynonym) ) return false;
+         AbstractCVTermSynonym castOther = ( AbstractCVTermSynonym ) other; 
          
-		 return ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
+         return ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
  && ( (this.getSynonym()==castOther.getSynonym()) || ( this.getSynonym()!=null && castOther.getSynonym()!=null && this.getSynonym().equals(castOther.getSynonym()) ) );
    }
    
@@ -80,11 +80,11 @@ public abstract class AbstractCVTermSynonym extends AbstractSimpleObject impleme
    }   
 
 public AbstractCVTermSynonym generateClone() {
-	AbstractCVTermSynonym cloned = new CVTermSynonym(); 
-    	   cloned.type = this.type;
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.synonym = this.synonym;
-	return cloned;
+    AbstractCVTermSynonym cloned = new CVTermSynonym(); 
+           cloned.type = this.type;
+           cloned.cvterm = this.cvterm;
+           cloned.synonym = this.synonym;
+    return cloned;
 }
 
 

@@ -56,11 +56,11 @@ public abstract class AbstractLibraryDBXref extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibraryDBXref) ) return false;
-		 AbstractLibraryDBXref castOther = ( AbstractLibraryDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibraryDBXref) ) return false;
+         AbstractLibraryDBXref castOther = ( AbstractLibraryDBXref ) other; 
          
-		 return ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) )
+         return ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) )
  && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractLibraryDBXref extends AbstractSimpleObject impleme
    }   
 
 public AbstractLibraryDBXref generateClone() {
-	AbstractLibraryDBXref cloned = new LibraryDBXref(); 
-    	   cloned.library = this.library;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.isCurrent = this.isCurrent;
-	return cloned;
+    AbstractLibraryDBXref cloned = new LibraryDBXref(); 
+           cloned.library = this.library;
+           cloned.dbxref = this.dbxref;
+           cloned.isCurrent = this.isCurrent;
+    return cloned;
 }
 
 

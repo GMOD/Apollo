@@ -10,44 +10,44 @@ package org.gmod.gbol.simpleObject;
 
 public class CV extends org.gmod.gbol.simpleObject.generated.AbstractCV {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public CV(){
-		super();
-	}
-	
-	public CV(String cvName){
-		super(cvName);
-	}
+    public CV(){
+        super();
+    }
+    
+    public CV(String cvName){
+        super(cvName);
+    }
 
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public static final int done = 1;
-		}
-		
-		public SimpleObjectIterator(CV cv)
-		{
-			super(cv);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			AbstractSimpleObject retVal = null;
-			if (status == Status.notSet) {
-				retVal = peek();
-				status = Status.done;
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public static final int done = 1;
+        }
+        
+        public SimpleObjectIterator(CV cv)
+        {
+            super(cv);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            AbstractSimpleObject retVal = null;
+            if (status == Status.notSet) {
+                retVal = peek();
+                status = Status.done;
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
 }

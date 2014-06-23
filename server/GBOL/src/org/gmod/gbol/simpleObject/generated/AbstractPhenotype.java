@@ -26,7 +26,7 @@ public abstract class AbstractPhenotype extends AbstractSimpleObject implements 
     public AbstractPhenotype() {
     }
 
-	
+    
     public AbstractPhenotype(String uniqueName) {
         this.uniqueName = uniqueName;
     }
@@ -116,11 +116,11 @@ public abstract class AbstractPhenotype extends AbstractSimpleObject implements 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhenotype) ) return false;
-		 AbstractPhenotype castOther = ( AbstractPhenotype ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhenotype) ) return false;
+         AbstractPhenotype castOther = ( AbstractPhenotype ) other; 
          
-		 return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
+         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
    
    public int hashCode() {
@@ -140,17 +140,17 @@ public abstract class AbstractPhenotype extends AbstractSimpleObject implements 
    }   
 
 public AbstractPhenotype generateClone() {
-	AbstractPhenotype cloned = new Phenotype(); 
-    	   cloned.attribute = this.attribute;
-    	   cloned.cvalue = this.cvalue;
-    	   cloned.assay = this.assay;
-    	   cloned.observable = this.observable;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.value = this.value;
-    	   cloned.phenotypeCVTerms = this.phenotypeCVTerms;
-    	   cloned.phenotypeStatements = this.phenotypeStatements;
-    	   cloned.featurePhenotypes = this.featurePhenotypes;
-	return cloned;
+    AbstractPhenotype cloned = new Phenotype(); 
+           cloned.attribute = this.attribute;
+           cloned.cvalue = this.cvalue;
+           cloned.assay = this.assay;
+           cloned.observable = this.observable;
+           cloned.uniqueName = this.uniqueName;
+           cloned.value = this.value;
+           cloned.phenotypeCVTerms = this.phenotypeCVTerms;
+           cloned.phenotypeStatements = this.phenotypeStatements;
+           cloned.featurePhenotypes = this.featurePhenotypes;
+    return cloned;
 }
 
 

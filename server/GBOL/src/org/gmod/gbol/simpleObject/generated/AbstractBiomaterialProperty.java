@@ -19,7 +19,7 @@ public abstract class AbstractBiomaterialProperty extends AbstractSimpleObject i
     public AbstractBiomaterialProperty() {
     }
 
-	
+    
     public AbstractBiomaterialProperty(CVTerm type, Biomaterial biomaterial, int rank) {
         this.type = type;
         this.biomaterial = biomaterial;
@@ -71,11 +71,11 @@ public abstract class AbstractBiomaterialProperty extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractBiomaterialProperty) ) return false;
-		 AbstractBiomaterialProperty castOther = ( AbstractBiomaterialProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractBiomaterialProperty) ) return false;
+         AbstractBiomaterialProperty castOther = ( AbstractBiomaterialProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractBiomaterialProperty extends AbstractSimpleObject i
    }   
 
 public AbstractBiomaterialProperty generateClone() {
-	AbstractBiomaterialProperty cloned = new BiomaterialProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.biomaterial = this.biomaterial;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractBiomaterialProperty cloned = new BiomaterialProperty(); 
+           cloned.type = this.type;
+           cloned.biomaterial = this.biomaterial;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

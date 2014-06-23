@@ -18,7 +18,7 @@ public abstract class AbstractAnalysisProperty extends AbstractSimpleObject impl
     public AbstractAnalysisProperty() {
     }
 
-	
+    
     public AbstractAnalysisProperty(Analysis analysis, CVTerm type) {
         this.analysis = analysis;
         this.type = type;
@@ -61,11 +61,11 @@ public abstract class AbstractAnalysisProperty extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAnalysisProperty) ) return false;
-		 AbstractAnalysisProperty castOther = ( AbstractAnalysisProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAnalysisProperty) ) return false;
+         AbstractAnalysisProperty castOther = ( AbstractAnalysisProperty ) other; 
          
-		 return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) )
+         return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getValue()==castOther.getValue()) || ( this.getValue()!=null && castOther.getValue()!=null && this.getValue().equals(castOther.getValue()) ) );
    }
@@ -81,11 +81,11 @@ public abstract class AbstractAnalysisProperty extends AbstractSimpleObject impl
    }   
 
 public AbstractAnalysisProperty generateClone() {
-	AbstractAnalysisProperty cloned = new AbstractAnalysisProperty; 
-    	   cloned.analysis = this.analysis;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-	return cloned;
+    AbstractAnalysisProperty cloned = new AbstractAnalysisProperty; 
+           cloned.analysis = this.analysis;
+           cloned.type = this.type;
+           cloned.value = this.value;
+    return cloned;
 }
 
 

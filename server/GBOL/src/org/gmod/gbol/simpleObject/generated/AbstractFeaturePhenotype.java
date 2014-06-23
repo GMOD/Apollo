@@ -47,11 +47,11 @@ public abstract class AbstractFeaturePhenotype extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeaturePhenotype) ) return false;
-		 AbstractFeaturePhenotype castOther = ( AbstractFeaturePhenotype ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeaturePhenotype) ) return false;
+         AbstractFeaturePhenotype castOther = ( AbstractFeaturePhenotype ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getPhenotype()==castOther.getPhenotype()) || ( this.getPhenotype()!=null && castOther.getPhenotype()!=null && this.getPhenotype().equals(castOther.getPhenotype()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeaturePhenotype extends AbstractSimpleObject impl
    }   
 
 public AbstractFeaturePhenotype generateClone() {
-	AbstractFeaturePhenotype cloned = new FeaturePhenotype(); 
-    	   cloned.feature = this.feature;
-    	   cloned.phenotype = this.phenotype;
-	return cloned;
+    AbstractFeaturePhenotype cloned = new FeaturePhenotype(); 
+           cloned.feature = this.feature;
+           cloned.phenotype = this.phenotype;
+    return cloned;
 }
 
 

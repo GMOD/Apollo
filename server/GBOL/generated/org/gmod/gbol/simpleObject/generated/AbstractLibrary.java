@@ -31,7 +31,7 @@ public abstract class AbstractLibrary extends AbstractSimpleObject implements ja
     public AbstractLibrary() {
     }
 
-	
+    
     public AbstractLibrary(Organism organism, CVTerm type, String uniqueName, int isObsolete, Date timeAccessioned, Date timeLastModified) {
         this.organism = organism;
         this.type = type;
@@ -158,11 +158,11 @@ public abstract class AbstractLibrary extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibrary) ) return false;
-		 AbstractLibrary castOther = ( AbstractLibrary ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibrary) ) return false;
+         AbstractLibrary castOther = ( AbstractLibrary ) other; 
          
-		 return ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) )
+         return ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
@@ -188,21 +188,21 @@ public abstract class AbstractLibrary extends AbstractSimpleObject implements ja
    }   
 
 public AbstractLibrary generateClone() {
-	AbstractLibrary cloned = new AbstractLibrary; 
-    	   cloned.organism = this.organism;
-    	   cloned.type = this.type;
-    	   cloned.name = this.name;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.isObsolete = this.isObsolete;
-    	   cloned.timeAccessioned = this.timeAccessioned;
-    	   cloned.timeLastModified = this.timeLastModified;
-    	   cloned.libraryProperties = this.libraryProperties;
-    	   cloned.libraryDBXrefs = this.libraryDBXrefs;
-    	   cloned.librarySynonyms = this.librarySynonyms;
-    	   cloned.libraryFeatures = this.libraryFeatures;
-    	   cloned.libraryPublications = this.libraryPublications;
-    	   cloned.libraryCVTerms = this.libraryCVTerms;
-	return cloned;
+    AbstractLibrary cloned = new AbstractLibrary; 
+           cloned.organism = this.organism;
+           cloned.type = this.type;
+           cloned.name = this.name;
+           cloned.uniqueName = this.uniqueName;
+           cloned.isObsolete = this.isObsolete;
+           cloned.timeAccessioned = this.timeAccessioned;
+           cloned.timeLastModified = this.timeLastModified;
+           cloned.libraryProperties = this.libraryProperties;
+           cloned.libraryDBXrefs = this.libraryDBXrefs;
+           cloned.librarySynonyms = this.librarySynonyms;
+           cloned.libraryFeatures = this.libraryFeatures;
+           cloned.libraryPublications = this.libraryPublications;
+           cloned.libraryCVTerms = this.libraryCVTerms;
+    return cloned;
 }
 
 

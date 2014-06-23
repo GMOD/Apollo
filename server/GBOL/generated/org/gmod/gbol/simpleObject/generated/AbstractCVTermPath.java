@@ -20,7 +20,7 @@ public abstract class AbstractCVTermPath extends AbstractSimpleObject implements
     public AbstractCVTermPath() {
     }
 
-	
+    
     public AbstractCVTermPath(CVTerm subjectCVTerm, CVTerm objectCVTerm, CV cv) {
         this.subjectCVTerm = subjectCVTerm;
         this.objectCVTerm = objectCVTerm;
@@ -80,11 +80,11 @@ public abstract class AbstractCVTermPath extends AbstractSimpleObject implements
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCVTermPath) ) return false;
-		 AbstractCVTermPath castOther = ( AbstractCVTermPath ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCVTermPath) ) return false;
+         AbstractCVTermPath castOther = ( AbstractCVTermPath ) other; 
          
-		 return ( (this.getSubjectCVTerm()==castOther.getSubjectCVTerm()) || ( this.getSubjectCVTerm()!=null && castOther.getSubjectCVTerm()!=null && this.getSubjectCVTerm().equals(castOther.getSubjectCVTerm()) ) )
+         return ( (this.getSubjectCVTerm()==castOther.getSubjectCVTerm()) || ( this.getSubjectCVTerm()!=null && castOther.getSubjectCVTerm()!=null && this.getSubjectCVTerm().equals(castOther.getSubjectCVTerm()) ) )
  && ( (this.getObjectCVTerm()==castOther.getObjectCVTerm()) || ( this.getObjectCVTerm()!=null && castOther.getObjectCVTerm()!=null && this.getObjectCVTerm().equals(castOther.getObjectCVTerm()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getPathDistance()==castOther.getPathDistance()) || ( this.getPathDistance()!=null && castOther.getPathDistance()!=null && this.getPathDistance().equals(castOther.getPathDistance()) ) );
@@ -103,13 +103,13 @@ public abstract class AbstractCVTermPath extends AbstractSimpleObject implements
    }   
 
 public AbstractCVTermPath generateClone() {
-	AbstractCVTermPath cloned = new AbstractCVTermPath; 
-    	   cloned.subjectCVTerm = this.subjectCVTerm;
-    	   cloned.objectCVTerm = this.objectCVTerm;
-    	   cloned.cv = this.cv;
-    	   cloned.type = this.type;
-    	   cloned.pathDistance = this.pathDistance;
-	return cloned;
+    AbstractCVTermPath cloned = new AbstractCVTermPath; 
+           cloned.subjectCVTerm = this.subjectCVTerm;
+           cloned.objectCVTerm = this.objectCVTerm;
+           cloned.cv = this.cv;
+           cloned.type = this.type;
+           cloned.pathDistance = this.pathDistance;
+    return cloned;
 }
 
 

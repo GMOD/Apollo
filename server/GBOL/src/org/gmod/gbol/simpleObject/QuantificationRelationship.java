@@ -12,21 +12,21 @@ import java.util.Collection;
 
 public class QuantificationRelationship extends org.gmod.gbol.simpleObject.generated.AbstractQuantificationRelationship {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public QuantificationRelationship(){
-		super();
-	}
+    public QuantificationRelationship(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

@@ -19,7 +19,7 @@ public abstract class AbstractStudyDesignProperty extends AbstractSimpleObject i
     public AbstractStudyDesignProperty() {
     }
 
-	
+    
     public AbstractStudyDesignProperty(StudyDesign studyDesign, CVTerm type, int rank) {
         this.studyDesign = studyDesign;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractStudyDesignProperty extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyDesignProperty) ) return false;
-		 AbstractStudyDesignProperty castOther = ( AbstractStudyDesignProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyDesignProperty) ) return false;
+         AbstractStudyDesignProperty castOther = ( AbstractStudyDesignProperty ) other; 
          
-		 return ( (this.getStudyDesign()==castOther.getStudyDesign()) || ( this.getStudyDesign()!=null && castOther.getStudyDesign()!=null && this.getStudyDesign().equals(castOther.getStudyDesign()) ) )
+         return ( (this.getStudyDesign()==castOther.getStudyDesign()) || ( this.getStudyDesign()!=null && castOther.getStudyDesign()!=null && this.getStudyDesign().equals(castOther.getStudyDesign()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractStudyDesignProperty extends AbstractSimpleObject i
    }   
 
 public AbstractStudyDesignProperty generateClone() {
-	AbstractStudyDesignProperty cloned = new StudyDesignProperty(); 
-    	   cloned.studyDesign = this.studyDesign;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractStudyDesignProperty cloned = new StudyDesignProperty(); 
+           cloned.studyDesign = this.studyDesign;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

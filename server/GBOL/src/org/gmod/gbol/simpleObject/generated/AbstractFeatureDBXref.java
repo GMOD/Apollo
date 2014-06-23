@@ -56,11 +56,11 @@ public abstract class AbstractFeatureDBXref extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureDBXref) ) return false;
-		 AbstractFeatureDBXref castOther = ( AbstractFeatureDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureDBXref) ) return false;
+         AbstractFeatureDBXref castOther = ( AbstractFeatureDBXref ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractFeatureDBXref extends AbstractSimpleObject impleme
    }   
 
 public AbstractFeatureDBXref generateClone() {
-	AbstractFeatureDBXref cloned = new FeatureDBXref(); 
-    	   cloned.feature = this.feature;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.isCurrent = this.isCurrent;
-	return cloned;
+    AbstractFeatureDBXref cloned = new FeatureDBXref(); 
+           cloned.feature = this.feature;
+           cloned.dbxref = this.dbxref;
+           cloned.isCurrent = this.isCurrent;
+    return cloned;
 }
 
 

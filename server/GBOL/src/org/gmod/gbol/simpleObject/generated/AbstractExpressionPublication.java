@@ -47,11 +47,11 @@ public abstract class AbstractExpressionPublication extends AbstractSimpleObject
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractExpressionPublication) ) return false;
-		 AbstractExpressionPublication castOther = ( AbstractExpressionPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractExpressionPublication) ) return false;
+         AbstractExpressionPublication castOther = ( AbstractExpressionPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractExpressionPublication extends AbstractSimpleObject
    }   
 
 public AbstractExpressionPublication generateClone() {
-	AbstractExpressionPublication cloned = new ExpressionPublication(); 
-    	   cloned.publication = this.publication;
-    	   cloned.expression = this.expression;
-	return cloned;
+    AbstractExpressionPublication cloned = new ExpressionPublication(); 
+           cloned.publication = this.publication;
+           cloned.expression = this.expression;
+    return cloned;
 }
 
 

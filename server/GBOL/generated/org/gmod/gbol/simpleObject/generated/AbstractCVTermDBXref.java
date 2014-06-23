@@ -56,11 +56,11 @@ public abstract class AbstractCVTermDBXref extends AbstractSimpleObject implemen
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCVTermDBXref) ) return false;
-		 AbstractCVTermDBXref castOther = ( AbstractCVTermDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCVTermDBXref) ) return false;
+         AbstractCVTermDBXref castOther = ( AbstractCVTermDBXref ) other; 
          
-		 return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
+         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
  && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractCVTermDBXref extends AbstractSimpleObject implemen
    }   
 
 public AbstractCVTermDBXref generateClone() {
-	AbstractCVTermDBXref cloned = new AbstractCVTermDBXref; 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.isForDefinition = this.isForDefinition;
-	return cloned;
+    AbstractCVTermDBXref cloned = new AbstractCVTermDBXref; 
+           cloned.dbxref = this.dbxref;
+           cloned.cvterm = this.cvterm;
+           cloned.isForDefinition = this.isForDefinition;
+    return cloned;
 }
 
 

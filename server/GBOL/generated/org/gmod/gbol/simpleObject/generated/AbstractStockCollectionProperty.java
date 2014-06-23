@@ -19,7 +19,7 @@ public abstract class AbstractStockCollectionProperty extends AbstractSimpleObje
     public AbstractStockCollectionProperty() {
     }
 
-	
+    
     public AbstractStockCollectionProperty(StockCollection stockCollection, CVTerm type, int rank) {
         this.stockCollection = stockCollection;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractStockCollectionProperty extends AbstractSimpleObje
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockCollectionProperty) ) return false;
-		 AbstractStockCollectionProperty castOther = ( AbstractStockCollectionProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockCollectionProperty) ) return false;
+         AbstractStockCollectionProperty castOther = ( AbstractStockCollectionProperty ) other; 
          
-		 return ( (this.getStockCollection()==castOther.getStockCollection()) || ( this.getStockCollection()!=null && castOther.getStockCollection()!=null && this.getStockCollection().equals(castOther.getStockCollection()) ) )
+         return ( (this.getStockCollection()==castOther.getStockCollection()) || ( this.getStockCollection()!=null && castOther.getStockCollection()!=null && this.getStockCollection().equals(castOther.getStockCollection()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractStockCollectionProperty extends AbstractSimpleObje
    }   
 
 public AbstractStockCollectionProperty generateClone() {
-	AbstractStockCollectionProperty cloned = new AbstractStockCollectionProperty; 
-    	   cloned.stockCollection = this.stockCollection;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractStockCollectionProperty cloned = new AbstractStockCollectionProperty; 
+           cloned.stockCollection = this.stockCollection;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

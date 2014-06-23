@@ -13,10 +13,10 @@ public abstract class AbstractCVTerm extends AbstractSimpleObject implements jav
 
 
      /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private Integer cvtermId;
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    private Integer cvtermId;
      private CV cv;
      private DBXref dbxref;
      private String name;
@@ -31,7 +31,7 @@ public abstract class AbstractCVTerm extends AbstractSimpleObject implements jav
     public AbstractCVTerm() {
     }
 
-	
+    
     public AbstractCVTerm(CV cv, DBXref dbxref, String name, int isObsolete, int isRelationshipType) {
         this.cv = cv;
         this.dbxref = dbxref;
@@ -133,11 +133,11 @@ public abstract class AbstractCVTerm extends AbstractSimpleObject implements jav
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCVTerm) ) return false;
-		 AbstractCVTerm castOther = ( AbstractCVTerm ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCVTerm) ) return false;
+         AbstractCVTerm castOther = ( AbstractCVTerm ) other; 
          
-		 return ( (this.getCv()==castOther.getCv()) || ( this.getCv()!=null && castOther.getCv()!=null && this.getCv().equals(castOther.getCv()) ) )
+         return ( (this.getCv()==castOther.getCv()) || ( this.getCv()!=null && castOther.getCv()!=null && this.getCv().equals(castOther.getCv()) ) )
  && ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) )
  && (this.getIsObsolete()==castOther.getIsObsolete());
    }
@@ -160,18 +160,18 @@ public abstract class AbstractCVTerm extends AbstractSimpleObject implements jav
    }   
 
 public AbstractCVTerm generateClone() {
-	AbstractCVTerm cloned = new CVTerm(); 
-    	   cloned.cv = this.cv;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.name = this.name;
-    	   cloned.definition = this.definition;
-    	   cloned.isObsolete = this.isObsolete;
-    	   cloned.isRelationshipType = this.isRelationshipType;
-    	   cloned.childCVTermRelationships = this.childCVTermRelationships;
-    	   cloned.parentCVTermRelationships = this.parentCVTermRelationships;
-    	   cloned.parentCVTermPaths = this.parentCVTermPaths;
-    	   cloned.childCVTermPaths = this.childCVTermPaths;
-	return cloned;
+    AbstractCVTerm cloned = new CVTerm(); 
+           cloned.cv = this.cv;
+           cloned.dbxref = this.dbxref;
+           cloned.name = this.name;
+           cloned.definition = this.definition;
+           cloned.isObsolete = this.isObsolete;
+           cloned.isRelationshipType = this.isRelationshipType;
+           cloned.childCVTermRelationships = this.childCVTermRelationships;
+           cloned.parentCVTermRelationships = this.parentCVTermRelationships;
+           cloned.parentCVTermPaths = this.parentCVTermPaths;
+           cloned.childCVTermPaths = this.childCVTermPaths;
+    return cloned;
 }
 
 

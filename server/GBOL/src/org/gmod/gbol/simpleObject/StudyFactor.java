@@ -12,21 +12,21 @@ import java.util.Collection;
 
 public class StudyFactor extends org.gmod.gbol.simpleObject.generated.AbstractStudyFactor {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public StudyFactor(){
-		super();
-	}
+    public StudyFactor(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

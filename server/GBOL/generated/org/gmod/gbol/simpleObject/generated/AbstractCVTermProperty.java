@@ -65,11 +65,11 @@ public abstract class AbstractCVTermProperty extends AbstractSimpleObject implem
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCVTermProperty) ) return false;
-		 AbstractCVTermProperty castOther = ( AbstractCVTermProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCVTermProperty) ) return false;
+         AbstractCVTermProperty castOther = ( AbstractCVTermProperty ) other; 
          
-		 return ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
+         return ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getValue()==castOther.getValue()) || ( this.getValue()!=null && castOther.getValue()!=null && this.getValue().equals(castOther.getValue()) ) )
  && (this.getRank()==castOther.getRank());
@@ -87,12 +87,12 @@ public abstract class AbstractCVTermProperty extends AbstractSimpleObject implem
    }   
 
 public AbstractCVTermProperty generateClone() {
-	AbstractCVTermProperty cloned = new AbstractCVTermProperty; 
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractCVTermProperty cloned = new AbstractCVTermProperty; 
+           cloned.cvterm = this.cvterm;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

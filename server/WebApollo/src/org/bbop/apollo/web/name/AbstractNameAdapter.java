@@ -5,14 +5,14 @@ import org.gmod.gbol.simpleObject.Feature;
 
 public abstract class AbstractNameAdapter {
 
-	public abstract String generateUniqueName();
-	
-	public String generateName(Feature feature) {
-		return generateUniqueName();
-	}
-	
-	public String generateName(AbstractSingleLocationBioFeature feature) {
-		return generateUniqueName();
-	}
-	
+    public abstract String generateUniqueName();
+    
+    public String generateName(Feature feature) {
+        return generateUniqueName();
+    }
+    
+    public String generateName(AbstractSingleLocationBioFeature feature) {
+        return generateUniqueName();
+    }
+    
 }

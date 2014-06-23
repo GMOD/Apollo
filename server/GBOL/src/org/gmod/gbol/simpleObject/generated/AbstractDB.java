@@ -19,7 +19,7 @@ public abstract class AbstractDB extends AbstractSimpleObject implements java.io
     public AbstractDB() {
     }
 
-	
+    
     public AbstractDB(String name) {
         this.name = name;
     }
@@ -69,11 +69,11 @@ public abstract class AbstractDB extends AbstractSimpleObject implements java.io
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractDB) ) return false;
-		 AbstractDB castOther = ( AbstractDB ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractDB) ) return false;
+         AbstractDB castOther = ( AbstractDB ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -88,12 +88,12 @@ public abstract class AbstractDB extends AbstractSimpleObject implements java.io
    }   
 
 public AbstractDB generateClone() {
-	AbstractDB cloned = new DB(); 
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.urlPrefix = this.urlPrefix;
-    	   cloned.url = this.url;
-	return cloned;
+    AbstractDB cloned = new DB(); 
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.urlPrefix = this.urlPrefix;
+           cloned.url = this.url;
+    return cloned;
 }
 
 

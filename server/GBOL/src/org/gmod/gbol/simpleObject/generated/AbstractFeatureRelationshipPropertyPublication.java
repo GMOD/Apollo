@@ -47,11 +47,11 @@ public abstract class AbstractFeatureRelationshipPropertyPublication extends Abs
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureRelationshipPropertyPublication) ) return false;
-		 AbstractFeatureRelationshipPropertyPublication castOther = ( AbstractFeatureRelationshipPropertyPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureRelationshipPropertyPublication) ) return false;
+         AbstractFeatureRelationshipPropertyPublication castOther = ( AbstractFeatureRelationshipPropertyPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeatureRelationshipProperty()==castOther.getFeatureRelationshipProperty()) || ( this.getFeatureRelationshipProperty()!=null && castOther.getFeatureRelationshipProperty()!=null && this.getFeatureRelationshipProperty().equals(castOther.getFeatureRelationshipProperty()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeatureRelationshipPropertyPublication extends Abs
    }   
 
 public AbstractFeatureRelationshipPropertyPublication generateClone() {
-	AbstractFeatureRelationshipPropertyPublication cloned = new FeatureRelationshipPropertyPublication(); 
-    	   cloned.publication = this.publication;
-    	   cloned.featureRelationshipProperty = this.featureRelationshipProperty;
-	return cloned;
+    AbstractFeatureRelationshipPropertyPublication cloned = new FeatureRelationshipPropertyPublication(); 
+           cloned.publication = this.publication;
+           cloned.featureRelationshipProperty = this.featureRelationshipProperty;
+    return cloned;
 }
 
 

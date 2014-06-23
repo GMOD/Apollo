@@ -26,7 +26,7 @@ public abstract class AbstractTableInfo extends AbstractSimpleObject implements 
     public AbstractTableInfo() {
     }
 
-	
+    
     public AbstractTableInfo(String name, int isView, int isUpdateable, Date modificationDate) {
         this.name = name;
         this.isView = isView;
@@ -111,11 +111,11 @@ public abstract class AbstractTableInfo extends AbstractSimpleObject implements 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractTableInfo) ) return false;
-		 AbstractTableInfo castOther = ( AbstractTableInfo ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractTableInfo) ) return false;
+         AbstractTableInfo castOther = ( AbstractTableInfo ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -134,16 +134,16 @@ public abstract class AbstractTableInfo extends AbstractSimpleObject implements 
    }   
 
 public AbstractTableInfo generateClone() {
-	AbstractTableInfo cloned = new AbstractTableInfo; 
-    	   cloned.name = this.name;
-    	   cloned.primaryKeyColumn = this.primaryKeyColumn;
-    	   cloned.isView = this.isView;
-    	   cloned.viewOnTableId = this.viewOnTableId;
-    	   cloned.superclassTableId = this.superclassTableId;
-    	   cloned.isUpdateable = this.isUpdateable;
-    	   cloned.modificationDate = this.modificationDate;
-    	   cloned.mageDocuments = this.mageDocuments;
-	return cloned;
+    AbstractTableInfo cloned = new AbstractTableInfo; 
+           cloned.name = this.name;
+           cloned.primaryKeyColumn = this.primaryKeyColumn;
+           cloned.isView = this.isView;
+           cloned.viewOnTableId = this.viewOnTableId;
+           cloned.superclassTableId = this.superclassTableId;
+           cloned.isUpdateable = this.isUpdateable;
+           cloned.modificationDate = this.modificationDate;
+           cloned.mageDocuments = this.mageDocuments;
+    return cloned;
 }
 
 

@@ -21,7 +21,7 @@ public abstract class AbstractPublicationAuthor extends AbstractSimpleObject imp
     public AbstractPublicationAuthor() {
     }
 
-	
+    
     public AbstractPublicationAuthor(Publication publication, int rank, String surname) {
         this.publication = publication;
         this.rank = rank;
@@ -89,11 +89,11 @@ public abstract class AbstractPublicationAuthor extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPublicationAuthor) ) return false;
-		 AbstractPublicationAuthor castOther = ( AbstractPublicationAuthor ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPublicationAuthor) ) return false;
+         AbstractPublicationAuthor castOther = ( AbstractPublicationAuthor ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && (this.getRank()==castOther.getRank());
    }
    
@@ -111,14 +111,14 @@ public abstract class AbstractPublicationAuthor extends AbstractSimpleObject imp
    }   
 
 public AbstractPublicationAuthor generateClone() {
-	AbstractPublicationAuthor cloned = new PublicationAuthor(); 
-    	   cloned.publication = this.publication;
-    	   cloned.rank = this.rank;
-    	   cloned.editor = this.editor;
-    	   cloned.surname = this.surname;
-    	   cloned.givenNames = this.givenNames;
-    	   cloned.suffix = this.suffix;
-	return cloned;
+    AbstractPublicationAuthor cloned = new PublicationAuthor(); 
+           cloned.publication = this.publication;
+           cloned.rank = this.rank;
+           cloned.editor = this.editor;
+           cloned.surname = this.surname;
+           cloned.givenNames = this.givenNames;
+           cloned.suffix = this.suffix;
+    return cloned;
 }
 
 

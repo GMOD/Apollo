@@ -20,7 +20,7 @@ public abstract class AbstractCV extends AbstractSimpleObject implements java.io
     public AbstractCV() {
     }
 
-	
+    
     public AbstractCV(String name) {
         this.name = name;
     }
@@ -62,11 +62,11 @@ public abstract class AbstractCV extends AbstractSimpleObject implements java.io
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCV) ) return false;
-		 AbstractCV castOther = ( AbstractCV ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCV) ) return false;
+         AbstractCV castOther = ( AbstractCV ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -80,11 +80,11 @@ public abstract class AbstractCV extends AbstractSimpleObject implements java.io
    }   
 
 public AbstractCV generateClone() {
-	AbstractCV cloned = new AbstractCV; 
-    	   cloned.name = this.name;
-    	   cloned.definition = this.definition;
-    	   cloned.cvterms = this.cvterms;
-	return cloned;
+    AbstractCV cloned = new AbstractCV; 
+           cloned.name = this.name;
+           cloned.definition = this.definition;
+           cloned.cvterms = this.cvterms;
+    return cloned;
 }
 
 

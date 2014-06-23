@@ -21,7 +21,7 @@ public abstract class AbstractFeatureExpression extends AbstractSimpleObject imp
     public AbstractFeatureExpression() {
     }
 
-	
+    
     public AbstractFeatureExpression(Publication publication, Feature feature, Expression expression) {
         this.publication = publication;
         this.feature = feature;
@@ -73,11 +73,11 @@ public abstract class AbstractFeatureExpression extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureExpression) ) return false;
-		 AbstractFeatureExpression castOther = ( AbstractFeatureExpression ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureExpression) ) return false;
+         AbstractFeatureExpression castOther = ( AbstractFeatureExpression ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) );
    }
@@ -94,12 +94,12 @@ public abstract class AbstractFeatureExpression extends AbstractSimpleObject imp
    }   
 
 public AbstractFeatureExpression generateClone() {
-	AbstractFeatureExpression cloned = new AbstractFeatureExpression; 
-    	   cloned.publication = this.publication;
-    	   cloned.feature = this.feature;
-    	   cloned.expression = this.expression;
-    	   cloned.featureExpressionProperties = this.featureExpressionProperties;
-	return cloned;
+    AbstractFeatureExpression cloned = new AbstractFeatureExpression; 
+           cloned.publication = this.publication;
+           cloned.feature = this.feature;
+           cloned.expression = this.expression;
+           cloned.featureExpressionProperties = this.featureExpressionProperties;
+    return cloned;
 }
 
 

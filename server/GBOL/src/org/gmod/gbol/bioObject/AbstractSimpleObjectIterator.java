@@ -11,8 +11,8 @@ import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
  */
 public abstract class AbstractSimpleObjectIterator implements SimpleObjectIteratorInterface {
 
-	protected AbstractSimpleObject current;
+    protected AbstractSimpleObject current;
 
-	public void remove() {
-	}
+    public void remove() {
+    }
 }

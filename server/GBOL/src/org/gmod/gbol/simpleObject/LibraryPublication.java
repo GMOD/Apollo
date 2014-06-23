@@ -12,21 +12,21 @@ import java.util.Collection;
 
 public class LibraryPublication extends org.gmod.gbol.simpleObject.generated.AbstractLibraryPublication {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public LibraryPublication(){
-		super();
-	}
+    public LibraryPublication(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

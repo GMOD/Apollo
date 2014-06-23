@@ -19,7 +19,7 @@ public abstract class AbstractBiomaterialProperty extends AbstractSimpleObject i
     public AbstractBiomaterialProperty() {
     }
 
-	
+    
     public AbstractBiomaterialProperty(Biomaterial biomaterial, CVTerm type, int rank) {
         this.biomaterial = biomaterial;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractBiomaterialProperty extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractBiomaterialProperty) ) return false;
-		 AbstractBiomaterialProperty castOther = ( AbstractBiomaterialProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractBiomaterialProperty) ) return false;
+         AbstractBiomaterialProperty castOther = ( AbstractBiomaterialProperty ) other; 
          
-		 return ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) )
+         return ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractBiomaterialProperty extends AbstractSimpleObject i
    }   
 
 public AbstractBiomaterialProperty generateClone() {
-	AbstractBiomaterialProperty cloned = new AbstractBiomaterialProperty; 
-    	   cloned.biomaterial = this.biomaterial;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractBiomaterialProperty cloned = new AbstractBiomaterialProperty; 
+           cloned.biomaterial = this.biomaterial;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

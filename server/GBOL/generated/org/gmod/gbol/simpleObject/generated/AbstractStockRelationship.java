@@ -23,7 +23,7 @@ public abstract class AbstractStockRelationship extends AbstractSimpleObject imp
     public AbstractStockRelationship() {
     }
 
-	
+    
     public AbstractStockRelationship(Stock objectStock, Stock subjectStock, CVTerm type, int rank) {
         this.objectStock = objectStock;
         this.subjectStock = subjectStock;
@@ -92,11 +92,11 @@ public abstract class AbstractStockRelationship extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockRelationship) ) return false;
-		 AbstractStockRelationship castOther = ( AbstractStockRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockRelationship) ) return false;
+         AbstractStockRelationship castOther = ( AbstractStockRelationship ) other; 
          
-		 return ( (this.getObjectStock()==castOther.getObjectStock()) || ( this.getObjectStock()!=null && castOther.getObjectStock()!=null && this.getObjectStock().equals(castOther.getObjectStock()) ) )
+         return ( (this.getObjectStock()==castOther.getObjectStock()) || ( this.getObjectStock()!=null && castOther.getObjectStock()!=null && this.getObjectStock().equals(castOther.getObjectStock()) ) )
  && ( (this.getSubjectStock()==castOther.getSubjectStock()) || ( this.getSubjectStock()!=null && castOther.getSubjectStock()!=null && this.getSubjectStock().equals(castOther.getSubjectStock()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
@@ -116,14 +116,14 @@ public abstract class AbstractStockRelationship extends AbstractSimpleObject imp
    }   
 
 public AbstractStockRelationship generateClone() {
-	AbstractStockRelationship cloned = new AbstractStockRelationship; 
-    	   cloned.objectStock = this.objectStock;
-    	   cloned.subjectStock = this.subjectStock;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-    	   cloned.stockRelationshipPublications = this.stockRelationshipPublications;
-	return cloned;
+    AbstractStockRelationship cloned = new AbstractStockRelationship; 
+           cloned.objectStock = this.objectStock;
+           cloned.subjectStock = this.subjectStock;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+           cloned.stockRelationshipPublications = this.stockRelationshipPublications;
+    return cloned;
 }
 
 

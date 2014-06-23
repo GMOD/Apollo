@@ -47,11 +47,11 @@ public abstract class AbstractLibraryPropertyPublication extends AbstractSimpleO
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibraryPropertyPublication) ) return false;
-		 AbstractLibraryPropertyPublication castOther = ( AbstractLibraryPropertyPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibraryPropertyPublication) ) return false;
+         AbstractLibraryPropertyPublication castOther = ( AbstractLibraryPropertyPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getLibraryProperty()==castOther.getLibraryProperty()) || ( this.getLibraryProperty()!=null && castOther.getLibraryProperty()!=null && this.getLibraryProperty().equals(castOther.getLibraryProperty()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractLibraryPropertyPublication extends AbstractSimpleO
    }   
 
 public AbstractLibraryPropertyPublication generateClone() {
-	AbstractLibraryPropertyPublication cloned = new AbstractLibraryPropertyPublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.libraryProperty = this.libraryProperty;
-	return cloned;
+    AbstractLibraryPropertyPublication cloned = new AbstractLibraryPropertyPublication; 
+           cloned.publication = this.publication;
+           cloned.libraryProperty = this.libraryProperty;
+    return cloned;
 }
 
 

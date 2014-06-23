@@ -22,7 +22,7 @@ public abstract class AbstractFeatureProperty extends AbstractSimpleObject imple
     public AbstractFeatureProperty() {
     }
 
-	
+    
     public AbstractFeatureProperty(CVTerm type, Feature feature, int rank) {
         this.type = type;
         this.feature = feature;
@@ -82,11 +82,11 @@ public abstract class AbstractFeatureProperty extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureProperty) ) return false;
-		 AbstractFeatureProperty castOther = ( AbstractFeatureProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureProperty) ) return false;
+         AbstractFeatureProperty castOther = ( AbstractFeatureProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -104,13 +104,13 @@ public abstract class AbstractFeatureProperty extends AbstractSimpleObject imple
    }   
 
 public AbstractFeatureProperty generateClone() {
-	AbstractFeatureProperty cloned = new FeatureProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.feature = this.feature;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-    	   cloned.featurePropertyPublications = this.featurePropertyPublications;
-	return cloned;
+    AbstractFeatureProperty cloned = new FeatureProperty(); 
+           cloned.type = this.type;
+           cloned.feature = this.feature;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+           cloned.featurePropertyPublications = this.featurePropertyPublications;
+    return cloned;
 }
 
 

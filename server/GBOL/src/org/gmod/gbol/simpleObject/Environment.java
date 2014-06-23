@@ -13,61 +13,61 @@ import java.util.Collection;
 
 public class Environment extends org.gmod.gbol.simpleObject.generated.AbstractEnvironment {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public Environment(){
-		super();
-	}
+    public Environment(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Multiples
-//		for (EnvironmentCVTerm ecvt : this.getEnvironmentCVTerms())
-//			writeObjects.addAll(ecvt.getWriteObjects());
-//		
-//		return writeObjects;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Multiples
+//        for (EnvironmentCVTerm ecvt : this.getEnvironmentCVTerms())
+//            writeObjects.addAll(ecvt.getWriteObjects());
+//        
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
-	
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public static final int environmentCvterms = 1;
-		}
-				
-		public SimpleObjectIterator(Environment environment)
-		{
-			super(environment);
-		}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
+    
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public static final int environmentCvterms = 1;
+        }
+                
+        public SimpleObjectIterator(Environment environment)
+        {
+            super(environment);
+        }
 
-		public AbstractSimpleObject next()
-		{
-			Environment environment = (Environment)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				processCollectionIterators(Status.environmentCvterms, environment.getEnvironmentCVTerms());
-			}
-			else {
-				retVal = soIter.next();
-				if (status == Status.environmentCvterms) {
-					processLastCollectionIterator();
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
+        public AbstractSimpleObject next()
+        {
+            Environment environment = (Environment)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                processCollectionIterators(Status.environmentCvterms, environment.getEnvironmentCVTerms());
+            }
+            else {
+                retVal = soIter.next();
+                if (status == Status.environmentCvterms) {
+                    processLastCollectionIterator();
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
 
-	}
+    }
 
 
 }

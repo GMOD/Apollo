@@ -56,11 +56,11 @@ public abstract class AbstractStockCVTerm extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockCVTerm) ) return false;
-		 AbstractStockCVTerm castOther = ( AbstractStockCVTerm ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockCVTerm) ) return false;
+         AbstractStockCVTerm castOther = ( AbstractStockCVTerm ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
  && ( (this.getStock()==castOther.getStock()) || ( this.getStock()!=null && castOther.getStock()!=null && this.getStock().equals(castOther.getStock()) ) );
    }
@@ -76,11 +76,11 @@ public abstract class AbstractStockCVTerm extends AbstractSimpleObject implement
    }   
 
 public AbstractStockCVTerm generateClone() {
-	AbstractStockCVTerm cloned = new AbstractStockCVTerm; 
-    	   cloned.publication = this.publication;
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.stock = this.stock;
-	return cloned;
+    AbstractStockCVTerm cloned = new AbstractStockCVTerm; 
+           cloned.publication = this.publication;
+           cloned.cvterm = this.cvterm;
+           cloned.stock = this.stock;
+    return cloned;
 }
 
 

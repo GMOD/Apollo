@@ -65,11 +65,11 @@ public abstract class AbstractPhylogeneticNodeProperty extends AbstractSimpleObj
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhylogeneticNodeProperty) ) return false;
-		 AbstractPhylogeneticNodeProperty castOther = ( AbstractPhylogeneticNodeProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhylogeneticNodeProperty) ) return false;
+         AbstractPhylogeneticNodeProperty castOther = ( AbstractPhylogeneticNodeProperty ) other; 
          
-		 return ( (this.getPhylogeneticNode()==castOther.getPhylogeneticNode()) || ( this.getPhylogeneticNode()!=null && castOther.getPhylogeneticNode()!=null && this.getPhylogeneticNode().equals(castOther.getPhylogeneticNode()) ) )
+         return ( (this.getPhylogeneticNode()==castOther.getPhylogeneticNode()) || ( this.getPhylogeneticNode()!=null && castOther.getPhylogeneticNode()!=null && this.getPhylogeneticNode().equals(castOther.getPhylogeneticNode()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getValue()==castOther.getValue()) || ( this.getValue()!=null && castOther.getValue()!=null && this.getValue().equals(castOther.getValue()) ) )
  && (this.getRank()==castOther.getRank());
@@ -87,12 +87,12 @@ public abstract class AbstractPhylogeneticNodeProperty extends AbstractSimpleObj
    }   
 
 public AbstractPhylogeneticNodeProperty generateClone() {
-	AbstractPhylogeneticNodeProperty cloned = new AbstractPhylogeneticNodeProperty; 
-    	   cloned.phylogeneticNode = this.phylogeneticNode;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractPhylogeneticNodeProperty cloned = new AbstractPhylogeneticNodeProperty; 
+           cloned.phylogeneticNode = this.phylogeneticNode;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

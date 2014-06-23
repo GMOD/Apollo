@@ -13,57 +13,57 @@ import java.util.Collection;
 
 public class EnvironmentCVTerm extends org.gmod.gbol.simpleObject.generated.AbstractEnvironmentCVTerm {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public EnvironmentCVTerm(){
-		super();
-	}
+    public EnvironmentCVTerm(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getCvterm().getWriteObjects());
-//		return writeObjects;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getCvterm().getWriteObjects());
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int cvterm = 1;
-		}
-	
-		public SimpleObjectIterator(EnvironmentCVTerm environmentCvterm)
-		{
-			super(environmentCvterm);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			EnvironmentCVTerm environmentCvterm = (EnvironmentCVTerm)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				processSingletonIterator(Status.cvterm, environmentCvterm.getCvterm());
-			}
-			else {
-				if (status == Status.cvterm) {
-					retVal = soIter.next();
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int cvterm = 1;
+        }
+    
+        public SimpleObjectIterator(EnvironmentCVTerm environmentCvterm)
+        {
+            super(environmentCvterm);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            EnvironmentCVTerm environmentCvterm = (EnvironmentCVTerm)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                processSingletonIterator(Status.cvterm, environmentCvterm.getCvterm());
+            }
+            else {
+                if (status == Status.cvterm) {
+                    retVal = soIter.next();
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
 }

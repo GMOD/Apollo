@@ -7,15 +7,15 @@ package org.gmod.gbol.bioObject.conf;
  */
 
 public class BioObjectConfigurationException extends RuntimeException {
-	
-	private final static long serialVersionUID = 1L;
-	
-	/** Constructor.
-	 * 
-	 * @param errMsg - Error message
-	 */
-	public BioObjectConfigurationException(String errMsg)
-	{
-		super(errMsg);
-	}
+    
+    private final static long serialVersionUID = 1L;
+    
+    /** Constructor.
+     * 
+     * @param errMsg - Error message
+     */
+    public BioObjectConfigurationException(String errMsg)
+    {
+        super(errMsg);
+    }
 }

@@ -47,11 +47,11 @@ public abstract class AbstractLibraryFeature extends AbstractSimpleObject implem
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibraryFeature) ) return false;
-		 AbstractLibraryFeature castOther = ( AbstractLibraryFeature ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibraryFeature) ) return false;
+         AbstractLibraryFeature castOther = ( AbstractLibraryFeature ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractLibraryFeature extends AbstractSimpleObject implem
    }   
 
 public AbstractLibraryFeature generateClone() {
-	AbstractLibraryFeature cloned = new LibraryFeature(); 
-    	   cloned.feature = this.feature;
-    	   cloned.library = this.library;
-	return cloned;
+    AbstractLibraryFeature cloned = new LibraryFeature(); 
+           cloned.feature = this.feature;
+           cloned.library = this.library;
+    return cloned;
 }
 
 

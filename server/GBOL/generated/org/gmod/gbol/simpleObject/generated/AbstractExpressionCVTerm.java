@@ -22,7 +22,7 @@ public abstract class AbstractExpressionCVTerm extends AbstractSimpleObject impl
     public AbstractExpressionCVTerm() {
     }
 
-	
+    
     public AbstractExpressionCVTerm(CVTerm cvterm, Expression expression, CVTerm type, int rank) {
         this.cvterm = cvterm;
         this.expression = expression;
@@ -83,11 +83,11 @@ public abstract class AbstractExpressionCVTerm extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractExpressionCVTerm) ) return false;
-		 AbstractExpressionCVTerm castOther = ( AbstractExpressionCVTerm ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractExpressionCVTerm) ) return false;
+         AbstractExpressionCVTerm castOther = ( AbstractExpressionCVTerm ) other; 
          
-		 return ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
+         return ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
  && ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
@@ -105,13 +105,13 @@ public abstract class AbstractExpressionCVTerm extends AbstractSimpleObject impl
    }   
 
 public AbstractExpressionCVTerm generateClone() {
-	AbstractExpressionCVTerm cloned = new AbstractExpressionCVTerm; 
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.expression = this.expression;
-    	   cloned.type = this.type;
-    	   cloned.rank = this.rank;
-    	   cloned.expressionCVTermProperties = this.expressionCVTermProperties;
-	return cloned;
+    AbstractExpressionCVTerm cloned = new AbstractExpressionCVTerm; 
+           cloned.cvterm = this.cvterm;
+           cloned.expression = this.expression;
+           cloned.type = this.type;
+           cloned.rank = this.rank;
+           cloned.expressionCVTermProperties = this.expressionCVTermProperties;
+    return cloned;
 }
 
 

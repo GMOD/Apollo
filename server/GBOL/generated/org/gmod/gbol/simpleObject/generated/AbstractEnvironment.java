@@ -20,7 +20,7 @@ public abstract class AbstractEnvironment extends AbstractSimpleObject implement
     public AbstractEnvironment() {
     }
 
-	
+    
     public AbstractEnvironment(String uniquename) {
         this.uniquename = uniquename;
     }
@@ -62,11 +62,11 @@ public abstract class AbstractEnvironment extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractEnvironment) ) return false;
-		 AbstractEnvironment castOther = ( AbstractEnvironment ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractEnvironment) ) return false;
+         AbstractEnvironment castOther = ( AbstractEnvironment ) other; 
          
-		 return ( (this.getUniquename()==castOther.getUniquename()) || ( this.getUniquename()!=null && castOther.getUniquename()!=null && this.getUniquename().equals(castOther.getUniquename()) ) );
+         return ( (this.getUniquename()==castOther.getUniquename()) || ( this.getUniquename()!=null && castOther.getUniquename()!=null && this.getUniquename().equals(castOther.getUniquename()) ) );
    }
    
    public int hashCode() {
@@ -80,11 +80,11 @@ public abstract class AbstractEnvironment extends AbstractSimpleObject implement
    }   
 
 public AbstractEnvironment generateClone() {
-	AbstractEnvironment cloned = new AbstractEnvironment; 
-    	   cloned.uniquename = this.uniquename;
-    	   cloned.description = this.description;
-    	   cloned.environmentCVTerms = this.environmentCVTerms;
-	return cloned;
+    AbstractEnvironment cloned = new AbstractEnvironment; 
+           cloned.uniquename = this.uniquename;
+           cloned.description = this.description;
+           cloned.environmentCVTerms = this.environmentCVTerms;
+    return cloned;
 }
 
 

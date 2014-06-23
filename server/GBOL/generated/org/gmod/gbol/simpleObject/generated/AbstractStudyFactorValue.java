@@ -20,7 +20,7 @@ public abstract class AbstractStudyFactorValue extends AbstractSimpleObject impl
     public AbstractStudyFactorValue() {
     }
 
-	
+    
     public AbstractStudyFactorValue(StudyFactor studyFactor, Assay assay, int rank) {
         this.studyFactor = studyFactor;
         this.assay = assay;
@@ -80,11 +80,11 @@ public abstract class AbstractStudyFactorValue extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyFactorValue) ) return false;
-		 AbstractStudyFactorValue castOther = ( AbstractStudyFactorValue ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyFactorValue) ) return false;
+         AbstractStudyFactorValue castOther = ( AbstractStudyFactorValue ) other; 
          
-		 return ( (this.getStudyFactor()==castOther.getStudyFactor()) || ( this.getStudyFactor()!=null && castOther.getStudyFactor()!=null && this.getStudyFactor().equals(castOther.getStudyFactor()) ) )
+         return ( (this.getStudyFactor()==castOther.getStudyFactor()) || ( this.getStudyFactor()!=null && castOther.getStudyFactor()!=null && this.getStudyFactor().equals(castOther.getStudyFactor()) ) )
  && ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) );
    }
    
@@ -101,13 +101,13 @@ public abstract class AbstractStudyFactorValue extends AbstractSimpleObject impl
    }   
 
 public AbstractStudyFactorValue generateClone() {
-	AbstractStudyFactorValue cloned = new AbstractStudyFactorValue; 
-    	   cloned.studyFactor = this.studyFactor;
-    	   cloned.assay = this.assay;
-    	   cloned.factorValue = this.factorValue;
-    	   cloned.name = this.name;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractStudyFactorValue cloned = new AbstractStudyFactorValue; 
+           cloned.studyFactor = this.studyFactor;
+           cloned.assay = this.assay;
+           cloned.factorValue = this.factorValue;
+           cloned.name = this.name;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

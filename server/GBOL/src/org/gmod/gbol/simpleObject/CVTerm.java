@@ -15,85 +15,85 @@ import org.gmod.gbol.simpleObject.CV;
 
 public class CVTerm extends org.gmod.gbol.simpleObject.generated.AbstractCVTerm {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public CVTerm(){
-		super();
-	}
-	
-	public CVTerm(String name,CV cv){
-		this.setCv(cv);
+    public CVTerm(){
+        super();
+    }
+    
+    public CVTerm(String name,CV cv){
+        this.setCv(cv);
         this.setName(name);
         this.setIsObsolete(0);
-	}
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getCv().getWriteObjects());
-//		writeObjects.addAll(this.getDbxref().getWriteObjects());
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getCv().getWriteObjects());
+//        writeObjects.addAll(this.getDbxref().getWriteObjects());
 //
-//		// Specifically not traversing CVTermRelationships or CVTermPaths, since that 
-//		// could involve us in a loop or a very long traversal	
-//		
-//		return writeObjects;
-//	}
+//        // Specifically not traversing CVTermRelationships or CVTermPaths, since that 
+//        // could involve us in a loop or a very long traversal    
+//        
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int cv = 1;
-			public final static int dbxref = 2;
-		}
-	
-		public SimpleObjectIterator(CVTerm cvterm)
-		{
-			super(cvterm);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			CVTerm cvterm = (CVTerm)object;
-			AbstractSimpleObject retVal = null;
-			if (status != Status.self) {
-				retVal = soIter.next();
-				if (status == Status.notSet) {
-					processSingletonIterator(Status.dbxref, cvterm.getDbxref());
-				}
-				if (status == Status.dbxref) {
-					AbstractSimpleObject newClone = processSingletonIterator(Status.cv, cvterm.getCv());
-					if (newClone != null) {
-						((CVTerm)clone).setDbxref((DBXref) newClone);
-					}
-				}
-				if (status == Status.cv) {
-					AbstractSimpleObject newClone = processLastSingletonIterator();
-					if (newClone != null) {
-						((CVTerm)clone).setCv((CV) newClone);
-					}
-				}
-			} else {
-				retVal = peek();
-				status = Status.done;
-			}
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int cv = 1;
+            public final static int dbxref = 2;
+        }
+    
+        public SimpleObjectIterator(CVTerm cvterm)
+        {
+            super(cvterm);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            CVTerm cvterm = (CVTerm)object;
+            AbstractSimpleObject retVal = null;
+            if (status != Status.self) {
+                retVal = soIter.next();
+                if (status == Status.notSet) {
+                    processSingletonIterator(Status.dbxref, cvterm.getDbxref());
+                }
+                if (status == Status.dbxref) {
+                    AbstractSimpleObject newClone = processSingletonIterator(Status.cv, cvterm.getCv());
+                    if (newClone != null) {
+                        ((CVTerm)clone).setDbxref((DBXref) newClone);
+                    }
+                }
+                if (status == Status.cv) {
+                    AbstractSimpleObject newClone = processLastSingletonIterator();
+                    if (newClone != null) {
+                        ((CVTerm)clone).setCv((CV) newClone);
+                    }
+                }
+            } else {
+                retVal = peek();
+                status = Status.done;
+            }
 
-			current = retVal;
-			return retVal;
-		}
-	}
-	
-	public String toString() {
-		return this.getCv().getName() + ":" + this.getName();
-	}
+            current = retVal;
+            return retVal;
+        }
+    }
+    
+    public String toString() {
+        return this.getCv().getName() + ":" + this.getName();
+    }
 }

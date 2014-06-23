@@ -10,91 +10,91 @@ package org.gmod.gbol.simpleObject;
 
 public class DBXref extends org.gmod.gbol.simpleObject.generated.AbstractDBXref {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public DBXref(){
-		super();
-	}
-	
-	public DBXref(DB db, String accession, String version) {
-		this.setDb(db);
-		this.setAccession(accession);
-		this.setVersion(version);
-	}
-	public DBXref(DB db, String accession) {
-		this.setDb(db);
-		this.setAccession(accession);
-	}
-	
-	public DBXref(DBXref src) {
-		this(src.getDb(), src.getAccession(), src.getVersion());
-	}
+    public DBXref(){
+        super();
+    }
+    
+    public DBXref(DB db, String accession, String version) {
+        this.setDb(db);
+        this.setAccession(accession);
+        this.setVersion(version);
+    }
+    public DBXref(DB db, String accession) {
+        this.setDb(db);
+        this.setAccession(accession);
+    }
+    
+    public DBXref(DBXref src) {
+        this(src.getDb(), src.getAccession(), src.getVersion());
+    }
 
-	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getDb().getWriteObjects());
-//		
-//		// Multiples
-//		for (DBXrefProperty dbxp : this.getDbxrefProperties())
-//			writeObjects.addAll(dbxp.getWriteObjects());
+    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getDb().getWriteObjects());
+//        
+//        // Multiples
+//        for (DBXrefProperty dbxp : this.getDbxrefProperties())
+//            writeObjects.addAll(dbxp.getWriteObjects());
 //
-//		return writeObjects;
-//	}
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public static final int db = 1;
-			public static final int dbxrefprops = 2;
-		}
-		
-		public SimpleObjectIterator(DBXref dbxref)
-		{
-			super(dbxref);
-		}
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public static final int db = 1;
+            public static final int dbxrefprops = 2;
+        }
+        
+        public SimpleObjectIterator(DBXref dbxref)
+        {
+            super(dbxref);
+        }
 
-		public AbstractSimpleObject next()
-		{
-			DBXref dbxref = (DBXref)object;
-			AbstractSimpleObject retVal = null;
-			if (status != Status.self) {
-				retVal = soIter.next();
-				if (status == Status.notSet) {
-					processCollectionIterators(Status.dbxrefprops, dbxref.getDbxrefProperties());
-				}
-				if (status == Status.dbxrefprops) {
-					processSingletonIterator(Status.db, dbxref.getDb());
-				}
-				if (status == Status.db) {
-					AbstractSimpleObject newClone = processLastSingletonIterator();
-					((DBXref)clone).setDb((DB) newClone);
-				}
-			} else {
-				retVal = peek();
-				status = Status.done;
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
-	public String toString() {
-		String res = "";
-		if (getDb() != null)
-			res += getDb().toString() + ":";
-		if (getAccession() != null)
-			res += getAccession();
-		return res;
-	}
+        public AbstractSimpleObject next()
+        {
+            DBXref dbxref = (DBXref)object;
+            AbstractSimpleObject retVal = null;
+            if (status != Status.self) {
+                retVal = soIter.next();
+                if (status == Status.notSet) {
+                    processCollectionIterators(Status.dbxrefprops, dbxref.getDbxrefProperties());
+                }
+                if (status == Status.dbxrefprops) {
+                    processSingletonIterator(Status.db, dbxref.getDb());
+                }
+                if (status == Status.db) {
+                    AbstractSimpleObject newClone = processLastSingletonIterator();
+                    ((DBXref)clone).setDb((DB) newClone);
+                }
+            } else {
+                retVal = peek();
+                status = Status.done;
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
+    public String toString() {
+        String res = "";
+        if (getDb() != null)
+            res += getDb().toString() + ":";
+        if (getAccession() != null)
+            res += getAccession();
+        return res;
+    }
 }

@@ -21,7 +21,7 @@ public abstract class AbstractAnalysisFeature extends AbstractSimpleObject imple
     public AbstractAnalysisFeature() {
     }
 
-	
+    
     public AbstractAnalysisFeature(Feature feature, Analysis analysis) {
         this.feature = feature;
         this.analysis = analysis;
@@ -88,11 +88,11 @@ public abstract class AbstractAnalysisFeature extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAnalysisFeature) ) return false;
-		 AbstractAnalysisFeature castOther = ( AbstractAnalysisFeature ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAnalysisFeature) ) return false;
+         AbstractAnalysisFeature castOther = ( AbstractAnalysisFeature ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) );
    }
    
@@ -110,14 +110,14 @@ public abstract class AbstractAnalysisFeature extends AbstractSimpleObject imple
    }   
 
 public AbstractAnalysisFeature generateClone() {
-	AbstractAnalysisFeature cloned = new AbstractAnalysisFeature; 
-    	   cloned.feature = this.feature;
-    	   cloned.analysis = this.analysis;
-    	   cloned.rawScore = this.rawScore;
-    	   cloned.normalizedScore = this.normalizedScore;
-    	   cloned.significance = this.significance;
-    	   cloned.identity = this.identity;
-	return cloned;
+    AbstractAnalysisFeature cloned = new AbstractAnalysisFeature; 
+           cloned.feature = this.feature;
+           cloned.analysis = this.analysis;
+           cloned.rawScore = this.rawScore;
+           cloned.normalizedScore = this.normalizedScore;
+           cloned.significance = this.significance;
+           cloned.identity = this.identity;
+    return cloned;
 }
 
 

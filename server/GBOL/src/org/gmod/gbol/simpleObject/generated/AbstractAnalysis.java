@@ -29,7 +29,7 @@ public abstract class AbstractAnalysis extends AbstractSimpleObject implements j
     public AbstractAnalysis() {
     }
 
-	
+    
     public AbstractAnalysis(String program, String programVersion, Date timeExecuted) {
         this.program = program;
         this.programVersion = programVersion;
@@ -137,11 +137,11 @@ public abstract class AbstractAnalysis extends AbstractSimpleObject implements j
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAnalysis) ) return false;
-		 AbstractAnalysis castOther = ( AbstractAnalysis ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAnalysis) ) return false;
+         AbstractAnalysis castOther = ( AbstractAnalysis ) other; 
          
-		 return ( (this.getProgram()==castOther.getProgram()) || ( this.getProgram()!=null && castOther.getProgram()!=null && this.getProgram().equals(castOther.getProgram()) ) )
+         return ( (this.getProgram()==castOther.getProgram()) || ( this.getProgram()!=null && castOther.getProgram()!=null && this.getProgram().equals(castOther.getProgram()) ) )
  && ( (this.getProgramVersion()==castOther.getProgramVersion()) || ( this.getProgramVersion()!=null && castOther.getProgramVersion()!=null && this.getProgramVersion().equals(castOther.getProgramVersion()) ) )
  && ( (this.getSourceName()==castOther.getSourceName()) || ( this.getSourceName()!=null && castOther.getSourceName()!=null && this.getSourceName().equals(castOther.getSourceName()) ) );
    }
@@ -165,19 +165,19 @@ public abstract class AbstractAnalysis extends AbstractSimpleObject implements j
    }   
 
 public AbstractAnalysis generateClone() {
-	AbstractAnalysis cloned = new Analysis(); 
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.program = this.program;
-    	   cloned.programVersion = this.programVersion;
-    	   cloned.algorithm = this.algorithm;
-    	   cloned.sourceName = this.sourceName;
-    	   cloned.sourceVersion = this.sourceVersion;
-    	   cloned.sourceURI = this.sourceURI;
-    	   cloned.timeExecuted = this.timeExecuted;
-    	   cloned.analysisFeatures = this.analysisFeatures;
-    	   cloned.analysisProperties = this.analysisProperties;
-	return cloned;
+    AbstractAnalysis cloned = new Analysis(); 
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.program = this.program;
+           cloned.programVersion = this.programVersion;
+           cloned.algorithm = this.algorithm;
+           cloned.sourceName = this.sourceName;
+           cloned.sourceVersion = this.sourceVersion;
+           cloned.sourceURI = this.sourceURI;
+           cloned.timeExecuted = this.timeExecuted;
+           cloned.analysisFeatures = this.analysisFeatures;
+           cloned.analysisProperties = this.analysisProperties;
+    return cloned;
 }
 
 

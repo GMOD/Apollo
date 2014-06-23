@@ -47,11 +47,11 @@ public abstract class AbstractStockPublication extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockPublication) ) return false;
-		 AbstractStockPublication castOther = ( AbstractStockPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockPublication) ) return false;
+         AbstractStockPublication castOther = ( AbstractStockPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getStock()==castOther.getStock()) || ( this.getStock()!=null && castOther.getStock()!=null && this.getStock().equals(castOther.getStock()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractStockPublication extends AbstractSimpleObject impl
    }   
 
 public AbstractStockPublication generateClone() {
-	AbstractStockPublication cloned = new StockPublication(); 
-    	   cloned.publication = this.publication;
-    	   cloned.stock = this.stock;
-	return cloned;
+    AbstractStockPublication cloned = new StockPublication(); 
+           cloned.publication = this.publication;
+           cloned.stock = this.stock;
+    return cloned;
 }
 
 

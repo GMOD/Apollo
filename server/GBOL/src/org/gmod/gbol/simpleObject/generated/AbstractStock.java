@@ -31,7 +31,7 @@ public abstract class AbstractStock extends AbstractSimpleObject implements java
     public AbstractStock() {
     }
 
-	
+    
     public AbstractStock(CVTerm type, Organism organism, String uniqueName, boolean isObsolete) {
         this.type = type;
         this.organism = organism;
@@ -164,11 +164,11 @@ public abstract class AbstractStock extends AbstractSimpleObject implements java
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStock) ) return false;
-		 AbstractStock castOther = ( AbstractStock ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStock) ) return false;
+         AbstractStock castOther = ( AbstractStock ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) )
  && ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
@@ -195,22 +195,22 @@ public abstract class AbstractStock extends AbstractSimpleObject implements java
    }   
 
 public AbstractStock generateClone() {
-	AbstractStock cloned = new Stock(); 
-    	   cloned.type = this.type;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.organism = this.organism;
-    	   cloned.name = this.name;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.description = this.description;
-    	   cloned.isObsolete = this.isObsolete;
-    	   cloned.parentStockRelationships = this.parentStockRelationships;
-    	   cloned.stockPublications = this.stockPublications;
-    	   cloned.stockDBXrefs = this.stockDBXrefs;
-    	   cloned.stockProperties = this.stockProperties;
-    	   cloned.childStockRelationships = this.childStockRelationships;
-    	   cloned.stockCVTerms = this.stockCVTerms;
-    	   cloned.stockGenotypes = this.stockGenotypes;
-	return cloned;
+    AbstractStock cloned = new Stock(); 
+           cloned.type = this.type;
+           cloned.dbxref = this.dbxref;
+           cloned.organism = this.organism;
+           cloned.name = this.name;
+           cloned.uniqueName = this.uniqueName;
+           cloned.description = this.description;
+           cloned.isObsolete = this.isObsolete;
+           cloned.parentStockRelationships = this.parentStockRelationships;
+           cloned.stockPublications = this.stockPublications;
+           cloned.stockDBXrefs = this.stockDBXrefs;
+           cloned.stockProperties = this.stockProperties;
+           cloned.childStockRelationships = this.childStockRelationships;
+           cloned.stockCVTerms = this.stockCVTerms;
+           cloned.stockGenotypes = this.stockGenotypes;
+    return cloned;
 }
 
 

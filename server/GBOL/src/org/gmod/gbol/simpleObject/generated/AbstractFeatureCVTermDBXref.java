@@ -47,11 +47,11 @@ public abstract class AbstractFeatureCVTermDBXref extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureCVTermDBXref) ) return false;
-		 AbstractFeatureCVTermDBXref castOther = ( AbstractFeatureCVTermDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureCVTermDBXref) ) return false;
+         AbstractFeatureCVTermDBXref castOther = ( AbstractFeatureCVTermDBXref ) other; 
          
-		 return ( (this.getFeatureCVTerm()==castOther.getFeatureCVTerm()) || ( this.getFeatureCVTerm()!=null && castOther.getFeatureCVTerm()!=null && this.getFeatureCVTerm().equals(castOther.getFeatureCVTerm()) ) )
+         return ( (this.getFeatureCVTerm()==castOther.getFeatureCVTerm()) || ( this.getFeatureCVTerm()!=null && castOther.getFeatureCVTerm()!=null && this.getFeatureCVTerm().equals(castOther.getFeatureCVTerm()) ) )
  && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeatureCVTermDBXref extends AbstractSimpleObject i
    }   
 
 public AbstractFeatureCVTermDBXref generateClone() {
-	AbstractFeatureCVTermDBXref cloned = new FeatureCVTermDBXref(); 
-    	   cloned.featureCVTerm = this.featureCVTerm;
-    	   cloned.dbxref = this.dbxref;
-	return cloned;
+    AbstractFeatureCVTermDBXref cloned = new FeatureCVTermDBXref(); 
+           cloned.featureCVTerm = this.featureCVTerm;
+           cloned.dbxref = this.dbxref;
+    return cloned;
 }
 
 

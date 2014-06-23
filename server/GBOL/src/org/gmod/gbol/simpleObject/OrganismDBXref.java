@@ -13,58 +13,58 @@ import java.util.Collection;
 
 public class OrganismDBXref extends org.gmod.gbol.simpleObject.generated.AbstractOrganismDBXref {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public OrganismDBXref(){
-		super();
-	}
+    public OrganismDBXref(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getDbxref().getWriteObjects());
-//		
-//		return writeObjects;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getDbxref().getWriteObjects());
+//        
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
-	
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
+    
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int dbxref = 1;
-		}
-	
-		public SimpleObjectIterator(OrganismDBXref organismDbxref)
-		{
-			super(organismDbxref);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			OrganismDBXref organismDbxref = (OrganismDBXref)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				processSingletonIterator(Status.dbxref, organismDbxref.getDbxref());
-			}
-			else {
-				if (status == Status.dbxref) {
-					retVal = soIter.next();
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int dbxref = 1;
+        }
+    
+        public SimpleObjectIterator(OrganismDBXref organismDbxref)
+        {
+            super(organismDbxref);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            OrganismDBXref organismDbxref = (OrganismDBXref)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                processSingletonIterator(Status.dbxref, organismDbxref.getDbxref());
+            }
+            else {
+                if (status == Status.dbxref) {
+                    retVal = soIter.next();
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
 
 }

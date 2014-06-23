@@ -5,6 +5,6 @@ import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 
 public interface Alignment {
 
-	public Match convertToMatch(BioObjectConfiguration conf);
+    public Match convertToMatch(BioObjectConfiguration conf);
 
 }

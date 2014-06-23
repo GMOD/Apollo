@@ -19,7 +19,7 @@ public abstract class AbstractQuantificationProperty extends AbstractSimpleObjec
     public AbstractQuantificationProperty() {
     }
 
-	
+    
     public AbstractQuantificationProperty(CVTerm type, Quantification quantification, int rank) {
         this.type = type;
         this.quantification = quantification;
@@ -71,11 +71,11 @@ public abstract class AbstractQuantificationProperty extends AbstractSimpleObjec
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractQuantificationProperty) ) return false;
-		 AbstractQuantificationProperty castOther = ( AbstractQuantificationProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractQuantificationProperty) ) return false;
+         AbstractQuantificationProperty castOther = ( AbstractQuantificationProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getQuantification()==castOther.getQuantification()) || ( this.getQuantification()!=null && castOther.getQuantification()!=null && this.getQuantification().equals(castOther.getQuantification()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractQuantificationProperty extends AbstractSimpleObjec
    }   
 
 public AbstractQuantificationProperty generateClone() {
-	AbstractQuantificationProperty cloned = new QuantificationProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.quantification = this.quantification;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractQuantificationProperty cloned = new QuantificationProperty(); 
+           cloned.type = this.type;
+           cloned.quantification = this.quantification;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

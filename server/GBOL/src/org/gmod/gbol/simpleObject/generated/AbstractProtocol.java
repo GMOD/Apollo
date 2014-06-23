@@ -26,7 +26,7 @@ public abstract class AbstractProtocol extends AbstractSimpleObject implements j
     public AbstractProtocol() {
     }
 
-	
+    
     public AbstractProtocol(CVTerm type, String name) {
         this.type = type;
         this.name = name;
@@ -117,11 +117,11 @@ public abstract class AbstractProtocol extends AbstractSimpleObject implements j
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractProtocol) ) return false;
-		 AbstractProtocol castOther = ( AbstractProtocol ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractProtocol) ) return false;
+         AbstractProtocol castOther = ( AbstractProtocol ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -141,17 +141,17 @@ public abstract class AbstractProtocol extends AbstractSimpleObject implements j
    }   
 
 public AbstractProtocol generateClone() {
-	AbstractProtocol cloned = new Protocol(); 
-    	   cloned.type = this.type;
-    	   cloned.publication = this.publication;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.name = this.name;
-    	   cloned.uri = this.uri;
-    	   cloned.protocolDescription = this.protocolDescription;
-    	   cloned.hardwareDescription = this.hardwareDescription;
-    	   cloned.softwareDescription = this.softwareDescription;
-    	   cloned.protocolParameters = this.protocolParameters;
-	return cloned;
+    AbstractProtocol cloned = new Protocol(); 
+           cloned.type = this.type;
+           cloned.publication = this.publication;
+           cloned.dbxref = this.dbxref;
+           cloned.name = this.name;
+           cloned.uri = this.uri;
+           cloned.protocolDescription = this.protocolDescription;
+           cloned.hardwareDescription = this.hardwareDescription;
+           cloned.softwareDescription = this.softwareDescription;
+           cloned.protocolParameters = this.protocolParameters;
+    return cloned;
 }
 
 

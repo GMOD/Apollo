@@ -19,7 +19,7 @@ public abstract class AbstractStockCollectionProperty extends AbstractSimpleObje
     public AbstractStockCollectionProperty() {
     }
 
-	
+    
     public AbstractStockCollectionProperty(CVTerm type, StockCollection stockCollection, int rank) {
         this.type = type;
         this.stockCollection = stockCollection;
@@ -71,11 +71,11 @@ public abstract class AbstractStockCollectionProperty extends AbstractSimpleObje
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockCollectionProperty) ) return false;
-		 AbstractStockCollectionProperty castOther = ( AbstractStockCollectionProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockCollectionProperty) ) return false;
+         AbstractStockCollectionProperty castOther = ( AbstractStockCollectionProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getStockCollection()==castOther.getStockCollection()) || ( this.getStockCollection()!=null && castOther.getStockCollection()!=null && this.getStockCollection().equals(castOther.getStockCollection()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractStockCollectionProperty extends AbstractSimpleObje
    }   
 
 public AbstractStockCollectionProperty generateClone() {
-	AbstractStockCollectionProperty cloned = new StockCollectionProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.stockCollection = this.stockCollection;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractStockCollectionProperty cloned = new StockCollectionProperty(); 
+           cloned.type = this.type;
+           cloned.stockCollection = this.stockCollection;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

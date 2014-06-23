@@ -23,7 +23,7 @@ public abstract class AbstractGenotype extends AbstractSimpleObject implements j
     public AbstractGenotype() {
     }
 
-	
+    
     public AbstractGenotype(String uniqueName) {
         this.uniqueName = uniqueName;
     }
@@ -89,11 +89,11 @@ public abstract class AbstractGenotype extends AbstractSimpleObject implements j
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractGenotype) ) return false;
-		 AbstractGenotype castOther = ( AbstractGenotype ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractGenotype) ) return false;
+         AbstractGenotype castOther = ( AbstractGenotype ) other; 
          
-		 return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
+         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
    
    public int hashCode() {
@@ -110,14 +110,14 @@ public abstract class AbstractGenotype extends AbstractSimpleObject implements j
    }   
 
 public AbstractGenotype generateClone() {
-	AbstractGenotype cloned = new Genotype(); 
-    	   cloned.name = this.name;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.description = this.description;
-    	   cloned.phenotypeDescriptions = this.phenotypeDescriptions;
-    	   cloned.featureGenotypes = this.featureGenotypes;
-    	   cloned.phenotypeStatements = this.phenotypeStatements;
-	return cloned;
+    AbstractGenotype cloned = new Genotype(); 
+           cloned.name = this.name;
+           cloned.uniqueName = this.uniqueName;
+           cloned.description = this.description;
+           cloned.phenotypeDescriptions = this.phenotypeDescriptions;
+           cloned.featureGenotypes = this.featureGenotypes;
+           cloned.phenotypeStatements = this.phenotypeStatements;
+    return cloned;
 }
 
 

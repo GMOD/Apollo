@@ -37,7 +37,7 @@ public abstract class AbstractArrayDesign extends AbstractSimpleObject implement
     public AbstractArrayDesign() {
     }
 
-	
+    
     public AbstractArrayDesign(CVTerm platformType, Contact manufacturer, String name) {
         this.platformType = platformType;
         this.manufacturer = manufacturer;
@@ -216,11 +216,11 @@ public abstract class AbstractArrayDesign extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractArrayDesign) ) return false;
-		 AbstractArrayDesign castOther = ( AbstractArrayDesign ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractArrayDesign) ) return false;
+         AbstractArrayDesign castOther = ( AbstractArrayDesign ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -251,27 +251,27 @@ public abstract class AbstractArrayDesign extends AbstractSimpleObject implement
    }   
 
 public AbstractArrayDesign generateClone() {
-	AbstractArrayDesign cloned = new AbstractArrayDesign; 
-    	   cloned.platformType = this.platformType;
-    	   cloned.manufacturer = this.manufacturer;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.protocol = this.protocol;
-    	   cloned.substrateType = this.substrateType;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.arrayDimensions = this.arrayDimensions;
-    	   cloned.elementDimensions = this.elementDimensions;
-    	   cloned.numberOfElements = this.numberOfElements;
-    	   cloned.numberOfArrayColumns = this.numberOfArrayColumns;
-    	   cloned.numberOfArrayRows = this.numberOfArrayRows;
-    	   cloned.numberOfGridColumns = this.numberOfGridColumns;
-    	   cloned.numberOfGridRows = this.numberOfGridRows;
-    	   cloned.numberOfSubColumns = this.numberOfSubColumns;
-    	   cloned.numberOfSubRows = this.numberOfSubRows;
-    	   cloned.assays = this.assays;
-    	   cloned.elements = this.elements;
-    	   cloned.arrayDesignProperties = this.arrayDesignProperties;
-	return cloned;
+    AbstractArrayDesign cloned = new AbstractArrayDesign; 
+           cloned.platformType = this.platformType;
+           cloned.manufacturer = this.manufacturer;
+           cloned.dbxref = this.dbxref;
+           cloned.protocol = this.protocol;
+           cloned.substrateType = this.substrateType;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.arrayDimensions = this.arrayDimensions;
+           cloned.elementDimensions = this.elementDimensions;
+           cloned.numberOfElements = this.numberOfElements;
+           cloned.numberOfArrayColumns = this.numberOfArrayColumns;
+           cloned.numberOfArrayRows = this.numberOfArrayRows;
+           cloned.numberOfGridColumns = this.numberOfGridColumns;
+           cloned.numberOfGridRows = this.numberOfGridRows;
+           cloned.numberOfSubColumns = this.numberOfSubColumns;
+           cloned.numberOfSubRows = this.numberOfSubRows;
+           cloned.assays = this.assays;
+           cloned.elements = this.elements;
+           cloned.arrayDesignProperties = this.arrayDesignProperties;
+    return cloned;
 }
 
 

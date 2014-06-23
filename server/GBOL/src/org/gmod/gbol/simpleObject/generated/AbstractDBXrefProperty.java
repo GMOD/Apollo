@@ -65,11 +65,11 @@ public abstract class AbstractDBXrefProperty extends AbstractSimpleObject implem
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractDBXrefProperty) ) return false;
-		 AbstractDBXrefProperty castOther = ( AbstractDBXrefProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractDBXrefProperty) ) return false;
+         AbstractDBXrefProperty castOther = ( AbstractDBXrefProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -86,12 +86,12 @@ public abstract class AbstractDBXrefProperty extends AbstractSimpleObject implem
    }   
 
 public AbstractDBXrefProperty generateClone() {
-	AbstractDBXrefProperty cloned = new DBXrefProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractDBXrefProperty cloned = new DBXrefProperty(); 
+           cloned.type = this.type;
+           cloned.dbxref = this.dbxref;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

@@ -19,7 +19,7 @@ public abstract class AbstractOrganismProperty extends AbstractSimpleObject impl
     public AbstractOrganismProperty() {
     }
 
-	
+    
     public AbstractOrganismProperty(Organism organism, CVTerm type, int rank) {
         this.organism = organism;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractOrganismProperty extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractOrganismProperty) ) return false;
-		 AbstractOrganismProperty castOther = ( AbstractOrganismProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractOrganismProperty) ) return false;
+         AbstractOrganismProperty castOther = ( AbstractOrganismProperty ) other; 
          
-		 return ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) )
+         return ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractOrganismProperty extends AbstractSimpleObject impl
    }   
 
 public AbstractOrganismProperty generateClone() {
-	AbstractOrganismProperty cloned = new AbstractOrganismProperty; 
-    	   cloned.organism = this.organism;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractOrganismProperty cloned = new AbstractOrganismProperty; 
+           cloned.organism = this.organism;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

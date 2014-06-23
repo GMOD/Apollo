@@ -22,7 +22,7 @@ public abstract class AbstractFeatureRange extends AbstractSimpleObject implemen
     public AbstractFeatureRange() {
     }
 
-	
+    
     public AbstractFeatureRange(Feature rightEndFeature, Feature leftStartFeature, Feature feature, FeatureMap featureMap) {
         this.rightEndFeature = rightEndFeature;
         this.leftStartFeature = leftStartFeature;
@@ -99,11 +99,11 @@ public abstract class AbstractFeatureRange extends AbstractSimpleObject implemen
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureRange) ) return false;
-		 AbstractFeatureRange castOther = ( AbstractFeatureRange ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureRange) ) return false;
+         AbstractFeatureRange castOther = ( AbstractFeatureRange ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getFeatureMap()==castOther.getFeatureMap()) || ( this.getFeatureMap()!=null && castOther.getFeatureMap()!=null && this.getFeatureMap().equals(castOther.getFeatureMap()) ) );
    }
    
@@ -122,15 +122,15 @@ public abstract class AbstractFeatureRange extends AbstractSimpleObject implemen
    }   
 
 public AbstractFeatureRange generateClone() {
-	AbstractFeatureRange cloned = new AbstractFeatureRange; 
-    	   cloned.rightEndFeature = this.rightEndFeature;
-    	   cloned.leftStartFeature = this.leftStartFeature;
-    	   cloned.feature = this.feature;
-    	   cloned.featureMap = this.featureMap;
-    	   cloned.leftEndFeature = this.leftEndFeature;
-    	   cloned.rightStartFeature = this.rightStartFeature;
-    	   cloned.rangeString = this.rangeString;
-	return cloned;
+    AbstractFeatureRange cloned = new AbstractFeatureRange; 
+           cloned.rightEndFeature = this.rightEndFeature;
+           cloned.leftStartFeature = this.leftStartFeature;
+           cloned.feature = this.feature;
+           cloned.featureMap = this.featureMap;
+           cloned.leftEndFeature = this.leftEndFeature;
+           cloned.rightStartFeature = this.rightStartFeature;
+           cloned.rangeString = this.rangeString;
+    return cloned;
 }
 
 

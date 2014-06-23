@@ -21,7 +21,7 @@ public abstract class AbstractEImage extends AbstractSimpleObject implements jav
     public AbstractEImage() {
     }
 
-	
+    
     public AbstractEImage(String type) {
         this.type = type;
     }
@@ -71,11 +71,11 @@ public abstract class AbstractEImage extends AbstractSimpleObject implements jav
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractEImage) ) return false;
-		 AbstractEImage castOther = ( AbstractEImage ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractEImage) ) return false;
+         AbstractEImage castOther = ( AbstractEImage ) other; 
          
-		 return ( (this.getData()==castOther.getData()) || ( this.getData()!=null && castOther.getData()!=null && this.getData().equals(castOther.getData()) ) )
+         return ( (this.getData()==castOther.getData()) || ( this.getData()!=null && castOther.getData()!=null && this.getData().equals(castOther.getData()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
    
@@ -91,12 +91,12 @@ public abstract class AbstractEImage extends AbstractSimpleObject implements jav
    }   
 
 public AbstractEImage generateClone() {
-	AbstractEImage cloned = new EImage(); 
-    	   cloned.data = this.data;
-    	   cloned.type = this.type;
-    	   cloned.imageUri = this.imageUri;
-    	   cloned.expressionImages = this.expressionImages;
-	return cloned;
+    AbstractEImage cloned = new EImage(); 
+           cloned.data = this.data;
+           cloned.type = this.type;
+           cloned.imageUri = this.imageUri;
+           cloned.expressionImages = this.expressionImages;
+    return cloned;
 }
 
 

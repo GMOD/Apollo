@@ -13,59 +13,59 @@ import java.util.Collection;
 
 public class PhenotypeCVTerm extends org.gmod.gbol.simpleObject.generated.AbstractPhenotypeCVTerm {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public PhenotypeCVTerm(){
-		super();
-	}
+    public PhenotypeCVTerm(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getCvterm().getWriteObjects());
-//		
-//		return writeObjects;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getCvterm().getWriteObjects());
+//        
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int cvterm = 1;
-		}
-	
-		public SimpleObjectIterator(PhenotypeCVTerm phenotypeCvterm)
-		{
-			super(phenotypeCvterm);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			PhenotypeCVTerm phenotypeCvterm = (PhenotypeCVTerm)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				status = Status.cvterm;
-				soIter = phenotypeCvterm.getCvterm().getWriteableObjects();
-			}
-			else {
-				if (status == Status.cvterm) {
-					retVal = soIter.next();
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int cvterm = 1;
+        }
+    
+        public SimpleObjectIterator(PhenotypeCVTerm phenotypeCvterm)
+        {
+            super(phenotypeCvterm);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            PhenotypeCVTerm phenotypeCvterm = (PhenotypeCVTerm)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                status = Status.cvterm;
+                soIter = phenotypeCvterm.getCvterm().getWriteableObjects();
+            }
+            else {
+                if (status == Status.cvterm) {
+                    retVal = soIter.next();
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
 }

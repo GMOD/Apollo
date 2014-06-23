@@ -19,7 +19,7 @@ public abstract class AbstractPublicationProperty extends AbstractSimpleObject i
     public AbstractPublicationProperty() {
     }
 
-	
+    
     public AbstractPublicationProperty(Publication publication, CVTerm type, String value) {
         this.publication = publication;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractPublicationProperty extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPublicationProperty) ) return false;
-		 AbstractPublicationProperty castOther = ( AbstractPublicationProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPublicationProperty) ) return false;
+         AbstractPublicationProperty castOther = ( AbstractPublicationProperty ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getRank()==castOther.getRank()) || ( this.getRank()!=null && castOther.getRank()!=null && this.getRank().equals(castOther.getRank()) ) );
    }
@@ -92,12 +92,12 @@ public abstract class AbstractPublicationProperty extends AbstractSimpleObject i
    }   
 
 public AbstractPublicationProperty generateClone() {
-	AbstractPublicationProperty cloned = new AbstractPublicationProperty; 
-    	   cloned.publication = this.publication;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractPublicationProperty cloned = new AbstractPublicationProperty; 
+           cloned.publication = this.publication;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

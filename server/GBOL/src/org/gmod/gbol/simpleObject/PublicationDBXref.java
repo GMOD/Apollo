@@ -10,51 +10,51 @@ package org.gmod.gbol.simpleObject;
 
 public class PublicationDBXref extends org.gmod.gbol.simpleObject.generated.AbstractPublicationDBXref {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public PublicationDBXref(){
-		super();
-	}
+    public PublicationDBXref(){
+        super();
+    }
 
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int dbxref = 1;
-		}
-	
-		public SimpleObjectIterator(PublicationDBXref pubDbxref)
-		{
-			super(pubDbxref);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			PublicationDBXref pubDbxref = (PublicationDBXref)object;
-			AbstractSimpleObject retVal = null;
-			if (status != Status.self) {
-				retVal = soIter.next();
-				if (status == Status.notSet) {
-					processSingletonIterator(Status.dbxref, pubDbxref.getDbxref());
-				}
-				if (status == Status.dbxref) {
-					AbstractSimpleObject newClone = processLastSingletonIterator();
-					((PublicationDBXref)clone).setDbxref((DBXref) newClone);
-				}
-			} else {
-				retVal = peek();
-				status = Status.done;
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int dbxref = 1;
+        }
+    
+        public SimpleObjectIterator(PublicationDBXref pubDbxref)
+        {
+            super(pubDbxref);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            PublicationDBXref pubDbxref = (PublicationDBXref)object;
+            AbstractSimpleObject retVal = null;
+            if (status != Status.self) {
+                retVal = soIter.next();
+                if (status == Status.notSet) {
+                    processSingletonIterator(Status.dbxref, pubDbxref.getDbxref());
+                }
+                if (status == Status.dbxref) {
+                    AbstractSimpleObject newClone = processLastSingletonIterator();
+                    ((PublicationDBXref)clone).setDbxref((DBXref) newClone);
+                }
+            } else {
+                retVal = peek();
+                status = Status.done;
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
 }

@@ -56,11 +56,11 @@ public abstract class AbstractLibraryCVTerm extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibraryCVTerm) ) return false;
-		 AbstractLibraryCVTerm castOther = ( AbstractLibraryCVTerm ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibraryCVTerm) ) return false;
+         AbstractLibraryCVTerm castOther = ( AbstractLibraryCVTerm ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
  && ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) );
    }
@@ -76,11 +76,11 @@ public abstract class AbstractLibraryCVTerm extends AbstractSimpleObject impleme
    }   
 
 public AbstractLibraryCVTerm generateClone() {
-	AbstractLibraryCVTerm cloned = new LibraryCVTerm(); 
-    	   cloned.publication = this.publication;
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.library = this.library;
-	return cloned;
+    AbstractLibraryCVTerm cloned = new LibraryCVTerm(); 
+           cloned.publication = this.publication;
+           cloned.cvterm = this.cvterm;
+           cloned.library = this.library;
+    return cloned;
 }
 
 

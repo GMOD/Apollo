@@ -23,7 +23,7 @@ public abstract class AbstractStockCollection extends AbstractSimpleObject imple
     public AbstractStockCollection() {
     }
 
-	
+    
     public AbstractStockCollection(CVTerm type, String uniqueName) {
         this.type = type;
         this.uniqueName = uniqueName;
@@ -90,11 +90,11 @@ public abstract class AbstractStockCollection extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockCollection) ) return false;
-		 AbstractStockCollection castOther = ( AbstractStockCollection ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockCollection) ) return false;
+         AbstractStockCollection castOther = ( AbstractStockCollection ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
    
@@ -112,14 +112,14 @@ public abstract class AbstractStockCollection extends AbstractSimpleObject imple
    }   
 
 public AbstractStockCollection generateClone() {
-	AbstractStockCollection cloned = new StockCollection(); 
-    	   cloned.type = this.type;
-    	   cloned.contact = this.contact;
-    	   cloned.name = this.name;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.stockCollectionProperties = this.stockCollectionProperties;
-    	   cloned.stockCollectionStocks = this.stockCollectionStocks;
-	return cloned;
+    AbstractStockCollection cloned = new StockCollection(); 
+           cloned.type = this.type;
+           cloned.contact = this.contact;
+           cloned.name = this.name;
+           cloned.uniqueName = this.uniqueName;
+           cloned.stockCollectionProperties = this.stockCollectionProperties;
+           cloned.stockCollectionStocks = this.stockCollectionStocks;
+    return cloned;
 }
 
 

@@ -47,11 +47,11 @@ public abstract class AbstractChannel extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractChannel) ) return false;
-		 AbstractChannel castOther = ( AbstractChannel ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractChannel) ) return false;
+         AbstractChannel castOther = ( AbstractChannel ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -64,10 +64,10 @@ public abstract class AbstractChannel extends AbstractSimpleObject implements ja
    }   
 
 public AbstractChannel generateClone() {
-	AbstractChannel cloned = new Channel(); 
-    	   cloned.name = this.name;
-    	   cloned.definition = this.definition;
-	return cloned;
+    AbstractChannel cloned = new Channel(); 
+           cloned.name = this.name;
+           cloned.definition = this.definition;
+    return cloned;
 }
 
 

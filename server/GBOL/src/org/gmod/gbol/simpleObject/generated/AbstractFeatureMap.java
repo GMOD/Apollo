@@ -85,11 +85,11 @@ public abstract class AbstractFeatureMap extends AbstractSimpleObject implements
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureMap) ) return false;
-		 AbstractFeatureMap castOther = ( AbstractFeatureMap ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureMap) ) return false;
+         AbstractFeatureMap castOther = ( AbstractFeatureMap ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -106,14 +106,14 @@ public abstract class AbstractFeatureMap extends AbstractSimpleObject implements
    }   
 
 public AbstractFeatureMap generateClone() {
-	AbstractFeatureMap cloned = new FeatureMap(); 
-    	   cloned.unitType = this.unitType;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.featureMapPublications = this.featureMapPublications;
-    	   cloned.featurePositions = this.featurePositions;
-    	   cloned.featureRanges = this.featureRanges;
-	return cloned;
+    AbstractFeatureMap cloned = new FeatureMap(); 
+           cloned.unitType = this.unitType;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.featureMapPublications = this.featureMapPublications;
+           cloned.featurePositions = this.featurePositions;
+           cloned.featureRanges = this.featureRanges;
+    return cloned;
 }
 
 

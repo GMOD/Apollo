@@ -47,11 +47,11 @@ public abstract class AbstractStockGenotype extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockGenotype) ) return false;
-		 AbstractStockGenotype castOther = ( AbstractStockGenotype ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockGenotype) ) return false;
+         AbstractStockGenotype castOther = ( AbstractStockGenotype ) other; 
          
-		 return ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) )
+         return ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) )
  && ( (this.getStock()==castOther.getStock()) || ( this.getStock()!=null && castOther.getStock()!=null && this.getStock().equals(castOther.getStock()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractStockGenotype extends AbstractSimpleObject impleme
    }   
 
 public AbstractStockGenotype generateClone() {
-	AbstractStockGenotype cloned = new StockGenotype(); 
-    	   cloned.genotype = this.genotype;
-    	   cloned.stock = this.stock;
-	return cloned;
+    AbstractStockGenotype cloned = new StockGenotype(); 
+           cloned.genotype = this.genotype;
+           cloned.stock = this.stock;
+    return cloned;
 }
 
 

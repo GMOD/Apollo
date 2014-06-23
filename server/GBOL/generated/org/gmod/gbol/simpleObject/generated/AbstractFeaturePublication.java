@@ -20,7 +20,7 @@ public abstract class AbstractFeaturePublication extends AbstractSimpleObject im
     public AbstractFeaturePublication() {
     }
 
-	
+    
     public AbstractFeaturePublication(Publication publication, Feature feature) {
         this.publication = publication;
         this.feature = feature;
@@ -63,11 +63,11 @@ public abstract class AbstractFeaturePublication extends AbstractSimpleObject im
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeaturePublication) ) return false;
-		 AbstractFeaturePublication castOther = ( AbstractFeaturePublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeaturePublication) ) return false;
+         AbstractFeaturePublication castOther = ( AbstractFeaturePublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) );
    }
    
@@ -82,11 +82,11 @@ public abstract class AbstractFeaturePublication extends AbstractSimpleObject im
    }   
 
 public AbstractFeaturePublication generateClone() {
-	AbstractFeaturePublication cloned = new AbstractFeaturePublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.feature = this.feature;
-    	   cloned.featurePublicationProperties = this.featurePublicationProperties;
-	return cloned;
+    AbstractFeaturePublication cloned = new AbstractFeaturePublication; 
+           cloned.publication = this.publication;
+           cloned.feature = this.feature;
+           cloned.featurePublicationProperties = this.featurePublicationProperties;
+    return cloned;
 }
 
 

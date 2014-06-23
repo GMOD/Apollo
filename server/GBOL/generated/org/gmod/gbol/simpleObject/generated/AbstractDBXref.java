@@ -22,7 +22,7 @@ public abstract class AbstractDBXref extends AbstractSimpleObject implements jav
     public AbstractDBXref() {
     }
 
-	
+    
     public AbstractDBXref(DB db, String accession) {
         this.db = db;
         this.accession = accession;
@@ -80,11 +80,11 @@ public abstract class AbstractDBXref extends AbstractSimpleObject implements jav
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractDBXref) ) return false;
-		 AbstractDBXref castOther = ( AbstractDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractDBXref) ) return false;
+         AbstractDBXref castOther = ( AbstractDBXref ) other; 
          
-		 return ( (this.getVersion()==castOther.getVersion()) || ( this.getVersion()!=null && castOther.getVersion()!=null && this.getVersion().equals(castOther.getVersion()) ) )
+         return ( (this.getVersion()==castOther.getVersion()) || ( this.getVersion()!=null && castOther.getVersion()!=null && this.getVersion().equals(castOther.getVersion()) ) )
  && ( (this.getDb()==castOther.getDb()) || ( this.getDb()!=null && castOther.getDb()!=null && this.getDb().equals(castOther.getDb()) ) )
  && ( (this.getAccession()==castOther.getAccession()) || ( this.getAccession()!=null && castOther.getAccession()!=null && this.getAccession().equals(castOther.getAccession()) ) );
    }
@@ -102,12 +102,12 @@ public abstract class AbstractDBXref extends AbstractSimpleObject implements jav
    }   
 
 public AbstractDBXref generateClone() {
-	AbstractDBXref cloned = new AbstractDBXref; 
-    	   cloned.db = this.db;
-    	   cloned.accession = this.accession;
-    	   cloned.description = this.description;
-    	   cloned.dbxrefProperties = this.dbxrefProperties;
-	return cloned;
+    AbstractDBXref cloned = new AbstractDBXref; 
+           cloned.db = this.db;
+           cloned.accession = this.accession;
+           cloned.description = this.description;
+           cloned.dbxrefProperties = this.dbxrefProperties;
+    return cloned;
 }
 
 

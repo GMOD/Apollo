@@ -25,7 +25,7 @@ public abstract class AbstractStudy extends AbstractSimpleObject implements java
     public AbstractStudy() {
     }
 
-	
+    
     public AbstractStudy(Contact contact, String name) {
         this.contact = contact;
         this.name = name;
@@ -108,11 +108,11 @@ public abstract class AbstractStudy extends AbstractSimpleObject implements java
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudy) ) return false;
-		 AbstractStudy castOther = ( AbstractStudy ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudy) ) return false;
+         AbstractStudy castOther = ( AbstractStudy ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -131,16 +131,16 @@ public abstract class AbstractStudy extends AbstractSimpleObject implements java
    }   
 
 public AbstractStudy generateClone() {
-	AbstractStudy cloned = new AbstractStudy; 
-    	   cloned.publication = this.publication;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.contact = this.contact;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.studyProperties = this.studyProperties;
-    	   cloned.studyAssays = this.studyAssays;
-    	   cloned.studyDesigns = this.studyDesigns;
-	return cloned;
+    AbstractStudy cloned = new AbstractStudy; 
+           cloned.publication = this.publication;
+           cloned.dbxref = this.dbxref;
+           cloned.contact = this.contact;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.studyProperties = this.studyProperties;
+           cloned.studyAssays = this.studyAssays;
+           cloned.studyDesigns = this.studyDesigns;
+    return cloned;
 }
 
 

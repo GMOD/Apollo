@@ -56,11 +56,11 @@ public abstract class AbstractSynonym extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractSynonym) ) return false;
-		 AbstractSynonym castOther = ( AbstractSynonym ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractSynonym) ) return false;
+         AbstractSynonym castOther = ( AbstractSynonym ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractSynonym extends AbstractSimpleObject implements ja
    }   
 
 public AbstractSynonym generateClone() {
-	AbstractSynonym cloned = new Synonym(); 
-    	   cloned.type = this.type;
-    	   cloned.name = this.name;
-    	   cloned.synonymSGML = this.synonymSGML;
-	return cloned;
+    AbstractSynonym cloned = new Synonym(); 
+           cloned.type = this.type;
+           cloned.name = this.name;
+           cloned.synonymSGML = this.synonymSGML;
+    return cloned;
 }
 
 

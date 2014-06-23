@@ -27,75 +27,75 @@ import org.json.JSONObject;
 
 public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
 
-	@Override
-	public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
-			HttpServletResponse response) throws ServletException {
-		InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		String line;
-		try {
-			while ((line = reader.readLine()) != null) {
-				response.getOutputStream().println(line);
-			}
-			in.close();
-		} catch (IOException e) {
-			throw new ServletException(e);
-		}
-	}
+    @Override
+    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
+            HttpServletResponse response) throws ServletException {
+        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                response.getOutputStream().println(line);
+            }
+            in.close();
+        } catch (IOException e) {
+            throw new ServletException(e);
+        }
+    }
 
-	@Override
-	public String validateUser(HttpServletRequest request, HttpServletResponse response) throws UserAuthenticationException {
-		try {
-			JSONObject requestJSON = JSONUtil.convertInputStreamToJSON(request.getInputStream());
-			String username = requestJSON.getString("username");
-			String password = requestJSON.getString("password");
-			if (!validateUser(username, password)) {
-				throw new UserAuthenticationException("Invalid login");
-			}
-			return username;
-		}
-		catch (SQLException e) {
-			throw new UserAuthenticationException(e);
-		}
-		catch (JSONException e) {
-			throw new UserAuthenticationException(e);
-		}
-		catch (IOException e) {
-			throw new UserAuthenticationException(e);
-		}
-	}
+    @Override
+    public String validateUser(HttpServletRequest request, HttpServletResponse response) throws UserAuthenticationException {
+        try {
+            JSONObject requestJSON = JSONUtil.convertInputStreamToJSON(request.getInputStream());
+            String username = requestJSON.getString("username");
+            String password = requestJSON.getString("password");
+            if (!validateUser(username, password)) {
+                throw new UserAuthenticationException("Invalid login");
+            }
+            return username;
+        }
+        catch (SQLException e) {
+            throw new UserAuthenticationException(e);
+        }
+        catch (JSONException e) {
+            throw new UserAuthenticationException(e);
+        }
+        catch (IOException e) {
+            throw new UserAuthenticationException(e);
+        }
+    }
 
 
-	@Override
-	public String getUserLoginPageURL() {
-		return "user_interfaces/encryptedlocaldb/login.html";
-	}
+    @Override
+    public String getUserLoginPageURL() {
+        return "user_interfaces/encryptedlocaldb/login.html";
+    }
 
-	@Override
-	public String getAddUserURL() {
-		return "user_interfaces/encryptedlocaldb/addUser.jsp";
-	}
+    @Override
+    public String getAddUserURL() {
+        return "user_interfaces/encryptedlocaldb/addUser.jsp";
+    }
 
-	private boolean validateUser(String username, String password) throws SQLException {
-		Connection conn = UserManager.getInstance().getConnection();
-		PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM users WHERE username=?");
-		stmt.setString(1, username);
-		ResultSet rs = stmt.executeQuery();
-		boolean valid = false;
-		if (rs.next()) {
-			try {
-				valid = PasswordHash.validatePassword(password, rs.getString(2));
-			}
-			catch (NoSuchAlgorithmException e) {
-				valid = false;
-			}
-			catch (InvalidKeySpecException e) {
-				valid = false;
-			}
-		}
-		conn.close();
-		return valid;
-	}
+    private boolean validateUser(String username, String password) throws SQLException {
+        Connection conn = UserManager.getInstance().getConnection();
+        PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM users WHERE username=?");
+        stmt.setString(1, username);
+        ResultSet rs = stmt.executeQuery();
+        boolean valid = false;
+        if (rs.next()) {
+            try {
+                valid = PasswordHash.validatePassword(password, rs.getString(2));
+            }
+            catch (NoSuchAlgorithmException e) {
+                valid = false;
+            }
+            catch (InvalidKeySpecException e) {
+                valid = false;
+            }
+        }
+        conn.close();
+        return valid;
+    }
 
 
 }

@@ -21,63 +21,63 @@ import org.hibernate.tool.hbm2x.ExporterException;
 
 public class SimpleObjectFactoryExporter extends AbstractExporter{
 
-	private Writer output;
+    private Writer output;
     private Properties customProperties = new Properties();
 
-	public SimpleObjectFactoryExporter(Configuration configuration, File outputdir) {
-		super(configuration, outputdir);
-	}
+    public SimpleObjectFactoryExporter(Configuration configuration, File outputdir) {
+        super(configuration, outputdir);
+    }
 
-	public SimpleObjectFactoryExporter() {
-		
-	}
-	
-	public Properties getCustomProperties() {
-		return customProperties;
-	}
+    public SimpleObjectFactoryExporter() {
+        
+    }
+    
+    public Properties getCustomProperties() {
+        return customProperties;
+    }
 
-	public void setCustomProperties(Properties customProperties) {
-		this.customProperties = customProperties;
-	}
+    public void setCustomProperties(Properties customProperties) {
+        this.customProperties = customProperties;
+    }
 
-	public Writer getOutput() {
-		return output;
-	}
+    public Writer getOutput() {
+        return output;
+    }
 
-	public void setOutput(Writer output) {
-		this.output = output;
-	}
+    public void setOutput(Writer output) {
+        this.output = output;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.hibernate.tool.hbm2x.Exporter#finish()
-	 */
-	@SuppressWarnings("unchecked")
-	public void doStart() throws ExporterException {
-		
-		File f = new File("/tmp/test.txt");
-		try {
-			FileWriter fw = new FileWriter(f);
-			fw.append("Test1\nTest2\n");
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		PrintWriter pw = null;
-		File file = null;
-		try  {
+    /* (non-Javadoc)
+     * @see org.hibernate.tool.hbm2x.Exporter#finish()
+     */
+    @SuppressWarnings("unchecked")
+    public void doStart() throws ExporterException {
+        
+        File f = new File("/tmp/test.txt");
+        try {
+            FileWriter fw = new FileWriter(f);
+            fw.append("Test1\nTest2\n");
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        PrintWriter pw = null;
+        File file = null;
+        try  {
         if(output==null) {
             file = new File(getOutputDirectory(), "SimpleObjectFactory.java");
             getTemplateHelper().ensureExistence(file);
-			pw = new PrintWriter(new FileWriter(file) );
-			getArtifactCollector().addFile(file, "cfg.xml");
+            pw = new PrintWriter(new FileWriter(file) );
+            getArtifactCollector().addFile(file, "cfg.xml");
         } 
         else {
             pw = new PrintWriter(output);
         }
-		
-		
-		pw.println("Init Stuff");
+        
+        
+        pw.println("Init Stuff");
 
         boolean ejb3 = Boolean.valueOf((String)getProperties().get("ejb3")).booleanValue();
         
@@ -104,65 +104,65 @@ public class SimpleObjectFactoryExporter extends AbstractExporter{
             Map.Entry element = (Map.Entry) iterator.next();
             String key = (String) element.getKey();
             if(ignoredProperties.containsKey( key )) {
-            	Object ignoredValue = ignoredProperties.get( key );
-				if(ignoredValue == null || element.getValue().equals(ignoredValue)) {
-            		continue;
-            	}
+                Object ignoredValue = ignoredProperties.get( key );
+                if(ignoredValue == null || element.getValue().equals(ignoredValue)) {
+                    continue;
+                }
             } 
             if(key.startsWith("hibernate.") ) { // if not starting with hibernate. not relevant for cfg.xml
                 pw.println("        <property name=\"" + key + "\">" + element.getValue() + "</property>");
             }
         }
         
-		if(getConfiguration()!=null) {
-		    Iterator classMappings = getConfiguration().getClassMappings();
-		    while (classMappings.hasNext() ) {
-		        PersistentClass element = (PersistentClass) classMappings.next();
-		        if(element instanceof RootClass) {
-		            dump(pw, ejb3, element);
-		        }
-		    }
-		}
-		pw.println("    </session-factory>\r\n" + 
-				"</hibernate-configuration>");
-				
-		} 
-		
-		catch (IOException e) {
-			throw new ExporterException("Problems while creating hibernate.cfg.xml", e);
-		} 
-		finally {
-			if(pw!=null) {
-				pw.flush();
-				pw.close();
-			}				
-		}
-		
-	}
+        if(getConfiguration()!=null) {
+            Iterator classMappings = getConfiguration().getClassMappings();
+            while (classMappings.hasNext() ) {
+                PersistentClass element = (PersistentClass) classMappings.next();
+                if(element instanceof RootClass) {
+                    dump(pw, ejb3, element);
+                }
+            }
+        }
+        pw.println("    </session-factory>\r\n" + 
+                "</hibernate-configuration>");
+                
+        } 
+        
+        catch (IOException e) {
+            throw new ExporterException("Problems while creating hibernate.cfg.xml", e);
+        } 
+        finally {
+            if(pw!=null) {
+                pw.flush();
+                pw.close();
+            }                
+        }
+        
+    }
 
-	/**
-	 * @param pw
-	 * @param element
-	 */
-	@SuppressWarnings("unchecked")
-	private void dump(PrintWriter pw, boolean useClass, PersistentClass element) {
-		if(useClass) {
-			pw.println("<mapping class=\"" + element.getClassName() + "\"/>");
-		} else {
-			pw.print("Insert object factory here.");
-		}
-			
-		Iterator directSubclasses = element.getDirectSubclasses();
-		while (directSubclasses.hasNext() ) {
-			PersistentClass subclass = (PersistentClass) directSubclasses.next();
-			dump(pw, useClass, subclass);		
-		}
-		
-	}
+    /**
+     * @param pw
+     * @param element
+     */
+    @SuppressWarnings("unchecked")
+    private void dump(PrintWriter pw, boolean useClass, PersistentClass element) {
+        if(useClass) {
+            pw.println("<mapping class=\"" + element.getClassName() + "\"/>");
+        } else {
+            pw.print("Insert object factory here.");
+        }
+            
+        Iterator directSubclasses = element.getDirectSubclasses();
+        while (directSubclasses.hasNext() ) {
+            PersistentClass subclass = (PersistentClass) directSubclasses.next();
+            dump(pw, useClass, subclass);        
+        }
+        
+    }
 
 
-	public String getName() {
-		return "cfg2cfgxml";
-	}
-	
+    public String getName() {
+        return "cfg2cfgxml";
+    }
+    
 }

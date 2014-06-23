@@ -47,11 +47,11 @@ public abstract class AbstractFeaturePropertyPublication extends AbstractSimpleO
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeaturePropertyPublication) ) return false;
-		 AbstractFeaturePropertyPublication castOther = ( AbstractFeaturePropertyPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeaturePropertyPublication) ) return false;
+         AbstractFeaturePropertyPublication castOther = ( AbstractFeaturePropertyPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeatureProperty()==castOther.getFeatureProperty()) || ( this.getFeatureProperty()!=null && castOther.getFeatureProperty()!=null && this.getFeatureProperty().equals(castOther.getFeatureProperty()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeaturePropertyPublication extends AbstractSimpleO
    }   
 
 public AbstractFeaturePropertyPublication generateClone() {
-	AbstractFeaturePropertyPublication cloned = new FeaturePropertyPublication(); 
-    	   cloned.publication = this.publication;
-    	   cloned.featureProperty = this.featureProperty;
-	return cloned;
+    AbstractFeaturePropertyPublication cloned = new FeaturePropertyPublication(); 
+           cloned.publication = this.publication;
+           cloned.featureProperty = this.featureProperty;
+    return cloned;
 }
 
 

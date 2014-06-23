@@ -13,67 +13,67 @@ import java.util.Collection;
 
 public class PhenotypeDescription extends org.gmod.gbol.simpleObject.generated.AbstractPhenotypeDescription {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public PhenotypeDescription(){
-		super();
-	}
+    public PhenotypeDescription(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getEnvironment().getWriteObjects());
-//		writeObjects.addAll(this.getType().getWriteObjects());
-//		writeObjects.addAll(this.getPublication().getWriteObjects());
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getEnvironment().getWriteObjects());
+//        writeObjects.addAll(this.getType().getWriteObjects());
+//        writeObjects.addAll(this.getPublication().getWriteObjects());
 //
-//		return writeObjects;
-//	}
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public static final int type = 1;
-			public static final int environment = 2;
-			public static final int publication = 3;
-		}
-				
-		public SimpleObjectIterator(PhenotypeDescription phenotypeDesc)
-		{
-			super(phenotypeDesc);
-		}
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public static final int type = 1;
+            public static final int environment = 2;
+            public static final int publication = 3;
+        }
+                
+        public SimpleObjectIterator(PhenotypeDescription phenotypeDesc)
+        {
+            super(phenotypeDesc);
+        }
 
-		public AbstractSimpleObject next()
-		{
-			PhenotypeDescription phenotypeDesc = (PhenotypeDescription)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				processSingletonIterator(Status.type, phenotypeDesc.getType());
-			}
-			else {
-				retVal = soIter.next();
-				if (status == Status.type) {
-					processSingletonIterator(Status.environment, phenotypeDesc.getEnvironment());
-				}
-				if (status == Status.environment) {
-					processSingletonIterator(Status.publication, phenotypeDesc.getPublication());
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
+        public AbstractSimpleObject next()
+        {
+            PhenotypeDescription phenotypeDesc = (PhenotypeDescription)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                processSingletonIterator(Status.type, phenotypeDesc.getType());
+            }
+            else {
+                retVal = soIter.next();
+                if (status == Status.type) {
+                    processSingletonIterator(Status.environment, phenotypeDesc.getEnvironment());
+                }
+                if (status == Status.environment) {
+                    processSingletonIterator(Status.publication, phenotypeDesc.getPublication());
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
 
-	}
+    }
 
-	
+    
 }

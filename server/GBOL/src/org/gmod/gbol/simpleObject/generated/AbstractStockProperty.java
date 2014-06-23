@@ -22,7 +22,7 @@ public abstract class AbstractStockProperty extends AbstractSimpleObject impleme
     public AbstractStockProperty() {
     }
 
-	
+    
     public AbstractStockProperty(CVTerm type, Stock stock, int rank) {
         this.type = type;
         this.stock = stock;
@@ -82,11 +82,11 @@ public abstract class AbstractStockProperty extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockProperty) ) return false;
-		 AbstractStockProperty castOther = ( AbstractStockProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockProperty) ) return false;
+         AbstractStockProperty castOther = ( AbstractStockProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getStock()==castOther.getStock()) || ( this.getStock()!=null && castOther.getStock()!=null && this.getStock().equals(castOther.getStock()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -104,13 +104,13 @@ public abstract class AbstractStockProperty extends AbstractSimpleObject impleme
    }   
 
 public AbstractStockProperty generateClone() {
-	AbstractStockProperty cloned = new StockProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.stock = this.stock;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-    	   cloned.stockPropertyPublications = this.stockPropertyPublications;
-	return cloned;
+    AbstractStockProperty cloned = new StockProperty(); 
+           cloned.type = this.type;
+           cloned.stock = this.stock;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+           cloned.stockPropertyPublications = this.stockPropertyPublications;
+    return cloned;
 }
 
 

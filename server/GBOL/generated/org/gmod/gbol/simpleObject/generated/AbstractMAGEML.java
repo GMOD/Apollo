@@ -20,7 +20,7 @@ public abstract class AbstractMAGEML extends AbstractSimpleObject implements jav
     public AbstractMAGEML() {
     }
 
-	
+    
     public AbstractMAGEML(String magePackage, String mageml) {
         this.magePackage = magePackage;
         this.mageml = mageml;
@@ -63,11 +63,11 @@ public abstract class AbstractMAGEML extends AbstractSimpleObject implements jav
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractMAGEML) ) return false;
-		 AbstractMAGEML castOther = ( AbstractMAGEML ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractMAGEML) ) return false;
+         AbstractMAGEML castOther = ( AbstractMAGEML ) other; 
          
-		 return ( (this.getMageml()==castOther.getMageml()) || ( this.getMageml()!=null && castOther.getMageml()!=null && this.getMageml().equals(castOther.getMageml()) ) );
+         return ( (this.getMageml()==castOther.getMageml()) || ( this.getMageml()!=null && castOther.getMageml()!=null && this.getMageml().equals(castOther.getMageml()) ) );
    }
    
    public int hashCode() {
@@ -81,11 +81,11 @@ public abstract class AbstractMAGEML extends AbstractSimpleObject implements jav
    }   
 
 public AbstractMAGEML generateClone() {
-	AbstractMAGEML cloned = new AbstractMAGEML; 
-    	   cloned.magePackage = this.magePackage;
-    	   cloned.mageml = this.mageml;
-    	   cloned.mageDocuments = this.mageDocuments;
-	return cloned;
+    AbstractMAGEML cloned = new AbstractMAGEML; 
+           cloned.magePackage = this.magePackage;
+           cloned.mageml = this.mageml;
+           cloned.mageDocuments = this.mageDocuments;
+    return cloned;
 }
 
 

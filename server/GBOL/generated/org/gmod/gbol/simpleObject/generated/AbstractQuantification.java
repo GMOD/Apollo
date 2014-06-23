@@ -28,7 +28,7 @@ public abstract class AbstractQuantification extends AbstractSimpleObject implem
     public AbstractQuantification() {
     }
 
-	
+    
     public AbstractQuantification(Acquisition acquisition, Analysis analysis) {
         this.acquisition = acquisition;
         this.analysis = analysis;
@@ -127,11 +127,11 @@ public abstract class AbstractQuantification extends AbstractSimpleObject implem
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractQuantification) ) return false;
-		 AbstractQuantification castOther = ( AbstractQuantification ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractQuantification) ) return false;
+         AbstractQuantification castOther = ( AbstractQuantification ) other; 
          
-		 return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) )
+         return ( (this.getAnalysis()==castOther.getAnalysis()) || ( this.getAnalysis()!=null && castOther.getAnalysis()!=null && this.getAnalysis().equals(castOther.getAnalysis()) ) )
  && ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
@@ -153,18 +153,18 @@ public abstract class AbstractQuantification extends AbstractSimpleObject implem
    }   
 
 public AbstractQuantification generateClone() {
-	AbstractQuantification cloned = new AbstractQuantification; 
-    	   cloned.operator = this.operator;
-    	   cloned.acquisition = this.acquisition;
-    	   cloned.protocol = this.protocol;
-    	   cloned.analysis = this.analysis;
-    	   cloned.quantificationDate = this.quantificationDate;
-    	   cloned.name = this.name;
-    	   cloned.uri = this.uri;
-    	   cloned.quantificationProperties = this.quantificationProperties;
-    	   cloned.parentQuantificationRelationships = this.parentQuantificationRelationships;
-    	   cloned.childQuantificationRelationships = this.childQuantificationRelationships;
-	return cloned;
+    AbstractQuantification cloned = new AbstractQuantification; 
+           cloned.operator = this.operator;
+           cloned.acquisition = this.acquisition;
+           cloned.protocol = this.protocol;
+           cloned.analysis = this.analysis;
+           cloned.quantificationDate = this.quantificationDate;
+           cloned.name = this.name;
+           cloned.uri = this.uri;
+           cloned.quantificationProperties = this.quantificationProperties;
+           cloned.parentQuantificationRelationships = this.parentQuantificationRelationships;
+           cloned.childQuantificationRelationships = this.childQuantificationRelationships;
+    return cloned;
 }
 
 

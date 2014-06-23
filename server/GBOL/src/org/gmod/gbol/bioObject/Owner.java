@@ -5,26 +5,26 @@ import org.gmod.gbol.simpleObject.FeatureProperty;
 
 public class Owner extends AbstractBioFeatureProperty {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public Owner(FeatureProperty featureProperty, BioObjectConfiguration conf) {
-		super(featureProperty, conf);
-	}
-	
-	public Owner(AbstractBioFeature feature, String owner, BioObjectConfiguration conf) {
-		super(new FeatureProperty(
-				conf.getDefaultCVTermForClass("Owner"),
-				feature.getFeature(),
-				owner),
-				conf);
-	}
+    public Owner(FeatureProperty featureProperty, BioObjectConfiguration conf) {
+        super(featureProperty, conf);
+    }
+    
+    public Owner(AbstractBioFeature feature, String owner, BioObjectConfiguration conf) {
+        super(new FeatureProperty(
+                conf.getDefaultCVTermForClass("Owner"),
+                feature.getFeature(),
+                owner),
+                conf);
+    }
 
-	public String getOwner() {
-		return featureProperty.getValue();
-	}
+    public String getOwner() {
+        return featureProperty.getValue();
+    }
 
-	public void setOwner(String owner) {
-		featureProperty.setValue(owner);
-	}
-	
+    public void setOwner(String owner) {
+        featureProperty.setValue(owner);
+    }
+    
 }

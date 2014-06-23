@@ -74,11 +74,11 @@ public abstract class AbstractLibrarySynonym extends AbstractSimpleObject implem
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibrarySynonym) ) return false;
-		 AbstractLibrarySynonym castOther = ( AbstractLibrarySynonym ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibrarySynonym) ) return false;
+         AbstractLibrarySynonym castOther = ( AbstractLibrarySynonym ) other; 
          
-		 return ( (this.getSynonym()==castOther.getSynonym()) || ( this.getSynonym()!=null && castOther.getSynonym()!=null && this.getSynonym().equals(castOther.getSynonym()) ) )
+         return ( (this.getSynonym()==castOther.getSynonym()) || ( this.getSynonym()!=null && castOther.getSynonym()!=null && this.getSynonym().equals(castOther.getSynonym()) ) )
  && ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) );
    }
    
@@ -95,13 +95,13 @@ public abstract class AbstractLibrarySynonym extends AbstractSimpleObject implem
    }   
 
 public AbstractLibrarySynonym generateClone() {
-	AbstractLibrarySynonym cloned = new LibrarySynonym(); 
-    	   cloned.publication = this.publication;
-    	   cloned.synonym = this.synonym;
-    	   cloned.library = this.library;
-    	   cloned.isCurrent = this.isCurrent;
-    	   cloned.isInternal = this.isInternal;
-	return cloned;
+    AbstractLibrarySynonym cloned = new LibrarySynonym(); 
+           cloned.publication = this.publication;
+           cloned.synonym = this.synonym;
+           cloned.library = this.library;
+           cloned.isCurrent = this.isCurrent;
+           cloned.isInternal = this.isInternal;
+    return cloned;
 }
 
 

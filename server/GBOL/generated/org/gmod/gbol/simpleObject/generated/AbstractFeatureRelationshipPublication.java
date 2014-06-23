@@ -47,11 +47,11 @@ public abstract class AbstractFeatureRelationshipPublication extends AbstractSim
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureRelationshipPublication) ) return false;
-		 AbstractFeatureRelationshipPublication castOther = ( AbstractFeatureRelationshipPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureRelationshipPublication) ) return false;
+         AbstractFeatureRelationshipPublication castOther = ( AbstractFeatureRelationshipPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeatureRelationship()==castOther.getFeatureRelationship()) || ( this.getFeatureRelationship()!=null && castOther.getFeatureRelationship()!=null && this.getFeatureRelationship().equals(castOther.getFeatureRelationship()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeatureRelationshipPublication extends AbstractSim
    }   
 
 public AbstractFeatureRelationshipPublication generateClone() {
-	AbstractFeatureRelationshipPublication cloned = new AbstractFeatureRelationshipPublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.featureRelationship = this.featureRelationship;
-	return cloned;
+    AbstractFeatureRelationshipPublication cloned = new AbstractFeatureRelationshipPublication; 
+           cloned.publication = this.publication;
+           cloned.featureRelationship = this.featureRelationship;
+    return cloned;
 }
 
 

@@ -12,21 +12,21 @@ import java.util.Collection;
 
 public class PhylogeneticTree extends org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticTree {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public PhylogeneticTree(){
-		super();
-	}
+    public PhylogeneticTree(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

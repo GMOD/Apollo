@@ -19,7 +19,7 @@ public abstract class AbstractAssayBiomaterial extends AbstractSimpleObject impl
     public AbstractAssayBiomaterial() {
     }
 
-	
+    
     public AbstractAssayBiomaterial(Biomaterial biomaterial, Assay assay, int rank) {
         this.biomaterial = biomaterial;
         this.assay = assay;
@@ -71,11 +71,11 @@ public abstract class AbstractAssayBiomaterial extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAssayBiomaterial) ) return false;
-		 AbstractAssayBiomaterial castOther = ( AbstractAssayBiomaterial ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAssayBiomaterial) ) return false;
+         AbstractAssayBiomaterial castOther = ( AbstractAssayBiomaterial ) other; 
          
-		 return ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) )
+         return ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) )
  && ( (this.getChannel()==castOther.getChannel()) || ( this.getChannel()!=null && castOther.getChannel()!=null && this.getChannel().equals(castOther.getChannel()) ) )
  && ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
  && (this.getRank()==castOther.getRank());
@@ -93,12 +93,12 @@ public abstract class AbstractAssayBiomaterial extends AbstractSimpleObject impl
    }   
 
 public AbstractAssayBiomaterial generateClone() {
-	AbstractAssayBiomaterial cloned = new AbstractAssayBiomaterial; 
-    	   cloned.biomaterial = this.biomaterial;
-    	   cloned.channel = this.channel;
-    	   cloned.assay = this.assay;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractAssayBiomaterial cloned = new AbstractAssayBiomaterial; 
+           cloned.biomaterial = this.biomaterial;
+           cloned.channel = this.channel;
+           cloned.assay = this.assay;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

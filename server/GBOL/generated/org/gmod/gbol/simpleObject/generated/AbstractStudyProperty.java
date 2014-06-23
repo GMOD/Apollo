@@ -22,7 +22,7 @@ public abstract class AbstractStudyProperty extends AbstractSimpleObject impleme
     public AbstractStudyProperty() {
     }
 
-	
+    
     public AbstractStudyProperty(Study study, CVTerm type, int rank) {
         this.study = study;
         this.type = type;
@@ -82,11 +82,11 @@ public abstract class AbstractStudyProperty extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyProperty) ) return false;
-		 AbstractStudyProperty castOther = ( AbstractStudyProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyProperty) ) return false;
+         AbstractStudyProperty castOther = ( AbstractStudyProperty ) other; 
          
-		 return ( (this.getStudy()==castOther.getStudy()) || ( this.getStudy()!=null && castOther.getStudy()!=null && this.getStudy().equals(castOther.getStudy()) ) )
+         return ( (this.getStudy()==castOther.getStudy()) || ( this.getStudy()!=null && castOther.getStudy()!=null && this.getStudy().equals(castOther.getStudy()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -104,13 +104,13 @@ public abstract class AbstractStudyProperty extends AbstractSimpleObject impleme
    }   
 
 public AbstractStudyProperty generateClone() {
-	AbstractStudyProperty cloned = new AbstractStudyProperty; 
-    	   cloned.study = this.study;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-    	   cloned.studyPropertyFeatures = this.studyPropertyFeatures;
-	return cloned;
+    AbstractStudyProperty cloned = new AbstractStudyProperty; 
+           cloned.study = this.study;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+           cloned.studyPropertyFeatures = this.studyPropertyFeatures;
+    return cloned;
 }
 
 

@@ -65,11 +65,11 @@ public abstract class AbstractPhenotypeComparisonCVTerm extends AbstractSimpleOb
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhenotypeComparisonCVTerm) ) return false;
-		 AbstractPhenotypeComparisonCVTerm castOther = ( AbstractPhenotypeComparisonCVTerm ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhenotypeComparisonCVTerm) ) return false;
+         AbstractPhenotypeComparisonCVTerm castOther = ( AbstractPhenotypeComparisonCVTerm ) other; 
          
-		 return ( (this.getPhenotypeComparison()==castOther.getPhenotypeComparison()) || ( this.getPhenotypeComparison()!=null && castOther.getPhenotypeComparison()!=null && this.getPhenotypeComparison().equals(castOther.getPhenotypeComparison()) ) )
+         return ( (this.getPhenotypeComparison()==castOther.getPhenotypeComparison()) || ( this.getPhenotypeComparison()!=null && castOther.getPhenotypeComparison()!=null && this.getPhenotypeComparison().equals(castOther.getPhenotypeComparison()) ) )
  && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) );
    }
    
@@ -85,12 +85,12 @@ public abstract class AbstractPhenotypeComparisonCVTerm extends AbstractSimpleOb
    }   
 
 public AbstractPhenotypeComparisonCVTerm generateClone() {
-	AbstractPhenotypeComparisonCVTerm cloned = new PhenotypeComparisonCVTerm(); 
-    	   cloned.publication = this.publication;
-    	   cloned.phenotypeComparison = this.phenotypeComparison;
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractPhenotypeComparisonCVTerm cloned = new PhenotypeComparisonCVTerm(); 
+           cloned.publication = this.publication;
+           cloned.phenotypeComparison = this.phenotypeComparison;
+           cloned.cvterm = this.cvterm;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 
