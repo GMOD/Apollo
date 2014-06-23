@@ -28,8 +28,8 @@ ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().g
 InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
 BioObjectConfiguration bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
 if (!UserManager.getInstance().isInitialized()) {
-	ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
-	UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
+    ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
+    UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
 }
 String databaseDir = serverConfig.getDataStoreDirectory();
 String username = (String)session.getAttribute("username");
@@ -88,7 +88,7 @@ label:nth-child(even) {
 BufferedReader in = new BufferedReader(new InputStreamReader(application.getResourceAsStream(serverConfig.getTrackNameComparator())));
 String line;
 while ((line = in.readLine()) != null) {
-	out.println(line);	
+    out.println(line);    
 }
 %>
 
@@ -96,15 +96,15 @@ while ((line = in.readLine()) != null) {
 Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 boolean isAdmin = false;
 if (username != null) {
-	for (ServerConfiguration.TrackConfiguration track : tracks) {
-		Integer permission = permissions.get(track.getName());
-		if (permission == null) {
-			permission = 0;
-		}
-		if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
-			isAdmin = true;
-		}
-	}
+    for (ServerConfiguration.TrackConfiguration track : tracks) {
+        Integer permission = permissions.get(track.getName());
+        if (permission == null) {
+            permission = 0;
+        }
+        if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
+            isAdmin = true;
+        }
+    }
 }
 
 %>
@@ -118,191 +118,191 @@ var table;
 var tracks_configuration_list={};
 
 $(function() {
-	
-	initialize_config_settings();
-	$("#menu").menubar( {
-		autoExpand: false,
-		select: function(event, ui) {
-			$(".ui-state-focus").removeClass("ui-state-focus");
-		},
-		position: {
-        	within: $('#frame').add(window).first() }
-		}
-	);
+    
+    initialize_config_settings();
+    $("#menu").menubar( {
+        autoExpand: false,
+        select: function(event, ui) {
+            $(".ui-state-focus").removeClass("ui-state-focus");
+        },
+        position: {
+            within: $('#frame').add(window).first() }
+        }
+    );
 <%
-	if (username == null) {
-		out.println("login();");
-	}
+    if (username == null) {
+        out.println("login();");
+    }
 %>
-	$("#logout_item").click(function() {
-		logout();
-	});
+    $("#logout_item").click(function() {
+        logout();
+    });
 
-	$("#select_tracks").click(function() {
-		window.location="selectTrack.jsp";
-	});
-	$("#recent_changes").click(function() {
-		window.location="recentChanges.jsp";
-	});
-	
-	$("#search_sequence_item").click(function() {
-		open_search_dialog();
-	});
-	$("#user_manager_item").click(function() {
-		open_user_manager_dialog();
-	});
+    $("#select_tracks").click(function() {
+        window.location="selectTrack.jsp";
+    });
+    $("#recent_changes").click(function() {
+        window.location="recentChanges.jsp";
+    });
+    
+    $("#search_sequence_item").click(function() {
+        open_search_dialog();
+    });
+    $("#user_manager_item").click(function() {
+        open_user_manager_dialog();
+    });
 
-	cleanup_user_item();
+    cleanup_user_item();
 } );
 
 
 function initialize_config_settings() {
-	
-	$("#datastore_directory").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
-	$("#mapping_file").attr("value","<% out.print(serverConfig.getGBOLMappingFile()); %>");
-	$("#minimum_intron_size").attr("value","<% out.print(serverConfig.getDefaultMinimumIntronSize()); %>");
-	$("#history_size").attr("value","<% out.print(serverConfig.getHistorySize()); %>");
-	$("#use_cds_for_new_transcripts").attr("value","<% out.print(serverConfig.getUseCDS()); %>");
-	$("#track_name_comparator").attr("value","<% out.print(serverConfig.getTrackNameComparator()); %>");
-	$("#overlapper_class").attr("value","<% out.print(serverConfig.getOverlapperClass()); %>");
+    
+    $("#datastore_directory").attr("value","<% out.print(serverConfig.getDataStoreDirectory()); %>");
+    $("#mapping_file").attr("value","<% out.print(serverConfig.getGBOLMappingFile()); %>");
+    $("#minimum_intron_size").attr("value","<% out.print(serverConfig.getDefaultMinimumIntronSize()); %>");
+    $("#history_size").attr("value","<% out.print(serverConfig.getHistorySize()); %>");
+    $("#use_cds_for_new_transcripts").attr("value","<% out.print(serverConfig.getUseCDS()); %>");
+    $("#track_name_comparator").attr("value","<% out.print(serverConfig.getTrackNameComparator()); %>");
+    $("#overlapper_class").attr("value","<% out.print(serverConfig.getOverlapperClass()); %>");
 
 
 
 
-	$("#database_username").attr("value","<% out.print(serverConfig.getUserDatabase().getUserName()); %>");
-	$("#database_password").attr("value","<% out.print(serverConfig.getUserDatabase().getPassword()); %>");
-	$("#database_driver").attr("value","<% out.print(serverConfig.getUserDatabase().getDriver()); %>");
-	$("#database_url").attr("value","<% out.print(serverConfig.getUserDatabase().getURL()); %>");
+    $("#database_username").attr("value","<% out.print(serverConfig.getUserDatabase().getUserName()); %>");
+    $("#database_password").attr("value","<% out.print(serverConfig.getUserDatabase().getPassword()); %>");
+    $("#database_driver").attr("value","<% out.print(serverConfig.getUserDatabase().getDriver()); %>");
+    $("#database_url").attr("value","<% out.print(serverConfig.getUserDatabase().getURL()); %>");
 
-	<%
-	//Get tracklist configuration
-	Map<String,ServerConfiguration.TrackConfiguration> trackmap=serverConfig.getTracks();
-	for(String trackname : trackmap.keySet()) {
-		ServerConfiguration.TrackConfiguration track=trackmap.get(trackname);
-		out.println("tracks_configuration_list[\""+track.getName()+
-		                  "\"]={ \"organism\": \""+track.getOrganism()+"\","+ 
-		                        "\"translation_table\": \""+track.getTranslationTable()+"\","+
-		                        "\"sequence_cvterm\": \""+track.getSourceFeature().getType()+"\","+
-		                        "\"refseqs_json\": \""+track.getSourceFeature().getSequenceDirectory()+"\","+
-		                        "\"donor_site\": \""+track.getSpliceDonorSites()+"\","+
-		                        "\"acceptor_site\": \""+track.getSpliceAcceptorSites()+"\""+
-		
-				"};");
-		
-	}
-	%>
-	
-	
-	var init_refseqs_config=function(){
-		var track_selection=$("#track_options_list").attr("value");
-		$("#organism_name").attr("value",tracks_configuration_list[track_selection].organism);
-		$("#refseqs_json").attr("value",tracks_configuration_list[track_selection].refseqs_json);
-		$("#sequence_cvterm").attr("value",tracks_configuration_list[track_selection].sequence_cvterm);
-		$("#acceptor_site").attr("value",tracks_configuration_list[track_selection].acceptor_site);
-		$("#donor_site").attr("value",tracks_configuration_list[track_selection].donor_site);
-		$("#translation_table").attr("value",tracks_configuration_list[track_selection].translation_table);
-	}
-	
-	$("#track_options_list").click(init_refseqs_config);
-	init_refseqs_config();
+    <%
+    //Get tracklist configuration
+    Map<String,ServerConfiguration.TrackConfiguration> trackmap=serverConfig.getTracks();
+    for(String trackname : trackmap.keySet()) {
+        ServerConfiguration.TrackConfiguration track=trackmap.get(trackname);
+        out.println("tracks_configuration_list[\""+track.getName()+
+                          "\"]={ \"organism\": \""+track.getOrganism()+"\","+ 
+                                "\"translation_table\": \""+track.getTranslationTable()+"\","+
+                                "\"sequence_cvterm\": \""+track.getSourceFeature().getType()+"\","+
+                                "\"refseqs_json\": \""+track.getSourceFeature().getSequenceDirectory()+"\","+
+                                "\"donor_site\": \""+track.getSpliceDonorSites()+"\","+
+                                "\"acceptor_site\": \""+track.getSpliceAcceptorSites()+"\""+
+        
+                "};");
+        
+    }
+    %>
+    
+    
+    var init_refseqs_config=function(){
+        var track_selection=$("#track_options_list").attr("value");
+        $("#organism_name").attr("value",tracks_configuration_list[track_selection].organism);
+        $("#refseqs_json").attr("value",tracks_configuration_list[track_selection].refseqs_json);
+        $("#sequence_cvterm").attr("value",tracks_configuration_list[track_selection].sequence_cvterm);
+        $("#acceptor_site").attr("value",tracks_configuration_list[track_selection].acceptor_site);
+        $("#donor_site").attr("value",tracks_configuration_list[track_selection].donor_site);
+        $("#translation_table").attr("value",tracks_configuration_list[track_selection].translation_table);
+    }
+    
+    $("#track_options_list").click(init_refseqs_config);
+    init_refseqs_config();
 }
 
 
 
 
 function cleanup_logo() {
-	$("#logo").parent().css("padding", "0 0 0 0");
+    $("#logo").parent().css("padding", "0 0 0 0");
 };
 
 function cleanup_user_item() {
-	$("#user_item").parent().attr("id", "user_item_menu");
+    $("#user_item").parent().attr("id", "user_item_menu");
 };
 
 
 
 function open_search_dialog() {
 <%
-	for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
-		Integer permission = permissions.get(track.getName());
-		if (permission == null) {
-			permission = 0;
-		}
-		if ((permission & Permission.READ) == Permission.READ) {
-			out.println("var trackName = '" + track.getName() + "'");
-			break;
-		}
+    for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
+        Integer permission = permissions.get(track.getName());
+        if (permission == null) {
+            permission = 0;
+        }
+        if ((permission & Permission.READ) == Permission.READ) {
+            out.println("var trackName = '" + track.getName() + "'");
+            break;
+        }
 
-	}
+    }
 %>
-	var search = new SequenceSearch(".");
-	var starts = new Object();
+    var search = new SequenceSearch(".");
+    var starts = new Object();
 <%
-	for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
-		out.println(String.format("starts['%s'] = %d;", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getStart()));
-	}
-%>	
-	search.setRedirectCallback(function(id, fmin, fmax) {
-		 var flank = Math.round((fmax - fmin) * 0.2);
-		 var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+(fmin+1) + ".." + fmax;
-		 window.open(url);
-	});
-	search.setErrorCallback(function(response) {
-		var error = eval('(' + response.responseText + ')');
-		if (error && error.error) {
-			alert(error.error);
-		}
-	});
-	var content = search.searchSequence(trackName, null, starts);
-	if (content) {
-		$("#search_sequences_dialog").show();
-		$("#search_sequences_dialog").html(content);
-		$("#search_sequences_dialog").dialog("open");
-	}
+    for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
+        out.println(String.format("starts['%s'] = %d;", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getStart()));
+    }
+%>    
+    search.setRedirectCallback(function(id, fmin, fmax) {
+         var flank = Math.round((fmax - fmin) * 0.2);
+         var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+(fmin+1) + ".." + fmax;
+         window.open(url);
+    });
+    search.setErrorCallback(function(response) {
+        var error = eval('(' + response.responseText + ')');
+        if (error && error.error) {
+            alert(error.error);
+        }
+    });
+    var content = search.searchSequence(trackName, null, starts);
+    if (content) {
+        $("#search_sequences_dialog").show();
+        $("#search_sequences_dialog").html(content);
+        $("#search_sequences_dialog").dialog("open");
+    }
 };
 
 function update_checked(checked) {
-	$("#checkbox_option").prop("checked", checked);
-	table.$(".track_select").prop("checked", checked);
+    $("#checkbox_option").prop("checked", checked);
+    table.$(".track_select").prop("checked", checked);
 };
 
 function login() {
-	var $login = $("#login_dialog");
-	$login.dialog("option", "closeOnEscape", false);
-	$login.dialog("option", "dialogClass", "login_dialog");
-	$(".ui-dialog-titlebar-close", this.parentNode).hide();
-	$login.load("Login");
-	$login.dialog("open");
-	$login.dialog("option", "width", "auto");
+    var $login = $("#login_dialog");
+    $login.dialog("option", "closeOnEscape", false);
+    $login.dialog("option", "dialogClass", "login_dialog");
+    $(".ui-dialog-titlebar-close", this.parentNode).hide();
+    $login.load("Login");
+    $login.dialog("open");
+    $login.dialog("option", "width", "auto");
 };
 
 function logout() {
-	$.ajax({
-		type: "post",
-		url: "Login?operation=logout",
-		success: function(data, textStatus, jqXHR) {
-		},
-		error: function(qXHR, textStatus, errorThrown) {
-		}
-	});
+    $.ajax({
+        type: "post",
+        url: "Login?operation=logout",
+        success: function(data, textStatus, jqXHR) {
+        },
+        error: function(qXHR, textStatus, errorThrown) {
+        }
+    });
 };
 
 function open_user_manager_dialog() {
-	var $userManager = $("<div id='user_manager_dialog' title='Manage users'></div>");
-	$userManager.dialog( {
-		draggable: false,
-		modal: true,
-		autoOpen: true,
-		resizable: false,
-		closeOnEscape: true,
-		close: function() {
-			$(this).dialog("destroy").remove();
-		},
-		width: "70%"
-		} );
-	$userManager.load("userPermissions.jsp", null, function() {
-		$userManager.dialog('option', 'position', 'center');
-	});
-	//$userManager.dialog("open");
+    var $userManager = $("<div id='user_manager_dialog' title='Manage users'></div>");
+    $userManager.dialog( {
+        draggable: false,
+        modal: true,
+        autoOpen: true,
+        resizable: false,
+        closeOnEscape: true,
+        close: function() {
+            $(this).dialog("destroy").remove();
+        },
+        width: "70%"
+        } );
+    $userManager.load("userPermissions.jsp", null, function() {
+        $userManager.dialog('option', 'position', 'center');
+    });
+    //$userManager.dialog("open");
 }
 
 </script>
@@ -310,44 +310,44 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
 <ul id="menu">
-	<li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
-	<li><a id="file_item">File</a>
-		<ul id="file_menu">
-			<li><a id="export_menu">Export</a>
-			<ul><li><a class='none'>N/A</a></li>
+    <li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
+    <li><a id="file_item">File</a>
+        <ul id="file_menu">
+            <li><a id="export_menu">Export</a>
+            <ul><li><a class='none'>N/A</a></li>
 
-			</ul>
-			</li>
-		</ul>
-	</li>
-	
-	<li><a id="view_item">View</a>
-		<ul id="view_menu">
-			<li><a id="select_tracks">Select tracks</a></li>
-			<li><a id="recent_changes">Recent changes</a></li>
-		</ul>
-	</li>
-	
-	<li><a id="tools_item">Tools</a>
-		<ul id="tools_menu">
-			<li><a id="search_sequence_item">Search sequence</a></li>
-		</ul>
-	</li>
+            </ul>
+            </li>
+        </ul>
+    </li>
+    
+    <li><a id="view_item">View</a>
+        <ul id="view_menu">
+            <li><a id="select_tracks">Select tracks</a></li>
+            <li><a id="recent_changes">Recent changes</a></li>
+        </ul>
+    </li>
+    
+    <li><a id="tools_item">Tools</a>
+        <ul id="tools_menu">
+            <li><a id="search_sequence_item">Search sequence</a></li>
+        </ul>
+    </li>
 <%
-	if (isAdmin) {
-		out.println("<li><a id=\"admin_item\">Admin</a>");
-		out.println("<ul id=\"tools_menu\">");
-		out.println("\t<li><a id='user_manager_item'>Manage users</a></li>");
-		out.println("</ul>");
-		out.println("</li>");
-	}
-	if (username != null) {
-		out.println("<li><a id=\"user_item\"><span class='usericon'></span>" + username + "</a>");
-		out.println("<ul id=\"user_menu\">");
-		out.println("\t<li><a id=\"logout_item\">Logout</a></li>");
-		out.println("</ul>");
-		out.println("</li>");
-	}
+    if (isAdmin) {
+        out.println("<li><a id=\"admin_item\">Admin</a>");
+        out.println("<ul id=\"tools_menu\">");
+        out.println("\t<li><a id='user_manager_item'>Manage users</a></li>");
+        out.println("</ul>");
+        out.println("</li>");
+    }
+    if (username != null) {
+        out.println("<li><a id=\"user_item\"><span class='usericon'></span>" + username + "</a>");
+        out.println("<ul id=\"user_menu\">");
+        out.println("\t<li><a id=\"logout_item\">Logout</a></li>");
+        out.println("</ul>");
+        out.println("</li>");
+    }
 %>
 </ul>
 </div>
@@ -361,31 +361,31 @@ function open_user_manager_dialog() {
 <%
 
 if ("POST".equalsIgnoreCase(request.getMethod())) {
-	// Form was submitted.
-	out.println("<h3>Settings saved</h3>");
-	out.println(request.getParameter("mapping_file"));
-	out.println(request.getParameter("datastore_directory"));
-	out.println(request.getParameter("minimum_intron_size"));
-	
-	out.println(serverConfig.getDataStoreDirectory());
-	out.println(serverConfig.getDefaultMinimumIntronSize());
-	serverConfig.setDataStoreDirectory(request.getParameter("datastore_directory"));
-	serverConfig.setGBOLMappingFile(request.getParameter("mapping_file"));
-	serverConfig.setDefaultMinimumIntronSize(Integer.parseInt(request.getParameter("minimum_intron_size")));
-	serverConfig.setHistorySize(Integer.parseInt(request.getParameter("history_size")));
-	serverConfig.setOverlapperClass(request.getParameter("overlapper_class"));
-	serverConfig.setUseCDS(Boolean.parseBoolean(request.getParameter("use_cds_for_new_transcripts")));
-	serverConfig.setTrackNameComparator(request.getParameter("track_name_comparator"));
-	
-	ServerConfiguration.UserDatabaseConfiguration udc=
-			serverConfig.new UserDatabaseConfiguration(
-			request.getParameter("database_driver"),
-			request.getParameter("database_url"),
-			request.getParameter("database_username"),
-			request.getParameter("database_password"));
-	
-	serverConfig.setUserDatabase(udc);
-	
+    // Form was submitted.
+    out.println("<h3>Settings saved</h3>");
+    out.println(request.getParameter("mapping_file"));
+    out.println(request.getParameter("datastore_directory"));
+    out.println(request.getParameter("minimum_intron_size"));
+    
+    out.println(serverConfig.getDataStoreDirectory());
+    out.println(serverConfig.getDefaultMinimumIntronSize());
+    serverConfig.setDataStoreDirectory(request.getParameter("datastore_directory"));
+    serverConfig.setGBOLMappingFile(request.getParameter("mapping_file"));
+    serverConfig.setDefaultMinimumIntronSize(Integer.parseInt(request.getParameter("minimum_intron_size")));
+    serverConfig.setHistorySize(Integer.parseInt(request.getParameter("history_size")));
+    serverConfig.setOverlapperClass(request.getParameter("overlapper_class"));
+    serverConfig.setUseCDS(Boolean.parseBoolean(request.getParameter("use_cds_for_new_transcripts")));
+    serverConfig.setTrackNameComparator(request.getParameter("track_name_comparator"));
+    
+    ServerConfiguration.UserDatabaseConfiguration udc=
+            serverConfig.new UserDatabaseConfiguration(
+            request.getParameter("database_driver"),
+            request.getParameter("database_url"),
+            request.getParameter("database_username"),
+            request.getParameter("database_password"));
+    
+    serverConfig.setUserDatabase(udc);
+    
 }
 %>
 
@@ -448,9 +448,9 @@ if ("POST".equalsIgnoreCase(request.getMethod())) {
 //Output tracknames
 
 for(String trackname : trackmap.keySet()) {
-	ServerConfiguration.TrackConfiguration track=trackmap.get(trackname);
-	out.println("<option>"+track.getName()+"</option>");
-	
+    ServerConfiguration.TrackConfiguration track=trackmap.get(trackname);
+    out.println("<option>"+track.getName()+"</option>");
+    
 }
 %>
 </select>
