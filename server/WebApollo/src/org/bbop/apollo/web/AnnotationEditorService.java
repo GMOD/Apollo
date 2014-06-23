@@ -122,8 +122,8 @@ public class AnnotationEditorService extends HttpServlet {
                 "get_data_adapters", "get_annotation_info_editor_configuration", "get_canned_comments"));
         operationsNotRequiringLogin = new HashSet<String>(Arrays.asList("get_translation_table"));
     }
-    
-    
+
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -234,13 +234,13 @@ public class AnnotationEditorService extends HttpServlet {
         catch (Exception e) {
             throw new ServletException(e);
         }
-        
+
         cleanupThread = new Thread(new Runnable() {
             public void run() {
-                
+
                 final long SLEEP_TIME = 60 * 60 * 1000; //1 hour
                 final long LAST_ACCESS_AGE = 30 * 60 * 1000; //30 minutes
-                
+
                 while (true) {
                     try {
                         boolean runGC = false;
@@ -264,7 +264,7 @@ public class AnnotationEditorService extends HttpServlet {
             }
         });
         cleanupThread.start();
-        
+
     }
 
     @Override
@@ -276,7 +276,7 @@ public class AnnotationEditorService extends HttpServlet {
             historyStore.close();
         }
     }
-    
+
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
@@ -286,10 +286,10 @@ public class AnnotationEditorService extends HttpServlet {
             JSONObject json = JSONUtil.convertInputStreamToJSON(request.getInputStream());
             String operation = json.getString("operation");
             String track = json.getString("track");
-            
+
             SessionData sessionData = getSessionData(track);
             AnnotationEditor editor = sessionData.getEditor();
-            
+
             response.setContentType("application/json");
             /*
             BufferedWriter out;
@@ -305,7 +305,7 @@ public class AnnotationEditorService extends HttpServlet {
             }
             */
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream()));
-            
+
             if (!operationsNotRequiringLogin.contains(operation)) {
                 if (session == null) {
                     throw new AnnotationEditorServiceException("You must first login before editing");
@@ -332,9 +332,9 @@ public class AnnotationEditorService extends HttpServlet {
                 }
                 AbstractDataStore dataStore = updateDataStore ? sessionData.getDataStore() : null;
                 AbstractHistoryStore historyStore = updateDataStore ? sessionData.getHistoryStore() : null;
-                
+
                 if (!operationsNotRequiringMutexes.contains(operation)) {
-                    
+
                     // start of operations that need mutexes
                     synchronized (editor) {
 
@@ -565,7 +565,7 @@ public class AnnotationEditorService extends HttpServlet {
                             }
                             setBoundaries(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
                         }
-                        
+
                         // set_to_downstream_donor
                         else if (operation.equals("set_to_downstream_donor")) {
                             if ((permission & Permission.WRITE) == 0) {
@@ -597,7 +597,7 @@ public class AnnotationEditorService extends HttpServlet {
                             }
                             setToUpstreamAcceptor(editor, dataStore, historyStore, json.getJSONArray("features"), track, username, out);
                         }
-                        
+
                         // lock_feature
                         else if (operation.equals("lock_feature")) {
                             if ((permission & Permission.WRITE) == 0) {
@@ -781,7 +781,7 @@ public class AnnotationEditorService extends HttpServlet {
                             }
                             updateNonReservedProperties(editor, session, dataStore, historyStore, json.getJSONArray("features"), track, out);
                         }
-                        
+
                         // get_annotation_info_editor_data
                         else if (operation.equals("get_annotation_info_editor_data")) {
                             getAnnotationInfoEditorData(editor, session, json.getJSONArray("features"), track, out);
@@ -796,19 +796,19 @@ public class AnnotationEditorService extends HttpServlet {
                         else if (operation.equals("set_readthrough_stop_codon")) {
                             setReadthroughStopCodon(editor, dataStore, historyStore, json.getJSONArray("features").getJSONObject(0), track, username, out);
                         }
-                        
+
                         // release_resources
                         else if (operation.equals("release_resources")) {
                             releaseResources(track, out);
                         }
-                        
+
                     }
                     // end of operations needing mutexes
                 }
 
                 // start of operations not needing mutexes
                 else {
-                    
+
                     // get_user_permissions
                     if (operation.equals("get_user_permission")) {
                         getUserPermission(permission, track, (String)session.getAttribute("username"), out);
@@ -838,7 +838,7 @@ public class AnnotationEditorService extends HttpServlet {
                     else if (operation.equals("get_canned_comments")) {
                         getCannedComments(editor, json.getJSONArray("features"), track, out);
                     }
-                    
+
                 }
                 // end of operations not needing mutexes
 
@@ -854,7 +854,7 @@ public class AnnotationEditorService extends HttpServlet {
 
             }
             // end of operations not needing login
-            
+
             /*
             if (compress) {
                 response.addHeader("Content-encoding", "gzip");
@@ -865,7 +865,7 @@ public class AnnotationEditorService extends HttpServlet {
             }
             */
             out.flush();
-            
+
         } catch (JSONException e) {
             try {
 //                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
@@ -906,7 +906,7 @@ public class AnnotationEditorService extends HttpServlet {
             }
         }
     }
-    
+
     private JSONObject createJSONFeatureContainer(JSONObject ... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
@@ -916,7 +916,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return jsonFeatureContainer;
     }
-    
+
     private void getOrganism(AnnotationEditor editor, BufferedWriter out) throws JSONException, IOException {
         JSONObject organism = new JSONObject();
         if (editor.getSession().getOrganism() == null) {
@@ -926,12 +926,12 @@ public class AnnotationEditorService extends HttpServlet {
         organism.put("species", editor.getSession().getOrganism().getSpecies());
         out.write(organism.toString());
     }
-    
+
     private void setOrganism(AnnotationEditor editor, JSONObject organism, BufferedWriter out) throws JSONException, IOException {
         editor.getSession().setOrganism(new Organism(organism.getString("genus"), organism.getString("species")));
         getOrganism(editor, out);
     }
-    
+
     private void getSourceFeature(AnnotationEditor editor, String track, BufferedWriter out) throws JSONException, IOException {
         Feature gsolFeature = trackToSourceFeature.get(track);
         JSONObject featureContainer = createJSONFeatureContainer();
@@ -944,14 +944,14 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void setSourceFeature(AnnotationEditor editor, JSONObject sourceFeature, BufferedWriter out) throws JSONException, IOException {
         Feature gsolSourceFeature = JSONUtil.convertJSONToFeature(sourceFeature, bioObjectConfiguration, editor.getSession().getOrganism());
         editor.getSession().setSourceFeature(gsolSourceFeature);
         out.write(createJSONFeatureContainer(JSONUtil.convertFeatureToJSON(gsolSourceFeature)).toString());
     }
-    
-    
+
+
     private void getName(AnnotationEditor editor, HttpSession session, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -965,7 +965,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void setName(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -996,7 +996,7 @@ public class AnnotationEditorService extends HttpServlet {
     private void addFeature(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         addFeature(editor, session, dataStore, historyStore, features, track, username, out, true);
     }
-    
+
     private void addFeature(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, boolean fireUpdateChange) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1057,11 +1057,11 @@ public class AnnotationEditorService extends HttpServlet {
     private void deleteFeature(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         deleteFeature(editor, dataStore, historyStore, features, track, username, out, true);
     }
-    
+
     private void deleteFeature(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, boolean fireUpdateChange) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         Map<String, List<AbstractSingleLocationBioFeature>> modifiedFeaturesUniqueNames = new HashMap<String, List<AbstractSingleLocationBioFeature>>();
-        
+
         boolean isUpdateOperation = false;
         for (int i = 0; i < features.length(); ++i) {
             AbstractSingleLocationBioFeature feature = getFeature(editor, features.getJSONObject(i));
@@ -1093,20 +1093,20 @@ public class AnnotationEditorService extends HttpServlet {
                             dataStore.deleteFeature(gene);
                         }
                     }
-                    
+
 //                    editor.getSession().endTransactionForFeature(gene);
-                    
+
                 }
                 else {
                     editor.deleteFeature(feature);
                     if (dataStore != null) {
                         dataStore.deleteFeature(gsolFeature);
                     }
-                    
+
 //                    editor.getSession().endTransactionForFeature(feature);
-                    
+
                 }
-                
+
                 if (historyStore != null) {
 //                    Transaction transaction = new Transaction(operation, feature.getUniqueName());
 //                    transaction.setAttribute("feature", feature);
@@ -1138,18 +1138,18 @@ public class AnnotationEditorService extends HttpServlet {
                     if (dataStore != null) {
                         dataStore.writeFeature(transcript.getGene());
                     }
-                    
+
 //                    editor.getSession().endTransactionForFeature(transcript);
-                    
+
                 }
                 else {
                     operation = Transaction.Operation.DELETE_FEATURE;
                     if (dataStore != null) {
                         dataStore.writeFeature(gsolFeature);
                     }
-                    
+
 //                    editor.getSession().endTransactionForFeature(feature);
-                    
+
                 }
                 if (historyStore != null) {
                     Transaction transaction = new Transaction(operation, feature.getUniqueName(), username);
@@ -1175,9 +1175,9 @@ public class AnnotationEditorService extends HttpServlet {
         if (out != null) {
             out.write(createJSONFeatureContainer().toString());
         }
-        
+
         editor.getSession().endTransactionForAllFeatures();
-        
+
     }
 
     private boolean deleteFeature(AnnotationEditor editor, AbstractSingleLocationBioFeature feature, Map<String, List<AbstractSingleLocationBioFeature>> modifiedFeaturesUniqueNames) throws JSONException {
@@ -1214,7 +1214,7 @@ public class AnnotationEditorService extends HttpServlet {
             return false;
         }
     }
-    
+
     private void getFeatures(AnnotationEditor editor, BufferedWriter out) throws JSONException, IOException {
         JSONObject jsonFeatureContainer = createJSONFeatureContainer();
         JSONArray jsonFeatures = jsonFeatureContainer.getJSONArray("features");
@@ -1234,7 +1234,7 @@ public class AnnotationEditorService extends HttpServlet {
     private void addTranscript(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         addTranscript(editor, session, dataStore, historyStore, features, track, username, out, true);
     }
-    
+
     private void addTranscript(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, boolean fireUpdateChange) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         AbstractNameAdapter nameAdapter = new HttpSessionTimeStampNameAdapter(session, editor.getSession());
@@ -1286,7 +1286,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
     }
-    
+
     private void mergeTranscripts(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonTranscript1, JSONObject jsonTranscript2, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Transcript transcript1 = (Transcript)getFeature(editor, jsonTranscript1);
         Transcript transcript2 = (Transcript)getFeature(editor, jsonTranscript2);
@@ -1309,13 +1309,13 @@ public class AnnotationEditorService extends HttpServlet {
             transaction1.addOldFeature(oldTranscript2);
             transaction1.addNewFeature(transcript1);
             historyStore.addTransaction(transaction1);
-            
+
             Transaction transaction2 = new Transaction(Transaction.Operation.MERGE_TRANSCRIPTS, transcript2.getUniqueName(), username);
             transaction2.addOldFeature(oldTranscript1);
             transaction2.addOldFeature(oldTranscript2);
             transaction2.addNewFeature(transcript1);
             historyStore.addTransaction(transaction2);
-            
+
             /*
             if (gene2.getTranscripts().size() == 0) {
                 historyStore.deleteHistoryForFeature(transcript2.getUniqueName());
@@ -1336,7 +1336,7 @@ public class AnnotationEditorService extends HttpServlet {
         fireDataStoreChange(new DataStoreChangeEvent(this, updateFeatureContainer, track, DataStoreChangeEvent.Operation.UPDATE),
                 new DataStoreChangeEvent(this, deleteFeatureContainer, track, DataStoreChangeEvent.Operation.DELETE));
     }
-    
+
     private void flipStrand(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         AbstractNameAdapter nameAdapter = new HttpSessionTimeStampNameAdapter(session, editor.getSession());
@@ -1370,7 +1370,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void getCannedComments(AnnotationEditor editor, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1389,7 +1389,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void addComments(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1469,7 +1469,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
-    
+
     private void getDescription(AnnotationEditor editor, HttpSession session, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1482,7 +1482,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void setDescription(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1518,7 +1518,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void setSymbol(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1541,7 +1541,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
-    
+
     private void getStatus(AnnotationEditor editor, HttpSession session, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1554,7 +1554,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void setStatus(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1577,7 +1577,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
-    
+
     private void deleteStatus(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1599,7 +1599,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
-    
+
     private void getNonPrimaryDBXrefs(AnnotationEditor editor, HttpSession session, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1642,7 +1642,7 @@ public class AnnotationEditorService extends HttpServlet {
             out.write(updateFeatureContainer.toString());
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
-    }    
+    }
 
     private void deleteNonPrimaryDBXrefs(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
@@ -1697,7 +1697,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
-    
+
     private void getNonReservedProperties(AnnotationEditor editor, HttpSession session, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1740,7 +1740,7 @@ public class AnnotationEditorService extends HttpServlet {
             out.write(updateFeatureContainer.toString());
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
-    }    
+    }
 
     private void deleteNonReservedProperties(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
@@ -1795,7 +1795,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
 //        fireDataStoreChange(updateFeatureContainer, track, Operation.UPDATE);
     }
-    
+
     private void getAnnotationInfoEditorData(AnnotationEditor editor, HttpSession session, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -1861,7 +1861,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void searchSequence(AnnotationEditor editor, HttpSession session, JSONObject search, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException, SequenceSearchToolException {
         if (sequenceSearchTools.size() == 0) {
             throw new AnnotationEditorServiceException("No search tools configured");
@@ -1873,13 +1873,13 @@ public class AnnotationEditorService extends HttpServlet {
         JSONObject matchContainer = new JSONObject().put("matches", new JSONArray());
         String query = search.getString("residues");
         String databaseId = search.has("database_id") ? search.getString("database_id") : null;
-        
+
         for (Match match : sequenceSearchTool.search(session.getId(), query, databaseId)) {
             matchContainer.getJSONArray("matches").put(JSONUtil.convertMatchToJSON(match));
         }
         out.write(matchContainer.toString());
     }
-    
+
     private void getSequenceSearchTools(BufferedWriter out) throws JSONException, IOException {
         JSONArray sequenceSearchToolsArray = new JSONArray();
         JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
@@ -1888,7 +1888,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(sequenceSearchToolsContainer.toString());
     }
-    
+
     private void releaseResources(String track, BufferedWriter out) throws JSONException, IOException {
         cleanup(track);
         System.gc();
@@ -1932,8 +1932,8 @@ public class AnnotationEditorService extends HttpServlet {
                 historyContainer.getJSONArray("features").put(jsonFeature);
         }
         out.write(historyContainer.toString());
-    }    
-    
+    }
+
     private Transcript flipTranscriptStrand(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, Transcript oldTranscript, String track, String username, AbstractNameAdapter nameAdapter) throws JSONException, AnnotationEditorServiceException {
         boolean isPseudogene = oldTranscript.getGene().isPseudogene();
         Gene oldGene = oldTranscript.getGene();
@@ -1973,7 +1973,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return feature;
     }
-    
+
     private void getDataAdapters(BufferedWriter out) throws JSONException, IOException {
         JSONArray dataAdaptersArray = new JSONArray();
         JSONObject dataAdaptersContainer = new JSONObject().put("data_adapters", dataAdaptersArray);
@@ -2041,7 +2041,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(annotationInfoEditorConfigContainer.toString());
     }
-    
+
     private void getTranslationTable(AnnotationEditor editor, String track, BufferedWriter out) throws JSONException, IOException {
         SequenceUtil.TranslationTable translationTable = editor.getConfiguration().getTranslationTable();
         JSONObject ttable = new JSONObject();
@@ -2050,7 +2050,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(new JSONObject().put("translation_table", ttable).toString());
     }
-    
+
     private void setTranslationStart(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonTranscript, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
         Transcript oldTranscript = cloneTranscript(transcript);
@@ -2102,7 +2102,7 @@ public class AnnotationEditorService extends HttpServlet {
         JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     /*
     private void setTranslationEnd(AnnotationEditor editor, AbstractDataStore dataStore, JSONObject jsonTranscript, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
@@ -2161,7 +2161,7 @@ public class AnnotationEditorService extends HttpServlet {
             calculateCDS(editor, transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
         }
     }
-    
+
     private void calculateCDS(AnnotationEditor editor, Transcript transcript, boolean readThroughStopCodon) {
         editor.calculateCDS(transcript, readThroughStopCodon);
         setTimesForCDS(transcript);
@@ -2171,7 +2171,7 @@ public class AnnotationEditorService extends HttpServlet {
         editor.setLongestORF(transcript);
         setTimesForCDS(transcript);
     }
-    
+
     private void setTimesForCDS(Transcript transcript) {
         if (transcript.getCDS() != null) {
             CDS cds = transcript.getCDS();
@@ -2181,7 +2181,7 @@ public class AnnotationEditorService extends HttpServlet {
             cds.setTimeLastModified(new Date());
         }
     }
-    
+
     private void findNonCanonicalAcceptorDonorSpliceSites(AnnotationEditor editor, Transcript transcript) {
         editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
         for (NonCanonicalFivePrimeSpliceSite spliceSite : transcript.getNonCanonicalFivePrimeSpliceSites()) {
@@ -2199,7 +2199,7 @@ public class AnnotationEditorService extends HttpServlet {
             spliceSite.setOwner(transcript.getOwner());
         }
     }
-    
+
     private void addExon(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws IOException, JSONException, AnnotationEditorServiceException {
         Transcript transcript = (Transcript)getFeature(editor, features.getJSONObject(0));
         Transaction transaction = null;
@@ -2231,19 +2231,19 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(featureContainer.toString());
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private void deleteExon(AnnotationEditor editor, AbstractDataStore dataStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Transcript transcript = (Transcript)getFeature(editor, features.getJSONObject(0));
         for (int i = 1; i < features.length(); ++i) {
             Exon exon = (Exon)getFeature(editor, features.getJSONObject(i));
             editor.deleteExon(transcript, exon);
-        }        
+        }
         if (dataStore != null) {
             writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
         }
         out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
     }
-    
+
     private void mergeExons(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorException, AnnotationEditorServiceException {
         Exon exon1 = (Exon)getFeature(editor, features.getJSONObject(0));
         Exon exon2 = (Exon)getFeature(editor, features.getJSONObject(1));
@@ -2266,7 +2266,7 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(featureContainer.toString());
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private void splitExon(AnnotationEditor editor, HttpSession session, AbstractNameAdapter nameAdapter, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonExon, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Exon exon = (Exon)getFeature(editor, jsonExon);
         Transcript oldTranscript = cloneTranscript(exon.getTranscript());
@@ -2289,7 +2289,7 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(featureContainer.toString());
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private void makeIntron(AnnotationEditor editor, HttpSession session, AbstractNameAdapter nameAdapter, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonExon, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Exon exon = (Exon)getFeature(editor, jsonExon);
         Transcript oldTranscript = cloneTranscript(exon.getTranscript());
@@ -2320,7 +2320,7 @@ public class AnnotationEditorService extends HttpServlet {
     private void splitTranscript(AnnotationEditor editor, HttpSession session, AbstractNameAdapter transcriptNameAdapter, AbstractNameAdapter geneNameAdapter, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         splitTranscript(editor, session, transcriptNameAdapter, geneNameAdapter, dataStore, historyStore, features, track, username, out, true, false);
     }
-    
+
     private void splitTranscript(AnnotationEditor editor, HttpSession session, AbstractNameAdapter transcriptNameAdapter, AbstractNameAdapter geneNameAdapter, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, boolean addHistoryForOriginalTranscript, boolean redo) throws JSONException, IOException, AnnotationEditorServiceException {
         Exon exon1 = (Exon)getFeature(editor, features.getJSONObject(0));
         Exon exon2 = (Exon)getFeature(editor, features.getJSONObject(1));
@@ -2335,7 +2335,7 @@ public class AnnotationEditorService extends HttpServlet {
         updateTranscriptAttributes(exon2.getTranscript());
         exon2.getTranscript().setOwner(exon1.getTranscript().getOwner());
         Gene gene1 = exon1.getTranscript().getGene();
-        
+
         if (gene1 != null) {
 
             /*
@@ -2355,7 +2355,7 @@ public class AnnotationEditorService extends HttpServlet {
 //                addTranscript(editor, session, dataStore, null, new JSONArray().put(JSONUtil.convertBioFeatureToJSON(splitTranscript)), track, username, null, false);
             }
             */
-            
+
             Set<Transcript> gene1Transcripts = new HashSet<Transcript>();
             Set<Transcript> gene2Transcripts = new HashSet<Transcript>();
             List<Transcript> transcripts = BioObjectUtil.createSortedFeatureListByLocation(gene1.getTranscripts(), false);
@@ -2403,9 +2403,9 @@ public class AnnotationEditorService extends HttpServlet {
                 editor.deleteTranscript(gene1, t);
 //                Transcript tmp = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
             }
-            
+
             editor.getSession().indexFeature(gene1);
-            
+
             for (Transcript t : gene2Transcripts) {
                 if (!t.equals(splitTranscript)) {
                     addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, geneNameAdapter, gene1.isPseudogene());
@@ -2425,7 +2425,7 @@ public class AnnotationEditorService extends HttpServlet {
                 editor.addFeature(gene2);
             }
             */
-            
+
         }
         if (historyStore != null) {
             TransactionList oldTransactions = historyStore.getTransactionListForFeature(oldTranscript.getUniqueName());
@@ -2481,7 +2481,7 @@ public class AnnotationEditorService extends HttpServlet {
                 updateContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(t));
             }
         }
-        
+
         /*
         JSONObject updateContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon1.getTranscript()));
         JSONObject addContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
@@ -2489,7 +2489,7 @@ public class AnnotationEditorService extends HttpServlet {
 
         fireDataStoreChange(new DataStoreChangeEvent(this, updateContainer, track, DataStoreChangeEvent.Operation.UPDATE), new DataStoreChangeEvent(this, addContainer, track, DataStoreChangeEvent.Operation.ADD));
     }
-    
+
     private void addSequenceAlteration(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, JSONArray features, String track, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject addFeatureContainer = createJSONFeatureContainer();
@@ -2563,7 +2563,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(jsonFeatureContainer.toString());
     }
-    
+
     private void getResiduesWithAlterations(AnnotationEditor editor, JSONArray features, BufferedWriter out) throws IOException, JSONException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -2575,7 +2575,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void addFrameshift(AnnotationEditor editor, AbstractDataStore dataStore, JSONArray features, String track, BufferedWriter out) throws IOException, JSONException, AnnotationEditorServiceException {
         JSONObject jsonTranscript = features.getJSONObject(0);
         Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
@@ -2605,7 +2605,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(createJSONFeatureContainer().toString());
     }
-    
+
     private void getResiduesWithFrameshifts(AnnotationEditor editor, JSONArray features, BufferedWriter out) throws IOException, JSONException, AnnotationEditorServiceException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -2629,7 +2629,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void setExonBoundaries(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -2670,7 +2670,7 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(featureContainer.toString());
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private void setBoundaries(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -2698,7 +2698,7 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(featureContainer.toString());
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private void setToDownstreamDonor(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out) throws JSONException, AnnotationEditorServiceException, IOException, AnnotationEditorException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -2848,7 +2848,7 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(featureContainer.toString());
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private boolean isLockedFeature(AbstractSingleLocationBioFeature feature) {
         for (GenericFeatureProperty fp : feature.getNonReservedProperties()) {
             if (fp.getTag().equals("locked") && fp.getValue().equals("true")) {
@@ -2978,7 +2978,7 @@ public class AnnotationEditorService extends HttpServlet {
                 jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(rightExon));
                 splitTranscript(editor, session, new PreDefinedNameAdapter(transcript2.getUniqueName()), dataStore, null, jsonFeatures, track, null, out);
                 */
-                
+
                 /*
                 Gene newGene = (Gene)getFeature(editor, newTranscript.getGene().getUniqueName());
                 editor.deleteTranscript(newGene, newTranscript);
@@ -3077,7 +3077,7 @@ public class AnnotationEditorService extends HttpServlet {
                     }
                     editor.addFeature(newGene != null ? newGene : gene2);
                 }
-                
+
                 /*
                 editor.deleteFeature(newTranscript.getGene());
                 editor.addFeature(oldTranscript1.getGene());
@@ -3089,13 +3089,13 @@ public class AnnotationEditorService extends HttpServlet {
                     dataStore.writeFeature(gene1);
 
 //                    editor.getSession().endTransactionForFeature(gene1);
-                    
+
                     if (!gene1.getUniqueName().equals(gene2.getUniqueName())) {
                         dataStore.writeFeature(gene2);
                     }
 
 //                    editor.getSession().endTransactionForFeature(gene2);
-                    
+
                     /*
                     dataStore.deleteFeature(newTranscript.getGene());
                     dataStore.writeFeature(oldTranscript1.getGene());
@@ -3119,9 +3119,9 @@ public class AnnotationEditorService extends HttpServlet {
                         }
                     }
                 }
-                
+
                 fireDataStoreChange(new DataStoreChangeEvent(this, deletedFeatures, track, Operation.DELETE), new DataStoreChangeEvent(this, addedFeatures, track, Operation.ADD), new DataStoreChangeEvent(this, updatedFeatures, track, Operation.UPDATE));
-                
+
                 editor.getSession().endTransactionForAllFeatures();
             }
             else if (transaction.getOperation().equals(Transaction.Operation.SPLIT_TRANSCRIPT)) {
@@ -3199,7 +3199,7 @@ public class AnnotationEditorService extends HttpServlet {
                 }
                 editor.deleteTranscript(gene1, transcript1);
                 Set<String> toBeDeleted = new java.util.HashSet<String>();
-                
+
                 for (AbstractSingleLocationBioFeature feature : editor.getSession().getOverlappingFeatures(oldTranscript.getFeatureLocation(), false)) {
                     if (feature instanceof Gene) {
                         Gene gene = (Gene)feature;
@@ -3234,9 +3234,9 @@ public class AnnotationEditorService extends HttpServlet {
                     }
 
 //                    editor.getSession().endTransactionForFeature(gene);
-                    
+
                 }
-                
+
                 Set<Transcript> toBeMoved = new HashSet<Transcript>();
                 if (!gene1.equals(gene2)) {
                     for (Transcript t : gene2.getTranscripts()) {
@@ -3257,7 +3257,7 @@ public class AnnotationEditorService extends HttpServlet {
                 for (Transcript t : toBeMoved) {
                     Transcript tmp = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, new HttpSessionTimeStampNameAdapter(session, editor.getSession()), gene1.isPseudogene());
                 }
-                
+
                 /*
                 List<Transcript> toBeProcessed = new ArrayList<Transcript>();
                 toBeProcessed.add(transcript2);
@@ -3293,12 +3293,12 @@ public class AnnotationEditorService extends HttpServlet {
                     }
                 }
                 */
-                
+
                 if (dataStore != null) {
                     dataStore.writeFeature(gene1);
 
 //                    editor.getSession().endTransactionForFeature(gene1);
-                    
+
                     if (gene2.getTranscripts().size() > 0) {
                         dataStore.writeFeature(gene2);
                     }
@@ -3307,7 +3307,7 @@ public class AnnotationEditorService extends HttpServlet {
                     }
 
 //                    editor.getSession().endTransactionForFeature(gene2);
-                    
+
 
                 }
                 List<DataStoreChangeEvent> events = new ArrayList<DataStoreChangeEvent>();
@@ -3317,7 +3317,7 @@ public class AnnotationEditorService extends HttpServlet {
                 events.add(new DataStoreChangeEvent(this, createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(oldTranscript)), track, DataStoreChangeEvent.Operation.UPDATE));
                 fireDataStoreChange(events.toArray(new DataStoreChangeEvent[0]));
                 out.write(new JSONObject().toString());
-                
+
                 editor.getSession().endTransactionForAllFeatures();
 
             }
@@ -3398,7 +3398,7 @@ public class AnnotationEditorService extends HttpServlet {
             }
         }
     }
-    
+
     private void redo(AnnotationEditor editor, HttpSession session, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONArray features, String track, String username, BufferedWriter out, int count) throws JSONException, IOException, AnnotationEditorServiceException, AnnotationEditorException {
         for (int i = 0; i< features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
@@ -3496,7 +3496,7 @@ public class AnnotationEditorService extends HttpServlet {
                     out.write(createJSONFeatureContainer(updatedFeatures).toString());
                     if (dataStore != null) {
                         dataStore.writeFeature(gene);
-                    }                    
+                    }
                     editor.getSession().endTransactionForAllFeatures();
                 }
                 /*
@@ -3522,7 +3522,7 @@ public class AnnotationEditorService extends HttpServlet {
                 }
                 fireDataStoreChange(new DataStoreChangeEvent(this, deletedFeatures, track, Operation.DELETE), new DataStoreChangeEvent(this, addedFeatures, track, Operation.ADD), new DataStoreChangeEvent(this, updatedFeatures, track, Operation.UPDATE));
                 */
-                
+
                 /*
                 Gene oldGene1 = (Gene)editor.getSession().getFeatureByUniqueName(oldTranscript1.getGene().getUniqueName());
                 if (oldGene1 != null) {
@@ -3568,7 +3568,7 @@ public class AnnotationEditorService extends HttpServlet {
                 JSONObject deletedFeatures = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(oldTranscript1), JSONUtil.convertBioFeatureToJSON(oldTranscript2));
                 fireDataStoreChange(new DataStoreChangeEvent(this, deletedFeatures, track, Operation.DELETE), new DataStoreChangeEvent(this, addedFeatures, track, Operation.ADD));
                 */
-                
+
                 /*
                 AbstractSingleLocationBioFeature transcript1 = transaction.getOldFeatures().get(0);
                 AbstractSingleLocationBioFeature transcript2 = transaction.getOldFeatures().get(1);
@@ -3629,7 +3629,7 @@ public class AnnotationEditorService extends HttpServlet {
                 jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(leftExon));
                 jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(rightExon));
 //                splitTranscript(editor, session, new PreDefinedNameAdapter(transcript2.getUniqueName()), new PreDefinedNameAdapter(transcript2.getGene().getUniqueName()), dataStore, historyStore, jsonFeatures, track, transaction.getEditor(), out, false, true);
-    
+
                 AbstractNameAdapter geneNameAdapter = editor.getSession().getFeatureByUniqueName(transcript2.getGene().getUniqueName()) != null ? new HttpSessionTimeStampNameAdapter(session, editor.getSession()) : new PreDefinedNameAdapter(transcript2.getGene().getUniqueName());
                 splitTranscript(editor, session, new PreDefinedNameAdapter(transcript2.getUniqueName()), geneNameAdapter, dataStore, historyStore, jsonFeatures, track, transaction.getEditor(), out, false, true);
 
@@ -3717,15 +3717,15 @@ public class AnnotationEditorService extends HttpServlet {
             }
         }
     }
-    
+
     private int getUserPermission(String track, String username) throws SQLException {
         return UserManager.getInstance().getTrackPermissionForUser(track, username);
     }
-    
+
     private void getUserPermission(int permission, String track, String username, BufferedWriter out) throws IOException, JSONException {
         out.write(new JSONObject().put("permission", permission).put("username", username).toString());
     }
-    
+
     private void getInformation(AnnotationEditor editor, JSONArray features, BufferedWriter out) throws JSONException, IOException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -3750,7 +3750,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private void getSequence(AnnotationEditor editor, JSONArray features, String type, int flank, BufferedWriter out) throws JSONException, IOException {
         JSONObject featureContainer = createJSONFeatureContainer();
         for (int i = 0; i < features.length(); ++i) {
@@ -3793,7 +3793,7 @@ public class AnnotationEditorService extends HttpServlet {
 //                    sequence = SequenceUtil.translateSequence(editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature), editor.getConfiguration().getTranslationTable());
                     sequence = "";
                 }
-                
+
             }
             else if (type.equals("cdna")) {
                 if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
@@ -3848,7 +3848,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         out.write(featureContainer.toString());
     }
-    
+
     private AbstractSingleLocationBioFeature getFeature(AnnotationEditor editor, JSONObject jsonFeature) throws JSONException, AnnotationEditorServiceException {
         try {
             String uniqueName = jsonFeature.getString("uniquename");
@@ -3858,7 +3858,7 @@ public class AnnotationEditorService extends HttpServlet {
             throw new JSONException("JSON feature object lacks 'uniquename' field");
         }
     }
-    
+
     private AbstractSingleLocationBioFeature getFeature(AnnotationEditor editor, String uniqueName) throws AnnotationEditorServiceException {
         AbstractSingleLocationBioFeature feature = editor.getSession().getFeatureByUniqueName(uniqueName);
         if (feature == null) {
@@ -3866,7 +3866,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return feature;
     }
-    
+
     private void updateNewGsolFeatureAttributes(Feature gsolFeature, Feature sourceFeature) {
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
@@ -3892,26 +3892,26 @@ public class AnnotationEditorService extends HttpServlet {
             updateNewGbolFeatureAttributes(child, sourceFeature);
         }
     }
-    
+
     private void updateTranscriptAttributes(Transcript transcript) {
         AbstractNameAdapter nameAdapter = new FeatureNameAdapter();
         if (transcript.getName() == null) {
             transcript.setName(nameAdapter.generateName(transcript));
         }
     }
-    
+
     private SessionData getSessionData(String track) {
         SessionData sessionData;
         AnnotationEditor editor = trackToEditor.get(track);
         if (editor == null) {
             AbstractDataStore dataStore = new JEDatabase(getStorageFile(track).getAbsolutePath());
             DataStore sessionDataStore = useMemoryStore ?
-                    new JEDatabaseSessionMemoryDataStore((JEDatabase)dataStore, trackToSourceFeature.get(track), bioObjectConfiguration) :
+                    new JEDatabaseSessionMemoryDataStore((JEDatabase)dataStore, bioObjectConfiguration, trackToSourceFeature.get(track)) :
                     new JEDatabaseSessionHybridArrayDataStore((JEDatabase)dataStore, bioObjectConfiguration, trackToSourceFeature.get(track));
             editor = new AnnotationEditor(new AnnotationSession(sessionDataStore), new Configuration());
             editor.getConfiguration().setTranslationTable(trackToTranslationTable.get(track));
             trackToEditor.put(track, editor);
-            
+
             //              AbstractDataStore dataStore = new JEDatabase(getStorageFile(track).getAbsolutePath());
 
             /*
@@ -3947,11 +3947,11 @@ public class AnnotationEditorService extends HttpServlet {
 //              count += getFeatureCount(editor.getSession().getSequenceAlterations());
 //              session.setAttribute("uniquenameCounter", count);
 //      }
-        
+
         trackToLastAccess.put(track, new Date());
-        
+
 //        printMemoryUsage();
-        
+
         return sessionData;
     }
 
@@ -3960,13 +3960,13 @@ public class AnnotationEditorService extends HttpServlet {
             throw new AnnotationEditorServiceException("Transcript does not have a gene parent: " + feature.getUniqueName());
         }
     }
-    
+
     private void writeHistoryToStore(AbstractHistoryStore historyStore, Transaction transaction) {
         synchronized (historyStore) {
             historyStore.addTransaction(transaction);
         }
     }
-    
+
     private void writeFeatureToStore(AnnotationEditor editor, AbstractDataStore dataStore, AbstractSingleLocationBioFeature feature, String track) throws AnnotationEditorServiceException {
         checkValidity(feature);
         SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
@@ -3981,13 +3981,13 @@ public class AnnotationEditorService extends HttpServlet {
             }
 
 //            editor.getSession().endTransactionForFeature(feature);
-            
+
         }
         addSourceToFeature(gsolFeature, trackToSourceFeature.get(track));
-        
+
         editor.getSession().endTransactionForAllFeatures();
     }
-    
+
     private void deleteFeatureFromStore(AbstractDataStore dataStore, AbstractSingleLocationBioFeature feature) {
         SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
         Feature gsolFeature = (Feature)iterator.next();
@@ -3998,14 +3998,14 @@ public class AnnotationEditorService extends HttpServlet {
             dataStore.deleteFeature(gsolFeature);
         }
     }
-    
+
     private AbstractSingleLocationBioFeature getTopLevelFeatureForTranscript(Transcript transcript) {
         if (transcript.getGene() != null) {
             return transcript.getGene();
         }
         return transcript;
     }
-    
+
     private void removeSourceFromFeature(Feature feature) {
         if (feature.getFeatureLocations().size() > 0) {
             feature.getFeatureLocations().iterator().next().setSourceFeature(null);
@@ -4014,7 +4014,7 @@ public class AnnotationEditorService extends HttpServlet {
             removeSourceFromFeature(fr.getSubjectFeature());
         }
     }
-    
+
     private void addSourceToFeature(Feature feature, Feature sourceFeature) {
         if (feature.getFeatureLocations().size() > 0) {
             feature.getFeatureLocations().iterator().next().setSourceFeature(sourceFeature);
@@ -4023,7 +4023,7 @@ public class AnnotationEditorService extends HttpServlet {
             addSourceToFeature(fr.getSubjectFeature(), sourceFeature);
         }
     }
-    
+
 //    private int getFeatureCount(Collection<? extends AbstractSingleLocationBioFeature> features) {
 //        int numFeatures = 0;
 //        for (AbstractSingleLocationBioFeature feature : features) {
@@ -4047,7 +4047,7 @@ public class AnnotationEditorService extends HttpServlet {
     private void fireDataStoreChange(DataStoreChangeEvent ... events) {
         AbstractDataStoreManager.getInstance().fireDataStoreChange(events);
     }
-    
+
     private int getUniquenameCounter(String sessionId, Collection<? extends AbstractSingleLocationBioFeature> features) {
         int count = 0;
         for (AbstractSingleLocationBioFeature feature : features) {
@@ -4055,7 +4055,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return count;
     }
-    
+
     private int getUniquenameCounter(String sessionId, AbstractSingleLocationBioFeature feature, int count) {
         if (feature.getUniqueName().startsWith(sessionId)) {
             int featureNum = Integer.parseInt(feature.getUniqueName().substring(sessionId.length() + 1));
@@ -4069,16 +4069,16 @@ public class AnnotationEditorService extends HttpServlet {
         return count;
 
     }
-    
+
     private File getStorageFile(String filename) {
         File dir = new File(dataStoreDirectory + "/" + filename);
         return dir;
     }
-    
+
     private AbstractSingleLocationBioFeature cloneFeature(AbstractSingleLocationBioFeature feature) {
         return feature.cloneFeature(feature.getUniqueName());
     }
-    
+
     private Gene cloneGene(Gene gene) {
         Gene copy = gene.isPseudogene() ? new Pseudogene((Pseudogene)gene, gene.getUniqueName()) : new Gene(gene, gene.getUniqueName());
         copy.setName(gene.getName());
@@ -4109,7 +4109,7 @@ public class AnnotationEditorService extends HttpServlet {
     private Transcript cloneTranscript(Transcript transcript) {
         return cloneTranscript(transcript, false);
     }
-    
+
     private Transcript cloneTranscript(Transcript transcript, boolean cloneGene) {
         Transcript copy = (Transcript)transcript.cloneFeature(transcript.getUniqueName());
         copy.setName(transcript.getName());
@@ -4157,11 +4157,11 @@ public class AnnotationEditorService extends HttpServlet {
         copy.setTimeLastModified(transcript.getTimeLastModified());
         return copy;
     }
-    
+
     private Exon cloneExon(Exon exon) {
         return new Exon(exon, exon.getUniqueName());
     }
-    
+
     private CDS cloneCDS(CDS cds) {
         CDS copy = new CDS(cds, cds.getUniqueName());
         for (Comment comment : cds.getComments()) {
@@ -4169,7 +4169,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return copy;
     }
-    
+
     private NonCanonicalFivePrimeSpliceSite cloneNonCanonicalFivePrimeSpliceSite(NonCanonicalFivePrimeSpliceSite spliceSite) {
         return new NonCanonicalFivePrimeSpliceSite(spliceSite, spliceSite.getUniqueName());
     }
@@ -4184,7 +4184,7 @@ public class AnnotationEditorService extends HttpServlet {
             setOwner(child, owner);
         }
     }
-    
+
     private void sendError(HttpServletResponse response, int statusCode, String message) {
         try {
             response.getOutputStream().print(message);
@@ -4194,7 +4194,7 @@ public class AnnotationEditorService extends HttpServlet {
         catch (Exception e) {
         }
     }
-    
+
     private void sendConfirm(HttpServletResponse response, String message) {
         try {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("confirm", message).toString());
@@ -4202,7 +4202,7 @@ public class AnnotationEditorService extends HttpServlet {
         catch (Exception e) {
         }
     }
-    
+
     private void updateTranscript(AnnotationEditor editor, Transcript updatedTranscript, AbstractDataStore dataStore, String track) throws AnnotationEditorServiceException, JSONException {
         Transcript originalTranscript = (Transcript)getFeature(editor, updatedTranscript.getUniqueName());
         Gene gene = originalTranscript.getGene();
@@ -4216,7 +4216,7 @@ public class AnnotationEditorService extends HttpServlet {
         featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(updatedTranscript));
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private Transcript addTranscript(AnnotationEditor editor, HttpSession session, JSONObject jsonTranscript, String track, AbstractNameAdapter nameAdapter, boolean isPseudogene) throws JSONException, AnnotationEditorServiceException {
         Gene gene = jsonTranscript.has("parent_id") ? (Gene)editor.getSession().getFeatureByUniqueName(jsonTranscript.getString("parent_id")) : null;
         Transcript transcript = null;
@@ -4289,7 +4289,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return transcript;
     }
-    
+
     private String getCodingSequenceInPhase(AnnotationEditor editor, Exon exon, boolean removePartialCodons) {
         Transcript transcript = exon.getTranscript();
         CDS cds = transcript.getCDS();
@@ -4325,7 +4325,7 @@ public class AnnotationEditorService extends HttpServlet {
         }
         return residues;
     }
-    
+
     private void setReadthroughStopCodon(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore, JSONObject jsonTranscript, String track, String username, BufferedWriter out) throws JSONException, IOException, AnnotationEditorServiceException {
         Transcript transcript = (Transcript)getFeature(editor, jsonTranscript);
         Transcript oldTranscript = cloneTranscript(transcript);
@@ -4346,23 +4346,23 @@ public class AnnotationEditorService extends HttpServlet {
         JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(transcript));
         fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
     }
-    
+
     private class AnnotationEditorServiceException extends Exception {
 
         private static final long serialVersionUID = 1L;
 
         /** Constructor.
-         * 
+         *
          * @param message - String describing the error
          */
         public AnnotationEditorServiceException(String message) {
             super(message);
         }
-        
+
         public AnnotationEditorServiceException(String message, Throwable cause) {
             super(message, cause);
         }
-        
+
     }
 
     private class SessionData {
@@ -4370,7 +4370,7 @@ public class AnnotationEditorService extends HttpServlet {
         private AnnotationEditor editor;
         private AbstractDataStore dataStore;
         private AbstractHistoryStore historyStore;
-        
+
         public SessionData(AnnotationEditor editor, AbstractDataStore dataStore, AbstractHistoryStore historyStore) {
             this.editor = editor;
             this.dataStore = dataStore;
@@ -4400,7 +4400,7 @@ public class AnnotationEditorService extends HttpServlet {
             trackToLastAccess.remove(track);
         }
     }
-    
+
     private void printMemoryUsage() {
          Runtime runtime = Runtime.getRuntime();
          java.text.NumberFormat format = java.text.NumberFormat.getInstance();

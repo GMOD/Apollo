@@ -12,8 +12,8 @@ import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
 
 public class JEDatabaseSessionMemoryDataStore extends MemoryDataStore {
-    
-    public JEDatabaseSessionMemoryDataStore(JEDatabase dataStore, Feature sourceFeature, BioObjectConfiguration conf) {
+
+    public JEDatabaseSessionMemoryDataStore(JEDatabase dataStore, BioObjectConfiguration conf, Feature sourceFeature) {
         Iterator<Feature> iter = dataStore.getFeatureIterator();
         while (iter.hasNext()) {
             Feature feature = iter.next();
@@ -28,7 +28,7 @@ public class JEDatabaseSessionMemoryDataStore extends MemoryDataStore {
         }
 
     }
-    
+
     private void addSourceToFeature(Feature feature, Feature sourceFeature) {
         if (feature.getFeatureLocations().size() > 0) {
             feature.getFeatureLocations().iterator().next().setSourceFeature(sourceFeature);
