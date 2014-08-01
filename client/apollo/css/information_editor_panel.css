@@ -1,0 +1,57 @@
+.webapolloInformationEditor {
+    background: #fafafa;
+    overflow: auto;
+}
+.webapolloInformationEditor > .header > h2.title {
+    padding: 7px 0 0.5em 6px;
+    margin: 0;
+}
+.webapolloInformationEditor .trackCount {
+    display: inline-block;
+    float: right;
+}
+
+.webapolloInformationEditor > .header > .textfilterContainer {
+    padding: 0 5px 5px 5px;
+}
+.webapolloInformationEditor > .header > .textfilterContainer > .textfilter {
+    margin: 0;
+}
+
+.webapolloInformationEditor .dijitTitlePaneTitle {
+    padding: 0 4px;
+}
+
+.webapolloInformationEditor .dijitTitlePaneTitleFocus:focus {
+    outline: none;
+}
+
+.webapolloInformationEditor label.tracklist-label {
+    display: block;
+}
+.webapolloInformationEditor > .information_list {
+    background: white;
+    padding: 10px;
+    border: 1px solid #bfbfbf;
+}
+.webapolloInformationEditor label.tracklist-label:hover {
+    background: #D2E1F1;
+}
+.webapolloInformationEditor label.tracklist-label.collapsed {
+    display: none;
+}
+
+.webapolloInformationEditor label.tracklist-label input.check {
+    position: relative;
+    top: 2px;
+    margin: 0 4px;
+}
+.dj_safari .webapolloInformationEditor label.tracklist-label input.check {
+    top: 0;
+}
+
+#hierarchicalTrackPane_splitter {
+    background: #fafafa;
+    width: 5px;
+    border-right: 1px solid #555;
+}

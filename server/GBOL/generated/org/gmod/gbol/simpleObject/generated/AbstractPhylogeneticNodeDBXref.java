@@ -47,11 +47,11 @@ public abstract class AbstractPhylogeneticNodeDBXref extends AbstractSimpleObjec
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhylogeneticNodeDBXref) ) return false;
-		 AbstractPhylogeneticNodeDBXref castOther = ( AbstractPhylogeneticNodeDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhylogeneticNodeDBXref) ) return false;
+         AbstractPhylogeneticNodeDBXref castOther = ( AbstractPhylogeneticNodeDBXref ) other; 
          
-		 return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
+         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
  && ( (this.getPhylogeneticNode()==castOther.getPhylogeneticNode()) || ( this.getPhylogeneticNode()!=null && castOther.getPhylogeneticNode()!=null && this.getPhylogeneticNode().equals(castOther.getPhylogeneticNode()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractPhylogeneticNodeDBXref extends AbstractSimpleObjec
    }   
 
 public AbstractPhylogeneticNodeDBXref generateClone() {
-	AbstractPhylogeneticNodeDBXref cloned = new AbstractPhylogeneticNodeDBXref; 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.phylogeneticNode = this.phylogeneticNode;
-	return cloned;
+    AbstractPhylogeneticNodeDBXref cloned = new AbstractPhylogeneticNodeDBXref; 
+           cloned.dbxref = this.dbxref;
+           cloned.phylogeneticNode = this.phylogeneticNode;
+    return cloned;
 }
 
 

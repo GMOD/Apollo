@@ -47,11 +47,11 @@ public abstract class AbstractStudyAssay extends AbstractSimpleObject implements
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyAssay) ) return false;
-		 AbstractStudyAssay castOther = ( AbstractStudyAssay ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyAssay) ) return false;
+         AbstractStudyAssay castOther = ( AbstractStudyAssay ) other; 
          
-		 return ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
+         return ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
  && ( (this.getStudy()==castOther.getStudy()) || ( this.getStudy()!=null && castOther.getStudy()!=null && this.getStudy().equals(castOther.getStudy()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractStudyAssay extends AbstractSimpleObject implements
    }   
 
 public AbstractStudyAssay generateClone() {
-	AbstractStudyAssay cloned = new StudyAssay(); 
-    	   cloned.assay = this.assay;
-    	   cloned.study = this.study;
-	return cloned;
+    AbstractStudyAssay cloned = new StudyAssay(); 
+           cloned.assay = this.assay;
+           cloned.study = this.study;
+    return cloned;
 }
 
 

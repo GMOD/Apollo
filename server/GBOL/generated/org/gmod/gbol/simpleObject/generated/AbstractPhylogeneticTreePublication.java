@@ -47,11 +47,11 @@ public abstract class AbstractPhylogeneticTreePublication extends AbstractSimple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhylogeneticTreePublication) ) return false;
-		 AbstractPhylogeneticTreePublication castOther = ( AbstractPhylogeneticTreePublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhylogeneticTreePublication) ) return false;
+         AbstractPhylogeneticTreePublication castOther = ( AbstractPhylogeneticTreePublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getPhylogeneticTree()==castOther.getPhylogeneticTree()) || ( this.getPhylogeneticTree()!=null && castOther.getPhylogeneticTree()!=null && this.getPhylogeneticTree().equals(castOther.getPhylogeneticTree()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractPhylogeneticTreePublication extends AbstractSimple
    }   
 
 public AbstractPhylogeneticTreePublication generateClone() {
-	AbstractPhylogeneticTreePublication cloned = new AbstractPhylogeneticTreePublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.phylogeneticTree = this.phylogeneticTree;
-	return cloned;
+    AbstractPhylogeneticTreePublication cloned = new AbstractPhylogeneticTreePublication; 
+           cloned.publication = this.publication;
+           cloned.phylogeneticTree = this.phylogeneticTree;
+    return cloned;
 }
 
 

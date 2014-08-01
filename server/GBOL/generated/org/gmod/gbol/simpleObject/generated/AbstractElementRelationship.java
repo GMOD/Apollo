@@ -20,7 +20,7 @@ public abstract class AbstractElementRelationship extends AbstractSimpleObject i
     public AbstractElementRelationship() {
     }
 
-	
+    
     public AbstractElementRelationship(Element objectElement, Element subjectElement, CVTerm type, int rank) {
         this.objectElement = objectElement;
         this.subjectElement = subjectElement;
@@ -81,11 +81,11 @@ public abstract class AbstractElementRelationship extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractElementRelationship) ) return false;
-		 AbstractElementRelationship castOther = ( AbstractElementRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractElementRelationship) ) return false;
+         AbstractElementRelationship castOther = ( AbstractElementRelationship ) other; 
          
-		 return ( (this.getObjectElement()==castOther.getObjectElement()) || ( this.getObjectElement()!=null && castOther.getObjectElement()!=null && this.getObjectElement().equals(castOther.getObjectElement()) ) )
+         return ( (this.getObjectElement()==castOther.getObjectElement()) || ( this.getObjectElement()!=null && castOther.getObjectElement()!=null && this.getObjectElement().equals(castOther.getObjectElement()) ) )
  && ( (this.getSubjectElement()==castOther.getSubjectElement()) || ( this.getSubjectElement()!=null && castOther.getSubjectElement()!=null && this.getSubjectElement().equals(castOther.getSubjectElement()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
@@ -103,13 +103,13 @@ public abstract class AbstractElementRelationship extends AbstractSimpleObject i
    }   
 
 public AbstractElementRelationship generateClone() {
-	AbstractElementRelationship cloned = new AbstractElementRelationship; 
-    	   cloned.objectElement = this.objectElement;
-    	   cloned.subjectElement = this.subjectElement;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractElementRelationship cloned = new AbstractElementRelationship; 
+           cloned.objectElement = this.objectElement;
+           cloned.subjectElement = this.subjectElement;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

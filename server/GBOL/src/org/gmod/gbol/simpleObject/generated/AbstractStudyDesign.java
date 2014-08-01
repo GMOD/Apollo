@@ -21,7 +21,7 @@ public abstract class AbstractStudyDesign extends AbstractSimpleObject implement
     public AbstractStudyDesign() {
     }
 
-	
+    
     public AbstractStudyDesign(Study study) {
         this.study = study;
     }
@@ -71,11 +71,11 @@ public abstract class AbstractStudyDesign extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyDesign) ) return false;
-		 AbstractStudyDesign castOther = ( AbstractStudyDesign ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyDesign) ) return false;
+         AbstractStudyDesign castOther = ( AbstractStudyDesign ) other; 
          
-		 return ( (this.getStudy()==castOther.getStudy()) || ( this.getStudy()!=null && castOther.getStudy()!=null && this.getStudy().equals(castOther.getStudy()) ) );
+         return ( (this.getStudy()==castOther.getStudy()) || ( this.getStudy()!=null && castOther.getStudy()!=null && this.getStudy().equals(castOther.getStudy()) ) );
    }
    
    public int hashCode() {
@@ -90,12 +90,12 @@ public abstract class AbstractStudyDesign extends AbstractSimpleObject implement
    }   
 
 public AbstractStudyDesign generateClone() {
-	AbstractStudyDesign cloned = new StudyDesign(); 
-    	   cloned.study = this.study;
-    	   cloned.description = this.description;
-    	   cloned.studyDesignProperties = this.studyDesignProperties;
-    	   cloned.studyFactors = this.studyFactors;
-	return cloned;
+    AbstractStudyDesign cloned = new StudyDesign(); 
+           cloned.study = this.study;
+           cloned.description = this.description;
+           cloned.studyDesignProperties = this.studyDesignProperties;
+           cloned.studyFactors = this.studyFactors;
+    return cloned;
 }
 
 

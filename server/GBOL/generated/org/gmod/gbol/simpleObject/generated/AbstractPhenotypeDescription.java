@@ -74,11 +74,11 @@ public abstract class AbstractPhenotypeDescription extends AbstractSimpleObject 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhenotypeDescription) ) return false;
-		 AbstractPhenotypeDescription castOther = ( AbstractPhenotypeDescription ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhenotypeDescription) ) return false;
+         AbstractPhenotypeDescription castOther = ( AbstractPhenotypeDescription ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) )
  && ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
@@ -97,13 +97,13 @@ public abstract class AbstractPhenotypeDescription extends AbstractSimpleObject 
    }   
 
 public AbstractPhenotypeDescription generateClone() {
-	AbstractPhenotypeDescription cloned = new AbstractPhenotypeDescription; 
-    	   cloned.publication = this.publication;
-    	   cloned.environment = this.environment;
-    	   cloned.genotype = this.genotype;
-    	   cloned.type = this.type;
-    	   cloned.description = this.description;
-	return cloned;
+    AbstractPhenotypeDescription cloned = new AbstractPhenotypeDescription; 
+           cloned.publication = this.publication;
+           cloned.environment = this.environment;
+           cloned.genotype = this.genotype;
+           cloned.type = this.type;
+           cloned.description = this.description;
+    return cloned;
 }
 
 

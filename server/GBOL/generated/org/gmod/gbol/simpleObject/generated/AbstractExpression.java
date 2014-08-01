@@ -25,7 +25,7 @@ public abstract class AbstractExpression extends AbstractSimpleObject implements
     public AbstractExpression() {
     }
 
-	
+    
     public AbstractExpression(String uniquename) {
         this.uniquename = uniquename;
     }
@@ -107,11 +107,11 @@ public abstract class AbstractExpression extends AbstractSimpleObject implements
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractExpression) ) return false;
-		 AbstractExpression castOther = ( AbstractExpression ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractExpression) ) return false;
+         AbstractExpression castOther = ( AbstractExpression ) other; 
          
-		 return ( (this.getUniquename()==castOther.getUniquename()) || ( this.getUniquename()!=null && castOther.getUniquename()!=null && this.getUniquename().equals(castOther.getUniquename()) ) );
+         return ( (this.getUniquename()==castOther.getUniquename()) || ( this.getUniquename()!=null && castOther.getUniquename()!=null && this.getUniquename().equals(castOther.getUniquename()) ) );
    }
    
    public int hashCode() {
@@ -130,16 +130,16 @@ public abstract class AbstractExpression extends AbstractSimpleObject implements
    }   
 
 public AbstractExpression generateClone() {
-	AbstractExpression cloned = new AbstractExpression; 
-    	   cloned.uniquename = this.uniquename;
-    	   cloned.md5checksum = this.md5checksum;
-    	   cloned.description = this.description;
-    	   cloned.expressionProperties = this.expressionProperties;
-    	   cloned.featureExpressions = this.featureExpressions;
-    	   cloned.expressionImages = this.expressionImages;
-    	   cloned.expressionCVTerms = this.expressionCVTerms;
-    	   cloned.expressionPublications = this.expressionPublications;
-	return cloned;
+    AbstractExpression cloned = new AbstractExpression; 
+           cloned.uniquename = this.uniquename;
+           cloned.md5checksum = this.md5checksum;
+           cloned.description = this.description;
+           cloned.expressionProperties = this.expressionProperties;
+           cloned.featureExpressions = this.featureExpressions;
+           cloned.expressionImages = this.expressionImages;
+           cloned.expressionCVTerms = this.expressionCVTerms;
+           cloned.expressionPublications = this.expressionPublications;
+    return cloned;
 }
 
 

@@ -29,7 +29,7 @@ public abstract class AbstractFeatureLocation extends AbstractSimpleObject imple
     public AbstractFeatureLocation() {
     }
 
-	
+    
     public AbstractFeatureLocation(Feature feature, boolean isFminPartial, boolean isFmaxPartial, int locgroup, int rank) {
         this.feature = feature;
         this.isFminPartial = isFminPartial;
@@ -147,11 +147,11 @@ public abstract class AbstractFeatureLocation extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureLocation) ) return false;
-		 AbstractFeatureLocation castOther = ( AbstractFeatureLocation ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureLocation) ) return false;
+         AbstractFeatureLocation castOther = ( AbstractFeatureLocation ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && (this.getLocgroup()==castOther.getLocgroup())
  && (this.getRank()==castOther.getRank());
    }
@@ -176,20 +176,20 @@ public abstract class AbstractFeatureLocation extends AbstractSimpleObject imple
    }   
 
 public AbstractFeatureLocation generateClone() {
-	AbstractFeatureLocation cloned = new FeatureLocation(); 
-    	   cloned.sourceFeature = this.sourceFeature;
-    	   cloned.feature = this.feature;
-    	   cloned.fmin = this.fmin;
-    	   cloned.isFminPartial = this.isFminPartial;
-    	   cloned.fmax = this.fmax;
-    	   cloned.isFmaxPartial = this.isFmaxPartial;
-    	   cloned.strand = this.strand;
-    	   cloned.phase = this.phase;
-    	   cloned.residueInfo = this.residueInfo;
-    	   cloned.locgroup = this.locgroup;
-    	   cloned.rank = this.rank;
-    	   cloned.featureLocationPublications = this.featureLocationPublications;
-	return cloned;
+    AbstractFeatureLocation cloned = new FeatureLocation(); 
+           cloned.sourceFeature = this.sourceFeature;
+           cloned.feature = this.feature;
+           cloned.fmin = this.fmin;
+           cloned.isFminPartial = this.isFminPartial;
+           cloned.fmax = this.fmax;
+           cloned.isFmaxPartial = this.isFmaxPartial;
+           cloned.strand = this.strand;
+           cloned.phase = this.phase;
+           cloned.residueInfo = this.residueInfo;
+           cloned.locgroup = this.locgroup;
+           cloned.rank = this.rank;
+           cloned.featureLocationPublications = this.featureLocationPublications;
+    return cloned;
 }
 
 

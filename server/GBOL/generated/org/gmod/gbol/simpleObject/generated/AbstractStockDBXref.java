@@ -56,11 +56,11 @@ public abstract class AbstractStockDBXref extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockDBXref) ) return false;
-		 AbstractStockDBXref castOther = ( AbstractStockDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockDBXref) ) return false;
+         AbstractStockDBXref castOther = ( AbstractStockDBXref ) other; 
          
-		 return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
+         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
  && ( (this.getStock()==castOther.getStock()) || ( this.getStock()!=null && castOther.getStock()!=null && this.getStock().equals(castOther.getStock()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractStockDBXref extends AbstractSimpleObject implement
    }   
 
 public AbstractStockDBXref generateClone() {
-	AbstractStockDBXref cloned = new AbstractStockDBXref; 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.stock = this.stock;
-    	   cloned.isCurrent = this.isCurrent;
-	return cloned;
+    AbstractStockDBXref cloned = new AbstractStockDBXref; 
+           cloned.dbxref = this.dbxref;
+           cloned.stock = this.stock;
+           cloned.isCurrent = this.isCurrent;
+    return cloned;
 }
 
 

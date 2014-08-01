@@ -47,11 +47,11 @@ public abstract class AbstractLibraryPublication extends AbstractSimpleObject im
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibraryPublication) ) return false;
-		 AbstractLibraryPublication castOther = ( AbstractLibraryPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibraryPublication) ) return false;
+         AbstractLibraryPublication castOther = ( AbstractLibraryPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractLibraryPublication extends AbstractSimpleObject im
    }   
 
 public AbstractLibraryPublication generateClone() {
-	AbstractLibraryPublication cloned = new AbstractLibraryPublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.library = this.library;
-	return cloned;
+    AbstractLibraryPublication cloned = new AbstractLibraryPublication; 
+           cloned.publication = this.publication;
+           cloned.library = this.library;
+    return cloned;
 }
 
 

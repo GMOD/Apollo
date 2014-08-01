@@ -56,11 +56,11 @@ public abstract class AbstractBiomaterialRelationship extends AbstractSimpleObje
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractBiomaterialRelationship) ) return false;
-		 AbstractBiomaterialRelationship castOther = ( AbstractBiomaterialRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractBiomaterialRelationship) ) return false;
+         AbstractBiomaterialRelationship castOther = ( AbstractBiomaterialRelationship ) other; 
          
-		 return ( (this.getObjectBiomaterial()==castOther.getObjectBiomaterial()) || ( this.getObjectBiomaterial()!=null && castOther.getObjectBiomaterial()!=null && this.getObjectBiomaterial().equals(castOther.getObjectBiomaterial()) ) )
+         return ( (this.getObjectBiomaterial()==castOther.getObjectBiomaterial()) || ( this.getObjectBiomaterial()!=null && castOther.getObjectBiomaterial()!=null && this.getObjectBiomaterial().equals(castOther.getObjectBiomaterial()) ) )
  && ( (this.getSubjectBiomaterial()==castOther.getSubjectBiomaterial()) || ( this.getSubjectBiomaterial()!=null && castOther.getSubjectBiomaterial()!=null && this.getSubjectBiomaterial().equals(castOther.getSubjectBiomaterial()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
@@ -76,11 +76,11 @@ public abstract class AbstractBiomaterialRelationship extends AbstractSimpleObje
    }   
 
 public AbstractBiomaterialRelationship generateClone() {
-	AbstractBiomaterialRelationship cloned = new AbstractBiomaterialRelationship; 
-    	   cloned.objectBiomaterial = this.objectBiomaterial;
-    	   cloned.subjectBiomaterial = this.subjectBiomaterial;
-    	   cloned.type = this.type;
-	return cloned;
+    AbstractBiomaterialRelationship cloned = new AbstractBiomaterialRelationship; 
+           cloned.objectBiomaterial = this.objectBiomaterial;
+           cloned.subjectBiomaterial = this.subjectBiomaterial;
+           cloned.type = this.type;
+    return cloned;
 }
 
 

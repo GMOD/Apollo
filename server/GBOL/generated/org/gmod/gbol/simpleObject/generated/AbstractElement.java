@@ -24,7 +24,7 @@ public abstract class AbstractElement extends AbstractSimpleObject implements ja
     public AbstractElement() {
     }
 
-	
+    
     public AbstractElement(ArrayDesign arrayDesign) {
         this.arrayDesign = arrayDesign;
     }
@@ -98,11 +98,11 @@ public abstract class AbstractElement extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractElement) ) return false;
-		 AbstractElement castOther = ( AbstractElement ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractElement) ) return false;
+         AbstractElement castOther = ( AbstractElement ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getArrayDesign()==castOther.getArrayDesign()) || ( this.getArrayDesign()!=null && castOther.getArrayDesign()!=null && this.getArrayDesign().equals(castOther.getArrayDesign()) ) );
    }
    
@@ -121,15 +121,15 @@ public abstract class AbstractElement extends AbstractSimpleObject implements ja
    }   
 
 public AbstractElement generateClone() {
-	AbstractElement cloned = new AbstractElement; 
-    	   cloned.feature = this.feature;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.arrayDesign = this.arrayDesign;
-    	   cloned.type = this.type;
-    	   cloned.elementResults = this.elementResults;
-    	   cloned.parentElementRelationships = this.parentElementRelationships;
-    	   cloned.childElementRelationships = this.childElementRelationships;
-	return cloned;
+    AbstractElement cloned = new AbstractElement; 
+           cloned.feature = this.feature;
+           cloned.dbxref = this.dbxref;
+           cloned.arrayDesign = this.arrayDesign;
+           cloned.type = this.type;
+           cloned.elementResults = this.elementResults;
+           cloned.parentElementRelationships = this.parentElementRelationships;
+           cloned.childElementRelationships = this.childElementRelationships;
+    return cloned;
 }
 
 

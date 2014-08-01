@@ -10,51 +10,51 @@ package org.gmod.gbol.simpleObject;
 
 public class FeatureRelationshipPropertyPublication extends org.gmod.gbol.simpleObject.generated.AbstractFeatureRelationshipPropertyPublication {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public FeatureRelationshipPropertyPublication(){
-		super();
-	}
+    public FeatureRelationshipPropertyPublication(){
+        super();
+    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int pub = 1;
-		}
-	
-		public SimpleObjectIterator(FeatureRelationshipPropertyPublication featureRelationshipPropPub)
-		{
-			super(featureRelationshipPropPub);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			FeatureRelationshipPropertyPublication featureRelationshipPropPub =
-				(FeatureRelationshipPropertyPublication)object;
-			AbstractSimpleObject retVal = null;
-			if (status != Status.self) {
-				retVal = soIter.next();
-				if (status == Status.notSet) {
-					processSingletonIterator(Status.pub, featureRelationshipPropPub.getPublication());
-				}
-				if (status == Status.pub) {
-					AbstractSimpleObject newClone = processLastSingletonIterator();
-					((FeatureRelationshipPropertyPublication)clone).setPublication((Publication) newClone);
-				}
-			} else {
-				retVal = peek();
-				status = Status.done;
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int pub = 1;
+        }
+    
+        public SimpleObjectIterator(FeatureRelationshipPropertyPublication featureRelationshipPropPub)
+        {
+            super(featureRelationshipPropPub);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            FeatureRelationshipPropertyPublication featureRelationshipPropPub =
+                (FeatureRelationshipPropertyPublication)object;
+            AbstractSimpleObject retVal = null;
+            if (status != Status.self) {
+                retVal = soIter.next();
+                if (status == Status.notSet) {
+                    processSingletonIterator(Status.pub, featureRelationshipPropPub.getPublication());
+                }
+                if (status == Status.pub) {
+                    AbstractSimpleObject newClone = processLastSingletonIterator();
+                    ((FeatureRelationshipPropertyPublication)clone).setPublication((Publication) newClone);
+                }
+            } else {
+                retVal = peek();
+                status = Status.done;
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
 }

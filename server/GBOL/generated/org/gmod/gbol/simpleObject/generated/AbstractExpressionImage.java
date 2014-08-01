@@ -47,11 +47,11 @@ public abstract class AbstractExpressionImage extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractExpressionImage) ) return false;
-		 AbstractExpressionImage castOther = ( AbstractExpressionImage ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractExpressionImage) ) return false;
+         AbstractExpressionImage castOther = ( AbstractExpressionImage ) other; 
          
-		 return ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) )
+         return ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) )
  && ( (this.geteImage()==castOther.geteImage()) || ( this.geteImage()!=null && castOther.geteImage()!=null && this.geteImage().equals(castOther.geteImage()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractExpressionImage extends AbstractSimpleObject imple
    }   
 
 public AbstractExpressionImage generateClone() {
-	AbstractExpressionImage cloned = new AbstractExpressionImage; 
-    	   cloned.expression = this.expression;
-    	   cloned.eImage = this.eImage;
-	return cloned;
+    AbstractExpressionImage cloned = new AbstractExpressionImage; 
+           cloned.expression = this.expression;
+           cloned.eImage = this.eImage;
+    return cloned;
 }
 
 

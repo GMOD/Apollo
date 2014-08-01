@@ -18,7 +18,7 @@ public abstract class AbstractStudyPropertyFeature extends AbstractSimpleObject 
     public AbstractStudyPropertyFeature() {
     }
 
-	
+    
     public AbstractStudyPropertyFeature(Feature feature, StudyProperty studyProperty) {
         this.feature = feature;
         this.studyProperty = studyProperty;
@@ -61,11 +61,11 @@ public abstract class AbstractStudyPropertyFeature extends AbstractSimpleObject 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyPropertyFeature) ) return false;
-		 AbstractStudyPropertyFeature castOther = ( AbstractStudyPropertyFeature ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyPropertyFeature) ) return false;
+         AbstractStudyPropertyFeature castOther = ( AbstractStudyPropertyFeature ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getStudyProperty()==castOther.getStudyProperty()) || ( this.getStudyProperty()!=null && castOther.getStudyProperty()!=null && this.getStudyProperty().equals(castOther.getStudyProperty()) ) );
    }
    
@@ -80,11 +80,11 @@ public abstract class AbstractStudyPropertyFeature extends AbstractSimpleObject 
    }   
 
 public AbstractStudyPropertyFeature generateClone() {
-	AbstractStudyPropertyFeature cloned = new AbstractStudyPropertyFeature; 
-    	   cloned.feature = this.feature;
-    	   cloned.studyProperty = this.studyProperty;
-    	   cloned.type = this.type;
-	return cloned;
+    AbstractStudyPropertyFeature cloned = new AbstractStudyPropertyFeature; 
+           cloned.feature = this.feature;
+           cloned.studyProperty = this.studyProperty;
+           cloned.type = this.type;
+    return cloned;
 }
 
 

@@ -65,11 +65,11 @@ public abstract class AbstractMAGEDocumentation extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractMAGEDocumentation) ) return false;
-		 AbstractMAGEDocumentation castOther = ( AbstractMAGEDocumentation ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractMAGEDocumentation) ) return false;
+         AbstractMAGEDocumentation castOther = ( AbstractMAGEDocumentation ) other; 
          
-		 return ( (this.getTableInfo()==castOther.getTableInfo()) || ( this.getTableInfo()!=null && castOther.getTableInfo()!=null && this.getTableInfo().equals(castOther.getTableInfo()) ) )
+         return ( (this.getTableInfo()==castOther.getTableInfo()) || ( this.getTableInfo()!=null && castOther.getTableInfo()!=null && this.getTableInfo().equals(castOther.getTableInfo()) ) )
  && ( (this.getMageml()==castOther.getMageml()) || ( this.getMageml()!=null && castOther.getMageml()!=null && this.getMageml().equals(castOther.getMageml()) ) )
  && (this.getRowId()==castOther.getRowId());
    }
@@ -86,12 +86,12 @@ public abstract class AbstractMAGEDocumentation extends AbstractSimpleObject imp
    }   
 
 public AbstractMAGEDocumentation generateClone() {
-	AbstractMAGEDocumentation cloned = new MAGEDocumentation(); 
-    	   cloned.tableInfo = this.tableInfo;
-    	   cloned.mageml = this.mageml;
-    	   cloned.rowId = this.rowId;
-    	   cloned.mageIdentifier = this.mageIdentifier;
-	return cloned;
+    AbstractMAGEDocumentation cloned = new MAGEDocumentation(); 
+           cloned.tableInfo = this.tableInfo;
+           cloned.mageml = this.mageml;
+           cloned.rowId = this.rowId;
+           cloned.mageIdentifier = this.mageIdentifier;
+    return cloned;
 }
 
 

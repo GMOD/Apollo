@@ -20,7 +20,7 @@ public abstract class AbstractAcquisitionRelationship extends AbstractSimpleObje
     public AbstractAcquisitionRelationship() {
     }
 
-	
+    
     public AbstractAcquisitionRelationship(CVTerm type, Acquisition subjectAcquisition, Acquisition objectAcquisition, int rank) {
         this.type = type;
         this.subjectAcquisition = subjectAcquisition;
@@ -81,11 +81,11 @@ public abstract class AbstractAcquisitionRelationship extends AbstractSimpleObje
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAcquisitionRelationship) ) return false;
-		 AbstractAcquisitionRelationship castOther = ( AbstractAcquisitionRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAcquisitionRelationship) ) return false;
+         AbstractAcquisitionRelationship castOther = ( AbstractAcquisitionRelationship ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getSubjectAcquisition()==castOther.getSubjectAcquisition()) || ( this.getSubjectAcquisition()!=null && castOther.getSubjectAcquisition()!=null && this.getSubjectAcquisition().equals(castOther.getSubjectAcquisition()) ) )
  && ( (this.getObjectAcquisition()==castOther.getObjectAcquisition()) || ( this.getObjectAcquisition()!=null && castOther.getObjectAcquisition()!=null && this.getObjectAcquisition().equals(castOther.getObjectAcquisition()) ) )
  && (this.getRank()==castOther.getRank());
@@ -104,13 +104,13 @@ public abstract class AbstractAcquisitionRelationship extends AbstractSimpleObje
    }   
 
 public AbstractAcquisitionRelationship generateClone() {
-	AbstractAcquisitionRelationship cloned = new AcquisitionRelationship(); 
-    	   cloned.type = this.type;
-    	   cloned.subjectAcquisition = this.subjectAcquisition;
-    	   cloned.objectAcquisition = this.objectAcquisition;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractAcquisitionRelationship cloned = new AcquisitionRelationship(); 
+           cloned.type = this.type;
+           cloned.subjectAcquisition = this.subjectAcquisition;
+           cloned.objectAcquisition = this.objectAcquisition;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

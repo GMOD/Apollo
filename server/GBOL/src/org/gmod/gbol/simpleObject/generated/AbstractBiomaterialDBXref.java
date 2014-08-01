@@ -47,11 +47,11 @@ public abstract class AbstractBiomaterialDBXref extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractBiomaterialDBXref) ) return false;
-		 AbstractBiomaterialDBXref castOther = ( AbstractBiomaterialDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractBiomaterialDBXref) ) return false;
+         AbstractBiomaterialDBXref castOther = ( AbstractBiomaterialDBXref ) other; 
          
-		 return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
+         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
  && ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractBiomaterialDBXref extends AbstractSimpleObject imp
    }   
 
 public AbstractBiomaterialDBXref generateClone() {
-	AbstractBiomaterialDBXref cloned = new BiomaterialDBXref(); 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.biomaterial = this.biomaterial;
-	return cloned;
+    AbstractBiomaterialDBXref cloned = new BiomaterialDBXref(); 
+           cloned.dbxref = this.dbxref;
+           cloned.biomaterial = this.biomaterial;
+    return cloned;
 }
 
 

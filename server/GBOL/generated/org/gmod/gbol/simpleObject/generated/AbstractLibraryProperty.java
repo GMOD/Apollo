@@ -22,7 +22,7 @@ public abstract class AbstractLibraryProperty extends AbstractSimpleObject imple
     public AbstractLibraryProperty() {
     }
 
-	
+    
     public AbstractLibraryProperty(Library library, CVTerm type, int rank) {
         this.library = library;
         this.type = type;
@@ -82,11 +82,11 @@ public abstract class AbstractLibraryProperty extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractLibraryProperty) ) return false;
-		 AbstractLibraryProperty castOther = ( AbstractLibraryProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractLibraryProperty) ) return false;
+         AbstractLibraryProperty castOther = ( AbstractLibraryProperty ) other; 
          
-		 return ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) )
+         return ( (this.getLibrary()==castOther.getLibrary()) || ( this.getLibrary()!=null && castOther.getLibrary()!=null && this.getLibrary().equals(castOther.getLibrary()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -104,13 +104,13 @@ public abstract class AbstractLibraryProperty extends AbstractSimpleObject imple
    }   
 
 public AbstractLibraryProperty generateClone() {
-	AbstractLibraryProperty cloned = new AbstractLibraryProperty; 
-    	   cloned.library = this.library;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-    	   cloned.libraryPropertyPublications = this.libraryPropertyPublications;
-	return cloned;
+    AbstractLibraryProperty cloned = new AbstractLibraryProperty; 
+           cloned.library = this.library;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+           cloned.libraryPropertyPublications = this.libraryPropertyPublications;
+    return cloned;
 }
 
 

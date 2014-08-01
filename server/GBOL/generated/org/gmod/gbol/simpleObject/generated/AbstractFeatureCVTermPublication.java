@@ -47,11 +47,11 @@ public abstract class AbstractFeatureCVTermPublication extends AbstractSimpleObj
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureCVTermPublication) ) return false;
-		 AbstractFeatureCVTermPublication castOther = ( AbstractFeatureCVTermPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureCVTermPublication) ) return false;
+         AbstractFeatureCVTermPublication castOther = ( AbstractFeatureCVTermPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeatureCVTerm()==castOther.getFeatureCVTerm()) || ( this.getFeatureCVTerm()!=null && castOther.getFeatureCVTerm()!=null && this.getFeatureCVTerm().equals(castOther.getFeatureCVTerm()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeatureCVTermPublication extends AbstractSimpleObj
    }   
 
 public AbstractFeatureCVTermPublication generateClone() {
-	AbstractFeatureCVTermPublication cloned = new AbstractFeatureCVTermPublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.featureCVTerm = this.featureCVTerm;
-	return cloned;
+    AbstractFeatureCVTermPublication cloned = new AbstractFeatureCVTermPublication; 
+           cloned.publication = this.publication;
+           cloned.featureCVTerm = this.featureCVTerm;
+    return cloned;
 }
 
 

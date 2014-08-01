@@ -16,9 +16,9 @@ define([
 return declare([ DraggableTrack, AlignmentsTrack ], {
 
     constructor: function( args )  {
-	// forcing store to create subfeatures, unless config.subfeatures explicitly set to false
-	//     default is set to true in _defaultConfig()
-        //	this.store.createSubfeatures = this.config.subfeatures;
+    // forcing store to create subfeatures, unless config.subfeatures explicitly set to false
+    //     default is set to true in _defaultConfig()
+        //  this.store.createSubfeatures = this.config.subfeatures;
         if (this.config.style.showSubfeatures) { this.store.createSubfeatures = true; }
     }, 
 
@@ -34,20 +34,20 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
                     className: "bam-read", 
                     renderClassName: null, 
                     arrowheadClass: null, 
-	            centerChildrenVertically: false, 
-	            showSubfeatures: true, 
-	            showMismatches: true, 
-		    showLabels: false, 
+                    centerChildrenVertically: false, 
+                    showSubfeatures: true, 
+                    showMismatches: true, 
+                    showLabels: false, 
                     showMismatchResidues: true,  // when rendering mismatches, whether to render residues text when zoomed in and sizing works
                     subfeatureClasses: {
-	                M: "cigarM", 
-//		        D: "cigarD",
-		        D: null, // not rendering deletions as subfeats, relying on drawMismatches instead
-		        N: "cigarN",
-		        E: "cigarEQ",  /* "=" converted to "E" in BAM/LazyFeature subfeature construction */
-		        X: "cigarX", 
-//		        I: "cigarI"
-		        I: null // not rendering insertions as subfeats, relying on drawMismatches instead
+                        M: "cigarM", 
+        //              D: "cigarD",
+                        D: null, // not rendering deletions as subfeats, relying on drawMismatches instead
+                        N: "cigarN",
+                        E: "cigarEQ",  /* "=" converted to "E" in BAM/LazyFeature subfeature construction */
+                        X: "cigarX", 
+        //              I: "cigarI"
+                        I: null // not rendering insertions as subfeats, relying on drawMismatches instead
                     }
                 }
             }

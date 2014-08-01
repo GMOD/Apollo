@@ -47,11 +47,11 @@ public abstract class AbstractEnvironmentCVTerm extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractEnvironmentCVTerm) ) return false;
-		 AbstractEnvironmentCVTerm castOther = ( AbstractEnvironmentCVTerm ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractEnvironmentCVTerm) ) return false;
+         AbstractEnvironmentCVTerm castOther = ( AbstractEnvironmentCVTerm ) other; 
          
-		 return ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) )
+         return ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) )
  && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractEnvironmentCVTerm extends AbstractSimpleObject imp
    }   
 
 public AbstractEnvironmentCVTerm generateClone() {
-	AbstractEnvironmentCVTerm cloned = new AbstractEnvironmentCVTerm; 
-    	   cloned.environment = this.environment;
-    	   cloned.cvterm = this.cvterm;
-	return cloned;
+    AbstractEnvironmentCVTerm cloned = new AbstractEnvironmentCVTerm; 
+           cloned.environment = this.environment;
+           cloned.cvterm = this.cvterm;
+    return cloned;
 }
 
 

@@ -24,7 +24,7 @@ public abstract class AbstractPhylogeneticTree extends AbstractSimpleObject impl
     public AbstractPhylogeneticTree() {
     }
 
-	
+    
     public AbstractPhylogeneticTree(DBXref dbxref) {
         this.dbxref = dbxref;
     }
@@ -98,11 +98,11 @@ public abstract class AbstractPhylogeneticTree extends AbstractSimpleObject impl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhylogeneticTree) ) return false;
-		 AbstractPhylogeneticTree castOther = ( AbstractPhylogeneticTree ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhylogeneticTree) ) return false;
+         AbstractPhylogeneticTree castOther = ( AbstractPhylogeneticTree ) other; 
          
-		 return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
+         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
    }
    
    public int hashCode() {
@@ -120,15 +120,15 @@ public abstract class AbstractPhylogeneticTree extends AbstractSimpleObject impl
    }   
 
 public AbstractPhylogeneticTree generateClone() {
-	AbstractPhylogeneticTree cloned = new AbstractPhylogeneticTree; 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.analysis = this.analysis;
-    	   cloned.type = this.type;
-    	   cloned.name = this.name;
-    	   cloned.comment = this.comment;
-    	   cloned.phylogeneticNodes = this.phylogeneticNodes;
-    	   cloned.phylogeneticTreePublications = this.phylogeneticTreePublications;
-	return cloned;
+    AbstractPhylogeneticTree cloned = new AbstractPhylogeneticTree; 
+           cloned.dbxref = this.dbxref;
+           cloned.analysis = this.analysis;
+           cloned.type = this.type;
+           cloned.name = this.name;
+           cloned.comment = this.comment;
+           cloned.phylogeneticNodes = this.phylogeneticNodes;
+           cloned.phylogeneticTreePublications = this.phylogeneticTreePublications;
+    return cloned;
 }
 
 

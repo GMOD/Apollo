@@ -47,11 +47,11 @@ public abstract class AbstractStockCollectionStock extends AbstractSimpleObject 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockCollectionStock) ) return false;
-		 AbstractStockCollectionStock castOther = ( AbstractStockCollectionStock ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockCollectionStock) ) return false;
+         AbstractStockCollectionStock castOther = ( AbstractStockCollectionStock ) other; 
          
-		 return ( (this.getStockCollection()==castOther.getStockCollection()) || ( this.getStockCollection()!=null && castOther.getStockCollection()!=null && this.getStockCollection().equals(castOther.getStockCollection()) ) )
+         return ( (this.getStockCollection()==castOther.getStockCollection()) || ( this.getStockCollection()!=null && castOther.getStockCollection()!=null && this.getStockCollection().equals(castOther.getStockCollection()) ) )
  && ( (this.getStock()==castOther.getStock()) || ( this.getStock()!=null && castOther.getStock()!=null && this.getStock().equals(castOther.getStock()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractStockCollectionStock extends AbstractSimpleObject 
    }   
 
 public AbstractStockCollectionStock generateClone() {
-	AbstractStockCollectionStock cloned = new StockCollectionStock(); 
-    	   cloned.stockCollection = this.stockCollection;
-    	   cloned.stock = this.stock;
-	return cloned;
+    AbstractStockCollectionStock cloned = new StockCollectionStock(); 
+           cloned.stockCollection = this.stockCollection;
+           cloned.stock = this.stock;
+    return cloned;
 }
 
 

@@ -22,7 +22,7 @@ public abstract class AbstractFeatureRelationshipProperty extends AbstractSimple
     public AbstractFeatureRelationshipProperty() {
     }
 
-	
+    
     public AbstractFeatureRelationshipProperty(CVTerm type, FeatureRelationship featureRelationship, int rank) {
         this.type = type;
         this.featureRelationship = featureRelationship;
@@ -82,11 +82,11 @@ public abstract class AbstractFeatureRelationshipProperty extends AbstractSimple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureRelationshipProperty) ) return false;
-		 AbstractFeatureRelationshipProperty castOther = ( AbstractFeatureRelationshipProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureRelationshipProperty) ) return false;
+         AbstractFeatureRelationshipProperty castOther = ( AbstractFeatureRelationshipProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getFeatureRelationship()==castOther.getFeatureRelationship()) || ( this.getFeatureRelationship()!=null && castOther.getFeatureRelationship()!=null && this.getFeatureRelationship().equals(castOther.getFeatureRelationship()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -104,13 +104,13 @@ public abstract class AbstractFeatureRelationshipProperty extends AbstractSimple
    }   
 
 public AbstractFeatureRelationshipProperty generateClone() {
-	AbstractFeatureRelationshipProperty cloned = new FeatureRelationshipProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.featureRelationship = this.featureRelationship;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-    	   cloned.featureRelationshipPropertyPublications = this.featureRelationshipPropertyPublications;
-	return cloned;
+    AbstractFeatureRelationshipProperty cloned = new FeatureRelationshipProperty(); 
+           cloned.type = this.type;
+           cloned.featureRelationship = this.featureRelationship;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+           cloned.featureRelationshipPropertyPublications = this.featureRelationshipPropertyPublications;
+    return cloned;
 }
 
 

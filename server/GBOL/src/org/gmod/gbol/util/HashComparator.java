@@ -11,18 +11,18 @@ import java.util.Comparator;
 
 public class HashComparator<T> implements Comparator<T>, Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public int compare(T o1, T o2) {
-		int hash1 = o1.hashCode();
-		int hash2 = o2.hashCode();
-		if (hash1 < hash2) {
-			return -1;
-		}
-		else if (hash1 > hash2) {
-			return 1;
-		}
-		return 0;
-	}
-	
+    public int compare(T o1, T o2) {
+        int hash1 = o1.hashCode();
+        int hash2 = o2.hashCode();
+        if (hash1 < hash2) {
+            return -1;
+        }
+        else if (hash1 > hash2) {
+            return 1;
+        }
+        return 0;
+    }
+    
 }

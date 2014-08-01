@@ -74,11 +74,11 @@ public abstract class AbstractPhenotypeStatement extends AbstractSimpleObject im
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhenotypeStatement) ) return false;
-		 AbstractPhenotypeStatement castOther = ( AbstractPhenotypeStatement ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhenotypeStatement) ) return false;
+         AbstractPhenotypeStatement castOther = ( AbstractPhenotypeStatement ) other; 
          
-		 return ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) )
+         return ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) )
@@ -98,13 +98,13 @@ public abstract class AbstractPhenotypeStatement extends AbstractSimpleObject im
    }   
 
 public AbstractPhenotypeStatement generateClone() {
-	AbstractPhenotypeStatement cloned = new PhenotypeStatement(); 
-    	   cloned.environment = this.environment;
-    	   cloned.type = this.type;
-    	   cloned.publication = this.publication;
-    	   cloned.genotype = this.genotype;
-    	   cloned.phenotype = this.phenotype;
-	return cloned;
+    AbstractPhenotypeStatement cloned = new PhenotypeStatement(); 
+           cloned.environment = this.environment;
+           cloned.type = this.type;
+           cloned.publication = this.publication;
+           cloned.genotype = this.genotype;
+           cloned.phenotype = this.phenotype;
+    return cloned;
 }
 
 

@@ -22,7 +22,7 @@ public abstract class AbstractStudyFactor extends AbstractSimpleObject implement
     public AbstractStudyFactor() {
     }
 
-	
+    
     public AbstractStudyFactor(StudyDesign studyDesign, String name) {
         this.studyDesign = studyDesign;
         this.name = name;
@@ -81,11 +81,11 @@ public abstract class AbstractStudyFactor extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStudyFactor) ) return false;
-		 AbstractStudyFactor castOther = ( AbstractStudyFactor ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStudyFactor) ) return false;
+         AbstractStudyFactor castOther = ( AbstractStudyFactor ) other; 
          
-		 return ( (this.getStudyDesign()==castOther.getStudyDesign()) || ( this.getStudyDesign()!=null && castOther.getStudyDesign()!=null && this.getStudyDesign().equals(castOther.getStudyDesign()) ) )
+         return ( (this.getStudyDesign()==castOther.getStudyDesign()) || ( this.getStudyDesign()!=null && castOther.getStudyDesign()!=null && this.getStudyDesign().equals(castOther.getStudyDesign()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
    
@@ -102,13 +102,13 @@ public abstract class AbstractStudyFactor extends AbstractSimpleObject implement
    }   
 
 public AbstractStudyFactor generateClone() {
-	AbstractStudyFactor cloned = new StudyFactor(); 
-    	   cloned.studyDesign = this.studyDesign;
-    	   cloned.type = this.type;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.studyFactorValues = this.studyFactorValues;
-	return cloned;
+    AbstractStudyFactor cloned = new StudyFactor(); 
+           cloned.studyDesign = this.studyDesign;
+           cloned.type = this.type;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.studyFactorValues = this.studyFactorValues;
+    return cloned;
 }
 
 

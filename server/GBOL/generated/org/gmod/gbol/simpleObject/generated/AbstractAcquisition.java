@@ -28,7 +28,7 @@ public abstract class AbstractAcquisition extends AbstractSimpleObject implement
     public AbstractAcquisition() {
     }
 
-	
+    
     public AbstractAcquisition(Assay assay) {
         this.assay = assay;
     }
@@ -126,11 +126,11 @@ public abstract class AbstractAcquisition extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAcquisition) ) return false;
-		 AbstractAcquisition castOther = ( AbstractAcquisition ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAcquisition) ) return false;
+         AbstractAcquisition castOther = ( AbstractAcquisition ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -151,18 +151,18 @@ public abstract class AbstractAcquisition extends AbstractSimpleObject implement
    }   
 
 public AbstractAcquisition generateClone() {
-	AbstractAcquisition cloned = new AbstractAcquisition; 
-    	   cloned.channel = this.channel;
-    	   cloned.protocol = this.protocol;
-    	   cloned.assay = this.assay;
-    	   cloned.acquisitionDate = this.acquisitionDate;
-    	   cloned.name = this.name;
-    	   cloned.uri = this.uri;
-    	   cloned.acquisitionProperties = this.acquisitionProperties;
-    	   cloned.parentAcquisitionRelationships = this.parentAcquisitionRelationships;
-    	   cloned.quantifications = this.quantifications;
-    	   cloned.childAcquisitionRelationships = this.childAcquisitionRelationships;
-	return cloned;
+    AbstractAcquisition cloned = new AbstractAcquisition; 
+           cloned.channel = this.channel;
+           cloned.protocol = this.protocol;
+           cloned.assay = this.assay;
+           cloned.acquisitionDate = this.acquisitionDate;
+           cloned.name = this.name;
+           cloned.uri = this.uri;
+           cloned.acquisitionProperties = this.acquisitionProperties;
+           cloned.parentAcquisitionRelationships = this.parentAcquisitionRelationships;
+           cloned.quantifications = this.quantifications;
+           cloned.childAcquisitionRelationships = this.childAcquisitionRelationships;
+    return cloned;
 }
 
 

@@ -15,76 +15,76 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-	$(".input_field").keypress(function(event) {
-		var code = event.keyCode ? event.keyCode : event.which;
-		if (code == $.ui.keyCode.ENTER) {
-			add_user();
-		}
-	});
-	$("#username").focus();
+    $(".input_field").keypress(function(event) {
+        var code = event.keyCode ? event.keyCode : event.which;
+        if (code == $.ui.keyCode.ENTER) {
+            add_user();
+        }
+    });
+    $("#username").focus();
 });
 
 function clear_fields() {
-	$(".input_field").each(function() {
-		$(this).val("");
-	});
+    $(".input_field").each(function() {
+        $(this).val("");
+    });
 };
 
 function add_user() {
-	var username = $("#username").val();
-	if (username.length == 0) {
-		alert("No username entered");
-		return;
-	}
-	var user = new Object();
-	user.username = username;
-	var json = new Object();
-	json.operation = "add_user";
-	json.user = user;
-	$("button").prop("disabled", true);
-	$("input").prop("disabled", true);
-	$.ajax({
-		type: "post",
-		url: "UserManagerService",
-		processData: false,
-		dataType: "json",
-		contentType: "application/json",
-		data: JSON.stringify(json),
-		success: function(response, status) {
-			$("button").prop("disabled", false);
-			$("input").prop("disabled", false);
-			window.location.reload();
-		}
-	});
+    var username = $("#username").val();
+    if (username.length == 0) {
+        alert("No username entered");
+        return;
+    }
+    var user = new Object();
+    user.username = username;
+    var json = new Object();
+    json.operation = "add_user";
+    json.user = user;
+    $("button").prop("disabled", true);
+    $("input").prop("disabled", true);
+    $.ajax({
+        type: "post",
+        url: "UserManagerService",
+        processData: false,
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(json),
+        success: function(response, status) {
+            $("button").prop("disabled", false);
+            $("input").prop("disabled", false);
+            window.location.reload();
+        }
+    });
 };
 
 </script>
 </head>
 <body>
 <%
-	ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+    ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
 if (!UserManager.getInstance().isInitialized()) {
-	ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
-	UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
+    ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
+    UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
 }
 if ((String)session.getAttribute("username") == null) {
-	out.println("You must first login");
-	out.println("</body>");
-	out.println("</html>");
-	return;
+    out.println("You must first login");
+    out.println("</body>");
+    out.println("</html>");
+    return;
 }
 UserManager userManager = UserManager.getInstance();
 boolean hasPermission = (userManager.getPermissionsForUser((String)session.getAttribute("username")).entrySet().iterator().next().getValue() & Permission.USER_MANAGER) != 0;
 if (!hasPermission) {
-	out.println("You do not have permission to add users");
-	out.println("</body>");
-	out.println("</html>");
-	return;
+    out.println("You do not have permission to add users");
+    out.println("</body>");
+    out.println("</html>");
+    return;
 }
 %>
 <div>
-		<div class="user_login"><span class="fieldname">User name</span><input class="input_field" type="text" id="username" /></div>
-		<div class="button_add_user"><button id="add_user_button" onclick="add_user()">Add user</button><button id="clear_button" onclick="clear_fields()">Clear</button></div>
+        <div class="user_login"><span class="fieldname">User name</span><input class="input_field" type="text" id="username" /></div>
+        <div class="button_add_user"><button id="add_user_button" onclick="add_user()">Add user</button><button id="clear_button" onclick="clear_fields()">Clear</button></div>
 </div>
 </body>
 </html>

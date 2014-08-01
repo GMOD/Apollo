@@ -11,38 +11,38 @@ import org.gmod.gbol.simpleObject.FeatureProperty;
 
 public class Plus2Frameshift extends Frameshift {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Constructor.
-	 * 
-	 * @param featureProperty - FeatureProperty object that this object will wrap
-	 * @param conf - Configuration containing mapping information
-	 */
-	public Plus2Frameshift(FeatureProperty featureProperty, BioObjectConfiguration conf) {
-		super(featureProperty, conf);
-	}
-	
-	/** Alternate constructor to create a Plus1Frameshift object without having to pre-create the underlying
-	 *  FeatureProperty object.  The constructor will take care of creating the underlying FeatureProperty
-	 *  object.
-	 * 
-	 * @param transcript - the AbstractBioFeature where the frameshift is located
-	 * @param coordinate - coordinate of the frameshift
-	 * @param conf - Configuration containing mapping information
-	 */
-	public Plus2Frameshift(Transcript transcript, int coordinate, BioObjectConfiguration conf) {
-		super(new FeatureProperty(conf.getDefaultCVTermForClass("Plus2Frameshift"),
-				transcript.getFeature(), Integer.toString(coordinate)), conf);
-	}
+    /** Constructor.
+     * 
+     * @param featureProperty - FeatureProperty object that this object will wrap
+     * @param conf - Configuration containing mapping information
+     */
+    public Plus2Frameshift(FeatureProperty featureProperty, BioObjectConfiguration conf) {
+        super(featureProperty, conf);
+    }
+    
+    /** Alternate constructor to create a Plus1Frameshift object without having to pre-create the underlying
+     *  FeatureProperty object.  The constructor will take care of creating the underlying FeatureProperty
+     *  object.
+     * 
+     * @param transcript - the AbstractBioFeature where the frameshift is located
+     * @param coordinate - coordinate of the frameshift
+     * @param conf - Configuration containing mapping information
+     */
+    public Plus2Frameshift(Transcript transcript, int coordinate, BioObjectConfiguration conf) {
+        super(new FeatureProperty(conf.getDefaultCVTermForClass("Plus2Frameshift"),
+                transcript.getFeature(), Integer.toString(coordinate)), conf);
+    }
 
-	@Override
-	public int getFrameshiftValue() {
-		return 2;
-	}
+    @Override
+    public int getFrameshiftValue() {
+        return 2;
+    }
 
-	@Override
-	public boolean isPlusFrameshift() {
-		return true;
-	}
+    @Override
+    public boolean isPlusFrameshift() {
+        return true;
+    }
 
 }

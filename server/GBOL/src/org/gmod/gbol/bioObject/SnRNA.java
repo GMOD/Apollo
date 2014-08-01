@@ -9,59 +9,59 @@ import org.gmod.gbol.simpleObject.Organism;
 
 public class SnRNA extends Transcript {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Constructor.
-	 * 
-	 * @param feature - Feature object that this class wraps
-	 * @param conf - Configuration containing mapping information
-	 */
-	public SnRNA(Feature feature, BioObjectConfiguration conf) {
-		super(feature, conf);
-	}
-	
-	/** Copy constructor.
-	 * 
-	 * @param snrna - snrna to create the copy from
-	 * @param uniqueName - String representing the unique name for this snrna
-	 */
-	public SnRNA(SnRNA snrna, String uniqueName) {
-		this(snrna.getFeature().getOrganism(), uniqueName, snrna.getFeature().isIsAnalysis(),
-				snrna.getFeature().isIsObsolete(),
-				new Timestamp(snrna.getFeature().getTimeAccessioned().getTime()), snrna.getConfiguration());
-		feature.addFeatureLocation(new FeatureLocation(snrna.getFeatureLocation()));
-	}
+    /** Constructor.
+     * 
+     * @param feature - Feature object that this class wraps
+     * @param conf - Configuration containing mapping information
+     */
+    public SnRNA(Feature feature, BioObjectConfiguration conf) {
+        super(feature, conf);
+    }
+    
+    /** Copy constructor.
+     * 
+     * @param snrna - snrna to create the copy from
+     * @param uniqueName - String representing the unique name for this snrna
+     */
+    public SnRNA(SnRNA snrna, String uniqueName) {
+        this(snrna.getFeature().getOrganism(), uniqueName, snrna.getFeature().isIsAnalysis(),
+                snrna.getFeature().isIsObsolete(),
+                new Timestamp(snrna.getFeature().getTimeAccessioned().getTime()), snrna.getConfiguration());
+        feature.addFeatureLocation(new FeatureLocation(snrna.getFeatureLocation()));
+    }
 
-	/** Alternate constructor to create a snrna object without having to pre-create the underlying
-	 *  Feature object.  The constructor will take care of creating the underlying Feature object.
-	 * 
-	 * @param organism - Organism that this Gene belongs to
-	 * @param uniqueName - String representing the unique name for this snrna
-	 * @param analysis - boolean flag for whether this feature is a result of an analysis
-	 * @param obsolete - boolean flag for whether this feature is obsolete
-	 * @param dateAccessioned - Timestamp for when this feature was first accessioned
-	 * @param conf - Configuration containing mapping information
-	 */
+    /** Alternate constructor to create a snrna object without having to pre-create the underlying
+     *  Feature object.  The constructor will take care of creating the underlying Feature object.
+     * 
+     * @param organism - Organism that this Gene belongs to
+     * @param uniqueName - String representing the unique name for this snrna
+     * @param analysis - boolean flag for whether this feature is a result of an analysis
+     * @param obsolete - boolean flag for whether this feature is obsolete
+     * @param dateAccessioned - Timestamp for when this feature was first accessioned
+     * @param conf - Configuration containing mapping information
+     */
     public SnRNA(Organism organism, String uniqueName, boolean analysis,
             boolean obsolete, Timestamp dateAccessioned, BioObjectConfiguration conf) {
-    	super(new Feature(
-    			conf.getDefaultCVTermForClass("SnRNA"),
-    			null,
-    			organism,
-    			null,
-    			uniqueName,
-    			null,
-    			null,
-    			null,
-    			analysis,
-    			obsolete,
-    			dateAccessioned,
-    			null),
-    			conf);
+        super(new Feature(
+                conf.getDefaultCVTermForClass("SnRNA"),
+                null,
+                organism,
+                null,
+                uniqueName,
+                null,
+                null,
+                null,
+                analysis,
+                obsolete,
+                dateAccessioned,
+                null),
+                conf);
     }
 
     @Override
     public boolean isProteinCoding() {
-    	return false;
+        return false;
     }
 }

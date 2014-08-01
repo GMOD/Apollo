@@ -11,15 +11,15 @@ import org.gmod.gbol.simpleObject.FeatureProperty;
 
 public class SequenceAttribute extends AbstractBioFeatureProperty {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Constructor.
-	 * 
-	 * @param featureProperty - FeatureProperty object that this object will wrap
-	 * @param conf - Configuration containing mapping information
-	 */
-	public SequenceAttribute(FeatureProperty featureProperty, BioObjectConfiguration conf) {
-		super(featureProperty, conf);
-	}
-	
+    /** Constructor.
+     * 
+     * @param featureProperty - FeatureProperty object that this object will wrap
+     * @param conf - Configuration containing mapping information
+     */
+    public SequenceAttribute(FeatureProperty featureProperty, BioObjectConfiguration conf) {
+        super(featureProperty, conf);
+    }
+    
 }

@@ -56,11 +56,11 @@ public abstract class AbstractContactRelationship extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractContactRelationship) ) return false;
-		 AbstractContactRelationship castOther = ( AbstractContactRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractContactRelationship) ) return false;
+         AbstractContactRelationship castOther = ( AbstractContactRelationship ) other; 
          
-		 return ( (this.getSubjectContact()==castOther.getSubjectContact()) || ( this.getSubjectContact()!=null && castOther.getSubjectContact()!=null && this.getSubjectContact().equals(castOther.getSubjectContact()) ) )
+         return ( (this.getSubjectContact()==castOther.getSubjectContact()) || ( this.getSubjectContact()!=null && castOther.getSubjectContact()!=null && this.getSubjectContact().equals(castOther.getSubjectContact()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getObjectContact()==castOther.getObjectContact()) || ( this.getObjectContact()!=null && castOther.getObjectContact()!=null && this.getObjectContact().equals(castOther.getObjectContact()) ) );
    }
@@ -76,11 +76,11 @@ public abstract class AbstractContactRelationship extends AbstractSimpleObject i
    }   
 
 public AbstractContactRelationship generateClone() {
-	AbstractContactRelationship cloned = new ContactRelationship(); 
-    	   cloned.subjectContact = this.subjectContact;
-    	   cloned.type = this.type;
-    	   cloned.objectContact = this.objectContact;
-	return cloned;
+    AbstractContactRelationship cloned = new ContactRelationship(); 
+           cloned.subjectContact = this.subjectContact;
+           cloned.type = this.type;
+           cloned.objectContact = this.objectContact;
+    return cloned;
 }
 
 

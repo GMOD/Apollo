@@ -19,7 +19,7 @@ public abstract class AbstractAcquisitionProperty extends AbstractSimpleObject i
     public AbstractAcquisitionProperty() {
     }
 
-	
+    
     public AbstractAcquisitionProperty(Acquisition acquisition, CVTerm type, int rank) {
         this.acquisition = acquisition;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractAcquisitionProperty extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAcquisitionProperty) ) return false;
-		 AbstractAcquisitionProperty castOther = ( AbstractAcquisitionProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAcquisitionProperty) ) return false;
+         AbstractAcquisitionProperty castOther = ( AbstractAcquisitionProperty ) other; 
          
-		 return ( (this.getAcquisition()==castOther.getAcquisition()) || ( this.getAcquisition()!=null && castOther.getAcquisition()!=null && this.getAcquisition().equals(castOther.getAcquisition()) ) )
+         return ( (this.getAcquisition()==castOther.getAcquisition()) || ( this.getAcquisition()!=null && castOther.getAcquisition()!=null && this.getAcquisition().equals(castOther.getAcquisition()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractAcquisitionProperty extends AbstractSimpleObject i
    }   
 
 public AbstractAcquisitionProperty generateClone() {
-	AbstractAcquisitionProperty cloned = new AbstractAcquisitionProperty; 
-    	   cloned.acquisition = this.acquisition;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractAcquisitionProperty cloned = new AbstractAcquisitionProperty; 
+           cloned.acquisition = this.acquisition;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

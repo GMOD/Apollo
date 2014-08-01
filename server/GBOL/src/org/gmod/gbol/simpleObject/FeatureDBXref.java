@@ -12,31 +12,31 @@ import java.util.Collection;
 
 public class FeatureDBXref extends org.gmod.gbol.simpleObject.generated.AbstractFeatureDBXref {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public FeatureDBXref(){
-		super();
-	}
-	
-	public FeatureDBXref(FeatureDBXref src) {
-		this(src.getFeature(), src.getDbxref(), src.isIsCurrent());
-	}
-	
-	public FeatureDBXref(Feature feature, DBXref dbxref, boolean isCurrent) {
-		setFeature(feature);
-		setDbxref(dbxref);
-		setIsCurrent(isCurrent);
-	}
+    public FeatureDBXref(){
+        super();
+    }
+    
+    public FeatureDBXref(FeatureDBXref src) {
+        this(src.getFeature(), src.getDbxref(), src.isIsCurrent());
+    }
+    
+    public FeatureDBXref(Feature feature, DBXref dbxref, boolean isCurrent) {
+        setFeature(feature);
+        setDbxref(dbxref);
+        setIsCurrent(isCurrent);
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

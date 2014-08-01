@@ -13,58 +13,58 @@ import java.util.Collection;
 
 public class OrganismProperty extends org.gmod.gbol.simpleObject.generated.AbstractOrganismProperty {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public OrganismProperty(){
-		super();
-	}
+    public OrganismProperty(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getType().getWriteObjects());
-//		
-//		return writeObjects;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getType().getWriteObjects());
+//        
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int type = 1;
-		}
-	
-		public SimpleObjectIterator(OrganismProperty organismProp)
-		{
-			super(organismProp);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			OrganismProperty organismProp = (OrganismProperty)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				processSingletonIterator(Status.type, organismProp.getType());
-			}
-			else {
-				if (status == Status.type) {
-					retVal = soIter.next();
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int type = 1;
+        }
+    
+        public SimpleObjectIterator(OrganismProperty organismProp)
+        {
+            super(organismProp);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            OrganismProperty organismProp = (OrganismProperty)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                processSingletonIterator(Status.type, organismProp.getType());
+            }
+            else {
+                if (status == Status.type) {
+                    retVal = soIter.next();
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
 
 }

@@ -10,40 +10,40 @@ package org.gmod.gbol.simpleObject;
 
 public class PublicationAuthor extends org.gmod.gbol.simpleObject.generated.AbstractPublicationAuthor {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public PublicationAuthor(){
-		super();
-	}
+    public PublicationAuthor(){
+        super();
+    }
 
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
-	
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
-				
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-		}
-		
-		public SimpleObjectIterator(PublicationAuthor pubAuthor)
-		{
-			super(pubAuthor);
-		}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
+    
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
+                
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+        }
+        
+        public SimpleObjectIterator(PublicationAuthor pubAuthor)
+        {
+            super(pubAuthor);
+        }
 
-		public AbstractSimpleObject next()
-		{
-			AbstractSimpleObject retVal = null;
-			if (status == Status.notSet) {
-				retVal = peek();
-				status = Status.done;
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
+        public AbstractSimpleObject next()
+        {
+            AbstractSimpleObject retVal = null;
+            if (status == Status.notSet) {
+                retVal = peek();
+                status = Status.done;
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
 
 }

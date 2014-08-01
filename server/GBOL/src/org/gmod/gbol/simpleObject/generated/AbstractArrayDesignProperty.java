@@ -19,7 +19,7 @@ public abstract class AbstractArrayDesignProperty extends AbstractSimpleObject i
     public AbstractArrayDesignProperty() {
     }
 
-	
+    
     public AbstractArrayDesignProperty(CVTerm type, ArrayDesign arrayDesign, int rank) {
         this.type = type;
         this.arrayDesign = arrayDesign;
@@ -71,11 +71,11 @@ public abstract class AbstractArrayDesignProperty extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractArrayDesignProperty) ) return false;
-		 AbstractArrayDesignProperty castOther = ( AbstractArrayDesignProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractArrayDesignProperty) ) return false;
+         AbstractArrayDesignProperty castOther = ( AbstractArrayDesignProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getArrayDesign()==castOther.getArrayDesign()) || ( this.getArrayDesign()!=null && castOther.getArrayDesign()!=null && this.getArrayDesign().equals(castOther.getArrayDesign()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractArrayDesignProperty extends AbstractSimpleObject i
    }   
 
 public AbstractArrayDesignProperty generateClone() {
-	AbstractArrayDesignProperty cloned = new ArrayDesignProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.arrayDesign = this.arrayDesign;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractArrayDesignProperty cloned = new ArrayDesignProperty(); 
+           cloned.type = this.type;
+           cloned.arrayDesign = this.arrayDesign;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

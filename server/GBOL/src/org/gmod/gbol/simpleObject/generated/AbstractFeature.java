@@ -40,7 +40,7 @@ public abstract class AbstractFeature extends AbstractSimpleObject implements ja
     public AbstractFeature() {
     }
 
-	
+    
     public AbstractFeature(CVTerm type, Organism organism, String uniqueName, boolean isAnalysis, boolean isObsolete, Date timeAccessioned, Date timeLastModified) {
         this.type = type;
         this.organism = organism;
@@ -240,11 +240,11 @@ public abstract class AbstractFeature extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeature) ) return false;
-		 AbstractFeature castOther = ( AbstractFeature ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeature) ) return false;
+         AbstractFeature castOther = ( AbstractFeature ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) )
  && ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
@@ -279,30 +279,30 @@ public abstract class AbstractFeature extends AbstractSimpleObject implements ja
    }   
 
 public AbstractFeature generateClone() {
-	AbstractFeature cloned = new Feature(); 
-    	   cloned.type = this.type;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.organism = this.organism;
-    	   cloned.name = this.name;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.residues = this.residues;
-    	   cloned.sequenceLength = this.sequenceLength;
-    	   cloned.md5checksum = this.md5checksum;
-    	   cloned.isAnalysis = this.isAnalysis;
-    	   cloned.isObsolete = this.isObsolete;
-    	   cloned.timeAccessioned = this.timeAccessioned;
-    	   cloned.timeLastModified = this.timeLastModified;
-    	   cloned.featureLocations = this.featureLocations;
-    	   cloned.featureGenotypes = this.featureGenotypes;
-    	   cloned.parentFeatureRelationships = this.parentFeatureRelationships;
-    	   cloned.childFeatureRelationships = this.childFeatureRelationships;
-    	   cloned.featureCVTerms = this.featureCVTerms;
-    	   cloned.featureSynonyms = this.featureSynonyms;
-    	   cloned.featureDBXrefs = this.featureDBXrefs;
-    	   cloned.featurePublications = this.featurePublications;
-    	   cloned.featurePhenotypes = this.featurePhenotypes;
-    	   cloned.featureProperties = this.featureProperties;
-	return cloned;
+    AbstractFeature cloned = new Feature(); 
+           cloned.type = this.type;
+           cloned.dbxref = this.dbxref;
+           cloned.organism = this.organism;
+           cloned.name = this.name;
+           cloned.uniqueName = this.uniqueName;
+           cloned.residues = this.residues;
+           cloned.sequenceLength = this.sequenceLength;
+           cloned.md5checksum = this.md5checksum;
+           cloned.isAnalysis = this.isAnalysis;
+           cloned.isObsolete = this.isObsolete;
+           cloned.timeAccessioned = this.timeAccessioned;
+           cloned.timeLastModified = this.timeLastModified;
+           cloned.featureLocations = this.featureLocations;
+           cloned.featureGenotypes = this.featureGenotypes;
+           cloned.parentFeatureRelationships = this.parentFeatureRelationships;
+           cloned.childFeatureRelationships = this.childFeatureRelationships;
+           cloned.featureCVTerms = this.featureCVTerms;
+           cloned.featureSynonyms = this.featureSynonyms;
+           cloned.featureDBXrefs = this.featureDBXrefs;
+           cloned.featurePublications = this.featurePublications;
+           cloned.featurePhenotypes = this.featurePhenotypes;
+           cloned.featureProperties = this.featureProperties;
+    return cloned;
 }
 
 

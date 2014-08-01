@@ -20,7 +20,7 @@ public abstract class AbstractBiomaterialTreatment extends AbstractSimpleObject 
     public AbstractBiomaterialTreatment() {
     }
 
-	
+    
     public AbstractBiomaterialTreatment(Treatment treatment, Biomaterial biomaterial, int rank) {
         this.treatment = treatment;
         this.biomaterial = biomaterial;
@@ -80,11 +80,11 @@ public abstract class AbstractBiomaterialTreatment extends AbstractSimpleObject 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractBiomaterialTreatment) ) return false;
-		 AbstractBiomaterialTreatment castOther = ( AbstractBiomaterialTreatment ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractBiomaterialTreatment) ) return false;
+         AbstractBiomaterialTreatment castOther = ( AbstractBiomaterialTreatment ) other; 
          
-		 return ( (this.getTreatment()==castOther.getTreatment()) || ( this.getTreatment()!=null && castOther.getTreatment()!=null && this.getTreatment().equals(castOther.getTreatment()) ) )
+         return ( (this.getTreatment()==castOther.getTreatment()) || ( this.getTreatment()!=null && castOther.getTreatment()!=null && this.getTreatment().equals(castOther.getTreatment()) ) )
  && ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) );
    }
    
@@ -101,13 +101,13 @@ public abstract class AbstractBiomaterialTreatment extends AbstractSimpleObject 
    }   
 
 public AbstractBiomaterialTreatment generateClone() {
-	AbstractBiomaterialTreatment cloned = new AbstractBiomaterialTreatment; 
-    	   cloned.treatment = this.treatment;
-    	   cloned.unitType = this.unitType;
-    	   cloned.biomaterial = this.biomaterial;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractBiomaterialTreatment cloned = new AbstractBiomaterialTreatment; 
+           cloned.treatment = this.treatment;
+           cloned.unitType = this.unitType;
+           cloned.biomaterial = this.biomaterial;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

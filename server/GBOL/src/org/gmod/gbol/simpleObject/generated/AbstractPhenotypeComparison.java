@@ -26,7 +26,7 @@ public abstract class AbstractPhenotypeComparison extends AbstractSimpleObject i
     public AbstractPhenotypeComparison() {
     }
 
-	
+    
     public AbstractPhenotypeComparison(Phenotype phenotype1, Publication publication, Genotype genotype1, Environment environment2, Environment environment1, Genotype genotype2, Organism organism) {
         this.phenotype1 = phenotype1;
         this.publication = publication;
@@ -122,11 +122,11 @@ public abstract class AbstractPhenotypeComparison extends AbstractSimpleObject i
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhenotypeComparison) ) return false;
-		 AbstractPhenotypeComparison castOther = ( AbstractPhenotypeComparison ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhenotypeComparison) ) return false;
+         AbstractPhenotypeComparison castOther = ( AbstractPhenotypeComparison ) other; 
          
-		 return ( (this.getPhenotype1()==castOther.getPhenotype1()) || ( this.getPhenotype1()!=null && castOther.getPhenotype1()!=null && this.getPhenotype1().equals(castOther.getPhenotype1()) ) )
+         return ( (this.getPhenotype1()==castOther.getPhenotype1()) || ( this.getPhenotype1()!=null && castOther.getPhenotype1()!=null && this.getPhenotype1().equals(castOther.getPhenotype1()) ) )
  && ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getGenotype1()==castOther.getGenotype1()) || ( this.getGenotype1()!=null && castOther.getGenotype1()!=null && this.getGenotype1().equals(castOther.getGenotype1()) ) )
  && ( (this.getEnvironment2()==castOther.getEnvironment2()) || ( this.getEnvironment2()!=null && castOther.getEnvironment2()!=null && this.getEnvironment2().equals(castOther.getEnvironment2()) ) )
@@ -151,17 +151,17 @@ public abstract class AbstractPhenotypeComparison extends AbstractSimpleObject i
    }   
 
 public AbstractPhenotypeComparison generateClone() {
-	AbstractPhenotypeComparison cloned = new PhenotypeComparison(); 
-    	   cloned.phenotype1 = this.phenotype1;
-    	   cloned.publication = this.publication;
-    	   cloned.genotype1 = this.genotype1;
-    	   cloned.phenotype2 = this.phenotype2;
-    	   cloned.environment2 = this.environment2;
-    	   cloned.environment1 = this.environment1;
-    	   cloned.genotype2 = this.genotype2;
-    	   cloned.organism = this.organism;
-    	   cloned.phenotypeComparisonCVTerms = this.phenotypeComparisonCVTerms;
-	return cloned;
+    AbstractPhenotypeComparison cloned = new PhenotypeComparison(); 
+           cloned.phenotype1 = this.phenotype1;
+           cloned.publication = this.publication;
+           cloned.genotype1 = this.genotype1;
+           cloned.phenotype2 = this.phenotype2;
+           cloned.environment2 = this.environment2;
+           cloned.environment1 = this.environment1;
+           cloned.genotype2 = this.genotype2;
+           cloned.organism = this.organism;
+           cloned.phenotypeComparisonCVTerms = this.phenotypeComparisonCVTerms;
+    return cloned;
 }
 
 

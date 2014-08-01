@@ -56,11 +56,11 @@ public abstract class AbstractQuantificationRelationship extends AbstractSimpleO
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractQuantificationRelationship) ) return false;
-		 AbstractQuantificationRelationship castOther = ( AbstractQuantificationRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractQuantificationRelationship) ) return false;
+         AbstractQuantificationRelationship castOther = ( AbstractQuantificationRelationship ) other; 
          
-		 return ( (this.getSubjectQuantification()==castOther.getSubjectQuantification()) || ( this.getSubjectQuantification()!=null && castOther.getSubjectQuantification()!=null && this.getSubjectQuantification().equals(castOther.getSubjectQuantification()) ) )
+         return ( (this.getSubjectQuantification()==castOther.getSubjectQuantification()) || ( this.getSubjectQuantification()!=null && castOther.getSubjectQuantification()!=null && this.getSubjectQuantification().equals(castOther.getSubjectQuantification()) ) )
  && ( (this.getObjectQuantification()==castOther.getObjectQuantification()) || ( this.getObjectQuantification()!=null && castOther.getObjectQuantification()!=null && this.getObjectQuantification().equals(castOther.getObjectQuantification()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractQuantificationRelationship extends AbstractSimpleO
    }   
 
 public AbstractQuantificationRelationship generateClone() {
-	AbstractQuantificationRelationship cloned = new QuantificationRelationship(); 
-    	   cloned.subjectQuantification = this.subjectQuantification;
-    	   cloned.type = this.type;
-    	   cloned.objectQuantification = this.objectQuantification;
-	return cloned;
+    AbstractQuantificationRelationship cloned = new QuantificationRelationship(); 
+           cloned.subjectQuantification = this.subjectQuantification;
+           cloned.type = this.type;
+           cloned.objectQuantification = this.objectQuantification;
+    return cloned;
 }
 
 

@@ -56,11 +56,11 @@ public abstract class AbstractPublicationDBXref extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPublicationDBXref) ) return false;
-		 AbstractPublicationDBXref castOther = ( AbstractPublicationDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPublicationDBXref) ) return false;
+         AbstractPublicationDBXref castOther = ( AbstractPublicationDBXref ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) );
    }
    
@@ -75,11 +75,11 @@ public abstract class AbstractPublicationDBXref extends AbstractSimpleObject imp
    }   
 
 public AbstractPublicationDBXref generateClone() {
-	AbstractPublicationDBXref cloned = new AbstractPublicationDBXref; 
-    	   cloned.publication = this.publication;
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.isCurrent = this.isCurrent;
-	return cloned;
+    AbstractPublicationDBXref cloned = new AbstractPublicationDBXref; 
+           cloned.publication = this.publication;
+           cloned.dbxref = this.dbxref;
+           cloned.isCurrent = this.isCurrent;
+    return cloned;
 }
 
 

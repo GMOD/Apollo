@@ -24,7 +24,7 @@ public abstract class AbstractOrganism extends AbstractSimpleObject implements j
     public AbstractOrganism() {
     }
 
-	
+    
     public AbstractOrganism(String genus, String species) {
         this.genus = genus;
         this.species = species;
@@ -99,11 +99,11 @@ public abstract class AbstractOrganism extends AbstractSimpleObject implements j
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractOrganism) ) return false;
-		 AbstractOrganism castOther = ( AbstractOrganism ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractOrganism) ) return false;
+         AbstractOrganism castOther = ( AbstractOrganism ) other; 
          
-		 return ( (this.getGenus()==castOther.getGenus()) || ( this.getGenus()!=null && castOther.getGenus()!=null && this.getGenus().equals(castOther.getGenus()) ) )
+         return ( (this.getGenus()==castOther.getGenus()) || ( this.getGenus()!=null && castOther.getGenus()!=null && this.getGenus().equals(castOther.getGenus()) ) )
  && ( (this.getSpecies()==castOther.getSpecies()) || ( this.getSpecies()!=null && castOther.getSpecies()!=null && this.getSpecies().equals(castOther.getSpecies()) ) );
    }
    
@@ -122,15 +122,15 @@ public abstract class AbstractOrganism extends AbstractSimpleObject implements j
    }   
 
 public AbstractOrganism generateClone() {
-	AbstractOrganism cloned = new AbstractOrganism; 
-    	   cloned.abbreviation = this.abbreviation;
-    	   cloned.genus = this.genus;
-    	   cloned.species = this.species;
-    	   cloned.commonName = this.commonName;
-    	   cloned.comment = this.comment;
-    	   cloned.organismProperties = this.organismProperties;
-    	   cloned.organismDBXrefs = this.organismDBXrefs;
-	return cloned;
+    AbstractOrganism cloned = new AbstractOrganism; 
+           cloned.abbreviation = this.abbreviation;
+           cloned.genus = this.genus;
+           cloned.species = this.species;
+           cloned.commonName = this.commonName;
+           cloned.comment = this.comment;
+           cloned.organismProperties = this.organismProperties;
+           cloned.organismDBXrefs = this.organismDBXrefs;
+    return cloned;
 }
 
 

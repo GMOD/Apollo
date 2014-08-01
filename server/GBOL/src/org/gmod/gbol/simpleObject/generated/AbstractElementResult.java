@@ -22,7 +22,7 @@ public abstract class AbstractElementResult extends AbstractSimpleObject impleme
     public AbstractElementResult() {
     }
 
-	
+    
     public AbstractElementResult(Element element, Quantification quantification, double signal) {
         this.element = element;
         this.quantification = quantification;
@@ -82,11 +82,11 @@ public abstract class AbstractElementResult extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractElementResult) ) return false;
-		 AbstractElementResult castOther = ( AbstractElementResult ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractElementResult) ) return false;
+         AbstractElementResult castOther = ( AbstractElementResult ) other; 
          
-		 return ( (this.getElement()==castOther.getElement()) || ( this.getElement()!=null && castOther.getElement()!=null && this.getElement().equals(castOther.getElement()) ) )
+         return ( (this.getElement()==castOther.getElement()) || ( this.getElement()!=null && castOther.getElement()!=null && this.getElement().equals(castOther.getElement()) ) )
  && ( (this.getQuantification()==castOther.getQuantification()) || ( this.getQuantification()!=null && castOther.getQuantification()!=null && this.getQuantification().equals(castOther.getQuantification()) ) );
    }
    
@@ -103,13 +103,13 @@ public abstract class AbstractElementResult extends AbstractSimpleObject impleme
    }   
 
 public AbstractElementResult generateClone() {
-	AbstractElementResult cloned = new ElementResult(); 
-    	   cloned.element = this.element;
-    	   cloned.quantification = this.quantification;
-    	   cloned.signal = this.signal;
-    	   cloned.childElementResultRelationships = this.childElementResultRelationships;
-    	   cloned.parentElementResultRelationships = this.parentElementResultRelationships;
-	return cloned;
+    AbstractElementResult cloned = new ElementResult(); 
+           cloned.element = this.element;
+           cloned.quantification = this.quantification;
+           cloned.signal = this.signal;
+           cloned.childElementResultRelationships = this.childElementResultRelationships;
+           cloned.parentElementResultRelationships = this.parentElementResultRelationships;
+    return cloned;
 }
 
 

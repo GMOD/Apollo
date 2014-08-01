@@ -47,11 +47,11 @@ public abstract class AbstractStockRelationshipPublication extends AbstractSimpl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractStockRelationshipPublication) ) return false;
-		 AbstractStockRelationshipPublication castOther = ( AbstractStockRelationshipPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractStockRelationshipPublication) ) return false;
+         AbstractStockRelationshipPublication castOther = ( AbstractStockRelationshipPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getStockRelationship()==castOther.getStockRelationship()) || ( this.getStockRelationship()!=null && castOther.getStockRelationship()!=null && this.getStockRelationship().equals(castOther.getStockRelationship()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractStockRelationshipPublication extends AbstractSimpl
    }   
 
 public AbstractStockRelationshipPublication generateClone() {
-	AbstractStockRelationshipPublication cloned = new StockRelationshipPublication(); 
-    	   cloned.publication = this.publication;
-    	   cloned.stockRelationship = this.stockRelationship;
-	return cloned;
+    AbstractStockRelationshipPublication cloned = new StockRelationshipPublication(); 
+           cloned.publication = this.publication;
+           cloned.stockRelationship = this.stockRelationship;
+    return cloned;
 }
 
 

@@ -47,11 +47,11 @@ public abstract class AbstractAssayProject extends AbstractSimpleObject implemen
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAssayProject) ) return false;
-		 AbstractAssayProject castOther = ( AbstractAssayProject ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAssayProject) ) return false;
+         AbstractAssayProject castOther = ( AbstractAssayProject ) other; 
          
-		 return ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
+         return ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
  && ( (this.getProject()==castOther.getProject()) || ( this.getProject()!=null && castOther.getProject()!=null && this.getProject().equals(castOther.getProject()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractAssayProject extends AbstractSimpleObject implemen
    }   
 
 public AbstractAssayProject generateClone() {
-	AbstractAssayProject cloned = new AssayProject(); 
-    	   cloned.assay = this.assay;
-    	   cloned.project = this.project;
-	return cloned;
+    AbstractAssayProject cloned = new AssayProject(); 
+           cloned.assay = this.assay;
+           cloned.project = this.project;
+    return cloned;
 }
 
 

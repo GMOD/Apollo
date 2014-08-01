@@ -74,11 +74,11 @@ public abstract class AbstractPhenotypeStatement extends AbstractSimpleObject im
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhenotypeStatement) ) return false;
-		 AbstractPhenotypeStatement castOther = ( AbstractPhenotypeStatement ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhenotypeStatement) ) return false;
+         AbstractPhenotypeStatement castOther = ( AbstractPhenotypeStatement ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getEnvironment()==castOther.getEnvironment()) || ( this.getEnvironment()!=null && castOther.getEnvironment()!=null && this.getEnvironment().equals(castOther.getEnvironment()) ) )
  && ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) )
  && ( (this.getPhenotype()==castOther.getPhenotype()) || ( this.getPhenotype()!=null && castOther.getPhenotype()!=null && this.getPhenotype().equals(castOther.getPhenotype()) ) )
@@ -98,13 +98,13 @@ public abstract class AbstractPhenotypeStatement extends AbstractSimpleObject im
    }   
 
 public AbstractPhenotypeStatement generateClone() {
-	AbstractPhenotypeStatement cloned = new AbstractPhenotypeStatement; 
-    	   cloned.publication = this.publication;
-    	   cloned.environment = this.environment;
-    	   cloned.genotype = this.genotype;
-    	   cloned.phenotype = this.phenotype;
-    	   cloned.type = this.type;
-	return cloned;
+    AbstractPhenotypeStatement cloned = new AbstractPhenotypeStatement; 
+           cloned.publication = this.publication;
+           cloned.environment = this.environment;
+           cloned.genotype = this.genotype;
+           cloned.phenotype = this.phenotype;
+           cloned.type = this.type;
+    return cloned;
 }
 
 

@@ -10,15 +10,15 @@ import org.gmod.gbol.simpleObject.FeatureRelationship;
  */
 public class PartOf extends AbstractBioFeatureRelationship {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** Constructor.
-	 * 
-	 * @param fr - FeatureRelationship object that this class wraps
-	 * @param conf - Configuration containing mapping information
-	 */
-	public PartOf(FeatureRelationship fr, BioObjectConfiguration conf) {
-		super(fr, conf);
-	}
-	
+    /** Constructor.
+     * 
+     * @param fr - FeatureRelationship object that this class wraps
+     * @param conf - Configuration containing mapping information
+     */
+    public PartOf(FeatureRelationship fr, BioObjectConfiguration conf) {
+        super(fr, conf);
+    }
+    
 }

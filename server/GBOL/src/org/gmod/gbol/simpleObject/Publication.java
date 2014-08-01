@@ -13,78 +13,78 @@ import java.util.Collection;
 
 public class Publication extends org.gmod.gbol.simpleObject.generated.AbstractPublication {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public Publication(){
-		super();
-	}
+    public Publication(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getType().getWriteObjects());
-//		
-//		// Multiples
-//		for (PublicationAuthor pa : this.getPublicationAuthors())
-//			writeObjects.addAll(pa.getWriteObjects());
-//		for (PublicationDBXref pdbx : this.getPublicationDBXrefs())
-//			writeObjects.addAll(pdbx.getWriteObjects());
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getType().getWriteObjects());
+//        
+//        // Multiples
+//        for (PublicationAuthor pa : this.getPublicationAuthors())
+//            writeObjects.addAll(pa.getWriteObjects());
+//        for (PublicationDBXref pdbx : this.getPublicationDBXrefs())
+//            writeObjects.addAll(pdbx.getWriteObjects());
 //
-//		// Specifically not traversing PublicationRelationships, since that 
-//		// could involve us in a loop or a very long traversal
+//        // Specifically not traversing PublicationRelationships, since that 
+//        // could involve us in a loop or a very long traversal
 //
-//		return writeObjects;
-//	}
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public static final int type = 1;
-			public static final int pubAuthors = 2;
-			public static final int pubDbxrefs = 3;
-		}
-				
-		public SimpleObjectIterator(Publication pub)
-		{
-			super(pub);
-		}
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public static final int type = 1;
+            public static final int pubAuthors = 2;
+            public static final int pubDbxrefs = 3;
+        }
+                
+        public SimpleObjectIterator(Publication pub)
+        {
+            super(pub);
+        }
 
-		public AbstractSimpleObject next()
-		{
-			Publication pub = (Publication)object;
-			AbstractSimpleObject retVal = null;
-			if (status != Status.self) {
-				retVal = soIter.next();
-				if (status == Status.notSet) {
-					processCollectionIterators(Status.pubDbxrefs, pub.getPublicationDBXrefs());
-				}
-				if (status == Status.pubDbxrefs) {
-					processCollectionIterators(Status.pubAuthors, pub.getPublicationAuthors());
-				}
-				if (status == Status.pubAuthors) {
-					processSingletonIterator(Status.type, pub.getType());
-				}
-				if (status == Status.type) {
-					AbstractSimpleObject newClone = processLastSingletonIterator();
-					((Publication)clone).setType((CVTerm) newClone);
-				}
-			} else {
-				retVal = peek();
-				status = Status.done;
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
+        public AbstractSimpleObject next()
+        {
+            Publication pub = (Publication)object;
+            AbstractSimpleObject retVal = null;
+            if (status != Status.self) {
+                retVal = soIter.next();
+                if (status == Status.notSet) {
+                    processCollectionIterators(Status.pubDbxrefs, pub.getPublicationDBXrefs());
+                }
+                if (status == Status.pubDbxrefs) {
+                    processCollectionIterators(Status.pubAuthors, pub.getPublicationAuthors());
+                }
+                if (status == Status.pubAuthors) {
+                    processSingletonIterator(Status.type, pub.getType());
+                }
+                if (status == Status.type) {
+                    AbstractSimpleObject newClone = processLastSingletonIterator();
+                    ((Publication)clone).setType((CVTerm) newClone);
+                }
+            } else {
+                retVal = peek();
+                status = Status.done;
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
 }

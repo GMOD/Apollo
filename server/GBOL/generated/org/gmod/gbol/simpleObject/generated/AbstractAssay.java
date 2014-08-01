@@ -33,7 +33,7 @@ public abstract class AbstractAssay extends AbstractSimpleObject implements java
     public AbstractAssay() {
     }
 
-	
+    
     public AbstractAssay(Contact operator, ArrayDesign arrayDesign) {
         this.operator = operator;
         this.arrayDesign = arrayDesign;
@@ -172,11 +172,11 @@ public abstract class AbstractAssay extends AbstractSimpleObject implements java
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAssay) ) return false;
-		 AbstractAssay castOther = ( AbstractAssay ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAssay) ) return false;
+         AbstractAssay castOther = ( AbstractAssay ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -202,23 +202,23 @@ public abstract class AbstractAssay extends AbstractSimpleObject implements java
    }   
 
 public AbstractAssay generateClone() {
-	AbstractAssay cloned = new AbstractAssay; 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.operator = this.operator;
-    	   cloned.arrayDesign = this.arrayDesign;
-    	   cloned.protocol = this.protocol;
-    	   cloned.assayDate = this.assayDate;
-    	   cloned.arrayIdentifier = this.arrayIdentifier;
-    	   cloned.arrayBatchIdentifier = this.arrayBatchIdentifier;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.assayProperties = this.assayProperties;
-    	   cloned.assayProjects = this.assayProjects;
-    	   cloned.studyAssays = this.studyAssays;
-    	   cloned.assayBiomaterials = this.assayBiomaterials;
-    	   cloned.acquisitions = this.acquisitions;
-    	   cloned.controls = this.controls;
-	return cloned;
+    AbstractAssay cloned = new AbstractAssay; 
+           cloned.dbxref = this.dbxref;
+           cloned.operator = this.operator;
+           cloned.arrayDesign = this.arrayDesign;
+           cloned.protocol = this.protocol;
+           cloned.assayDate = this.assayDate;
+           cloned.arrayIdentifier = this.arrayIdentifier;
+           cloned.arrayBatchIdentifier = this.arrayBatchIdentifier;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.assayProperties = this.assayProperties;
+           cloned.assayProjects = this.assayProjects;
+           cloned.studyAssays = this.studyAssays;
+           cloned.assayBiomaterials = this.assayBiomaterials;
+           cloned.acquisitions = this.acquisitions;
+           cloned.controls = this.controls;
+    return cloned;
 }
 
 

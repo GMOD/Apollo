@@ -56,11 +56,11 @@ public abstract class AbstractCVTermRelationship extends AbstractSimpleObject im
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractCVTermRelationship) ) return false;
-		 AbstractCVTermRelationship castOther = ( AbstractCVTermRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractCVTermRelationship) ) return false;
+         AbstractCVTermRelationship castOther = ( AbstractCVTermRelationship ) other; 
          
-		 return ( (this.getSubjectCVTerm()==castOther.getSubjectCVTerm()) || ( this.getSubjectCVTerm()!=null && castOther.getSubjectCVTerm()!=null && this.getSubjectCVTerm().equals(castOther.getSubjectCVTerm()) ) )
+         return ( (this.getSubjectCVTerm()==castOther.getSubjectCVTerm()) || ( this.getSubjectCVTerm()!=null && castOther.getSubjectCVTerm()!=null && this.getSubjectCVTerm().equals(castOther.getSubjectCVTerm()) ) )
  && ( (this.getObjectCVTerm()==castOther.getObjectCVTerm()) || ( this.getObjectCVTerm()!=null && castOther.getObjectCVTerm()!=null && this.getObjectCVTerm().equals(castOther.getObjectCVTerm()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
@@ -76,11 +76,11 @@ public abstract class AbstractCVTermRelationship extends AbstractSimpleObject im
    }   
 
 public AbstractCVTermRelationship generateClone() {
-	AbstractCVTermRelationship cloned = new AbstractCVTermRelationship; 
-    	   cloned.subjectCVTerm = this.subjectCVTerm;
-    	   cloned.objectCVTerm = this.objectCVTerm;
-    	   cloned.type = this.type;
-	return cloned;
+    AbstractCVTermRelationship cloned = new AbstractCVTermRelationship; 
+           cloned.subjectCVTerm = this.subjectCVTerm;
+           cloned.objectCVTerm = this.objectCVTerm;
+           cloned.type = this.type;
+    return cloned;
 }
 
 

@@ -23,7 +23,7 @@ public abstract class AbstractTreatment extends AbstractSimpleObject implements 
     public AbstractTreatment() {
     }
 
-	
+    
     public AbstractTreatment(CVTerm type, Biomaterial biomaterial, int rank) {
         this.type = type;
         this.biomaterial = biomaterial;
@@ -91,11 +91,11 @@ public abstract class AbstractTreatment extends AbstractSimpleObject implements 
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractTreatment) ) return false;
-		 AbstractTreatment castOther = ( AbstractTreatment ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractTreatment) ) return false;
+         AbstractTreatment castOther = ( AbstractTreatment ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getProtocol()==castOther.getProtocol()) || ( this.getProtocol()!=null && castOther.getProtocol()!=null && this.getProtocol().equals(castOther.getProtocol()) ) )
  && ( (this.getBiomaterial()==castOther.getBiomaterial()) || ( this.getBiomaterial()!=null && castOther.getBiomaterial()!=null && this.getBiomaterial().equals(castOther.getBiomaterial()) ) );
    }
@@ -114,14 +114,14 @@ public abstract class AbstractTreatment extends AbstractSimpleObject implements 
    }   
 
 public AbstractTreatment generateClone() {
-	AbstractTreatment cloned = new Treatment(); 
-    	   cloned.type = this.type;
-    	   cloned.protocol = this.protocol;
-    	   cloned.biomaterial = this.biomaterial;
-    	   cloned.rank = this.rank;
-    	   cloned.name = this.name;
-    	   cloned.biomaterialTreatments = this.biomaterialTreatments;
-	return cloned;
+    AbstractTreatment cloned = new Treatment(); 
+           cloned.type = this.type;
+           cloned.protocol = this.protocol;
+           cloned.biomaterial = this.biomaterial;
+           cloned.rank = this.rank;
+           cloned.name = this.name;
+           cloned.biomaterialTreatments = this.biomaterialTreatments;
+    return cloned;
 }
 
 

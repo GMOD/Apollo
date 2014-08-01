@@ -19,7 +19,7 @@ public abstract class AbstractFeaturePublicationProperty extends AbstractSimpleO
     public AbstractFeaturePublicationProperty() {
     }
 
-	
+    
     public AbstractFeaturePublicationProperty(CVTerm type, FeaturePublication featurePublication, int rank) {
         this.type = type;
         this.featurePublication = featurePublication;
@@ -71,11 +71,11 @@ public abstract class AbstractFeaturePublicationProperty extends AbstractSimpleO
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeaturePublicationProperty) ) return false;
-		 AbstractFeaturePublicationProperty castOther = ( AbstractFeaturePublicationProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeaturePublicationProperty) ) return false;
+         AbstractFeaturePublicationProperty castOther = ( AbstractFeaturePublicationProperty ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getFeaturePublication()==castOther.getFeaturePublication()) || ( this.getFeaturePublication()!=null && castOther.getFeaturePublication()!=null && this.getFeaturePublication().equals(castOther.getFeaturePublication()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractFeaturePublicationProperty extends AbstractSimpleO
    }   
 
 public AbstractFeaturePublicationProperty generateClone() {
-	AbstractFeaturePublicationProperty cloned = new FeaturePublicationProperty(); 
-    	   cloned.type = this.type;
-    	   cloned.featurePublication = this.featurePublication;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractFeaturePublicationProperty cloned = new FeaturePublicationProperty(); 
+           cloned.type = this.type;
+           cloned.featurePublication = this.featurePublication;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

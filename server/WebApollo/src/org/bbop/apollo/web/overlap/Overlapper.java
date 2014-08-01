@@ -5,7 +5,7 @@ import org.gmod.gbol.bioObject.Transcript;
 
 public interface Overlapper {
 
-	public boolean overlaps(Transcript transcript, Gene gene);
-	
-	public boolean overlaps(Transcript transcript1, Transcript transcript2);
+    public boolean overlaps(Transcript transcript, Gene gene);
+    
+    public boolean overlaps(Transcript transcript1, Transcript transcript2);
 }

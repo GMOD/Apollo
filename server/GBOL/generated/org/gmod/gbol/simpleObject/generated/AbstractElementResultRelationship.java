@@ -20,7 +20,7 @@ public abstract class AbstractElementResultRelationship extends AbstractSimpleOb
     public AbstractElementResultRelationship() {
     }
 
-	
+    
     public AbstractElementResultRelationship(ElementResult objectElementResult, ElementResult subjectElementResult, CVTerm type, int rank) {
         this.objectElementResult = objectElementResult;
         this.subjectElementResult = subjectElementResult;
@@ -81,11 +81,11 @@ public abstract class AbstractElementResultRelationship extends AbstractSimpleOb
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractElementResultRelationship) ) return false;
-		 AbstractElementResultRelationship castOther = ( AbstractElementResultRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractElementResultRelationship) ) return false;
+         AbstractElementResultRelationship castOther = ( AbstractElementResultRelationship ) other; 
          
-		 return ( (this.getObjectElementResult()==castOther.getObjectElementResult()) || ( this.getObjectElementResult()!=null && castOther.getObjectElementResult()!=null && this.getObjectElementResult().equals(castOther.getObjectElementResult()) ) )
+         return ( (this.getObjectElementResult()==castOther.getObjectElementResult()) || ( this.getObjectElementResult()!=null && castOther.getObjectElementResult()!=null && this.getObjectElementResult().equals(castOther.getObjectElementResult()) ) )
  && ( (this.getSubjectElementResult()==castOther.getSubjectElementResult()) || ( this.getSubjectElementResult()!=null && castOther.getSubjectElementResult()!=null && this.getSubjectElementResult().equals(castOther.getSubjectElementResult()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
@@ -103,13 +103,13 @@ public abstract class AbstractElementResultRelationship extends AbstractSimpleOb
    }   
 
 public AbstractElementResultRelationship generateClone() {
-	AbstractElementResultRelationship cloned = new AbstractElementResultRelationship; 
-    	   cloned.objectElementResult = this.objectElementResult;
-    	   cloned.subjectElementResult = this.subjectElementResult;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractElementResultRelationship cloned = new AbstractElementResultRelationship; 
+           cloned.objectElementResult = this.objectElementResult;
+           cloned.subjectElementResult = this.subjectElementResult;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

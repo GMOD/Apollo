@@ -21,15 +21,16 @@ define(
            'dijit/form/Button',
            'JBrowse/Plugin',
            './FeatureEdgeMatchManager',
-	   './FeatureSelectionManager',
-           './TrackConfigTransformer', 
-	   './View/Track/AnnotTrack', 
-	   './View/TrackList/Hierarchical', 
-	   './View/TrackList/Faceted', 
+           './FeatureSelectionManager',
+           './TrackConfigTransformer',
+           './View/Track/AnnotTrack',
+           './View/TrackList/Hierarchical',
+           './View/TrackList/Faceted',
+           './InformationEditor',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
     function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, GFF3Driver ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver ) {
 
 return declare( JBPlugin,
 {
@@ -52,24 +53,24 @@ return declare( JBPlugin,
         } );
 
         if (! browser.config.helpUrl)  {
-	    browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
+            browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
         }
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
 
-	this.featSelectionManager = new FeatureSelectionManager();
-	this.annotSelectionManager = new FeatureSelectionManager();
+        this.featSelectionManager = new FeatureSelectionManager();
+        this.annotSelectionManager = new FeatureSelectionManager();
         this.trackTransformer = new TrackConfigTransformer();
 
-	// setting up selection exclusiveOr --
-	//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
-	//    regardless of multi-select mode etc.
-	this.annotSelectionManager.addMutualExclusion(this.featSelectionManager);
-	this.featSelectionManager.addMutualExclusion(this.annotSelectionManager);
+        // setting up selection exclusiveOr --
+        //    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
+        //    regardless of multi-select mode etc.
+        this.annotSelectionManager.addMutualExclusion(this.featSelectionManager);
+        this.featSelectionManager.addMutualExclusion(this.annotSelectionManager);
 
-	FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
-	FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
+        FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
+        FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
 
         // add a global menu option for setting CDS color
@@ -100,7 +101,8 @@ return declare( JBPlugin,
                                             onClick: function()  { window.open(helpUrl,'help_window').focus(); }
                                         })
                                   );
-  /*          browser.addGlobalMenuItem( 'help',
+           /*
+            browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
                                             id: 'menubar_apollo_userguide', 
@@ -164,131 +166,144 @@ return declare( JBPlugin,
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
         if (!browser.config.trackSelector) {
-        	browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
+            browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
         }
         // if using JBrowse's Hierarchical selector, switch to WebApollo's
         else if (browser.config.trackSelector.type == "Hierarchical") {
-        	browser.config.trackSelector.type = 'WebApollo/View/TrackList/Hierarchical';
+            browser.config.trackSelector.type = 'WebApollo/View/TrackList/Hierarchical';
         }
         // if using JBrowse's Hierarchical selector, switch to WebApollo's
         else if (browser.config.trackSelector.type == "Faceted") {
-        	browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
+            browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
         }
         
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-        //    dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
+            // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
                 browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
                 browser.poweredByLink.target = "_blank";
-            } 
-            
-           var view = browser.view;
-           view.oldOnResize = view.onResize;
+            }
+
+            // Initialize information editor with similar style to track selector
+            /*browser.informationEditor=new InformationEditor(
+                dojo.mixin(
+                        dojo.clone( browser.config.bookmarkPanel ) || {},
+                        {
+                            browser: browser,
+                            title: "Info Editor"
+                        }
+                )
+            );
+            browser.tabContainer.addChild(browser.informationEditor);
+            */
+            var view = browser.view;
+            view.oldOnResize = view.onResize;
   
-         /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
-          *    bug appears in Chrome, not Firefox, unsure of other browsers
-          */
-         view.onResize = function() {  
-            // detect if zoomed into base level
-            // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
-            // if showing residues (full zoom), then pxPerBp == maxPxPerBp
-            //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
-            var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-            var centerBp = Math.round((view.minVisible() + view.maxVisible())/2); 
-            var oldCharSize = thisB.getSequenceCharacterSize();
-            var newCharSize = thisB.getSequenceCharacterSize(true);
-            // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-            var charWidthChanged = (newCharSize.width != oldCharSize.width);
-            var charWidth = newCharSize.width;
-            if (charWidthChanged) {  
-                // if charWidth changed, need to change maxPxPerBp to match
-                // console.log("residues font size changed, new char width = " + newCharSize.width);
-                if (! browser.config.view) { browser.config.view = {}; }
-                browser.config.view.maxPxPerBp = charWidth;
-                view.maxPxPerBp = charWidth;
-            }
-            if (charWidthChanged && fullZoom) {
-                // console.log("at full zoom, trying font size fix");
-                view.pxPerBp = view.maxPxPerBp;
-                view.oldOnResize();
-                thisB.browserZoomFix(centerBp);
-            }
-            else  {
-                view.oldOnResize();
-            }
-        };
+             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
+              *    bug appears in Chrome, not Firefox, unsure of other browsers
+              */
+            view.onResize = function() {  
+                // detect if zoomed into base level
+                // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
+                // if showing residues (full zoom), then pxPerBp == maxPxPerBp
+                //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
+                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
+                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2); 
+                var oldCharSize = thisB.getSequenceCharacterSize();
+                var newCharSize = thisB.getSequenceCharacterSize(true);
+                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
+                var charWidthChanged = (newCharSize.width != oldCharSize.width);
+                var charWidth = newCharSize.width;
+                if (charWidthChanged) {  
+                    // if charWidth changed, need to change maxPxPerBp to match
+                    // console.log("residues font size changed, new char width = " + newCharSize.width);
+                    if (! browser.config.view) { browser.config.view = {}; }
+                    browser.config.view.maxPxPerBp = charWidth;
+                    view.maxPxPerBp = charWidth;
+                }
+                if (charWidthChanged && fullZoom) {
+                    // console.log("at full zoom, trying font size fix");
+                    view.pxPerBp = view.maxPxPerBp;
+                    view.oldOnResize();
+                    thisB.browserZoomFix(centerBp);
+                }
+                else  {
+                    view.oldOnResize();
+                }
+            };
         
-        var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
-            constructor: function( args ) {
-                this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
-            }
-        } );
-//        browser.registerExtraFileDriver(customGff3Driver);
-        browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+            var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
+                constructor: function( args ) {
+                    this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
+                }
+            });
+            // browser.registerExtraFileDriver(customGff3Driver);
+            browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
+       
 
     },
 
 
-/** 
- *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
- *    bug appears in Chrome, not Firefox, unsure of other browsers
- *    based on GenomeView.zoomToBaseLevel(), GenomeView.updateZoom(), then stripping away unneeded
-*/
-browserZoomFix: function(pos) {
-    var view = this.browser.view;
-    if (view.animation) return;
-    var baseZoomIndex = view.zoomLevels.length - 1;
-    var zoomLoc = 0.5;
-    view.showWait();
-    view.trimVertical();
-    var relativeScale = view.zoomLevels[baseZoomIndex] / view.pxPerBp;
-    var fixedBp = pos;
-    view.curZoom = baseZoomIndex;
-    view.pxPerBp = view.zoomLevels[baseZoomIndex];
-    view.maxLeft = (view.pxPerBp * view.ref.end) - view.getWidth();
+    /** 
+     *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
+     *    bug appears in Chrome, not Firefox, unsure of other browsers
+     *    based on GenomeView.zoomToBaseLevel(), GenomeView.updateZoom(), then stripping away unneeded
+    */
+    browserZoomFix: function(pos) {
+        var view = this.browser.view;
+        if (view.animation) return;
+        var baseZoomIndex = view.zoomLevels.length - 1;
+        var zoomLoc = 0.5;
+        view.showWait();
+        view.trimVertical();
+        var relativeScale = view.zoomLevels[baseZoomIndex] / view.pxPerBp;
+        var fixedBp = pos;
+        view.curZoom = baseZoomIndex;
+        view.pxPerBp = view.zoomLevels[baseZoomIndex];
+        view.maxLeft = (view.pxPerBp * view.ref.end) - view.getWidth();
 
-    // needed, otherwise Density track can render wrong
-    //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
-    for (var track = 0; track < view.tracks.length; track++)
-	view.tracks[track].startZoom(view.pxPerBp,
-				     fixedBp - ((zoomLoc * view.getWidth())
-						/ view.pxPerBp),
-				     fixedBp + (((1 - zoomLoc) * view.getWidth())
-						/ view.pxPerBp));
+        // needed, otherwise Density track can render wrong
+        //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
+        for (var track = 0; track < view.tracks.length; track++)
+            view.tracks[track].startZoom(view.pxPerBp,
+                                         fixedBp - ((zoomLoc * view.getWidth())
+                                                    / view.pxPerBp),
+                                         fixedBp + (((1 - zoomLoc) * view.getWidth())
+                                                    / view.pxPerBp));
 
-    var eWidth = view.elem.clientWidth;
-    var centerPx = view.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
-    // stripeWidth: pixels per block
-    view.stripeWidth = view.stripeWidthForZoom(view.curZoom);
-    view.scrollContainer.style.width =
-        (view.stripeCount * view.stripeWidth) + "px";
-    view.zoomContainer.style.width =
-        (view.stripeCount * view.stripeWidth) + "px";
-    var centerStripe = Math.round(centerPx / view.stripeWidth);
-    var firstStripe = (centerStripe - ((view.stripeCount) / 2)) | 0;
-    view.offset = firstStripe * view.stripeWidth;
-    view.maxOffset = view.bpToPx(view.ref.end+1) - view.stripeCount * view.stripeWidth;
-    view.maxLeft = view.bpToPx(view.ref.end+1) - view.getWidth();
-    view.minLeft = view.bpToPx(view.ref.start);
-    view.zoomContainer.style.left = "0px";
-    view.setX((centerPx - view.offset) - (eWidth / 2));
-    dojo.forEach(view.uiTracks, function(track) { track.clear(); });
+        var eWidth = view.elem.clientWidth;
+        var centerPx = view.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
+        // stripeWidth: pixels per block
+        view.stripeWidth = view.stripeWidthForZoom(view.curZoom);
+        view.scrollContainer.style.width =
+            (view.stripeCount * view.stripeWidth) + "px";
+        view.zoomContainer.style.width =
+            (view.stripeCount * view.stripeWidth) + "px";
+        var centerStripe = Math.round(centerPx / view.stripeWidth);
+        var firstStripe = (centerStripe - ((view.stripeCount) / 2)) | 0;
+        view.offset = firstStripe * view.stripeWidth;
+        view.maxOffset = view.bpToPx(view.ref.end+1) - view.stripeCount * view.stripeWidth;
+        view.maxLeft = view.bpToPx(view.ref.end+1) - view.getWidth();
+        view.minLeft = view.bpToPx(view.ref.start);
+        view.zoomContainer.style.left = "0px";
+        view.setX((centerPx - view.offset) - (eWidth / 2));
+        dojo.forEach(view.uiTracks, function(track) { track.clear(); });
 
-    // needed, otherwise Density track can render wrong
-    //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
-    view.trackIterate( function(track) {
-        track.endZoom( view.pxPerBp,Math.round(view.stripeWidth / view.pxPerBp));
-    });
+        // needed, otherwise Density track can render wrong
+        //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
+        view.trackIterate( function(track) {
+            track.endZoom( view.pxPerBp,Math.round(view.stripeWidth / view.pxPerBp));
+        });
 
-    view.showVisibleBlocks(true);
-    view.showDone();
-    view.showCoarse();
-},
+        view.showVisibleBlocks(true);
+        view.showDone();
+        view.showCoarse();
+    },
 
 
     plusStrandFilter: function(feature)  {
@@ -359,10 +374,10 @@ browserZoomFix: function(pos) {
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     }, 
 
-/** 
- * hacking addition of a "tools" menu to standard JBrowse menubar, 
- *    with a "Search Sequence" dropdown
- */
+    /** 
+     * hacking addition of a "tools" menu to standard JBrowse menubar, 
+     *    with a "Search Sequence" dropdown
+     */
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) { 
             var webapollo = this;
@@ -370,10 +385,10 @@ browserZoomFix: function(pos) {
                                             new dijitMenuItem(
                                                 {
                                                     id: 'menubar_apollo_seqsearch', 
-		                                    label: "Search sequence",
-		                                    onClick: function() {
-		                                        webapollo.getAnnotTrack().searchSequence();
-		                                    }
+                                                    label: "Search sequence",
+                                                    onClick: function() {
+                                                        webapollo.getAnnotTrack().searchSequence();
+                                                    }
                                                 }) );
             this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
@@ -389,40 +404,40 @@ browserZoomFix: function(pos) {
 
     
     initLoginMenu: function(username) {
-    	var webapollo = this;
-    	var loginButton;
-    	if (username)  {   // permission only set if permission request succeeded
-    		this.browser.addGlobalMenuItem( 'user',
-    				new dijitMenuItem(
-    						{
-    							label: 'Logout',
-    							onClick: function()  {
-    								webapollo.getAnnotTrack().logout();
-    							}
-    						})
-    		);
-    		var userMenu = this.browser.makeGlobalMenu('user');
-    		loginButton = new dijitDropDownButton(
-    				{ className: 'user',
-    					innerHTML: '<span class="usericon"></span>' + username,
-    					title: 'user logged in: UserName',
-    					dropDown: userMenu
-    				});
-    		// if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left' 
-    		//     styling in CSS rule for 'menu' class
-    		// dojo.addClass( loginButton.domNode, 'menu' );
-    	}
-    	else  { 
-    		loginButton = new dijitButton(
-    				{ className: 'login',
-    					innerHTML: "Login",
-    					onClick: function()  {
-    						webapollo.getAnnotTrack().login();
-    					}
-    				});
-    	}
-    	this.browser.menuBar.appendChild( loginButton.domNode );
-    	this.loginMenuInitialized = true;
+        var webapollo = this;
+        var loginButton;
+        if (username)  {   // permission only set if permission request succeeded
+            this.browser.addGlobalMenuItem( 'user',
+                            new dijitMenuItem(
+                                            {
+                                                    label: 'Logout',
+                                                    onClick: function()  {
+                                                            webapollo.getAnnotTrack().logout();
+                                                    }
+                                            })
+            );
+            var userMenu = this.browser.makeGlobalMenu('user');
+            loginButton = new dijitDropDownButton(
+                            { className: 'user',
+                                    innerHTML: '<span class="usericon"></span>' + username,
+                                    title: 'user logged in: UserName',
+                                    dropDown: userMenu
+                            });
+            // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left' 
+            //     styling in CSS rule for 'menu' class
+            // dojo.addClass( loginButton.domNode, 'menu' );
+        }
+        else  { 
+            loginButton = new dijitButton(
+                            { className: 'login',
+                                    innerHTML: "Login",
+                                    onClick: function()  {
+                                            webapollo.getAnnotTrack().login();
+                                    }
+                            });
+        }
+        this.browser.menuBar.appendChild( loginButton.domNode );
+        this.loginMenuInitialized = true;
     }, 
     
     /**
@@ -435,7 +450,7 @@ browserZoomFix: function(pos) {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
             var tracks = this.browser.view.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-	        // should be doing instanceof here, but class setup is not being cooperative
+                // should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloAnnotTrack)  {
                     return tracks[i];
                 }
@@ -454,7 +469,7 @@ browserZoomFix: function(pos) {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
             var tracks = this.browser.view.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-	        // should be doing instanceof here, but class setup is not being cooperative
+                // should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     // console.log("seq track refseq: " + tracks[i].refSeq.name);
                     return tracks[i];
@@ -474,8 +489,8 @@ browserZoomFix: function(pos) {
             container = this.browser.view.elem;
         }
         if (recalc || (! this._charSize))  {
-            //	    this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
-	    this._charSize = this.calculateSequenceCharacterSize(container);
+            //            this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
+            this._charSize = this.calculateSequenceCharacterSize(container);
         }
         return this._charSize;
     }, 

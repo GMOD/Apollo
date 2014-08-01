@@ -20,7 +20,7 @@ public abstract class AbstractPhylogeneticNodeRelationship extends AbstractSimpl
     public AbstractPhylogeneticNodeRelationship() {
     }
 
-	
+    
     public AbstractPhylogeneticNodeRelationship(CVTerm type, PhylogeneticNode objectPhylogeneticNode, PhylogeneticNode subjectPhylogeneticNode, PhylogeneticTree phylogeneticTree) {
         this.type = type;
         this.objectPhylogeneticNode = objectPhylogeneticNode;
@@ -81,11 +81,11 @@ public abstract class AbstractPhylogeneticNodeRelationship extends AbstractSimpl
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPhylogeneticNodeRelationship) ) return false;
-		 AbstractPhylogeneticNodeRelationship castOther = ( AbstractPhylogeneticNodeRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPhylogeneticNodeRelationship) ) return false;
+         AbstractPhylogeneticNodeRelationship castOther = ( AbstractPhylogeneticNodeRelationship ) other; 
          
-		 return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
+         return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && ( (this.getObjectPhylogeneticNode()==castOther.getObjectPhylogeneticNode()) || ( this.getObjectPhylogeneticNode()!=null && castOther.getObjectPhylogeneticNode()!=null && this.getObjectPhylogeneticNode().equals(castOther.getObjectPhylogeneticNode()) ) )
  && ( (this.getSubjectPhylogeneticNode()==castOther.getSubjectPhylogeneticNode()) || ( this.getSubjectPhylogeneticNode()!=null && castOther.getSubjectPhylogeneticNode()!=null && this.getSubjectPhylogeneticNode().equals(castOther.getSubjectPhylogeneticNode()) ) );
    }
@@ -103,13 +103,13 @@ public abstract class AbstractPhylogeneticNodeRelationship extends AbstractSimpl
    }   
 
 public AbstractPhylogeneticNodeRelationship generateClone() {
-	AbstractPhylogeneticNodeRelationship cloned = new PhylogeneticNodeRelationship(); 
-    	   cloned.type = this.type;
-    	   cloned.objectPhylogeneticNode = this.objectPhylogeneticNode;
-    	   cloned.subjectPhylogeneticNode = this.subjectPhylogeneticNode;
-    	   cloned.phylogeneticTree = this.phylogeneticTree;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractPhylogeneticNodeRelationship cloned = new PhylogeneticNodeRelationship(); 
+           cloned.type = this.type;
+           cloned.objectPhylogeneticNode = this.objectPhylogeneticNode;
+           cloned.subjectPhylogeneticNode = this.subjectPhylogeneticNode;
+           cloned.phylogeneticTree = this.phylogeneticTree;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

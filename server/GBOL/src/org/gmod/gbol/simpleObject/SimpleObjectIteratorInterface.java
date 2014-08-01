@@ -5,6 +5,6 @@ import java.util.Iterator;
 public interface SimpleObjectIteratorInterface extends Iterator<AbstractSimpleObject>
 {
 
-	public AbstractSimpleObject peek();
+    public AbstractSimpleObject peek();
 
 }

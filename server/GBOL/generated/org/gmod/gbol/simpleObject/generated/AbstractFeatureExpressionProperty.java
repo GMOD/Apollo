@@ -19,7 +19,7 @@ public abstract class AbstractFeatureExpressionProperty extends AbstractSimpleOb
     public AbstractFeatureExpressionProperty() {
     }
 
-	
+    
     public AbstractFeatureExpressionProperty(FeatureExpression featureExpression, CVTerm type, int rank) {
         this.featureExpression = featureExpression;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractFeatureExpressionProperty extends AbstractSimpleOb
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureExpressionProperty) ) return false;
-		 AbstractFeatureExpressionProperty castOther = ( AbstractFeatureExpressionProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureExpressionProperty) ) return false;
+         AbstractFeatureExpressionProperty castOther = ( AbstractFeatureExpressionProperty ) other; 
          
-		 return ( (this.getFeatureExpression()==castOther.getFeatureExpression()) || ( this.getFeatureExpression()!=null && castOther.getFeatureExpression()!=null && this.getFeatureExpression().equals(castOther.getFeatureExpression()) ) )
+         return ( (this.getFeatureExpression()==castOther.getFeatureExpression()) || ( this.getFeatureExpression()!=null && castOther.getFeatureExpression()!=null && this.getFeatureExpression().equals(castOther.getFeatureExpression()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractFeatureExpressionProperty extends AbstractSimpleOb
    }   
 
 public AbstractFeatureExpressionProperty generateClone() {
-	AbstractFeatureExpressionProperty cloned = new AbstractFeatureExpressionProperty; 
-    	   cloned.featureExpression = this.featureExpression;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractFeatureExpressionProperty cloned = new AbstractFeatureExpressionProperty; 
+           cloned.featureExpression = this.featureExpression;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

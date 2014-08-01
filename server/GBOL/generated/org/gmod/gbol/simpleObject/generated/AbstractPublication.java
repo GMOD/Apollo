@@ -34,7 +34,7 @@ public abstract class AbstractPublication extends AbstractSimpleObject implement
     public AbstractPublication() {
     }
 
-	
+    
     public AbstractPublication(CVTerm type, String uniqueName) {
         this.type = type;
         this.uniqueName = uniqueName;
@@ -189,11 +189,11 @@ public abstract class AbstractPublication extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPublication) ) return false;
-		 AbstractPublication castOther = ( AbstractPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPublication) ) return false;
+         AbstractPublication castOther = ( AbstractPublication ) other; 
          
-		 return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
+         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
    }
    
    public int hashCode() {
@@ -221,25 +221,25 @@ public abstract class AbstractPublication extends AbstractSimpleObject implement
    }   
 
 public AbstractPublication generateClone() {
-	AbstractPublication cloned = new AbstractPublication; 
-    	   cloned.type = this.type;
-    	   cloned.title = this.title;
-    	   cloned.volumeTitle = this.volumeTitle;
-    	   cloned.volume = this.volume;
-    	   cloned.seriesName = this.seriesName;
-    	   cloned.issue = this.issue;
-    	   cloned.publicationYear = this.publicationYear;
-    	   cloned.pages = this.pages;
-    	   cloned.miniReference = this.miniReference;
-    	   cloned.uniqueName = this.uniqueName;
-    	   cloned.isObsolete = this.isObsolete;
-    	   cloned.publisher = this.publisher;
-    	   cloned.publicationPlace = this.publicationPlace;
-    	   cloned.publicationDBXrefs = this.publicationDBXrefs;
-    	   cloned.parentPublicationRelationships = this.parentPublicationRelationships;
-    	   cloned.childPublicationRelationships = this.childPublicationRelationships;
-    	   cloned.publicationAuthors = this.publicationAuthors;
-	return cloned;
+    AbstractPublication cloned = new AbstractPublication; 
+           cloned.type = this.type;
+           cloned.title = this.title;
+           cloned.volumeTitle = this.volumeTitle;
+           cloned.volume = this.volume;
+           cloned.seriesName = this.seriesName;
+           cloned.issue = this.issue;
+           cloned.publicationYear = this.publicationYear;
+           cloned.pages = this.pages;
+           cloned.miniReference = this.miniReference;
+           cloned.uniqueName = this.uniqueName;
+           cloned.isObsolete = this.isObsolete;
+           cloned.publisher = this.publisher;
+           cloned.publicationPlace = this.publicationPlace;
+           cloned.publicationDBXrefs = this.publicationDBXrefs;
+           cloned.parentPublicationRelationships = this.parentPublicationRelationships;
+           cloned.childPublicationRelationships = this.childPublicationRelationships;
+           cloned.publicationAuthors = this.publicationAuthors;
+    return cloned;
 }
 
 

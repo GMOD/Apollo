@@ -13,58 +13,58 @@ import java.util.Collection;
 
 public class FeatureLocationPublication extends org.gmod.gbol.simpleObject.generated.AbstractFeatureLocationPublication {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public FeatureLocationPublication(){
-		super();
-	}
+    public FeatureLocationPublication(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
-//		// Have to write yourself
-//		writeObjects.add(this);
-//		
-//		// Singletons
-//		writeObjects.addAll(this.getPublication().getWriteObjects());
-//		
-//		return writeObjects;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();
+//        // Have to write yourself
+//        writeObjects.add(this);
+//        
+//        // Singletons
+//        writeObjects.addAll(this.getPublication().getWriteObjects());
+//        
+//        return writeObjects;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return new SimpleObjectIterator(this);
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return new SimpleObjectIterator(this);
+    }
 
-	private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
-	{
+    private static class SimpleObjectIterator extends AbstractSimpleObjectIterator
+    {
 
-		private static class Status extends AbstractSimpleObjectIterator.Status
-		{
-			public final static int pub = 1;
-		}
-	
-		public SimpleObjectIterator(FeatureLocationPublication featureLocPub)
-		{
-			super(featureLocPub);
-		}
-		
-		public AbstractSimpleObject next()
-		{
-			FeatureLocationPublication pub = (FeatureLocationPublication)object;
-			AbstractSimpleObject retVal = null;
-			if (status == Status.self) {
-				retVal = peek();
-				processSingletonIterator(Status.pub, pub.getPublication());
-			}
-			else {
-				if (status == Status.pub) {
-					retVal = soIter.next();
-				}
-			}
-			current = retVal;
-			return retVal;
-		}
-	}
-	
+        private static class Status extends AbstractSimpleObjectIterator.Status
+        {
+            public final static int pub = 1;
+        }
+    
+        public SimpleObjectIterator(FeatureLocationPublication featureLocPub)
+        {
+            super(featureLocPub);
+        }
+        
+        public AbstractSimpleObject next()
+        {
+            FeatureLocationPublication pub = (FeatureLocationPublication)object;
+            AbstractSimpleObject retVal = null;
+            if (status == Status.self) {
+                retVal = peek();
+                processSingletonIterator(Status.pub, pub.getPublication());
+            }
+            else {
+                if (status == Status.pub) {
+                    retVal = soIter.next();
+                }
+            }
+            current = retVal;
+            return retVal;
+        }
+    }
+    
 }

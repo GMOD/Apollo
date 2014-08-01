@@ -22,7 +22,7 @@ public abstract class AbstractControl extends AbstractSimpleObject implements ja
     public AbstractControl() {
     }
 
-	
+    
     public AbstractControl(TableInfo tableInfo, Assay assay, CVTerm type, int rowId, int rank) {
         this.tableInfo = tableInfo;
         this.assay = assay;
@@ -100,11 +100,11 @@ public abstract class AbstractControl extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractControl) ) return false;
-		 AbstractControl castOther = ( AbstractControl ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractControl) ) return false;
+         AbstractControl castOther = ( AbstractControl ) other; 
          
-		 return ( (this.getTableInfo()==castOther.getTableInfo()) || ( this.getTableInfo()!=null && castOther.getTableInfo()!=null && this.getTableInfo().equals(castOther.getTableInfo()) ) )
+         return ( (this.getTableInfo()==castOther.getTableInfo()) || ( this.getTableInfo()!=null && castOther.getTableInfo()!=null && this.getTableInfo().equals(castOther.getTableInfo()) ) )
  && ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRowId()==castOther.getRowId());
@@ -125,15 +125,15 @@ public abstract class AbstractControl extends AbstractSimpleObject implements ja
    }   
 
 public AbstractControl generateClone() {
-	AbstractControl cloned = new Control(); 
-    	   cloned.tableInfo = this.tableInfo;
-    	   cloned.assay = this.assay;
-    	   cloned.type = this.type;
-    	   cloned.rowId = this.rowId;
-    	   cloned.name = this.name;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractControl cloned = new Control(); 
+           cloned.tableInfo = this.tableInfo;
+           cloned.assay = this.assay;
+           cloned.type = this.type;
+           cloned.rowId = this.rowId;
+           cloned.name = this.name;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

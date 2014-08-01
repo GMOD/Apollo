@@ -20,7 +20,7 @@ public abstract class AbstractProject extends AbstractSimpleObject implements ja
     public AbstractProject() {
     }
 
-	
+    
     public AbstractProject(String name, String description) {
         this.name = name;
         this.description = description;
@@ -63,11 +63,11 @@ public abstract class AbstractProject extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractProject) ) return false;
-		 AbstractProject castOther = ( AbstractProject ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractProject) ) return false;
+         AbstractProject castOther = ( AbstractProject ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -81,11 +81,11 @@ public abstract class AbstractProject extends AbstractSimpleObject implements ja
    }   
 
 public AbstractProject generateClone() {
-	AbstractProject cloned = new Project(); 
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.assayProjects = this.assayProjects;
-	return cloned;
+    AbstractProject cloned = new Project(); 
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.assayProjects = this.assayProjects;
+    return cloned;
 }
 
 

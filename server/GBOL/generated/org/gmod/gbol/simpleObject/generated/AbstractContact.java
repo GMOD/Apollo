@@ -22,7 +22,7 @@ public abstract class AbstractContact extends AbstractSimpleObject implements ja
     public AbstractContact() {
     }
 
-	
+    
     public AbstractContact(String name) {
         this.name = name;
     }
@@ -80,11 +80,11 @@ public abstract class AbstractContact extends AbstractSimpleObject implements ja
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractContact) ) return false;
-		 AbstractContact castOther = ( AbstractContact ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractContact) ) return false;
+         AbstractContact castOther = ( AbstractContact ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -100,13 +100,13 @@ public abstract class AbstractContact extends AbstractSimpleObject implements ja
    }   
 
 public AbstractContact generateClone() {
-	AbstractContact cloned = new AbstractContact; 
-    	   cloned.type = this.type;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.childContactRelationships = this.childContactRelationships;
-    	   cloned.parentContactRelationships = this.parentContactRelationships;
-	return cloned;
+    AbstractContact cloned = new AbstractContact; 
+           cloned.type = this.type;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.childContactRelationships = this.childContactRelationships;
+           cloned.parentContactRelationships = this.parentContactRelationships;
+    return cloned;
 }
 
 

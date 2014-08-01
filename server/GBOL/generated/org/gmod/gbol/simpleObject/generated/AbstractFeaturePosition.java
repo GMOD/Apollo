@@ -65,11 +65,11 @@ public abstract class AbstractFeaturePosition extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeaturePosition) ) return false;
-		 AbstractFeaturePosition castOther = ( AbstractFeaturePosition ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeaturePosition) ) return false;
+         AbstractFeaturePosition castOther = ( AbstractFeaturePosition ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getFeatureMap()==castOther.getFeatureMap()) || ( this.getFeatureMap()!=null && castOther.getFeatureMap()!=null && this.getFeatureMap().equals(castOther.getFeatureMap()) ) )
  && ( (this.getMapFeature()==castOther.getMapFeature()) || ( this.getMapFeature()!=null && castOther.getMapFeature()!=null && this.getMapFeature().equals(castOther.getMapFeature()) ) );
    }
@@ -86,12 +86,12 @@ public abstract class AbstractFeaturePosition extends AbstractSimpleObject imple
    }   
 
 public AbstractFeaturePosition generateClone() {
-	AbstractFeaturePosition cloned = new AbstractFeaturePosition; 
-    	   cloned.feature = this.feature;
-    	   cloned.featureMap = this.featureMap;
-    	   cloned.mapFeature = this.mapFeature;
-    	   cloned.mapPosition = this.mapPosition;
-	return cloned;
+    AbstractFeaturePosition cloned = new AbstractFeaturePosition; 
+           cloned.feature = this.feature;
+           cloned.featureMap = this.featureMap;
+           cloned.mapFeature = this.mapFeature;
+           cloned.mapPosition = this.mapPosition;
+    return cloned;
 }
 
 

@@ -12,21 +12,21 @@ import java.util.Collection;
 
 public class PhylogeneticNodeOrganism extends org.gmod.gbol.simpleObject.generated.AbstractPhylogeneticNodeOrganism {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public PhylogeneticNodeOrganism(){
-		super();
-	}
+    public PhylogeneticNodeOrganism(){
+        super();
+    }
 
-//	@Override
-//	public Collection<AbstractSimpleObject> getWriteObjects() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+//    @Override
+//    public Collection<AbstractSimpleObject> getWriteObjects() {
+//        // TODO Auto-generated method stub
+//        return null;
+//    }
 
-	public AbstractSimpleObjectIterator getWriteableObjects()
-	{
-		return null;
-	}
+    public AbstractSimpleObjectIterator getWriteableObjects()
+    {
+        return null;
+    }
 
 }

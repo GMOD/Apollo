@@ -19,7 +19,7 @@ public abstract class AbstractExpressionProperty extends AbstractSimpleObject im
     public AbstractExpressionProperty() {
     }
 
-	
+    
     public AbstractExpressionProperty(Expression expression, CVTerm type, int rank) {
         this.expression = expression;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractExpressionProperty extends AbstractSimpleObject im
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractExpressionProperty) ) return false;
-		 AbstractExpressionProperty castOther = ( AbstractExpressionProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractExpressionProperty) ) return false;
+         AbstractExpressionProperty castOther = ( AbstractExpressionProperty ) other; 
          
-		 return ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) )
+         return ( (this.getExpression()==castOther.getExpression()) || ( this.getExpression()!=null && castOther.getExpression()!=null && this.getExpression().equals(castOther.getExpression()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractExpressionProperty extends AbstractSimpleObject im
    }   
 
 public AbstractExpressionProperty generateClone() {
-	AbstractExpressionProperty cloned = new AbstractExpressionProperty; 
-    	   cloned.expression = this.expression;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractExpressionProperty cloned = new AbstractExpressionProperty; 
+           cloned.expression = this.expression;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

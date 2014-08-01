@@ -19,7 +19,7 @@ public abstract class AbstractFeatureCVTermProperty extends AbstractSimpleObject
     public AbstractFeatureCVTermProperty() {
     }
 
-	
+    
     public AbstractFeatureCVTermProperty(FeatureCVTerm featureCVTerm, CVTerm type, int rank) {
         this.featureCVTerm = featureCVTerm;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractFeatureCVTermProperty extends AbstractSimpleObject
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureCVTermProperty) ) return false;
-		 AbstractFeatureCVTermProperty castOther = ( AbstractFeatureCVTermProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureCVTermProperty) ) return false;
+         AbstractFeatureCVTermProperty castOther = ( AbstractFeatureCVTermProperty ) other; 
          
-		 return ( (this.getFeatureCVTerm()==castOther.getFeatureCVTerm()) || ( this.getFeatureCVTerm()!=null && castOther.getFeatureCVTerm()!=null && this.getFeatureCVTerm().equals(castOther.getFeatureCVTerm()) ) )
+         return ( (this.getFeatureCVTerm()==castOther.getFeatureCVTerm()) || ( this.getFeatureCVTerm()!=null && castOther.getFeatureCVTerm()!=null && this.getFeatureCVTerm().equals(castOther.getFeatureCVTerm()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractFeatureCVTermProperty extends AbstractSimpleObject
    }   
 
 public AbstractFeatureCVTermProperty generateClone() {
-	AbstractFeatureCVTermProperty cloned = new AbstractFeatureCVTermProperty; 
-    	   cloned.featureCVTerm = this.featureCVTerm;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractFeatureCVTermProperty cloned = new AbstractFeatureCVTermProperty; 
+           cloned.featureCVTerm = this.featureCVTerm;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

@@ -139,11 +139,11 @@ public abstract class AbstractBiomaterial extends AbstractSimpleObject implement
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractBiomaterial) ) return false;
-		 AbstractBiomaterial castOther = ( AbstractBiomaterial ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractBiomaterial) ) return false;
+         AbstractBiomaterial castOther = ( AbstractBiomaterial ) other; 
          
-		 return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+         return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
    public int hashCode() {
@@ -166,20 +166,20 @@ public abstract class AbstractBiomaterial extends AbstractSimpleObject implement
    }   
 
 public AbstractBiomaterial generateClone() {
-	AbstractBiomaterial cloned = new AbstractBiomaterial; 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.sourceProvider = this.sourceProvider;
-    	   cloned.taxon = this.taxon;
-    	   cloned.name = this.name;
-    	   cloned.description = this.description;
-    	   cloned.childBiomaterialRelationships = this.childBiomaterialRelationships;
-    	   cloned.biomaterialProperties = this.biomaterialProperties;
-    	   cloned.assayBiomaterials = this.assayBiomaterials;
-    	   cloned.biomaterialDBXrefs = this.biomaterialDBXrefs;
-    	   cloned.parentBiomaterialRelationships = this.parentBiomaterialRelationships;
-    	   cloned.treatments = this.treatments;
-    	   cloned.biomaterialTreatments = this.biomaterialTreatments;
-	return cloned;
+    AbstractBiomaterial cloned = new AbstractBiomaterial; 
+           cloned.dbxref = this.dbxref;
+           cloned.sourceProvider = this.sourceProvider;
+           cloned.taxon = this.taxon;
+           cloned.name = this.name;
+           cloned.description = this.description;
+           cloned.childBiomaterialRelationships = this.childBiomaterialRelationships;
+           cloned.biomaterialProperties = this.biomaterialProperties;
+           cloned.assayBiomaterials = this.assayBiomaterials;
+           cloned.biomaterialDBXrefs = this.biomaterialDBXrefs;
+           cloned.parentBiomaterialRelationships = this.parentBiomaterialRelationships;
+           cloned.treatments = this.treatments;
+           cloned.biomaterialTreatments = this.biomaterialTreatments;
+    return cloned;
 }
 
 

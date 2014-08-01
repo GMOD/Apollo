@@ -21,7 +21,7 @@ public abstract class AbstractFeatureGenotype extends AbstractSimpleObject imple
     public AbstractFeatureGenotype() {
     }
 
-	
+    
     public AbstractFeatureGenotype(Feature feature, Genotype genotype, CVTerm cvterm, int rank, int cgroup) {
         this.feature = feature;
         this.genotype = genotype;
@@ -91,11 +91,11 @@ public abstract class AbstractFeatureGenotype extends AbstractSimpleObject imple
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureGenotype) ) return false;
-		 AbstractFeatureGenotype castOther = ( AbstractFeatureGenotype ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureGenotype) ) return false;
+         AbstractFeatureGenotype castOther = ( AbstractFeatureGenotype ) other; 
          
-		 return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
+         return ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) )
  && ( (this.getGenotype()==castOther.getGenotype()) || ( this.getGenotype()!=null && castOther.getGenotype()!=null && this.getGenotype().equals(castOther.getGenotype()) ) )
  && ( (this.getCvterm()==castOther.getCvterm()) || ( this.getCvterm()!=null && castOther.getCvterm()!=null && this.getCvterm().equals(castOther.getCvterm()) ) )
  && ( (this.getChromosomeFeature()==castOther.getChromosomeFeature()) || ( this.getChromosomeFeature()!=null && castOther.getChromosomeFeature()!=null && this.getChromosomeFeature().equals(castOther.getChromosomeFeature()) ) )
@@ -117,14 +117,14 @@ public abstract class AbstractFeatureGenotype extends AbstractSimpleObject imple
    }   
 
 public AbstractFeatureGenotype generateClone() {
-	AbstractFeatureGenotype cloned = new AbstractFeatureGenotype; 
-    	   cloned.feature = this.feature;
-    	   cloned.genotype = this.genotype;
-    	   cloned.cvterm = this.cvterm;
-    	   cloned.chromosomeFeature = this.chromosomeFeature;
-    	   cloned.rank = this.rank;
-    	   cloned.cgroup = this.cgroup;
-	return cloned;
+    AbstractFeatureGenotype cloned = new AbstractFeatureGenotype; 
+           cloned.feature = this.feature;
+           cloned.genotype = this.genotype;
+           cloned.cvterm = this.cvterm;
+           cloned.chromosomeFeature = this.chromosomeFeature;
+           cloned.rank = this.rank;
+           cloned.cgroup = this.cgroup;
+    return cloned;
 }
 
 

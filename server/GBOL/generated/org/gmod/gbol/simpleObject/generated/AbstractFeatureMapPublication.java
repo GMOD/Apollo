@@ -47,11 +47,11 @@ public abstract class AbstractFeatureMapPublication extends AbstractSimpleObject
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractFeatureMapPublication) ) return false;
-		 AbstractFeatureMapPublication castOther = ( AbstractFeatureMapPublication ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractFeatureMapPublication) ) return false;
+         AbstractFeatureMapPublication castOther = ( AbstractFeatureMapPublication ) other; 
          
-		 return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
+         return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) )
  && ( (this.getFeatureMap()==castOther.getFeatureMap()) || ( this.getFeatureMap()!=null && castOther.getFeatureMap()!=null && this.getFeatureMap().equals(castOther.getFeatureMap()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractFeatureMapPublication extends AbstractSimpleObject
    }   
 
 public AbstractFeatureMapPublication generateClone() {
-	AbstractFeatureMapPublication cloned = new AbstractFeatureMapPublication; 
-    	   cloned.publication = this.publication;
-    	   cloned.featureMap = this.featureMap;
-	return cloned;
+    AbstractFeatureMapPublication cloned = new AbstractFeatureMapPublication; 
+           cloned.publication = this.publication;
+           cloned.featureMap = this.featureMap;
+    return cloned;
 }
 
 

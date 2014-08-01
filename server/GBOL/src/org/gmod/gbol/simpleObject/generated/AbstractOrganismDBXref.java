@@ -47,11 +47,11 @@ public abstract class AbstractOrganismDBXref extends AbstractSimpleObject implem
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractOrganismDBXref) ) return false;
-		 AbstractOrganismDBXref castOther = ( AbstractOrganismDBXref ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractOrganismDBXref) ) return false;
+         AbstractOrganismDBXref castOther = ( AbstractOrganismDBXref ) other; 
          
-		 return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
+         return ( (this.getDbxref()==castOther.getDbxref()) || ( this.getDbxref()!=null && castOther.getDbxref()!=null && this.getDbxref().equals(castOther.getDbxref()) ) )
  && ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) );
    }
    
@@ -65,10 +65,10 @@ public abstract class AbstractOrganismDBXref extends AbstractSimpleObject implem
    }   
 
 public AbstractOrganismDBXref generateClone() {
-	AbstractOrganismDBXref cloned = new OrganismDBXref(); 
-    	   cloned.dbxref = this.dbxref;
-    	   cloned.organism = this.organism;
-	return cloned;
+    AbstractOrganismDBXref cloned = new OrganismDBXref(); 
+           cloned.dbxref = this.dbxref;
+           cloned.organism = this.organism;
+    return cloned;
 }
 
 

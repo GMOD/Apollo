@@ -19,7 +19,7 @@ public abstract class AbstractAssayProperty extends AbstractSimpleObject impleme
     public AbstractAssayProperty() {
     }
 
-	
+    
     public AbstractAssayProperty(Assay assay, CVTerm type, int rank) {
         this.assay = assay;
         this.type = type;
@@ -71,11 +71,11 @@ public abstract class AbstractAssayProperty extends AbstractSimpleObject impleme
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractAssayProperty) ) return false;
-		 AbstractAssayProperty castOther = ( AbstractAssayProperty ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractAssayProperty) ) return false;
+         AbstractAssayProperty castOther = ( AbstractAssayProperty ) other; 
          
-		 return ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
+         return ( (this.getAssay()==castOther.getAssay()) || ( this.getAssay()!=null && castOther.getAssay()!=null && this.getAssay().equals(castOther.getAssay()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) )
  && (this.getRank()==castOther.getRank());
    }
@@ -92,12 +92,12 @@ public abstract class AbstractAssayProperty extends AbstractSimpleObject impleme
    }   
 
 public AbstractAssayProperty generateClone() {
-	AbstractAssayProperty cloned = new AbstractAssayProperty; 
-    	   cloned.assay = this.assay;
-    	   cloned.type = this.type;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractAssayProperty cloned = new AbstractAssayProperty; 
+           cloned.assay = this.assay;
+           cloned.type = this.type;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 

@@ -56,11 +56,11 @@ public abstract class AbstractPublicationRelationship extends AbstractSimpleObje
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractPublicationRelationship) ) return false;
-		 AbstractPublicationRelationship castOther = ( AbstractPublicationRelationship ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractPublicationRelationship) ) return false;
+         AbstractPublicationRelationship castOther = ( AbstractPublicationRelationship ) other; 
          
-		 return ( (this.getObjectPublication()==castOther.getObjectPublication()) || ( this.getObjectPublication()!=null && castOther.getObjectPublication()!=null && this.getObjectPublication().equals(castOther.getObjectPublication()) ) )
+         return ( (this.getObjectPublication()==castOther.getObjectPublication()) || ( this.getObjectPublication()!=null && castOther.getObjectPublication()!=null && this.getObjectPublication().equals(castOther.getObjectPublication()) ) )
  && ( (this.getSubjectPublication()==castOther.getSubjectPublication()) || ( this.getSubjectPublication()!=null && castOther.getSubjectPublication()!=null && this.getSubjectPublication().equals(castOther.getSubjectPublication()) ) )
  && ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) );
    }
@@ -76,11 +76,11 @@ public abstract class AbstractPublicationRelationship extends AbstractSimpleObje
    }   
 
 public AbstractPublicationRelationship generateClone() {
-	AbstractPublicationRelationship cloned = new AbstractPublicationRelationship; 
-    	   cloned.objectPublication = this.objectPublication;
-    	   cloned.subjectPublication = this.subjectPublication;
-    	   cloned.type = this.type;
-	return cloned;
+    AbstractPublicationRelationship cloned = new AbstractPublicationRelationship; 
+           cloned.objectPublication = this.objectPublication;
+           cloned.subjectPublication = this.subjectPublication;
+           cloned.type = this.type;
+    return cloned;
 }
 
 

@@ -21,7 +21,7 @@ public abstract class AbstractProtocolParameter extends AbstractSimpleObject imp
     public AbstractProtocolParameter() {
     }
 
-	
+    
     public AbstractProtocolParameter(Protocol protocol, String name, int rank) {
         this.protocol = protocol;
         this.name = name;
@@ -89,11 +89,11 @@ public abstract class AbstractProtocolParameter extends AbstractSimpleObject imp
 
    public boolean equals(Object other) {
          if ( (this == other ) ) return true;
-		 if ( (other == null ) ) return false;
-		 if ( !(other instanceof AbstractProtocolParameter) ) return false;
-		 AbstractProtocolParameter castOther = ( AbstractProtocolParameter ) other; 
+         if ( (other == null ) ) return false;
+         if ( !(other instanceof AbstractProtocolParameter) ) return false;
+         AbstractProtocolParameter castOther = ( AbstractProtocolParameter ) other; 
          
-		 return ( (this.getProtocol()==castOther.getProtocol()) || ( this.getProtocol()!=null && castOther.getProtocol()!=null && this.getProtocol().equals(castOther.getProtocol()) ) )
+         return ( (this.getProtocol()==castOther.getProtocol()) || ( this.getProtocol()!=null && castOther.getProtocol()!=null && this.getProtocol().equals(castOther.getProtocol()) ) )
  && ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
    }
    
@@ -111,14 +111,14 @@ public abstract class AbstractProtocolParameter extends AbstractSimpleObject imp
    }   
 
 public AbstractProtocolParameter generateClone() {
-	AbstractProtocolParameter cloned = new ProtocolParameter(); 
-    	   cloned.unitType = this.unitType;
-    	   cloned.dataType = this.dataType;
-    	   cloned.protocol = this.protocol;
-    	   cloned.name = this.name;
-    	   cloned.value = this.value;
-    	   cloned.rank = this.rank;
-	return cloned;
+    AbstractProtocolParameter cloned = new ProtocolParameter(); 
+           cloned.unitType = this.unitType;
+           cloned.dataType = this.dataType;
+           cloned.protocol = this.protocol;
+           cloned.name = this.name;
+           cloned.value = this.value;
+           cloned.rank = this.rank;
+    return cloned;
 }
 
 
