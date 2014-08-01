@@ -42,13 +42,13 @@
 			<username>web_apollo_admin</username>
 
 			<!-- password for user database -->
-			<password>testing123</password>
+			<password>web_apollo_admin</password>
 
 		</database>
 
 		<!-- class for generating user authentication page
 		(login page) -->
-		<authentication_class>org.bbop.apollo.web.user.oauth.OauthUserAuthentication</authentication_class>
+		<authentication_class>org.bbop.apollo.web.user.drupal.DrupalUserAuthentication</authentication_class>
 
 	</user>
 
