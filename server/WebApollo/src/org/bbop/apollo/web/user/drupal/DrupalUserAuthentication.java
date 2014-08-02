@@ -6,15 +6,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.HttpCookie;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,11 +44,14 @@ import org.xml.sax.SAXException;
 public class DrupalUserAuthentication implements UserAuthentication {
 
     private static final int DRUPAL_HASH_LENGTH = 55;
-    
+
+    /** 
+     * Variables with values derived from the drupal.xml config file
+     */
     private String DrupalUsername = null;
     private String DrupalPassword = null;
     private String DrupalURL = null;
-    
+
     /**
      * The class constructor.  
      */
@@ -53,7 +64,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(fstream);
-            
+
             // Parse the elements of the drupal.xml config file.
             Element userNode = (Element)doc.getElementsByTagName("user").item(0);
             if (userNode != null) {
@@ -84,7 +95,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Overrides the generateUserLoginPage() function.
      */
@@ -102,19 +113,42 @@ public class DrupalUserAuthentication implements UserAuthentication {
         }
     }
 
-    @Override
     /**
      * Overrides the validateUser() function.
      */
     public String validateUser(HttpServletRequest request, HttpServletResponse response) throws UserAuthenticationException {
+        String return_name = null;
         try {
+            // Get the user name and password supplied by the calling script
             JSONObject requestJSON = JSONUtil.convertInputStreamToJSON(request.getInputStream());
             String username = requestJSON.getString("username");
             String password = requestJSON.getString("password");
-            if (!validateUser(username, password)) {
-                throw new UserAuthenticationException("Invalid login");
+
+            // If both the user name and password are set to '__SESSION__' then
+            // this means the caller wants to authenticate using the Drupal
+            // Session ID.  If not, then try to authenticate using credentials.
+            if (username.contentEquals("__SESSION__") && 
+                password.contentEquals("__SESSION__")) {
+
+                // First check the Drupal session cookie and see if it is
+                // associated with a valid user. This will only exist if 
+                // WebApollo is running on the same domain as the Drupal server.
+                // Checking the session ID allows WebApollo to auto login using
+                // for the Drupal user that is already logged in.
+                String dname = getDrupalSessionUser(request);
+                if (dname != null) {
+                    return_name = dname;
+                }
             }
-            return username;
+            // Authenticate using user credentials
+            else {
+                if (!validateDrupalUser(username, password)) {
+                    throw new UserAuthenticationException("Invalid login");
+                }
+                else {
+                  return_name = username;
+                }
+            }
         }
         catch (SQLException e) {
             throw new UserAuthenticationException(e);
@@ -125,6 +159,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
         catch (IOException e) {
             throw new UserAuthenticationException(e);
         }
+        return return_name;
     }
 
 
@@ -132,7 +167,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
      * Overrides the getUserLoginPageURL() function.
      */
     public String getUserLoginPageURL() {
-        return "user_interfaces/localdb/login.html";
+        return "user_interfaces/drupal/login.html";
     }
 
     /**
@@ -140,6 +175,52 @@ public class DrupalUserAuthentication implements UserAuthentication {
      */
     public String getAddUserURL() {
         return "user_interfaces/localdb/addUser.jsp";
+    }
+    
+    /**
+     * Performs user authentication using the Drupal Session ID
+     * 
+     * @param HttpServletRequest request
+     *   The request object
+     *
+     * @return
+     *   The name of the Drupal user if the session ID and Host IP match
+     */
+    private String getDrupalSessionUser(HttpServletRequest request) {
+        String dname = null;
+        try {
+            Cookie[] cookies = request.getCookies();
+
+            for(Cookie cookie : cookies){
+                if(cookie.getName().startsWith("SESS")){
+                    String session_id = cookie.getValue();
+                    String ip_address = request.getRemoteAddr();
+
+                    // Now that we have a session, test to see if this
+                    // session exists in the Drupal database. If it does,
+                    // then get the user name and return.
+                    Connection drupalConn = DriverManager.getConnection(DrupalURL, DrupalUsername, DrupalPassword);
+                    String sql = "SELECT name " +
+                                 "FROM sessions S " +
+                                 "  INNER JOIN users U on U.uid = S.uid " +
+                                 "WHERE sid = ? and hostname = ?";
+                    PreparedStatement stmt = drupalConn.prepareStatement(sql);
+                    stmt.setString(1, session_id);
+                    stmt.setString(2, ip_address);
+                    ResultSet rs = stmt.executeQuery();
+
+                    // Iterate through the matched records and get the matched name
+                    if (rs.next()) {
+                         dname = rs.getString(1);    
+                    }
+                    drupalConn.close();
+                }
+            }
+        } catch(Exception e) {
+            System.out.println("Unable to get cookie using CookieHandler");
+            e.printStackTrace();
+        }
+        return dname;
     }
 
     /**
@@ -158,7 +239,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
      * 
      * @throws SQLException
      */
-    private boolean validateUser(String username, String password) throws SQLException {
+    private boolean validateDrupalUser(String username, String password) throws SQLException {
         
         boolean valid = false;
         
@@ -202,15 +283,15 @@ public class DrupalUserAuthentication implements UserAuthentication {
      * The proceeding functions were copied from a post on the following site
      * http://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html 
      **/
-    
+
     private static String _password_itoa64() {
         return "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     }
-    
+
     private static int password_get_count_log2(String setting) {
         return _password_itoa64().indexOf(setting.charAt(3));
     }
-    
+
     private static byte[] sha512(String input) {
         try {
             return java.security.MessageDigest.getInstance("SHA-512").digest(input.getBytes());
@@ -228,7 +309,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
         }
         return new byte[0];
     }
-    
+
     private static String password_crypt(String password, String passwordHash) throws Exception {
         // The first 12 characters of an existing hash are its setting string.
         passwordHash = passwordHash.substring(0, 12);
@@ -240,7 +321,6 @@ public class DrupalUserAuthentication implements UserAuthentication {
         }
 
         int count = 1 << count_log2;
-
 
         byte[] hash;
         try {
@@ -302,5 +382,5 @@ public class DrupalUserAuthentication implements UserAuthentication {
     public static long SignedByteToUnsignedLong(byte b) {
         return b & 0xFF;
     }
-    
+
 }
