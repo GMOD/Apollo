@@ -14,7 +14,8 @@ var profile = {
     basePath: '../../../src',
     packages: [
         {name: 'WebApollo', location: '../plugins/WebApollo/js' },
-        { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery/', main: 'jquery' }
+        { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery/', main: 'jquery' },
+        { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui/', main: 'draggable' }
     ],
 
     layerOptimize: 'closure',
