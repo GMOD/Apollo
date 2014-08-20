@@ -144,11 +144,9 @@ if (username != null) {
     }
 }
 %>
-
-if(google) {
+if(!!google) {
     google.load("dojo", "1.5");
 }
-
 var table;
 $(function() {
     $("#login_dialog").dialog( { draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false } );

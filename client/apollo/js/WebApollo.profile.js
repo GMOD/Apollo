@@ -19,7 +19,37 @@ var profile = {
         { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui/', main: 'draggable' },
         { name: 'bbop', location: '../plugins/WebApollo/jslib/bbop/' }
     ],
-
+    layers: {
+        'WebApollo/main': {
+            include: [
+                'WebApollo',
+                'WebApollo/BioFeatureUtils',
+                'WebApollo/EUtils',
+                'WebApollo/FeatureEdgeMatchManager',
+                'WebApollo/FeatureSelectionManager',
+                'WebApollo/FileLoader',
+                'WebApollo/FormatUtils',
+                'WebApollo/GFF3toJbrowseJson',
+                'WebApollo/InformationEditor',
+                'WebApollo/JSONUtils',
+                'WebApollo/Permission',
+                'WebApollo/SequenceFeatureDialog',
+                'WebApollo/SequenceOntologyUtils',
+                'WebApollo/SequenceSearch',
+                'WebApollo/Store/SeqFeature/PseudoNCList',
+                'WebApollo/Store/SeqFeature/ScratchPad',
+                'WebApollo/TrackConfigTransformer',
+                'WebApollo/View/Track/AnnotSequenceTrack',
+                'WebApollo/View/Track/AnnotTrack',
+                'WebApollo/View/Track/DraggableAlignments',
+                'WebApollo/View/Track/DraggableHTMLFeatures',
+                'WebApollo/View/Track/DraggableResultFeatures',
+                'WebApollo/View/Track/SequenceTrack',
+            ],  
+            exclude: [ 'JBrowse' ]
+        }   
+    },
+    
     layerOptimize: 'closure',
     stripConsole: 'normal',
     selectorEngine: 'acme',
