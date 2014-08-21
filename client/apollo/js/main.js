@@ -144,7 +144,7 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableAlignments',
             defaultForStoreTypes: [ 
-                                    'JBrowse/Store/SeqFeature/BAM',
+                                    'JBrowse/Store/SeqFeature/BAM'
                                   ],
             label: 'WebApollo Alignments'
         });

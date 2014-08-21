@@ -14,7 +14,6 @@ var profile = {
     basePath: '../../../src',
     packages: [
         {name: 'WebApollo', location: '../plugins/WebApollo/js' },
-        { name: 'effects', location: '../plugins/WebApollo/jslib/jqueryui/effects/',main: 'core' },
         { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery/', main: 'jquery' },
         { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui/', main: 'draggable' },
         { name: 'bbop', location: '../plugins/WebApollo/jslib/bbop/' }
