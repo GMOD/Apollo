@@ -15,8 +15,7 @@ var profile = {
     packages: [
         {name: 'WebApollo', location: '../plugins/WebApollo/js' },
         { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery/', main: 'jquery' },
-        { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui/', main: 'draggable' },
-        { name: 'bbop', location: '../plugins/WebApollo/jslib/bbop/' }
+        { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui/', main: 'draggable' }
     ],
     layers: {
         'WebApollo/main': {
