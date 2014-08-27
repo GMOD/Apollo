@@ -2790,7 +2790,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                         }
                                     });
                                     var gserv = 'http://golr.berkeleybop.org/';
-                                    /*
                                     var gconf = new bbop.golr.conf(amigo.data.golr);
                                     var args = {
                                             label_template: '{{annotation_class_label}} [{{annotation_class}}]',
@@ -2805,7 +2804,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                     auto.set_personality('bbop_term_ac');
                                     auto.add_query_filter('document_category', 'ontology_class');
                                     auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
-                                    */
                                     return widget;
                                 }
                             }),
