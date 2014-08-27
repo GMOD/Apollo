@@ -16722,14 +16722,3 @@ bbop.contrib.go.overlay = function(manager_type){
     return global_ret;
 };
 
-define( [
-         'dojo/_base/declare',
-         'jquery'
-], 
-	function( declare, jQuery ) {
-
-
-
-return bbop;
-
-});

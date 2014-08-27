@@ -9,12 +9,6 @@
  * This is a completely self-contained UI and manager.
  */
 
-define( [
-            'dojo/_base/declare',
-            'jquery',
-            'bbop/bbop'
-], 
-	function( declare, jQuery, bbop ) {
 
 bbop.core.require('bbop', 'core');
 bbop.core.require('bbop', 'logger');
@@ -182,6 +176,3 @@ bbop.widget.search_box = function(golr_loc,
 };
 bbop.core.extend(bbop.widget.search_box, bbop.golr.manager.jquery);
 
-return bbop;
-
-});
