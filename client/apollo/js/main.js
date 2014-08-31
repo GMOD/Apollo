@@ -40,6 +40,17 @@ return declare( JBPlugin,
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
+        [
+          '../plugins/WebApollo/js/bbop/bbop.js',
+          '../plugins/WebApollo/js/bbop/golr.js',
+          '../plugins/WebApollo/js/bbop/jquery.js',
+          '../plugins/WebApollo/js/bbop/search_box.js',
+        ].forEach(function(src) {
+          var script = document.createElement('script');
+          script.src = src;
+          script.async = false;
+          document.head.appendChild(script);
+        });
         
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
