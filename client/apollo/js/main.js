@@ -41,10 +41,10 @@ return declare( JBPlugin,
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
-          '../plugins/WebApollo/js/bbop/bbop.js',
-          '../plugins/WebApollo/js/bbop/golr.js',
-          '../plugins/WebApollo/js/bbop/jquery.js',
-          '../plugins/WebApollo/js/bbop/search_box.js',
+          'plugins/WebApollo/jslib/bbop/bbop.js',
+          'plugins/WebApollo/jslib/bbop/golr.js',
+          'plugins/WebApollo/jslib/bbop/jquery.js',
+          'plugins/WebApollo/jslib/bbop/search_box.js'
         ].forEach(function(src) {
           var script = document.createElement('script');
           script.src = src;

@@ -242,7 +242,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          */
         // track.initLoginMenu();
 
-        var standby = new Standby({target: track.div, color: "transparent"});
+        var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
         document.body.appendChild(standby.domNode);
         standby.startup();
         standby.show();
