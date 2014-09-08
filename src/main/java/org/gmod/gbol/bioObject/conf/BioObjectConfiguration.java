@@ -152,7 +152,7 @@ public class BioObjectConfiguration implements Serializable {
             for (String className : classToTerms.keySet()) {
                 Class<? extends AbstractBioObject> current;
                 try {
-                    current = (Class<AbstractBioObject>)Class.forName(pkg + "." + className);
+                    current = (Class<AbstractBioObject>)Class.forName(pkg + "" + className);
                 } catch (ClassNotFoundException e) {
                     throw new BioObjectConfigurationException("Error parsing configuration: " + e.getMessage());
                 }

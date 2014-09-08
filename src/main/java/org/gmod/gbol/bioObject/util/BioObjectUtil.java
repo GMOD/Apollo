@@ -72,7 +72,7 @@ public class BioObjectUtil {
         }
         String pkg = AbstractBioObject.class.getPackage().getName();
         try {
-            Class<?> clazz = Class.forName(pkg + "." + className);
+            Class<?> clazz = Class.forName(pkg + "" + className);
             Class<? extends AbstractSimpleObject> simpleObjectClass = null;
             if (simpleObject instanceof Feature) {
                 simpleObjectClass = Feature.class;

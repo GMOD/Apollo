@@ -145,7 +145,7 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
                     } else if (this.parseMode.equals(ParseMode.FASTA)){
                         this.parseFASTA(line.trim());
                     } else {
-                        System.err.println("Don't know how to handle line " + line + " in parse mode " + this.parseMode.toString() + ".");
+                        System.err.println("Don't know how to handle line " + line + " in parse mode " + this.parseMode.toString() + "");
                     }
                 }
             }

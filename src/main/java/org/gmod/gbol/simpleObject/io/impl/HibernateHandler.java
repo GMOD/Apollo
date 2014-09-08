@@ -1,25 +1,12 @@
 package org.gmod.gbol.simpleObject.io.impl;
 
-import java.util.Iterator;
-
-import org.gmod.gbol.simpleObject.AbstractSimpleObject;
-import org.gmod.gbol.simpleObject.Analysis;
-import org.gmod.gbol.simpleObject.CV;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.DB;
-import org.gmod.gbol.simpleObject.DBXref;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.Organism;
-import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
+import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOException;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOInterface;
 import org.gmod.gbol.util.HibernateUtil;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.ReplicationMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
+
+import java.util.Iterator;
 
 public class HibernateHandler implements SimpleObjectIOInterface {
 

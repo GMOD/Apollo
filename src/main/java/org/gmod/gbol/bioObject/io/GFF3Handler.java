@@ -205,7 +205,7 @@ public class GFF3Handler {
         String type = cvterm[1];
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
-        String score = ".";
+        String score = "";
         String strand;
         if (feature.getStrand() == 1) {
             strand = "+";
@@ -214,9 +214,9 @@ public class GFF3Handler {
             strand = "-";
         }
         else {
-            strand = ".";
+            strand = "";
         }
-        String phase = ".";
+        String phase = "";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
         entry.setAttributes(extractAttributes(feature));
         gffEntries.add(entry);
@@ -234,7 +234,7 @@ public class GFF3Handler {
         String []cvterm = cds.getType().split(":");
         String seqId = cds.getFeatureLocation().getSourceFeature().getUniqueName();
         String type = cvterm[1];
-        String score = ".";
+        String score = "";
         String strand;
         if (cds.getStrand() == 1) {
             strand = "+";
@@ -243,7 +243,7 @@ public class GFF3Handler {
             strand = "-";
         }
         else {
-            strand = ".";
+            strand = "";
         }
         List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(cds.getTranscript().getExons());
         int length = 0;
