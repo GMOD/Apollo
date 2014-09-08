@@ -35,14 +35,14 @@
 			<!-- driver for user database -->
 			<driver>org.postgresql.Driver</driver>
 
-			<!-- JDBC URL for user database -->
-			<url>ENTER_USER_DATABASE_JDBC_URL</url>
+            <!-- JDBC URL for user database -->
+            <url>jdbc:postgresql:web_apollo_users</url>
 
-			<!-- username for user database -->
-			<username>ENTER_USER_DATABASE_USERNAME</username>
+            <!-- username for user database -->
+            <username>web_apollo_users_admin</username>
 
-			<!-- password for user database -->
-			<password>ENTER_USER_DATABASE_PASSWORD</password>
+            <!-- password for user database -->
+            <password>bazookaliss</password>
 
 		</database>
 
