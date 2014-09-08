@@ -37,9 +37,11 @@ return declare(
       * @constructs
       */  
     constructor: function() {
+        console.log('Testing InformationEditor');
     },
 
     postCreate: function() {
+        console.log('Testing InformationEditor postCreate');
         this.placeAt( this.browser.container );
     },
     buildRendering: function() {
