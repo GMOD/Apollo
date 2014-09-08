@@ -1,18 +1,13 @@
 package org.bbop.apollo.web.tools;
 
+import org.apache.commons.cli.*;
+import org.bbop.apollo.web.datastore.JEDatabase;
+import org.gmod.gbol.simpleObject.Feature;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.bbop.apollo.web.datastore.JEDatabase;
-import org.gmod.gbol.simpleObject.Feature;
 
 public class RemoveTopLevelFeaturesById {
     

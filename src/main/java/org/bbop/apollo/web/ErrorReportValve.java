@@ -1,11 +1,10 @@
 package org.bbop.apollo.web;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class ErrorReportValve extends org.apache.catalina.valves.ErrorReportValve {
 

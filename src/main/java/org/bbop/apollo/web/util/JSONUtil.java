@@ -1,29 +1,20 @@
 package org.bbop.apollo.web.util;
 
+import org.bbop.apollo.web.name.AbstractNameAdapter;
+import org.gmod.gbol.bioObject.AbstractBioFeature;
+import org.gmod.gbol.bioObject.Match;
+import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
+import org.gmod.gbol.simpleObject.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Date;
-
-import org.bbop.apollo.web.name.AbstractNameAdapter;
-import org.gmod.gbol.bioObject.AbstractBioFeature;
-import org.gmod.gbol.bioObject.Match;
-import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
-import org.gmod.gbol.simpleObject.CV;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.DB;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureDBXref;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.FeatureProperty;
-import org.gmod.gbol.simpleObject.FeatureRelationship;
-import org.gmod.gbol.simpleObject.Organism;
-import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class JSONUtil {
     
