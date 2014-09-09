@@ -1,0 +1,5 @@
+.idea/**
+apollo.i*
+*.swp
+*.swo
+target/**
