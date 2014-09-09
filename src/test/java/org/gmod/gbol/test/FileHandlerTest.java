@@ -1,17 +1,16 @@
 package org.gmod.gbol.test;
 
-import java.io.IOException;
-
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import org.gmod.gbol.simpleObject.io.FileHandler;
 import org.gmod.gbol.simpleObject.io.impl.GFF3Handler;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import java.io.IOException;
 
 public class FileHandlerTest extends TestCase {
     
     FileHandler fileHandler;
-    private final String filePath = "testSupport/exampleGFF3.gff"; 
+    private final String filePath = "src/test/resources/testSupport/exampleGFF3.gff";
     
     public void testConstructor(){
         try {

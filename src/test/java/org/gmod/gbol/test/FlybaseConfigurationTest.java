@@ -10,7 +10,7 @@ public class FlybaseConfigurationTest extends AbstractGBOLHibernateTest{
         try {
 
             if (this.sf == null){
-                this.configureConnection("testSupport/flybaseConfig.cfg.xml");
+                this.configureConnection("src/test/resources/testSupport/flybaseConfig.cfg.xml");
             }
             assertTrue(true);
         } catch (Exception e) {

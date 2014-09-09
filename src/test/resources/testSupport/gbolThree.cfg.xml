@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory name="SessionFactory">
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/gbol_three</property>
+        <property name="hibernate.connection.username">db_user</property>
+        <property name="hibernate.connection.password">db_password</property>	
+        
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        
+        <!-- Enable Hibernate's automatic session context management -->
+        <property name="current_session_context_class">thread</property>
+        
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">false</property>
+        <property name="format_sql">true</property>
+        
+        
+        <!-- Load up the basic Chado Object Hibernate Mapping Files -->
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibraryPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Phenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractContactRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ContactRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractQuantificationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/QuantificationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractElementResultRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ElementResultRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureCVTermPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTermPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractBiomaterialProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAcquisition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Acquisition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractTableInfo.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/TableInfo.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticTree.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticTree.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractElement.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Element.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAssay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Assay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractMAGEML.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/MAGEML.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractMAGEDocumentation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/MAGEDocumentation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibraryPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyAssay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyAssay.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAssayBiomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AssayBiomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPublicationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPublicationDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractTreatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Treatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureCVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibraryProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractExpressionPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractArrayDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ArrayDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCV.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CV.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractQuantificationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/QuantificationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/DBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractExpressionCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureRange.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRange.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureLocation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureLocation.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhenotypeCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticNode.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNode.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeaturePhenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePhenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCVTermSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAnalysisFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AnalysisFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureMap.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureMap.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibrary.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Library.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAcquisitionRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AcquisitionRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhenotypeComparison.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeComparison.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Feature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeaturePosition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePosition.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyPropertyFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyPropertyFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Publication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCVTermPath.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermPath.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractBiomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Biomaterial.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractArrayDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ArrayDesignProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractElementRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ElementRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractDBXrefProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/DBXrefProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeaturePublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Stock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractEImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/EImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticNodePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyFactorValue.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyFactorValue.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudy.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Study.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAssayProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AssayProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractBiomaterialTreatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialTreatment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractOrganismDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/OrganismDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractEnvironmentCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/EnvironmentCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractControl.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Control.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureRelationshipPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationshipPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockRelationshipPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractExpressionImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionImage.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockCollectionStock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCollectionStock.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureExpression.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureExpression.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractProtocol.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Protocol.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureLocationPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureLocationPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureRelationshipProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationshipProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhenotypeComparisonCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeComparisonCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticNodeProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAssayProject.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AssayProject.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAnalysis.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Analysis.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCVTermRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyDesign.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockPropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockCollection.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCollection.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureMapPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureMapPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractContact.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Contact.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibraryFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryFeature.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractElementResult.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ElementResult.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractOrganism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Organism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractBiomaterialDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticNodeOrganism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeOrganism.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeaturePropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePropertyPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureExpressionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractProtocolParameter.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ProtocolParameter.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticNodeDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractChannel.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Channel.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPublicationAuthor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PublicationAuthor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhenotypeStatement.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeStatement.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractProject.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Project.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockPublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStockCollectionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StockCollectionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhenotypeDescription.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhenotypeDescription.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAcquisitionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AcquisitionProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractStudyFactor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/StudyFactor.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractOrganismProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/OrganismProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractQuantification.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Quantification.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeaturePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeaturePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractFeatureCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/FeatureCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractAnalysisProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/AnalysisProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractSynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Synonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibraryDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryDBXref.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractBiomaterialRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/BiomaterialRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticTreePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticTreePublication.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibraryCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibraryCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractLibrarySynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/LibrarySynonym.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractGenotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Genotype.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractEnvironment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Environment.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractDB.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/DB.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractPhylogeneticNodeRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/PhylogeneticNodeRelationship.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractExpressionCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/ExpressionCVTerm.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractCVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/CVTermProperty.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/io/chado_pre_1_0_HibernateMappings/AbstractExpression.hbm.xml" />
+
+        <mapping resource="org/gmod/gbol/simpleObject/Expression.hbm.xml" />
+        
+    </session-factory>
+</hibernate-configuration>

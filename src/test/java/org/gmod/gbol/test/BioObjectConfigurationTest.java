@@ -1,21 +1,20 @@
 package org.gmod.gbol.test;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.simpleObject.CV;
 import org.gmod.gbol.simpleObject.CVTerm;
 
-import junit.framework.TestCase;
+import java.util.Collection;
+import java.util.List;
 
 public class BioObjectConfigurationTest extends TestCase {
 
     private BioObjectConfiguration conf;
 
     public BioObjectConfigurationTest() {
-        conf = new BioObjectConfiguration("testSupport/gbol_mapping_1.xml");
+        // TODO: not found
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/gbol_mapping_1.xml");
     }
     
     public void testGetClassForId() {

@@ -1,7 +1,6 @@
 package org.bbop.apollo.web.test;
 
-import java.sql.Timestamp;
-
+import junit.framework.TestCase;
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.AnnotationEditor;
 import org.bbop.apollo.editor.session.AnnotationSession;
@@ -13,7 +12,7 @@ import org.gmod.gbol.bioObject.Transcript;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.simpleObject.Organism;
 
-import junit.framework.TestCase;
+import java.sql.Timestamp;
 
 public class JSONUtilTest extends TestCase {
 
@@ -23,7 +22,7 @@ public class JSONUtilTest extends TestCase {
     
     public void setUp() {
         organism = new Organism("Foomus", "barius");
-        conf = new BioObjectConfiguration("testSupport/mapping.xml");
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/mapping.xml");
         editor = new AnnotationEditor(new AnnotationSession(), new Configuration());
     }
     

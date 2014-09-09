@@ -12,13 +12,13 @@ public class BlatCommandLineTest extends TestCase {
     private BioObjectConfiguration conf;
 
     public void setUp() {
-        conf = new BioObjectConfiguration("testSupport/mapping.xml");
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/mapping.xml");
     }
     
     public void testSearch() throws Exception {
         BlatCommandLine blat = new BlatCommandLineNucleotideToNucleotide();
         blat.setBioObjectConfiguration(conf);
-        blat.parseConfiguration("testSupport/blat_config.xml");
+        blat.parseConfiguration("src/test/resources/testSupport/blat_config.xml");
         for (Match match : blat.search("TCGTTTCGATTAAATGTTCCATTCGTAACATCTCACTGAAAGGGGTTGCCAAGTATTATTGTCTGAAACT", "Group1.33")) {
             assertEquals("Query fmin", new Integer(0), match.getQueryFmin());
             assertEquals("Query fmax", new Integer(69), match.getQueryFmax());

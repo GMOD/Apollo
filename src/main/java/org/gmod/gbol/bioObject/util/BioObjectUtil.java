@@ -1,21 +1,13 @@
 package org.gmod.gbol.bioObject.util;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.gmod.gbol.bioObject.AbstractBioObject;
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.conf.BioObjectConfigurationException;
-import org.gmod.gbol.simpleObject.AbstractSimpleObject;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureProperty;
-import org.gmod.gbol.simpleObject.FeatureRelationship;
+import org.gmod.gbol.simpleObject.*;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /** Class providing utility methods for Bio objects.
  * 
@@ -72,7 +64,7 @@ public class BioObjectUtil {
         }
         String pkg = AbstractBioObject.class.getPackage().getName();
         try {
-            Class<?> clazz = Class.forName(pkg + "" + className);
+            Class<?> clazz = Class.forName(pkg + "." + className);
             Class<? extends AbstractSimpleObject> simpleObjectClass = null;
             if (simpleObject instanceof Feature) {
                 simpleObjectClass = Feature.class;

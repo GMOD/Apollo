@@ -11,7 +11,7 @@ public class BlastAlignmentTest extends TestCase {
     private BioObjectConfiguration conf;
 
     public void setUp() {
-        conf = new BioObjectConfiguration("testSupport/mapping.xml");
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/mapping.xml");
     }
     
     public void testConvertToMatch() {

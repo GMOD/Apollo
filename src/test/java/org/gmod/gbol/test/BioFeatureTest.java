@@ -1,23 +1,12 @@
 package org.gmod.gbol.test;
 
-import java.sql.Timestamp;
-import java.util.Collection;
-
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.CDS;
-import org.gmod.gbol.bioObject.Chromosome;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.Frameshift;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.Minus1Frameshift;
-import org.gmod.gbol.bioObject.Minus2Frameshift;
-import org.gmod.gbol.bioObject.Plus1Frameshift;
-import org.gmod.gbol.bioObject.Plus2Frameshift;
-import org.gmod.gbol.bioObject.Transcript;
+import junit.framework.TestCase;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.simpleObject.Organism;
 
-import junit.framework.TestCase;
+import java.sql.Timestamp;
+import java.util.Collection;
 
 public class BioFeatureTest extends TestCase {
 
@@ -26,7 +15,7 @@ public class BioFeatureTest extends TestCase {
 
     public void setUp() {
         organism = new Organism("Foomus", "barius");
-        conf = new BioObjectConfiguration("testSupport/gbolThree.mapping.xml");
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/gbolThree.mapping.xml");
     }
     
     public void testGetResidues() {

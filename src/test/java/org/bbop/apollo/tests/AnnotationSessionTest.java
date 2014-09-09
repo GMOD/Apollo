@@ -1,29 +1,15 @@
 package org.bbop.apollo.tests;
 
-import java.sql.Timestamp;
-import java.util.Collection;
-
+import junit.framework.TestCase;
 import org.bbop.apollo.editor.session.AnnotationSession;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.CDS;
-import org.gmod.gbol.bioObject.Chromosome;
-import org.gmod.gbol.bioObject.Deletion;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.Frameshift;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.Insertion;
-import org.gmod.gbol.bioObject.Minus1Frameshift;
-import org.gmod.gbol.bioObject.Minus2Frameshift;
-import org.gmod.gbol.bioObject.Plus1Frameshift;
-import org.gmod.gbol.bioObject.Plus2Frameshift;
-import org.gmod.gbol.bioObject.Substitution;
-import org.gmod.gbol.bioObject.Transcript;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureLocation;
 import org.gmod.gbol.simpleObject.Organism;
 
-import junit.framework.TestCase;
+import java.sql.Timestamp;
+import java.util.Collection;
 
 public class AnnotationSessionTest extends TestCase {
 
@@ -32,7 +18,7 @@ public class AnnotationSessionTest extends TestCase {
     
     public void setUp() {
         organism = new Organism("Foomus", "barius");
-        conf = new BioObjectConfiguration("testSupport/mapping.xml");
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/mapping.xml");
     }
 
     public void testAddFeature() {

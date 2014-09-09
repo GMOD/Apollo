@@ -1,23 +1,22 @@
 package org.gmod.gbol.test;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import org.gmod.gbol.simpleObject.AbstractSimpleObject;
+import org.gmod.gbol.simpleObject.Feature;
+import org.gmod.gbol.simpleObject.FeatureRelationship;
+import org.gmod.gbol.simpleObject.io.FileHandler;
+import org.gmod.gbol.simpleObject.io.impl.GFF3Handler;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.gmod.gbol.simpleObject.io.FileHandler;
-import org.gmod.gbol.simpleObject.io.impl.GFF3Handler;
-import org.gmod.gbol.simpleObject.AbstractSimpleObject;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureRelationship;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 public class GFF3HandlerTest extends TestCase {
     
     FileHandler fileHandler;
-    private final String filePath = "testSupport/exampleGFF3.gff";     
+    private final String filePath = "src/test/resources/testSupport/exampleGFF3.gff";
     @Override
     public void setUp(){
         try {

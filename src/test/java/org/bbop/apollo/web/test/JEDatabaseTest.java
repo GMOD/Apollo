@@ -1,45 +1,34 @@
 package org.bbop.apollo.web.test;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.datastore.AbstractDataStore;
 import org.bbop.apollo.web.datastore.JEDatabase;
-import org.gmod.gbol.bioObject.Chromosome;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.Insertion;
-import org.gmod.gbol.bioObject.Transcript;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
 import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
 
-import junit.framework.TestCase;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class JEDatabaseTest extends TestCase {
 
     private static ServerConfiguration serverConfig;
     static {
         try {
-            serverConfig = new ServerConfiguration("WebContent/config/config.xml");
+            serverConfig = new ServerConfiguration("src/main/webapp/config/config.xml");
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
     private String databaseDir = serverConfig.getDataStoreDirectory() + "/test";
-    private String mappingFile = System.getProperty("user.dir") + "/WebContent/config/mapping.xml";
+//    private String mappingFile = System.getProperty("user.dir") + "/WebContent/config/mapping.xml";
+    private String mappingFile = "src/main/webapp/config/mapping.xml";
     private BioObjectConfiguration conf = new BioObjectConfiguration(mappingFile);
     
     public void testWriteFeature() {

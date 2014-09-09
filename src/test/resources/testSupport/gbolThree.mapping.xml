@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gbol_mappings>
+  <feature_mappings>
+    <type cv="SO" term="region" default="true">
+      <read_class>Region</read_class>
+    </type>
+    <type cv="SO" term="gene" default="true">
+      <read_class>Gene</read_class>
+    </type>
+    <type cv="SO" term="transcript" default="true">
+      <read_class>Transcript</read_class>
+    </type>
+    <type cv="SO" term="exon" default="true">
+      <read_class>Exon</read_class>
+    </type>
+    <type cv="SO" term="chromosome" default="true">
+      <read_class>Chromosome</read_class>
+    </type>
+  </feature_mappings>
+  <relationship_mappings>
+    <type cv="relationship" term="part_of" default="true">
+      <read_class>PartOf</read_class>
+    </type>
+  </relationship_mappings>
+</gbol_mappings>

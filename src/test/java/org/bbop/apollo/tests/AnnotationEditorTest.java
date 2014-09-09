@@ -1,26 +1,11 @@
 package org.bbop.apollo.tests;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.TestCase;
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.AnnotationEditor;
 import org.bbop.apollo.editor.AnnotationEditor.AnnotationEditorException;
 import org.bbop.apollo.editor.session.AnnotationSession;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.Chromosome;
-import org.gmod.gbol.bioObject.Deletion;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.Frameshift;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.Insertion;
-import org.gmod.gbol.bioObject.Minus1Frameshift;
-import org.gmod.gbol.bioObject.Minus2Frameshift;
-import org.gmod.gbol.bioObject.Plus1Frameshift;
-import org.gmod.gbol.bioObject.Plus2Frameshift;
-import org.gmod.gbol.bioObject.Substitution;
-import org.gmod.gbol.bioObject.Transcript;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.FeatureLocation;
@@ -28,7 +13,10 @@ import org.gmod.gbol.simpleObject.Organism;
 import org.gmod.gbol.util.GBOLUtilException;
 import org.gmod.gbol.util.SequenceUtil;
 
-import junit.framework.TestCase;
+import java.io.File;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnnotationEditorTest extends TestCase {
     
@@ -38,7 +26,8 @@ public class AnnotationEditorTest extends TestCase {
     
     public void setUp() {
         organism = new Organism("Foomus", "barius");
-        conf = new BioObjectConfiguration("testSupport/mapping.xml");
+        System.out.println(new File(".").getAbsolutePath());
+        conf = new BioObjectConfiguration("src/test/resources/testSupport/mapping.xml");
         editor = new AnnotationEditor(new AnnotationSession(), new Configuration());
     }
     

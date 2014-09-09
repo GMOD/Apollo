@@ -6,7 +6,7 @@ public class FlybaseGenotypeTest extends AbstractGBOLHibernateTest{
         super(name);
         try {
             if (this.sf == null){
-                this.configureConnection("testSupport/flybaseConfig.cfg.xml");
+                this.configureConnection("src/test/resources/testSupport/flybaseConfig.cfg.xml");
             }
             assertTrue(true);
         } catch (Exception e) {

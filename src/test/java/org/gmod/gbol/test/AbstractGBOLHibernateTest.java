@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 public class AbstractGBOLHibernateTest extends TestCase {
 
     SessionFactory sf;
-    private final String log4jPropFile = "testSupport/log4j.properties";
+    private final String log4jPropFile = "src/test/resources/testSupport/log4j.properties";
     
     public AbstractGBOLHibernateTest(String name) {
         super(name);
