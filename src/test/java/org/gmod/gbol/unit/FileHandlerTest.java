@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.unit;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;

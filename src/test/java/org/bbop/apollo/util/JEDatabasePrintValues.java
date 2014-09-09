@@ -1,26 +1,15 @@
-package org.bbop.apollo.web.test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
+package org.bbop.apollo.util;
 
 import org.bbop.apollo.web.datastore.JEDatabase;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.SequenceAlteration;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureLocation;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
+
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JEDatabasePrintValues extends JFrame {
 

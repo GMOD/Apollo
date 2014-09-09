@@ -1,4 +1,4 @@
-package org.bbop.apollo.tests;
+package org.bbop.apollo.unit;
 
 import org.bbop.apollo.tools.seq.search.blat.BlatCommandLine;
 import org.bbop.apollo.tools.seq.search.blat.BlatCommandLineNucleotideToNucleotide;

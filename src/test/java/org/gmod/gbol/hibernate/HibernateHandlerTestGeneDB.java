@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.hibernate;
 
 import java.util.ArrayList;
 import java.util.Collection;

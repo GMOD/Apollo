@@ -1,21 +1,10 @@
-package org.bbop.apollo.web.test;
+package org.bbop.apollo.util;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import javax.swing.BoxLayout;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
-import org.bbop.apollo.web.datastore.JEDatabase;
 import org.bbop.apollo.web.datastore.history.JEHistoryDatabase;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.SequenceAlteration;
-import org.gmod.gbol.simpleObject.Feature;
+
+import javax.swing.*;
+import java.io.File;
+import java.util.Collection;
 
 public class JEHistoryDatabasePrintValues extends JFrame {
 

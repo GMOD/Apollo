@@ -1,4 +1,4 @@
-package org.bbop.apollo.web.test;
+package org.bbop.apollo.unit;
 
 import junit.framework.TestCase;
 import org.bbop.apollo.web.data.FeatureLazyResidues;

@@ -1,4 +1,4 @@
-package org.bbop.apollo.tests;
+package org.bbop.apollo.unit;
 
 import junit.framework.TestCase;
 import org.bbop.apollo.editor.session.AnnotationSession;

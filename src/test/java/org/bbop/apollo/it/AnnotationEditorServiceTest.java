@@ -1,4 +1,10 @@
-package org.bbop.apollo.web.test;
+package org.bbop.apollo.it;
+
+import junit.framework.TestCase;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.Ignore;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,12 +15,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import junit.framework.TestCase;
-
+/**
+ * TODO: Ignore for now as its an integration test
+ */
+@Ignore
 public class AnnotationEditorServiceTest extends TestCase {
 
     private String sessionId;

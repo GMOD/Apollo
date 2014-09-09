@@ -1,28 +1,19 @@
 package org.bbop.apollo.tools.seq.search.blat;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import org.bbop.apollo.tools.seq.search.AlignmentParsingException;
 import org.bbop.apollo.tools.seq.search.SequenceSearchTool;
 import org.bbop.apollo.tools.seq.search.SequenceSearchToolException;
-import org.bbop.apollo.tools.seq.search.AlignmentParsingException;
 import org.bbop.apollo.tools.seq.search.blast.TabDelimittedAlignment;
 import org.gmod.gbol.bioObject.Match;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public abstract class BlatCommandLine extends SequenceSearchTool {
 
@@ -82,7 +73,7 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
             throw new SequenceSearchToolException("Error running search: " + e.getMessage(), e);
         }
         finally {
-            if (removeTmpDir) {
+            if (removeTmpDir && dir!=null) {
                 deleteTmpDir(dir);
             }
         }

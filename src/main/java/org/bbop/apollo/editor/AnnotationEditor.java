@@ -1,35 +1,15 @@
 package org.bbop.apollo.editor;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EventListener;
-import java.util.EventObject;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.session.AnnotationSession;
-import org.gmod.gbol.bioObject.AbstractBioFeature;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.CDS;
-import org.gmod.gbol.bioObject.Comment;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.FlankingRegion;
-import org.gmod.gbol.bioObject.Frameshift;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.GenericFeatureProperty;
-import org.gmod.gbol.bioObject.NonCanonicalFivePrimeSpliceSite;
-import org.gmod.gbol.bioObject.NonCanonicalThreePrimeSpliceSite;
-import org.gmod.gbol.bioObject.SequenceAlteration;
-import org.gmod.gbol.bioObject.StopCodonReadThrough;
-import org.gmod.gbol.bioObject.Transcript;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.DBXref;
 import org.gmod.gbol.simpleObject.FeatureLocation;
 import org.gmod.gbol.util.SequenceUtil;
+
+import java.sql.Timestamp;
+import java.util.*;
 
 public class AnnotationEditor {
     
@@ -729,7 +709,13 @@ public class AnnotationEditor {
      */
     public void addExon(Transcript transcript, Exon exon) {
         transcript.addExon(exon);
+        System.out.println(transcript.getExons());
+        System.out.println(exon.getTranscript());
+        System.out.println("-----------");
         removeExonOverlapsAndAdjacencies(transcript);
+        System.out.println("===========");
+        System.out.println(transcript.getExons());
+        System.out.println(exon.getTranscript());
 
         updateGeneBoundaries(exon.getTranscript().getGene());
         

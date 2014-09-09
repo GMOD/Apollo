@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.hibernate;
 
 public class FlybaseGenotypeTest extends AbstractGBOLHibernateTest{
 

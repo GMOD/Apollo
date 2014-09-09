@@ -1,21 +1,16 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.hibernate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-
+import junit.framework.TestCase;
 import org.apache.log4j.PropertyConfigurator;
-import org.gmod.gbol.bioObject.AbstractBioFeature;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.Transcript;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.io.BioObjectHandler;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOInterface;
 import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 public class BioObjectHandlerTestGeneDB extends TestCase {
 
@@ -23,9 +18,9 @@ public class BioObjectHandlerTestGeneDB extends TestCase {
     
     public BioObjectHandlerTestGeneDB() throws Exception
     {
-        PropertyConfigurator.configure("testSupport/log4j.properties");
-        BioObjectConfiguration conf = new BioObjectConfiguration("testSupport/gbolTwo.mapping.xml");
-        SimpleObjectIOInterface h = new HibernateHandler("testSupport/gbolTwo.cfg.xml");
+        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
+        BioObjectConfiguration conf = new BioObjectConfiguration("src/test/resources/testSupport/gbolTwo.mapping.xml");
+        SimpleObjectIOInterface h = new HibernateHandler("src/test/resources/testSupport/gbolTwo.cfg.xml");
         handler = new BioObjectHandler(conf, h);
     }
     

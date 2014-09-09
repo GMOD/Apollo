@@ -1,4 +1,4 @@
-package org.bbop.apollo.web.test;
+package org.bbop.apollo.unit;
 
 import junit.framework.TestCase;
 import org.bbop.apollo.web.config.ServerConfiguration;
@@ -20,7 +20,7 @@ public class JEDatabaseTest extends TestCase {
     private static ServerConfiguration serverConfig;
     static {
         try {
-            serverConfig = new ServerConfiguration("src/main/webapp/config/config.xml");
+            serverConfig = new ServerConfiguration("src/test/resources/testSupport/config.xml");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -28,7 +28,7 @@ public class JEDatabaseTest extends TestCase {
     }
     private String databaseDir = serverConfig.getDataStoreDirectory() + "/test";
 //    private String mappingFile = System.getProperty("user.dir") + "/WebContent/config/mapping.xml";
-    private String mappingFile = "src/main/webapp/config/mapping.xml";
+    private String mappingFile = "src/test/resources/testSupport/mapping.xml";
     private BioObjectConfiguration conf = new BioObjectConfiguration(mappingFile);
     
     public void testWriteFeature() {

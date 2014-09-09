@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.unit;
 
 import org.gmod.gbol.util.GBOLUtilException;
 import org.gmod.gbol.util.SequenceUtil;

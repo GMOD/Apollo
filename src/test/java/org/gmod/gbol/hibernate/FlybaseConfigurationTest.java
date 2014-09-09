@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.hibernate;
 
 import org.gmod.gbol.simpleObject.CVTermRelationship;
 import org.gmod.gbol.simpleObject.CVTerm;

@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.hibernate;
 
 import org.hibernate.SessionFactory;
 import org.apache.log4j.PropertyConfigurator;

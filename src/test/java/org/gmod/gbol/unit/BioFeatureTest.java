@@ -1,4 +1,4 @@
-package org.gmod.gbol.test;
+package org.gmod.gbol.unit;
 
 import junit.framework.TestCase;
 import org.gmod.gbol.bioObject.*;
