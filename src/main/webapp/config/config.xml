@@ -55,7 +55,8 @@
 	<tracks>
 
 		<!-- path to JBrowse refSeqs.json file -->
-		<refseqs>ENTER_PATH_TO_REFSEQS_JSON_FILE</refseqs>
+        <refseqs>/opt/apollo/jbrowse/data/seq/refSeqs.json</refseqs>
+
 
 		<!-- annotation track name the current convention is to append
 		the genomic region id to the the name of the annotation track
