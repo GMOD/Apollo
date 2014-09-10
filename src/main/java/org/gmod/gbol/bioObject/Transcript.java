@@ -1,18 +1,13 @@
 package org.gmod.gbol.bioObject;
 
+import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
+import org.gmod.gbol.bioObject.util.BioObjectUtil;
+import org.gmod.gbol.simpleObject.*;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
-import org.gmod.gbol.bioObject.util.BioObjectUtil;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.FeatureProperty;
-import org.gmod.gbol.simpleObject.FeatureRelationship;
-import org.gmod.gbol.simpleObject.Organism;
 
 /** Wrapper class representing a transcript.
  * 
@@ -344,8 +339,12 @@ public class Transcript extends AbstractSingleLocationBioFeature {
         Collection<CVTerm> frameshiftCvterms = conf.getDescendantCVTermsForClass("Frameshift");
 
         for (FeatureProperty featureProperty : feature.getFeatureProperties()) {
+
             if (frameshiftCvterms.contains(featureProperty.getType())) {
+//                System.out.println("frameshift ["+frameshift.getFeatureProperty() + "]==VS==["+featureProperty+"]");
+                // TODO: hopefully have not ruined it
                 if (featureProperty.equals(frameshift.getFeatureProperty())) {
+                    System.out.println("deleting!ings: "+featureProperty);
                     feature.getFeatureProperties().remove(frameshift.getFeatureProperty());
                     break;
                 }

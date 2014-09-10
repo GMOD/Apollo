@@ -86,6 +86,11 @@ public class BioObjectConfiguration implements Serializable {
      */
     public Collection<CVTerm> getCVTermsForClass(String className)
     {
+//        System.out.println("IN: -------");
+//        for(String key : classToTerms.keySet()){
+//            System.out.println("key: "+key);
+//        }
+//        System.out.println("OUT: -------");
         Collection<CVTerm> classNames = classToTerms.get(className);
         if (classNames == null) {
             System.err.println("No CVTerms for class: " + className);
