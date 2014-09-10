@@ -12,17 +12,18 @@ import java.sql.Timestamp;
 import java.util.*;
 
 public class AnnotationEditor {
-    
+
     private static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
     private static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
-    
+
     private AnnotationSession session;
     private Configuration configuration;
     private List<AnnotationChangeListener> listeners;
-    
-    /** Constructor.
-     * 
-     * @param session - AnnotationSession associated with the editor
+
+    /**
+     * Constructor.
+     *
+     * @param session       - AnnotationSession associated with the editor
      * @param configuration - Configuration for the different editing options
      */
     public AnnotationEditor(AnnotationSession session, Configuration configuration) {
@@ -30,71 +31,76 @@ public class AnnotationEditor {
         this.configuration = configuration;
         listeners = new ArrayList<AnnotationChangeListener>();
     }
-    
-    /** Get the session associated with the editor.
-     * 
+
+    /**
+     * Get the session associated with the editor.
+     *
      * @return AnnotationSession associated with the editor.
      */
     public AnnotationSession getSession() {
         return session;
     }
-    
-    /** Get the configuration used for the different editing functions.
-     * 
+
+    /**
+     * Get the configuration used for the different editing functions.
+     *
      * @return Configuration object containing different editing options
      */
     public Configuration getConfiguration() {
         return configuration;
     }
 
-    /** Set the name of a feature.
-     * 
+    /**
+     * Set the name of a feature.
+     *
      * @param feature - AbstractSingleLocationBioFeature to be modified
-     * @param name - Name to be set
+     * @param name    - Name to be set
      */
     public void setName(AbstractSingleLocationBioFeature feature, String name) {
         feature.setName(name);
         feature.setTimeLastModified(new Date());
     }
-    
-    /** Add a feature to the underlying session.
-     * 
+
+    /**
+     * Add a feature to the underlying session.
+     *
      * @param feature - AbstractSingleLocationBioFeature to be added
      */
     public void addFeature(AbstractSingleLocationBioFeature feature) {
         AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
-        
+
         if (feature instanceof Gene) {
-            for (Transcript transcript : ((Gene)feature).getTranscripts()) {
+            for (Transcript transcript : ((Gene) feature).getTranscripts()) {
                 removeExonOverlapsAndAdjacencies(transcript);
             }
-        }
-        else if (feature instanceof Transcript) {
-            removeExonOverlapsAndAdjacencies((Transcript)feature);
+        } else if (feature instanceof Transcript) {
+            removeExonOverlapsAndAdjacencies((Transcript) feature);
         }
 
         // event fire
         fireAnnotationChangeEvent(feature, topLevelFeature, AnnotationChangeEvent.Operation.ADD);
-        
+
         getSession().addFeature(feature);
 
     }
-    
-    /** Delete a feature to the underlying session.
-     * 
+
+    /**
+     * Delete a feature to the underlying session.
+     *
      * @param feature - AbstractSingleLocationBioFeature to be deleted
      */
     public void deleteFeature(AbstractSingleLocationBioFeature feature) {
         AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
         getSession().deleteFeature(feature);
-        
+
         // event fire
         fireAnnotationChangeEvent(feature, topLevelFeature, AnnotationChangeEvent.Operation.DELETE);
-        
+
     }
-    
-    /** Set the frameshift position for a transcript.  Calculates the longest ORF for the transcript.
-     * 
+
+    /**
+     * Set the frameshift position for a transcript.  Calculates the longest ORF for the transcript.
+     *
      * @param transcript - Transcript to have frameshift added to
      * @param frameshift - Frameshift to add to the transcript
      */
@@ -105,11 +111,12 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
-    /** Add a sequence alteration to the genomic region.
-     * 
+
+    /**
+     * Add a sequence alteration to the genomic region.
+     *
      * @param sequenceAlteration - Sequence alteration to be added
      */
     public void addSequenceAlteration(SequenceAlteration sequenceAlteration) {
@@ -125,11 +132,12 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(sequenceAlteration, sequenceAlteration, AnnotationChangeEvent.Operation.ADD);
-        
+
     }
 
-    /** Delete a sequence alteration to the genomic region.
-     * 
+    /**
+     * Delete a sequence alteration to the genomic region.
+     *
      * @param sequenceAlteration - Sequence alteration to be deleted
      */
     public void deleteSequenceAlteration(SequenceAlteration sequenceAlteration) {
@@ -137,11 +145,13 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(sequenceAlteration, sequenceAlteration, AnnotationChangeEvent.Operation.DELETE);
-        
+
     }
-    /** Add a transcript to a gene.
-     * 
-     * @param gene - Gene to have transcript added to
+
+    /**
+     * Add a transcript to a gene.
+     *
+     * @param gene       - Gene to have transcript added to
      * @param transcript - Transcript to add to the gene
      */
     public void addTranscript(Gene gene, Transcript transcript) {
@@ -149,17 +159,18 @@ public class AnnotationEditor {
         gene.addTranscript(transcript);
 
         updateGeneBoundaries(gene);
-        
+
         getSession().indexFeature(transcript);
 
         // event fire
         fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.ADD);
-        
+
     }
-    
-    /** Delete a transcript from a gene.
-     * 
-     * @param gene - Gene to have the transcript deleted from
+
+    /**
+     * Delete a transcript from a gene.
+     *
+     * @param gene       - Gene to have the transcript deleted from
      * @param transcript - Transcript to delete from the gene
      */
     public void deleteTranscript(Gene gene, Transcript transcript) {
@@ -172,19 +183,20 @@ public class AnnotationEditor {
         if (gene.getTranscripts().size() > 0) {
             updateGeneBoundaries(gene);
         }
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.DELETE);
-        
+
     }
 
-    /** Duplicate a transcript.  Adds it to the parent gene if it is set.
-     * 
+    /**
+     * Duplicate a transcript.  Adds it to the parent gene if it is set.
+     *
      * @param transcript - Transcript to be duplicated
      */
     public void duplicateTranscript(Transcript transcript) {
         Date date = new Date();
-        Transcript duplicate = (Transcript)transcript.cloneFeature(transcript.getUniqueName() + "-copy");
+        Transcript duplicate = (Transcript) transcript.cloneFeature(transcript.getUniqueName() + "-copy");
         if (transcript.getGene() != null) {
             transcript.getGene().addTranscript(duplicate);
             transcript.getGene().setTimeLastModified(date);
@@ -207,9 +219,10 @@ public class AnnotationEditor {
         */
 
     }
-    
-    /** Merge two transcripts together.
-     * 
+
+    /**
+     * Merge two transcripts together.
+     *
      * @param transcript1 - Transcript to be merged to
      * @param transcript2 - Transcript to be merged from
      */
@@ -242,8 +255,7 @@ public class AnnotationEditor {
         // Delete the empty transcript from the gene
         if (transcript2.getGene() != null) {
             deleteTranscript(transcript2.getGene(), transcript2);
-        }
-        else {
+        } else {
             deleteFeature(transcript2);
         }
         removeExonOverlapsAndAdjacencies(transcript1);
@@ -251,21 +263,21 @@ public class AnnotationEditor {
 //        setLongestORF(transcript1);
     }
 
-    /** Split a transcript between the two exons.  One transcript will contain all exons from the leftmost
-     *  exon up to leftExon and the other will contain all exons from rightExon to the rightmost exon.
-     *  
+    /**
+     * Split a transcript between the two exons.  One transcript will contain all exons from the leftmost
+     * exon up to leftExon and the other will contain all exons from rightExon to the rightmost exon.
+     *
      * @param transcript - Transcript to split
-     * @param leftExon - Left exon of the split
-     * @param rightExon - Right exon of the split
+     * @param leftExon   - Left exon of the split
+     * @param rightExon  - Right exon of the split
      * @return Newly created right transcript
      */
     public Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon, String splitTranscriptUniqueName) {
         List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons());
-        Transcript splitTranscript = (Transcript)transcript.cloneFeature(splitTranscriptUniqueName);
+        Transcript splitTranscript = (Transcript) transcript.cloneFeature(splitTranscriptUniqueName);
         if (transcript.getGene() != null) {
             addTranscript(transcript.getGene(), splitTranscript);
-        }
-        else {
+        } else {
             addFeature(splitTranscript);
         }
         transcript.setFmax(leftExon.getFmax());
@@ -275,8 +287,7 @@ public class AnnotationEditor {
                 deleteExon(transcript, exon);
                 if (exon.equals(rightExon)) {
                     addExon(splitTranscript, rightExon);
-                }
-                else {
+                } else {
                     addExon(splitTranscript, exon);
                 }
             }
@@ -287,46 +298,50 @@ public class AnnotationEditor {
         return splitTranscript;
     }
 
-    /** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation start in
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript       - Transcript to set the translation start in
      * @param translationStart - Coordinate of the start of translation
      */
     public void setTranslationStart(Transcript transcript, int translationStart) {
         setTranslationStart(transcript, translationStart, false);
     }
-    
-    /** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
+
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript        - Transcript to set the translation start in
+     * @param translationStart  - Coordinate of the start of translation
      * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
      */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
         setTranslationStart(transcript, translationStart, setTranslationEnd, false);
     }
-    
-    /** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript           - Transcript to set the translation start in
+     * @param translationStart     - Coordinate of the start of translation
+     * @param setTranslationEnd    - if set to true, will search for the nearest in frame stop codon
      * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
      */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
         setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configuration.getTranslationTable() : null, readThroughStopCodon);
     }
 
-    /** Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
-     * @param translationTable - Translation table that defines the codon translation
+    /**
+     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript           - Transcript to set the translation start in
+     * @param translationStart     - Coordinate of the start of translation
+     * @param setTranslationEnd    - if set to true, will search for the nearest in frame stop codon
+     * @param translationTable     - Translation table that defines the codon translation
      * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
      */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, SequenceUtil.TranslationTable translationTable, boolean readThroughStopCodon) {
@@ -337,8 +352,7 @@ public class AnnotationEditor {
         }
         if (transcript.getStrand() == -1) {
             cds.setFmax(translationStart + 1);
-        }
-        else {
+        } else {
             cds.setFmin(translationStart);
         }
         setManuallySetTranslationStart(cds, true);
@@ -363,8 +377,7 @@ public class AnnotationEditor {
                             if (cds.getStrand() == -1) {
                                 stopCodonReadThrough.setFmin(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 3));
                                 stopCodonReadThrough.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
-                            }
-                            else {
+                            } else {
                                 stopCodonReadThrough.setFmin(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
                                 stopCodonReadThrough.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 3) + 1);
                             }
@@ -373,8 +386,7 @@ public class AnnotationEditor {
                     }
                     if (transcript.getStrand() == -1) {
                         cds.setFmin(transcript.convertLocalCoordinateToSourceCoordinate(i + 2));
-                    }
-                    else {
+                    } else {
                         cds.setFmax(transcript.convertLocalCoordinateToSourceCoordinate(i + 3));
                     }
                     return;
@@ -383,8 +395,7 @@ public class AnnotationEditor {
             if (transcript.getStrand() == -1) {
                 cds.setFmin(transcript.getFmin());
                 cds.setFminPartial(true);
-            }
-            else {
+            } else {
                 cds.setFmax(transcript.getFmax());
                 cds.setFmaxPartial(true);
             }
@@ -393,15 +404,15 @@ public class AnnotationEditor {
         Date date = new Date();
         cds.setTimeLastModified(date);
         transcript.setTimeLastModified(date);
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
+
     /** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
      *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
+     *
      * @param transcript - Transcript to set the translation start in
      * @param translationEnd - Coordinate of the end of translation
      */
@@ -426,35 +437,38 @@ public class AnnotationEditor {
         
     }
     */
-    
-    /** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation end in
+
+    /**
+     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript     - Transcript to set the translation end in
      * @param translationEnd - Coordinate of the end of translation
      */
     public void setTranslationEnd(Transcript transcript, int translationEnd) {
         setTranslationEnd(transcript, translationEnd, false);
     }
-    
-    /** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation end in
-     * @param translationEnd - Coordinate of the end of translation
+
+    /**
+     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript          - Transcript to set the translation end in
+     * @param translationEnd      - Coordinate of the end of translation
      * @param setTranslationStart - if set to true, will search for the nearest in frame start
      */
     public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
         setTranslationEnd(transcript, translationEnd, setTranslationStart, setTranslationStart ? configuration.getTranslationTable() : null);
     }
 
-    /** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation end in
-     * @param translationEnd - Coordinate of the end of translation
+    /**
+     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+     * Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript          - Transcript to set the translation end in
+     * @param translationEnd      - Coordinate of the end of translation
      * @param setTranslationStart - if set to true, will search for the nearest in frame start codon
-     * @param translationTable - Translation table that defines the codon translation
+     * @param translationTable    - Translation table that defines the codon translation
      */
     public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, SequenceUtil.TranslationTable translationTable) {
         CDS cds = transcript.getCDS();
@@ -464,8 +478,7 @@ public class AnnotationEditor {
         }
         if (transcript.getStrand() == -1) {
             cds.setFmin(translationEnd);
-        }
-        else {
+        } else {
             cds.setFmax(translationEnd + 1);
         }
         setManuallySetTranslationEnd(cds, true);
@@ -483,8 +496,7 @@ public class AnnotationEditor {
                 if (translationTable.getStartCodons().contains(codon)) {
                     if (transcript.getStrand() == -1) {
                         cds.setFmax(transcript.convertLocalCoordinateToSourceCoordinate(i + 3));
-                    }
-                    else {
+                    } else {
                         cds.setFmin(transcript.convertLocalCoordinateToSourceCoordinate(i + 2));
                     }
                     return;
@@ -493,8 +505,7 @@ public class AnnotationEditor {
             if (transcript.getStrand() == -1) {
                 cds.setFmin(transcript.getFmin());
                 cds.setFminPartial(true);
-            }
-            else {
+            } else {
                 cds.setFmax(transcript.getFmax());
                 cds.setFmaxPartial(true);
             }
@@ -506,18 +517,19 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
-    }
-    
 
-    /** Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
-     *  feature.  Instantiates the CDS object for the transcript if it doesn't already exist.
-     * 
-     * @param transcript - Transcript to set the translation start in
+    }
+
+
+    /**
+     * Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
+     * feature.  Instantiates the CDS object for the transcript if it doesn't already exist.
+     *
+     * @param transcript       - Transcript to set the translation start in
      * @param translationStart - Coordinate of the start of translation
-     * @param translationEnd - Coordinate of the end of translation
+     * @param translationEnd   - Coordinate of the end of translation
      * @param manuallySetStart - whether the start was manually set
-     * @param manuallySetEnd - whether the end was manually set
+     * @param manuallySetEnd   - whether the end was manually set
      */
     public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
         setTranslationFmin(transcript, translationStart);
@@ -528,12 +540,12 @@ public class AnnotationEditor {
         Date date = new Date();
         transcript.getCDS().setTimeLastModified(date);
         transcript.setTimeLastModified(date);
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
+
     private void setTranslationFmin(Transcript transcript, int translationFmin) {
         CDS cds = transcript.getCDS();
         if (cds == null) {
@@ -544,7 +556,7 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
 
     private void setTranslationFmax(Transcript transcript, int translationFmax) {
@@ -557,13 +569,13 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
+
     public void calculateCDS(Transcript transcript) {
         calculateCDS(transcript, false);
     }
-    
+
     public void calculateCDS(Transcript transcript, boolean readThroughStopCodon) {
         CDS cds = transcript.getCDS();
         if (cds == null) {
@@ -577,11 +589,9 @@ public class AnnotationEditor {
         }
         if (!manuallySetStart && !manuallySetEnd) {
             setLongestORF(transcript, readThroughStopCodon);
-        }
-        else if (manuallySetStart) {
+        } else if (manuallySetStart) {
             setTranslationStart(transcript, cds.getStrand().equals(-1) ? cds.getFmax() - 1 : cds.getFmin(), true, readThroughStopCodon);
-        }
-        else {
+        } else {
             setTranslationEnd(transcript, cds.getStrand().equals(-1) ? cds.getFmin() : cds.getFmax() - 1, true);
         }
     }
@@ -589,25 +599,27 @@ public class AnnotationEditor {
     public void setLongestORF(Transcript transcript) {
         setLongestORF(transcript, false);
     }
-    
-    /** Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
-     *  Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
-     *  ORF calculation extensions are allowed from the configuration associated with this editor.
-     *  
+
+    /**
+     * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
+     * Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
+     * ORF calculation extensions are allowed from the configuration associated with this editor.
+     *
      * @param transcript - Transcript to set the longest ORF to
      */
     public void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
         setLongestORF(transcript, configuration.getTranslationTable(), configuration.isPartialTranslationExtensionAllowed(), readThroughStopCodon);
     }
-    
+
     public void setLongestORF(Transcript transcript, SequenceUtil.TranslationTable translationTable, boolean allowPartialExtension) {
         setLongestORF(transcript, translationTable, allowPartialExtension, false);
     }
-    
-    /** Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
-     * 
-     * @param transcript - Transcript to set the longest ORF to
-     * @param translationTable - Translation table that defines the codon translation
+
+    /**
+     * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
+     *
+     * @param transcript            - Transcript to set the longest ORF to
+     * @param translationTable      - Translation table that defines the codon translation
      * @param allowPartialExtension - Where partial ORFs should be used for possible extension
      */
     public void setLongestORF(Transcript transcript, SequenceUtil.TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
@@ -619,7 +631,7 @@ public class AnnotationEditor {
         int bestStartIndex = -1;
         int bestStopIndex = -1;
         boolean partialStop = false;
-        
+
         if (mrna.length() > 3) {
             for (String startCodon : translationTable.getStartCodons()) {
                 int startIndex = mrna.indexOf(startCodon);
@@ -639,7 +651,7 @@ public class AnnotationEditor {
                 }
             }
         }
-        
+
         boolean needCdsIndex = transcript.getCDS() == null;
         CDS cds = transcript.getCDS();
         if (cds == null) {
@@ -658,16 +670,14 @@ public class AnnotationEditor {
             cds.setFminPartial(false);
             cds.setFmax(fmax);
             cds.setFmaxPartial(partialStop);
-        }
-        else {
+        } else {
             cds.setFmin(transcript.getFmin());
             cds.setFminPartial(true);
             String aa = SequenceUtil.translateSequence(mrna, translationTable, true, readThroughStopCodon);
             if (aa.substring(aa.length() - 1).equals(SequenceUtil.TranslationTable.STOP)) {
                 cds.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3));
                 cds.setFmaxPartial(false);
-            }
-            else {
+            } else {
                 cds.setFmax(transcript.getFmax());
                 cds.setFmaxPartial(true);
             }
@@ -682,8 +692,7 @@ public class AnnotationEditor {
                 stopCodonReadThrough.setFmin(getSession().convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset);
                 stopCodonReadThrough.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset);
             }
-        }
-        else {
+        } else {
             cds.deleteStopCodonReadThrough();
         }
         setManuallySetTranslationStart(cds, false);
@@ -696,44 +705,42 @@ public class AnnotationEditor {
         Date date = new Date();
         cds.setTimeLastModified(date);
         transcript.setTimeLastModified(date);
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
 
-    /** Add an exon to a transcript.
-     * 
+    /**
+     * Add an exon to a transcript.
+     *
      * @param transcript - Transcript to have the exon added to
-     * @param exon - Exon to be added to the transcript
+     * @param exon       - Exon to be added to the transcript
      */
     public void addExon(Transcript transcript, Exon exon) {
         transcript.addExon(exon);
-        System.out.println(transcript.getExons());
-        System.out.println(exon.getTranscript());
-        System.out.println("-----------");
         removeExonOverlapsAndAdjacencies(transcript);
-        System.out.println("===========");
-        System.out.println(transcript.getExons());
-        System.out.println(exon.getTranscript());
 
-        updateGeneBoundaries(exon.getTranscript().getGene());
-        
+        // if the exon is removed during a merge, then we will get a null-pointer
+//      updateGeneBoundaries(exon.getTranscript().getGene());
+        updateGeneBoundaries(transcript.getGene());
+
         getSession().indexFeature(exon);
         getSession().indexFeature(exon);
 
         transcript.setTimeLastModified(new Date());
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
-    /** Delete an exon from a transcript.  If there are no exons left on the transcript, the transcript
-     *  is deleted from the parent gene.
-     * 
+
+    /**
+     * Delete an exon from a transcript.  If there are no exons left on the transcript, the transcript
+     * is deleted from the parent gene.
+     *
      * @param transcript - Transcript to have the exon deleted from
-     * @param exon - Exon to be deleted from the transcript
+     * @param exon       - Exon to be deleted from the transcript
      */
     public void deleteExon(Transcript transcript, Exon exon) {
         transcript.deleteExon(exon);
@@ -770,19 +777,20 @@ public class AnnotationEditor {
         }
         // update gene boundaries if necessary
         updateGeneBoundaries(transcript.getGene());
-        
+
         getSession().unindexFeature(exon);
         getSession().indexFeature(transcript);
-        
+
         transcript.setTimeLastModified(new Date());
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
 
-    /** Merge exon1 and exon2.  The "newly" created exon retains exon1's ID.
-     * 
+    /**
+     * Merge exon1 and exon2.  The "newly" created exon retains exon1's ID.
+     *
      * @param exon1 - Exon to be merged to
      * @param exon2 - Exon to be merged with
      * @throws AnnotationEditorException - If exons don't belong to the same transcript or are in separate strands
@@ -809,21 +817,22 @@ public class AnnotationEditor {
         }
 //        setLongestORF(exon1.getTranscript());
         removeExonOverlapsAndAdjacencies(transcript);
-        
+
         Date date = new Date();
         exon1.setTimeLastModified(date);
         transcript.setTimeLastModified(date);
 
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
-    /**Splits the exon, creating two exons, the left one which starts at exon.getFmin() and ends at
+
+    /**
+     * Splits the exon, creating two exons, the left one which starts at exon.getFmin() and ends at
      * newLeftMax and the right one which starts at newRightMin and ends at exon.getFeatureLocation.getFmax().
-     * 
-     * @param exon - Exon to be split
-     * @param newLeftMax - Left split exon max
+     *
+     * @param exon        - Exon to be split
+     * @param newLeftMax  - Left split exon max
      * @param newRightMin - Right split exon min
      */
     public Exon splitExon(Exon exon, int newLeftMax, int newRightMin, String splitExonUniqueName) {
@@ -838,19 +847,19 @@ public class AnnotationEditor {
         addExon(exon.getTranscript(), rightExon);
         session.indexFeature(leftExon);
         session.indexFeature(rightExon);
-        
+
         // event fire
         fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
         Date date = new Date();
         exon.setTimeLastModified(date);
         rightExon.setTimeAccessioned(date);
         rightExon.setTimeLastModified(date);
         exon.getTranscript().setTimeLastModified(date);
-        
+
         return rightExon;
     }
-    
+
     public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize, String splitExonUniqueName) {
         String sequence = exon.getResidues();
         int exonPosition = exon.convertSourceCoordinateToLocalCoordinate(genomicPosition);
@@ -884,8 +893,7 @@ public class AnnotationEditor {
             int tmp = acceptorCoordinate;
             acceptorCoordinate = donorCoordinate + 1 - donorSite.length();
             donorCoordinate = tmp + 1;
-        }
-        else {
+        } else {
             acceptorCoordinate += acceptorSite.length();
         }
         Exon splitExon = splitExon(exon, exon.convertLocalCoordinateToSourceCoordinate(donorCoordinate), exon.convertLocalCoordinateToSourceCoordinate(acceptorCoordinate), splitExonUniqueName);
@@ -900,18 +908,19 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
         Date date = new Date();
         exon.setTimeLastModified(date);
         splitExon.setTimeAccessioned(date);
         splitExon.setTimeLastModified(date);
         exon.getTranscript().setTimeLastModified(date);
-        
+
         return splitExon;
     }
 
-    /** Add a frameshift to a transcript.
-     * 
+    /**
+     * Add a frameshift to a transcript.
+     *
      * @param transcript - Transcript to add the frameshift to
      * @param frameshift - Frameshift to add to the transcript
      */
@@ -919,14 +928,15 @@ public class AnnotationEditor {
         transcript.addFrameshift(frameshift);
 
         transcript.setTimeLastModified(new Date());
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
-    /** Delete a frameshift from a transcript.
-     * 
+
+    /**
+     * Delete a frameshift from a transcript.
+     *
      * @param transcript - Transcript to delete the frameshift from
      * @param frameshift - Frameshift to delete from the transcript
      */
@@ -937,11 +947,12 @@ public class AnnotationEditor {
 
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
-    /** Set exon boundaries.
-     * 
+
+    /**
+     * Set exon boundaries.
+     *
      * @param exon - Exon to be modified
      * @param fmin - New fmin to be set
      * @param fmax - New fmax to be set
@@ -956,16 +967,16 @@ public class AnnotationEditor {
 
         session.unindexFeature(transcript);
         session.indexFeature(transcript);
-        
+
         Date date = new Date();
         exon.setTimeLastModified(date);
         exon.getTranscript().setTimeLastModified(date);
-        
+
         // event fire
         fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
+
     public void setToDownstreamDonor(Exon exon) throws AnnotationEditorException {
         Transcript transcript = exon.getTranscript();
         Gene gene = transcript.getGene();
@@ -994,8 +1005,7 @@ public class AnnotationEditor {
             if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
-                }
-                else {
+                } else {
                     setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
                 }
                 return;
@@ -1018,8 +1028,7 @@ public class AnnotationEditor {
             if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
-                }
-                else {
+                } else {
                     setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
                 }
                 return;
@@ -1042,8 +1051,7 @@ public class AnnotationEditor {
             if (SequenceUtil.getSpliceAcceptorSites().contains(seq)) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate) - 1);
-                }
-                else {
+                } else {
                     setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 2, exon.getFmax());
                 }
                 return;
@@ -1083,8 +1091,7 @@ public class AnnotationEditor {
             if (SequenceUtil.getSpliceAcceptorSites().contains(seq)) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate) - 1);
-                }
-                else {
+                } else {
                     setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 2, exon.getFmax());
                 }
                 return;
@@ -1092,7 +1099,7 @@ public class AnnotationEditor {
             --coordinate;
         }
     }
-    
+
     public void setBoundaries(AbstractSingleLocationBioFeature feature, int fmin, int fmax) {
         feature.setFmin(fmin);
         feature.setFmax(fmax);
@@ -1106,35 +1113,35 @@ public class AnnotationEditor {
             Collection<? extends AbstractSingleLocationBioFeature> parents = f.getParents();
             f = parents.size() > 0 ? parents.iterator().next() : null;
         }
-        
+
         // event fire
         fireAnnotationChangeEvent(feature, getTopLevelFeature(feature), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
-    /** Flips the strand of a feature and all of its children (recursively).  If the feature has no strand (0), it will flip it to
-     *  the minus strand (-1).
-     * 
+
+    /**
+     * Flips the strand of a feature and all of its children (recursively).  If the feature has no strand (0), it will flip it to
+     * the minus strand (-1).
+     *
      * @param feature - Feature to have strand flipped
      */
     public void flipStrand(AbstractSingleLocationBioFeature feature) {
         if (feature.getStrand() == -1) {
             feature.setStrand(1);
-        }
-        else {
+        } else {
             feature.setStrand(-1);
         }
         for (AbstractSingleLocationBioFeature childFeature : feature.getChildren()) {
             flipStrand(childFeature);
         }
-        
+
         feature.setTimeLastModified(new Date());
 
         // event fire
         fireAnnotationChangeEvent(feature, getTopLevelFeature(feature), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
-    
+
     public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript) {
         transcript.deleteAllNonCanonicalFivePrimeSpliceSites();
         transcript.deleteAllNonCanonicalThreePrimeSpliceSites();
@@ -1168,8 +1175,7 @@ public class AnnotationEditor {
                         if (!validFivePrimeSplice) {
                             if (!donorSpliceSiteSequence.equals(donor)) {
                                 fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceDonorSiteFlankingRegion.getFmax() : spliceDonorSiteFlankingRegion.getFmin();
-                            }
-                            else {
+                            } else {
                                 validFivePrimeSplice = true;
                             }
                         }
@@ -1178,8 +1184,7 @@ public class AnnotationEditor {
                         if (!validThreePrimeSplice) {
                             if (!acceptorSpliceSiteSequence.equals(acceptor)) {
                                 threePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceAcceptorSiteFlankingRegion.getFmin() : spliceAcceptorSiteFlankingRegion.getFmax();
-                            }
-                            else {
+                            } else {
                                 validThreePrimeSplice = true;
                             }
                         }
@@ -1195,10 +1200,10 @@ public class AnnotationEditor {
         }
 
         transcript.setTimeLastModified(new Date());
-        
+
         // event fire
         fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-        
+
     }
 
     private NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
@@ -1217,7 +1222,7 @@ public class AnnotationEditor {
 
     private NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prive_splice_site-" + position;
-        NonCanonicalThreePrimeSpliceSite spliceSite =  new NonCanonicalThreePrimeSpliceSite(transcript.getOrganism(),
+        NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(transcript.getOrganism(),
                 uniqueName, transcript.isAnalysis(), transcript.isObsolete(), new Timestamp(new Date().getTime()),
                 transcript.getConfiguration());
         spliceSite.setFeatureLocation(new FeatureLocation());
@@ -1228,7 +1233,7 @@ public class AnnotationEditor {
         spliceSite.setTimeLastModified(new Date());
         return spliceSite;
     }
-    
+
     private FlankingRegion createFlankingRegion(AbstractSingleLocationBioFeature feature, int fmin, int fmax) {
         FlankingRegion flankingRegion = new FlankingRegion(null, null, false, false, null, feature.getConfiguration());
         flankingRegion.setFeatureLocation(new FeatureLocation());
@@ -1243,12 +1248,12 @@ public class AnnotationEditor {
 
         private static final long serialVersionUID = 1L;
         private AbstractBioFeature[] sources;
-        
-        public AnnotationEditorException(String message, AbstractBioFeature ... sources) {
+
+        public AnnotationEditorException(String message, AbstractBioFeature... sources) {
             super(message);
             this.sources = sources;
         }
-        
+
         public AnnotationEditorException(String message, Collection<? extends AbstractBioFeature> sources) {
             super(message);
             this.sources = new AbstractBioFeature[sources.size()];
@@ -1257,13 +1262,13 @@ public class AnnotationEditor {
                 this.sources[i++] = feature;
             }
         }
-        
+
         public AbstractBioFeature[] getSources() {
             return sources;
         }
-        
+
     }
-    
+
     private void removeExonOverlapsAndAdjacencies(Transcript transcript) {
         if (transcript.getExons().size() <= 1) {
             return;
@@ -1278,15 +1283,14 @@ public class AnnotationEditor {
                 if (leftExon.overlaps(rightExon) || leftExon.isAdjacentTo(rightExon)) {
                     try {
                         mergeExons(leftExon, rightExon);
-                    }
-                    catch (AnnotationEditorException e) {
+                    } catch (AnnotationEditorException e) {
                     }
                     ++inc;
                 }
             }
         }
     }
-    
+
     private CDS createCDS(Transcript transcript) {
         Date date = new Date();
         String uniqueName = transcript.getUniqueName() + "-CDS";
@@ -1299,7 +1303,7 @@ public class AnnotationEditor {
         cds.setTimeLastModified(date);
         return cds;
     }
-    
+
     public boolean isManuallySetTranslationStart(CDS cds) {
         for (Comment comment : cds.getComments()) {
             if (comment.getComment().equals(MANUALLY_SET_TRANSLATION_START)) {
@@ -1308,7 +1312,7 @@ public class AnnotationEditor {
         }
         return false;
     }
-    
+
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
             return;
@@ -1367,7 +1371,7 @@ public class AnnotationEditor {
             }
         }
     }
-    
+
     public void setDescription(AbstractSingleLocationBioFeature feature, String description) {
         feature.setDescription(description);
         feature.setTimeLastModified(new Date());
@@ -1382,17 +1386,17 @@ public class AnnotationEditor {
         feature.setStatus(status);
         feature.setTimeLastModified(new Date());
     }
-    
+
     public void deleteStatus(AbstractSingleLocationBioFeature feature) {
         feature.deleteStatus();
         feature.setTimeLastModified(new Date());
     }
-    
+
     public void addNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String db, String accession) {
         feature.addNonPrimaryDBXref(db, accession);
         feature.setTimeLastModified(new Date());
     }
-    
+
     public void deleteNonPrimaryDBXref(AbstractSingleLocationBioFeature feature, String db, String accession) {
         feature.deleteNonPrimaryDBXref(db, accession);
         feature.setTimeLastModified(new Date());
@@ -1408,12 +1412,12 @@ public class AnnotationEditor {
             }
         }
     }
-    
+
     public void addNonReservedProperty(AbstractSingleLocationBioFeature feature, String tag, String value) {
         feature.addNonReservedProperty(tag, value);
         feature.setTimeLastModified(new Date());
     }
-    
+
     public void deleteNonReservedProperty(AbstractSingleLocationBioFeature feature, String tag, String value) {
         feature.deleteNonReservedProperty(tag, value);
         feature.setTimeLastModified(new Date());
@@ -1429,7 +1433,7 @@ public class AnnotationEditor {
             }
         }
     }
-    
+
     private StopCodonReadThrough createStopCodonReadThrough(CDS cds) {
         Date date = new Date();
         String uniqueName = cds.getUniqueName() + "-stop_codon_read_through";
@@ -1442,7 +1446,7 @@ public class AnnotationEditor {
         stopCodonReadThrough.setTimeLastModified(date);
         return stopCodonReadThrough;
     }
-    
+
     private void fireAnnotationChangeEvent(AbstractSingleLocationBioFeature feature, AbstractSingleLocationBioFeature topLevelFeature, AnnotationChangeEvent.Operation operation) {
         /*
         for (AnnotationChangeListener listener : listeners) {
@@ -1463,7 +1467,7 @@ public class AnnotationEditor {
         }
         */
     }
-    
+
     private void updateGeneBoundaries(Gene gene) {
         if (gene == null) {
             return;
@@ -1482,62 +1486,61 @@ public class AnnotationEditor {
         gene.setFmax(geneFmax);
         gene.setTimeLastModified(new Date());
     }
-    
+
     public void addAnnotationChangeListener(AnnotationChangeListener listener) {
         listeners.add(listener);
     }
-    
+
     public void removeAnnotationChangeListener(AnnotationChangeListener listener) {
         listeners.remove(listener);
     }
-    
+
     private AbstractSingleLocationBioFeature getTopLevelFeature(AbstractSingleLocationBioFeature feature) {
         Collection<? extends AbstractSingleLocationBioFeature> parents = feature.getParents();
         if (parents.size() > 0) {
             return getTopLevelFeature(parents.iterator().next());
-        }
-        else {
+        } else {
             return feature;
         }
     }
-    
+
     public interface AnnotationChangeListener extends EventListener {
-        
+
         public void handleChangeEvent(AnnotationChangeEvent event);
-        
+
     }
-    
+
     public static class AnnotationChangeEvent extends EventObject {
 
         private Operation operation;
         private AbstractSingleLocationBioFeature feature;
         private AbstractSingleLocationBioFeature topLevelFeature;
-        
+
         public enum Operation {
             ADD,
             DELETE,
             UPDATE
         }
-        
+
         public AnnotationChangeEvent(Object source, AbstractSingleLocationBioFeature feature, AbstractSingleLocationBioFeature topLevelFeature, Operation operation) {
             super(source);
             this.feature = feature;
             this.topLevelFeature = topLevelFeature;
             this.operation = operation;
         }
-        
+
         public Operation getOperation() {
             return operation;
         }
-        
+
         public AbstractSingleLocationBioFeature getFeature() {
             return feature;
         }
-        
+
         public AbstractSingleLocationBioFeature getTopLevelFeature() {
             return topLevelFeature;
         }
-        
+
     }
 
 }

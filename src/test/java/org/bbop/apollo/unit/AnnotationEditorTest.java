@@ -58,6 +58,7 @@ public class AnnotationEditorTest extends TestCase {
         editor.addExon(transcript, exon1);
         editor.addExon(transcript, exon2);
         editor.addExon(transcript, exon3);
+        // this is correct
         assertEquals("num exons (before duplication): ", new Integer(2), new Integer(transcript.getNumberOfExons()));
         editor.duplicateTranscript(transcript);
         assertEquals("num transcripts (after duplication): ", new Integer(2), new Integer(gene.getNumberOfTranscripts()));
