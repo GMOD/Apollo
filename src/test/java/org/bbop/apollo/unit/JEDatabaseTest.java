@@ -9,12 +9,17 @@ import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
 import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
+import org.junit.Ignore;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * TODO: no data.bin exists
+ */
+@Ignore
 public class JEDatabaseTest extends TestCase {
 
     private static ServerConfiguration serverConfig;
@@ -26,7 +31,8 @@ public class JEDatabaseTest extends TestCase {
             e.printStackTrace();
         }
     }
-    private String databaseDir = serverConfig.getDataStoreDirectory() + "/test";
+//    private String databaseDir = serverConfig.getDataStoreDirectory() + "/test";
+    private String databaseDir = serverConfig.getDataStoreDirectory() + "/";
 //    private String mappingFile = System.getProperty("user.dir") + "/WebContent/config/mapping.xml";
     private String mappingFile = "src/test/resources/testSupport/mapping.xml";
     private BioObjectConfiguration conf = new BioObjectConfiguration(mappingFile);
@@ -52,7 +58,11 @@ public class JEDatabaseTest extends TestCase {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Don't have a data.bin
+     */
+    @Ignore
     public void testReadFeatures() {
 //        List<Feature> features = new ArrayList<Feature>();
 //        AbstractDataStore db = new JEDatabase(databaseDir);

@@ -5,7 +5,8 @@
 	<gbol_mapping>/config/mapping.xml</gbol_mapping>
 
 	<!-- directory where JE database will be created -->
-	<datastore_directory>ENTER_DATASTORE_DIRECTORY_HERE</datastore_directory>
+	<!--<datastore_directory>ENTER_DATASTORE_DIRECTORY_HERE</datastore_directory>-->
+    <datastore_directory>/tmp</datastore_directory>
 
 	<!-- minimum size for introns created -->
 	<default_minimum_intron_size>1</default_minimum_intron_size>
