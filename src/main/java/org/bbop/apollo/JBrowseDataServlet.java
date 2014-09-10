@@ -4,8 +4,6 @@ import org.apache.commons.io.FileUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,25 +18,6 @@ import java.util.Properties;
 //@WebServlet(value="/jbrowse/asdkfjasdlfj", name="JBrowseData")
 @WebServlet(urlPatterns = "/jbrowse/data/*", name = "JBrowseData")
 public class JBrowseDataServlet extends HttpServlet {
-    @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        System.out.println("3 JBrowseDataServlet - IN servlet request filter");
-
-        super.service(req, res);
-//        System.out.println("IN servlet request filter");
-//        RequestDispatcher rd = getServletContext().getNamedDispatcher("default");
-//
-//        HttpServletRequest wrapped = new HttpServletRequestWrapper((HttpServletRequest) req) {
-//            public String getServletPath() {
-//                return "jbrowse/data";
-//            }
-//        };
-//
-//        rd.forward(wrapped, res);
-//        System.out.println("OUT servlet request filter");
-
-//        res.getWriter().println("JBrowse Data rerouting");
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -47,7 +26,6 @@ public class JBrowseDataServlet extends HttpServlet {
         String configPath = rootPath + "/config/config.properties";
 
 
-//        System.out.println("config path: "+configPath);
         File propertyFile = new File(configPath);
         String filename = null ;
 
@@ -57,16 +35,11 @@ public class JBrowseDataServlet extends HttpServlet {
             properties.load(fileInputStream);
 
             filename = properties.getProperty("jbrowse.data") + req.getPathInfo();
-//            System.out.println("got filename: "+filename);
             File dataFile = new File(filename);
-//            System.out.println("dataFile path: "+dataFile.getAbsolutePath());
             if(!dataFile.exists() || !dataFile.canRead()){
-//                System.out.println("exists and found: "+filename);
                 System.out.println("NOT found: "+filename);
                 filename = null ;
             }
-//            else{
-//            }
         }
 
         if(filename==null){
@@ -82,8 +55,6 @@ public class JBrowseDataServlet extends HttpServlet {
 
         // Get the absolute path of the image
         ServletContext sc = getServletContext();
-//        filename = filename +req.getPathInfo();
-//        System.out.println("filename: " + filename);
 
         // Get the MIME type of the image
         String mimeType = sc.getMimeType(filename);
@@ -113,12 +84,6 @@ public class JBrowseDataServlet extends HttpServlet {
         in.close();
         out.close();
 
-//        super.doGet(req, resp);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.print("doing post!");
-//        super.doGet(req, resp);
-    }
 }
