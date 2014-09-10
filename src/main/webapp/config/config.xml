@@ -56,6 +56,7 @@
 
 		<!-- path to JBrowse refSeqs.json file -->
         <refseqs>/opt/apollo/jbrowse/data/seq/refSeqs.json</refseqs>
+        <data>/opt/apollo/jbrowse/data/</data>
 
 
 		<!-- annotation track name the current convention is to append

@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Properties;
 
 //@WebServlet(value="/jbrowse/", name="helloServlet")
 //@WebServlet(value="/jbrowse/asdkfjasdlfj", name="JBrowseData")
@@ -39,26 +40,43 @@ public class JBrowseDataServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("CP doing get!" + req.getContextPath());
-        System.out.println("PT doing get!" + req.getPathTranslated());
-        System.out.println("PI doing get!" + req.getPathInfo());
-        System.out.println("SP doing get!" + req.getServletPath());
-
-//        CP doing get!/apollo
-//        PT doing get!/Users/NathanDunn/git/apollo/src/main/webapp/tracks.conf
-//        PI doing get!/tracks.conf
-//        SP doing get!/jbrowse/data
-
         String pathTranslated = req.getPathTranslated();
-        String finalPath = "";
-        finalPath = pathTranslated.substring(0, pathTranslated.length() - req.getPathInfo().length());
-        finalPath += req.getServletPath() + req.getPathInfo();
+        String rootPath = pathTranslated.substring(0, pathTranslated.length() - req.getPathInfo().length());
+        String configPath = rootPath + "/config/config.properties";
+
+
+//        System.out.println("config path: "+configPath);
+        File propertyFile = new File(configPath);
+        String filename = null ;
+
+        if(propertyFile.exists()){
+            Properties properties = new Properties();
+            FileInputStream fileInputStream = new FileInputStream(propertyFile);
+            properties.load(fileInputStream);
+
+            filename = properties.getProperty("jbrowse.data") + req.getPathInfo();
+//            System.out.println("got filename: "+filename);
+            File dataFile = new File(filename);
+//            System.out.println("dataFile path: "+dataFile.getAbsolutePath());
+            if(!dataFile.exists() || !dataFile.canRead()){
+//                System.out.println("exists and found: "+filename);
+                System.out.println("NOT found: "+filename);
+                filename = null ;
+            }
+//            else{
+//            }
+        }
+
+        if(filename==null){
+            filename = rootPath + req.getServletPath() + req.getPathInfo();
+            System.out.println("not found so using default jbrowse/data path in servlet context "+ filename);
+        }
+
 
         // Get the absolute path of the image
         ServletContext sc = getServletContext();
-//        String filename = sc.getRealPath(req.getPathInfo());
-        String filename = finalPath ;
-        System.out.println("filename: " + filename);
+//        filename = filename +req.getPathInfo();
+//        System.out.println("filename: " + filename);
 
         // Get the MIME type of the image
         String mimeType = sc.getMimeType(filename);
