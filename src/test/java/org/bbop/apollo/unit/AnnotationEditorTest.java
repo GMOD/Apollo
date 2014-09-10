@@ -125,7 +125,9 @@ public class AnnotationEditorTest extends TestCase {
         Transcript transcript = createTranscript(100, 900, "transcript");
         editor.addTranscript(gene, transcript);
         editor.setTranslationEnd(transcript, 800);
-        assertEquals("translation end: ", new Integer(800), transcript.getCDS().getFeatureLocation().getFmax());
+//        assertEquals("translation end: ", new Integer(800), transcript.getCDS().getFeatureLocation().getFmax());
+        // this sets an exclusive max
+        assertEquals("translation end: ", new Integer(801), transcript.getCDS().getFeatureLocation().getFmax());
         printGene(gene);
     }
     
@@ -137,7 +139,9 @@ public class AnnotationEditorTest extends TestCase {
         editor.setTranslationStart(transcript, 200);
         editor.setTranslationEnd(transcript, 800);
         assertEquals("translation start: ", new Integer(200), transcript.getCDS().getFeatureLocation().getFmin());
-        assertEquals("translation end: ", new Integer(800), transcript.getCDS().getFeatureLocation().getFmax());
+        // this is set as an exclusive max
+//        assertEquals("translation end: ", new Integer(800), transcript.getCDS().getFeatureLocation().getFmax());
+        assertEquals("translation end: ", new Integer(801), transcript.getCDS().getFeatureLocation().getFmax());
         printGene(gene);
     }
     
