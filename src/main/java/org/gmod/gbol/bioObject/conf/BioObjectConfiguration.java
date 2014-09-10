@@ -21,7 +21,6 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 
 /** Class that stores the mapping between classes and types.
@@ -116,10 +115,10 @@ public class BioObjectConfiguration implements Serializable {
         classToTerms = new HashMap<String, List<CVTerm>>();
         try {
             SchemaFactory sf = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-            URL xsd = getClass().getResource("/testSupport/gbol_mappings.xsd");
-            Schema schema = sf.newSchema(xsd);
-//            File file = new File("src/test/resources/testSupport/gbol_mappings.xsd");
-//            Schema schema = sf.newSchema(file);
+//            URL xsd = getClass().getResource("/config/gbol_mappings.xsd");
+//            Schema schema = sf.newSchema(xsd);
+            File file = new File("src/main/webapp/config/gbol_mappings.xsd");
+            Schema schema = sf.newSchema(file);
             Validator validator = schema.newValidator();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);

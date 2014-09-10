@@ -66,11 +66,12 @@
 		<annotation_track_name>Annotations</annotation_track_name>
 
 	 	<!-- organism being annotated -->
-		<organism>ENTER_ORGANISM</organism>
+		<organism>Frogus Littlus</organism>
 
 		<!-- CV term for the genomic sequences - should be in the form
 		of "CV:term".  This applies to all sequences -->
-		<sequence_type>ENTER_CVTERM_FOR_SEQUENCE</sequence_type>
+		<!--<sequence_type>ENTER_CVTERM_FOR_SEQUENCE</sequence_type>-->
+        <sequence_type>Little:Frog</sequence_type>
 
 		<!-- path to file containing translation table.
 		optional - defaults to NCBI translation table 1 if
