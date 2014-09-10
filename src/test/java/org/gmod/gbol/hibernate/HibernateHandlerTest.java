@@ -1,26 +1,23 @@
 package org.gmod.gbol.hibernate;
 
+import junit.framework.TestCase;
+import org.apache.log4j.PropertyConfigurator;
+import org.gmod.gbol.simpleObject.*;
+import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
+import org.junit.Ignore;
+
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
-import org.apache.log4j.PropertyConfigurator;
-import org.gmod.gbol.simpleObject.CV;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.Organism;
-import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
-
+@Ignore
 public class HibernateHandlerTest extends TestCase {
 
     private HibernateHandler handler;
     
     public HibernateHandlerTest() throws Exception
     {
-        PropertyConfigurator.configure("testSupport/log4j.properties");
+        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
         try {
-            handler = new HibernateHandler("testSupport/gbolOne.cfg.xml");
+            handler = new HibernateHandler("src/test/resources/testSupport/gbolOne.cfg.xml");
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -1,5 +1,8 @@
 package org.gmod.gbol.hibernate;
 
+import org.junit.Ignore;
+
+@Ignore
 public class FlybaseGenotypeTest extends AbstractGBOLHibernateTest{
 
     public FlybaseGenotypeTest(String name) {

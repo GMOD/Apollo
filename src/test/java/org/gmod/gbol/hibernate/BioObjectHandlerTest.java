@@ -7,11 +7,13 @@ import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.io.BioObjectHandler;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOInterface;
 import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+@Ignore
 public class BioObjectHandlerTest extends TestCase {
 
     private BioObjectHandler handler;

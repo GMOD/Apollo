@@ -1,19 +1,16 @@
 package org.gmod.gbol.hibernate;
 
+import junit.framework.TestCase;
+import org.apache.log4j.PropertyConfigurator;
+import org.gmod.gbol.simpleObject.*;
+import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
+import org.junit.Ignore;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
-import org.apache.log4j.PropertyConfigurator;
-import org.gmod.gbol.simpleObject.CV;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.Organism;
-import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
-
+@Ignore
 public class HibernateHandlerTestGeneDB extends TestCase {
 
     private HibernateHandler handler;

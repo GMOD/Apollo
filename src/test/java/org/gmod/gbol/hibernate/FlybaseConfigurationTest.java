@@ -1,8 +1,10 @@
 package org.gmod.gbol.hibernate;
 
-import org.gmod.gbol.simpleObject.CVTermRelationship;
 import org.gmod.gbol.simpleObject.CVTerm;
+import org.gmod.gbol.simpleObject.CVTermRelationship;
+import org.junit.Ignore;
 
+@Ignore
 public class FlybaseConfigurationTest extends AbstractGBOLHibernateTest{
 
     public FlybaseConfigurationTest(String name) {

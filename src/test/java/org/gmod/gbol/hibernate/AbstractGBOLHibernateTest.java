@@ -1,10 +1,12 @@
 package org.gmod.gbol.hibernate;
 
-import org.hibernate.SessionFactory;
+import junit.framework.TestCase;
 import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.util.HibernateUtil;
-import junit.framework.TestCase;
+import org.hibernate.SessionFactory;
+import org.junit.Ignore;
 
+@Ignore
 public class AbstractGBOLHibernateTest extends TestCase {
 
     SessionFactory sf;
