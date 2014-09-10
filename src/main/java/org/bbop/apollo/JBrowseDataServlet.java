@@ -1,5 +1,7 @@
 package org.bbop.apollo;
 
+import org.apache.commons.io.FileUtils;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -69,6 +71,11 @@ public class JBrowseDataServlet extends HttpServlet {
 
         if(filename==null){
             filename = rootPath + req.getServletPath() + req.getPathInfo();
+            File testFile = new File(filename);
+            if(FileUtils.isSymlink(testFile)){
+                filename = testFile.getAbsolutePath();
+                System.out.println("symlink found so adjusting to absolute path: "+filename);
+            }
             System.out.println("not found so using default jbrowse/data path in servlet context "+ filename);
         }
 
