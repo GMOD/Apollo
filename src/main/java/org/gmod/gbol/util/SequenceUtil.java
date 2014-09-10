@@ -71,7 +71,7 @@ public class SequenceUtil {
 //            throw new GBOLUtilException("Sequence to be translated must have length of factor of 3");
 //        }
         StringBuilder buffer = new StringBuilder();
-        int stopCodonCount = 0;
+//        int stopCodonCount = 0;
         for (int i = 0; i + 3 <= sequence.length(); i += 3) {
             String codon = sequence.substring(i, i + 3);
             String aminoAcid = translationTable.translateCodon(codon);
@@ -82,10 +82,11 @@ public class SequenceUtil {
                 if (!translateThroughStop) {
                     break;
                 }
+                // TODO: not sure why this is written this way . . .clearly a bug
                 else {
-                    if (++stopCodonCount > 1) {
-                        break;
-                    }
+//                    if (++stopCodonCount > 1) {
+//                        break;
+//                    }
                 }
             }
             else {
