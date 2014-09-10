@@ -4,6 +4,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,8 +15,8 @@ import java.io.OutputStream;
 
 //@WebServlet(value="/jbrowse/", name="helloServlet")
 //@WebServlet(value="/jbrowse/asdkfjasdlfj", name="JBrowseData")
-//@WebServlet(urlPatterns="/jbrowse/data", name="JBrowseData")
-public class JBrowseDataServlet extends HttpServlet{
+@WebServlet(urlPatterns = "/jbrowse/data/*", name = "JBrowseData")
+public class JBrowseDataServlet extends HttpServlet {
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         System.out.println("3 JBrowseDataServlet - IN servlet request filter");
@@ -43,14 +44,26 @@ public class JBrowseDataServlet extends HttpServlet{
         System.out.println("PI doing get!" + req.getPathInfo());
         System.out.println("SP doing get!" + req.getServletPath());
 
+//        CP doing get!/apollo
+//        PT doing get!/Users/NathanDunn/git/apollo/src/main/webapp/tracks.conf
+//        PI doing get!/tracks.conf
+//        SP doing get!/jbrowse/data
+
+        String pathTranslated = req.getPathTranslated();
+        String finalPath = "";
+        finalPath = pathTranslated.substring(0, pathTranslated.length() - req.getPathInfo().length());
+        finalPath += req.getServletPath() + req.getPathInfo();
+
         // Get the absolute path of the image
         ServletContext sc = getServletContext();
-        String filename = sc.getRealPath("image.gif");
+//        String filename = sc.getRealPath(req.getPathInfo());
+        String filename = finalPath ;
+        System.out.println("filename: " + filename);
 
         // Get the MIME type of the image
         String mimeType = sc.getMimeType(filename);
         if (mimeType == null) {
-            sc.log("Could not get MIME type of "+filename);
+            sc.log("Could not get MIME type of " + filename);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
@@ -60,7 +73,7 @@ public class JBrowseDataServlet extends HttpServlet{
 
         // Set content size
         File file = new File(filename);
-        resp.setContentLength((int)file.length());
+        resp.setContentLength((int) file.length());
 
         // Open the file and output streams
         FileInputStream in = new FileInputStream(file);
