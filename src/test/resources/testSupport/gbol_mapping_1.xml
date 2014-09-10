@@ -7,12 +7,15 @@
     <type cv="SO" term="transcript" default="true">
       <read_class>Transcript</read_class>
     </type>
-    <type cv="SO" term="productive_transcript" default="true">
-      <read_class>ProductiveTranscript</read_class>
-    </type>
-    <type cv="SO" term="foo_productive_transcript">
-      <read_class>ProductiveTranscript</read_class>
-    </type>
+    <!--<type cv="SO" term="productive_transcript" default="true">-->
+      <!--<read_class>ProductiveTranscript</read_class>-->
+    <!--</type>-->
+    <!--<type cv="SO" term="foo_productive_transcript">-->
+      <!--<read_class>ProductiveTranscript</read_class>-->
+    <!--</type>-->
+      <type cv="SO" term="Frameshift">
+      <read_class>Frameshift</read_class>
+      </type>
     <type cv="SO" term="exon" default="true">
       <read_class>Exon</read_class>
     </type>
