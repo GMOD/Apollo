@@ -8,6 +8,11 @@ div.track  {
 div.pin_underlay {
 	background-color: #142933;
 }
+
+div.feature_name {
+	color: #FAFFF9 !important;
+}
+
 div.outerTrackContainer {
 	
 	background-color: rgb(59, 59, 61);
@@ -43,7 +48,20 @@ div#gridtrack {
 
 
 .feature-label {
-    color: gray;
+    color: #FAFFF9;
+}
+
+div.track_annotations {
+	background-color: #70D2D0 !important;
+}
+
+/* UI elements */
+div.locationTrap {
+	background-color: white;
+}
+
+.pin_underlay.track.block {
+	background-color: rgb(59, 59, 61);
 }
 
 .dna-residues.forward-strand,
