@@ -60,9 +60,25 @@ public class FeatureProperty extends org.gmod.gbol.simpleObject.generated.Abstra
         if(other==null || !(other instanceof FeatureProperty)) return false ;
         FeatureProperty fp = (FeatureProperty) other ;
 
-        return fp.getType().equals(getType()) && fp.getValue().equals(getValue());
+        if (!fp.getType().equals(getType())) return false ;
+        if (!fp.getValue().equals(getValue())) return false ;
+        if (!fp.getFeature().equals(getFeature())) return false ;
+
+//        System.out.println("feature: " + getFeature().toString() + " vs otther: "+ fp.getFeature().toString());
+
+        return true ;
 //        return super.equals(other);
     }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 37 * result + (getType() == null ? 0 : this.getType().hashCode());
+        result = 37 * result + (getValue() == null ? 0 : this.getValue().hashCode());
+        result = 37 * result + (getFeature() == null ? 0 : this.getFeature().hashCode());
+        return result;
+    }
+
     //    @Override
 //    public Collection<AbstractSimpleObject> getWriteObjects() {
 //        ArrayList<AbstractSimpleObject> writeObjects = new ArrayList<AbstractSimpleObject>();

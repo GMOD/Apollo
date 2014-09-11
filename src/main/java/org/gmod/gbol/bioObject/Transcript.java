@@ -339,12 +339,8 @@ public class Transcript extends AbstractSingleLocationBioFeature {
         Collection<CVTerm> frameshiftCvterms = conf.getDescendantCVTermsForClass("Frameshift");
 
         for (FeatureProperty featureProperty : feature.getFeatureProperties()) {
-
             if (frameshiftCvterms.contains(featureProperty.getType())) {
-//                System.out.println("frameshift ["+frameshift.getFeatureProperty() + "]==VS==["+featureProperty+"]");
-                // TODO: hopefully have not ruined it
                 if (featureProperty.equals(frameshift.getFeatureProperty())) {
-                    System.out.println("deleting!ings: "+featureProperty);
                     feature.getFeatureProperties().remove(frameshift.getFeatureProperty());
                     break;
                 }
