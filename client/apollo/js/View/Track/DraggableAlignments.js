@@ -3,7 +3,7 @@ define([
            'dojo/_base/array',
            'JBrowse/View/Track/Alignments',
            'WebApollo/View/Track/DraggableHTMLFeatures', 
-           'JBrowse/Util', 
+           'JBrowse/Util'
        ],
        function(
            declare,

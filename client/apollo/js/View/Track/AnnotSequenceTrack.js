@@ -1,6 +1,6 @@
 define( [
     'dojo/_base/declare',
-    'WebApollo/View/Track/SequenceTrack', 
+    'WebApollo/View/Track/SequenceTrack'
 ],
         function( declare, SequenceTrack) {
 

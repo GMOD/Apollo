@@ -1,4 +1,4 @@
-define(['jquery','./effects/core'], function (jQuery) {
+define(['jquery','./core'], function (jQuery) {
 /*
  * jQuery UI Effects Fold @VERSION
  *

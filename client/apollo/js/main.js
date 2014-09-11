@@ -1,8 +1,7 @@
 require({
            packages: [
                { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
-               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' },
-               { name: 'bbop', location: '../plugins/WebApollo/jslib/bbop' }
+               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
            ]
        },
        [],
@@ -41,6 +40,17 @@ return declare( JBPlugin,
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
+        [
+          'plugins/WebApollo/jslib/bbop/bbop.js',
+          'plugins/WebApollo/jslib/bbop/golr.js',
+          'plugins/WebApollo/jslib/bbop/jquery.js',
+          'plugins/WebApollo/jslib/bbop/search_box.js'
+        ].forEach(function(src) {
+          var script = document.createElement('script');
+          script.src = src;
+          script.async = false;
+          document.head.appendChild(script);
+        });
         
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
@@ -144,7 +154,7 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableAlignments',
             defaultForStoreTypes: [ 
-                                    'JBrowse/Store/SeqFeature/BAM',
+                                    'JBrowse/Store/SeqFeature/BAM'
                                   ],
             label: 'WebApollo Alignments'
         });
