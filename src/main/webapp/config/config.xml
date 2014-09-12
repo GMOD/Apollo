@@ -42,7 +42,7 @@
             <username>web_apollo_users_admin</username>
 
             <!-- password for user database -->
-            <password>bazookaliss</password>
+            <password>web_apollo_users_admin</password>
 
 		</database>
 

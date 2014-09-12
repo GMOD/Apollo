@@ -1,26 +1,6 @@
 package org.bbop.apollo.web.config;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.CRC32;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +9,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.util.*;
+import java.util.zip.CRC32;
 
 public class ServerConfiguration {
 
@@ -202,14 +189,54 @@ public class ServerConfiguration {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(configuration);
+
+        String[] extensions = new String[]{"properties"};
+
+        Properties properties = new Properties();
+        File currentDirectory= new File(".");
+//        System.out.println("current directory: "+currentDirectory.getAbsolutePath());
+        Collection<File> files = FileUtils.listFiles(currentDirectory,extensions,true);
+//        System.out.println("files found: "+files.size());
+        boolean loaded = false ;
+        for(File file : files){
+            if(file.getName().equals("config.properties")){
+                properties.load(new FileInputStream(file));
+                loaded = true;
+            }
+        }
+
+        String dataStoreDirectoryOverride = null ;
+        String databaseUrlOverride = null ;
+        String databaseUsernameOverride = null ;
+        String databasePasswordOverride= null ;
+//        String jbrowseData = null ;
+        if(loaded){
+            dataStoreDirectoryOverride = properties.getProperty("datastore.directory");
+            databaseUrlOverride = properties.getProperty("database.url");
+            databaseUsernameOverride = properties.getProperty("database.username");
+            databasePasswordOverride = properties.getProperty("database.password");
+        }
+
+
+
+
         Node gbolMappingNode = doc.getElementsByTagName("gbol_mapping").item(0);
+
         if (gbolMappingNode != null) {
             gbolMappingFile = gbolMappingNode.getTextContent();
         }
-        Node dataStoreDirectoryNode = doc.getElementsByTagName("datastore_directory").item(0);
-        if (dataStoreDirectoryNode != null) {
-            dataStoreDirectory = dataStoreDirectoryNode.getTextContent();
+
+
+        if(dataStoreDirectoryOverride!=null){
+            dataStoreDirectory = dataStoreDirectoryOverride;
         }
+        else{
+            Node dataStoreDirectoryNode = doc.getElementsByTagName("datastore_directory").item(0);
+            if (dataStoreDirectoryNode != null) {
+                dataStoreDirectory = dataStoreDirectoryNode.getTextContent();
+            }
+        }
+
         Node minimumIntronSizeNode = doc.getElementsByTagName("default_minimum_intron_size").item(0);
         if (minimumIntronSizeNode != null) {
             defaultMinimumIntronSize = Integer.parseInt(minimumIntronSizeNode.getTextContent());
@@ -237,17 +264,18 @@ public class ServerConfiguration {
             Element databaseNode = (Element)userNode.getElementsByTagName("database").item(0);
             if (databaseNode != null) {
                 String driver = databaseNode.getElementsByTagName("driver").item(0).getTextContent();
-                String url = databaseNode.getElementsByTagName("url").item(0).getTextContent();
-                String userName = null;
-                String password = null;
-                Node userNameNode = databaseNode.getElementsByTagName("username").item(0);
-                if (userNameNode != null) {
-                    userName = userNameNode.getTextContent();
-                }
-                Node passwordNode = databaseNode.getElementsByTagName("password").item(0);
-                if (passwordNode != null) {
-                    password = passwordNode.getTextContent();
-                }
+                String url = databaseUrlOverride!=null ? databaseUrlOverride : databaseNode.getElementsByTagName("url").item(0).getTextContent();
+                String userName = databaseUsernameOverride!=null ? databaseUsernameOverride : databaseNode.getElementsByTagName("username").item(0).getTextContent();
+                String password = databasePasswordOverride!=null ? databasePasswordOverride : databaseNode.getElementsByTagName("password").item(0).getTextContent();
+//                String url = databaseNode.getElementsByTagName("url").item(0).getTextContent();
+//                Node userNameNode = databaseNode.getElementsByTagName("username").item(0);
+//                if (userNameNode != null) {
+//                    userName = userNameNode.getTextContent();
+//                }
+//                Node passwordNode = databaseNode.getElementsByTagName("password").item(0);
+//                if (passwordNode != null) {
+//                    password = passwordNode.getTextContent();
+//                }
                 userDatabase = new UserDatabaseConfiguration(driver, url, userName, password);
             }
             Element authenticationClassNode = (Element)userNode.getElementsByTagName("authentication_class").item(0);
