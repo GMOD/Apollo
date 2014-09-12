@@ -37,9 +37,11 @@ return declare(
       * @constructs
       */  
     constructor: function() {
+        console.log('Testing InformationEditor');
     },
 
     postCreate: function() {
+        console.log('Testing InformationEditor postCreate');
         this.placeAt( this.browser.container );
     },
     buildRendering: function() {
@@ -62,7 +64,7 @@ return declare(
         this._updateTextFilterControl();
 
         this.informationList =
-        { pane: new ContentPane({ id: 'informationEditorList', className: 'information_list' }).placeAt( this.containerNode ),
+        { pane: new ContentPane({ id: 'informationEditorList', className: 'information_list' }).placeAt( this.containerNode )
         };
     }
 });

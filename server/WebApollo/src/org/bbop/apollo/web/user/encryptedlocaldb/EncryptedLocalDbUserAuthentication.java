@@ -30,7 +30,7 @@ public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
     @Override
     public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
             HttpServletResponse response) throws ServletException {
-        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
+        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/encryptedlocaldb/login.html");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         String line;
         try {
