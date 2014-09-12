@@ -3,3 +3,6 @@ apollo.i*
 *.swp
 *.swo
 target/**
+config.properties
+src/main/webapp/config.properties
+src/main/webapp/jbrowse/
