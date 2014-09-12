@@ -39,7 +39,6 @@ sub parse_options {
 	print_usage() if $help;
 	die "Database name is required\n" if !$dbname;
 	die "User name for new user required\n" if !$username;
-	#die "Password for new user required\n" if !$password;
 	my $connect_string = "dbi:Pg:host=$host;port=$port;dbname=$dbname";
 	$dbh = DBI->connect($connect_string, $dbusername, $dbpassword);
 }
@@ -55,7 +54,7 @@ usage: $progname
 	[-U|--dbusername <user_database_username>]
 	[-P|--dbpassword <user_database_password>]
 	-u|--username <username_for_user_to_be_added>
-	-p|--password <password_for_user_to_be_added>
+	[-p|--password <password_for_user_to_be_added>]
 	[-e|--encrypted]
 	[-h|--help]
 END
@@ -84,7 +83,6 @@ sub add_user {
         );  
 
         my $hash = $pbkdf2->generate($password);
-
 
         $sql = "INSERT INTO $USER_TABLE(username, password) " .
               "VALUES(?, ?)";
