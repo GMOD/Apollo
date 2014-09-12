@@ -5,6 +5,7 @@ import org.bbop.apollo.tools.seq.search.blat.BlatCommandLine;
 import org.bbop.apollo.tools.seq.search.blat.BlatCommandLineNucleotideToNucleotide;
 import org.gmod.gbol.bioObject.Match;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
+import org.bbop.apollo.tools.seq.search.SequenceSearchToolException;
 
 public class BlatCommandLineTest extends TestCase {
 
@@ -31,8 +32,10 @@ public class BlatCommandLineTest extends TestCase {
                 assertEquals("Significance", 5.3e-32, match.getSignificance());
                 assertEquals("Raw score", 135.0, match.getRawScore());
             }
-        } catch (RuntimeException e) {
+        } catch (SequenceSearchToolException e) {
             String message = e.getMessage();
+            System.out.println("message: " + message) ; 
+      
             if(message.contains("Cannot run program \"/usr/local/bin/blat\": error=2, No such file or directory")){
                 // do nothing
                 System.out.println("BLAT not installed, ignoring test.");
