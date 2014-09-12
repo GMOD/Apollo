@@ -53,8 +53,16 @@ public class JBrowseDataServlet extends HttpServlet {
         }
 
 
-        // Get the absolute path of the image
+        // Get the absolute path of the file
         ServletContext sc = getServletContext();
+
+        File file = new File(filename);
+        if(!file.exists()){
+            sc.log("Could not get MIME type of " + filename);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+
+        }
 
         // Get the MIME type of the image
         String mimeType = sc.getMimeType(filename);
@@ -68,7 +76,6 @@ public class JBrowseDataServlet extends HttpServlet {
         resp.setContentType(mimeType);
 
         // Set content size
-        File file = new File(filename);
         resp.setContentLength((int) file.length());
 
         // Open the file and output streams
