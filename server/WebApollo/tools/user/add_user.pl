@@ -35,13 +35,15 @@ sub parse_options {
 		   "password|p=s"	=> \$password,
 		   "help|h"		=> \$help,
 		   "encrypted|e" => \$encrypted);
+
 	print_usage() if $help;
 	die "Database name is required\n" if !$dbname;
 	die "User name for new user required\n" if !$username;
-	die "Password for new user required\n" if !$password;
+	#die "Password for new user required\n" if !$password;
 	my $connect_string = "dbi:Pg:host=$host;port=$port;dbname=$dbname";
 	$dbh = DBI->connect($connect_string, $dbusername, $dbpassword);
 }
+
 
 sub print_usage {
 	my $progname = basename($0);
@@ -65,6 +67,12 @@ sub add_user {
 		return;
 	}
 
+	if(!$password) { 
+		print "Enter a password for $username: ";
+		$password =<STDIN>;
+		chomp($password);
+	}
+
     my $sql="";
     if($encrypted) {
         my $pbkdf2 = Crypt::PBKDF2->new(
@@ -79,13 +87,14 @@ sub add_user {
 
 
         $sql = "INSERT INTO $USER_TABLE(username, password) " .
-              "VALUES('$username', '$hash')";
+              "VALUES(?, ?)";
+        $dbh->do($sql, undef, $username, $hash);
     }
     else {
         $sql = "INSERT INTO $USER_TABLE(username, password) " . 
-                      "VALUES('$username', '$password')";
+                      "VALUES(?, ?)";
+        $dbh->do($sql, undef, $username, $password);
     }
-	$dbh->do($sql);
 }
 
 sub user_exists {
