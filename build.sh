@@ -3,7 +3,7 @@
 APOLLO_ROOT_DIRECTORY=`pwd`
 APOLLO_WEBAPP_DIRECTORY="$APOLLO_ROOT_DIRECTORY/src/main/webapp"
 APOLLO_JBROWSE_DIRECTORY="$APOLLO_WEBAPP_DIRECTORY/jbrowse"
-JBROWSE_GITHUB="https://github.com/GMOD/jbrowse"a
+JBROWSE_GITHUB="https://github.com/GMOD/jbrowse"
 if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   echo "No jbrowse directory found at $APOLLO_JBROWSE_DIRECTORY, installing locally from $JBROWSE_GITHUB"
   cd $APOLLO_WEBAPP_DIRECTORY
