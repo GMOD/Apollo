@@ -23,4 +23,9 @@ else
   echo "jbrowse installed"
 fi
 
-
+if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
+    # will either do a force copy
+    cp $APOLLO_ROOT_DIRECTORY/config.properties $APOLLO_WEBAPP_DIRECTORY/config.properties
+else
+   echo "No config.properties found, not copying."
+fi
