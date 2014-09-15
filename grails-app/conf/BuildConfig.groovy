@@ -52,7 +52,9 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         // runtime 'mysql:mysql-connector-java:5.1.29'
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
+        compile 'commons-codec:commons-codec:1.2'
         test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
+
 
 //        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
 //        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
@@ -83,6 +85,7 @@ grails.project.dependency.resolution = {
         //compile ":handlebars-asset-pipeline:1.3.0.3"
 
         compile ":shiro:1.2.1"
+
 //        compile ":crypto:2.0"
 
         //compile ":kickstart-with-bootstrap:1.1.0"

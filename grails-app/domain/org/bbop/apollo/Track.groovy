@@ -6,6 +6,12 @@ class Track {
         genome nullable: true
     }
 
+    static hasMany = [
+            users:User
+    ]
+
+    static belongsTo = [User]
+
     String name
     Genome genome
 }
