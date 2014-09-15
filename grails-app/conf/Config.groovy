@@ -114,4 +114,23 @@ log4j.main = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
+
+//    trace 'org.hibernate.type'
+//    debug 'org.hibernate.SQL'
+
+    info 'grails.app'
+
+//    debug 'org.bbop.apollo'
+
+//    debug 'grails.app.jobs'
+//    debug 'grails.app.taglib'
+//    debug 'grails.app.taglib.edu.uoregon.nic.nemo.portal'
+//    debug 'grails.app.controllers'
+//    debug 'grails.app.services'
+//    debug 'grails.app.services.edu.uoregon.nic.nemo.portal.OntologyService'
+//    debug 'grails.app.services.edu.uoregon.nic.nemo.portal.DataStubService'
+//    debug 'grails.app.services.edu.uoregon.nic.nemo.portal.UserService'
+//    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
+//    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal.TermController'
 }
+

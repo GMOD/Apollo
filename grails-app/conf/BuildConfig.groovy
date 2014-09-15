@@ -6,6 +6,8 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.6
 grails.project.source.level = 1.6
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+def gebVersion = '0.9.3'
+def seleniumVersion = '2.21.0'
 
 grails.project.fork = [
     // configure settings for compilation JVM, note that if you alter the Groovy version forked compilation is required
@@ -51,6 +53,13 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.29'
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
+
+//        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+//
+//        test "org.gebish:geb-spock:$gebVersion"
     }
 
     plugins {
@@ -72,5 +81,16 @@ grails.project.dependency.resolution = {
         //compile ":less-asset-pipeline:1.10.0"
         //compile ":coffee-asset-pipeline:1.8.0"
         //compile ":handlebars-asset-pipeline:1.3.0.3"
+
+        compile ":shiro:1.2.1"
+//        compile ":crypto:2.0"
+
+        //compile ":kickstart-with-bootstrap:1.1.0"
+//        compile ":twitter-bootstrap:3.1.1.3"
+//        compile ":audit-logging:1.0.0"
+//        compile ":jasypt-encryption:1.1.0"
+//        compile ":joda-time:1.4"
+
+//        test    ":geb:$gebVersion"
     }
 }

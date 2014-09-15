@@ -8,3 +8,6 @@ src/main/webapp/config.properties
 src/main/webapp/jbrowse/
 .project
 .classpath
+*.iml
+*.ipr
+*.iws
