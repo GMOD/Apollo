@@ -186,17 +186,20 @@ public class ServerConfiguration {
     }
 
     private void init(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
+        System.out.println("init inputStrea" + configuration);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
+        System.out.println("going to parse");
         Document doc = db.parse(configuration);
+        System.out.println("PARSED");
 
         String[] extensions = new String[]{"properties"};
 
         Properties properties = new Properties();
         File currentDirectory= new File(".");
-//        System.out.println("current directory: "+currentDirectory.getAbsolutePath());
+        System.out.println("current directory: "+currentDirectory.getAbsolutePath());
         Collection<File> files = FileUtils.listFiles(currentDirectory,extensions,true);
-//        System.out.println("files found: "+files.size());
+        System.out.println("files found: "+files.size());
         boolean loaded = false ;
         for(File file : files){
             if(file.getName().equals("config.properties")){
@@ -204,6 +207,7 @@ public class ServerConfiguration {
                 loaded = true;
             }
         }
+        System.out.println("loaded: "+loaded) ;
 
         String dataStoreDirectoryOverride = null ;
         String databaseUrlOverride = null ;
@@ -211,10 +215,16 @@ public class ServerConfiguration {
         String databasePasswordOverride= null ;
 //        String jbrowseData = null ;
         if(loaded){
+            System.out.println("overriden: " + loaded ) ;
             dataStoreDirectoryOverride = properties.getProperty("datastore.directory");
             databaseUrlOverride = properties.getProperty("database.url");
             databaseUsernameOverride = properties.getProperty("database.username");
             databasePasswordOverride = properties.getProperty("database.password");
+
+            System.out.println("dataStoreDirectoryOverride: " + dataStoreDirectoryOverride ) ;
+            System.out.println("databaseUrlOverride: " + databaseUrlOverride ) ;
+            System.out.println("databaseUsernameOverride: " + databaseUsernameOverride ) ;
+            System.out.println("databasePasswordOverride: " + databasePasswordOverride ) ;
         }
 
 
@@ -229,6 +239,7 @@ public class ServerConfiguration {
 
         if(dataStoreDirectoryOverride!=null){
             dataStoreDirectory = dataStoreDirectoryOverride;
+            System.out.println("override dataStore directory: "+ dataStoreDirectory);
         }
         else{
             Node dataStoreDirectoryNode = doc.getElementsByTagName("datastore_directory").item(0);
@@ -260,8 +271,10 @@ public class ServerConfiguration {
             trackNameComparator = trackNameComparatorNode.getTextContent();
         }
         Element userNode = (Element)doc.getElementsByTagName("user").item(0);
+        System.out.println("has user node: "+ userNode);
         if (userNode != null) {
             Element databaseNode = (Element)userNode.getElementsByTagName("database").item(0);
+            System.out.println("has database node: "+ databaseNode);
             if (databaseNode != null) {
                 String driver = databaseNode.getElementsByTagName("driver").item(0).getTextContent();
                 String url = databaseUrlOverride!=null ? databaseUrlOverride : databaseNode.getElementsByTagName("url").item(0).getTextContent();
@@ -276,7 +289,10 @@ public class ServerConfiguration {
 //                if (passwordNode != null) {
 //                    password = passwordNode.getTextContent();
 //                }
+                System.out.println("loading database with: "+ driver + " "+url + " "+userName + " " + password);
+
                 userDatabase = new UserDatabaseConfiguration(driver, url, userName, password);
+                System.out.println("loaded database" );
             }
             Element authenticationClassNode = (Element)userNode.getElementsByTagName("authentication_class").item(0);
             if (authenticationClassNode != null) {

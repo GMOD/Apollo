@@ -16,7 +16,9 @@
 <%@ page import="java.net.URL" %>
 
 <%
+   System.out.println("AAA") ;
 ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+    System.out.println("BBB") ;
 if (!UserManager.getInstance().isInitialized()) {
     ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
     UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
