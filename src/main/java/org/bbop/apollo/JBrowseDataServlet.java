@@ -21,6 +21,8 @@ public class JBrowseDataServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        // TODO: move up so not recalculating each time
         String pathTranslated = req.getPathTranslated();
         String rootPath = pathTranslated.substring(0, pathTranslated.length() - req.getPathInfo().length());
         String configPath = rootPath + "/config/config.properties";
@@ -49,7 +51,6 @@ public class JBrowseDataServlet extends HttpServlet {
                 filename = testFile.getAbsolutePath();
                 System.out.println("symlink found so adjusting to absolute path: "+filename);
             }
-            System.out.println("not found so using default jbrowse/data path in servlet context "+ filename);
         }
 
 
