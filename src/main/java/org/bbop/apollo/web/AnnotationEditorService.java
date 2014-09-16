@@ -1,38 +1,10 @@
 package org.bbop.apollo.web;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.AnnotationEditor;
+import org.bbop.apollo.editor.AnnotationEditor.AnnotationEditorException;
 import org.bbop.apollo.editor.session.AnnotationSession;
 import org.bbop.apollo.editor.session.DataStore;
-import org.bbop.apollo.editor.AnnotationEditor.AnnotationEditorException;
 import org.bbop.apollo.tools.seq.search.SequenceSearchTool;
 import org.bbop.apollo.tools.seq.search.SequenceSearchToolException;
 import org.bbop.apollo.web.config.CannedComments;
@@ -44,51 +16,39 @@ import org.bbop.apollo.web.datastore.AbstractDataStoreManager;
 import org.bbop.apollo.web.datastore.DataStoreChangeEvent;
 import org.bbop.apollo.web.datastore.DataStoreChangeEvent.Operation;
 import org.bbop.apollo.web.datastore.JEDatabase;
-import org.bbop.apollo.web.datastore.history.AbstractHistoryStore;
-import org.bbop.apollo.web.datastore.history.AbstractHistoryStoreManager;
-import org.bbop.apollo.web.datastore.history.JEHistoryDatabase;
-import org.bbop.apollo.web.datastore.history.Transaction;
-import org.bbop.apollo.web.datastore.history.TransactionList;
+import org.bbop.apollo.web.datastore.history.*;
 import org.bbop.apollo.web.datastore.session.JEDatabaseSessionHybridArrayDataStore;
 import org.bbop.apollo.web.datastore.session.JEDatabaseSessionMemoryDataStore;
+import org.bbop.apollo.web.name.AbstractNameAdapter;
 import org.bbop.apollo.web.name.FeatureNameAdapter;
 import org.bbop.apollo.web.name.HttpSessionTimeStampNameAdapter;
-import org.bbop.apollo.web.name.AbstractNameAdapter;
 import org.bbop.apollo.web.name.PreDefinedNameAdapter;
 import org.bbop.apollo.web.overlap.Overlapper;
 import org.bbop.apollo.web.user.Permission;
 import org.bbop.apollo.web.user.UserManager;
 import org.bbop.apollo.web.util.JSONUtil;
-import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.CDS;
-import org.gmod.gbol.bioObject.Comment;
-import org.gmod.gbol.bioObject.Exon;
-import org.gmod.gbol.bioObject.FlankingRegion;
-import org.gmod.gbol.bioObject.Frameshift;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.GenericFeatureProperty;
-import org.gmod.gbol.bioObject.Match;
-import org.gmod.gbol.bioObject.NonCanonicalFivePrimeSpliceSite;
-import org.gmod.gbol.bioObject.NonCanonicalThreePrimeSpliceSite;
-import org.gmod.gbol.bioObject.Pseudogene;
-import org.gmod.gbol.bioObject.SequenceAlteration;
-import org.gmod.gbol.bioObject.Transcript;
+import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
-import org.gmod.gbol.simpleObject.CV;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.DBXref;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.FeatureProperty;
-import org.gmod.gbol.simpleObject.FeatureRelationship;
-import org.gmod.gbol.simpleObject.Organism;
-import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
+import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.util.SequenceUtil;
 import org.gmod.gbol.util.SequenceUtil.TranslationTable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.*;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Servlet implementation class AnnotationEditorService
@@ -137,7 +97,11 @@ public class AnnotationEditorService extends HttpServlet {
         try {
             ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
             InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
-            bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
+
+            String realPath = getServletContext().getRealPath(".");
+
+
+            bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream,realPath);
             gbolMappingStream.close();
             trackToEditor = new HashMap<String, AnnotationEditor>();
             dataStoreDirectory = serverConfig.getDataStoreDirectory();
