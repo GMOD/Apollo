@@ -208,8 +208,9 @@ public class ServerConfiguration {
         // some file-systems are kind of stupid and assumes that it is the root directory, so this may not always work (though it supports dev niceley)_
         File currentDirectory= new File(".");
         System.out.println("path: "+servletContext.getContextPath());
-        if(currentDirectory.getAbsolutePath().startsWith("\\/")){
-            currentDirectory = new File(servletContext.getContextPath());
+        System.out.println("real path: "+servletContext.getRealPath("."));
+        if(currentDirectory.getAbsolutePath().startsWith("/")){
+            currentDirectory = new File(servletContext.getRealPath("."));
             System.out.println("curretn directory reset: "+currentDirectory);
             System.out.println("exists: "+currentDirectory.exists());
             System.out.println("is directory: "+currentDirectory.isDirectory());
