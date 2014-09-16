@@ -164,7 +164,10 @@ apollo.info_editor = {
     comments = true
 }
 
-
+// https://github.com/zyro23/grails-spring-websocket
+// websocket info
+grails.tomcat.nio = true
+grails.tomcat.scan.enabled = true
 
 
 
