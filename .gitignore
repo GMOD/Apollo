@@ -11,3 +11,4 @@ src/main/webapp/jbrowse/
 *.iml
 *.ipr
 *.iws
+out

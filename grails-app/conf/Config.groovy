@@ -11,6 +11,13 @@
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
 
+grails.config.locations = [
+        "file:./${appName}-config.groovy",
+//        "file:/opt/apollo/${appName}-config.groovy",
+        "classpath:${appName}-config.groovy"
+]
+
+
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
@@ -85,6 +92,7 @@ grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
 
+
 environments {
     development {
         grails.logging.jul.usebridge = true
@@ -133,4 +141,30 @@ log4j.main = {
 //    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
 //    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal.TermController'
 }
+
+
+grails.gorm.default.constraints = {
+    '*'(nullable: true)
+}
+
+apollo.datastore.directory = "DATASTORE_DIRECTORY"
+apollo.default_minimum_intron_size = 1
+apollo.history_size = 0
+apollo.overlapper_class = "org.bbop.apollo.web.overlap.OrfOverlapper"
+apollo.track_name_comparator = "/config/track_name_comparator.js"
+apollo.use_cds_for_new_transcripts = true
+apollo.user_pure_memory_store = true
+
+apollo.info_editor = {
+    feature_types = "default"
+    attributes = true
+    dbxrefs = true
+    pubmed_ids = true
+    go_ids = true
+    comments = true
+}
+
+
+
+
 
