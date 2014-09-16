@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
-@TestFor(AnnotationEditorServiceController)
-class AnnotationEditorServiceControllerSpec extends Specification {
+@TestFor(AnnotationEditorController)
+class AnnotationEditorControllerSpec extends Specification {
 
     def setup() {
     }
