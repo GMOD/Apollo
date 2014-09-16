@@ -13,6 +13,7 @@ class BootStrap {
 
         if(User.count==0){
             mockupService.addUsers()
+            mockupService.addTerms()
             mockupService.addGenomes()
 
 

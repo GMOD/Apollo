@@ -24,6 +24,8 @@ class Track {
 
     String refSeqFile
     String dataDirectory
+    String sequenceType
+    String sequenceCV
     String organismName
 
 
