@@ -135,7 +135,7 @@ public class AnnotationEditorService extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
             InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
             bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
             gbolMappingStream.close();

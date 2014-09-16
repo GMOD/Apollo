@@ -1,9 +1,12 @@
 package org.bbop.apollo.web;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import net.crackstation.PasswordHash;
+import org.bbop.apollo.web.config.ServerConfiguration;
+import org.bbop.apollo.web.user.Permission;
+import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.util.JSONUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -12,14 +15,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.bbop.apollo.web.config.ServerConfiguration;
-import org.bbop.apollo.web.user.Permission;
-import org.bbop.apollo.web.user.UserManager;
-import org.bbop.apollo.web.util.JSONUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
-import net.crackstation.PasswordHash;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Servlet implementation class UserManagerService
@@ -40,7 +39,7 @@ public class UserManagerService extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
             if (!UserManager.getInstance().isInitialized()) {
                 ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
                 UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());

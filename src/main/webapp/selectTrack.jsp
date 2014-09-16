@@ -17,7 +17,8 @@
 
 <%
    System.out.println("AAA") ;
-ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+//ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+    ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
     System.out.println("BBB") ;
 if (!UserManager.getInstance().isInitialized()) {
     ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();

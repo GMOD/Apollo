@@ -1,13 +1,11 @@
 package org.bbop.apollo.web;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import org.bbop.apollo.web.config.ServerConfiguration;
+import org.bbop.apollo.web.user.UserAuthentication;
+import org.bbop.apollo.web.user.UserAuthenticationException;
+import org.bbop.apollo.web.user.UserManager;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -16,13 +14,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.bbop.apollo.web.config.ServerConfiguration;
-import org.bbop.apollo.web.user.UserAuthenticationException;
-import org.bbop.apollo.web.user.UserAuthentication;
-import org.bbop.apollo.web.user.UserManager;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Servlet implementation class LoginDynamic
@@ -44,7 +43,7 @@ public class Login extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
             userAuthentication = (UserAuthentication)Class.forName(serverConfig.getUserAuthenticationClass()).newInstance();
             if (!UserManager.getInstance().isInitialized()) {
                 ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();

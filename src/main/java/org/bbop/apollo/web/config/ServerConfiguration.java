@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,14 +36,21 @@ public class ServerConfiguration {
     private boolean useCDS;
     private boolean useMemoryStore;
     private Map<String, AnnotationInfoEditorConfiguration> annotationInfoEditors;
+
+    private ServletContext servletContext ;
 //    private Collection<AnnotationInfoEditorConfiguration> annotationInfoEditors;
 
+    public ServerConfiguration(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
+        throw new RuntimeException("No longer supported");
+    }
 
-    public ServerConfiguration(String xmlFileName) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+    public ServerConfiguration(String xmlFileName) throws  ParserConfigurationException, SAXException, IOException {
         this(new FileInputStream(xmlFileName));
     }
     
-    public ServerConfiguration(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
+    public ServerConfiguration(ServletContext servletContext) throws ParserConfigurationException, SAXException, IOException {
+        this.servletContext = servletContext ;
+        InputStream configuration = servletContext.getResourceAsStream("/config/config.xml");
         defaultMinimumIntronSize = 1;
         historySize = 0;
         sequenceSearchTools = new ArrayList<SequenceSearchToolConfiguration>();
@@ -196,7 +204,16 @@ public class ServerConfiguration {
         String[] extensions = new String[]{"properties"};
 
         Properties properties = new Properties();
+
+        // some file-systems are kind of stupid and assumes that it is the root directory, so this may not always work (though it supports dev niceley)_
         File currentDirectory= new File(".");
+        System.out.println("path: "+servletContext.getContextPath());
+        if(currentDirectory.getAbsolutePath().startsWith("\\/")){
+            currentDirectory = new File(servletContext.getContextPath());
+            System.out.println("curretn directory reset: "+currentDirectory);
+            System.out.println("exists: "+currentDirectory.exists());
+            System.out.println("is directory: "+currentDirectory.isDirectory());
+        }
         System.out.println("current directory: "+currentDirectory.getAbsolutePath());
         Collection<File> files = FileUtils.listFiles(currentDirectory,extensions,true);
         System.out.println("files found: "+files.size());
