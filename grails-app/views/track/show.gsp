@@ -32,15 +32,17 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${trackInstance?.name}">
 				<li class="fieldcontain">
 					<span id="name-label" class="property-label"><g:message code="track.name.label" default="Name" /></span>
 					
-						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${trackInstance}" field="name"/></span>
+						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${trackInstance}" field="name"/>
+
+                            <g:link action="show" controller="jbrowse"
+                        </span>
 					
 				</li>
-				</g:if>
-			
+
+
 				<g:if test="${trackInstance?.users}">
 				<li class="fieldcontain">
 					<span id="users-label" class="property-label"><g:message code="track.users.label" default="Users" /></span>

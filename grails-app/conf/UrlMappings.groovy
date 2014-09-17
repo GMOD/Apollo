@@ -16,13 +16,13 @@ class UrlMappings {
         // set this routing here
 //        "/jbrowse"(controller: "jbrowse", action: "index")
         "/jbrowse/"(uri: "/jbrowse/index.html")
+        "/jbrowse/data/**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/seq/refSeqs.json"(controller: "jbrowse", action: "seq")
 //        "/jbrowse/data/tracks/**"(controller: "jbrowse", action: "tracks")
-//        "/jbrowse/data/**"(controller: "jbrowse", action: "data")
-        // In UrlMappings.groovy
         "/jbrowse/data/tracks/$trackName/$groupName/${jsonFile}.json" {
             controller = 'jbrowse'
             action = 'tracks'
         }
+        // In UrlMappings.groovy
     }
 }

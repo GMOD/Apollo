@@ -7,7 +7,7 @@
 		<g:message code="track.genome.label" default="Genome" />
 		
 	</label>
-	<g:select id="genome" name="genome.id" from="${org.bbop.apollo.Genome.list()}" optionKey="id" value="${trackInstance?.genome?.id}" class="many-to-one" noSelection="['null': '']"/>
+	<g:select id="genome" name="genome.id" from="${org.bbop.apollo.Genome.list()}" optionValue="name" optionKey="id" value="${trackInstance?.genome?.id}" class="many-to-one" noSelection="['null': '']"/>
 
 </div>
 

@@ -32,8 +32,9 @@ class JbrowseController {
      * For returning seq/refSeqs.json
      */
     def seq(){
+        println "seq"
         String filename = grailsApplication.config.apollo.jbrowse.data.directory
-        File file = new File(filename);
+        File file = new File(filename+"/seq/refSeqs.json");
         if(!file.exists()){
             log.error("Could not get find file " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -103,7 +104,7 @@ class JbrowseController {
         File file = new File(filename);
 
 
-        if(!file.exists()){
+        if(!file.exists() || !file.isFile()){
             log.error("Could not get find file " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
