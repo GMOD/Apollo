@@ -147,7 +147,8 @@ grails.gorm.default.constraints = {
     '*'(nullable: true)
 }
 
-apollo.datastore.directory = "DATASTORE_DIRECTORY"
+apollo.datastore.directory = "/opt/apollo/data"
+apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
 apollo.default_minimum_intron_size = 1
 apollo.history_size = 0
 apollo.overlapper_class = "org.bbop.apollo.web.overlap.OrfOverlapper"
