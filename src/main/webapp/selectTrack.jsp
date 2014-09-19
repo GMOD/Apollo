@@ -33,12 +33,12 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 <title>Select track</title>
 
-<link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
-<link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
+<link rel="icon" type="image/x-icon" href="../../../web-app/images/webapollo_favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="../../../web-app/images/webapollo_favicon.ico">
 
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="styles/userPermissions.css" />
+<link rel="stylesheet" type="text/css" href="../../../web-app/css/selectTrack.css" />
+<link rel="stylesheet" type="text/css" href="../../../web-app/css/search_sequence.css" />
+<link rel="stylesheet" type="text/css" href="../../../web-app/css/userPermissions.css" />
 
 <link rel="stylesheet" href="jslib/jquery-ui-menubar/jquery.ui.all.css" />
 <script src="jslib/jquery-ui-menubar/jquery-1.8.2.js"></script>
@@ -55,7 +55,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
 
-<script type="text/javascript" src="js/SequenceSearch.js"></script>
+<script type="text/javascript" src="../../../web-app/js/SequenceSearch.js"></script>
 
 <!--
 <link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
@@ -407,7 +407,7 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
 <ul id="menu">
-    <li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()"/></a></li>
+    <li><a><img id="logo" src="../../../web-app/images/ApolloLogo_100x36.png" onload="cleanup_logo()"/></a></li>
     <li><a id="file_item">File</a>
         <ul id="file_menu">
             <li><a id="export_menu">Export</a>
@@ -489,7 +489,7 @@ function open_user_manager_dialog() {
 <div id="user_manager_dialog" title="Manage users" style="display:none"></div>
 -->
 <div id="data_adapter_dialog" title="Data adapter">
-    <div id="data_adapter_loading"><img src="images/loading.gif"/></div>
+    <div id="data_adapter_loading"><img src="../../../web-app/images/loading.gif"/></div>
     <div id="data_adapter_message"></div>
 </div>
 <div id="login_dialog" title="Login">

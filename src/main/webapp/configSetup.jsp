@@ -44,12 +44,12 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 <title>Configuration setup</title>
 
-<link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
-<link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
+<link rel="icon" type="image/x-icon" href="../../../web-app/images/webapollo_favicon.ico">
+<link rel="shortcut icon" type="image/x-icon" href="../../../web-app/images/webapollo_favicon.ico">
 
-<link rel="stylesheet" type="text/css" href="styles/recentChanges.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="styles/userPermissions.css" />
+<link rel="stylesheet" type="text/css" href="../../../web-app/css/recentChanges.css" />
+<link rel="stylesheet" type="text/css" href="../../../web-app/css/search_sequence.css" />
+<link rel="stylesheet" type="text/css" href="../../../web-app/css/userPermissions.css" />
 
 <link rel="stylesheet" href="jslib/jquery-ui-menubar/jquery.ui.all.css" />
 <script src="jslib/jquery-ui-menubar/jquery-1.8.2.js" type="text/javascript"></script>
@@ -64,7 +64,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
 
-<script type="text/javascript" src="js/SequenceSearch.js"></script>
+<script type="text/javascript" src="../../../web-app/js/SequenceSearch.js"></script>
 
 
 
@@ -310,7 +310,7 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
 <ul id="menu">
-    <li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
+    <li><a><img id="logo" src="../../../web-app/images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
     <li><a id="file_item">File</a>
         <ul id="file_menu">
             <li><a id="export_menu">Export</a>

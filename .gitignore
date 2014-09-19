@@ -12,3 +12,4 @@ src/main/webapp/jbrowse/
 *.ipr
 *.iws
 out
+web-app/jbrowse

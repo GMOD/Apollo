@@ -1,6 +1,6 @@
 @CHARSET "UTF-8";
 
-@import "../jslib/DataTables/css/demo_table.css";
+@import "../../src/main/webapp/jslib/DataTables/css/demo_table.css";
 
 #tracks {
 	width: 100%
@@ -63,7 +63,7 @@
 	margin-top: -2px;
 	display: inline;
 	display: inline-block;
-	background: url("../images/user_icon_16px.png");
+	background: url("../../src/main/webapp/images/user_icon_16px.png");
 }
 
 /*

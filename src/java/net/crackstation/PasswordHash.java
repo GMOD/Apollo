@@ -1,7 +1,7 @@
 package net.crackstation;
 
 /*
- * Password Hashing With PBKDF2 (http://crackstation.net/hashing-security.htm).
+ * Password Hashing With PBKDF2 (http://net.crackstation.net/hashing-security.htm).
  * Copyright (c) 2013, Taylor Hornby
  * All rights reserved.
  *
@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 /*
  * PBKDF2 salted password hashing.
  * Author: havoc AT defuse.ca
- * www: http://crackstation.net/hashing-security.htm
+ * www: http://net.crackstation.net/hashing-security.htm
  */
 public class PasswordHash
 {
