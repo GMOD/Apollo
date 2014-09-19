@@ -37,7 +37,7 @@
 					
 						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${trackInstance}" field="name"/>
 
-                            <g:link action="show" controller="jbrowse"
+                            %{--<g:link action="show" controller="jbrowse"--}%
                         </span>
 					
 				</li>

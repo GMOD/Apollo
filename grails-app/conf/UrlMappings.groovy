@@ -23,6 +23,9 @@ class UrlMappings {
             controller = 'jbrowse'
             action = 'tracks'
         }
+        "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params){
+
+        }
         // In UrlMappings.groovy
     }
 }

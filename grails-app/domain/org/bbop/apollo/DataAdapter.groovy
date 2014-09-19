@@ -2,8 +2,13 @@ package org.bbop.apollo
 
 class DataAdapter {
 
+
     static constraints = {
     }
+
+    static hasMany = [
+            dataAdapters: DataAdapter
+    ]
 
     String key
     String implementationClass
