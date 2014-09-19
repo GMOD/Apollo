@@ -12,19 +12,19 @@ class GroupController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond Group.list(params), model:[groupInstanceCount: Group.count()]
+        respond GroupAnnotation.list(params), model:[groupInstanceCount: GroupAnnotation.count()]
     }
 
-    def show(Group groupInstance) {
+    def show(GroupAnnotation groupInstance) {
         respond groupInstance
     }
 
     def create() {
-        respond new Group(params)
+        respond new GroupAnnotation(params)
     }
 
     @Transactional
-    def save(Group groupInstance) {
+    def save(GroupAnnotation groupInstance) {
         if (groupInstance == null) {
             notFound()
             return
@@ -46,12 +46,12 @@ class GroupController {
         }
     }
 
-    def edit(Group groupInstance) {
+    def edit(GroupAnnotation groupInstance) {
         respond groupInstance
     }
 
     @Transactional
-    def update(Group groupInstance) {
+    def update(GroupAnnotation groupInstance) {
         if (groupInstance == null) {
             notFound()
             return
@@ -74,7 +74,7 @@ class GroupController {
     }
 
     @Transactional
-    def delete(Group groupInstance) {
+    def delete(GroupAnnotation groupInstance) {
 
         if (groupInstance == null) {
             notFound()

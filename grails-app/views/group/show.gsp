@@ -1,5 +1,5 @@
 
-<%@ page import="org.bbop.apollo.Group" %>
+<%@ page import="org.bbop.apollo.GroupAnnotation" %>
 <!DOCTYPE html>
 <html>
 	<head>

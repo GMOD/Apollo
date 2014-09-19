@@ -15,7 +15,7 @@ class Track {
 
     static hasMany = [
             users:User
-            ,groups:Group
+            ,groups:GroupAnnotation
     ]
 
     static belongsTo = [User]

@@ -6,7 +6,7 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(GroupController)
-@Mock(Group)
+@Mock(GroupAnnotation)
 class GroupControllerSpec extends Specification {
 
     def populateValidParams(params) {
@@ -38,7 +38,7 @@ class GroupControllerSpec extends Specification {
         when:"The save action is executed with an invalid instance"
             request.contentType = FORM_CONTENT_TYPE
             request.method = 'POST'
-            def group = new Group()
+            def group = new GroupAnnotation()
             group.validate()
             controller.save(group)
 
@@ -49,14 +49,14 @@ class GroupControllerSpec extends Specification {
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            group = new Group(params)
+            group = new GroupAnnotation(params)
 
             controller.save(group)
 
         then:"A redirect is issued to the show action"
             response.redirectedUrl == '/group/show/1'
             controller.flash.message != null
-            Group.count() == 1
+            GroupAnnotation.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
@@ -68,7 +68,7 @@ class GroupControllerSpec extends Specification {
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def group = new Group(params)
+            def group = new GroupAnnotation(params)
             controller.show(group)
 
         then:"A model is populated containing the domain instance"
@@ -84,7 +84,7 @@ class GroupControllerSpec extends Specification {
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def group = new Group(params)
+            def group = new GroupAnnotation(params)
             controller.edit(group)
 
         then:"A model is populated containing the domain instance"
@@ -104,7 +104,7 @@ class GroupControllerSpec extends Specification {
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def group = new Group()
+            def group = new GroupAnnotation()
             group.validate()
             controller.update(group)
 
@@ -115,7 +115,7 @@ class GroupControllerSpec extends Specification {
         when:"A valid domain instance is passed to the update action"
             response.reset()
             populateValidParams(params)
-            group = new Group(params).save(flush: true)
+            group = new GroupAnnotation(params).save(flush: true)
             controller.update(group)
 
         then:"A redirect is issues to the show action"
@@ -136,16 +136,16 @@ class GroupControllerSpec extends Specification {
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def group = new Group(params).save(flush: true)
+            def group = new GroupAnnotation(params).save(flush: true)
 
         then:"It exists"
-            Group.count() == 1
+            GroupAnnotation.count() == 1
 
         when:"The domain instance is passed to the delete action"
             controller.delete(group)
 
         then:"The instance is deleted"
-            Group.count() == 0
+            GroupAnnotation.count() == 0
             response.redirectedUrl == '/group/index'
             flash.message != null
     }

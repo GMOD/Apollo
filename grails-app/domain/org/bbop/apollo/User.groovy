@@ -4,7 +4,11 @@ class User {
     String username
     String passwordHash
     
-    static hasMany = [ roles: Role, permissions: String , tracks: Track]
+    static hasMany = [ roles: Role, permissions: String , tracks: Track,groupAnnotations: GroupAnnotation, userGroups:UserGroup]
+
+    static belongsTo = [
+            UserGroup
+    ]
 
     static constraints = {
         username(nullable: false, blank: false, unique: true,email:true)
