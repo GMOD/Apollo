@@ -1,23 +1,14 @@
 package org.gmod.gbol.generator;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.RootClass;
 import org.hibernate.tool.hbm2x.AbstractExporter;
 import org.hibernate.tool.hbm2x.ExporterException;
+
+import java.io.*;
+import java.util.*;
 
 public class HibernateConfigurationExporter extends AbstractExporter{
 
@@ -90,7 +81,7 @@ public class HibernateConfigurationExporter extends AbstractExporter{
         ignoredProperties.put(Environment.SESSION_FACTORY_NAME, null);
         ignoredProperties.put(Environment.HBM2DDL_AUTO, "false" );
         ignoredProperties.put("hibernate.temp.use_jdbc_metadata_defaults", null );
-        ignoredProperties.put(Environment.TRANSACTION_MANAGER_STRATEGY, "org.hibernate.console.FakeTransactionManagerLookup");
+//        ignoredProperties.put(Environment.TRANSACTION_MANAGER_STRATEGY, "org.hibernate.console.FakeTransactionManagerLookup");
         
         Set set = props.entrySet();
         Iterator iterator = set.iterator();
