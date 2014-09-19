@@ -1,9 +1,11 @@
 package org.bbop.apollo.web;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import org.bbop.apollo.web.config.ServerConfiguration;
+import org.bbop.apollo.web.user.Permission;
+import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.util.JSONUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -12,18 +14,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.bbop.apollo.web.config.ServerConfiguration;
-import org.bbop.apollo.web.user.Permission;
-import org.bbop.apollo.web.user.UserManager;
-import org.bbop.apollo.web.util.JSONUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
-import net.crackstation.PasswordHash;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Servlet implementation class UserManagerService
  */
+// TODO:  wrap SHIRO
 @WebServlet("/UserManagerService")
 public class UserManagerService extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -108,7 +107,7 @@ public class UserManagerService extends HttpServlet {
             String password = user.getString("password");
             if(user.has("encrypted")) {
             try {
-            String hash=PasswordHash.createHash(password);
+            String hash=password ;
             UserManager.getInstance().addUser(username, hash);
             }
             catch(Exception e) {}

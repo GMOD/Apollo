@@ -1,29 +1,24 @@
 package org.bbop.apollo.web.user.encryptedlocaldb;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.bbop.apollo.web.user.UserAuthentication;
+import org.bbop.apollo.web.user.UserAuthenticationException;
+import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.util.JSONUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.crackstation.PasswordHash;
-
-import org.bbop.apollo.web.user.UserAuthenticationException;
-import org.bbop.apollo.web.user.UserAuthentication;
-import org.bbop.apollo.web.user.UserManager;
-import org.bbop.apollo.web.util.JSONUtil;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
 
@@ -83,15 +78,7 @@ public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
         ResultSet rs = stmt.executeQuery();
         boolean valid = false;
         if (rs.next()) {
-            try {
-                valid = PasswordHash.validatePassword(password, rs.getString(2));
-            }
-            catch (NoSuchAlgorithmException e) {
-                valid = false;
-            }
-            catch (InvalidKeySpecException e) {
-                valid = false;
-            }
+                valid = password .equals(rs.getString(2));
         }
         conn.close();
         return valid;
