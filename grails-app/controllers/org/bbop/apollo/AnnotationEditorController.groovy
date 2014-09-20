@@ -106,7 +106,12 @@ class AnnotationEditorController {
     }
 
     def getFeatures() {
+        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         println "getting features !! ${params}"
+        JSONArray jsonFeatures = returnObject.getJSONArray("features");
+        // TODO: get features from annotation session
+
+        render returnObject
     }
 
 
