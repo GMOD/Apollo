@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.gmod.gbol.util.SequenceUtil
 import org.springframework.messaging.handler.annotation.MessageMapping
@@ -44,8 +45,10 @@ class AnnotationEditorController {
         // TODO: this is a hack, but it should come trhough the UrlMapper
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
+        def mappedAction = underscoreToCamelCase(operation)
+        println "${operation} -> ${mappedAction}"
         track = postObject.get(REST_TRACK)
-        forward action: "${underscoreToCamelCase(operation)}", params: [data: postObject]
+        forward action: "${mappedAction}", params: [data: postObject]
     }
 
 
@@ -107,11 +110,47 @@ class AnnotationEditorController {
 
     def getFeatures() {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        println "getting features !! ${params}"
-        JSONArray jsonFeatures = returnObject.getJSONArray("features");
+        JSONArray jsonFeatures = new JSONArray()
+
+//        for (AbstractSingleLocationBioFeature gbolFeature : editor.getSession().getFeatures()) {
+//            if (gbolFeature instanceof Gene) {
+//                for (Transcript transcript : ((Gene)gbolFeature).getTranscripts()) {
+//                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
+//                }
+//            }
+//            else {
+//                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
+//            }
+//        }
+
+        returnObject.put("features",jsonFeatures)
         // TODO: get features from annotation session
 
         render returnObject
+    }
+
+    def getSequenceAlterations(){
+        println "getting sequence alterations "
+        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        JSONArray jsonFeatures = new JSONArray()
+        returnObject.put("features",jsonFeatures)
+
+        // TODO: get alternations from session
+//        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
+//            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
+//        }
+
+        render returnObject
+    }
+
+    private JSONObject createJSONFeatureContainer(JSONObject ... features) throws JSONException {
+        JSONObject jsonFeatureContainer = new JSONObject();
+        JSONArray jsonFeatures = new JSONArray();
+        jsonFeatureContainer.put("features", jsonFeatures);
+        for (JSONObject feature : features) {
+            jsonFeatures.put(feature);
+        }
+        return jsonFeatureContainer;
     }
 
 
