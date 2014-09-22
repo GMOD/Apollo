@@ -1,6 +1,5 @@
 package org.gmod.gbol.bioObject.conf;
 
-import org.apache.commons.io.FileUtils;
 import org.gmod.gbol.bioObject.AbstractBioFeature;
 import org.gmod.gbol.bioObject.AbstractBioFeatureProperty;
 import org.gmod.gbol.bioObject.AbstractBioObject;
@@ -25,10 +24,10 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-/**
- * Class that stores the mapping between classes and types.
- *
+/** Class that stores the mapping between classes and types.
+ * 
  * @author elee
+ *
  */
 
 public class BioObjectConfiguration implements Serializable {
@@ -36,74 +35,58 @@ public class BioObjectConfiguration implements Serializable {
     private Map<CVTerm, String> termToClass;
     private Map<String, CVTerm> classToDefault;
     private Map<String, List<CVTerm>> classToTerms;
-    private Map<String, Set<CVTerm>> classToDescendantTerms;
+    private Map<String, Set<CVTerm>> classToDescendantTerms; 
 
-    private String realPath = null ;
-
-    /**
-     * Constructor.
-     *
+    /** Constructor.
+     * 
      * @param xmlFileName - Configuration XML file name for mappings
      */
     public BioObjectConfiguration(String xmlFileName) {
         try {
-            this.realPath = new File(".").getAbsolutePath();
             FileInputStream fis = new FileInputStream(xmlFileName);
             init(fis);
             fis.close();
         } catch (FileNotFoundException e) {
             throw new BioObjectConfigurationException("Error reading configuration: " + e.getMessage());
         } catch (IOException e) {
-            System.err.println("failed to configure bioobject: "+e);
         }
     }
-
-    /**
-     * Constructor.
-     *
+    
+    /** Constructor.
+     * 
      * @param xmlInputStream - Configuration XML input stream for mappings
      */
     public BioObjectConfiguration(InputStream xmlInputStream) {
         init(xmlInputStream);
     }
-
-    public BioObjectConfiguration(InputStream xmlInputStream,String realPath) {
-        this.realPath = realPath ;
-        init(xmlInputStream);
-    }
-
-    /**
-     * Get the name of the class corresponding to the given CVTerm.
-     *
+    
+    /** Get the name of the class corresponding to the given CVTerm.
+     * 
      * @param cvterm - CVTerm of interest
      * @return Name of the class.  Returns <code>null</code> if CVTerm doesn't exist
      */
-    public String getClassForCVTerm(CVTerm cvterm) {
+    public String getClassForCVTerm(CVTerm cvterm)
+    {
         return termToClass.get(cvterm);
     }
-
-    /**
-     * Get the default CVTerm for a given class name.
-     *
+    
+    /** Get the default CVTerm for a given class name.
+     * 
      * @param className - Class name to get the default CVTerm for
      * @return Default CVTerm for a given class.  Returns <code>null</code> if no default is set for class name
      */
-    public CVTerm getDefaultCVTermForClass(String className) {
+    public CVTerm getDefaultCVTermForClass(String className)
+    {
         return classToDefault.get(className);
     }
-
-    /**
-     * Get the associated cvterms for a given class
-     *
+    
+    /** Get the associated cvterms for a given class
+     * 
      * @param className - Class name to get the associated cvterms for
      * @return Collection of CVTerm objects associated with a given class.  Returns an empty container if none is found
      */
-    public Collection<CVTerm> getCVTermsForClass(String className) {
-//        System.out.println("IN: -------");
-//        for(String key : classToTerms.keySet()){
-//            System.out.println("key: "+key);
-//        }
-//        System.out.println("OUT: -------");
+    public Collection<CVTerm> getCVTermsForClass(String className)
+    {
         Collection<CVTerm> classNames = classToTerms.get(className);
         if (classNames == null) {
             System.err.println("No CVTerms for class: " + className);
@@ -111,63 +94,30 @@ public class BioObjectConfiguration implements Serializable {
         }
         return classNames;
     }
-
-    /**
-     * Get the associated cvterms and child features for a given class
-     *
+    
+    /** Get the associated cvterms and child features for a given class
+     * 
      * @param className - Class name to get the associated cvterms for
      * @return Collection of CVTerm objects associated with a given class.  Returns <code>null</code> if none is found
      */
-    public Collection<CVTerm> getDescendantCVTermsForClass(String className) {
+    public Collection<CVTerm> getDescendantCVTermsForClass(String className)
+    {
         Collection<CVTerm> classNames = classToDescendantTerms.get(className);
         if (classNames == null) {
             return new ArrayList<CVTerm>();
         }
         return classNames;
     }
-
-    private void init(InputStream xmlInputStream) {
+    
+    private void init(InputStream xmlInputStream)
+    {
         termToClass = new HashMap<CVTerm, String>();
         classToDefault = new HashMap<String, CVTerm>();
         classToTerms = new HashMap<String, List<CVTerm>>();
         try {
             SchemaFactory sf = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-            URL xsd = getClass().getResource("/config/gbol_mappings.xsd");
-            Schema schema;
-
-            if (xsd != null) {
-                schema = sf.newSchema(xsd);
-            }
-            else
-            if(this.realPath!=null)
-            {
-//            System.out.println("realpath: "+realPath);
-//            String gbolMappingFile = serverConfig.getGBOLMappingFile();
-//            System.out.println("gbolMappingfile: "+gbolMappingFile);
-//
-//            File fileInput = new File(realPath+gbolMappingFile);
-//            System.out.println("File exists: "+fileInput);
-//            FileInputStream gbolMappingStream = new FileInputStream(fileInput.getAbsolutePath());
-
-
-                File realPath = new File(this.realPath);
-//                System.out.println(this.realPath);
-                String[] extensions = new String[]{"xsd"};
-                Collection<File> files = FileUtils.listFiles(realPath,extensions,true);
-                File actualFile= null;
-                for(File f : files){
-                    if(f.getName().equals("gbol_mappings.xsd")){
-                        actualFile = f;
-                    }
-                }
-
-//                File file = new File("src/main/webapp/config/gbol_mappings.xsd");
-                schema = sf.newSchema(actualFile);
-            }
-            else{
-                System.out.println("unable to define the schema fail . . . exiting");
-                schema = null ;
-            }
+            URL xsd = getClass().getResource("/conf/gbol_mappings.xsd");
+            Schema schema = sf.newSchema(xsd);
             Validator validator = schema.newValidator();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
@@ -181,7 +131,7 @@ public class BioObjectConfiguration implements Serializable {
             processMappings(doc, "feature_property_mappings");
             processMappings(doc, "attribute_mappings");
             processMappings(doc, "relationship_mappings");
-
+            
             // Build classToDescendantTerms from classToTerms
             classToDescendantTerms = new HashMap<String, Set<CVTerm>>();
             String pkg = AbstractBioObject.class.getPackage().getName();
@@ -189,9 +139,8 @@ public class BioObjectConfiguration implements Serializable {
             for (String className : classToTerms.keySet()) {
                 Class<? extends AbstractBioObject> current;
                 try {
-                    current = (Class<AbstractBioObject>) Class.forName(pkg + "." + className);
+                    current = (Class<AbstractBioObject>)Class.forName(pkg + "." + className);
                 } catch (ClassNotFoundException e) {
-                    System.err.println("trying to parse: " + pkg + className);
                     throw new BioObjectConfigurationException("Error parsing configuration: " + e.getMessage());
                 }
                 if (!AbstractBioFeature.class.isAssignableFrom(current) &&
@@ -204,29 +153,33 @@ public class BioObjectConfiguration implements Serializable {
                         classToDescendantTerms.put(shortClassName, new HashSet<CVTerm>());
                     }
                     classToDescendantTerms.get(shortClassName).addAll(classToTerms.get(className));
-
-                    current = (Class<AbstractBioFeature>) current.getSuperclass();
+                    
+                    current = (Class<AbstractBioFeature>)current.getSuperclass();
                 }
-
-
+                
+                
             }
-        } catch (ParserConfigurationException e) {
+        }
+        catch (ParserConfigurationException e) {
             throw new BioObjectConfigurationException("Error parsing configuration: " + e.getMessage());
-        } catch (SAXException e) {
+        }
+        catch (SAXException e) {
             throw new BioObjectConfigurationException("Error parsing configuration: " + e.getMessage());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new BioObjectConfigurationException("Error reading configuration: " + e.getMessage());
         }
     }
-
-    private void processMappings(Document doc, String root) {
+    
+    private void processMappings(Document doc, String root)
+    {
         NodeList featureMappings = doc.getElementsByTagName(root);
         if (featureMappings.getLength() == 0) {
             return;
         }
-        NodeList types = ((Element) featureMappings.item(0)).getElementsByTagName("type");
+        NodeList types = ((Element)featureMappings.item(0)).getElementsByTagName("type");
         for (int i = 0; i < types.getLength(); ++i) {
-            Element type = (Element) types.item(i);
+            Element type = (Element)types.item(i);
             String cv = type.getAttribute("cv");
             String term = type.getAttribute("term");
             boolean isDefault = type.getAttribute("default").equals("true");
@@ -244,18 +197,22 @@ public class BioObjectConfiguration implements Serializable {
             cvterms.add(cvterm);
         }
     }
-
-    private class BioObjectConfigurationErrorHandler implements ErrorHandler {
-
-        public void error(SAXParseException e) {
+    
+    private class BioObjectConfigurationErrorHandler implements ErrorHandler
+    {
+        
+        public void error(SAXParseException e)
+        {
             throw new BioObjectConfigurationException("Error in configuration XML: " + e.getMessage());
         }
 
-        public void fatalError(SAXParseException e) {
+        public void fatalError(SAXParseException e)
+        {
             throw new BioObjectConfigurationException("Error in configuration XML: " + e.getMessage());
         }
-
-        public void warning(SAXParseException e) {
+        
+        public void warning(SAXParseException e)
+        {
         }
     }
 }

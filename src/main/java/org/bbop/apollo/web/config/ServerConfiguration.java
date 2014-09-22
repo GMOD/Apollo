@@ -47,7 +47,7 @@ public class ServerConfiguration {
     public ServerConfiguration(String xmlFileName) throws  ParserConfigurationException, SAXException, IOException {
         this(new FileInputStream(xmlFileName));
     }
-    
+
     public ServerConfiguration(ServletContext servletContext) throws ParserConfigurationException, SAXException, IOException {
         this.servletContext = servletContext ;
         InputStream configuration = servletContext.getResourceAsStream("/config/config.xml");
@@ -62,7 +62,7 @@ public class ServerConfiguration {
         init(configuration);
         configuration.close();
     }
-    
+
     public String getGBOLMappingFile() {
         return gbolMappingFile;
     }

@@ -80,6 +80,13 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.gmod.gbol</groupId>
+            <artifactId>resources</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/resources.jar</systemPath>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.apache.tomcat</groupId>-->
             <!--<artifactId>tomcat-catalina</artifactId>-->
