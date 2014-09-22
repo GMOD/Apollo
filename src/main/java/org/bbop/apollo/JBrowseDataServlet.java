@@ -29,27 +29,27 @@ public class JBrowseDataServlet extends HttpServlet {
 
 
         File propertyFile = new File(configPath);
-        String filename = null ;
+        String filename = null;
 
-        if(propertyFile.exists()){
+        if (propertyFile.exists()) {
             Properties properties = new Properties();
             FileInputStream fileInputStream = new FileInputStream(propertyFile);
             properties.load(fileInputStream);
 
             filename = properties.getProperty("jbrowse.data") + req.getPathInfo();
             File dataFile = new File(filename);
-            if(!dataFile.exists() || !dataFile.canRead()){
-                System.out.println("NOT found: "+filename);
-                filename = null ;
+            if (!dataFile.exists() || !dataFile.canRead()) {
+                System.out.println("NOT found: " + filename);
+                filename = null;
             }
         }
 
-        if(filename==null){
+        if (filename == null) {
             filename = rootPath + req.getServletPath() + req.getPathInfo();
             File testFile = new File(filename);
-            if(FileUtils.isSymlink(testFile)){
+            if (FileUtils.isSymlink(testFile)) {
                 filename = testFile.getAbsolutePath();
-                System.out.println("symlink found so adjusting to absolute path: "+filename);
+                System.out.println("symlink found so adjusting to absolute path: " + filename);
             }
         }
 
@@ -58,7 +58,7 @@ public class JBrowseDataServlet extends HttpServlet {
         ServletContext sc = getServletContext();
 
         File file = new File(filename);
-        if(!file.exists()){
+        if (!file.exists()) {
             sc.log("Could not get MIME type of " + filename);
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -68,9 +68,20 @@ public class JBrowseDataServlet extends HttpServlet {
         // Get the MIME type of the image
         String mimeType = sc.getMimeType(filename);
         if (mimeType == null) {
-            sc.log("Could not get MIME type of " + filename);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
+            if (filename.endsWith(".bam")
+                    || filename.endsWith(".bw")
+                    || filename.endsWith(".bai")
+                    || filename.endsWith(".conf")
+                    ) {
+                mimeType = "text/plain";
+            } else if (filename.endsWith(".tbi")) {
+                mimeType = "application/x-gzip";
+            } else {
+                System.err.println("Could not get MIME type of " + filename + " falling back to text/plain");
+                mimeType = "text/plain";
+//                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//                return;
+            }
         }
 
         // Set content type
