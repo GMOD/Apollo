@@ -5,13 +5,15 @@ APOLLO_BUILD_DIRECTORY=$APOLLO_ROOT_DIRECTORY
 APOLLO_WEBAPP_DIRECTORY="$APOLLO_ROOT_DIRECTORY/src/main/webapp"
 APOLLO_JBROWSE_DIRECTORY="$APOLLO_WEBAPP_DIRECTORY/jbrowse"
 JBROWSE_GITHUB="https://github.com/GMOD/jbrowse"
+JBROWSE_RELEASE="1.11.5-release"
 
 if [ ! -d "$APOLLO_BUILD_DIRECTORY/jbrowse-github" ]; then
   echo "No jbrowse directory found at $APOLLO_JBROWSE_DIRECTORY, installing locally from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
   git clone --recursive $JBROWSE_GITHUB jbrowse-github
-
+  
   cd $APOLLO_BUILD_DIRECTORY/jbrowse-github
+  git checkout $JBROWSE_RELEASE
   cp -r $APOLLO_ROOT_DIRECTORY/client/apollo plugins/WebApollo
   rm -rf $APOLLO_JBROWSE_DIRECTORY
   if [[ $1 == release ]]; then
