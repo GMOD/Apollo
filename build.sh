@@ -16,16 +16,19 @@ fi
 
 cd $APOLLO_BUILD_DIRECTORY/jbrowse-github
 cp -r $APOLLO_ROOT_DIRECTORY/client/apollo plugins/WebApollo
-ulimit -n 1000
-
-make -f build/Makefile release
 rm -rf $APOLLO_JBROWSE_DIRECTORY
 if [[ $1 == release ]]; then
     echo "Using release jbrowse"
+	ulimit -n 1000
+	make -f build/Makefile release
     mv JBrowse-dev $APOLLO_JBROWSE_DIRECTORY
-else
+elif [[ $1 == debug ]]; then
+	ulimit -n 1000
+	make -f build/Makefile release
     echo "Using debug jbrowse"
     mv JBrowse-dev-dev $APOLLO_JBROWSE_DIRECTORY
+else
+    cp -R .  $APOLLO_JBROWSE_DIRECTORY
 fi
 
 cd $APOLLO_JBROWSE_DIRECTORY
