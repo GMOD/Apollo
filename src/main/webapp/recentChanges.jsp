@@ -31,7 +31,7 @@
 <%@ page import="java.io.InputStream" %>
 
 <%
-ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
 InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
 BioObjectConfiguration bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
 if (!UserManager.getInstance().isInitialized()) {
