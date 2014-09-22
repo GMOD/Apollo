@@ -9,7 +9,7 @@ class JbrowseController {
 //
 //        // this should serve the index.html wherever jbrowse is
 //        File file = new File(".")
-//        println file.absolutePath
+//        log.debug  file.absolutePath
 //
 //        File file = new File("")
 //
@@ -32,7 +32,7 @@ class JbrowseController {
      * For returning seq/refSeqs.json
      */
     def seq(){
-        println "seq"
+        log.debug  "seq"
         String filename = grailsApplication.config.apollo.jbrowse.data.directory
         File file = new File(filename+"/seq/refSeqs.json");
         if(!file.exists()){
@@ -64,28 +64,28 @@ class JbrowseController {
      *
      */
     def data() {
-        println "data"
+        log.debug  "data"
         String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
-//        println "dataDir: ${dataDirectory}"
+//        log.debug  "dataDir: ${dataDirectory}"
 
         String filename = dataDirectory
-//        println "filename ${filename}"
-        println "URI: " + request.getRequestURI()
-        println "URL: " + request.getRequestURL()
-        println "pathInfo: " + request.getPathInfo()
-        println "pathTranslated: " + request.getPathTranslated()
-        println "params: " + params
+//        log.debug  "filename ${filename}"
+        log.debug  "URI: " + request.getRequestURI()
+        log.debug  "URL: " + request.getRequestURL()
+        log.debug  "pathInfo: " + request.getPathInfo()
+        log.debug  "pathTranslated: " + request.getPathTranslated()
+        log.debug  "params: " + params
 //
 //        int paramCount = 0
 //        for (p in params) {
-//            println "param: ${p}"
+//            log.debug  "param: ${p}"
 //            filename += paramCount == 0 ? "?" : "&"
 //            ++paramCount
 //
 //            filename += "${p.key}=${p.value}"
 //        }
 //
-//        println "filename ${filename}"
+//        log.debug  "filename ${filename}"
 
         if(params.id=="trackList" &&  params.format=="json"){
             filename += "/trackList.json"
@@ -99,7 +99,7 @@ class JbrowseController {
             filename += "/root.json"
         }
 
-        println "filename: ${filename}"
+        log.debug  "filename: ${filename}"
 
         File file = new File(filename);
 

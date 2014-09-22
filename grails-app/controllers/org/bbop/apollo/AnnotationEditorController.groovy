@@ -22,7 +22,7 @@ class AnnotationEditorController {
     String REST_TRANSLATION_TABLE = "translation_table"
 
     def index() {
-        println "bang "
+        log.debug  "bang "
     }
 
     private String underscoreToCamelCase(String underscore) {
@@ -46,19 +46,19 @@ class AnnotationEditorController {
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
-        println "${operation} -> ${mappedAction}"
+        log.debug  "${operation} -> ${mappedAction}"
         track = postObject.get(REST_TRACK)
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
 
     def getUserPermission() {
-        println "gettinguser permission !! ${params.data}"
+        log.debug  "gettinguser permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: wire into actual user table
         String username = session.getAttribute("username")
-        println "user from ${username}"
+        log.debug  "user from ${username}"
         username = "demo"
         returnObject.put(REST_PERMISSION, 3)
         returnObject.put(REST_USERNAME, username)
@@ -67,7 +67,7 @@ class AnnotationEditorController {
     }
 
     def getDataAdapters() {
-        println "get data adapters !! ${params}"
+        log.debug  "get data adapters !! ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         JSONArray dataAdaptersArray = new JSONArray();
@@ -97,7 +97,7 @@ class AnnotationEditorController {
     }
 
     def getTranslationTable() {
-        println "get translation table!! ${params}"
+        log.debug  "get translation table!! ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         SequenceUtil.TranslationTable translationTable = SequenceUtil.getDefaultTranslationTable()
         JSONObject ttable = new JSONObject();
@@ -130,7 +130,7 @@ class AnnotationEditorController {
     }
 
     def getSequenceAlterations(){
-        println "getting sequence alterations "
+        log.debug  "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put("features",jsonFeatures)
@@ -157,14 +157,14 @@ class AnnotationEditorController {
     @MessageMapping("/hello")
     @SendTo("/topic/hello")
     protected String hello(String world) {
-        println "got here! . . . "
+        log.debug  "got here! . . . "
         return "hello from controller, ${world}!"
     }
 
     @MessageMapping("/AnnotationEditorService")
     @SendTo("/topic/AnnotationEditorService")
     protected String annotationEditor(String inputString) {
-        println " annotation editor service ${inputString}"
+        log.debug  " annotation editor service ${inputString}"
         return "annotationEditor ${inputString}!"
     }
 }
