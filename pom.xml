@@ -81,18 +81,20 @@
             <version>2.4</version>
         </dependency>
         <dependency>
-            <groupId>org.gmod.gbol</groupId>
+            <groupId>gbol</groupId>
             <artifactId>resources</artifactId>
             <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/resources.jar</systemPath>
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/lib/resources.jar</systemPath>-->
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>tomcat-catalina</artifactId>-->
-            <!--<version>7.0.40</version>-->
-        <!--</dependency>-->
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/lib/</url>
+        </repository>
+    </repositories>
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
