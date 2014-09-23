@@ -1,17 +1,18 @@
 package org.gmod.gbol.util;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.w3c.dom.Document;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * HibernateUtil is a class that creates a new Hibernate {@link SessionFactory}
@@ -24,7 +25,9 @@ import org.w3c.dom.Document;
  * 
  */
 public class HibernateUtil {
-       
+
+    private final static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     static Map name2factory = new ConcurrentHashMap();
 
     public synchronized static SessionFactory getSessionFactory(String filename) throws Exception  {
@@ -48,16 +51,16 @@ public class HibernateUtil {
     public static SessionFactory buildSessionFactory(String filename) throws Exception{
         try {
              
-             System.out.println("Trying to configure new SessionFactory using " + filename);
+             logger.info("Trying to configure new SessionFactory using " + filename);
              File f = new File(filename);
              
              Configuration c = new Configuration().configure(f);
              SessionFactory sessionFactory = c.buildSessionFactory();
              return sessionFactory;
         } catch (HibernateException he){
-            System.out.println("Couldn't build session!");
-            System.out.println(he.getMessage());
-            System.err.println("Couldn't build session. " + he.getMessage());
+            logger.error("Couldn't build session!");
+            logger.error(he.getMessage());
+            logger.error("Couldn't build session. " + he.getMessage());
             he.printStackTrace();
             throw he;
         }
@@ -95,9 +98,9 @@ public class HibernateUtil {
             return sessionFactory;
         }
         catch (HibernateException he) {
-            System.out.println("Couldn't build session!");
-            System.out.println(he.getMessage());
-            System.err.println("Couldn't build session. " + he.getMessage());
+            logger.error("Couldn't build session!");
+            logger.error(he.getMessage());
+            logger.error("Couldn't build session. " + he.getMessage());
             he.printStackTrace();
             throw he;
         }

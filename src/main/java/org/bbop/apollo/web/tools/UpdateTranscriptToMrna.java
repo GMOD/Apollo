@@ -1,21 +1,13 @@
 package org.bbop.apollo.web.tools;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.bbop.apollo.web.datastore.history.JEHistoryDatabase;
 import org.bbop.apollo.web.datastore.history.Transaction;
 import org.bbop.apollo.web.datastore.history.TransactionList;
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-import org.gmod.gbol.bioObject.Exon;
 import org.gmod.gbol.bioObject.MRNA;
 import org.gmod.gbol.bioObject.Transcript;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
@@ -23,8 +15,14 @@ import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
 import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 
 public class UpdateTranscriptToMrna {
+
+    private final static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private static AbstractSingleLocationBioFeature updateFeature(AbstractSingleLocationBioFeature feature, BioObjectConfiguration conf) {
         if (!feature.getType().equals("sequence:transcript")) {
@@ -82,7 +80,7 @@ public class UpdateTranscriptToMrna {
                 }
             }
             for (TransactionList transactionList : newTransactionLists) {
-                System.out.println("Updating " + transactionList.get(0).getFeatureUniqueName());
+                logger.info("Updating " + transactionList.get(0).getFeatureUniqueName());
                 db.writeTransactionListForFeature(transactionList.get(0).getFeatureUniqueName(), transactionList);
             }
         }
@@ -112,7 +110,7 @@ public class UpdateTranscriptToMrna {
                 }
             }
             for (Feature feature : featuresToUpdate) {
-                System.out.println("Updating " + feature.getUniqueName());
+                logger.info("Updating " + feature.getUniqueName());
                 db.writeFeature(feature);
             }
             db.close();
@@ -135,16 +133,16 @@ public class UpdateTranscriptToMrna {
                 System.exit(1);
             }
             else if (!line.hasOption('i')) {
-                System.err.println("Missing required input database(s)");
+                logger.error("Missing required input database(s)");
                 System.exit(1);
             }
             else if (!line.hasOption('m')) {
-                System.err.println("Missing required mapping file");
+                logger.error("Missing required mapping file");
                 System.exit(1);
             }
         }
         catch( ParseException exp ) {
-            System.err.println( "Unexpected exception:" + exp.getMessage() );
+            logger.error( "Unexpected exception:" + exp.getMessage() );
             System.exit(1);
         }
         return line;
@@ -161,7 +159,7 @@ public class UpdateTranscriptToMrna {
             }
         }
         catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

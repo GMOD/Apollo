@@ -1,12 +1,17 @@
 package org.gmod.gbol.simpleObject.io;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 public abstract class FileHandler implements SimpleObjectIOInterface{
-    
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     private String filePath;
     private FileReader fileReader;
     
@@ -23,7 +28,7 @@ public abstract class FileHandler implements SimpleObjectIOInterface{
             throw new IOException(this.filePath + " is an unsupported file type.");
         }
         if (!f.canWrite()){
-            System.err.println("Cannot write to file " + this.filePath);
+            logger.error("Cannot write to file " + this.filePath);
         }
         
     }
@@ -32,7 +37,7 @@ public abstract class FileHandler implements SimpleObjectIOInterface{
         try {
             this.fileReader = new FileReader(this.filePath);
         } catch (FileNotFoundException e) {
-            System.err.println("Unable to open file handle to " + this.filePath);
+            logger.error("Unable to open file handle to " + this.filePath);
             e.printStackTrace();
             System.exit(-1);
         }
@@ -43,7 +48,7 @@ public abstract class FileHandler implements SimpleObjectIOInterface{
         try {
             this.fileReader.close();
         } catch (IOException e) {
-            System.err.println("Unable to close file handle to " + this.filePath);
+            logger.error("Unable to close file handle to " + this.filePath);
             e.printStackTrace();
             System.exit(-1);
         }
@@ -58,8 +63,8 @@ public abstract class FileHandler implements SimpleObjectIOInterface{
                 fileContents.append(String.valueOf(buf));
             }
         } catch (java.io.IOException e) {
-            System.err.println("ERROR: ChadoXML parse error: IOException");
-            System.err.println(e.getMessage());
+            logger.error("ERROR: ChadoXML parse error: IOException");
+            logger.error(e.getMessage());
             System.exit(0);
         }
         

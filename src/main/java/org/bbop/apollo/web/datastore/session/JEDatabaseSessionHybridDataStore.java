@@ -1,15 +1,7 @@
 package org.bbop.apollo.web.datastore.session;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.editor.session.DataStore;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
@@ -19,7 +11,11 @@ import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureLocation;
 
+import java.util.*;
+
 public class JEDatabaseSessionHybridDataStore implements DataStore {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private JEDatabase db;
     private BioObjectConfiguration conf;
@@ -262,7 +258,7 @@ public class JEDatabaseSessionHybridDataStore implements DataStore {
     public void unindexFeature(AbstractSingleLocationBioFeature feature) {
         uniqueNameToStoredUniqueName.remove(feature.getUniqueName());
         
-//        System.out.println("unindexing :" + feature.getUniqueName());
+//        logger.info("unindexing :" + feature.getUniqueName());
         
         for (AbstractSingleLocationBioFeature child : feature.getChildren()) {
             unindexFeature(child);
@@ -300,12 +296,11 @@ public class JEDatabaseSessionHybridDataStore implements DataStore {
             Collections.sort(features, new FeatureDataPositionComparator());
         }
         
-        System.out.println("updateTopLevelFeatureBoundaries");
+        logger.info("updateTopLevelFeatureBoundaries");
         for (FeatureData f : features) {
-            System.out.println(f);
+            logger.info(f);
         }
-        System.out.println();
-        
+
     }
     
     public void beginTransactionForFeature(AbstractSingleLocationBioFeature feature) {
@@ -313,18 +308,18 @@ public class JEDatabaseSessionHybridDataStore implements DataStore {
         if (!dirtyFeatures.containsKey(topLevelFeature.getUniqueName())) {
             dirtyFeatures.put(topLevelFeature.getUniqueName(), topLevelFeature);
         }
-//        System.out.println("beginTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
+//        logger.info("beginTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
     }
     
     public void endTransactionForFeature(AbstractSingleLocationBioFeature feature) {
         AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
         dirtyFeatures.remove(topLevelFeature.getUniqueName());
-//        System.out.println("endTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
+//        logger.info("endTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
     }
 
     public void endTransactionForAllFeatures() {
         dirtyFeatures.clear();
-//        System.out.println("endTransactionForAllFeatures: " + dirtyFeatures.size());
+//        logger.info("endTransactionForAllFeatures: " + dirtyFeatures.size());
     }
     
     private AbstractSingleLocationBioFeature getTopLevelFeature(AbstractSingleLocationBioFeature feature) {

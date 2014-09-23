@@ -1,21 +1,20 @@
 package org.bbop.apollo.web.tools;
 
-import java.util.Iterator;
-import java.util.Scanner;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.bbop.apollo.web.datastore.history.JEHistoryDatabase;
 import org.bbop.apollo.web.datastore.history.TransactionList;
 import org.gmod.gbol.simpleObject.Feature;
 
+import java.util.Iterator;
+import java.util.Scanner;
+
 
 public class JEDatabaseMerger {
+
+    private final static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     public static void mergeHistoryDbs(String[] inputDbs, String outputDb, boolean forceOverwrite) {
         Scanner scanner = new Scanner(System.in);
@@ -76,16 +75,16 @@ public class JEDatabaseMerger {
                 System.exit(1);
             }
             else if (!line.hasOption('i')) {
-                System.err.println("Missing required input database(s)");
+                logger.error("Missing required input database(s)");
                 System.exit(1);
             }
             else if (!line.hasOption('o')) {
-                System.err.println("Missing required output database");
+                logger.error("Missing required output database");
                 System.exit(1);
             }
         }
         catch( ParseException exp ) {
-            System.err.println( "Unexpected exception:" + exp.getMessage() );
+            logger.error("Unexpected exception:" + exp.getMessage());
             System.exit(1);
         }
         return line;
@@ -102,7 +101,7 @@ public class JEDatabaseMerger {
             }
         }
         catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

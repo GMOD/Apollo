@@ -1,33 +1,23 @@
 package org.bbop.apollo.web.tools;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
 import org.gmod.gbol.util.HashComparator;
 
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.*;
+
 public class RemoveIsoforms {
-    
+
+    private final static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     private static Set<String> geneTypes;
     private static Random rng = new SecureRandom();
     private static MessageDigest digest;
@@ -55,7 +45,7 @@ public class RemoveIsoforms {
             Feature feature = iter.next();
             if (geneTypes.contains(feature.getType().getName())) {
                 if (feature.getChildFeatureRelationships().size() > 1) {
-                    System.out.println("Updating " + feature.getUniqueName());
+                    logger.info("Updating " + feature.getUniqueName());
                     iter.remove();
                     for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
                         Feature newFeature = new Feature(feature);
@@ -92,12 +82,12 @@ public class RemoveIsoforms {
                 System.exit(1);
             }
             else if (!line.hasOption('i')) {
-                System.err.println("Missing required input database");
+                logger.error("Missing required input database");
                 System.exit(1);
             }
         }
         catch( ParseException exp ) {
-            System.err.println( "Unexpected exception:" + exp.getMessage() );
+            logger.error( "Unexpected exception:" + exp.getMessage() );
             System.exit(1);
         }
         return line;
@@ -110,7 +100,7 @@ public class RemoveIsoforms {
         }
         catch (Exception e) {
             e.printStackTrace();
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

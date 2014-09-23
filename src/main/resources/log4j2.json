@@ -1,3 +1,4 @@
+//http://logging.apache.org/log4j/2.x/manual/layouts.html
 {
     "configuration": {
         "name": "Default",
@@ -5,11 +6,11 @@
             "property": {
                 "name":"Directory",
                 "value":"${sys:user.home}/logs"
-            },
-            "property": {
-                "name":"FileName",
-                "value":"test.log"
             }
+            //,"property": {
+            //    "name":"FileName",
+            //    "value":"test.log"
+            //}
         },
         "appenders": {
             "Console": {
@@ -41,10 +42,10 @@
                 "level":"debug",
                 "appender-ref": {
                     "ref":"Console"
-                },
-                "appender-ref": {
-                    "ref":"File"
                 }
+                //, "appender-ref": {
+                //    "ref":"File"
+                //}
             }
         }
     }

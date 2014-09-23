@@ -1,12 +1,16 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gmod.gbol.util.HibernateUtil;
 import org.hibernate.SessionFactory;
 import org.junit.Ignore;
 
 @Ignore
 public class AbstractGBOLHibernateTest extends TestCase {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     SessionFactory sf;
 //    private final String log4jPropFile = "src/test/resources/testSupport/log4j.properties";
@@ -21,7 +25,7 @@ public class AbstractGBOLHibernateTest extends TestCase {
             this.sf = HibernateUtil.buildSessionFactory(filename);
             
         } catch (Exception e) {
-            System.err.println("Unable configure session factory for GBOL Test: " + e.getMessage());
+            logger.error("Unable configure session factory for GBOL Test: " + e.getMessage());
             e.printStackTrace();
             throw (e);
         }

@@ -1,5 +1,7 @@
 package org.gmod.gbol.bioObject.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gmod.gbol.bioObject.AbstractBioObject;
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
@@ -15,6 +17,8 @@ import java.util.*;
  *
  */
 public class BioObjectUtil {
+
+    private final static Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private BioObjectUtil()
     {
@@ -59,7 +63,7 @@ public class BioObjectUtil {
         if (className == null) {
             //throw new BioObjectConfigurationException(cvterm.getName() + " does not exist in configuration");
             // TODO: Use log4j or something smart here
-            System.err.println(cvterm.getName() + " does not exist in configuration, implicitly casting to Region");
+            logger.error(cvterm.getName() + " does not exist in configuration, implicitly casting to Region");
             className = "Region";
         }
         String pkg = AbstractBioObject.class.getPackage().getName();
@@ -129,7 +133,7 @@ public class BioObjectUtil {
         public int compare(T feature1, T feature2) {
             
             if (feature1 == null || feature2 == null) {
-                System.out.println();
+                logger.info("both features null");
             }
             
             int retVal = 0;

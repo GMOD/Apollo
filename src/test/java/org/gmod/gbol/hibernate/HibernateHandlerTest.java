@@ -1,15 +1,20 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-//import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
 import org.junit.Ignore;
 
 import java.util.Iterator;
 
+//import org.apache.log4j.PropertyConfigurator;
+
 @Ignore
 public class HibernateHandlerTest extends TestCase {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private HibernateHandler handler;
     
@@ -31,7 +36,7 @@ public class HibernateHandlerTest extends TestCase {
         int counter = 0;
         for( Iterator<? extends Feature> genes = handler.getFeaturesByCVTerm(new CVTerm("gene", new CV("SO"))); genes.hasNext();) {
             Feature f = genes.next();
-            System.out.println(f.getName());
+            logger.info(f.getName());
             counter++;
         }
         assertEquals("Number of genes", 2, counter);

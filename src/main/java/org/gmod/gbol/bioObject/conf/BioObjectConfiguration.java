@@ -1,32 +1,10 @@
 package org.gmod.gbol.bioObject.conf;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gmod.gbol.bioObject.AbstractBioFeature;
-import org.gmod.gbol.bioObject.AbstractBioObject;
 import org.gmod.gbol.bioObject.AbstractBioFeatureProperty;
-import org.gmod.gbol.bioObject.SequenceFeature;
+import org.gmod.gbol.bioObject.AbstractBioObject;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.CV;
 import org.gmod.gbol.simpleObject.CVTerm;
@@ -37,6 +15,17 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+
 /** Class that stores the mapping between classes and types.
  * 
  * @author elee
@@ -44,6 +33,8 @@ import org.xml.sax.SAXParseException;
  */
 
 public class BioObjectConfiguration implements Serializable {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private Map<CVTerm, String> termToClass;
     private Map<String, CVTerm> classToDefault;
@@ -102,7 +93,7 @@ public class BioObjectConfiguration implements Serializable {
     {
         Collection<CVTerm> classNames = classToTerms.get(className);
         if (classNames == null) {
-            System.err.println("No CVTerms for class: " + className);
+            logger.error("No CVTerms for class: " + className);
             return new ArrayList<CVTerm>();
         }
         return classNames;

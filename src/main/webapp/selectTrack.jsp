@@ -14,14 +14,15 @@
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.net.URL" %>
+<%@ page import="org.apache.logging.log4j.LogManager" %>
+<%@ page import="org.apache.logging.log4j.Logger" %>
 
 <%
-   System.out.println("AAA") ;
+    final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 //ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
     ServletContext servletContext = getServletContext();
-    System.out.println("servlet context: "+servletContext);
+    logger.info("servlet context: "+servletContext);
     ServerConfiguration serverConfig = new ServerConfiguration(servletContext);
-    System.out.println("BBB") ;
 if (!UserManager.getInstance().isInitialized()) {
     ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
     UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());

@@ -1,11 +1,15 @@
 package org.gmod.gbol.hibernate;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gmod.gbol.simpleObject.CVTerm;
 import org.gmod.gbol.simpleObject.CVTermRelationship;
 import org.junit.Ignore;
 
 @Ignore
 public class FlybaseConfigurationTest extends AbstractGBOLHibernateTest{
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     public FlybaseConfigurationTest(String name) {
         super(name);
@@ -24,9 +28,9 @@ public class FlybaseConfigurationTest extends AbstractGBOLHibernateTest{
     public void testConfigure(){
         
         CVTerm cvterm = (CVTerm) this.sf.getCurrentSession().get(CVTerm.class, 30);
-        System.out.println("Parent: " + cvterm.getName());
+        logger.info("Parent: " + cvterm.getName());
         for (CVTermRelationship cvtr : cvterm.getChildCVTermRelationships()){
-            System.out.println(cvtr.getSubjectCVTerm().getName() + " " + cvtr.getType().getName() + " " + cvtr.getObjectCVTerm().getName());
+            logger.info(cvtr.getSubjectCVTerm().getName() + " " + cvtr.getType().getName() + " " + cvtr.getObjectCVTerm().getName());
         }
         
         

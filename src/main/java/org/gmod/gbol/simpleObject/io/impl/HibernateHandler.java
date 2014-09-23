@@ -1,5 +1,7 @@
 package org.gmod.gbol.simpleObject.io.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOException;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOInterface;
@@ -8,7 +10,10 @@ import org.hibernate.*;
 
 import java.util.Iterator;
 
+@SuppressWarnings("ALL")
 public class HibernateHandler implements SimpleObjectIOInterface {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private SessionFactory sf;
     //    private Session session;
@@ -27,7 +32,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
         sf = HibernateUtil.getSessionFactory(hibernateConfig);
         //    session = sf.openSession();
         //        beginTransaction();
-        System.out.println("in HibernateHandler constructor, SessionFactory: " + sf);
+        logger.info("in HibernateHandler constructor, SessionFactory: " + sf);
     }
 
     @Override
@@ -43,7 +48,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
 
     /** Get all feature objects for a given type (cvterm) and organism in the underlying database.
      * 
-     * @param cvterm - CVTerm defining the type of the features to retrieve
+     * @param type - CVTerm defining the type of the features to retrieve
      * @param organism - Organism that this feature belongs to
      * @return - Iterator for the Feature objects
      * @throws SimpleObjectIOException
@@ -221,7 +226,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
                 throw new SimpleObjectIOException("Error writing feature to database: " + e.getMessage());
             }
             catch (Exception e2) {
-                System.out.println(e2);
+                logger.error(e2);
             }
         }
     }
@@ -259,7 +264,7 @@ public class HibernateHandler implements SimpleObjectIOInterface {
             session.getTransaction().commit();
         }
         catch (Exception e) {
-            System.out.println(e);
+            logger.error(e);
         }
     }
     
