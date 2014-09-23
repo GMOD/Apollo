@@ -59,15 +59,26 @@ fi
 
 
 if [ -e "$APOLLO_ROOT_DIRECTORY/config.xml" ]; then
-    # will either do a force copy
     cp  $APOLLO_ROOT_DIRECTORY/config.xml $APOLLO_WEBAPP_DIRECTORY/config/config.xml
 else
    echo "No config.xml found, not copying."
 fi
 
 if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
-    # will either do a force copy
     cp  $APOLLO_ROOT_DIRECTORY/config.properties $APOLLO_WEBAPP_DIRECTORY/config/config.properties
 else
    echo "No config.properties found, not copying."
 fi
+
+if [ -e "$APOLLO_ROOT_DIRECTORY/log4j2.json" ]; then
+    cp  $APOLLO_ROOT_DIRECTORY/log4j2.json $APOLLO_ROOT_DIRECTORY/src/main/resources/log4j2.json
+else
+   echo "No log4j2.json found, not copying."
+fi
+
+if [ -e "$APOLLO_ROOT_DIRECTORY/log4j2-test.json" ]; then
+    cp  $APOLLO_ROOT_DIRECTORY/log4j2-test.json $APOLLO_ROOT_DIRECTORY/src/test/resources/log4j2-test.json
+else
+   echo "No log4j2-test.json found, not copying."
+fi
+
