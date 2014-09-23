@@ -1,6 +1,8 @@
 package org.bbop.apollo;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -13,13 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-//@WebServlet(value="/jbrowse/", name="helloServlet")
-//@WebServlet(value="/jbrowse/asdkfjasdlfj", name="JBrowseData")
+
 @WebServlet(urlPatterns = "/jbrowse/data/*", name = "JBrowseData")
 public class JBrowseDataServlet extends HttpServlet {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -41,7 +43,7 @@ public class JBrowseDataServlet extends HttpServlet {
             filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
             File dataFile = new File(filename);
             if (!dataFile.exists() || !dataFile.canRead()) {
-                System.out.println("NOT found: " + filename);
+                logger.debug("NOT found: " + filename);
                 filename = null;
             }
         }
@@ -51,7 +53,7 @@ public class JBrowseDataServlet extends HttpServlet {
             File testFile = new File(filename);
             if (FileUtils.isSymlink(testFile)) {
                 filename = testFile.getAbsolutePath();
-                System.out.println("symlink found so adjusting to absolute path: " + filename);
+                logger.debug("symlink found so adjusting to absolute path: " + filename);
             }
         }
 
@@ -61,7 +63,7 @@ public class JBrowseDataServlet extends HttpServlet {
 
         File file = new File(filename);
         if (!file.exists()) {
-            sc.log("Could not get MIME type of " + filename);
+            logger.warn("Could not get MIME type of " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
 
@@ -80,7 +82,7 @@ public class JBrowseDataServlet extends HttpServlet {
             } else if (filename.endsWith(".tbi")) {
                 mimeType = "application/x-gzip";
             } else {
-                System.err.println("Could not get MIME type of " + filename + " falling back to text/plain");
+                logger.error("Could not get MIME type of " + filename + " falling back to text/plain");
                 mimeType = "text/plain";
 //                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 //                return;
@@ -88,7 +90,7 @@ public class JBrowseDataServlet extends HttpServlet {
         }
 
         String range = request.getHeader("range");
-        System.out.println("range: " + range);
+        logger.debug("range: " + range);
 
         long length = file.length();
         Range full = new Range(0, length - 1, length);

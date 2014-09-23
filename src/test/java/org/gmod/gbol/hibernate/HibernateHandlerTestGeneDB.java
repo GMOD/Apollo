@@ -1,7 +1,7 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-import org.apache.log4j.PropertyConfigurator;
+//import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
 import org.junit.Ignore;
@@ -17,7 +17,7 @@ public class HibernateHandlerTestGeneDB extends TestCase {
     
     public HibernateHandlerTestGeneDB() throws Exception
     {
-        PropertyConfigurator.configure("testSupport/log4j.properties");
+//        PropertyConfigurator.configure("testSupport/log4j.properties");
         try {
             handler = new HibernateHandler("testSupport/genedb.cfg.xml");
         }

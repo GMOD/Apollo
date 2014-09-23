@@ -1,7 +1,6 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.util.HibernateUtil;
 import org.hibernate.SessionFactory;
 import org.junit.Ignore;
@@ -10,11 +9,11 @@ import org.junit.Ignore;
 public class AbstractGBOLHibernateTest extends TestCase {
 
     SessionFactory sf;
-    private final String log4jPropFile = "src/test/resources/testSupport/log4j.properties";
+//    private final String log4jPropFile = "src/test/resources/testSupport/log4j.properties";
     
     public AbstractGBOLHibernateTest(String name) {
         super(name);
-        PropertyConfigurator.configure(this.log4jPropFile);
+//        PropertyConfigurator.configure(this.log4jPropFile);
     }
     
     public void configureConnection(String filename) throws Exception{

@@ -1,7 +1,7 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-import org.apache.log4j.PropertyConfigurator;
+//import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.io.BioObjectHandler;
@@ -20,7 +20,7 @@ public class BioObjectHandlerTest extends TestCase {
     
     public BioObjectHandlerTest() throws Exception
     {
-        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
+//        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
         BioObjectConfiguration conf = new BioObjectConfiguration("src/test/resources/testSupport/gbolTwo.mapping.xml");
         SimpleObjectIOInterface h = new HibernateHandler("src/test/resources/testSupport/gbolTwo.cfg.xml");
         handler = new BioObjectHandler(conf, h);
