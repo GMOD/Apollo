@@ -562,9 +562,9 @@ public class AnnotationEditorTest extends TestCase {
 
     private void printFeatureInfo(AbstractSingleLocationBioFeature feature, int indent) {
         for (int i = 0; i < indent; ++i) {
-            System.out.print("\t");
+            logger.info("\t");
         }
-        System.out.printf("%s\t(%s%d,%d%s)%n", feature.getUniqueName(),
+        logger.info("%s\t(%s%d,%d%s)%n", feature.getUniqueName(),
                 feature.getFeatureLocation().isIsFminPartial() ? "<" : "",
                 feature.getFeatureLocation().getFmin(),
                 feature.getFeatureLocation().getFmax(),

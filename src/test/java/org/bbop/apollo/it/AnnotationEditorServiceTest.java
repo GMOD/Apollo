@@ -1,6 +1,8 @@
 package org.bbop.apollo.it;
 
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +23,8 @@ import java.net.URLConnection;
 @Ignore
 public class AnnotationEditorServiceTest extends TestCase {
 
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     private String sessionId;
     
     public AnnotationEditorServiceTest() {
@@ -36,7 +40,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSetOrganism() throws IOException, JSONException {
-        System.out.println("== testSetOrganism() ==");
+        logger.info("== testSetOrganism() ==");
         JSONObject request = createRequest("set_organism");
         JSONObject organism = new JSONObject();
         request.put("organism", organism);
@@ -51,7 +55,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSetSourceFeature() throws IOException, JSONException {
-        System.out.println("== testSetSourceFeature() ==");
+        logger.info("== testSetSourceFeature() ==");
         String residues = setSourceFeature();
         
         JSONObject request = createRequest("get_source_feature");
@@ -61,7 +65,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     
     public void testAddFeature() throws JSONException, IOException {
         deleteSequenceAlterations();
-        System.out.println("== testAddFeature() ==");
+        logger.info("== testAddFeature() ==");
         JSONObject request = createRequest("add_feature");
         JSONObject gene = createJSONFeature(0, 2735, 1, "gene", "gene");
         request.put("features", new JSONArray().put(gene));
@@ -73,7 +77,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testAddTranscript() throws JSONException, IOException {
-        System.out.println("== testAddTranscript() ==");
+        logger.info("== testAddTranscript() ==");
         JSONObject request = createRequest("add_transcript");
         JSONObject gene = new JSONObject().put("uniquename", "gene");
         JSONObject transcript = createJSONFeature(638, 2628, 1, "transcript", "transcript");
@@ -86,7 +90,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testDuplicateTranscript() throws JSONException, IOException {
-        System.out.println("== testDuplicateTranscript() ==");
+        logger.info("== testDuplicateTranscript() ==");
         JSONObject request = createRequest("duplicate_transcript");
         JSONObject transcript = new JSONObject();
         transcript.put("uniquename", "transcript");
@@ -97,7 +101,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testDeleteFeature() throws JSONException, IOException {
-        System.out.println("== testDeleteFeature() ==");
+        logger.info("== testDeleteFeature() ==");
         JSONObject responseFeatures = deleteFeature("gene");
         JSONArray features = getFeatures();
         assertEquals("Number of features (response features): ", new Integer(0), new Integer(responseFeatures.getJSONArray("features").length()));
@@ -105,7 +109,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testMergeTranscriptWithGeneMerge() throws JSONException, IOException {
-        System.out.println("== testMergeTranscriptsWithGeneMerge() ==");
+        logger.info("== testMergeTranscriptsWithGeneMerge() ==");
         JSONObject request = createRequest("add_feature");
         JSONObject gene1 = createJSONFeature(0, 1500, 1, "gene", "gene1");
         JSONObject gene2 = createJSONFeature(2000, 3500, 1, "gene", "gene2");
@@ -149,7 +153,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testMergeTranscripts() throws JSONException, IOException {
-        System.out.println("== testMergeTranscripts() ==");
+        logger.info("== testMergeTranscripts() ==");
         JSONObject request = createRequest("add_feature");
         JSONObject gene = createJSONFeature(0, 1500, 1, "gene", "gene");
         request.put("features", new JSONArray().put(gene));
@@ -187,7 +191,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
 
     public void testSetTranslationStart() throws JSONException, IOException {
-        System.out.println("== testSetTranslationStart() ==");
+        logger.info("== testSetTranslationStart() ==");
         JSONObject request = createRequest("set_translation_start");
         JSONObject transcript = new JSONObject();
         request.put("features", new JSONArray().put(transcript));
@@ -207,7 +211,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
 
     public void testSetTranslationEnd() throws JSONException, IOException {
-        System.out.println("== testSetTranslationEnd() ==");
+        logger.info("== testSetTranslationEnd() ==");
         JSONObject request = createRequest("set_translation_end");
         JSONObject transcript = new JSONObject();
         request.put("features", new JSONArray().put(transcript));
@@ -227,7 +231,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSetTranslationEnds() throws JSONException, IOException {
-        System.out.println("== testSetTranslationEnds() ==");
+        logger.info("== testSetTranslationEnds() ==");
         JSONObject request = createRequest("set_translation_ends");
         JSONObject transcript = new JSONObject();
         request.put("features", new JSONArray().put(transcript));
@@ -248,7 +252,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSetLongestORF() throws JSONException, IOException {
-        System.out.println("== testSetLongestORF() ==");
+        logger.info("== testSetLongestORF() ==");
         deleteFeature("gene");
         JSONObject gene = createJSONFeature(0, 2735, 1, "gene", "gene");
         JSONObject transcript = createJSONFeature(638, 2628, 1, "transcript", "transcript");
@@ -365,7 +369,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testAddExon() throws IOException, JSONException {
-        System.out.println("== testAddExon() ==");
+        logger.info("== testAddExon() ==");
         setSourceFeature();
 
         deleteFeature("gene");
@@ -390,7 +394,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testDeleteExon() throws JSONException, IOException {
-        System.out.println("== testDeleteExon() ==");
+        logger.info("== testDeleteExon() ==");
         JSONArray requestFeatures = getFeatures();
         JSONObject responseGene = requestFeatures.getJSONObject(0);
         JSONObject responseTranscript = responseGene.getJSONArray("children").getJSONObject(0);
@@ -405,7 +409,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testMergeExons() throws JSONException, IOException {
-        System.out.println("== testMergeExons() ==");
+        logger.info("== testMergeExons() ==");
         
         deleteFeature("gene");
         JSONObject gene = createJSONFeature(100, 1000, 1, "gene", "gene");
@@ -428,7 +432,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSplitExon() throws JSONException, IOException {
-        System.out.println("== testSplitExon ==");
+        logger.info("== testSplitExon ==");
 
         int newLeftMax = 200;
         int newRightMin = 300;
@@ -455,7 +459,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSplitTranscript() throws JSONException, IOException {
-        System.out.println("== testSplitTranscript() ==");
+        logger.info("== testSplitTranscript() ==");
 
         JSONObject request = createRequest("split_transcript");
         JSONArray features = new JSONArray();
@@ -481,7 +485,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testAddSequenceAlteration() throws JSONException, IOException {
-        System.out.println("== testAddSequenceAlteration() ==");
+        logger.info("== testAddSequenceAlteration() ==");
         deleteFeature("gene");
         JSONObject gene = createJSONFeature(0, 2735, 1, "gene", "gene");
         JSONObject transcript = createJSONFeature(638, 2628, 1, "transcript", "transcript");
@@ -590,14 +594,14 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testGetSequenceAlterations() throws JSONException, IOException {
-        System.out.println("== testGetSequenceAlterations() ==");
+        logger.info("== testGetSequenceAlterations() ==");
         JSONObject request = createRequest("get_sequence_alterations");
         JSONObject responseFeatures = sendRequestAndPrintResponse(request);
         assertEquals("Number of sequence alterations: ", new Integer(5), new Integer(responseFeatures.getJSONArray("features").length()));
     }
     
     public void testDeleteSequenceAlteration() throws JSONException, IOException {
-        System.out.println("== testDeleteSequenceAlteration() ==");
+        logger.info("== testDeleteSequenceAlteration() ==");
         JSONObject request = createRequest("delete_sequence_alteration");
         request.put("features", new JSONArray().put(new JSONObject().put("uniquename", "substitution1")).put(new JSONObject().put("uniquename", "substitution2")));
         sendRequestAndPrintResponse(request);
@@ -607,7 +611,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testAddFrameshift() throws JSONException, IOException {
-        System.out.println("== testAddFrameshift() ==");
+        logger.info("== testAddFrameshift() ==");
         JSONObject request = createRequest("add_frameshift");
         JSONObject transcript = new JSONObject().put("uniquename", "transcript");
         request.put("features", new JSONArray().put(transcript));
@@ -621,7 +625,7 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
 
     public void testDeleteFrameshift() throws JSONException, IOException {
-        System.out.println("== testDeleteFrameshift() ==");
+        logger.info("== testDeleteFrameshift() ==");
         JSONObject request = createRequest("delete_frameshift");
         JSONObject transcript = new JSONObject().put("uniquename", "transcript");
         request.put("features", new JSONArray().put(transcript));
@@ -635,14 +639,14 @@ public class AnnotationEditorServiceTest extends TestCase {
     }
     
     public void testSetExonBoundaries() throws JSONException, IOException {
-        System.out.println("== testSetFeatureBoundaries() ==");
+        logger.info("== testSetFeatureBoundaries() ==");
         JSONObject request = createRequest("set_feature_boundaries");
         //TODO
     }
 
     /*
     public void testErrors() throws JSONException, IOException {
-        System.out.println("== testErrors() ==");
+        logger.info("== testErrors() ==");
         JSONObject request = createRequest("delete_feature");
         JSONObject responseFeatures = sendRequestAndPrintResponse(request);
         assertEquals("Missing \"features\" in JSON: ", responseFeatures.getString("error"), "JSONObject[\"features\"] not found.");
@@ -694,8 +698,8 @@ public class AnnotationEditorServiceTest extends TestCase {
     
     private JSONObject sendRequestAndPrintResponse(JSONObject request) throws IOException, JSONException {
         int indent = 2;
-        System.out.println("Request for operation: " + request.getString("operation"));
-        System.out.println(request.toString(indent));
+        logger.info("Request for operation: " + request.getString("operation"));
+        logger.info(request.toString(indent));
         HttpURLConnection connection = openURLConnection();
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
         out.write(request.toString());
@@ -706,11 +710,11 @@ public class AnnotationEditorServiceTest extends TestCase {
         BufferedReader in;
         StringBuilder buffer = new StringBuilder();
         if (ok) {
-            System.out.println("Response for operation: " + request.getString("operation"));
+            logger.info("Response for operation: " + request.getString("operation"));
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         }
         else {
-            System.out.println("Failure for operation: " + request.getString("operation") + " [" + connection.getResponseCode() + "]" + " " + connection.getResponseMessage());
+            logger.info("Failure for operation: " + request.getString("operation") + " [" + connection.getResponseCode() + "]" + " " + connection.getResponseMessage());
             in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
         }
         while ((line = in.readLine()) != null) {
@@ -718,7 +722,7 @@ public class AnnotationEditorServiceTest extends TestCase {
         }
         if (buffer.length() > 0) {
             JSONObject response = new JSONObject(buffer.toString());
-            System.out.println(response.toString(indent));
+            logger.info(response.toString(indent));
             return response;
         }
         return null;

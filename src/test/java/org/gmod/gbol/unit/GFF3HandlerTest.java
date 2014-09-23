@@ -54,7 +54,7 @@ public class GFF3HandlerTest extends TestCase {
     
     private void printFeature(Feature f, int level){
         for (int i=0;i<level;i++){
-            System.out.print("\t");
+            logger.info("\t");
         }
         logger.info(f.getType().getName() + ":\t" + f.getUniqueName());
         for (FeatureRelationship fr : f.getChildFeatureRelationships()){

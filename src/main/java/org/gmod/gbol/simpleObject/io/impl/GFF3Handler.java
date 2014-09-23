@@ -258,11 +258,11 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
                 feature.getParentFeatureRelationships().add(fr);
             }
         } else if (key.equals("Target")){
-            logger.error("Can't handle 'Target' attribute yet.");
+            logger.warn("Can't handle 'Target' attribute yet.");
         } else if (key.equals("Gap")){
-            logger.error("Can't handle 'Gap' attribute yet.");
+            logger.warn("Can't handle 'Gap' attribute yet.");
         } else if (key.equals("Derives_from")){
-            logger.error("Can't handle 'Derives_from' attribute yet.");
+            logger.warn("Can't handle 'Derives_from' attribute yet.");
         } else if (key.equals("Dbxref")){
             if (!value.contains(":")){
                 throw new Exception("Dbxref must be of the form DBTAG:ID");
@@ -277,7 +277,7 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
             dbxref.setAccession(accession);
             feature.addDBXref(dbxref);
         } else if (key.equals("Ontology_term")){
-            logger.error("Can't handle 'Ontology_term' attribute yet.");
+            logger.warn("Can't handle 'Ontology_term' attribute yet.");
         } else {
             if (!this.featurePropertyTypes.containsKey(key)){
                 this.featurePropertyTypes.put(key, new CVTerm(key,this.gffFeaturePropertyOntology));

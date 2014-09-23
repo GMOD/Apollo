@@ -26,7 +26,7 @@ public class JEDatabaseMerger {
                 TransactionList transactionList = iter.next();
                 String uniqueName = transactionList.get(0).getFeatureUniqueName();
                 if (out.getTransactionListForFeature(uniqueName).size() > 0 && !forceOverwrite) {
-                    System.out.print(uniqueName + " exists in output database.  Overwrite [Y/N]?: ");
+                    logger.info(uniqueName + " exists in output database.  Overwrite [Y/N]?: ");
                     String response = scanner.nextLine();
                     if (!response.equalsIgnoreCase("Y")) {
                         continue;
@@ -47,7 +47,7 @@ public class JEDatabaseMerger {
             while (iter.hasNext()) {
                 Feature feature = iter.next();
                 if (out.getFeatureByUniqueName(feature.getUniqueName()) != null && !forceOverwrite) {
-                    System.out.print(feature.getUniqueName() + " exists in output database.  Overwrite [Y/N]?: ");
+                    logger.info(feature.getUniqueName() + " exists in output database.  Overwrite [Y/N]?: ");
                     String response = scanner.nextLine();
                     if (!response.equalsIgnoreCase("Y")) {
                         continue;

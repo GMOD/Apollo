@@ -229,9 +229,9 @@ public class BioFeatureTest extends TestCase {
     private void printFeatureInfo(AbstractSingleLocationBioFeature feature, int indent)
     {
         for (int i = 0; i < indent; ++i) {
-            System.out.print("\t");
+            logger.info("\t");
         }
-        System.out.printf("%s\t(%d,%d,%d)%n", feature.getUniqueName(), feature.getFeatureLocation().getFmin(),
+        logger.info("%s\t(%d,%d,%d)%n", feature.getUniqueName(), feature.getFeatureLocation().getFmin(),
                 feature.getFeatureLocation().getFmax(), feature.getFeatureLocation().getStrand());
     }
 

@@ -1,6 +1,8 @@
 package org.bbop.apollo.unit;
 
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.editor.session.AnnotationSession;
 import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
@@ -13,6 +15,8 @@ import java.util.Collection;
 
 public class AnnotationSessionTest extends TestCase {
 
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     private Organism organism;
     private BioObjectConfiguration conf;
     
@@ -22,7 +26,7 @@ public class AnnotationSessionTest extends TestCase {
     }
 
     public void testAddFeature() {
-        System.out.println("== testAddFeature() ==");
+        logger.info("== testAddFeature() ==");
         AnnotationSession session = new AnnotationSession();
         session.addFeature(createGene("gene 1", 1, 20, 1));
         session.addFeature(createGene("gene 2", 10, 30, 1));
@@ -32,7 +36,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testDeleteFeature() {
-        System.out.println("== testDeleteFeature() ==");
+        logger.info("== testDeleteFeature() ==");
         AnnotationSession session = new AnnotationSession();
         session.addFeature(createGene("gene 1", 1, 20, 1));
         session.addFeature(createGene("gene 2", 10, 30, 1));
@@ -48,7 +52,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testGetOverlappingFeatures() {
-        System.out.println("== testGetOverlappingFeatures() ==");
+        logger.info("== testGetOverlappingFeatures() ==");
         AnnotationSession session = new AnnotationSession();
         session.addFeature(createGene("gene 1", 1, 20, 1));
         session.addFeature(createGene("gene 2", 10, 30, 1));
@@ -63,7 +67,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testAddSequenceAlteration() {
-        System.out.println("== testAddSequenceAlteration() ==");
+        logger.info("== testAddSequenceAlteration() ==");
         AnnotationSession session = new AnnotationSession();
         session.addSequenceAlteration(createInsertion("insertion", 5, "A"));
         
@@ -71,7 +75,7 @@ public class AnnotationSessionTest extends TestCase {
     }
 
     public void testDeleteSequenceAlteration() {
-        System.out.println("== testDeleteSequenceAlteration() ==");
+        logger.info("== testDeleteSequenceAlteration() ==");
         AnnotationSession session = new AnnotationSession();
         session.addSequenceAlteration(createInsertion("insertion", 5, "A"));
         session.addSequenceAlteration(createSubstition("substition", 10, "C"));
@@ -85,7 +89,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testGetResiduesWithAlterationsForInsertions() {
-        System.out.println("== testGetResiduesWithAlterationsForInsertions() ==");
+        logger.info("== testGetResiduesWithAlterationsForInsertions() ==");
         AnnotationSession session = new AnnotationSession();
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -126,7 +130,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testGetResiduesWithAlterationsForDeletions() {
-        System.out.println("== testGetResiduesWithAlterationsForDeletions() == ");
+        logger.info("== testGetResiduesWithAlterationsForDeletions() == ");
         AnnotationSession session = new AnnotationSession();
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -159,7 +163,7 @@ public class AnnotationSessionTest extends TestCase {
     }
 
     public void testGetResiduesWithAlterationsForSubstitutions() {
-        System.out.println("== testGetResiduesWithAlterationsForSubstitutions() == ");
+        logger.info("== testGetResiduesWithAlterationsForSubstitutions() == ");
         AnnotationSession session = new AnnotationSession();
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -186,7 +190,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testGetResiduesWithPlusFrameshifts() {
-        System.out.println("== testGetResiduesWithPlusFrameshifts() == ");
+        logger.info("== testGetResiduesWithPlusFrameshifts() == ");
         AnnotationSession session = new AnnotationSession();
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -212,7 +216,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testGetResiduesWithMinusFrameshifts() {
-        System.out.println("== testGetResiduesWithMinusFrameshifts() == ");
+        logger.info("== testGetResiduesWithMinusFrameshifts() == ");
         AnnotationSession session = new AnnotationSession();
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -238,7 +242,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testConvertModifiedLocalCoordinateToSourceCoordinate() {
-        System.out.println("== testConvertModifiedLocalCoordinateToSourceCoordinate() ==");
+        logger.info("== testConvertModifiedLocalCoordinateToSourceCoordinate() ==");
         AnnotationSession session = new AnnotationSession();
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -260,7 +264,7 @@ public class AnnotationSessionTest extends TestCase {
     }
     
     public void testGetFeatureByUniqueName() {
-        System.out.println("== testGetFeatureByUniqueName() ==");
+        logger.info("== testGetFeatureByUniqueName() ==");
         AnnotationSession session = new AnnotationSession();
         session.addFeature(createGene(1));
         assertEquals("Gene unique name: ", "gene", session.getFeatureByUniqueName("gene").getUniqueName());

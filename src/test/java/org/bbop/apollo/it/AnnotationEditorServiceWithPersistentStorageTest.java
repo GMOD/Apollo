@@ -1,6 +1,8 @@
 package org.bbop.apollo.it;
 
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +22,8 @@ import java.net.URLConnection;
  */
 @Ignore
 public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private static String sessionId;
     
@@ -41,7 +45,7 @@ public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
      * @throws JSONException
      */
     public void testSetOrganism() throws IOException, JSONException {
-        System.out.println("== testSetOrganism() ==");
+        logger.info("== testSetOrganism() ==");
         JSONObject request = createRequest("set_organism");
         JSONObject organism = new JSONObject();
         request.put("organism", organism);
@@ -56,7 +60,7 @@ public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
     }
 
     public void testSetSourceFeature() throws IOException, JSONException {
-        System.out.println("== testSetSourceFeature() ==");
+        logger.info("== testSetSourceFeature() ==");
         String residues = setSourceFeature();
         
         JSONObject request = createRequest("get_source_feature");
@@ -66,7 +70,7 @@ public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
     
     public void testAddFeature() throws JSONException, IOException {
         deleteSequenceAlterations();
-        System.out.println("== testAddFeature() ==");
+        logger.info("== testAddFeature() ==");
         JSONObject request = createRequest("add_feature");
         JSONObject gene = createJSONFeature(0, 2735, 1, "gene", "gene");
         request.put("features", new JSONArray().put(gene));
@@ -109,8 +113,8 @@ public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
     
     private JSONObject sendRequestAndPrintResponse(JSONObject request) throws IOException, JSONException {
         int indent = 2;
-        System.out.println("Request for operation: " + request.getString("operation"));
-        System.out.println(request.toString(indent));
+        logger.info("Request for operation: " + request.getString("operation"));
+        logger.info(request.toString(indent));
         HttpURLConnection connection = openURLConnection();
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
         out.write(request.toString());
@@ -121,11 +125,11 @@ public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
         BufferedReader in;
         StringBuilder buffer = new StringBuilder();
         if (ok) {
-            System.out.println("Response for operation: " + request.getString("operation"));
+            logger.info("Response for operation: " + request.getString("operation"));
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         }
         else {
-            System.out.println("Failure for operation: " + request.getString("operation") + " [" + connection.getResponseCode() + "]" + " " + connection.getResponseMessage());
+            logger.info("Failure for operation: " + request.getString("operation") + " [" + connection.getResponseCode() + "]" + " " + connection.getResponseMessage());
             in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
         }
         while ((line = in.readLine()) != null) {
@@ -133,7 +137,7 @@ public class AnnotationEditorServiceWithPersistentStorageTest extends TestCase {
         }
         if (buffer.length() > 0) {
             JSONObject response = new JSONObject(buffer.toString());
-            System.out.println(response.toString(indent));
+            logger.info(response.toString(indent));
             return response;
         }
         return null;
