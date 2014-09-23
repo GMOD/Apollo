@@ -1,7 +1,7 @@
 Apollo
 ======
 
-Genome annotation editor, with a Java servlet backend and a Javascript client that runs in a web browser as a JBrowse plugin
+Genome annotation editor, with a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin
 
 For general information on WebApollo, go to: 
 http://genomearchitect.org/
