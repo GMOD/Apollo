@@ -4,29 +4,46 @@ APOLLO_ROOT_DIRECTORY=`pwd`
 APOLLO_BUILD_DIRECTORY=$APOLLO_ROOT_DIRECTORY
 APOLLO_WEBAPP_DIRECTORY="$APOLLO_ROOT_DIRECTORY/src/main/webapp"
 APOLLO_JBROWSE_DIRECTORY="$APOLLO_WEBAPP_DIRECTORY/jbrowse"
+APOLLO_JBROWSE_GITHUB="$APOLLO_ROOT_DIRECTORY/jbrowse-github"
 JBROWSE_GITHUB="https://github.com/GMOD/jbrowse"
-JBROWSE_RELEASE="1.11.5-release"
+JBROWSE_RELEASE="master"
 
-if [ ! -d "$APOLLO_BUILD_DIRECTORY/jbrowse-github" ]; then
-  echo "No jbrowse directory found at $APOLLO_JBROWSE_DIRECTORY, installing locally from $JBROWSE_GITHUB"
+
+if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
+  echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
-  git clone --recursive $JBROWSE_GITHUB jbrowse-github
-  
-  cd $APOLLO_BUILD_DIRECTORY/jbrowse-github
+  git clone --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB 
+fi
+
+
+if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
+  cd "$APOLLO_JBROWSE_GITHUB"
+  git pull
   git checkout $JBROWSE_RELEASE
   cp -r $APOLLO_ROOT_DIRECTORY/client/apollo plugins/WebApollo
-  rm -rf $APOLLO_JBROWSE_DIRECTORY
+
   if [[ $1 == release ]]; then
       echo "Using release jbrowse"
       ulimit -n 1000
       make -f build/Makefile release
       mv JBrowse-dev $APOLLO_JBROWSE_DIRECTORY
   elif [[ $1 == debug ]]; then
+      echo "Using debug jbrowse"
       ulimit -n 1000
       make -f build/Makefile release
-      echo "Using debug jbrowse"
+      mv JBrowse-dev-dev $APOLLO_JBROWSE_DIRECTORY
+  elif [[ $1 == release-notest ]]; then
+      echo "Using release jbrowse, building with no test"
+      ulimit -n 1000
+      make -f build/Makefile release-notest
+      mv JBrowse-dev $APOLLO_JBROWSE_DIRECTORY
+  elif [[ $1 == debug-notest ]]; then
+      echo "Using debug jbrowse, building with no test"
+      ulimit -n 1000
+      make -f build/Makefile release-notest
       mv JBrowse-dev-dev $APOLLO_JBROWSE_DIRECTORY
   else
+      echo "Using github jbrowse"
       cp -R .  $APOLLO_JBROWSE_DIRECTORY
   fi
 
@@ -35,7 +52,7 @@ if [ ! -d "$APOLLO_BUILD_DIRECTORY/jbrowse-github" ]; then
   cd $APOLLO_ROOT_DIRECTORY
 
 else 
-  echo "jbrowse installed"
+  echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY, no additional jbrowse install steps taken"
 fi
 
 
