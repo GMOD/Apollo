@@ -1,5 +1,7 @@
 package org.bbop.apollo.web;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.AnnotationEditor;
 import org.bbop.apollo.editor.AnnotationEditor.AnnotationEditorException;
@@ -55,6 +57,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @WebServlet("/AnnotationEditorService")
 public class AnnotationEditorService extends HttpServlet {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     private static final long serialVersionUID = 1L;
     private static Set<String> operationsNotRequiringLogin;
     private static Set<String> operationsNotRequiringMutexes;
@@ -4375,7 +4380,7 @@ public class AnnotationEditorService extends HttpServlet {
          sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "\n");
          sb.append("max memory: " + format.format(maxMemory / 1024) + "\n");
          sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "\n");
-         System.out.println(sb.toString());
+         logger.info(sb.toString());
     }
 
 }

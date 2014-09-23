@@ -1,6 +1,8 @@
 package org.bbop.apollo.web.config;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +21,8 @@ import java.util.*;
 import java.util.zip.CRC32;
 
 public class ServerConfiguration {
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     private String gbolMappingFile;
     private String dataStoreDirectory;
@@ -194,12 +198,12 @@ public class ServerConfiguration {
     }
 
     private void init(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
-        System.out.println("init inputStrea" + configuration);
+        logger.debug("init inputStrea" + configuration);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
-        System.out.println("going to parse");
+        logger.debug("going to parse");
         Document doc = db.parse(configuration);
-        System.out.println("PARSED");
+        logger.debug("PARSED");
 
         String[] extensions = new String[]{"properties"};
 
@@ -207,17 +211,17 @@ public class ServerConfiguration {
 
         // some file-systems are kind of stupid and assumes that it is the root directory, so this may not always work (though it supports dev niceley)_
         File currentDirectory= new File(".");
-        System.out.println("path: "+servletContext.getContextPath());
-        System.out.println("real path: "+servletContext.getRealPath("."));
+        logger.debug("path: " + servletContext.getContextPath());
+        logger.debug("real path: " + servletContext.getRealPath("."));
         if(currentDirectory.getAbsolutePath().startsWith("/")){
             currentDirectory = new File(servletContext.getRealPath("."));
-            System.out.println("curretn directory reset: "+currentDirectory);
-            System.out.println("exists: "+currentDirectory.exists());
-            System.out.println("is directory: "+currentDirectory.isDirectory());
+            logger.debug("curretn directory reset: " + currentDirectory);
+            logger.debug("exists: " + currentDirectory.exists());
+            logger.debug("is directory: " + currentDirectory.isDirectory());
         }
-        System.out.println("current directory: "+currentDirectory.getAbsolutePath());
+        logger.debug("current directory: " + currentDirectory.getAbsolutePath());
         Collection<File> files = FileUtils.listFiles(currentDirectory,extensions,true);
-        System.out.println("files found: "+files.size());
+        logger.debug("files found: " + files.size());
         boolean loaded = false ;
         for(File file : files){
             if(file.getName().equals("config.properties")){
@@ -225,7 +229,7 @@ public class ServerConfiguration {
                 loaded = true;
             }
         }
-        System.out.println("loaded: "+loaded) ;
+        logger.debug("loaded: " + loaded) ;
 
         String dataStoreDirectoryOverride = null ;
         String databaseUrlOverride = null ;
@@ -233,16 +237,16 @@ public class ServerConfiguration {
         String databasePasswordOverride= null ;
 //        String jbrowseData = null ;
         if(loaded){
-            System.out.println("overriden: " + loaded ) ;
+            logger.debug("overriden: " + loaded) ;
             dataStoreDirectoryOverride = properties.getProperty("datastore.directory");
             databaseUrlOverride = properties.getProperty("database.url");
             databaseUsernameOverride = properties.getProperty("database.username");
             databasePasswordOverride = properties.getProperty("database.password");
 
-            System.out.println("dataStoreDirectoryOverride: " + dataStoreDirectoryOverride ) ;
-            System.out.println("databaseUrlOverride: " + databaseUrlOverride ) ;
-            System.out.println("databaseUsernameOverride: " + databaseUsernameOverride ) ;
-            System.out.println("databasePasswordOverride: " + databasePasswordOverride ) ;
+            logger.debug("dataStoreDirectoryOverride: " + dataStoreDirectoryOverride) ;
+            logger.debug("databaseUrlOverride: " + databaseUrlOverride) ;
+            logger.debug("databaseUsernameOverride: " + databaseUsernameOverride) ;
+            logger.debug("databasePasswordOverride: " + databasePasswordOverride) ;
         }
 
 
@@ -257,7 +261,7 @@ public class ServerConfiguration {
 
         if(dataStoreDirectoryOverride!=null){
             dataStoreDirectory = dataStoreDirectoryOverride;
-            System.out.println("override dataStore directory: "+ dataStoreDirectory);
+            logger.debug("override dataStore directory: " + dataStoreDirectory);
         }
         else{
             Node dataStoreDirectoryNode = doc.getElementsByTagName("datastore_directory").item(0);
@@ -289,10 +293,10 @@ public class ServerConfiguration {
             trackNameComparator = trackNameComparatorNode.getTextContent();
         }
         Element userNode = (Element)doc.getElementsByTagName("user").item(0);
-        System.out.println("has user node: "+ userNode);
+        logger.debug("has user node: " + userNode);
         if (userNode != null) {
             Element databaseNode = (Element)userNode.getElementsByTagName("database").item(0);
-            System.out.println("has database node: "+ databaseNode);
+            logger.debug("has database node: " + databaseNode);
             if (databaseNode != null) {
                 String driver = databaseNode.getElementsByTagName("driver").item(0).getTextContent();
                 String url = databaseUrlOverride!=null ? databaseUrlOverride : databaseNode.getElementsByTagName("url").item(0).getTextContent();
@@ -307,10 +311,10 @@ public class ServerConfiguration {
 //                if (passwordNode != null) {
 //                    password = passwordNode.getTextContent();
 //                }
-                System.out.println("loading database with: "+ driver + " "+url + " "+userName + " " + password);
+                logger.debug("loading database with: " + driver + " " + url + " " + userName + " " + password);
 
                 userDatabase = new UserDatabaseConfiguration(driver, url, userName, password);
-                System.out.println("loaded database" );
+                logger.debug("loaded database");
             }
             Element authenticationClassNode = (Element)userNode.getElementsByTagName("authentication_class").item(0);
             if (authenticationClassNode != null) {
@@ -379,7 +383,7 @@ public class ServerConfiguration {
                             translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
                 }
                 catch (Exception e) {
-                    System.out.println("ERROR loading seq data:");
+                    logger.debug("ERROR loading seq data:");
                     e.printStackTrace();
                 }
             }

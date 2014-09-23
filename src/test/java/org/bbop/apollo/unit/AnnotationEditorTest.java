@@ -1,6 +1,8 @@
 package org.bbop.apollo.unit;
 
 import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.config.Configuration;
 import org.bbop.apollo.editor.AnnotationEditor;
 import org.bbop.apollo.editor.AnnotationEditor.AnnotationEditorException;
@@ -21,19 +23,21 @@ import java.util.List;
 
 public class AnnotationEditorTest extends TestCase {
 
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     private Organism organism;
     private BioObjectConfiguration conf;
     private AnnotationEditor editor;
 
     public void setUp() {
         organism = new Organism("Foomus", "barius");
-        System.out.println(new File(".").getAbsolutePath());
+        logger.info(new File(".").getAbsolutePath());
         conf = new BioObjectConfiguration("src/test/resources/testSupport/mapping.xml");
         editor = new AnnotationEditor(new AnnotationSession(), new Configuration());
     }
 
     public void testAddTranscript() {
-        System.out.println("== testAddTranscript() ==");
+        logger.info("== testAddTranscript() ==");
         Gene gene = createGene(100, 1000, "gene");
         assertEquals("gene fmin (no transcript): ", new Integer(100), gene.getFeatureLocation().getFmin());
         assertEquals("gene fmax (no transcript): ", new Integer(1000), gene.getFeatureLocation().getFmax());
@@ -48,7 +52,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testDuplicateTranscript() {
-        System.out.println("== testDuplicateTranscript() ==");
+        logger.info("== testDuplicateTranscript() ==");
         Gene gene = createGene(100, 1000, "gene");
         Transcript transcript = createTranscript(0, 1000, "transcript");
         editor.addTranscript(gene, transcript);
@@ -71,7 +75,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testMergeTranscripts() {
-        System.out.println("== testMergeTranscripts() ==");
+        logger.info("== testMergeTranscripts() ==");
         Gene gene = createGene(0, 1500, "gene");
         Transcript transcript1 = createTranscript(0, 1000, "transcript1");
         Transcript transcript2 = createTranscript(500, 1500, "transcript2");
@@ -91,7 +95,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testMergeTranscriptWithGeneMerge() {
-        System.out.println("== testMergeTranscriptsWithGeneMerge() ==");
+        logger.info("== testMergeTranscriptsWithGeneMerge() ==");
         Gene gene1 = createGene(0, 1500, "gene1");
         Gene gene2 = createGene(2000, 3500, "gene2");
         Transcript transcript1 = createTranscript(0, 1500, "transcript1");
@@ -111,7 +115,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSetTranslationStart() {
-        System.out.println("== testSetTranslationStart() ==");
+        logger.info("== testSetTranslationStart() ==");
         Gene gene = createGene(0, 1000, "gene");
         Transcript transcript = createTranscript(100, 900, "transcript");
         editor.addTranscript(gene, transcript);
@@ -121,7 +125,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSetTranslationEnd() {
-        System.out.println("== testSetTranslationEnd() ==");
+        logger.info("== testSetTranslationEnd() ==");
         Gene gene = createGene(0, 1000, "gene");
         Transcript transcript = createTranscript(100, 900, "transcript");
         editor.addTranscript(gene, transcript);
@@ -133,7 +137,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSetTranslationEnds() {
-        System.out.println("== testSetTranslationEnds() ==");
+        logger.info("== testSetTranslationEnds() ==");
         Gene gene = createGene(0, 1000, "gene");
         Transcript transcript = createTranscript(100, 900, "transcript");
         editor.addTranscript(gene, transcript);
@@ -147,7 +151,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSetLongestORF() throws GBOLUtilException {
-        System.out.println("== testSetLongestORF() ==");
+        logger.info("== testSetLongestORF() ==");
         Gene gene = createGene(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
         editor.setLongestORF(transcript, SequenceUtil.getTranslationTableForGeneticCode(1), false);
@@ -193,7 +197,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testAddExon() {
-        System.out.println("== testAddExon() ==");
+        logger.info("== testAddExon() ==");
         Gene gene = createGene(100, 1000, "gene");
         Transcript transcript = createTranscript(100, 1000, "transcript");
         gene.addTranscript(transcript);
@@ -209,7 +213,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testDeleteExon() {
-        System.out.println("== testDeleteExon() ==");
+        logger.info("== testDeleteExon() ==");
         Gene gene = createGene(100, 1000, "gene");
         Transcript transcript = createTranscript(100, 1000, "transcript");
         gene.addTranscript(transcript);
@@ -229,7 +233,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testMergeExons() throws AnnotationEditorException {
-        System.out.println("== testMergeExons() ==");
+        logger.info("== testMergeExons() ==");
         Gene gene = createGene(100, 1000, "gene");
         Transcript transcript = createTranscript(100, 1000, "transcript");
         gene.addTranscript(transcript);
@@ -258,7 +262,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSplitExon() {
-        System.out.println("== testSplitExon() ==");
+        logger.info("== testSplitExon() ==");
         int newLeftMax = 500;
         int newRightMin = 600;
         Gene gene = createGene(100, 1000, "gene");
@@ -273,7 +277,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testAddSequenceAlteration() {
-        System.out.println("== testAddSequenceAlteration() ==");
+        logger.info("== testAddSequenceAlteration() ==");
         Gene gene = createGene(1);
         editor.addFeature(gene);
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -301,7 +305,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSplitTranscript() {
-        System.out.println("== testSplitTranscript() ==");
+        logger.info("== testSplitTranscript() ==");
         Gene gene = createGene(1);
         assertEquals("Number of transcripts before split: ", new Integer(1), new Integer(gene.getTranscripts().size()));
         Transcript transcript = gene.getTranscripts().iterator().next();
@@ -317,7 +321,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testSetFeatureBoundaries() {
-        System.out.println("== testSetFeatureBoundaries() ==");
+        logger.info("== testSetFeatureBoundaries() ==");
         Transcript transcript = createTranscript(100, 1000, "transcript");
         Exon exon = createExon(100, 1000, "exon");
         transcript.addExon(exon);
@@ -329,7 +333,7 @@ public class AnnotationEditorTest extends TestCase {
     }
 
     public void testFlipStrand() {
-        System.out.println("== testFlipStrand() ==");
+        logger.info("== testFlipStrand() ==");
         Gene gene = createGene(1);
         List<AbstractSingleLocationBioFeature> features = new ArrayList<AbstractSingleLocationBioFeature>();
         features.add(gene);
@@ -353,7 +357,7 @@ public class AnnotationEditorTest extends TestCase {
     @Ignore
 //    public void testFindNonCanonicalAcceptorDonorSpliceSites() {
     public void doNotTestFindNonCanonicalAcceptorDonorSpliceSites() {
-        System.out.println("== testFindNonCanonicalAcceptorDonorSpliceSites() ==");
+        logger.info("== testFindNonCanonicalAcceptorDonorSpliceSites() ==");
         Gene gene = createGene(1);
         for (Transcript transcript : gene.getTranscripts()) {
             editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
