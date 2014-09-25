@@ -1,9 +1,33 @@
+<%@ page import="org.bbop.apollo.web.config.ServerConfiguration" %>
+<%@ page import="org.bbop.apollo.web.datastore.JEDatabase" %>
+<%@ page import="org.bbop.apollo.web.datastore.history.JEHistoryDatabase" %>
+<%@ page import="org.bbop.apollo.web.datastore.history.Transaction" %>
+<%@ page import="org.bbop.apollo.web.user.Permission" %>
+<%@ page import="org.bbop.apollo.web.user.UserManager" %>
+<%@ page import="org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature" %>
+<%@ page import="org.gmod.gbol.bioObject.conf.BioObjectConfiguration" %>
+<%@ page import="org.gmod.gbol.bioObject.util.BioObjectUtil" %>
+<%@ page import="org.gmod.gbol.simpleObject.Feature" %>
+<%@ page import="java.io.BufferedReader" %>
+<%@ page import="java.io.File" %>
+<%@ page import="java.io.InputStream" %>
+<%@ page import="java.io.InputStreamReader" %>
+<%@ page import="java.net.URL" %>
+<%@ page import="java.util.*" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 
 <%
 ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
 InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
+
+Set<String> allStatusList = new TreeSet<String>();
+
+for(ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : serverConfig.getAnnotationInfoEditor().values()){
+    allStatusList.addAll(annotationInfoEditorConfiguration.getStatus());
+}
+
 BioObjectConfiguration bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
 if (!UserManager.getInstance().isInitialized()) {
     ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
@@ -186,8 +210,20 @@ $(function() {
             { sTitle: "Feature type", bSortable:true },
             { sTitle: "Last modified", bSortable:true },
             { sTitle: "Editor", bSortable:true },
+             <%
+             if(allStatusList.size()>0){
+             %>
             { sTitle: "Owner", bSortable:true },
             { sTitle: "Status", bSortable:true }
+            <%
+            }
+            else{
+            %>
+            { sTitle: "Owner", bSortable:true }
+                <%
+            }
+            %>
+
         ]
     });
 
@@ -498,16 +534,21 @@ function open_user_manager_dialog() {
         <li><a id='user_manager_item'>Manage users</a></li>
             <li type='separator'></li>
             <li><a id='delete_selected_item'>Delete selected</a></li>
+            <% if(allStatusList.size()>0){
+            %>
             <li><a id='change_status_selected_item'>Change status of selected</a>
-            <ul>
-            <%
-                for(int i = 0 ; i < 3 ; i++){
+                <ul>
+                        <%
+                for(String status : allStatusList){
                     %>
-                    <li><a class='none'>ABCD</a></li>
-            <%
+                    <li><a class='none'><%=status%></a></li>
+                        <%
                 }
             %>
             </li> </ul>
+            <%
+            }
+            %>
         </ul>
         </li>
     <%
