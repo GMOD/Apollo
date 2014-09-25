@@ -18,9 +18,9 @@ fi
 
 if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   cd "$APOLLO_JBROWSE_GITHUB"
-  git pull
+  git checkout -- release-notes.txt
+  git fetch
   git checkout $JBROWSE_RELEASE
-  rm -rf plugins/WebApollo
   cp -r $APOLLO_ROOT_DIRECTORY/client/apollo plugins/WebApollo
 
   if [[ $1 == release ]]; then
