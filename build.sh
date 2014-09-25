@@ -1,5 +1,6 @@
 #!/bin/bash
 #https://github.com/cmdcolin/jbrowse/blob/master/.travis.yml
+CURRENT=`pwd`
 : ${APOLLO_ROOT_DIRECTORY:=`pwd`}
 : ${APOLLO_BUILD_DIRECTORY:=$APOLLO_ROOT_DIRECTORY}
 : ${APOLLO_WEBAPP_DIRECTORY:="$APOLLO_ROOT_DIRECTORY/src/main/webapp"}
@@ -7,12 +8,36 @@
 : ${APOLLO_JBROWSE_GITHUB:="$APOLLO_ROOT_DIRECTORY/jbrowse-github"}
 : ${JBROWSE_GITHUB:="https://github.com/GMOD/jbrowse"}
 : ${JBROWSE_RELEASE:="master"}
+: ${JBROWSE_VERSION:="dev"}
 
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: build.sh [release|debug|github|help]"
+    exit 0
+fi
+
+if [[ $1 == help || $1 == --help ]]; then
+    echo "Usage: build.sh [release|debug|github]"
+    echo ""
+    echo "Options:"
+    echo "release: builds in release mode (minimized javascript)"
+    echo "debug: builds in debug mode (non-minimized javascript)"
+    echo "github: builds straight from github (no processing of javascript)"
+    echo ""
+    echo "Additional environment variables:"
+    echo "JBROWSE_GITHUB: URL of git repository for JBrowse ($JBROWSE_GITHUB)"
+    echo "JBROWSE_RELEASE: Release tag, commit tag, or branch for JBrowse ($JBROWSE_RELEASE)"
+    echo "JBROWSE_VERSION: Release version stored in package.json for JBrowse ($JBROWSE_VERSION)"
+    echo "APOLLO_JBROWSE_GITHUB: Location of local JBrowse repo ($APOLLO_JBROWSE_GITHUB)"
+    echo "APOLLO_ROOT_DIRECTORY: Location of local WebApollo repo ($APOLLO_ROOT_DIRECTORY)"
+    exit 0
+fi
 
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
-  git clone --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB 
+  git clone --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
+  cd $CURRENT
 fi
 
 
@@ -26,34 +51,20 @@ if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   if [[ $1 == release ]]; then
       echo "Using release jbrowse"
       ulimit -n 1000
-      make -f build/Makefile release
-      mv JBrowse-dev $APOLLO_JBROWSE_DIRECTORY
+      make -f build/Makefile release-notest
+      mv JBrowse-$JBROWSE_VERSION $APOLLO_JBROWSE_DIRECTORY
   elif [[ $1 == debug ]]; then
       echo "Using debug jbrowse"
       ulimit -n 1000
-      make -f build/Makefile release
-      mv JBrowse-dev-dev $APOLLO_JBROWSE_DIRECTORY
-  elif [[ $1 == release-notest ]]; then
-      echo "Using release jbrowse, building with no test"
-      ulimit -n 1000
       make -f build/Makefile release-notest
-      mv JBrowse-dev $APOLLO_JBROWSE_DIRECTORY
-  elif [[ $1 == debug-notest ]]; then
-      echo "Using debug jbrowse, building with no test"
-      ulimit -n 1000
-      make -f build/Makefile release-notest
-      mv JBrowse-dev-dev $APOLLO_JBROWSE_DIRECTORY
-  else
+      mv JBrowse-$JBROWSE_VERSION-dev $APOLLO_JBROWSE_DIRECTORY
+  elif [[ $1 == github ]]; then
       echo "Using github jbrowse"
       cp -R .  $APOLLO_JBROWSE_DIRECTORY
   fi
 
-  cd $APOLLO_JBROWSE_DIRECTORY
-  ./setup.sh
-  cd $APOLLO_ROOT_DIRECTORY
-
 else 
-  echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY, no additional jbrowse install steps taken"
+  echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY, run clean.sh to-rebuild"
 fi
 
 
