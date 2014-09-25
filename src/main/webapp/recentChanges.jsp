@@ -1,34 +1,5 @@
-<%@page import="org.gmod.gbol.bioObject.util.BioObjectUtil"%>
-<%@page import="org.gmod.gbol.bioObject.conf.BioObjectConfiguration"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
-<%@page import="org.bbop.apollo.web.config.ServerConfiguration.DataAdapterConfiguration"%>
-<%@page import="org.bbop.apollo.web.config.ServerConfiguration.DataAdapterGroupConfiguration"%>
-<%@ page import="org.bbop.apollo.web.config.ServerConfiguration"%>
-<%@ page import="org.bbop.apollo.web.user.UserManager"%>
-<%@ page import="org.bbop.apollo.web.user.Permission"%>
-<%@ page import="org.bbop.apollo.web.track.TrackNameComparator"%>
-<%@ page import="org.bbop.apollo.web.datastore.JEDatabase"%>
-<%@ page import="org.bbop.apollo.web.datastore.history.JEHistoryDatabase"%>
-<%@ page import="org.bbop.apollo.web.datastore.history.Transaction"%>
-<%@ page import="org.gmod.gbol.simpleObject.Feature" %>
-<%@ page import="org.gmod.gbol.simpleObject.FeatureRelationship" %>
-<%@ page import="org.gmod.gbol.simpleObject.CVTerm" %>
-<%@ page import="org.gmod.gbol.simpleObject.FeatureLocation" %>
-<%@ page import="org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature" %>
-<%@ page import="java.util.Map"%>
-<%@ page import="java.util.HashMap"%>
-<%@ page import="java.util.Collection"%>
-<%@ page import="java.util.ArrayList"%>
-<%@ page import="java.util.Collections"%>
-<%@ page import="java.util.List"%>
-<%@ page import="java.util.Iterator"%>
-<%@ page import="java.util.TreeSet"%>
-<%@ page import="java.io.BufferedReader" %>
-<%@ page import="java.io.InputStreamReader" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.net.URL" %>
-<%@ page import="java.io.InputStream" %>
 
 <%
 ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
@@ -95,7 +66,7 @@ if(google) {
 
 
 <%
-BufferedReader in = new BufferedReader(new InputStreamReader(application.getResourceAsStream(serverConfig.getTrackNameComparator())));
+BufferedReader in = new java.io.BufferedReader(new InputStreamReader(application.getResourceAsStream(serverConfig.getTrackNameComparator())));
 String line;
 while ((line = in.readLine()) != null) {
     out.println(line);    
@@ -132,7 +103,8 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
     builder+=String.format("'%s',", feature.getType().split(":")[1]);
     builder+=String.format("'%s',", feature.getTimeLastModified());
     builder+=String.format("'%s',", t!=null?t.getEditor():feature.getOwner().getOwner());
-    builder+=String.format("'%s']", feature.getOwner().getOwner());
+    builder+=String.format("'%s',", feature.getOwner().getOwner());
+    builder+=String.format("'%s']", feature.getStatus()==null ? "" : feature.getStatus().getStatus());
     return builder;
 }
 
@@ -143,8 +115,10 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
 private ArrayList<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
     ArrayList<String> builder=new ArrayList<String>();
     String type=feature.getType().split(":")[1];
+
+
     for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
-        builder.add(generateFeatureRecordJSON(subfeature,track, historyDataStore)); 
+        builder.add(generateFeatureRecordJSON(subfeature,track, historyDataStore));
     }
     builder.add(generateFeatureRecordJSON(feature,track, historyDataStore));
     return builder;
@@ -212,7 +186,8 @@ $(function() {
             { sTitle: "Feature type", bSortable:true },
             { sTitle: "Last modified", bSortable:true },
             { sTitle: "Editor", bSortable:true },
-            { sTitle: "Owner", bSortable:true }
+            { sTitle: "Owner", bSortable:true },
+            { sTitle: "Status", bSortable:true }
         ]
     });
 
@@ -273,12 +248,21 @@ $(function() {
     $("#select_tracks").click(function() {
         window.location="selectTrack.jsp";
     });
-    
+
     $("#search_sequence_item").click(function() {
         open_search_dialog();
     });
     $("#user_manager_item").click(function() {
         open_user_manager_dialog();
+    });
+    $("#delete_selected_item").click(function() {
+        var doDelete = confirm("Are you sure you want to delete these annotations?");
+        if(doDelete){
+            alert('doing delete') ;
+        }
+    });
+    $("#change_status_selected_item").click(function() {
+
     });
     cleanup_user_item();
 } );
@@ -318,7 +302,7 @@ function createListener() {
             default:
                 alert("Server connection error");
                 location.reload();
-                break;            
+                break;
             }
         },
         timeout: 5 * 60 * 1000
@@ -328,7 +312,7 @@ function createListener() {
 function write_data(adapter, tracks, options, successMessage) {
     $("#data_adapter_dialog").dialog("option", "closeOnEscape", false);
     $(".ui-dialog-titlebar-close", this.parentNode).hide();
-    
+
     var enableClose = function() {
         $("#data_adapter_dialog").dialog("option", "closeOnEscape", true);
         $(".ui-dialog-titlebar-close", this.parentNode).show();
@@ -390,7 +374,7 @@ function open_search_dialog() {
     for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
         out.println(String.format("starts['%s'] = %d;", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getStart()));
     }
-%>    
+%>
     search.setRedirectCallback(function(id, fmin, fmax) {
          var flank = Math.round((fmax - fmin) * 0.2);
          var url = 'jbrowse/?loc=' + id + ":" + (fmin-flank) + ".." + (fmax+flank)+"&highlight="+id+":"+(fmin+1) + ".." + fmax;
@@ -492,32 +476,50 @@ function open_user_manager_dialog() {
             </li>
         </ul>
     </li>
-    
+
     <li><a id="view_item">View</a>
         <ul id="view_menu">
             <li><a id="select_tracks">Select tracks</a></li>
         </ul>
     </li>
-    
+
     <li><a id="tools_item">Tools</a>
         <ul id="tools_menu">
             <li><a id="search_sequence_item">Search sequence</a></li>
         </ul>
     </li>
+
+
 <%
     if (isAdmin) {
-        out.println("<li><a id=\"admin_item\">Admin</a>");
-        out.println("<ul id=\"tools_menu\">");
-        out.println("\t<li><a id='user_manager_item'>Manage users</a></li>");
-        out.println("</ul>");
-        out.println("</li>");
+    %>
+        <li><a id="admin_item">Admin</a>
+        <ul id="admin_menu">
+        <li><a id='user_manager_item'>Manage users</a></li>
+            <li type='separator'></li>
+            <li><a id='delete_selected_item'>Delete selected</a></li>
+            <li><a id='change_status_selected_item'>Change status of selected</a>
+            <ul>
+            <%
+                for(int i = 0 ; i < 3 ; i++){
+                    %>
+                    <li><a class='none'>ABCD</a></li>
+            <%
+                }
+            %>
+            </li> </ul>
+        </ul>
+        </li>
+    <%
     }
     if (username != null) {
-        out.println("<li><a id=\"user_item\"><span class='usericon'></span>" + username + "</a>");
-        out.println("<ul id=\"user_menu\">");
-        out.println("\t<li><a id=\"logout_item\">Logout</a></li>");
-        out.println("</ul>");
-        out.println("</li>");
+    %>
+        <li><a id="user_item"><span class='usericon'></span><%=username%></a>
+        <ul id="user_menu">
+        <li><a id="logout_item">Logout</a></li>
+        </ul>
+        </li>
+    <%
     }
 %>
 </ul>
