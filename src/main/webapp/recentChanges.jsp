@@ -114,16 +114,16 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
     long flank=Math.round((feature.getFmax()-feature.getFmin())*0.5);
     long left=Math.max(feature.getFmin()-flank,1);
     long right=Math.min(feature.getFmax()+flank,track.getSourceFeature().getSequenceLength()-1);
-    
+
 
     Transaction t=historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
     
     
     builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
     builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
-    if(feature.getName()==null){
-        builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',",
-            track.getSourceFeature().getUniqueName(), left, right, "Unassigned");
+    if(feature.getName()==null || feature.getName().trim().length()==0){
+        builder+=String.format("'---- <a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a> ----',",
+            track.getSourceFeature().getUniqueName(), left, right, "unassigned");
     }
     else{
         builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',",
