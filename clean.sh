@@ -5,6 +5,7 @@ APOLLO_WEBAPP_DIRECTORY="$APOLLO_ROOT_DIRECTORY/src/main/webapp"
 APOLLO_JBROWSE_DIRECTORY="$APOLLO_WEBAPP_DIRECTORY/jbrowse"
 APOLLO_JBROWSE_GITHUB="$APOLLO_ROOT_DIRECTORY/jbrowse-github"
 mvn clean
+#remove jbrowse github if "clean.sh all"
 if [[ $1 == all ]]; then
   rm -rf "$APOLLO_JBROWSE_DIRECTORY"
   rm -rf "$APOLLO_JBROWSE_GITHUB"
