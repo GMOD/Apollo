@@ -82,6 +82,7 @@ return declare( JBPlugin,
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
+        this.addNavigationOptions();
 
         // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(
@@ -382,7 +383,28 @@ return declare( JBPlugin,
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-    }, 
+    },
+    addNavigationOptions: function()  {
+        var thisB = this;
+        var browser = this.browser;
+        var select_Tracks = new dijitMenuItem(
+            {
+                label: "Select tracks",
+                onClick: function(event) {
+                    window.location="../selectTrack.jsp";
+                }
+            });
+        browser.addGlobalMenuItem( 'view', select_Tracks );
+        var recent_Changes = new dijitMenuItem(
+            {
+                label: "Recent changes",
+                onClick: function(event) {
+                    window.location="../recentChanges.jsp";
+                }
+            });
+        browser.addGlobalMenuItem( 'view', recent_Changes );
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+    },
 
     /** 
      * hacking addition of a "tools" menu to standard JBrowse menubar, 
@@ -401,6 +423,18 @@ return declare( JBPlugin,
                                                     }
                                                 }) );
             this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+
+
+            //this.browser.addGlobalMenuItem( 'tools',
+            //    new dijitMenuItem(
+            //        {
+            //            id: 'menubar_apollo_seqsearch',
+            //            label: "Search sequence",
+            //            onClick: function() {
+            //                webapollo.getAnnotTrack().searchSequence();
+            //            }
+            //        }) );
+            //this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
 
         // move Tool menu in front of Help menu (Help should always be last menu?)

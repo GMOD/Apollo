@@ -121,11 +121,17 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
     
     builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
     builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
-    builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',", 
-        track.getSourceFeature().getUniqueName(), left, right, feature.getName());
+    if(feature.getName()==null){
+        builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',",
+            track.getSourceFeature().getUniqueName(), left, right, "Unassigned");
+    }
+    else{
+        builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',",
+            track.getSourceFeature().getUniqueName(), left, right, feature.getName());
+    }
     builder+=String.format("'%s',", feature.getType().split(":")[1]);
     builder+=String.format("'%s',", feature.getTimeLastModified());
-    builder+=String.format("'%s',", t!=null?t.getEditor():"null");
+    builder+=String.format("'%s',", t!=null?t.getEditor():feature.getOwner().getOwner());
     builder+=String.format("'%s']", feature.getOwner().getOwner());
     return builder;
 }
