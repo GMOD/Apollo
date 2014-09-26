@@ -14,10 +14,9 @@ if [ ! -d $APOLLO_JBROWSE_DIRECTORY ]; then
 fi
 
 cd $APOLLO_JBROWSE_DIRECTORY
-perl Makefile.PL $*
-make
 if [[ $1 == install ]]; then
-    make install
+    cpan XML::DOM XML::Parser XML::Parser::PerlSAX
+    cpan .
 fi
 cd $CURRENT
 
