@@ -114,7 +114,7 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
     Transaction t=historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
     
     
-    builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName());
+    builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName()+"<=>"+feature.getUniqueName());
     builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
     if(feature.getName()==null || feature.getName().trim().length()==0){
         builder+=String.format("'---- <a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a> ----',",
@@ -294,29 +294,45 @@ $(function() {
     $("#delete_selected_item").click(function() {
         var count = 0 ;
 
+        // TODO: this may need to be split up into multiple submissions if across chromosomes.
+
+        var trackName = "";
         var tracks = new Array();
         table.$(".track_select").each(function() {
             if ($(this).prop("checked")) {
-                tracks.push($(this).attr("id"));
+                var wholeId = $(this).attr("id");
+                trackName = wholeId.split("<=>")[0];
+                var featureId = wholeId.split("<=>")[1];
+                tracks.push(featureId);
             }
         });
 
         console.log(tracks);
+        var trackString = "[";
+        for(var i = 0 ; i < tracks.length ; i++){
+            if (i > 0) {
+                trackString += ',';
+            }
+            trackString += "{ uniquename: '"+tracks[i]+"' }"
+        }
+        trackString += ']';
 
         var doDelete = confirm("Are you sure you want to delete "+tracks.length+" annotations?");
         if(doDelete){
-            var postData = {
-                operation: "delete_feature",
-                features: tracks,
-                track: "trackName"
-            };
+//            var postData = {
+//                operation: "delete_feature",
+//                features: trackString,
+//                track: trackName
+//            };
+
+            var postData = '{ "track": "' + trackName + '", ' + trackString+ ', "operation": "delete_feature" }';
 
             $.ajax({
                 type: "post",
-                data: JSON.stringify(postData),
+                data: postData,
                 url: "AnnotationEditorService",
                 success: function(data, textStatus, jqXHR) {
-                    alert('Deleted');
+                    alert('Deleted '+tracks.size() + " successfully.");
                     enableClose();
                 },
                 error: function(qXHR, textStatus, errorThrown) {

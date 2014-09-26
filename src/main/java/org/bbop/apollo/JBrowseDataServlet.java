@@ -90,7 +90,7 @@ public class JBrowseDataServlet extends HttpServlet {
         }
 
         String range = request.getHeader("range");
-        logger.debug("range: " + range);
+//        logger.debug("range: " + range);
 
         long length = file.length();
         Range full = new Range(0, length - 1, length);
