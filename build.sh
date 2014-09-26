@@ -11,10 +11,6 @@ CURRENT=`pwd`
 : ${JBROWSE_VERSION:="dev"}
 
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage: build.sh [release|debug|github|help]"
-    exit 0
-fi
 
 if [[ $1 == help || $1 == --help ]]; then
     echo "Usage: build.sh [release|debug|github]"
@@ -23,6 +19,7 @@ if [[ $1 == help || $1 == --help ]]; then
     echo "release: builds in release mode (minimized javascript)"
     echo "debug: builds in debug mode (non-minimized javascript)"
     echo "github: builds straight from github (no processing of javascript)"
+    echo "clean: removes any existing jbrowse builds from build directory"
     echo ""
     echo "Additional environment variables:"
     echo "JBROWSE_GITHUB: URL of git repository for JBrowse ($JBROWSE_GITHUB)"
@@ -63,8 +60,10 @@ if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
       cp -R .  $APOLLO_JBROWSE_DIRECTORY
   fi
 
-else 
-  echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY, run clean.sh to-rebuild"
+elif [[ $1 == clean ]]; then
+  rm -rf "$APOLLO_JBROWSE_DIRECTORY" 
+else
+  echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY"
 fi
 
 

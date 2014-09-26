@@ -9,6 +9,4 @@ mvn clean
 if [[ $1 == all ]]; then
   rm -rf "$APOLLO_JBROWSE_DIRECTORY"
   rm -rf "$APOLLO_JBROWSE_GITHUB"
-else
-  rm -rf "$APOLLO_JBROWSE_DIRECTORY"
 fi
