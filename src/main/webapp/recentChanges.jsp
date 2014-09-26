@@ -292,9 +292,39 @@ $(function() {
         open_user_manager_dialog();
     });
     $("#delete_selected_item").click(function() {
-        var doDelete = confirm("Are you sure you want to delete these annotations?");
+        var count = 0 ;
+
+        var tracks = new Array();
+        table.$(".track_select").each(function() {
+            if ($(this).prop("checked")) {
+                tracks.push($(this).attr("id"));
+            }
+        });
+
+        console.log(tracks);
+
+        var doDelete = confirm("Are you sure you want to delete "+tracks.length+" annotations?");
         if(doDelete){
-            alert('doing delete') ;
+            var postData = {
+                operation: "delete_feature",
+                features: tracks,
+                track: "trackName"
+            };
+
+            $.ajax({
+                type: "post",
+                data: JSON.stringify(postData),
+                url: "AnnotationEditorService",
+                success: function(data, textStatus, jqXHR) {
+                    alert('Deleted');
+                    enableClose();
+                },
+                error: function(qXHR, textStatus, errorThrown) {
+                    $("#data_adapter_message").text("Error deleteing " + adapter);
+                    ok = false;
+                    enableClose();
+                }
+            });
         }
     });
     $("#change_status_selected_item").click(function() {
