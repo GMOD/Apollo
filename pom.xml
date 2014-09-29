@@ -4,7 +4,7 @@
     <groupId>org.bbop.apollo</groupId>
     <artifactId>apollo</artifactId>
     <packaging>war</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.0-SNAPSHOT</version>
     <name>Apollo</name>
     <url>http://genomearchitect.org</url>
 
