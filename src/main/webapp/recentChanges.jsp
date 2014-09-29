@@ -164,6 +164,7 @@ if (username != null) {
         }
         if ((permission & Permission.READ) == Permission.READ) {
             Collection<Feature> features = new ArrayList<Feature>();
+            Collection<Feature> sequence_alterations = new ArrayList<Feature>();
             String my_database = databaseDir + "/"+ track.getName();
 
             //check that database exists
@@ -177,6 +178,15 @@ if (username != null) {
             
             dataStore.readFeatures(features);
             for (Feature feature : features) {
+                // use list of records to get objects that have subfeatures
+                AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
+                ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
+                for (String s : record) {
+                    out.println("recent_changes.push(" + s + ");\n");
+                }
+            }
+            dataStore.readSequenceAlterations(sequence_alterations);
+            for (Feature feature : sequence_alterations) {
                 // use list of records to get objects that have subfeatures
                 AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
                 ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
