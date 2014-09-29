@@ -19,11 +19,6 @@
  * field id (fields_hash).
  */
 
-define( [
-            'dojo/_base/declare',
-            'bbop/bbop'
-], 
-	function( declare, bbop ) {
 
 // All of the server/instance-specific meta-data.
 bbop.core.require('bbop', 'core');
@@ -3785,6 +3780,3 @@ amigo.data.golr = {
    }
 };
 
-return amigo;
-
-});

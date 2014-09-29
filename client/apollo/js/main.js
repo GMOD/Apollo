@@ -1,8 +1,7 @@
 require({
            packages: [
                { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
-               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' },
-               { name: 'bbop', location: '../plugins/WebApollo/jslib/bbop' }
+               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
            ]
        },
        [],
@@ -41,6 +40,17 @@ return declare( JBPlugin,
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
+        [
+          'plugins/WebApollo/jslib/bbop/bbop.js',
+          'plugins/WebApollo/jslib/bbop/golr.js',
+          'plugins/WebApollo/jslib/bbop/jquery.js',
+          'plugins/WebApollo/jslib/bbop/search_box.js'
+        ].forEach(function(src) {
+          var script = document.createElement('script');
+          script.src = src;
+          script.async = false;
+          document.head.appendChild(script);
+        });
         
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
@@ -72,6 +82,7 @@ return declare( JBPlugin,
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
+        this.addNavigationOptions();
 
         // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(
@@ -144,7 +155,7 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableAlignments',
             defaultForStoreTypes: [ 
-                                    'JBrowse/Store/SeqFeature/BAM',
+                                    'JBrowse/Store/SeqFeature/BAM'
                                   ],
             label: 'WebApollo Alignments'
         });
@@ -372,7 +383,28 @@ return declare( JBPlugin,
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-    }, 
+    },
+    addNavigationOptions: function()  {
+        var thisB = this;
+        var browser = this.browser;
+        var select_Tracks = new dijitMenuItem(
+            {
+                label: "Select tracks",
+                onClick: function(event) {
+                    window.location="../selectTrack.jsp";
+                }
+            });
+        browser.addGlobalMenuItem( 'view', select_Tracks );
+        var recent_Changes = new dijitMenuItem(
+            {
+                label: "Recent changes",
+                onClick: function(event) {
+                    window.location="../recentChanges.jsp";
+                }
+            });
+        browser.addGlobalMenuItem( 'view', recent_Changes );
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+    },
 
     /** 
      * hacking addition of a "tools" menu to standard JBrowse menubar, 
@@ -391,6 +423,18 @@ return declare( JBPlugin,
                                                     }
                                                 }) );
             this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+
+
+            //this.browser.addGlobalMenuItem( 'tools',
+            //    new dijitMenuItem(
+            //        {
+            //            id: 'menubar_apollo_seqsearch',
+            //            label: "Search sequence",
+            //            onClick: function() {
+            //                webapollo.getAnnotTrack().searchSequence();
+            //            }
+            //        }) );
+            //this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
 
         // move Tool menu in front of Help menu (Help should always be last menu?)

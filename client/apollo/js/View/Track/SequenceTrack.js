@@ -299,7 +299,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
     startStandby: function() {
         if (this.standby == null) {
-            this.standby = new Standby({target: this.div, color: "transparent"});
+            this.standby = new Standby({target: this.div, color: "transparent",image:"plugins/WebApollo/img/loading.gif"});
             document.body.appendChild(this.standby.domNode);
             this.standby.startup();
             this.standby.show();

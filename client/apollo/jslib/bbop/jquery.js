@@ -11,11 +11,6 @@
  * parsing) even outside of a jQuery environment.
  */
 
-define( [
-            'dojo/_base/declare',
-            'jquery',
-], 
-	function( declare, jQuery ) {
 
 // Setup the internal requirements.
 bbop.core.require('bbop', 'core');
@@ -334,6 +329,3 @@ bbop.golr.faux_ajax = function (){
     };
 };
 
-return bbop;
-
-});

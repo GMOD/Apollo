@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server_configuration>
+
+	<!-- mapping configuration for GBOL data structures -->
+	<gbol_mapping>/config/mapping.xml</gbol_mapping>
+
+	<!-- directory where JE database will be created -->
+	<datastore_directory>ENTER_DATASTORE_DIRECTORY_HERE</datastore_directory>
+
+	<!-- minimum size for introns created -->
+	<default_minimum_intron_size>1</default_minimum_intron_size>
+
+	<!-- size of history for each feature - setting to 0 means unlimited history -->
+	<history_size>0</history_size>
+
+	<!-- overlapping strategy for adding transcripts to genes -->
+	<overlapper_class>org.bbop.apollo.web.overlap.OrfOverlapper</overlapper_class>
+
+	<!-- javascript file for comparing track names (refseqs) (used for sorting in selection table) -->
+	<track_name_comparator>/config/track_name_comparator.js</track_name_comparator>
+
+	<!-- whether to use an existing CDS when creating new transcripts -->
+	<use_cds_for_new_transcripts>true</use_cds_for_new_transcripts>
+
+	<!-- set to false to use hybrid disk/memory store which provides a little slower performance
+	but uses a lot less memory - great for annotation rich genomes -->
+	<use_pure_memory_store>true</use_pure_memory_store>
+
+	<!-- user authentication/permission configuration -->
+	<user>
+
+		<!-- database configuration -->
+		<database>
+
+			<!-- driver for user database -->
+			<driver>org.postgresql.Driver</driver>
+
+            <!-- JDBC URL for user database -->
+            <url>jdbc:postgresql:web_apollo_users</url>
+
+            <!-- username for user database -->
+            <username>web_apollo_users_admin</username>
+
+            <!-- password for user database -->
+            <password>web_apollo_users_admin</password>
+
+		</database>
+
+		<!-- class for generating user authentication page
+		(login page) -->
+		<authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>
+
+	</user>
+
+	<tracks>
+
+		<!-- path to JBrowse refSeqs.json file -->
+        <refseqs>/opt/apollo/jbrowse/data/seq/refSeqs.json</refseqs>
+        <data>/opt/apollo/jbrowse/data/</data>
+
+
+		<!-- annotation track name the current convention is to append
+		the genomic region id to the the name of the annotation track
+		e.g., if the annotation track is called "Annotations" and the
+		genomic region is chr2L, the track name will be
+		"Annotations-chr2L".-->
+		<annotation_track_name>Annotations</annotation_track_name>
+
+	 	<!-- organism being annotated -->
+		<organism>Frogus Littlus</organism>
+
+		<!-- CV term for the genomic sequences - should be in the form
+		of "CV:term".  This applies to all sequences -->
+		<!--<sequence_type>ENTER_CVTERM_FOR_SEQUENCE</sequence_type>-->
+        <sequence_type>Little:Frog</sequence_type>
+
+		<!-- path to file containing translation table.
+		optional - defaults to NCBI translation table 1 if
+		absent -->
+		<translation_table>/config/translation_tables/ncbi_1_translation_table.txt</translation_table>
+
+		<!-- splice acceptor and donor sites. Multiple entries may be
+		added to allow multiple accepted sites.
+		optional - defaults to GT for donor and AG for acceptor
+		if absent -->
+		<splice_sites>
+			<donor_site>GT</donor_site>
+			<acceptor_site>AG</acceptor_site>
+		</splice_sites>
+
+	</tracks>
+
+	<!-- path to file containing canned comments XML -->
+	<canned_comments>/config/canned_comments.xml</canned_comments>
+
+	<!-- configuration for what to display in the annotation info editor.
+	Sections can be commented out to not be displayed or uncommented
+	to make them active -->
+	<annotation_info_editor>
+
+		<!-- grouping for the configuration.  The "feature_types" attribute takes a list of
+		SO terms (comma separated) to apply this configuration to
+		(e.g., feature_types="sequence:transcript,sequence:mRNA" will make it so the group
+		configuration will only apply to features of type "sequence:transcript" or "sequence:mRNA").
+		A value of "default" will make this the default configuration for any types not explicitly
+		defined in other groups.  You can have any many groups as you'd like -->
+		<annotation_info_editor_group feature_types="default">
+
+			<!-- display status section.  The text for each <status_flag>
+			element will be displayed as a radio button in the status
+			section, in the same order -->
+			<!--
+			<status>
+				<status_flag>Approved</status_flag>
+				<status_flag>Needs review</status_flag>
+			</status>
+			-->
+			
+			<!-- display generic attributes section -->
+			<attributes />
+
+			<!-- display dbxrefs section -->
+			<dbxrefs />
+
+			<!-- display PubMed IDs section -->
+			<pubmed_ids />
+
+			<!-- display GO IDs section -->
+			<go_ids />
+
+			<!-- display comments section -->
+			<comments />
+
+		</annotation_info_editor_group>
+
+	</annotation_info_editor>
+
+	<!-- tools to be used for sequence searching.  This is optional.
+	If this is not setup, WebApollo will not have sequence search support -->
+	<sequence_search_tools>
+
+		<!-- one <sequence_search_tool> element per tool -->
+		<sequence_search_tool>
+
+			<!-- display name for the search tool -->
+			<key>BLAT nucleotide</key>
+
+			<!-- class for handling search -->
+			<class>org.bbop.apollo.tools.seq.search.blat.BlatCommandLineNucleotideToNucleotide</class>
+
+			<!-- configuration for search tool -->
+			<config>/config/blat_config.xml</config>
+
+		</sequence_search_tool>
+
+		<sequence_search_tool>
+
+			<!-- display name for the search tool -->
+			<key>BLAT protein</key>
+
+			<!-- class for handling search -->
+			<class>org.bbop.apollo.tools.seq.search.blat.BlatCommandLineProteinToNucleotide</class>
+
+			<!-- configuration for search tool -->
+			<config>/config/blat_config.xml</config>
+
+		</sequence_search_tool>
+
+	</sequence_search_tools>
+
+	<!-- data adapters for writing annotation data to different formats.
+	These will be used to dynamically generate data adapters within
+	WebApollo.  It contains either <data_adapter> or <data_adapter_group> elements.
+	<data_adapter_group> will allow grouping adapters together and will provide a
+	submenu for those adapters in WebApollo. This is optional.  -->
+	<data_adapters>
+
+		<!-- one <data_adapter> element per data adapter -->
+		<data_adapter>
+
+			<!-- display name for data adapter -->
+			<key>GFF3</key>
+
+			<!-- class for data adapter plugin -->
+			<class>org.bbop.apollo.web.dataadapter.gff3.Gff3DataAdapter</class>
+
+			<!-- required permission for using data adapter
+			available options are: read, write, publish -->
+			<permission>read</permission>
+
+			<!-- configuration file for data adapter -->
+			<config>/config/gff3_config.xml</config>
+
+			<!-- options to be passed to data adapter -->
+			<options>output=file&amp;format=gzip</options>
+
+		</data_adapter>
+
+		<data_adapter>
+
+			<!-- display name for data adapter -->
+			<key>Chado</key>
+
+			<!-- class for data adapter plugin -->
+			<class>org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter</class>
+
+			<!-- required permission for using data adapter
+			available options are: read, write, publish -->
+			<permission>publish</permission>
+
+			<!-- configuration file for data adapter -->
+			<config>/config/chado_config.xml</config>
+
+			<!-- options to be passed to data adapter -->
+			<options>display_features=false</options>
+
+		</data_adapter>
+
+		<!-- group the <data_adapter> children elements together -->
+		<data_adapter_group>
+
+			<!-- display name for adapter group -->
+			<key>FASTA</key>
+
+			<!-- required permission for using data adapter group
+			available options are: read, write, publish -->
+			<permission>read</permission>
+
+			<!-- one child <data_adapter> for each data adapter in the group -->
+			<data_adapter>
+
+				<!-- display name for data adapter -->
+				<key>peptide</key>
+
+				<!-- class for data adapter plugin -->
+				<class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
+				
+				<!-- required permission for using data adapter
+				available options are: read, write, publish -->
+				<permission>read</permission>
+
+				<!-- configuration file for data adapter -->
+				<config>/config/fasta_config.xml</config>
+
+				<!-- options to be passed to data adapter -->
+				<options>output=file&amp;format=gzip&amp;seqType=peptide</options>
+
+			</data_adapter>
+
+			<data_adapter>
+
+				<!-- display name for data adapter -->
+				<key>cDNA</key>
+
+				<!-- class for data adapter plugin -->
+				<class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
+				
+				<!-- required permission for using data adapter
+				available options are: read, write, publish -->
+				<permission>read</permission>
+
+				<!-- configuration file for data adapter -->
+				<config>/config/fasta_config.xml</config>
+
+				<!-- options to be passed to data adapter -->
+				<options>output=file&amp;format=gzip&amp;seqType=cdna</options>
+
+			</data_adapter>
+
+			<data_adapter>
+
+				<!-- display name for data adapter -->
+				<key>CDS</key>
+
+				<!-- class for data adapter plugin -->
+				<class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
+				
+				<!-- required permission for using data adapter
+				available options are: read, write, publish -->
+				<permission>read</permission>
+
+				<!-- configuration file for data adapter -->
+				<config>/config/fasta_config.xml</config>
+
+				<!-- options to be passed to data adapter -->
+				<options>output=file&amp;format=gzip&amp;seqType=cds</options>
+
+			</data_adapter>
+
+		</data_adapter_group>
+
+	</data_adapters>
+
+</server_configuration>

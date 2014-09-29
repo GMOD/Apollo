@@ -1988,7 +1988,7 @@ bbop.logger = function(initial_context){
 	// "defaults write com.apple.Safari IncludeDebugMenu 1" Need
 	// the wrapper function because safari has personality
 	// problems.
-	this._console_sayer = function(msg){ window.console.log(msg + "\n"); };
+	this._console_sayer = function(msg){ console.log(msg + "\n"); };
     }else if( typeof(build) == 'function' &&
 	      typeof(getpda) == 'function' &&
 	      typeof(pc2line) == 'function' &&
@@ -16722,14 +16722,3 @@ bbop.contrib.go.overlay = function(manager_type){
     return global_ret;
 };
 
-define( [
-         'dojo/_base/declare',
-         'jquery',
-], 
-	function( declare, jQuery ) {
-
-
-
-return bbop;
-
-});
