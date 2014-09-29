@@ -9,12 +9,14 @@ http://genomearchitect.org/
 For the full WebApollo installation and configuration instructions for 1.x, go to:
 http://gmod.org/wiki/WebApollo_Installation_1.x
 
-The WebApollo client is implemented as a plugin for JBrowse, for more information go to: 
+The WebApollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
 http://jbrowse.org
 
 =====
 
 Quick build steps.  
+
+## Edit property files and config files before deploying
 
     cp ./sample_config.properties ./config.properties 
     cp ./sample_config.xml ./config.xml 
@@ -25,31 +27,39 @@ Quick build steps.
 Edit the property files to point to the appropriate directory. You ```must edit the jbrowse data directory``` in the config.properties: jbrowse.data=/opt/apollo/jbrowse/data 
  
 
-To run tomcat on 8080:
+## Generate a war file
 
-    run.sh 
-To run tomcat on 8080, list to debug port on 8000:
-
-    debug.sh 
-Runs all unit tests:
-
-    test.sh 
-Generates a proper build, but doesn't test some legacy perl features:
-
-    deploy.sh release-notest      
-Generates proper build, but runs all tests, which may require additional configuration on your system:
+Generates proper build:
 
     deploy.sh release
-Generates a "debug" build, used in development. Does not test some legacy perl features (as above):
 
-    deploy.sh debug-notest 
 Generates a "debug" build, used in development:
 
     deploy.sh debug 
-Generates an optimized war file (similar to previous releases):
 
-    deploy.sh 
+Generates an optimized war file using github code:
 
+    deploy.sh github
 
+## Install jbrowse binaries
+
+As a convenience, JBrowse binaries can be installed to the system
+
+   ./install_jbrowse_bin.sh [cpanm]
+
+Having jbrowse binaries installed to the system makes it easier to create data directories in appropriate system directories instead of inside the tomcat webapps directory. This script can optionally install using cpanm using the cpanm argument.
+
+## Deploy
+
+To run tomcat on 8080:
+
+    run.sh
+To run tomcat on 8080, list to debug port on 8000:
+
+    debug.sh
+
+Runs all unit tests:
+
+    test.sh [github]
 
 
