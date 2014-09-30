@@ -15,9 +15,11 @@ http://jbrowse.org
 ![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
 
 
-Quick build steps.  
 
-## Edit property files and config files before deploying
+## Quick build steps.
+
+
+### Edit property files and config files before deploying
 
     cp ./sample_config.properties ./config.properties 
     cp ./sample_config.xml ./config.xml 
@@ -28,7 +30,7 @@ Quick build steps.
 Edit the property files to point to the appropriate directory. You ```must edit the jbrowse data directory``` in the config.properties: jbrowse.data=/opt/apollo/jbrowse/data 
  
 
-## Generate a war file
+### Generate a war file
 
 Generates proper build:
 
@@ -42,7 +44,7 @@ Generates an unoptimized war file using github code:
 
     deploy.sh github
 
-## Install jbrowse binaries
+### Install jbrowse binaries
 
 As a convenience, JBrowse binaries can be installed to the system:
 
@@ -50,7 +52,7 @@ As a convenience, JBrowse binaries can be installed to the system:
 
 Having jbrowse binaries installed to the system makes it easier to create data directories in appropriate system directories instead of inside the tomcat webapps directory. This script can optionally install using cpanm using the cpanm argument.
 
-## Deploy
+### Deploy
 
 To run tomcat on 8080:
 
