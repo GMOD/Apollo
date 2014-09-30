@@ -39,15 +39,15 @@ Generates a "debug" build, used in development:
 
     deploy.sh debug 
 
-Generates an optimized war file using github code:
+Generates an unoptimized war file using github code:
 
     deploy.sh github
 
 ## Install jbrowse binaries
 
-As a convenience, JBrowse binaries can be installed to the system
+As a convenience, JBrowse binaries can be installed to the system:
 
-   ./install_jbrowse_bin.sh [cpanm]
+    install_jbrowse_bin.sh [cpanm]
 
 Having jbrowse binaries installed to the system makes it easier to create data directories in appropriate system directories instead of inside the tomcat webapps directory. This script can optionally install using cpanm using the cpanm argument.
 
@@ -60,8 +60,8 @@ To run tomcat on 8080, list to debug port on 8000:
 
     debug.sh
 
-Runs all unit tests:
+Runs all unit tests (optionally including the jbrowse unit tests):
 
-    test.sh [github]
+    test.sh [jbrowse]
 
 
