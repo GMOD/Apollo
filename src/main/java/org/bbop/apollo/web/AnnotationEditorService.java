@@ -250,14 +250,9 @@ public class AnnotationEditorService extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         try {
-            System.out.println("getting post: "+request);
             JSONObject json = JSONUtil.convertInputStreamToJSON(request.getInputStream());
-            System.out.println("JSON Stream: "+json);
             String operation = json.getString("operation");
             String track = json.getString("track");
-
-            System.out.println("operation: " + operation);
-            System.out.println("track: " +track);
 
             SessionData sessionData = getSessionData(track);
             AnnotationEditor editor = sessionData.getEditor();
