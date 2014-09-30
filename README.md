@@ -23,11 +23,13 @@ http://jbrowse.org
 
     cp ./sample_config.properties ./config.properties 
     cp ./sample_config.xml ./config.xml 
-    cp ./sample_log4j2.json ./log4j2.json 
+    cp ./sample_blat_config.xml ./blat_config.xml
+    cp ./sample_log4j2.json ./log4j2.json
     cp ./sample_log4j2-test.json ./log4j2-test.json 
 
  
-Edit the property files to point to the appropriate directory. You ```must edit the jbrowse data directory``` in the config.properties: jbrowse.data=/opt/apollo/jbrowse/data 
+Edit the property files to point to the appropriate directory. You ```must edit the jbrowse data directory``` in the config.properties: jbrowse.data=/opt/apollo/jbrowse/data
+If BLAT is not installed, just copy the default blat file over.
  
 
 ### Generate a war file

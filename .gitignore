@@ -7,6 +7,7 @@ config.properties
 src/main/webapp/config.properties
 src/main/webapp/config.xml
 config.xml
+blat_config.xml
 src/main/webapp/jbrowse/
 jbrowse-github
 log4j2.json

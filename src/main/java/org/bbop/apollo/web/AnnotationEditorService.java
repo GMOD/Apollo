@@ -250,9 +250,14 @@ public class AnnotationEditorService extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         try {
+            System.out.println("getting post: "+request);
             JSONObject json = JSONUtil.convertInputStreamToJSON(request.getInputStream());
+            System.out.println("JSON Stream: "+json);
             String operation = json.getString("operation");
             String track = json.getString("track");
+
+            System.out.println("operation: " + operation);
+            System.out.println("track: " +track);
 
             SessionData sessionData = getSessionData(track);
             AnnotationEditor editor = sessionData.getEditor();
@@ -835,6 +840,7 @@ public class AnnotationEditorService extends HttpServlet {
 
         } catch (JSONException e) {
             try {
+                logger.error(e);
 //                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
                 sendError(response, HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
             }

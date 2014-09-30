@@ -318,12 +318,12 @@ $(function() {
         });
 
         console.log(tracks);
-        var trackString = "[";
+        var trackString = "\"features\": [";
         for(var i = 0 ; i < tracks.length ; i++){
             if (i > 0) {
                 trackString += ',';
             }
-            trackString += "{ uniquename: '"+tracks[i]+"' }"
+            trackString += "{ \"uniquename\": \""+tracks[i]+"\" }"
         }
         trackString += ']';
 
@@ -342,13 +342,15 @@ $(function() {
                 data: postData,
                 url: "AnnotationEditorService",
                 success: function(data, textStatus, jqXHR) {
-                    alert('Deleted '+tracks.size() + " successfully.");
-                    enableClose();
+                    console.log('success');
+//                    alert('Deleted '+tracks.size() + ' successfully.');
+                    window.location="recentChanges.jsp";
+
                 },
                 error: function(qXHR, textStatus, errorThrown) {
-                    $("#data_adapter_message").text("Error deleteing " + adapter);
+                    console.log('error');
+                    alert('Error deleting: '+errorThrown);
                     ok = false;
-                    enableClose();
                 }
             });
         }
