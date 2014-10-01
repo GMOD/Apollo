@@ -1041,6 +1041,10 @@ public class AnnotationEditorService extends HttpServlet {
             String uniqueName = entry.getKey();
             List<AbstractSingleLocationBioFeature> deletedFeatures = entry.getValue();
             AbstractSingleLocationBioFeature feature = editor.getSession().getFeatureByUniqueName(uniqueName);
+            if(feature==null){
+                logger.info("Feature already deleted");
+                continue;
+            }
             SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
             Feature gsolFeature = (Feature)iterator.next();
             if (!isUpdateOperation) {

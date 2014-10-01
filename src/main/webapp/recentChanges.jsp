@@ -331,7 +331,6 @@ for(String status : allStatusList){
     cleanup_user_item();
 });
 
-// TODO: this may need to be split up into multiple submissions if across chromosomes.
 function change_status_selected_items(updated_status) {
     var trackName = "";
     var tracks = new Array();
@@ -371,10 +370,8 @@ function change_status_selected_items(updated_status) {
         }
     });
 //    }
-}
-;
+};
 
-// TODO: this may need to be split up into multiple submissions if across chromosomes.
 function delete_selected_items() {
     var trackName = "";
     var tracks = new Array();
@@ -421,13 +418,11 @@ function delete_selected_items() {
 
 function cleanup_logo() {
     $("#logo").parent().css("padding", "0 0 0 0");
-}
-;
+} ;
 
 function cleanup_user_item() {
     $("#user_item").parent().attr("id", "user_item_menu");
-}
-;
+} ;
 
 function createListener() {
     $.ajax({
