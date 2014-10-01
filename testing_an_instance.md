@@ -36,22 +36,24 @@ Login|Password : demo|demo
 
 3.1) Test functions on each menu option:
 
--- Login: log in / out. 
+-- Login: login/logout. 
 
 -- File 
 
-   / Open (Test that data can be loaded locally using URLs (File → Open → Remote URLs)).
+   /Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
 
-   → Add Combination Track (see 10. below)
+   /Add Combination Track (see 10. below)
 
-   → Add Sequence Search Track (perform search test)
+   /Add Sequence Search Track (perform search test)
 
 -- Tools (see 3.2)
 
--- View: set and clear highlights, show plus/minus strands, resize quantitative tracks, color by CDS (also tested in 5.).
+-- View: set and clear highlights, show plus/minus strands, resize quantitative tracks, color by CDS (also tested in 5).
 
 3.2) From “Tools” menu, query genome with BLAT using a sequence: 
+
 E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
+
 >sp|P04632|CPNS1_HUMAN Calpain small subunit 1 MFLVNSFLKGGGGGGGGGGGLGGGLGNVLGGLISGAGGGGGGGGGGGGGGGGGGGGTAMRILGGVISAISEAAAQYNPEPPPPRTHYSNIEANESEEVRQFRRLFAQLAGDDMEVSATELMNILNKVVTRHPDLKTDGFGIDTCRSMVAVMDSDTTGKLGFEEFKYLWNNIKRWQAIYKQFDTDRSGTICSSELPGAFEAAGFHLNEHLYNMIIRRYSDESGNMDFDNFISCLVRLDAMFRAFKSLDKDGTGQIQVNIQEWLQLTMYS
 
 3.3) Clear highlight using the command from the 'View' menu.
@@ -59,32 +61,44 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 4) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box. 
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
+
 -- change intron/exon boundary (dragging)
+
 -- check the recalculated ORF
+
 -- color by CDS
 
 6) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
+
 -- Insertions 
+
 -- Deletions 
+
 -- Substitutions
 
 7) 'Zoom back out', then reveal right-click menu. 
 
 7.1) Test: 
+
 -- Get Sequence
+
 -- Delete, merge, split, duplicate, make intron, flip strand, set translation start, set translation end, longest ORF, readthrough. 
+
 -- Undo/Redo
+
 -- History
+
 -- Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
 
-7.2) Also, use annotation in progress + feature from an evidence track to test: 
-set as 3' end, set as 5' end, set both ends.
+7.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
 8) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
 
 9) Test Export of User-created Annotations to Chado, GFF3, FASTA
 
-10) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: File → Add combination track
+10) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: 
+
+File / Add combination track
 
 ### Test the “Reference Sequence Selection” screen. 
 
