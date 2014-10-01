@@ -102,6 +102,6 @@ File / Add combination track
 
 ### Test the “Reference Sequence Selection” screen. 
 
-11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File → Export menu option.
+11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File / Export menu option.
 
-12) Check that you are able to query the entire genome using BLAT from this window using the Tools → Search sequence menu option.
+12) Check that you are able to query the entire genome using BLAT from this window using the Tools / Search sequence menu option.
