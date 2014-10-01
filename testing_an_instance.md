@@ -35,12 +35,19 @@ Login|Password : demo|demo
 3) Test top-level menu options in the main window.
 
 3.1) Test functions on each menu option:
+
 -- Login: log in / out. 
+
 -- File 
+
      → Open (Test that data can be loaded locally using URLs (File → Open → Remote URLs)).
+
      → Add Combination Track (see 10. below)
+
      → Add Sequence Search Track (perform search test)
+
 -- Tools (see 3.2)
+
 -- View: set and clear highlights, show plus/minus strands, resize quantitative tracks, color by CDS (also tested in 5.).
 
 3.2) From “Tools” menu, query genome with BLAT using a sequence: 
