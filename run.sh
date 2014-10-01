@@ -2,7 +2,7 @@
 
 #sudo cpan install Text::Markdown prove GD::Image
 
-./build.sh
+./build.sh github
 
 
 mvn tomcat7:run
