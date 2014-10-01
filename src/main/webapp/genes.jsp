@@ -61,8 +61,7 @@
 <script src="jslib/jquery-ui-menubar/jquery.ui.menu.js" type="text/javascript"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js" type="text/javascript"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js" type="text/javascript"></script>
-<script src="https://www.google.com/jsapi" type="text/javascript" ></script>
-
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
@@ -137,12 +136,10 @@ private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature featur
 */
 private ArrayList<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
     ArrayList<String> builder=new ArrayList<String>();
-    String type=feature.getType().split(":")[1];
-
-
-    for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
-        builder.add(generateFeatureRecordJSON(subfeature,track, historyDataStore));
-    }
+//    String type=feature.getType().split(":")[1];
+//    for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
+//        builder.add(generateFeatureRecordJSON(subfeature,track, historyDataStore));
+//    }
     builder.add(generateFeatureRecordJSON(feature,track, historyDataStore));
     return builder;
 }
@@ -307,10 +304,6 @@ $(function () {
         window.location = "selectTrack.jsp";
     });
 
-    $("#genes").click(function () {
-        window.location = "genes.jsp";
-    });
-
     $("#search_sequence_item").click(function () {
         open_search_dialog();
     });
@@ -364,7 +357,7 @@ function change_status_selected_items(updated_status) {
         url: "AnnotationEditorService",
         success: function (data, textStatus, jqXHR) {
             console.log('success');
-            window.location = "recentChanges.jsp";
+            window.location = "genes.jsp";
 
         },
         error: function (qXHR, textStatus, errorThrown) {
@@ -407,7 +400,7 @@ function delete_selected_items() {
             success: function (data, textStatus, jqXHR) {
                 console.log('success');
 //                    alert('Deleted '+tracks.size() + ' successfully.');
-                window.location = "recentChanges.jsp";
+                window.location = "genes.jsp";
 
             },
             error: function (qXHR, textStatus, errorThrown) {
@@ -640,7 +633,6 @@ function open_user_manager_dialog() {
         <li><a id="view_item">View</a>
             <ul id="view_menu">
                 <li><a id="select_tracks">Select tracks</a></li>
-                <%--<li><a id="genes">Genes</a></li>--%>
             </ul>
         </li>
 
@@ -700,10 +692,21 @@ function open_user_manager_dialog() {
                 <li><a id="check_all">All</a></li>
                 <li><a id="check_displayed">Displayed</a>
                 </li>
+                <%--<li><a id="check_none">None</a></li>--%>
+            </ul>
+        </li>
+    </ul>
+</div>
+<div id="filter_div">
+    <ul id="filter_menu">
+        <li><a><input type="checkbox" id="filter_option"/>Select</a>
+            <ul>
+                <li><a id="show_all">All</a></li>
                 <li><a id="check_none">None</a></li>
             </ul>
         </li>
     </ul>
+
 </div>
 <div id="search_sequences_dialog" title="Search sequences" style="display: none"></div>
 <!--

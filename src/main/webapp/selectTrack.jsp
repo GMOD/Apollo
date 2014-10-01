@@ -55,7 +55,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <script src="jslib/jquery-ui-menubar/jquery.ui.menu.js"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js"></script>
-<script type="text/javascript" src="<%=new URL(request.getRequestURL().toString()).getProtocol()%>://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
