@@ -382,6 +382,20 @@ return declare( JBPlugin,
                         }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
+        var hide_track_label_toggle = new dijitCheckedMenuItem(
+            {
+                label: "Show track label",
+                checked: true,
+                onClick: function(event) {
+                    if(hide_track_label_toggle.checked){
+                        $('.track-label').show();
+                    }
+                    else{
+                        $('.track-label').hide();
+                    }
+                }
+            });
+        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
     addNavigationOptions: function()  {
