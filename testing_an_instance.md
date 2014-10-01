@@ -1,6 +1,9 @@
 # Web Apollo Testing Script
+
 093014
+
 M. Munoz-Torres
+
 Note: The following steps are meant for testing purposes only, not for training manual annotators.
 
 ## Web Apollo General Information
@@ -75,6 +78,8 @@ set as 3' end, set as 5' end, set both ends.
 
 10) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: File → Add combination track
 
-11) Test the “Reference Sequence Selection” screen. 
-11.1) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File → Export menu option.
-11.2) Check that you are able to query the entire genome using BLAT from this window using the Tools → Search sequence menu option.
+### Test the “Reference Sequence Selection” screen. 
+
+11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File → Export menu option.
+
+12) Check that you are able to query the entire genome using BLAT from this window using the Tools → Search sequence menu option.
