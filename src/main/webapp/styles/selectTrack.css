@@ -50,6 +50,7 @@
 .ui-menubar .ui-button,
 .ui-menu .ui-menu-item a {
 	font-size: 14px;
+    cursor: pointer;
 }
 
 #login_dialog {

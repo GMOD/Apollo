@@ -690,7 +690,7 @@ function open_user_manager_dialog() {
 </div>
 <div id="checkbox_menu_div">
     <ul id="checkbox_menu">
-        <li><a><input type="checkbox" id="checkbox_option"/></a>
+        <li><a><input type="checkbox" id="checkbox_option"/>Select</a>
             <ul>
                 <li><a id="check_all">All</a></li>
                 <li><a id="check_displayed">Displayed</a>
