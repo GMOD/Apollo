@@ -40,7 +40,10 @@ fi
 
 if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   cd "$APOLLO_JBROWSE_GITHUB"
+  rm -rf JBrowse-$JBROWSE_VERSION-dev
+  rm -rf JBrowse-$JBROWSE_VERSION
   git checkout -- release-notes.txt
+  git checkout -- src/JBrowse/Browser.js
   git fetch
   git checkout $JBROWSE_RELEASE
   cp -r $APOLLO_ROOT_DIRECTORY/client/apollo plugins/WebApollo
@@ -61,17 +64,16 @@ if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   fi
 
 elif [[ $1 == clean ]]; then
-  rm -rf "$APOLLO_JBROWSE_DIRECTORY" 
+    rm -rf "$APOLLO_JBROWSE_DIRECTORY" 
 else
-  echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY"
+    echo "Found jbrowse installed at $APOLLO_JBROWSE_DIRECTORY"
 fi
 
 
-
 if [ -e "$APOLLO_ROOT_DIRECTORY/blat_config.xml" ]; then
-    cp  $APOLLO_ROOT_DIRECTORY/blat_config.xml $APOLLO_WEBAPP_DIRECTORY/config/blat_config.xml
+    cp $APOLLO_ROOT_DIRECTORY/blat_config.xml $APOLLO_WEBAPP_DIRECTORY/config/blat_config.xml
 else
-   echo "No blat_config.xml found, not copying."
+    echo "No blat_config.xml found, not copying."
 fi
 
 if [ -e "$APOLLO_ROOT_DIRECTORY/config.xml" ]; then
