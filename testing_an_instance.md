@@ -8,7 +8,7 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 ## Web Apollo General Information
 - The Web Apollo website:
- http://GenomeArchitect.org
+http://GenomeArchitect.org
 - The article describing Web Apollo can be found at:  
 http://genomebiology.com/2013/14/8/R93/abstract
 - The public Web Apollo honey bee (Apis mellifera) demonstration site is available at: 
