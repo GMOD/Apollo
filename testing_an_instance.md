@@ -1,7 +1,7 @@
 # Web Apollo Testing Script
-# 093014
-# M. Munoz-Torres
-# Note: The following steps are meant for testing purposes only, not for training manual annotators.
+093014
+M. Munoz-Torres
+Note: The following steps are meant for testing purposes only, not for training manual annotators.
 
 A) Web Apollo General Information
 - The Web Apollo website:
