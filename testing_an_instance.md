@@ -40,7 +40,7 @@ Login|Password : demo|demo
 
 -- File 
 
-   //Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
+   /Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
 
    /Add Combination Track (see 10. below)
 
