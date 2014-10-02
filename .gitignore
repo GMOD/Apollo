@@ -12,3 +12,4 @@ src/main/webapp/jbrowse/
 jbrowse-github
 log4j2.json
 log4j2-test.json
+tmp
