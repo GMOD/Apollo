@@ -70,16 +70,25 @@ else
 fi
 
 
+
+if [ -e "$APOLLO_ROOT_DIRECTORY/config.xml" ]; then
+    cp  $APOLLO_ROOT_DIRECTORY/config.xml $APOLLO_WEBAPP_DIRECTORY/config/config.xml
+else
+   echo "No config.xml found, not copying."
+fi
+
+# optional
 if [ -e "$APOLLO_ROOT_DIRECTORY/blat_config.xml" ]; then
     cp $APOLLO_ROOT_DIRECTORY/blat_config.xml $APOLLO_WEBAPP_DIRECTORY/config/blat_config.xml
 else
     echo "No blat_config.xml found, not copying."
 fi
 
-if [ -e "$APOLLO_ROOT_DIRECTORY/config.xml" ]; then
-    cp  $APOLLO_ROOT_DIRECTORY/config.xml $APOLLO_WEBAPP_DIRECTORY/config/config.xml
+# optional
+if [ -e "$APOLLO_ROOT_DIRECTORY/hibernate.xml" ]; then
+    cp $APOLLO_ROOT_DIRECTORY/hibernate.xml $APOLLO_WEBAPP_DIRECTORY/config/hibernate.xml
 else
-   echo "No config.xml found, not copying."
+    echo "No hibernate.xml found, not copying."
 fi
 
 if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
@@ -88,12 +97,14 @@ else
    echo "No config.properties found, not copying."
 fi
 
+# optional
 if [ -e "$APOLLO_ROOT_DIRECTORY/log4j2.json" ]; then
     cp  $APOLLO_ROOT_DIRECTORY/log4j2.json $APOLLO_ROOT_DIRECTORY/src/main/resources/log4j2.json
 else
    echo "No log4j2.json found, not copying."
 fi
 
+# optional
 if [ -e "$APOLLO_ROOT_DIRECTORY/log4j2-test.json" ]; then
     cp  $APOLLO_ROOT_DIRECTORY/log4j2-test.json $APOLLO_ROOT_DIRECTORY/src/test/resources/log4j2-test.json
 else
