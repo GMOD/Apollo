@@ -16,12 +16,19 @@ Features:
 + Added tool for fixing gene boundaries based on children transcripts (FixGeneBoundaries.java)
 + Using javascript minimization for JBrowse+WebApollo to allow faster initial load time
 + Using Maven build system for deployment (See new installation guide)
++ Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
++ Added menus for recentChanges / selectTrack to annotation screen.
++ Added bulk status updates / deletes.
++ Added ability to hide track labels under "view".
++ Alt-click brings up info editor on annotated track.
 
 Bugfixes:
 
 + Fixed phase in GFF3 output
 + Disabled scrollToPreviousEdge/scrollToNextEdge if the feature is fully visible at the current zoom level
 + Included Chado libraries that were missing in 2014-04-03 release
++ Removed 'null' tracks from recentChanges
++ Menus use proper CSS pointer.
 
 
 ## 2014-04-03 release
