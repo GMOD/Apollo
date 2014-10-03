@@ -105,3 +105,12 @@ File / Add combination track
 11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File / Export menu option.
 
 12) Check that you are able to query the entire genome using BLAT from this window using the Tools / Search sequence menu option.
+
+### Test Bulk-Update
+
+13) Click on "Recent Changes"  Verify that we can select all / none / displayed and paginate
+
+14) Verify that, if "Status" is enabled, we can update the status for multiple selected.
+
+15) Verify that we can delete multiple selected types.   If a gene is deleted, the sub-features should also be deleted.   Should a gene exist without sub-features?
+
