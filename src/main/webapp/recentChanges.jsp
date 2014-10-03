@@ -317,6 +317,9 @@ $(function () {
     $("#user_manager_item").click(function () {
         open_user_manager_dialog();
     });
+    $("#web_services_api").click(function() {
+        window.open('web_services/web_service_api.html','_blank');
+    });
     $("#delete_selected_item").click(function () {
         delete_selected_items();
     });
@@ -646,6 +649,7 @@ function open_user_manager_dialog() {
 
         <li><a id="tools_item">Tools</a>
             <ul id="tools_menu">
+                <li><a id='web_services_api'>Web Services</a></li>
                 <li><a id="search_sequence_item">Search sequence</a></li>
             </ul>
         </li>

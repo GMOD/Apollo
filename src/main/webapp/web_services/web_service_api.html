@@ -32,6 +32,14 @@ where <code>Rserver</code> is the server name and <code>$port</code> is the serv
 </p>
 
 <p>
+    For example:
+<div class="code">curl -b cookies.txt -c cookies.txt -e  "http://localhost:8080" \
+    -H "Content-Type:application/json" -d "{'username': 'demo', 'password': 'demo'}" "http://localhost:8080/apollo/Login?operation=login"
+</div>
+</p>
+
+
+<p>
 Login expects two parameters: <code>username</code> and <code>password</code>.  There currently isn't
 any real user authentication implemented, so <code>username</code> and <code>password</code> should be set to
 <code>foo</code> and <code>bar</code> respectively.

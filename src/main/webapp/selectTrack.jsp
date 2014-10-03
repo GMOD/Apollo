@@ -233,6 +233,9 @@ $(function() {
     $("#user_manager_item").click(function() {
         open_user_manager_dialog();
     });
+    $("#web_services_api").click(function() {
+        window.open('web_services/web_service_api.html','_blank');
+    });
     cleanup_user_item();
 } );
 
@@ -458,23 +461,27 @@ function open_user_manager_dialog() {
             
     <li><a id="tools_item">Tools</a>
         <ul id="tools_menu">
+            <li><a id='web_services_api'>Web Services</a></li>
             <li><a id="search_sequence_item">Search sequence</a></li>
         </ul>
     </li>
 <%
     if (isAdmin) {
-        out.println("<li><a id=\"admin_item\">Admin</a>");
-        out.println("<ul id=\"tools_menu\">");
-        out.println("\t<li><a id='user_manager_item'>Manage users</a></li>");
-        out.println("</ul>");
-        out.println("</li>");
+        %>
+        <li><a id="admin_item">Admin</a>
+        <li><a id='user_manager_item'>Manage users</a></li>
+        </ul>
+        </li>
+    <%
     }
     if (username != null) {
-        out.println("<li><a id=\"user_item\"><span class='usericon'></span>" + username + "</a>");
-        out.println("<ul id=\"user_menu\">");
-        out.println("\t<li><a id=\"logout_item\">Logout</a></li>");
-        out.println("</ul>");
-        out.println("</li>");
+        %>
+        <li><a id="user_item"><span class='usericon'></span> +<%=username %>+ </a>
+        <ul id="user_menu">
+        <li><a id="logout_item">Logout</a></li>
+        </ul>
+        </li>;
+    <%
     }
 %>
 </ul>
