@@ -21,6 +21,7 @@ Features:
 + Added bulk status updates / deletes.
 + Added ability to hide track labels under "view".
 + Alt-click brings up info editor on annotated track.
++ Added webservices doc links to interface.
 
 Bugfixes:
 
