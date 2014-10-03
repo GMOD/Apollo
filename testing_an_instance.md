@@ -114,3 +114,4 @@ File / Add combination track
 
 15) Verify that we can delete multiple selected types.   If a gene is deleted, the sub-features should also be deleted.   Should a gene exist without sub-features?
 
+16) Select features across multiple tracks and confirm above bulk updates.
