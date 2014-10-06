@@ -6,7 +6,8 @@ Features:
 + Make subfeature unresizable after it becomes unselected
 + Added functionality for extending to downstream/upstream acceptor/donor splice sites
 + Added EncryptedLocalDbUserAuthentication option which allows use of encrypted database but does not require it
-+ Added support for EncryptedLocalDbUserAuthentication in add_user.pl,change_user_password.pl, and also added ability to upgrade to encrypted database via encrypt_passwords.pl
++ Added support for EncryptedLocalDbUserAuthentication in add_user.pl,change_user_password.pl
++ Added ability to encrypt an unencrypted  database via encrypt_passwords.pl
 + Added "revert" buttons on rows in history to allow one click change of state
 + Added "{" and "}" for navigating between top level features
 + Added feature coordinates for get_sequence output
@@ -22,6 +23,7 @@ Features:
 + Added ability to hide track labels under "view".
 + Alt-click brings up info editor on annotated track.
 + Added webservices doc links to interface.
++ Added command line exporters for GFF3 files.
 
 Bugfixes:
 
