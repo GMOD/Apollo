@@ -468,7 +468,9 @@ function open_user_manager_dialog() {
 <%
     if (isAdmin) {
         %>
+
         <li><a id="admin_item">Admin</a>
+            <ul id="admin_menu">
         <li><a id='user_manager_item'>Manage users</a></li>
         </ul>
         </li>
@@ -476,11 +478,11 @@ function open_user_manager_dialog() {
     }
     if (username != null) {
         %>
-        <li><a id="user_item"><span class='usericon'></span> +<%=username %>+ </a>
-        <ul id="user_menu">
-        <li><a id="logout_item">Logout</a></li>
-        </ul>
-        </li>;
+        <li><a id="user_item"><span class='usericon'></span> <%=username %> </a>
+            <ul id="user_menu">
+                <li><a id="logout_item">Logout</a></li>
+            </ul>
+        </li>
     <%
     }
 %>
