@@ -12,7 +12,6 @@
 <%@ page import="java.io.File" %>
 <%@ page import="java.io.InputStream" %>
 <%@ page import="java.io.InputStreamReader" %>
-<%@ page import="java.net.URL" %>
 <%@ page import="java.util.*" %>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
          pageEncoding="ISO-8859-1" %>
@@ -61,7 +60,7 @@
 <script src="jslib/jquery-ui-menubar/jquery.ui.menu.js" type="text/javascript"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js" type="text/javascript"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js" type="text/javascript"></script>
-<script src="https://www.google.com/jsapi" type="text/javascript" ></script>
+<script src="https://www.google.com/jsapi" type="text/javascript"></script>
 
 
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
@@ -317,8 +316,11 @@ $(function () {
     $("#user_manager_item").click(function () {
         open_user_manager_dialog();
     });
-    $("#web_services_api").click(function() {
-        window.open('web_services/web_service_api.html','_blank');
+    $("#web_services_api").click(function () {
+        window.open('web_services/web_service_api.html', '_blank');
+    });
+    $("#apollo_users_guide").click(function () {
+        window.open('http://gmod.org/wiki/WebApollo#Using_WebApollo', '_blank');
     });
     $("#delete_selected_item").click(function () {
         delete_selected_items();
@@ -377,7 +379,8 @@ function change_status_selected_items(updated_status) {
         }
     });
 //    }
-};
+}
+;
 
 function delete_selected_items() {
     var trackName = "";
@@ -425,11 +428,13 @@ function delete_selected_items() {
 
 function cleanup_logo() {
     $("#logo").parent().css("padding", "0 0 0 0");
-} ;
+}
+;
 
 function cleanup_user_item() {
     $("#user_item").parent().attr("id", "user_item_menu");
-} ;
+}
+;
 
 function createListener() {
     $.ajax({
@@ -649,7 +654,6 @@ function open_user_manager_dialog() {
 
         <li><a id="tools_item">Tools</a>
             <ul id="tools_menu">
-                <li><a id='web_services_api'>Web Services</a></li>
                 <li><a id="search_sequence_item">Search sequence</a></li>
             </ul>
         </li>
@@ -677,9 +681,11 @@ function open_user_manager_dialog() {
             %>
                 </li>
             </ul>
-                <%
+        </li>
+        <%
             }
-            %>
+        %>
+
     </ul>
     </li>
     <%
@@ -695,6 +701,12 @@ function open_user_manager_dialog() {
     <%
         }
     %>
+    <li><a id="help_item">Help</a>
+        <ul id="help_menu">
+            <li><a id='web_services_api'>Web Services API</a></li>
+            <li><a id='apollo_users_guide'>Apollo User's Guide</a></li>
+        </ul>
+    </li>
     </ul>
 </div>
 <div id="checkbox_menu_div">
