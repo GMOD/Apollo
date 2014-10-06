@@ -157,12 +157,10 @@ sub send_gff3_request {
     }
     else {
         my $urlrequest="$url/IOService;jsessionid=$session_id?".escape_hash(%requesthash);
-        print $urlrequest."\n";
         $req->method("GET");
         $req->uri($urlrequest);
     }
     my $res = $ua->request($req);
-    print $res->content();
     if ($res->is_success()) {
         my $fh;
         if($output) {
