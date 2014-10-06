@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 
 <head>
 
@@ -17,47 +17,47 @@
 </p>
 
 <div class="section" id="login">
-<h1>Login</h1>
+    <h1>Login</h1>
 
-<p>
-    To properly setup an user's editing session, the user needs to login to the web service. This is to prevent
-    an user from just loading a page directly and making a request without prior authentication.
-</p>
+    <p>
+        To properly setup an user's editing session, the user needs to login to the web service. This is to prevent
+        an user from just loading a page directly and making a request without prior authentication.
+    </p>
 
-<h2>Request</h2>
+    <h2>Request</h2>
 
-<p>
-    The URL for login is:
+    <p>
+        The URL for login is:
 
-<div class="code">http://$server:$port/ApolloWeb/Login
-</div>
-where <code>Rserver</code> is the server name and <code>$port</code> is the server port.
-</p>
+    <div class="code">http://$server:$port/ApolloWeb/Login</div>
+    where <code>Rserver</code> is the server name and <code>$port</code> is the server port.
+    </p>
 
-<p>
-    For example:
+    <p>
+        For example:
 
-<div class="code">curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \
-    -H "Content-Type:application/json" -d "{'username': 'demo', 'password': 'demo'}"
-    "http://localhost:8080/apollo/Login?operation=login"
-</div>
-</p>
+    <div class="code">curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \
+        -H "Content-Type:application/json" -d "{'username': 'demo', 'password': 'demo'}"
+        "http://localhost:8080/apollo/Login?operation=login"
+    </div>
+    </p>
 
 
-<p>
-    Login expects two parameters: <code>username</code> and <code>password</code>. There currently isn't
-    any real user authentication implemented, so <code>username</code> and <code>password</code> should be set to
-    <code>foo</code> and <code>bar</code> respectively.
-</p>
+    <p>
+        Login expects two parameters: <code>username</code> and <code>password</code>. There currently isn't
+        any real user authentication implemented, so <code>username</code> and <code>password</code> should be set to
+        <code>foo</code> and <code>bar</code> respectively.
+    </p>
 
-<h2>Response</h2>
+    <h2>Response</h2>
 
-<p>
-    Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's
-    browser does not support cookies (or is turned off), in which case the <code>session-id</code> should be
-    appended to all subsequent requests as <code>jsessionid=session-id</code> as an URL parameter.
+    <p>
+        Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's
+        browser does not support cookies (or is turned off), in which case the <code>session-id</code> should be
+        appended to all subsequent requests as <code>jsessionid=session-id</code> as an URL parameter.
 
-<div class="code">{"session-id":"43FBA5B967595D260A1C0E6B7052C7A1"}
+    <div class="code">{"session-id":"43FBA5B967595D260A1C0E6B7052C7A1"}
+    </div>
 </div>
 
 <div class="section" id="feature">
@@ -1772,6 +1772,8 @@ where <code>Rserver</code> is the server name and <code>$port</code> is the serv
     <p>
         All JSON requests need to define:
         <code>operation</code> field, which defines the operation being
+    </p>
+
     <ul>
         <li>
             <div class="code">'operation' ('read' or 'write')</div>
@@ -1786,11 +1788,13 @@ where <code>Rserver</code> is the server name and <code>$port</code> is the serv
             <div class="code">'options' (e.g. output=file&format=gzip)</div>
         </li>
     </ul>
-    requested (read or write) is returned according to the options and the adapter chosen.
+    <p>
+        requested (read or write) is returned according to the options and the adapter chosen.
     </p>
 
     <p>
         Example:
+    </p>
 
     <div class="code">
         curl -b cookies.txt -c cookies.txt -e "http://$hostname:$port" -H "Content-Type:application/json" -d
@@ -1802,7 +1806,48 @@ where <code>Rserver</code> is the server name and <code>$port</code> is the serv
         http://$hostname:$port:8080/apollo/IOService
     </div>
 
+</div>
+
+<div class="section" id="userservice">
+    <h1>User Manager Service</h1>
+
+    <p>
+        All JSON requests need to define:
+        <code>operation</code> field, which defines the operation being
     </p>
+    <ul>
+        <li>
+            <div class="code">'operation' ('add_user', 'delete_user', 'set_permissions' )</div>
+        </li>
+    </ul>
+    <p>
+    requested (read or write) is returned according to the options and the adapter chosen.
+    </p>
+
+    <p>
+        Example:
+    </p>
+
+    <div class="code">{
+        "operation": "set_permissions",
+        "permissions",{"names":[{"user1":3},{"user2":5}]}
+        }
+    </div>
+
+    <div class="code">{
+        "operation": "add_user",
+        "user":"johndoe",
+        "password":"abc123",
+        "encrypted":true
+        }
+    </div>
+
+    <div class="code">{
+        "operation": "delete_user",
+        "user":"johndoe"
+        }
+    </div>
+</div>
 
 </body>
 
