@@ -41,7 +41,8 @@ sub parse_options {
            "password|p=s"       => \$password,
            "url|U=s"            => \$url,
            "track_prefix|P=s"   => \$annotation_track_prefix,
-           "tracks_file|T=s"    => \$tracks_file);
+           "tracks_file|T=s"    => \$tracks_file,
+           "help|h"         => \$help);
     print_usage() if $help;
     die "Missing required parameter: username\n" if !$username;
     die "Missing required parameter: password\n" if !$password;
