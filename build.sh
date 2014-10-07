@@ -33,7 +33,7 @@ fi
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
-  git clone --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
+  git clone --depth 1 --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
   cd $CURRENT
 fi
 
@@ -45,7 +45,7 @@ if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   git checkout -- release-notes.txt
   git checkout -- src/JBrowse/Browser.js
   git fetch
-  git checkout $JBROWSE_RELEASE
+  git reset --hard origin/$JBROWSE_RELEASE
   cp -r $APOLLO_ROOT_DIRECTORY/client/apollo plugins/WebApollo
 
   if [[ $1 == release ]]; then
