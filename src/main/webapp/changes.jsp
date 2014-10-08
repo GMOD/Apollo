@@ -1,45 +1,11 @@
-<%@ page import="org.bbop.apollo.web.config.ServerConfiguration" %>
-<%@ page import="org.bbop.apollo.web.datastore.JEDatabase" %>
-<%@ page import="org.bbop.apollo.web.datastore.history.JEHistoryDatabase" %>
-<%@ page import="org.bbop.apollo.web.datastore.history.Transaction" %>
-<%@ page import="org.bbop.apollo.web.user.Permission" %>
-<%@ page import="org.bbop.apollo.web.user.UserManager" %>
-<%@ page import="org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature" %>
-<%@ page import="org.gmod.gbol.bioObject.conf.BioObjectConfiguration" %>
-<%@ page import="org.gmod.gbol.bioObject.util.BioObjectUtil" %>
-<%@ page import="org.gmod.gbol.simpleObject.Feature" %>
-<%@ page import="java.io.BufferedReader" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.io.InputStream" %>
-<%@ page import="java.io.InputStreamReader" %>
-<%@ page import="java.util.*" %>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-         pageEncoding="ISO-8859-1" %>
-
-<%
-    ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
-    InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
-
-    Set<String> allStatusList = new TreeSet<String>();
-
-    for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : serverConfig.getAnnotationInfoEditor().values()) {
-        allStatusList.addAll(annotationInfoEditorConfiguration.getStatus());
-    }
-
-    BioObjectConfiguration bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
-    if (!UserManager.getInstance().isInitialized()) {
-        ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
-        UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
-    }
-    String databaseDir = serverConfig.getDataStoreDirectory();
-    String username = (String) session.getAttribute("username");
-    Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUser(username);
-%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+
+
 <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
 <title>Recent changes</title>
@@ -68,17 +34,6 @@
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
--->
 <script type="text/javascript">
 
 
@@ -86,136 +41,11 @@ if (google) {
     google.load("dojo", "1.5");
 }
 
-
-<%
-BufferedReader in = new java.io.BufferedReader(new InputStreamReader(application.getResourceAsStream(serverConfig.getTrackNameComparator())));
-String line;
-while ((line = in.readLine()) != null) {
-    out.println(line);    
-}
-%>
-
 var recent_changes = new Array();
 
-<%!
-/** Generate a record for a feature that includes the name, type, link to browser, and last modified date.
- *
- * @return String representation of the record in JSON format
- */
-private String generateFeatureRecordJSON(AbstractSingleLocationBioFeature feature,ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
-    String builder="";
-    long flank=Math.round((feature.getFmax()-feature.getFmin())*0.5);
-    long left=Math.max(feature.getFmin()-flank,1);
-    long right=Math.min(feature.getFmax()+flank,track.getSourceFeature().getSequenceLength()-1);
-
-
-    Transaction t=historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
-    
-    
-    builder+=String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName()+"<=>"+feature.getUniqueName());
-    builder+=String.format("'%s',",track.getSourceFeature().getUniqueName());
-    if(feature.getName()==null || feature.getName().trim().length()==0){
-        builder+=String.format("'---- <a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a> ----',",
-            track.getSourceFeature().getUniqueName(), left, right, "unassigned");
-    }
-    else{
-        builder+=String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',",
-            track.getSourceFeature().getUniqueName(), left, right, feature.getName());
-    }
-    builder+=String.format("'%s',", feature.getType().split(":")[1]);
-    builder+=String.format("'%s',", feature.getTimeLastModified());
-    builder+=String.format("'%s',", t!=null?t.getEditor():feature.getOwner().getOwner());
-    builder+=String.format("'%s',", feature.getOwner().getOwner());
-    builder+=String.format("'%s']", feature.getStatus()==null ? "" : feature.getStatus().getStatus());
-    return builder;
-}
-
-/** Generate a list of records for a feature that may include subfeatures
-*
-* @return non-empty ArrayList of Strings with records in JSON format
-*/
-private ArrayList<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
-    ArrayList<String> builder=new ArrayList<String>();
-    String type=feature.getType().split(":")[1];
-
-
-    for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
-        builder.add(generateFeatureRecordJSON(subfeature,track, historyDataStore));
-    }
-    builder.add(generateFeatureRecordJSON(feature,track, historyDataStore));
-    return builder;
-}
-
-%>
-
-<%
-int maximum = 100 ;
-int count  =0 ;
-Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
-System.out.println("# of tracks");
-boolean isAdmin = false;
-if (username != null) {
-    for (ServerConfiguration.TrackConfiguration track : tracks) {
-        Integer permission = permissions.get(track.getName());
-        System.out.println("count ["+count+"] / maximum ["+maximum +"]");
-        if (permission == null && count < maximum) {
-            permission = 0;
-        }
-        if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
-            isAdmin = true;
-        }
-        if ((permission & Permission.READ) == Permission.READ) {
-            Collection<Feature> features = new ArrayList<Feature>();
-            Collection<Feature> sequence_alterations = new ArrayList<Feature>();
-            String my_database = databaseDir + "/"+ track.getName();
-
-            //check that database exists
-            File database = new File(my_database);
-            if (!database.exists()) {
-                continue;
-            }
-            System.out.println("database exists: "+my_database );
-            File databaseHistory = new File(my_database+"_history");
-            System.out.println("database histry exists: "+databaseHistory.exists());
-            // load database
-            JEDatabase dataStore = new JEDatabase(my_database,false);
-
-
-            try {
-            JEHistoryDatabase historyDataStore = new JEHistoryDatabase(my_database+"_history",false,0);
-
-            dataStore.readFeatures(features);
-            Iterator<Feature> featureIterator = features.iterator();
-            while(featureIterator.hasNext() && count < maximum ) {
-                Feature feature = featureIterator.next();
-                // use list of records to get objects that have subfeatures
-                AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
-                ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
-                for (String s : record) {
-                    out.println("eecent_changes.push(" + s + ");\n");
-                    ++count ;
-                }
-            }
-            dataStore.readSequenceAlterations(sequence_alterations);
-            featureIterator = sequence_alterations.iterator();
-            while (featureIterator.hasNext() && count < maximum) {
-                Feature feature = featureIterator.next();
-                // use list of records to get objects that have subfeatures
-                AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
-                ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
-                for (String s : record) {
-                    out.println("recent_changes.push(" + s + ");\n");
-                    ++count ;
-                }
-            }} catch (Exception e) {
-            System.err.println("Unable to read database history: "+my_database+"_history:\n"+e);
-}
-        }
-    }
-}
-
-%>
-
+<c:forEach var="change" items="${changes}">
+recent_changes.push(${change});
+</c:forEach>
 
 var table;
 $(function () {
@@ -248,20 +78,13 @@ $(function () {
             {sTitle: "Feature type", bSortable: true},
             {sTitle: "Last modified", bSortable: true},
             {sTitle: "Editor", bSortable: true},
-            <%
-            if(allStatusList.size()>0){
-            %>
-            {sTitle: "Owner", bSortable: true},
-            {sTitle: "Status", bSortable: true}
-            <%
-            }
-            else{
-            %>
-            {sTitle: "Owner", bSortable: true}
-            <%
-        }
-        %>
-
+                <c:if test="${allStatusList.size()>0}">
+    {sTitle: "Owner", bSortable: true},
+    {sTitle: "Status", bSortable: true}
+            </c:if>
+<c:if test="${allStatusList.size()==0}">
+    {sTitle: "Owner", bSortable: true}
+    </c:if>
         ]
     });
 
@@ -299,14 +122,12 @@ $(function () {
         });
         $("#checkbox_option").prop("checked", allChecked);
     });
-    <%
-        if (username == null) {
-            out.println("login();");
-        }
-        else {
-            out.println("createListener();");
-        }
-    %>
+<c:if test="${username==null}">
+        login();
+        </c:if>
+<c:if test="${username!=null}">
+createListener();
+</c:if>
     $("#logout_item").click(function () {
         logout();
     });
@@ -344,17 +165,11 @@ $(function () {
         delete_selected_items();
     });
 
-    <%
-for(String status : allStatusList){
-%>
-    $("#change_status_selected_item-<%=status.replaceAll(" ","_")%>").click(function () {
-        change_status_selected_items('<%=status%>');
-    });
-
-    <%
-    }
-    %>
-
+<c:forEach var="status" items="${allStatusList}">
+$("#change_status_selected_item-${status.replaceAll(" ","_")}").click(function () {
+    change_status_selected_items('${status}');
+});
+        </c:forEach>
     cleanup_user_item();
 });
 
@@ -398,7 +213,6 @@ function change_status_selected_items(updated_status) {
     });
 //    }
 }
-;
 
 function delete_selected_items() {
     var trackName = "";
@@ -442,12 +256,10 @@ function delete_selected_items() {
         });
     }
 }
-;
 
 function cleanup_logo() {
     $("#logo").parent().css("padding", "0 0 0 0");
 }
-;
 
 function cleanup_user_item() {
     $("#user_item").parent().attr("id", "user_item_menu");
@@ -456,7 +268,7 @@ function cleanup_user_item() {
 
 function createListener() {
     $.ajax({
-        url: "AnnotationChangeNotificationService?track=<%=username + "_" + session.getId()%>",
+        url: "AnnotationChangeNotificationService?track=${username}_${sessionScope.get("id")}",
         success: function () {
             createListener();
         },
@@ -536,26 +348,28 @@ function write_data(adapter, tracks, options, successMessage) {
 ;
 
 function open_search_dialog() {
-    <%
-        for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
-            Integer permission = permissions.get(track.getName());
-            if (permission == null) {
-                permission = 0;
-            }
-            if ((permission & Permission.READ) == Permission.READ) {
-                out.println("var trackName = '" + track.getName() + "'");
-                break;
-            }
+    <c:forEach var="track" items="${tracks}">
+        var trackName = "${track.getName()}";
+    </c:forEach>
+    <%--<%--%>
+        <%--for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {--%>
+            <%--Integer permission = permissions.get(track.getName());--%>
+            <%--if (permission == null) {--%>
+                <%--permission = 0;--%>
+            <%--}--%>
+            <%--if ((permission & Permission.READ) == Permission.READ) {--%>
+                <%--out.println("var trackName = '" + track.getName() + "'");--%>
+                <%--break;--%>
+            <%--}--%>
 
-        }
-    %>
+        <%--}--%>
+    <%--%>--%>
     var search = new SequenceSearch(".");
     var starts = new Object();
-    <%
-        for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {
-            out.println(String.format("starts['%s'] = %d;", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getStart()));
-        }
-    %>
+<c:forEach var="track" items="${tracks}">
+    starts['${track.getSourceFeature().getUniqueName()}'] = ${track.getSourceFeature().getStart()};
+</c:forEach>
+
     search.setRedirectCallback(function (id, fmin, fmax) {
         var flank = Math.round((fmax - fmin) * 0.2);
         var url = 'jbrowse/?loc=' + id + ":" + (fmin - flank) + ".." + (fmax + flank) + "&highlight=" + id + ":" + (fmin + 1) + ".." + fmax;
@@ -573,8 +387,7 @@ function open_search_dialog() {
         $("#search_sequences_dialog").html(content);
         $("#search_sequences_dialog").dialog("open");
     }
-}
-;
+} ;
 
 function update_checked(checked) {
     $("#checkbox_option").prop("checked", checked);
@@ -635,29 +448,6 @@ function open_user_manager_dialog() {
                 <li><a id="export_menu">Export</a>
                     <ul>
                         <li><a class='none'>N/A</a></li>
-                        <%
-                            /*
-                                for (DataAdapterGroupConfiguration groupConf : serverConfig.getDataAdapters().values()) {
-                                    if (groupConf.isGroup()) {
-                                        out.println(String.format("\t\t\t\t\t<li><a>%s</a>", groupConf.getKey()));
-                                        out.println("<ul>");
-                                        for (DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
-                                            out.println(String.format("\t\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
-                                        }
-                                        out.println("</ul></li>");
-                                    }
-                                    else {
-                                        for (DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
-                                            out.println(String.format("\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
-                                        }
-                                    }
-                                }
-
-                                for (Map.Entry<String, String> dataAdapter : dataAdapters.entrySet()) {
-                                    out.println(String.format("\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", dataAdapter.getValue(), dataAdapter.getKey()));
-                                }
-                            */
-                        %>
                     </ul>
                 </li>
             </ul>
@@ -666,7 +456,6 @@ function open_user_manager_dialog() {
         <li><a id="view_item">View</a>
             <ul id="view_menu">
                 <li><a id="select_tracks">Select tracks</a></li>
-                <%--<li><a id="genes">Genes</a></li>--%>
             </ul>
         </li>
 
@@ -677,48 +466,33 @@ function open_user_manager_dialog() {
         </li>
 
 
-        <%
-            if (isAdmin) {
-        %>
+        <c:if test="${isAdmin}">
         <li><a id="admin_item">Admin</a>
             <ul id="admin_menu">
                 <li><a id='user_manager_item'>Manage users</a></li>
                 <li type='separator'></li>
                 <li><a id='delete_selected_item'>Delete selected</a></li>
-                <% if (allStatusList.size() > 0) {
-                %>
+                <c:forEach var="status" items="${allStatusList}">
                 <li><a>Change status of selected</a>
                     <ul>
-                            <%
-                for(String status : allStatusList){
-                    %>
-                        <li><a class='none' id="change_status_selected_item-<%=status.replaceAll(" ","_")%>"><%=status%>
+                        <li><a class='none' id="change_status_selected_item-${status.replaceAll(" ","_")}">${status}
                         </a></li>
-                            <%
-                }
-            %>
                 </li>
+                </c:forEach>
             </ul>
         </li>
-        <%
-            }
-        %>
+            </c:if>
 
     </ul>
     </li>
-    <%
-        }
-        if (username != null) {
-    %>
-    <li><a id="user_item"><span class='usericon'></span><%=username%>
+    <c:if test="${username!=null}">
+    <li><a id="user_item"><span class='usericon'></span>${username}
     </a>
         <ul id="user_menu">
             <li><a id="logout_item">Logout</a></li>
         </ul>
     </li>
-    <%
-        }
-    %>
+    </c:if>
     <li><a id="help_item">Help</a>
         <ul id="help_menu">
             <li><a id='web_services_api'>Web Services API</a></li>
