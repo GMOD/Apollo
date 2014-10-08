@@ -31,6 +31,7 @@ public class RecentChangeServlet extends HttpServlet{
     private String databaseDir ;
     private Set<String> allStatusList = new TreeSet<String>();
     private BioObjectConfiguration bioObjectConfiguration ;
+    private Integer maxLength = 20 ;
 
 
     @Override
@@ -84,8 +85,17 @@ public class RecentChangeServlet extends HttpServlet{
         }
         builder+=String.format("'%s',", feature.getType().split(":")[1]);
         builder+=String.format("'%s',", feature.getTimeLastModified());
-        builder+=String.format("'%s',", t!=null?t.getEditor():feature.getOwner().getOwner());
-        builder+=String.format("'%s',", feature.getOwner().getOwner());
+        String editorString = t!=null?t.getEditor():feature.getOwner().getOwner();
+
+        if(editorString.length()>maxLength){
+            editorString = editorString.substring(0,maxLength)+"...";
+        }
+        builder+=String.format("'%s',", editorString);
+        String ownerString = feature.getOwner().getOwner();
+        if(ownerString.length()>maxLength){
+            ownerString = ownerString.substring(0,maxLength)+"...";
+        }
+        builder+=String.format("'%s',", ownerString);
         builder+=String.format("'%s']", feature.getStatus()==null ? "" : feature.getStatus().getStatus());
         return builder;
     }
@@ -126,7 +136,7 @@ public class RecentChangeServlet extends HttpServlet{
         int count  =0 ;
         Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 
-        System.out.println("# of tracks");
+        System.out.println("# of tracks: "+ tracks.size());
         boolean isAdmin = false;
         List<String> changeList =new ArrayList<>() ;
         List<ServerConfiguration.TrackConfiguration> trackList =new ArrayList<>() ;
@@ -134,7 +144,7 @@ public class RecentChangeServlet extends HttpServlet{
             for (ServerConfiguration.TrackConfiguration track : tracks) {
                 trackList.add(track);
                 Integer permission = permissions.get(track.getName());
-                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
+//                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
                 if (permission == null || count > maximum) {
                     permission = 0;
                 }
@@ -151,9 +161,9 @@ public class RecentChangeServlet extends HttpServlet{
                     if (!database.exists()) {
                         continue;
                     }
-                    System.out.println("database exists: "+my_database );
+//                    System.out.println("database exists: "+my_database );
                     File databaseHistory = new File(my_database+"_history");
-                    System.out.println("database histry exists: "+databaseHistory.exists());
+//                    System.out.println("database histry exists: "+databaseHistory.exists());
                     // load database
                     JEDatabase dataStore = new JEDatabase(my_database,false);
 
@@ -193,16 +203,33 @@ public class RecentChangeServlet extends HttpServlet{
             }
         }
 
+        List<String> typeList = new ArrayList<>();
+        typeList.add("gene");
+        typeList.add("pseudogene");
+        typeList.add("transcript");
+        typeList.add("mRNA");
+        typeList.add("miRNA");
+        typeList.add("tRNA");
+        typeList.add("snRNA");
+        typeList.add("snoRNA");
+        typeList.add("ncRNA");
+        typeList.add("rRNA");
+        typeList.add("repeat region");
+        typeList.add("transposable element");
+
+
         request.setAttribute("isAdmin",isAdmin);
         request.setAttribute("username",username);
         request.setAttribute("changes",changeList);
         request.setAttribute("tracks",trackList);
+        request.setAttribute("types",typeList);
         request.setAttribute("allStatusList",allStatusList);
 
 //        PrintWriter out = resp.getWriter();
 //        out.write("whadup!");
 //        out.close();
-        RequestDispatcher view = request.getRequestDispatcher("/changes.jsp");
+//        RequestDispatcher view = request.getRequestDispatcher("/changes.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/changes2.jsp");
         view.forward(request, response);
     }
 
