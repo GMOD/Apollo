@@ -154,7 +154,9 @@ return declare( JBPlugin,
                         id: 'menubar_apollo_users_guide',
                         label: 'Apollo Users Guide',
                         // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  { window.open("http://gmod.org/wiki/WebApollo#Using_WebApollo",'help_window').focus(); }
+                        onClick: function()  {
+                            window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
+                        }
                     })
             );
         }

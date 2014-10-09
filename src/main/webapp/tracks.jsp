@@ -171,7 +171,7 @@ $(function () {
         window.open('web_services/web_service_api.html', '_blank');
     });
     $("#apollo_users_guide").click(function () {
-        window.open('http://gmod.org/wiki/WebApollo#Using_WebApollo', '_blank');
+        window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
     });
     cleanup_user_item();
 });
@@ -362,7 +362,7 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
     <ul id="menu">
-        <li><a><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()"/></a></li>
+        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
         <li><a id="file_item">File</a>
             <ul id="file_menu">
                 <li><a id="export_menu">Export</a>
