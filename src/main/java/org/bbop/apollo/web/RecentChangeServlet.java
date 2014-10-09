@@ -186,11 +186,11 @@ public class RecentChangeServlet extends HttpServlet {
 //                    File databaseHistory = new File(my_database + "_history");
 //                    System.out.println("database histry exists: "+databaseHistory.exists());
                     // load database
+
+
                     JEDatabase dataStore = new JEDatabase(my_database, false);
-
-
+                    JEHistoryDatabase historyDataStore = null ;
                     try {
-                        JEHistoryDatabase historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
 
                         dataStore.readFeatures(features);
                         Iterator<Feature> featureIterator = features.iterator();
@@ -225,6 +225,9 @@ public class RecentChangeServlet extends HttpServlet {
                             }
 
                             if (matches) {
+                                if(historyDataStore==null){
+                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
+                                }
                                 List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
                                 for (String s : record) {
 //                                out.println("recent_changes.push(" + s + ");\n");
@@ -262,6 +265,9 @@ public class RecentChangeServlet extends HttpServlet {
                             }
 
                             if (matches) {
+                                if(historyDataStore == null){
+                                    historyDataStore= new JEHistoryDatabase(my_database + "_history", false, 0);
+                                }
                                 List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
                                 for (String s : record) {
                                     changeList.add(s);
@@ -274,7 +280,12 @@ public class RecentChangeServlet extends HttpServlet {
                     } catch (Exception e) {
                         System.err.println("Unable to read database history: " + my_database + "_history:\n" + e);
                     }
+                    finally {
+                        dataStore = null ;
+                        historyDataStore = null ;
+                    }
                 }
+
             }
         }
 
