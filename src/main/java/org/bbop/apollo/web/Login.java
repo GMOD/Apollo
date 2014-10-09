@@ -128,7 +128,7 @@ public class Login extends HttpServlet {
                 permission = permissions.values().iterator().next();
             }
             //String url = (permission & Permission.USER_MANAGER) != 0 ? "mainOptions.jsp" : "selectTrack.jsp";
-            String url = "selectTrack.jsp";
+            String url = "selectTrack";
             if (forceRedirect) {
                 response.sendRedirect(url);
             }

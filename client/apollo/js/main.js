@@ -425,7 +425,7 @@ return declare( JBPlugin,
             {
                 label: "Select tracks",
                 onClick: function(event) {
-                    window.location="../selectTrack.jsp";
+                    window.location="../selectTrack";
                 }
             });
         browser.addGlobalMenuItem( 'view', select_Tracks );
@@ -433,7 +433,7 @@ return declare( JBPlugin,
             {
                 label: "Recent changes",
                 onClick: function(event) {
-                    window.location="../recentChanges.jsp";
+                    window.location="../recentChanges";
                 }
             });
         browser.addGlobalMenuItem( 'view', recent_Changes );

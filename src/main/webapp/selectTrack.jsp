@@ -228,7 +228,7 @@ $(function() {
         open_search_dialog();
     });
     $("#recent_changes").click(function() {
-        window.location="recentChanges.jsp";
+        window.location="recentChanges";
     });
     $("#user_manager_item").click(function() {
         open_user_manager_dialog();

@@ -301,7 +301,7 @@ $(function () {
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack.jsp";
+        window.location = "selectTrack";
     });
 
     $("#search_sequence_item").click(function () {

@@ -142,7 +142,7 @@ createListener();
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack.jsp";
+        window.location = "selectTrack";
     });
 
     $("#genes").click(function () {
@@ -202,7 +202,7 @@ function change_status_selected_items(updated_status) {
         url: "AnnotationEditorService",
         success: function (data, textStatus, jqXHR) {
             console.log('success');
-            window.location = "recentChanges.jsp";
+            window.location = "recentChanges";
 
         },
         error: function (qXHR, textStatus, errorThrown) {
@@ -245,7 +245,7 @@ function delete_selected_items() {
             success: function (data, textStatus, jqXHR) {
                 console.log('success');
 //                    alert('Deleted '+tracks.size() + ' successfully.');
-                window.location = "recentChanges.jsp";
+                window.location = "recentChanges";
 
             },
             error: function (qXHR, textStatus, errorThrown) {

@@ -121,10 +121,10 @@ $(function () {
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack.jsp";
+        window.location = "selectTrack";
     });
     $("#recent_changes").click(function () {
-        window.location = "recentChanges.jsp";
+        window.location = "recentChanges";
     });
 
     $("#search_sequence_item").click(function () {
