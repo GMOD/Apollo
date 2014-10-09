@@ -588,7 +588,6 @@ function open_user_manager_dialog() {
                         </td>
                         </c:forTokens>
                         </tr>
-                <%--recent_changes.push(${change});--%>
             </c:forEach>
 
     </tbody>

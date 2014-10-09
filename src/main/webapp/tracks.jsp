@@ -440,9 +440,50 @@ function open_user_manager_dialog() {
 </div>
 <div id="login_dialog" title="Login">
 </div>
-<div id="tracks_div">
-    <table id="tracks"></table>
-</div>
+<%--<div id="tracks_div">--%>
+<%--<table id="tracks"></table>--%>
+<%--</div>--%>
+<form action="selectTrack" method="get">
+    Showing ${trackViews.size()}
+    <input type="submit" value="Search">
+    <table>
+        <thead>
+        <tr>
+            <td>
+                Show&nbsp;<select name="maximum">
+                <option ${maximum=='10' ? 'selected=true' : ''}>10</option>
+                <option ${maximum=='25' ? 'selected=true' : ''}>25</option>
+                <option ${maximum=='100' ? 'selected=true' : ''}>100</option>
+                <option ${maximum=='1000' ? 'selected=true' : ''}>1000</option>
+            </select>
+
+            </td>
+            <th><input type="text" name="organism" value="${organism}"/></th>
+            <th><input type="text" name="name" value="${name}"></th>
+            <th><input type="text" name="minLength" value="${minLength}">-<input type="text" name="maxLength" value="${maxLength}"></th>
+        </tr>
+        <tr>
+            <th></th>
+            <th>Organism</th>
+            <th>Name</th>
+            <th>Length</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="track" items="${trackViews}">
+            <tr>
+                    <%--<c:set var="trackString" value="${track.replaceAll('\\\\[','')}"/>--%>
+                    <%--<c:forTokens var="col" items="${trackString}" delims=",">--%>
+                <c:forEach var="col" items="${track}">
+                    <td>
+                            ${col}
+                    </td>
+                </c:forEach>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
+</form>
 </body>
 </html>
 

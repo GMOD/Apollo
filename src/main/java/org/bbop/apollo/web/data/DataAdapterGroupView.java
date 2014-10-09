@@ -27,8 +27,6 @@ public class DataAdapterGroupView implements Serializable{
         for(ServerConfiguration.DataAdapterConfiguration dataAdapterConfiguration : groupConf.getDataAdapters()){
             dataAdapters.add(new DataAdapterView(dataAdapterConfiguration));
         }
-        System.out.println("dataAdatapers: "+dataAdapters.size());
-
     }
 
     public Collection<DataAdapterView> getDataAdapters() {
