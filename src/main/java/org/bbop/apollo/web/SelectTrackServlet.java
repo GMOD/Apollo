@@ -3,6 +3,7 @@ package org.bbop.apollo.web;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.web.config.ServerConfiguration;
+import org.bbop.apollo.web.data.DataAdapterGroupView;
 import org.bbop.apollo.web.user.Permission;
 import org.bbop.apollo.web.user.UserManager;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
@@ -113,29 +114,12 @@ public class SelectTrackServlet extends HttpServlet{
         }
 
         int permission = !permissions.isEmpty() ? permissions.values().iterator().next() : 0;
-        List<ServerConfiguration.DataAdapterGroupConfiguration> dataAdapterConfigurationList = new ArrayList<>();
-//        List<ServerConfiguration.DataAdapterGroupConfiguration> dataGroupAdapterConfigurationList = new ArrayList<>();
+        List<DataAdapterGroupView> dataAdapterConfigurationList = new ArrayList<>();
         for (ServerConfiguration.DataAdapterGroupConfiguration groupConf : serverConfig.getDataAdapters().values()) {
-//            if (groupConf.isGroup()) {
                 if ((permission & Permission.getValueForPermission(groupConf.getPermission())) >= 1) {
-                    dataAdapterConfigurationList.add(groupConf);
-//                    dataGroupAdapterConfigurationList.add("Group<=>"+groupConf.getKey());
-//                    out.println(String.format("\t\t\t\t\t<li><a>%s</a>", groupConf.getKey()));
-//                    out.println("<ul>");
-//                    for (ServerConfiguration.DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
-////                        out.println(String.format("\t\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
-//                        dataAdapterConfigurationList.add(String.format("Group::%s::%s", conf.getOptions(), conf.getKey()));
-//                    }
-//                    out.println("</ul></li>");
+                    DataAdapterGroupView dataAdapterGroupView = new DataAdapterGroupView(groupConf);
+                    dataAdapterConfigurationList.add(dataAdapterGroupView);
                 }
-//            }
-//            else {
-//                if ((permission & Permission.getValueForPermission(groupConf.getPermission())) >= 1) {
-//                    for (ServerConfiguration.DataAdapterConfiguration conf : groupConf.getDataAdapters()) {
-////                        dataAdapterConfigurationList.add(String.format("%s::%s", conf.getOptions(), conf.getKey()));
-////                        out.println(String.format("\t\t\t\t\t<li><a class='data_adapter' _options='%s'>%s</a></li>", conf.getOptions(), conf.getKey()));
-//                    }
-//                }
 //            }
         }
 
@@ -146,11 +130,7 @@ public class SelectTrackServlet extends HttpServlet{
         request.setAttribute("tracks",trackList);
         request.setAttribute("trackViews",trackTableList);
 
-//        PrintWriter out = resp.getWriter();
-//        out.write("whadup!");
-//        out.close();
         RequestDispatcher view = request.getRequestDispatcher("/tracks.jsp");
-//        RequestDispatcher view = request.getRequestDispatcher("/tracks2.jsp");
         view.forward(request, response);
     }
 

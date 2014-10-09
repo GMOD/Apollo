@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -364,17 +365,18 @@ function open_user_manager_dialog() {
             <ul id="file_menu">
                 <li><a id="export_menu">Export</a>
                     <ul>
-                        <c:forEach var="adapterGroup" items="dataAdapters">
+                        <c:forEach var="adapterGroup" items="${dataAdapters}">
                             <c:if test="${adapterGroup.isGroup()}">
-                                <li><a>${adapterGroup.getKey()}</a></li>
+                                <li><a>Group: ${adapterGroup.getKey()}</a>
                                 <ul>
                             </c:if>
-                            <c:forEach var="adapter" items="${adapterGroup.getDataAdapters()}">
-                                <li><a class='data_adapter' _options='${adapter.getOptions()}'>${adapter.getKey()}</a>
+                            <c:forEach var="adapter" items="${adapterGroup.dataAdapters}">
+                                <li>
+                                    <a class='data_adapter' _options='${adapter.getOptions()}'>${adapter.getKey()}</a>
                                 </li>
                             </c:forEach>
                             <c:if test="${adapterGroup.isGroup()}">
-                                </ul>
+                                </ul></li>
                             </c:if>
                         </c:forEach>
                     </ul>
