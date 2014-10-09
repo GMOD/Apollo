@@ -106,7 +106,7 @@ public class SelectTrackServlet extends HttpServlet {
         int count = 0;
         Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 
-        System.out.println("# of tracks: " + tracks.size());
+//        System.out.println("# of tracks: " + tracks.size());
         boolean isAdmin = false;
         List<List<String>> trackTableList = new ArrayList<>();
         List<ServerConfiguration.TrackConfiguration> trackList = new ArrayList<>();

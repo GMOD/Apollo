@@ -14,6 +14,8 @@
 <link rel="stylesheet" type="text/css" href="styles/selectTrack.css"/>
 <link rel="stylesheet" type="text/css" href="styles/search_sequence.css"/>
 <link rel="stylesheet" type="text/css" href="styles/userPermissions.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrap-glyphicons.css"/>
 
 <link rel="stylesheet" href="jslib/jquery-ui-menubar/jquery.ui.all.css"/>
 <script src="jslib/jquery-ui-menubar/jquery-1.8.2.js"></script>
@@ -444,9 +446,11 @@ function open_user_manager_dialog() {
 <%--<table id="tracks"></table>--%>
 <%--</div>--%>
 <form action="selectTrack" method="get">
-    Showing ${trackViews.size()}
-    <input type="submit" value="Search">
-    <table>
+    <div class="row">
+        <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()}</h4></div>
+        <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
+    </div>
+    <table class="table">
         <thead>
         <tr>
             <td>
@@ -460,7 +464,8 @@ function open_user_manager_dialog() {
             </td>
             <th><input type="text" name="organism" value="${organism}"/></th>
             <th><input type="text" name="name" value="${name}"></th>
-            <th><input type="text" name="minLength" value="${minLength}">-<input type="text" name="maxLength" value="${maxLength}"></th>
+            <th><input type="text" name="minLength" value="${minLength}">-<input type="text" name="maxLength"
+                                                                                 value="${maxLength}"></th>
         </tr>
         <tr>
             <th></th>
