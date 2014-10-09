@@ -299,8 +299,16 @@ public class RecentChangeServlet extends HttpServlet {
         request.setAttribute("tracks", trackList);
         request.setAttribute("types", typeList);
         request.setAttribute("allStatusList", allStatusList);
+        request.setAttribute("trackCount", tracks.size());
+
+        Set<String> allTrackNames = new TreeSet<>();
+        for(ServerConfiguration.TrackConfiguration aTrack : tracks){
+            allTrackNames.add(aTrack.getName());
+        }
+
 
         // filter attributes
+        request.setAttribute("allTrackNames", allTrackNames);
         request.setAttribute("maximum", maximumString);
         request.setAttribute("type", typeString);
         request.setAttribute("track", trackString);

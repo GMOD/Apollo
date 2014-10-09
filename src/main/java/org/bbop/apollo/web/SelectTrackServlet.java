@@ -167,6 +167,7 @@ public class SelectTrackServlet extends HttpServlet {
         request.setAttribute("dataAdapters", dataAdapterConfigurationList);
         request.setAttribute("tracks", trackList);
         request.setAttribute("trackViews", trackTableList);
+        request.setAttribute("trackCount", tracks.size());
 
         // filter attributes
         request.setAttribute("maximum", maximumString);

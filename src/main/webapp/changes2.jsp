@@ -509,7 +509,7 @@ function open_user_manager_dialog() {
 
 <form action="recentChanges" method="get">
 <div class="row">
-    <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()}</h4></div>
+    <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${tracks.size()} of ${trackCount}</h4></div>
     <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
 </div>
 <table class="table">
@@ -527,8 +527,8 @@ function open_user_manager_dialog() {
         <th>
             <select name="track">
                 <option value="">All</option>
-                <c:forEach var="track" items="${tracks}">
-                    <c:set var="trackLabel" value="${track.getName().replaceAll('Annotations-','')}"/>
+                <c:forEach var="track" items="${allTrackNames}">
+                    <c:set var="trackLabel" value="${track.replaceAll('Annotations-','')}"/>
                     <option>${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
                 </c:forEach>
             </select>

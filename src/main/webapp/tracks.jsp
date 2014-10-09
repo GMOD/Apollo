@@ -447,7 +447,7 @@ function open_user_manager_dialog() {
 <%--</div>--%>
 <form action="selectTrack" method="get">
     <div class="row">
-        <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()}</h4></div>
+        <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}</h4></div>
         <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
     </div>
     <table class="table">
