@@ -16,6 +16,9 @@
 <link rel="stylesheet" type="text/css" href="styles/search_sequence.css"/>
 <link rel="stylesheet" type="text/css" href="styles/userPermissions.css"/>
 
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrap-glyphicons.css"/>
+
 <link rel="stylesheet" href="jslib/jquery-ui-menubar/jquery.ui.all.css"/>
 <script src="jslib/jquery-ui-menubar/jquery-1.8.2.js" type="text/javascript"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.core.js" type="text/javascript"></script>
@@ -64,28 +67,6 @@ $(function () {
         closeOnEscape: false,
         width: "auto"
     });
-    <%--table = $("#recent_changes").dataTable({--%>
-    <%--aaData: recent_changes,--%>
-    <%--aaSorting: [[4, "desc"]],--%>
-    <%--oLanguage: {--%>
-    <%--sSearch: "Filter: "--%>
-    <%--},--%>
-    <%--aoColumns: [--%>
-    <%--{bSortable: false, bSearchable: false},--%>
-    <%--{sTitle: "Track", bSortable: true},--%>
-    <%--{sTitle: "Feature name", bSortable: true},--%>
-    <%--{sTitle: "Feature type", bSortable: true},--%>
-    <%--{sTitle: "Last modified", bSortable: true},--%>
-    <%--{sTitle: "Editor", bSortable: true},--%>
-    <%--<c:if test="${allStatusList.size()>0}">--%>
-    <%--{sTitle: "Owner", bSortable: true},--%>
-    <%--{sTitle: "Status", bSortable: true}--%>
-    <%--</c:if>--%>
-    <%--<c:if test="${allStatusList.size()==0}">--%>
-    <%--{sTitle: "Owner", bSortable: true}--%>
-    <%--</c:if>--%>
-    <%--]--%>
-    <%--});--%>
 
     $(".adapter_button").button({icons: {primary: "ui-icon-folder-collapsed"}});
     $("#checkbox_menu").menu({});
@@ -526,42 +507,47 @@ function open_user_manager_dialog() {
 <div id="login_dialog" title="Login">
 </div>
 
-<table>
+<form action="recentChanges" method="get">
+<div class="row">
+    <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()}</h4></div>
+    <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
+</div>
+<table class="table">
     <thead>
     <tr>
         <td>
-            Show&nbsp;<select>
-            <option>10</option>
-            <option>25</option>
-            <option>100</option>
-            <option>All</option>
+            Show&nbsp;<select name="maximum">
+            <option ${maximum=='10' ? 'selected=true' : ''}>10</option>
+            <option ${maximum=='25' ? 'selected=true' : ''}>25</option>
+            <option ${maximum=='100' ? 'selected=true' : ''}>100</option>
+            <option ${maximum=='1000' ? 'selected=true' : ''}>1000</option>
         </select>
 
         </td>
         <th>
-            <select>
-                <option>All</option>
+            <select name="track">
+                <option value="">All</option>
                 <c:forEach var="track" items="${tracks}">
                     <c:set var="trackLabel" value="${track.getName().replaceAll('Annotations-','')}"/>
                     <option>${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
                 </c:forEach>
             </select>
         </th>
-        <th><input type="text"/></th>
+        <th><input type="text" name="group"/></th>
         <th>
-            <select>
-                <option>All</option>
+            <select name="type">
+                <option value="">All</option>
                 <c:forEach var="type" items="${types}">
                     <option>${type}</option>
                 </c:forEach>
             </select>
         </th>
-        <th><input type="text" placeholder="MM/DD/YYYY"></th>
-        <th><input type="text"></th>
-        <th><input type="text"></th>
+        <th><input type="text" name="date" placeholder="MM/DD/YYYY"></th>
+        <th><input type="text" name="editor"></th>
+        <th><input type="text" name="owner"></th>
         <th>
-            <select>
-                <option>All</option>
+            <select name="status">
+                <option value="">All</option>
                 <c:forEach var="status" items="${allStatusList}">
                     <option>${status}</option>
                 </c:forEach>
@@ -592,6 +578,7 @@ function open_user_manager_dialog() {
 
     </tbody>
 </table>
+</form>
 
 <%--<div id="recent_changes_div">--%>
 <%--<table id="recent_changes"></table>--%>

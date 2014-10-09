@@ -129,13 +129,13 @@ public class SelectTrackServlet extends HttpServlet {
                         matches = matches && track.getOrganism().toUpperCase().contains(organism.toString().toUpperCase());
                     }
                     if (name != null && name.toString().trim().length() > 0) {
-                        matches = matches && name != null && track.getName().toUpperCase().contains(name.toString().toUpperCase());
+                        matches = matches && track.getName().toUpperCase().contains(name.toString().toUpperCase());
                     }
                     if (minLength != null) {
-                        matches = matches && minLength != null && track.getSourceFeature().getSequenceLength() >= minLength;
+                        matches = matches && track.getSourceFeature().getSequenceLength() >= minLength;
                     }
                     if (maxLength != null) {
-                        matches = matches && maxLength != null && track.getSourceFeature().getSequenceLength() <= maxLength;
+                        matches = matches && track.getSourceFeature().getSequenceLength() <= maxLength;
                     }
 
                     if (matches) {
@@ -167,8 +167,9 @@ public class SelectTrackServlet extends HttpServlet {
         request.setAttribute("dataAdapters", dataAdapterConfigurationList);
         request.setAttribute("tracks", trackList);
         request.setAttribute("trackViews", trackTableList);
-        request.setAttribute("maximum", maximumString);
 
+        // filter attributes
+        request.setAttribute("maximum", maximumString);
         request.setAttribute("minLength", minLength);
         request.setAttribute("maxLength", maxLength);
         request.setAttribute("organism", organism);
