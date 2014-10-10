@@ -301,6 +301,8 @@ public class RecentChangeServlet extends HttpServlet {
         request.setAttribute("group", request.getParameter("group"));
         request.setAttribute("owner", request.getParameter("owner"));
         request.setAttribute("status", request.getParameter("status"));
+        request.setAttribute("days_filter_logic", request.getParameter("days_filter_logic"));
+        request.setAttribute("days_filter", request.getParameter("days_filter"));
 
 //        PrintWriter out = resp.getWriter();
 //        out.write("whadup!");
@@ -317,13 +319,50 @@ public class RecentChangeServlet extends HttpServlet {
         Object group = request.getParameter("group");
         Object owner = request.getParameter("owner");
         Object status = request.getParameter("status");
+        Object daysFilterLogic = request.getParameter("days_filter_logic");
+        Object daysFilter = request.getParameter("days_filter");
 
-        return matchesFilter(trackString, typeString, group, owner, status, track, gbolFeature);
+        return matchesFilter(daysFilterLogic,daysFilter,trackString, typeString, group, owner, status, track, gbolFeature);
     }
 
-    private boolean matchesFilter(Object trackString, Object typeString, Object group, Object owner, Object status, ServerConfiguration.TrackConfiguration track, AbstractSingleLocationBioFeature gbolFeature) {
+    private boolean matchesFilter(Object daysFilterLogic,Object daysFilter,Object trackString, Object typeString, Object group, Object owner, Object status, ServerConfiguration.TrackConfiguration track, AbstractSingleLocationBioFeature gbolFeature) {
         boolean matches = true;
 
+        if (matches && daysFilterLogic != null && daysFilter!=null && daysFilter.toString().trim().length() > 0 && !daysFilterLogic.equals("None")) {
+//            matches = track.getName().contains(trackString.toString());
+            Date lastDate = gbolFeature.getTimeLastModified();
+            Calendar lastDateCal= Calendar.getInstance();
+            lastDateCal.setTime(lastDate);
+            lastDateCal.set(Calendar.HOUR_OF_DAY, 0);
+            lastDateCal.set(Calendar.MINUTE, 0);
+            lastDateCal.set(Calendar.SECOND, 0);
+            lastDateCal.set(Calendar.MILLISECOND, 0);// subtract the days
+            Date now = new Date();
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(now);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);// subtract the days
+            Integer numDays = Integer.parseInt(daysFilter.toString());
+            cal.add(Calendar.DATE, -numDays);  //
+
+            switch (daysFilterLogic.toString()){
+                case "Before":
+                    matches = lastDateCal.before(cal);
+                    break;
+                case "After":
+                    matches = lastDateCal.after(cal);
+                    break;
+//                case "Equals":
+//                    matches = lastDateCal.equals(cal);
+//                    break;
+                default:
+                    matches = true ;
+                    break;
+            }
+        }
         if (matches && trackString != null && trackString.toString().trim().length() > 0) {
             matches = track.getName().contains(trackString.toString());
         }

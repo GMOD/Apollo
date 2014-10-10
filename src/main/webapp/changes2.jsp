@@ -576,7 +576,16 @@ function open_user_manager_dialog() {
                 </c:forEach>
             </select>
         </th>
-        <th><input type="text" name="date" placeholder="MM/DD/YYYY"></th>
+        <th>
+            Days
+            <select name="days_filter_logic">
+                <option >None</option>
+                <option ${days_filter_logic=='Before' ? 'selected' : ''}>Before</option>
+                <option ${days_filter_logic=='After' ? 'selected' : ''}>After</option>
+                <%--<option ${days_filter_logic=='Equals' ? 'selected' : ''}>Equals</option>--%>
+            </select>
+            <input type="text" name="days_filter" value="${days_filter}">
+        </th>
         <%--<th><input type="text" name="editor"></th>--%>
         <th><input type="text" name="owner" value="${owner}"></th>
         <th>
