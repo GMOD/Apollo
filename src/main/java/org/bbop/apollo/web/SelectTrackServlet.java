@@ -13,15 +13,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.*;
 
 /**
- * Created by NathanDunn on 10/7/14.
  */
 @WebServlet(name = "/selectTrack", urlPatterns = {"/selectTrack"}, asyncSupported = true)
 public class SelectTrackServlet extends HttpServlet {
@@ -29,7 +25,7 @@ public class SelectTrackServlet extends HttpServlet {
     final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
     private ServerConfiguration serverConfig;
 //    private String databaseDir;
-    private Set<String> allStatusList = new TreeSet<String>();
+//    private Set<String> allStatusList = new TreeSet<String>();
 //    private BioObjectConfiguration bioObjectConfiguration;
 
     private final Integer DEFAULT_LIST_SIZE = 10;
@@ -42,11 +38,11 @@ public class SelectTrackServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
-        InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
+//        InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
 
-        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : serverConfig.getAnnotationInfoEditor().values()) {
-            allStatusList.addAll(annotationInfoEditorConfiguration.getStatus());
-        }
+//        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : serverConfig.getAnnotationInfoEditor().values()) {
+//            allStatusList.addAll(annotationInfoEditorConfiguration.getStatus());
+//        }
 
 //        bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
         if (!UserManager.getInstance().isInitialized()) {
@@ -63,7 +59,6 @@ public class SelectTrackServlet extends HttpServlet {
     /**
      * Generate a record for a feature that includes the name, type, link to browser, and last modified date.
      *
-     * @return String representation of the record in JSON format
      */
 
 
@@ -76,13 +71,13 @@ public class SelectTrackServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        BufferedReader in = new BufferedReader(new InputStreamReader(request.getServletContext().getResourceAsStream(serverConfig.getTrackNameComparator())));
-        String line;
-        String lineString = "";
-        while ((line = in.readLine()) != null) {
-            lineString += line + "\n";
-//            out.println(line);
-        }
+//        BufferedReader in = new BufferedReader(new InputStreamReader(request.getServletContext().getResourceAsStream(serverConfig.getTrackNameComparator())));
+//        String line;
+//        String lineString = "";
+//        while ((line = in.readLine()) != null) {
+//            lineString += line + "\n";
+////            out.println(line);
+//        }
 
         Object maximumString = request.getParameter("maximum");
         Object minLengthString = request.getParameter("minLength");

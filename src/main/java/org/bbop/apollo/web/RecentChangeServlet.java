@@ -74,17 +74,17 @@ public class RecentChangeServlet extends HttpServlet {
 //        Transaction t = historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
 
 
-        builder += String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName() + "<=>" + feature.getUniqueName());
-        builder += String.format("'%s',", track.getSourceFeature().getUniqueName());
+        builder += String.format("<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>,", track.getName() + "<=>" + feature.getUniqueName());
+        builder += String.format("%s,", track.getSourceFeature().getUniqueName());
         if (feature.getName() == null || feature.getName().trim().length() == 0) {
-            builder += String.format("'---- <a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a> ----',",
+            builder += String.format("---- <a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a> ----,",
                     track.getSourceFeature().getUniqueName(), left, right, "unassigned");
         } else {
-            builder += String.format("'<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>',",
+            builder += String.format("<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>,",
                     track.getSourceFeature().getUniqueName(), left, right, feature.getName());
         }
-        builder += String.format("'%s',", feature.getType().split(":")[1]);
-        builder += String.format("'%s',", feature.getTimeLastModified());
+        builder += String.format("%s,", feature.getType().split(":")[1]);
+        builder += String.format("%s,", feature.getTimeLastModified());
 //        String editorString = t != null ? t.getEditor() : feature.getOwner().getOwner();
 
 //        if (editorString.length() > maxStringLength) {
@@ -95,8 +95,15 @@ public class RecentChangeServlet extends HttpServlet {
         if (ownerString.length() > maxStringLength) {
             ownerString = ownerString.substring(0, maxStringLength) + "...";
         }
-        builder += String.format("'%s',", ownerString);
-        builder += String.format("'%s']", feature.getStatus() == null ? "" : feature.getStatus().getStatus());
+        builder += String.format("%s,", ownerString);
+        builder += String.format("%s", feature.getStatus() == null ? " " : feature.getStatus().getStatus());
+
+//        String notes = "";
+//        if(feature.getResidues().length()%3!=0){
+//            notes += "aa sequence length is not an integer";
+//        }
+//        builder += String.format("%s",notes);
+
         return builder;
     }
 

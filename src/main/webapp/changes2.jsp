@@ -93,10 +93,10 @@ $(function () {
         $(".track_select").prop("checked", true);
     });
     $("#unassigned-group-filter").change(function () {
-        if(this.checked){
+        if (this.checked) {
             $("#group-filter").val("Unassigned");
         }
-        else{
+        else {
             $("#group-filter").val("");
         }
     });
@@ -448,7 +448,8 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
     <ul id="menu">
-        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
+        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"
+                                                                       onload="cleanup_logo()" alt=""/></a></li>
         <li><a id="file_item">File</a>
             <ul id="file_menu">
                 <li><a id="export_menu">Export</a>
@@ -533,96 +534,103 @@ function open_user_manager_dialog() {
 </div>
 
 <form action="recentChanges" method="get">
-<div class="row form-group">
-    <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
-    <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
-    <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
-    <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
-    <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
-    <input type="submit" id="search-button" value="Search" class=" col-offset-1 btn ui-icon-search btn-default col-1">
-    <a href="recentChanges.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Recent Changes (smaller data only)</a>
-</div>
-<table class="table">
-    <thead>
-    <tr>
-        <td>
-            Show&nbsp;<select name="maximum">
-            <option ${maximum=='10' ? 'selected=true' : ''}>10</option>
-            <option ${maximum=='25' ? 'selected=true' : ''}>25</option>
-            <option ${maximum=='100' ? 'selected=true' : ''}>100</option>
-            <option ${maximum=='1000' ? 'selected=true' : ''}>1000</option>
-        </select>
+    <div class="row form-group">
+        <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
+        <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
+        <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
+        <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
+        <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
+        <input type="submit" id="search-button" value="Search"
+               class=" col-offset-1 btn ui-icon-search btn-default col-1">
+        <a href="recentChanges.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Recent Changes (smaller
+            data only)</a>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <td>
+                Show&nbsp;<select name="maximum">
+                <option ${maximum=='10' ? 'selected=true' : ''}>10</option>
+                <option ${maximum=='25' ? 'selected=true' : ''}>25</option>
+                <option ${maximum=='100' ? 'selected=true' : ''}>100</option>
+                <option ${maximum=='1000' ? 'selected=true' : ''}>1000</option>
+            </select>
 
-        </td>
-        <th>
-            <select name="track">
-                <option value="">All</option>
-                <c:forEach var="trackFilter" items="${allTrackNames}">
-                    <c:set var="trackLabel" value="${trackFilter.replaceAll('Annotations-','')}"/>
-                    <option ${track.contains(trackLabel)?'selected':''} value="${trackLabel}">${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
+            </td>
+            <th>
+                <select name="track">
+                    <option value="">All</option>
+                    <c:forEach var="trackFilter" items="${allTrackNames}">
+                        <c:set var="trackLabel" value="${trackFilter.replaceAll('Annotations-','')}"/>
+                        <option ${track.contains(trackLabel)?'selected':''}
+                                value="${trackLabel}">${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
+                    </c:forEach>
+                </select>
+            </th>
+            <th><input type="text" id="group-filter" name="group" value="${group}"/>
+                <br/>
+                Unassigned
+                <input type="checkbox" id="unassigned-group-filter"
+                       name="unassigned-group" ${group eq 'Unassigned' ? 'checked' : ''}>
+            </th>
+            <th>
+                <select name="type">
+                    <option value="">All</option>
+                    <c:forEach var="typeIter" items="${types}">
+                        <option  ${typeIter==type ? 'selected' : ''}>${typeIter}</option>
+                    </c:forEach>
+                </select>
+            </th>
+            <th>
+                <select name="days_filter_logic" style="margin-bottom: 5px;">
+                    <option>-----</option>
+                    <option ${days_filter_logic=='Before' ? 'selected' : ''}>Before</option>
+                    <option ${days_filter_logic=='After' ? 'selected' : ''}>After</option>
+                    <%--<option ${days_filter_logic=='Equals' ? 'selected' : ''}>Equals</option>--%>
+                </select>
+                <br/>
+                Days
+                <input type="text" name="days_filter" value="${days_filter}"> ago
+            </th>
+            <%--<th><input type="text" name="editor"></th>--%>
+            <th><input type="text" name="owner" value="${owner}"></th>
+            <th>
+                <select name="status">
+                    <option value="">All</option>
+                    <option>None</option>
+                    <c:forEach var="statusIter" items="${allStatusList}">
+                        <option ${statusIter==status ? 'selected' : ''}>${statusIter}</option>
+                    </c:forEach>
+                </select>
+            </th>
+        </tr>
+        <tr>
+            <th>Select</th>
+            <th>Track</th>
+            <th>Group</th>
+            <th>Type</th>
+            <th>Date</th>
+            <%--<th>Editor</th>--%>
+            <th>Owner</th>
+            <th>Status</th>
+            <%--<th>Notes</th>--%>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="change" items="${changes}" varStatus="iter">
+            <tr>
+                    <%--<c:forTokens var="col" items="${change.replaceAll('\\\\[|\\\\]','')}" delims="," varStatus="innerIter">--%>
+                <c:forEach var="col" items="${change}" varStatus="innerIter">
+                    <td>
+                        <c:if test="${innerIter.first}">${iter.count + offset}</c:if>
+                            ${col}
+                    </td>
                 </c:forEach>
-            </select>
-        </th>
-        <th><input type="text" id="group-filter" name="group" value="${group}"/>
-            <br/>
-            Unassigned
-        <input type="checkbox" id="unassigned-group-filter" name="unassigned-group" ${group eq 'Unassigned' ? 'checked' : ''}>
-        </th>
-        <th>
-            <select name="type">
-                <option value="">All</option>
-                <c:forEach var="typeIter" items="${types}">
-                    <option  ${typeIter==type ? 'selected' : ''}>${typeIter}</option>
-                </c:forEach>
-            </select>
-        </th>
-        <th>
-            Days
-            <select name="days_filter_logic">
-                <option >-----</option>
-                <option ${days_filter_logic=='Before' ? 'selected' : ''}>Before</option>
-                <option ${days_filter_logic=='After' ? 'selected' : ''}>After</option>
-                <%--<option ${days_filter_logic=='Equals' ? 'selected' : ''}>Equals</option>--%>
-            </select>
-            <input type="text" name="days_filter" value="${days_filter}">
-        </th>
-        <%--<th><input type="text" name="editor"></th>--%>
-        <th><input type="text" name="owner" value="${owner}"></th>
-        <th>
-            <select name="status">
-                <option value="">All</option>
-                <option>None</option>
-                <c:forEach var="statusIter" items="${allStatusList}">
-                    <option ${statusIter==status ? 'selected' : ''}>${statusIter}</option>
-                </c:forEach>
-            </select>
-        </th>
-    </tr>
-    <tr>
-        <th>Select</th>
-        <th>Track</th>
-        <th>Group</th>
-        <th>Type</th>
-        <th>Date</th>
-        <%--<th>Editor</th>--%>
-        <th>Owner</th>
-        <th>Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    <c:forEach var="change" items="${changes}" varStatus="iter">
-    <tr>
-            <c:forTokens var="col" items="${change.replaceAll('\\\\[|\\\\]','')}" delims="," varStatus="innerIter">
-        <td>
-                <c:if test="${innerIter.first}">${iter.count + offset}</c:if>
-                ${col.replaceAll("'","")}
-                        </td>
-                        </c:forTokens>
-                        </tr>
-            </c:forEach>
+            </tr>
+        </c:forEach>
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
 </form>
 
 <%--<div id="recent_changes_div">--%>
