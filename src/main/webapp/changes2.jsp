@@ -92,6 +92,14 @@ $(function () {
     $("#check_displayed").click(function () {
         $(".track_select").prop("checked", true);
     });
+    $("#unassigned-group-filter").change(function () {
+        if(this.checked){
+            $("#group-filter").val("Unassigned");
+        }
+        else{
+            $("#group-filter").val("");
+        }
+    });
     $(".track_select").click(function () {
         var allChecked = true;
         $(".track_select").each(function () {
@@ -508,8 +516,8 @@ function open_user_manager_dialog() {
 </div>
 
 <form action="recentChanges" method="get">
-<div class="row">
-    <div class="col-2"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
+<div class="row form-group">
+    <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
     <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
 </div>
 <table class="table">
@@ -533,7 +541,11 @@ function open_user_manager_dialog() {
                 </c:forEach>
             </select>
         </th>
-        <th><input type="text" name="group" value="${group}"/></th>
+        <th><input type="text" id="group-filter" name="group" value="${group}"/>
+            <br/>
+            Unassigned
+        <input type="checkbox" id="unassigned-group-filter" name="unassigned-group" ${group eq 'Unassigned' ? 'checked' : ''}>
+        </th>
         <th>
             <select name="type">
                 <option value="">All</option>
