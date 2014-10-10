@@ -515,6 +515,9 @@ function open_user_manager_dialog() {
     <div id="data_adapter_loading"><img src="images/loading.gif"/></div>
     <div id="data_adapter_message"></div>
 </div>
+
+
+<a href="selectTrack" class="col-offset-4 btn-mini btn-default btn-link">Default Track Select</a>
 <div id="login_dialog" title="Login">
 </div>
 <div id="tracks_div">

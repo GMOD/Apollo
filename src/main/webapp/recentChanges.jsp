@@ -747,6 +747,7 @@ function open_user_manager_dialog() {
     <div id="data_adapter_loading"><img src="images/loading.gif" alt=""/></div>
     <div id="data_adapter_message"></div>
 </div>
+<a href="recentChanges" class="col-offset-4 btn-mini btn-default btn-link">Default Recent Changes</a>
 <div id="login_dialog" title="Login">
 </div>
 <div id="recent_changes_div">
