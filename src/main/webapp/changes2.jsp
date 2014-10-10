@@ -533,7 +533,7 @@ function open_user_manager_dialog() {
                 </c:forEach>
             </select>
         </th>
-        <th><input type="text" name="group"/></th>
+        <th><input type="text" name="group" value="${group}"/></th>
         <th>
             <select name="type">
                 <option value="">All</option>

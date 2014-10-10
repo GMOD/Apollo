@@ -114,7 +114,7 @@ public class RecentChangeServlet extends HttpServlet {
                 builder.add(generateFeatureRecordJSON(subfeature, track, historyDataStore));
             }
         }
-        if(matchesFilter(request,track,feature)){
+        if (matchesFilter(request, track, feature)) {
             builder.add(generateFeatureRecordJSON(feature, track, historyDataStore));
         }
         return builder;
@@ -169,7 +169,7 @@ public class RecentChangeServlet extends HttpServlet {
 
                 Integer permission = permissions.get(track.getName());
                 Object trackString = request.getParameter("track");
-                if (permission == null || count > maximum || (trackString!=null && trackString.toString().length()>0 && !track.getName().substring("Annotations-".length()).equals(trackString.toString()))) {
+                if (permission == null || count > maximum || (trackString != null && trackString.toString().length() > 0 && !track.getName().substring("Annotations-".length()).equals(trackString.toString()))) {
                     permission = 0;
                 }
                 if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
@@ -321,7 +321,14 @@ public class RecentChangeServlet extends HttpServlet {
             matches = gbolFeature.getType().split(":")[1].toUpperCase().equals(typeString.toString().toUpperCase());
         }
         if (matches && group != null && group.toString().trim().length() > 0) {
-            matches = gbolFeature.getName().toUpperCase().contains(group.toString().toUpperCase());
+            if (group.toString().equalsIgnoreCase("Unassigned") && gbolFeature.getName() == null) {
+                matches = true;
+            } else if (gbolFeature.getName() != null) {
+                matches = gbolFeature.getName().toUpperCase().contains(group.toString().toUpperCase());
+            } else if (gbolFeature.getName() == null) {
+                matches = false;
+            }
+
         }
         if (matches && owner != null && owner.toString().trim().length() > 0) {
             matches = gbolFeature.getOwner().getOwner().toUpperCase().contains(owner.toString().toUpperCase());
