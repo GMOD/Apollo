@@ -579,7 +579,7 @@ function open_user_manager_dialog() {
         <th>
             Days
             <select name="days_filter_logic">
-                <option >None</option>
+                <option >-----</option>
                 <option ${days_filter_logic=='Before' ? 'selected' : ''}>Before</option>
                 <option ${days_filter_logic=='After' ? 'selected' : ''}>After</option>
                 <%--<option ${days_filter_logic=='Equals' ? 'selected' : ''}>Equals</option>--%>

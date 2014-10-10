@@ -181,7 +181,7 @@ public class SelectTrackServlet extends HttpServlet {
         request.setAttribute("trackCount", tracks.size());
 
         // filter attributes
-        request.setAttribute("maximum", maximumString);
+        request.setAttribute("maximum", maximum);
         request.setAttribute("minLength", minLength);
         request.setAttribute("maxLength", maxLength);
         request.setAttribute("organism", organism);
