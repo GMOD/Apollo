@@ -177,6 +177,23 @@ public class SelectTrackServlet extends HttpServlet {
         request.setAttribute("username", username);
         request.setAttribute("dataAdapters", dataAdapterConfigurationList);
         request.setAttribute("tracks", trackList);
+
+        List<String> allTrackIds = new ArrayList<>();
+        for(ServerConfiguration.TrackConfiguration thisTrack : tracks){
+            Integer thisPermission= permissions.get(thisTrack.getName());
+//                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
+            if (thisPermission== null) {
+                thisPermission = 0;
+            }
+            if ((thisPermission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
+                isAdmin = true;
+            }
+            if ((thisPermission & Permission.READ) == Permission.READ || isAdmin) {
+                allTrackIds.add(thisTrack.getName());
+            }
+        }
+
+        request.setAttribute("allTrackIds", allTrackIds);
         request.setAttribute("trackViews", trackTableList);
         request.setAttribute("trackCount", tracks.size());
 

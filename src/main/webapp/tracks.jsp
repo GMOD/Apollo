@@ -123,12 +123,15 @@ $(function () {
     });
     $("#check_all").click(function () {
         update_checked(true);
+        $('#all_selected').show();
     });
     $("#check_none").click(function () {
         update_checked(false);
+        $('#all_selected').hide();
     });
     $("#check_displayed").click(function () {
         $(".track_select").prop("checked", true);
+        $('#all_selected').hide();
     });
     $(".track_select").click(function () {
         var allChecked = true;
@@ -151,11 +154,21 @@ $(function () {
     });
     $(".data_adapter").click(function () {
         var tracks = new Array();
-        $(".track_select").each(function () {
-            if ($(this).prop("checked")) {
-                tracks.push($(this).attr("id"));
-            }
-        });
+        if($('#all_selected').is(":visible") ){
+            <c:forEach var="thisTrack" items="${allTrackIds}">
+            tracks.push('${thisTrack}');
+            </c:forEach>
+        }
+        else{
+            $(".track_select").each(function () {
+                if ($(this).prop("checked")) {
+                    tracks.push($(this).attr("id"));
+                }
+            });
+        }
+        for(var t in tracks){
+            console.log(tracks[t]);
+        }
         write_data($(this).text(), tracks, $(this).attr("_options"));
     });
     $("#search_sequence_item").click(function () {
@@ -450,6 +463,7 @@ function open_user_manager_dialog() {
         </li>
     </ul>
 </div>
+<div id="all_selected" style="display: none;" class="label-info label">All Selected</div>
 <div id="search_sequences_dialog" title="Search sequences" style="display:none"></div>
 <!--
 <div id="user_manager_dialog" title="Manage users" style="display:none"></div>

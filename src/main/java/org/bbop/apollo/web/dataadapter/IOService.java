@@ -1,5 +1,7 @@
 package org.bbop.apollo.web.dataadapter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.user.Permission;
 import org.bbop.apollo.web.user.UserManager;
@@ -29,7 +31,8 @@ public class IOService extends HttpServlet {
 
     private Map<String, DataAdapterValue> dataAdapters;
     private Collection<String> allTracks;
-    
+    final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -168,7 +171,8 @@ public class IOService extends HttpServlet {
             for (int i = 0; i < tracksParam.length(); ++i) {
                 String track = tracksParam.getString(i);
                 if (!isValidTrack(track, permissions, permission)) {
-                    throw new ServletException("You do not have permissions for " + operation + " on " + tracksParam);
+                    logger.error("You do not have permissions for " + operation + " on " + track);
+//                    throw new ServletException("You do not have permissions for " + operation + " on " + tracksParam);
                 }
                 tracks.add(track);
             }
@@ -201,7 +205,11 @@ public class IOService extends HttpServlet {
     }
     
     private boolean isValidTrack(String track, Map<String, Integer> permissions, String permission) throws SQLException {
-        return (permissions.get(track) & Permission.getValueForPermission(permission)) != 0;
+        Integer trackPermission = permissions.get(track);
+        int permissionValue = Permission.getValueForPermission(permission);
+        if(trackPermission==null) return false ;
+
+        return (trackPermission & permissionValue) != 0;
     }
     
     private class DataAdapterValue {
