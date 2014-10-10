@@ -197,7 +197,7 @@
                     <port>8080</port>
                     <contextReloadable>true</contextReloadable>
                     <systemProperties>
-                        <JAVA_OPTS>-Xms256m -Xmx1024m -XX:MaxPermSize=512m</JAVA_OPTS>
+                        <JAVA_OPTS>-Xms512m -Xmx2024m -XX:MaxPermSize=1024m</JAVA_OPTS>
                     </systemProperties>
                 </configuration>
             </plugin>

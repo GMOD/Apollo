@@ -509,7 +509,7 @@ function open_user_manager_dialog() {
 
 <form action="recentChanges" method="get">
 <div class="row">
-    <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${tracks.size()} of ${trackCount}</h4></div>
+    <div class="col-2"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
     <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
 </div>
 <table class="table">
@@ -527,9 +527,9 @@ function open_user_manager_dialog() {
         <th>
             <select name="track">
                 <option value="">All</option>
-                <c:forEach var="track" items="${allTrackNames}">
-                    <c:set var="trackLabel" value="${track.replaceAll('Annotations-','')}"/>
-                    <option>${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
+                <c:forEach var="trackFilter" items="${allTrackNames}">
+                    <c:set var="trackLabel" value="${trackFilter.replaceAll('Annotations-','')}"/>
+                    <option ${track.contains(trackLabel)?'selected':''} value="${trackLabel}">${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
                 </c:forEach>
             </select>
         </th>
@@ -537,19 +537,20 @@ function open_user_manager_dialog() {
         <th>
             <select name="type">
                 <option value="">All</option>
-                <c:forEach var="type" items="${types}">
-                    <option>${type}</option>
+                <c:forEach var="typeIter" items="${types}">
+                    <option  ${typeIter==type ? 'selected' : ''}>${typeIter}</option>
                 </c:forEach>
             </select>
         </th>
         <th><input type="text" name="date" placeholder="MM/DD/YYYY"></th>
-        <th><input type="text" name="editor"></th>
-        <th><input type="text" name="owner"></th>
+        <%--<th><input type="text" name="editor"></th>--%>
+        <th><input type="text" name="owner" value="${owner}"></th>
         <th>
             <select name="status">
                 <option value="">All</option>
-                <c:forEach var="status" items="${allStatusList}">
-                    <option>${status}</option>
+                <option>None</option>
+                <c:forEach var="statusIter" items="${allStatusList}">
+                    <option ${statusIter==status ? 'selected' : ''}>${statusIter}</option>
                 </c:forEach>
             </select>
         </th>
@@ -560,7 +561,7 @@ function open_user_manager_dialog() {
         <th>Group</th>
         <th>Type</th>
         <th>Date</th>
-        <th>Editor</th>
+        <%--<th>Editor</th>--%>
         <th>Owner</th>
         <th>Status</th>
     </tr>

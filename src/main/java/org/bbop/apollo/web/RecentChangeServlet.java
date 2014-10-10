@@ -3,7 +3,6 @@ package org.bbop.apollo.web;
 import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.bbop.apollo.web.datastore.history.JEHistoryDatabase;
-import org.bbop.apollo.web.datastore.history.Transaction;
 import org.bbop.apollo.web.user.Permission;
 import org.bbop.apollo.web.user.UserManager;
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
@@ -72,7 +71,7 @@ public class RecentChangeServlet extends HttpServlet {
         long right = Math.min(feature.getFmax() + flank, track.getSourceFeature().getSequenceLength() - 1);
 
 
-        Transaction t = historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
+//        Transaction t = historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
 
 
         builder += String.format("['<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>',", track.getName() + "<=>" + feature.getUniqueName());
@@ -86,12 +85,12 @@ public class RecentChangeServlet extends HttpServlet {
         }
         builder += String.format("'%s',", feature.getType().split(":")[1]);
         builder += String.format("'%s',", feature.getTimeLastModified());
-        String editorString = t != null ? t.getEditor() : feature.getOwner().getOwner();
+//        String editorString = t != null ? t.getEditor() : feature.getOwner().getOwner();
 
-        if (editorString.length() > maxStringLength) {
-            editorString = editorString.substring(0, maxStringLength) + "...";
-        }
-        builder += String.format("'%s',", editorString);
+//        if (editorString.length() > maxStringLength) {
+//            editorString = editorString.substring(0, maxStringLength) + "...";
+//        }
+//        builder += String.format("'%s',", editorString);
         String ownerString = feature.getOwner().getOwner();
         if (ownerString.length() > maxStringLength) {
             ownerString = ownerString.substring(0, maxStringLength) + "...";
@@ -106,14 +105,18 @@ public class RecentChangeServlet extends HttpServlet {
      *
      * @return non-empty ArrayList of Strings with records in JSON format
      */
-    private List<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore) {
+    private List<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore, HttpServletRequest request) {
         List<String> builder = new ArrayList<>();
 //        String type=feature.getType().split(":")[1];
 
         for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
-            builder.add(generateFeatureRecordJSON(subfeature, track, historyDataStore));
+            if (matchesFilter(request, track, subfeature)) {
+                builder.add(generateFeatureRecordJSON(subfeature, track, historyDataStore));
+            }
         }
-        builder.add(generateFeatureRecordJSON(feature, track, historyDataStore));
+        if(matchesFilter(request,track,feature)){
+            builder.add(generateFeatureRecordJSON(feature, track, historyDataStore));
+        }
         return builder;
     }
 
@@ -135,12 +138,11 @@ public class RecentChangeServlet extends HttpServlet {
         }
 
         Object maximumString = request.getParameter("maximum");
-        Object trackString = request.getParameter("track");
-        Object typeString = request.getParameter("type");
-        Object group = request.getParameter("group");
-        Object editor = request.getParameter("editor");
-        Object owner = request.getParameter("owner");
-        Object status = request.getParameter("status");
+//        Object typeString = request.getParameter("type");
+//        Object group = request.getParameter("group");
+////        Object editor = request.getParameter("editor");
+//        Object owner = request.getParameter("owner");
+//        Object status = request.getParameter("status");
 
         int maximum = DEFAULT_LIST_SIZE;
         if (maximumString != null) {
@@ -161,10 +163,13 @@ public class RecentChangeServlet extends HttpServlet {
             Iterator<ServerConfiguration.TrackConfiguration> iterator = tracks.iterator();
 //            for (ServerConfiguration.TrackConfiguration track : tracks) {
             while (iterator.hasNext() && count < maximum) {
+
                 ServerConfiguration.TrackConfiguration track = iterator.next();
+
+
                 Integer permission = permissions.get(track.getName());
-//                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
-                if (permission == null || count > maximum) {
+                Object trackString = request.getParameter("track");
+                if (permission == null || count > maximum || (trackString!=null && trackString.toString().length()>0 && !track.getName().substring("Annotations-".length()).equals(trackString.toString()))) {
                     permission = 0;
                 }
                 if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
@@ -189,51 +194,24 @@ public class RecentChangeServlet extends HttpServlet {
 
 
                     JEDatabase dataStore = new JEDatabase(my_database, false);
-                    JEHistoryDatabase historyDataStore = null ;
+                    JEHistoryDatabase historyDataStore = null;
                     try {
 
                         dataStore.readFeatures(features);
                         Iterator<Feature> featureIterator = features.iterator();
                         while (featureIterator.hasNext() && count < maximum) {
-
-
                             Feature feature = featureIterator.next();
-
-
                             // use list of records to get objects that have subfeatures
                             AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
 
-
-                            boolean matches = true;
-                            if (matches && trackString != null && trackString.toString().trim().length() > 0) {
-                                matches = matches && track.getName().toUpperCase().contains(trackString.toString().toUpperCase());
+                            if (historyDataStore == null) {
+                                historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
                             }
-                            if (matches && typeString != null && typeString.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getType().toUpperCase().equals(typeString.toString().toUpperCase());
-                            }
-                            if (matches && group != null && group.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getName().toUpperCase().contains(group.toString().toUpperCase());
-                            }
-                            if (matches && editor != null && editor.toString().trim().length() > 0) {
-                                matches = matches && track.getName().toUpperCase().contains(editor.toString().toUpperCase());
-                            }
-                            if (matches && owner != null && owner.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getOwner().getOwner().toUpperCase().contains(owner.toString().toUpperCase());
-                            }
-                            if (matches && status != null && status.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getStatus().getStatus().toUpperCase().contains(status.toString().toUpperCase());
-                            }
-
-                            if (matches) {
-                                if(historyDataStore==null){
-                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
-                                }
-                                List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
-                                for (String s : record) {
+                            List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
+                            for (String s : record) {
 //                                out.println("recent_changes.push(" + s + ");\n");
-                                    changeList.add(s);
-                                    ++count;
-                                }
+                                changeList.add(s);
+                                ++count;
                             }
 
                         }
@@ -244,45 +222,22 @@ public class RecentChangeServlet extends HttpServlet {
                             // use list of records to get objects that have subfeatures
                             AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
 
-                            boolean matches = true;
-                            if (matches && trackString != null && trackString.toString().trim().length() > 0) {
-                                matches = matches && track.getName().toUpperCase().contains(trackString.toString().toUpperCase());
+                            if (historyDataStore == null) {
+                                historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
                             }
-                            if (matches && typeString != null && typeString.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getType().toUpperCase().equals(typeString.toString().toUpperCase());
-                            }
-                            if (matches && group != null && group.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getName().toUpperCase().contains(group.toString().toUpperCase());
-                            }
-                            if (matches && editor != null && editor.toString().trim().length() > 0) {
-                                matches = matches && track.getName().toUpperCase().contains(editor.toString().toUpperCase());
-                            }
-                            if (matches && owner != null && owner.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getOwner().getOwner().toUpperCase().contains(owner.toString().toUpperCase());
-                            }
-                            if (matches && status != null && status.toString().trim().length() > 0) {
-                                matches = matches && gbolFeature.getStatus().getStatus().toUpperCase().contains(status.toString().toUpperCase());
-                            }
-
-                            if (matches) {
-                                if(historyDataStore == null){
-                                    historyDataStore= new JEHistoryDatabase(my_database + "_history", false, 0);
-                                }
-                                List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
-                                for (String s : record) {
-                                    changeList.add(s);
+                            List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
+                            for (String s : record) {
+                                changeList.add(s);
 //                                out.println("recent_changes.push(" + s + ");\n");
-                                    ++count;
-                                }
+                                ++count;
                             }
 
                         }
                     } catch (Exception e) {
-                        System.err.println("Unable to read database history: " + my_database + "_history:\n" + e);
-                    }
-                    finally {
-                        dataStore = null ;
-                        historyDataStore = null ;
+                        System.err.println("Unable to read database history: " + my_database + "_history:\n" + e.fillInStackTrace());
+                    } finally {
+                        dataStore = null;
+                        historyDataStore = null;
                     }
                 }
 
@@ -313,21 +268,29 @@ public class RecentChangeServlet extends HttpServlet {
         request.setAttribute("trackCount", tracks.size());
 
         Set<String> allTrackNames = new TreeSet<>();
-        for(ServerConfiguration.TrackConfiguration aTrack : tracks){
-            allTrackNames.add(aTrack.getName());
+        for (ServerConfiguration.TrackConfiguration aTrack : tracks) {
+            Integer permission = permissions.get(aTrack.getName());
+            if (permission == null) {
+                permission = 0;
+            }
+            if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
+                isAdmin = true;
+            }
+
+            if ((permission & Permission.READ) == Permission.READ || isAdmin) {
+                allTrackNames.add(aTrack.getName());
+            }
         }
 
 
         // filter attributes
         request.setAttribute("allTrackNames", allTrackNames);
         request.setAttribute("maximum", maximumString);
-        request.setAttribute("type", typeString);
-        request.setAttribute("track", trackString);
-        request.setAttribute("group", group);
-//        request.setAttribute("date", date);
-        request.setAttribute("editor", editor);
-        request.setAttribute("owner", owner);
-        request.setAttribute("status", status);
+        request.setAttribute("type", request.getParameter("type"));
+        request.setAttribute("track", request.getParameter("track"));
+        request.setAttribute("group", request.getParameter("group"));
+        request.setAttribute("owner", request.getParameter("owner"));
+        request.setAttribute("status", request.getParameter("status"));
 
 //        PrintWriter out = resp.getWriter();
 //        out.write("whadup!");
@@ -335,6 +298,43 @@ public class RecentChangeServlet extends HttpServlet {
 //        RequestDispatcher view = request.getRequestDispatcher("/changes.jsp");
         RequestDispatcher view = request.getRequestDispatcher("/changes2.jsp");
         view.forward(request, response);
+    }
+
+    private boolean matchesFilter(HttpServletRequest request, ServerConfiguration.TrackConfiguration track, AbstractSingleLocationBioFeature gbolFeature) {
+
+        Object trackString = request.getParameter("track");
+        Object typeString = request.getParameter("type");
+        Object group = request.getParameter("group");
+        Object owner = request.getParameter("owner");
+        Object status = request.getParameter("status");
+
+        return matchesFilter(trackString, typeString, group, owner, status, track, gbolFeature);
+    }
+
+    private boolean matchesFilter(Object trackString, Object typeString, Object group, Object owner, Object status, ServerConfiguration.TrackConfiguration track, AbstractSingleLocationBioFeature gbolFeature) {
+        boolean matches = true;
+
+        if (matches && trackString != null && trackString.toString().trim().length() > 0) {
+            matches = track.getName().contains(trackString.toString());
+        }
+        if (matches && typeString != null && typeString.toString().trim().length() > 0) {
+            matches = gbolFeature.getType().split(":")[1].toUpperCase().equals(typeString.toString().toUpperCase());
+        }
+        if (matches && group != null && group.toString().trim().length() > 0) {
+            matches = gbolFeature.getName().toUpperCase().contains(group.toString().toUpperCase());
+        }
+        if (matches && owner != null && owner.toString().trim().length() > 0) {
+            matches = gbolFeature.getOwner().getOwner().toUpperCase().contains(owner.toString().toUpperCase());
+        }
+        if (matches && status != null && status.toString().trim().length() > 0) {
+            if (status.equals("None")) {
+                matches = gbolFeature.getStatus() == null;
+            } else {
+                matches = gbolFeature.getStatus().getStatus().toUpperCase().contains(status.toString().toUpperCase());
+            }
+        }
+
+        return matches;
     }
 
 }
