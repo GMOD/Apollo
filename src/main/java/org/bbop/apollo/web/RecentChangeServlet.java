@@ -137,6 +137,12 @@ public class RecentChangeServlet extends HttpServlet {
 //            out.println(line);
         }
 
+        int offset = 0;
+        Object offsetString = request.getParameter("offset");
+        if (offsetString != null && offsetString.toString().length() > 0) {
+            offset = Integer.parseInt(offsetString.toString());
+        }
+
         Object maximumString = request.getParameter("maximum");
 //        Object typeString = request.getParameter("type");
 //        Object group = request.getParameter("group");
@@ -162,7 +168,7 @@ public class RecentChangeServlet extends HttpServlet {
 
             Iterator<ServerConfiguration.TrackConfiguration> iterator = tracks.iterator();
 //            for (ServerConfiguration.TrackConfiguration track : tracks) {
-            while (iterator.hasNext() && count < maximum) {
+            while (iterator.hasNext() && count < maximum+offset) {
 
                 ServerConfiguration.TrackConfiguration track = iterator.next();
 
@@ -177,70 +183,73 @@ public class RecentChangeServlet extends HttpServlet {
                 }
 
                 if ((permission & Permission.READ) == Permission.READ) {
-                    trackList.add(track);
-                    Collection<Feature> features = new ArrayList<Feature>();
-                    Collection<Feature> sequence_alterations = new ArrayList<Feature>();
-                    String my_database = databaseDir + "/" + track.getName();
+                        trackList.add(track);
+                        Collection<Feature> features = new ArrayList<Feature>();
+                        Collection<Feature> sequence_alterations = new ArrayList<Feature>();
+                        String my_database = databaseDir + "/" + track.getName();
 
-                    //check that database exists
-                    File database = new File(my_database);
-                    if (!database.exists()) {
-                        continue;
-                    }
+                        //check that database exists
+                        File database = new File(my_database);
+                        if (!database.exists()) {
+                            continue;
+                        }
 //                    System.out.println("database exists: "+my_database );
 //                    File databaseHistory = new File(my_database + "_history");
 //                    System.out.println("database histry exists: "+databaseHistory.exists());
-                    // load database
+                        // load database
 
 
-                    JEDatabase dataStore = new JEDatabase(my_database, false);
-                    JEHistoryDatabase historyDataStore = null;
-                    try {
+                        JEDatabase dataStore = new JEDatabase(my_database, false);
+                        JEHistoryDatabase historyDataStore = null;
+                        try {
 
-                        dataStore.readFeatures(features);
-                        Iterator<Feature> featureIterator = features.iterator();
-                        while (featureIterator.hasNext() && count < maximum) {
-                            Feature feature = featureIterator.next();
-                            // use list of records to get objects that have subfeatures
-                            AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
+                            dataStore.readFeatures(features);
+                            Iterator<Feature> featureIterator = features.iterator();
+                            while (featureIterator.hasNext() && count < maximum+offset) {
+                                Feature feature = featureIterator.next();
+                                // use list of records to get objects that have subfeatures
+                                AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
 
-                            if (historyDataStore == null) {
-                                historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
-                            }
-                            List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
-                            for (String s : record) {
+                                if (historyDataStore == null) {
+                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
+                                }
+                                List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
+                                for (String s : record) {
+                                    if(count >= offset){
+                                        changeList.add(s);
+                                    }
 //                                out.println("recent_changes.push(" + s + ");\n");
-                                changeList.add(s);
-                                ++count;
-                            }
+                                    ++count;
+                                }
 
-                        }
-                        dataStore.readSequenceAlterations(sequence_alterations);
-                        featureIterator = sequence_alterations.iterator();
-                        while (featureIterator.hasNext() && count < maximum) {
-                            Feature feature = featureIterator.next();
-                            // use list of records to get objects that have subfeatures
-                            AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
-
-                            if (historyDataStore == null) {
-                                historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
                             }
-                            List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
-                            for (String s : record) {
-                                changeList.add(s);
+                            dataStore.readSequenceAlterations(sequence_alterations);
+                            featureIterator = sequence_alterations.iterator();
+                            while (featureIterator.hasNext() && count < maximum+offset) {
+                                Feature feature = featureIterator.next();
+                                // use list of records to get objects that have subfeatures
+                                AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
+
+                                if (historyDataStore == null) {
+                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
+                                }
+                                List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
+                                for (String s : record) {
+                                    if(count >= offset){
+                                        changeList.add(s);
+                                    }
 //                                out.println("recent_changes.push(" + s + ");\n");
-                                ++count;
-                            }
+                                    ++count;
+                                }
 
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Unable to read database history: " + my_database + "_history:\n" + e.fillInStackTrace());
+                        } finally {
+                            dataStore = null;
+                            historyDataStore = null;
                         }
-                    } catch (Exception e) {
-                        System.err.println("Unable to read database history: " + my_database + "_history:\n" + e.fillInStackTrace());
-                    } finally {
-                        dataStore = null;
-                        historyDataStore = null;
-                    }
                 }
-
             }
         }
 
@@ -266,6 +275,7 @@ public class RecentChangeServlet extends HttpServlet {
         request.setAttribute("types", typeList);
         request.setAttribute("allStatusList", allStatusList);
         request.setAttribute("trackCount", tracks.size());
+        request.setAttribute("offset", offset);
 
         Set<String> allTrackNames = new TreeSet<>();
         for (ServerConfiguration.TrackConfiguration aTrack : tracks) {
@@ -285,7 +295,7 @@ public class RecentChangeServlet extends HttpServlet {
 
         // filter attributes
         request.setAttribute("allTrackNames", allTrackNames);
-        request.setAttribute("maximum", maximumString);
+        request.setAttribute("maximum", maximum);
         request.setAttribute("type", request.getParameter("type"));
         request.setAttribute("track", request.getParameter("track"));
         request.setAttribute("group", request.getParameter("group"));

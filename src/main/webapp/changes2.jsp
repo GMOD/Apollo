@@ -146,6 +146,23 @@ $(function () {
     $("#web_services_api").click(function () {
         window.open('web_services/web_service_api.html', '_blank');
     });
+    $("#previous-page").click(function () {
+        var offset = parseInt($("#offset").val());
+        if (offset != 0) {
+            offset = offset - ${maximum};
+            $("#offset").val(offset);
+            $('#search-button').click();
+        }
+
+    });
+    $("#next-page").click(function () {
+        var offset = parseInt($("#offset").val());
+//        if(offset!='0'){
+        offset = offset + ${maximum};
+        $("#offset").val(offset);
+        $('#search-button').click();
+//        }
+    });
     $("#apollo_users_guide").click(function () {
         window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
     });
@@ -518,7 +535,11 @@ function open_user_manager_dialog() {
 <form action="recentChanges" method="get">
 <div class="row form-group">
     <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
-    <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
+    <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
+    <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
+    <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
+    <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
+    <input type="submit" id="search-button" value="Search" class=" col-offset-1 btn ui-icon-search btn-default col-1">
     <a href="recentChanges.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Recent Changes (smaller data only)</a>
 </div>
 <table class="table">
@@ -580,10 +601,11 @@ function open_user_manager_dialog() {
     </tr>
     </thead>
     <tbody>
-    <c:forEach var="change" items="${changes}">
+    <c:forEach var="change" items="${changes}" varStatus="iter">
     <tr>
-            <c:forTokens var="col" items="${change.replaceAll('\\\\[|\\\\]','')}" delims=",">
+            <c:forTokens var="col" items="${change.replaceAll('\\\\[|\\\\]','')}" delims="," varStatus="innerIter">
         <td>
+                <c:if test="${innerIter.first}">${iter.count + offset}</c:if>
                 ${col.replaceAll("'","")}
                         </td>
                         </c:forTokens>

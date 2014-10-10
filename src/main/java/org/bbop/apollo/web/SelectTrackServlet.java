@@ -84,10 +84,11 @@ public class SelectTrackServlet extends HttpServlet {
 //            out.println(line);
         }
 
-        int offset = 0 ;
         Object maximumString = request.getParameter("maximum");
         Object minLengthString = request.getParameter("minLength");
         Object maxLengthString = request.getParameter("maxLength");
+
+        int offset = 0 ;
         Object offsetString = request.getParameter("offset");
         if(offsetString!=null && offsetString.toString().length()>0){
             offset = Integer.parseInt(offsetString.toString());
