@@ -170,6 +170,23 @@ $(function () {
     $("#web_services_api").click(function () {
         window.open('web_services/web_service_api.html', '_blank');
     });
+    $("#previous-page").click(function () {
+        var offset = parseInt($("#offset").val());
+        if (offset != 0) {
+            offset = offset - ${maximum};
+            $("#offset").val(offset);
+            $('#search-button').click();
+        }
+
+    });
+    $("#next-page").click(function () {
+        var offset = parseInt($("#offset").val());
+//        if(offset!='0'){
+        offset = offset + ${maximum};
+        $("#offset").val(offset);
+        $('#search-button').click();
+//        }
+    });
     $("#apollo_users_guide").click(function () {
         window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
     });
@@ -362,7 +379,8 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
     <ul id="menu">
-        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
+        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"
+                                                                       onload="cleanup_logo()" alt=""/></a></li>
         <li><a id="file_item">File</a>
             <ul id="file_menu">
                 <li><a id="export_menu">Export</a>
@@ -447,9 +465,12 @@ function open_user_manager_dialog() {
 <%--</div>--%>
 <form action="selectTrack" method="get">
     <div class="row">
-        <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}</h4></div>
-        <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
-        <a href="selectTrack.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Track Select (smaller data only)</a>
+        <div class="col-2">&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}</div>
+        <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
+        <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
+        <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
+        <input type="submit" id="search-button" value="Search" class=" col-offset-1 btn ui-icon-search btn-default col-1">
+        <a href="selectTrack.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Track Select<br>(smaller data only)</a>
     </div>
     <table class="table">
         <thead>
@@ -476,12 +497,13 @@ function open_user_manager_dialog() {
         </tr>
         </thead>
         <tbody>
-        <c:forEach var="track" items="${trackViews}">
+        <c:forEach var="track" items="${trackViews}" varStatus="iter">
             <tr>
                     <%--<c:set var="trackString" value="${track.replaceAll('\\\\[','')}"/>--%>
                     <%--<c:forTokens var="col" items="${trackString}" delims=",">--%>
-                <c:forEach var="col" items="${track}">
+                <c:forEach var="col" items="${track}" varStatus="innerIter">
                     <td>
+                        <c:if test="${innerIter.first}">${iter.count + offset}</c:if>
                             ${col}
                     </td>
                 </c:forEach>
