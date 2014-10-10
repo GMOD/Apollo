@@ -78,10 +78,10 @@ public class RecentChangeServlet extends HttpServlet {
         builder += String.format("%s,", track.getSourceFeature().getUniqueName());
         if (feature.getName() == null || feature.getName().trim().length() == 0) {
             builder += String.format("---- <a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a> ----,",
-                    track.getSourceFeature().getUniqueName(), left, right, "unassigned");
+                    track.getSourceFeature().getUniqueName().replaceAll(",","-"), left, right, "unassigned");
         } else {
             builder += String.format("<a target=\"_blank\" href=\"jbrowse/?loc=%s:%d..%d\">%s</a>,",
-                    track.getSourceFeature().getUniqueName(), left, right, feature.getName());
+                    track.getSourceFeature().getUniqueName().replaceAll(",","-"), left, right, feature.getName());
         }
         builder += String.format("%s,", feature.getType().split(":")[1]);
         builder += String.format("%s,", feature.getTimeLastModified());
@@ -96,10 +96,10 @@ public class RecentChangeServlet extends HttpServlet {
             ownerString = ownerString.substring(0, maxStringLength) + "...";
         }
         builder += String.format("%s,", ownerString);
-        builder += String.format("%s", feature.getStatus() == null ? " " : feature.getStatus().getStatus());
+        builder += String.format("%s,", feature.getStatus() == null ? " " : feature.getStatus().getStatus());
 
-//        String notes = "";
-//        if(feature.getResidues().length()%3!=0){
+//        String notes = " ";
+//        if(feature.getResidues()!= null && feature.getResidues().length()>0 && feature.getResidues().length()%3!=0){
 //            notes += "aa sequence length is not an integer";
 //        }
 //        builder += String.format("%s",notes);
