@@ -519,6 +519,7 @@ function open_user_manager_dialog() {
 <div class="row form-group">
     <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
     <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
+    <a href="recentChanges.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Recent Changes (smaller data only)</a>
 </div>
 <table class="table">
     <thead>

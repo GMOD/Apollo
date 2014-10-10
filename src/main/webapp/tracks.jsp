@@ -449,6 +449,7 @@ function open_user_manager_dialog() {
     <div class="row">
         <div class="col-2"><h4>&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}</h4></div>
         <input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">
+        <a href="selectTrack.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Track Select (smaller data only)</a>
     </div>
     <table class="table">
         <thead>
