@@ -1,9 +1,8 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-
 
 
 <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
@@ -16,6 +15,9 @@
 <link rel="stylesheet" type="text/css" href="styles/recentChanges.css"/>
 <link rel="stylesheet" type="text/css" href="styles/search_sequence.css"/>
 <link rel="stylesheet" type="text/css" href="styles/userPermissions.css"/>
+
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrap-glyphicons.css"/>
 
 <link rel="stylesheet" href="jslib/jquery-ui-menubar/jquery.ui.all.css"/>
 <script src="jslib/jquery-ui-menubar/jquery-1.8.2.js" type="text/javascript"></script>
@@ -41,13 +43,13 @@ if (google) {
     google.load("dojo", "1.5");
 }
 
-var recent_changes = new Array();
+<%--var recent_changes = new Array();--%>
 
-<c:forEach var="change" items="${changes}">
-recent_changes.push(${change});
-</c:forEach>
+<%--<c:forEach var="change" items="${changes}">--%>
+<%--recent_changes.push(${change});--%>
+<%--</c:forEach>--%>
 
-var table;
+//var table;
 $(function () {
     $("#login_dialog").dialog({draggable: false, modal: true, autoOpen: false, resizable: false, closeOnEscape: false});
     $("#data_adapter_dialog").dialog({
@@ -64,28 +66,6 @@ $(function () {
         resizable: false,
         closeOnEscape: false,
         width: "auto"
-    });
-    table = $("#recent_changes").dataTable({
-        aaData: recent_changes,
-        aaSorting: [[4, "desc"]],
-        oLanguage: {
-            sSearch: "Filter: "
-        },
-        aoColumns: [
-            {bSortable: false, bSearchable: false},
-            {sTitle: "Track", bSortable: true},
-            {sTitle: "Feature name", bSortable: true},
-            {sTitle: "Feature type", bSortable: true},
-            {sTitle: "Last modified", bSortable: true},
-            {sTitle: "Editor", bSortable: true},
-                <c:if test="${allStatusList.size()>0}">
-    {sTitle: "Owner", bSortable: true},
-    {sTitle: "Status", bSortable: true}
-            </c:if>
-<c:if test="${allStatusList.size()==0}">
-    {sTitle: "Owner", bSortable: true}
-    </c:if>
-        ]
     });
 
     $(".adapter_button").button({icons: {primary: "ui-icon-folder-collapsed"}});
@@ -112,9 +92,17 @@ $(function () {
     $("#check_displayed").click(function () {
         $(".track_select").prop("checked", true);
     });
+    $("#unassigned-group-filter").change(function () {
+        if (this.checked) {
+            $("#group-filter").val("Unassigned");
+        }
+        else {
+            $("#group-filter").val("");
+        }
+    });
     $(".track_select").click(function () {
         var allChecked = true;
-        table.$(".track_select").each(function () {
+        $(".track_select").each(function () {
             if (!$(this).prop("checked")) {
                 allChecked = false;
                 return false;
@@ -122,18 +110,18 @@ $(function () {
         });
         $("#checkbox_option").prop("checked", allChecked);
     });
-<c:if test="${username==null}">
-        login();
-        </c:if>
-<c:if test="${username!=null}">
-createListener();
-</c:if>
+    <c:if test="${username==null}">
+    login();
+    </c:if>
+    <c:if test="${username!=null}">
+    createListener();
+    </c:if>
     $("#logout_item").click(function () {
         logout();
     });
     $(".data_adapter").click(function () {
         var tracks = new Array();
-        table.$(".track_select").each(function () {
+        $(".track_select").each(function () {
             if ($(this).prop("checked")) {
                 tracks.push($(this).attr("id"));
             }
@@ -158,6 +146,23 @@ createListener();
     $("#web_services_api").click(function () {
         window.open('web_services/web_service_api.html', '_blank');
     });
+    $("#previous-page").click(function () {
+        var offset = parseInt($("#offset").val());
+        if (offset != 0) {
+            offset = offset - ${maximum};
+            $("#offset").val(offset);
+            $('#search-button').click();
+        }
+
+    });
+    $("#next-page").click(function () {
+        var offset = parseInt($("#offset").val());
+//        if(offset!='0'){
+        offset = offset + ${maximum};
+        $("#offset").val(offset);
+        $('#search-button').click();
+//        }
+    });
     $("#apollo_users_guide").click(function () {
         window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
     });
@@ -165,18 +170,18 @@ createListener();
         delete_selected_items();
     });
 
-<c:forEach var="status" items="${allStatusList}">
-$("#change_status_selected_item-${status.replaceAll(" ","_")}").click(function () {
-    change_status_selected_items('${status}');
-});
-        </c:forEach>
+    <c:forEach var="status" items="${allStatusList}">
+    $("#change_status_selected_item-${status.replaceAll(" ","_")}").click(function () {
+        change_status_selected_items('${status}');
+    });
+    </c:forEach>
     cleanup_user_item();
 });
 
 function change_status_selected_items(updated_status) {
     var trackName = "";
     var tracks = new Array();
-    table.$(".track_select").each(function () {
+    $(".track_select").each(function () {
         if ($(this).prop("checked")) {
             var wholeId = $(this).attr("id");
             trackName = wholeId.split("<=>")[0];
@@ -217,7 +222,7 @@ function change_status_selected_items(updated_status) {
 function delete_selected_items() {
     var trackName = "";
     var tracks = new Array();
-    table.$(".track_select").each(function () {
+    $(".track_select").each(function () {
         if ($(this).prop("checked")) {
             var wholeId = $(this).attr("id");
             trackName = wholeId.split("<=>")[0];
@@ -349,26 +354,26 @@ function write_data(adapter, tracks, options, successMessage) {
 
 function open_search_dialog() {
     <c:forEach var="track" items="${tracks}">
-        var trackName = "${track.getName()}";
+    var trackName = "${track.getName()}";
     </c:forEach>
     <%--<%--%>
-        <%--for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {--%>
-            <%--Integer permission = permissions.get(track.getName());--%>
-            <%--if (permission == null) {--%>
-                <%--permission = 0;--%>
-            <%--}--%>
-            <%--if ((permission & Permission.READ) == Permission.READ) {--%>
-                <%--out.println("var trackName = '" + track.getName() + "'");--%>
-                <%--break;--%>
-            <%--}--%>
+    <%--for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {--%>
+    <%--Integer permission = permissions.get(track.getName());--%>
+    <%--if (permission == null) {--%>
+    <%--permission = 0;--%>
+    <%--}--%>
+    <%--if ((permission & Permission.READ) == Permission.READ) {--%>
+    <%--out.println("var trackName = '" + track.getName() + "'");--%>
+    <%--break;--%>
+    <%--}--%>
 
-        <%--}--%>
+    <%--}--%>
     <%--%>--%>
     var search = new SequenceSearch(".");
     var starts = new Object();
-<c:forEach var="track" items="${tracks}">
+    <c:forEach var="track" items="${tracks}">
     starts['${track.getSourceFeature().getUniqueName()}'] = ${track.getSourceFeature().getStart()};
-</c:forEach>
+    </c:forEach>
 
     search.setRedirectCallback(function (id, fmin, fmax) {
         var flank = Math.round((fmax - fmin) * 0.2);
@@ -387,11 +392,12 @@ function open_search_dialog() {
         $("#search_sequences_dialog").html(content);
         $("#search_sequences_dialog").dialog("open");
     }
-} ;
+}
+;
 
 function update_checked(checked) {
     $("#checkbox_option").prop("checked", checked);
-    table.$(".track_select").prop("checked", checked);
+    $(".track_select").prop("checked", checked);
 }
 ;
 
@@ -442,7 +448,8 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
     <ul id="menu">
-        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png" onload="cleanup_logo()" alt=""/></a></li>
+        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"
+                                                                       onload="cleanup_logo()" alt=""/></a></li>
         <li><a id="file_item">File</a>
             <ul id="file_menu">
                 <li><a id="export_menu">Export</a>
@@ -467,38 +474,40 @@ function open_user_manager_dialog() {
 
 
         <c:if test="${isAdmin}">
-        <li><a id="admin_item">Admin</a>
-            <ul id="admin_menu">
-                <li><a id='user_manager_item'>Manage users</a></li>
-                <li type='separator'></li>
-                <li><a id='delete_selected_item'>Delete selected</a></li>
-                <c:forEach var="status" items="${allStatusList}">
-                <li><a>Change status of selected</a>
-                    <ul>
-                        <li><a class='none' id="change_status_selected_item-${status.replaceAll(" ","_")}">${status}
-                        </a></li>
-                </li>
-                </c:forEach>
+            <li><a id="admin_item">Admin</a>
+                <ul id="admin_menu">
+                    <li><a id='user_manager_item'>Manage users</a></li>
+                    <%--<li type='separator'></li>--%>
+                    <%--<li><a id='delete_selected_item'>Delete selected</a></li>--%>
+                    <%--<li><a>Change status of selected</a>--%>
+                        <%--<ul>--%>
+                            <%--<c:forEach var="status" items="${allStatusList}">--%>
+                                <%--<li><a class='none'--%>
+                                       <%--id="change_status_selected_item-${status.replaceAll(" ","_")}">${status}--%>
+                                <%--</a></li>--%>
+                            <%--</c:forEach>--%>
+                        <%--</ul>--%>
+                    <%--</li>--%>
+                </ul>
+            </li>
+        </c:if>
+
+        <%--</ul>--%>
+        <%--</li>--%>
+        <c:if test="${username!=null}">
+            <li><a id="user_item"><span class='usericon'></span>${username}
+            </a>
+                <ul id="user_menu">
+                    <li><a id="logout_item">Logout</a></li>
+                </ul>
+            </li>
+        </c:if>
+        <li><a id="help_item">Help</a>
+            <ul id="help_menu">
+                <li><a id='web_services_api'>Web Services API</a></li>
+                <li><a id='apollo_users_guide'>Apollo User's Guide</a></li>
             </ul>
         </li>
-            </c:if>
-
-    </ul>
-    </li>
-    <c:if test="${username!=null}">
-    <li><a id="user_item"><span class='usericon'></span>${username}
-    </a>
-        <ul id="user_menu">
-            <li><a id="logout_item">Logout</a></li>
-        </ul>
-    </li>
-    </c:if>
-    <li><a id="help_item">Help</a>
-        <ul id="help_menu">
-            <li><a id='web_services_api'>Web Services API</a></li>
-            <li><a id='apollo_users_guide'>Apollo User's Guide</a></li>
-        </ul>
-    </li>
     </ul>
 </div>
 <div id="checkbox_menu_div">
@@ -523,8 +532,109 @@ function open_user_manager_dialog() {
 </div>
 <div id="login_dialog" title="Login">
 </div>
-<div id="recent_changes_div">
-    <table id="recent_changes"></table>
-</div>
+
+<form action="recentChanges" method="get">
+    <div class="row form-group">
+        <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
+        <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
+        <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
+        <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
+        <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
+        <input type="submit" id="search-button" value="Search"
+               class=" col-offset-1 btn ui-icon-search btn-default col-1">
+        <a href="recentChanges.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Recent Changes (smaller
+            data only)</a>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <td>
+                Show&nbsp;<select name="maximum">
+                <option ${maximum=='10' ? 'selected=true' : ''}>10</option>
+                <option ${maximum=='25' ? 'selected=true' : ''}>25</option>
+                <option ${maximum=='100' ? 'selected=true' : ''}>100</option>
+                <option ${maximum=='1000' ? 'selected=true' : ''}>1000</option>
+            </select>
+
+            </td>
+            <th>
+                <select name="track">
+                    <option value="">All</option>
+                    <c:forEach var="trackFilter" items="${allTrackNames}">
+                        <c:set var="trackLabel" value="${trackFilter.replaceAll('Annotations-','')}"/>
+                        <option ${track.contains(trackLabel)?'selected':''}
+                                value="${trackLabel}">${trackLabel.length()>23 ? trackLabel.substring(0,20).concat("...") : trackLabel}</option>
+                    </c:forEach>
+                </select>
+            </th>
+            <th><input type="text" id="group-filter" name="group" value="${group}"/>
+                <br/>
+                Unassigned
+                <input type="checkbox" id="unassigned-group-filter"
+                       name="unassigned-group" ${group eq 'Unassigned' ? 'checked' : ''}>
+            </th>
+            <th>
+                <select name="type">
+                    <option value="">All</option>
+                    <c:forEach var="typeIter" items="${types}">
+                        <option  ${typeIter==type ? 'selected' : ''}>${typeIter}</option>
+                    </c:forEach>
+                </select>
+            </th>
+            <th>
+                <select name="days_filter_logic" style="margin-bottom: 5px;">
+                    <option>-----</option>
+                    <option ${days_filter_logic=='Before' ? 'selected' : ''}>Before</option>
+                    <option ${days_filter_logic=='After' ? 'selected' : ''}>After</option>
+                    <%--<option ${days_filter_logic=='Equals' ? 'selected' : ''}>Equals</option>--%>
+                </select>
+                <br/>
+                Days
+                <input type="text" name="days_filter" value="${days_filter}"> ago
+            </th>
+            <%--<th><input type="text" name="editor"></th>--%>
+            <th><input type="text" name="owner" value="${owner}"></th>
+            <th>
+                <select name="status">
+                    <option value="">All</option>
+                    <option>None</option>
+                    <c:forEach var="statusIter" items="${allStatusList}">
+                        <option ${statusIter==status ? 'selected' : ''}>${statusIter}</option>
+                    </c:forEach>
+                </select>
+            </th>
+        </tr>
+        <tr>
+            <th>Select</th>
+            <th>Track</th>
+            <th>Group</th>
+            <th>Type</th>
+            <th>Date</th>
+            <%--<th>Editor</th>--%>
+            <th>Owner</th>
+            <th>Status</th>
+            <%--<th>Notes</th>--%>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="change" items="${changes}" varStatus="iter">
+            <tr>
+                    <%--<c:forTokens var="col" items="${change.replaceAll('\\\\[|\\\\]','')}" delims="," varStatus="innerIter">--%>
+                <c:forEach var="col" items="${change}" varStatus="innerIter">
+                    <td>
+                        <c:if test="${innerIter.first}">${iter.count + offset}</c:if>
+                            ${col}
+                    </td>
+                </c:forEach>
+            </tr>
+        </c:forEach>
+
+        </tbody>
+    </table>
+</form>
+
+<%--<div id="recent_changes_div">--%>
+<%--<table id="recent_changes"></table>--%>
+<%--</div>--%>
 </body>
 </html>

@@ -314,8 +314,7 @@ public class RecentChangeServlet extends HttpServlet {
 //        PrintWriter out = resp.getWriter();
 //        out.write("whadup!");
 //        out.close();
-//        RequestDispatcher view = request.getRequestDispatcher("/changes.jsp");
-        RequestDispatcher view = request.getRequestDispatcher("/changes2.jsp");
+        RequestDispatcher view = request.getRequestDispatcher("/changes.jsp");
         view.forward(request, response);
     }
 

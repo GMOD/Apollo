@@ -683,21 +683,21 @@ function open_user_manager_dialog() {
         <li><a id="admin_item">Admin</a>
             <ul id="admin_menu">
                 <li><a id='user_manager_item'>Manage users</a></li>
-                <li type='separator'></li>
-                <li><a id='delete_selected_item'>Delete selected</a></li>
-                <% if (allStatusList.size() > 0) {
-                %>
-                <li><a>Change status of selected</a>
-                    <ul>
-                            <%
-                for(String status : allStatusList){
-                    %>
-                        <li><a class='none' id="change_status_selected_item-<%=status.replaceAll(" ","_")%>"><%=status%>
-                        </a></li>
-                            <%
-                }
-            %>
-                </li>
+                <%--<li type='separator'></li>--%>
+                <%--<li><a id='delete_selected_item'>Delete selected</a></li>--%>
+                <%--<% if (allStatusList.size() > 0) {--%>
+                <%--%>--%>
+                <%--<li><a>Change status of selected</a>--%>
+                    <%--<ul>--%>
+                            <%--<%--%>
+                <%--for(String status : allStatusList){--%>
+                    <%--%>--%>
+                        <%--<li><a class='none' id="change_status_selected_item-<%=status.replaceAll(" ","_")%>"><%=status%>--%>
+                        <%--</a></li>--%>
+                            <%--<%--%>
+                <%--}--%>
+            <%--%>--%>
+                <%--</li>--%>
             </ul>
         </li>
         <%

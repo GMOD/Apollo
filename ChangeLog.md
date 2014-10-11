@@ -19,7 +19,6 @@ Features:
 + Using Maven build system for deployment (See new installation guide)
 + Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
 + Added menus for recentChanges / selectTrack to annotation screen.
-+ Added bulk status updates / deletes.
 + Added ability to hide track labels under "view".
 + Alt-click brings up info editor on annotated track.
 + Added webservices doc links to interface.
