@@ -89,10 +89,10 @@ public class SelectTrackServlet extends HttpServlet {
             offset = Integer.parseInt(offsetString.toString());
         }
 
-        Integer minLength = (minLengthString != null && minLengthString.toString().trim().length() > 0) ? Integer.parseInt(minLengthString.toString()) : 0;
-        Integer maxLength = (maxLengthString != null && maxLengthString.toString().trim().length() > 0) ? Integer.parseInt(maxLengthString.toString()) : Integer.MAX_VALUE;
+        Integer minLength = (minLengthString != null && minLengthString.toString().trim().length() > 0) ? Integer.parseInt(minLengthString.toString()) : null ;
+        Integer maxLength = (maxLengthString != null && maxLengthString.toString().trim().length() > 0) ? Integer.parseInt(maxLengthString.toString()) : null ;
 
-        Object organism = request.getParameter("organism");
+//        Object organism = request.getParameter("organism");
         Object name = request.getParameter("name");
 
         int maximum = DEFAULT_LIST_SIZE;
@@ -110,12 +110,17 @@ public class SelectTrackServlet extends HttpServlet {
         boolean isAdmin = false;
         List<List<String>> trackTableList = new ArrayList<>();
         List<ServerConfiguration.TrackConfiguration> trackList = new ArrayList<>();
+
+
+        String organism = null ;
+
         if (username != null) {
             Iterator<ServerConfiguration.TrackConfiguration> iterator = tracks.iterator();
             while (iterator.hasNext() && count < maximum+offset) {
                 ServerConfiguration.TrackConfiguration track = iterator.next();
                 trackList.add(track);
                 Integer permission = permissions.get(track.getName());
+                organism = track.getOrganism();
 //                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
                 if (permission == null) {
                     permission = 0;
@@ -130,9 +135,6 @@ public class SelectTrackServlet extends HttpServlet {
                         ++count;
                     }
                     else{
-                        if (organism != null && organism.toString().trim().length() > 0) {
-                            matches = matches && track.getOrganism().toUpperCase().contains(organism.toString().toUpperCase());
-                        }
                         if (name != null && name.toString().trim().length() > 0) {
                             matches = matches && track.getName().toUpperCase().contains(name.toString().toUpperCase());
                         }
@@ -146,7 +148,7 @@ public class SelectTrackServlet extends HttpServlet {
                         if (matches) {
                             List<String> trackRow = new ArrayList<>();
                             trackRow.add(String.format("<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>", track.getName()));
-                            trackRow.add(track.getOrganism());
+//                            trackRow.add(track.getOrganism());
                             trackRow.add(String.format("<a target=\"_blank\" href=\"jbrowse/?loc=%s\">%s</a>", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getUniqueName()));
                             trackRow.add(String.format("%d", track.getSourceFeature().getSequenceLength()));
                             trackTableList.add(trackRow);

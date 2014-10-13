@@ -479,12 +479,12 @@ function open_user_manager_dialog() {
 <%--</div>--%>
 <form action="selectTrack" method="get">
     <div class="row">
-        <div class="col-2">&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}</div>
+        <div class="col-2">&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}<br/><em>&nbsp;&nbsp;${organism}</em></div>
         <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
         <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
         <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
         <input type="submit" id="search-button" value="Search" class=" col-offset-1 btn ui-icon-search btn-default col-1">
-        <a href="selectTrack.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Track Select<br>(smaller data only)</a>
+        <a href="selectTrack.jsp" class="col-offset-2 col-2 btn-mini btn-default btn-link">Older Track Select Page<br>(smaller data only)</a>
     </div>
     <table class="table">
         <thead>
@@ -498,14 +498,14 @@ function open_user_manager_dialog() {
             </select>
 
             </td>
-            <th><input type="text" name="organism" value="${organism}"/></th>
+            <%--<th><input type="text" name="organism" value="${organism}"/></th>--%>
             <th><input type="text" name="name" value="${name}"></th>
             <th><input type="text" name="minLength" value="${minLength}">-<input type="text" name="maxLength"
                                                                                  value="${maxLength}"></th>
         </tr>
         <tr>
             <th></th>
-            <th>Organism</th>
+            <%--<th>Organism</th>--%>
             <th>Name</th>
             <th>Length</th>
         </tr>

@@ -542,7 +542,7 @@ function open_user_manager_dialog() {
         <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
         <input type="submit" id="search-button" value="Search"
                class=" col-offset-1 btn ui-icon-search btn-default col-1">
-        <a href="recentChanges.jsp" class="col-offset-4 btn-mini btn-default btn-link">Older Recent Changes (smaller
+        <a href="recentChanges.jsp" class="col-offset-1 col-2 btn-mini btn-default btn-link">Older Recent Changes Page<br/>(smaller
             data only)</a>
     </div>
     <table class="table">
