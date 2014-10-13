@@ -58,7 +58,6 @@ public class SelectTrackServlet extends HttpServlet {
 
     /**
      * Generate a record for a feature that includes the name, type, link to browser, and last modified date.
-     *
      */
 
 
@@ -83,14 +82,14 @@ public class SelectTrackServlet extends HttpServlet {
         Object minLengthString = request.getParameter("minLength");
         Object maxLengthString = request.getParameter("maxLength");
 
-        int offset = 0 ;
+        int offset = 0;
         Object offsetString = request.getParameter("offset");
-        if(offsetString!=null && offsetString.toString().length()>0){
+        if (offsetString != null && offsetString.toString().length() > 0) {
             offset = Integer.parseInt(offsetString.toString());
         }
 
-        Integer minLength = (minLengthString != null && minLengthString.toString().trim().length() > 0) ? Integer.parseInt(minLengthString.toString()) : null ;
-        Integer maxLength = (maxLengthString != null && maxLengthString.toString().trim().length() > 0) ? Integer.parseInt(maxLengthString.toString()) : null ;
+        Integer minLength = (minLengthString != null && minLengthString.toString().trim().length() > 0) ? Integer.parseInt(minLengthString.toString()) : null;
+        Integer maxLength = (maxLengthString != null && maxLengthString.toString().trim().length() > 0) ? Integer.parseInt(maxLengthString.toString()) : null;
 
 //        Object organism = request.getParameter("organism");
         Object name = request.getParameter("name");
@@ -112,16 +111,16 @@ public class SelectTrackServlet extends HttpServlet {
         List<ServerConfiguration.TrackConfiguration> trackList = new ArrayList<>();
 
 
-        String organism = null ;
+        String organism = null;
 
+        Iterator<ServerConfiguration.TrackConfiguration> iterator = tracks.iterator();
         if (username != null) {
-            Iterator<ServerConfiguration.TrackConfiguration> iterator = tracks.iterator();
-            while (iterator.hasNext() && count < maximum+offset) {
+            while (iterator.hasNext() && count < maximum + offset) {
                 ServerConfiguration.TrackConfiguration track = iterator.next();
                 trackList.add(track);
                 Integer permission = permissions.get(track.getName());
                 organism = track.getOrganism();
-//                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
+//                System.out.println("count [" + count + "] / maximum [" + maximum + "] offset[" + offset + "]");
                 if (permission == null) {
                     permission = 0;
                 }
@@ -131,21 +130,21 @@ public class SelectTrackServlet extends HttpServlet {
                 boolean matches = true;
                 if ((permission & Permission.READ) == Permission.READ) {
 
-                    if( count < offset ){
-                        ++count;
+                    if (name != null && name.toString().trim().length() > 0) {
+                        matches = matches && track.getName().toUpperCase().contains(name.toString().toUpperCase());
                     }
-                    else{
-                        if (name != null && name.toString().trim().length() > 0) {
-                            matches = matches && track.getName().toUpperCase().contains(name.toString().toUpperCase());
-                        }
-                        if (minLength != null) {
-                            matches = matches && track.getSourceFeature().getSequenceLength() >= minLength;
-                        }
-                        if (maxLength != null) {
-                            matches = matches && track.getSourceFeature().getSequenceLength() <= maxLength;
-                        }
+                    if (minLength != null) {
+                        matches = matches && track.getSourceFeature().getSequenceLength() >= minLength;
+                    }
+                    if (maxLength != null) {
+                        matches = matches && track.getSourceFeature().getSequenceLength() <= maxLength;
+                    }
 
-                        if (matches) {
+                    if (matches) {
+                        if (count < offset) {
+                            ++count;
+                        } else {
+
                             List<String> trackRow = new ArrayList<>();
                             trackRow.add(String.format("<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>", track.getName()));
 //                            trackRow.add(track.getOrganism());
@@ -157,6 +156,8 @@ public class SelectTrackServlet extends HttpServlet {
                     }
                 }
             }
+//            System.out.println("has next " + iterator.hasNext());
+//            System.out.println("count < maximum + offset " + count + " < " + maximum + " " + offset);
         }
 
         int permission = !permissions.isEmpty() ? permissions.values().iterator().next() : 0;
@@ -176,10 +177,10 @@ public class SelectTrackServlet extends HttpServlet {
         request.setAttribute("tracks", trackList);
 
         List<String> allTrackIds = new ArrayList<>();
-        for(ServerConfiguration.TrackConfiguration thisTrack : tracks){
-            Integer thisPermission= permissions.get(thisTrack.getName());
+        for (ServerConfiguration.TrackConfiguration thisTrack : tracks) {
+            Integer thisPermission = permissions.get(thisTrack.getName());
 //                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
-            if (thisPermission== null) {
+            if (thisPermission == null) {
                 thisPermission = 0;
             }
             if ((thisPermission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
@@ -189,6 +190,9 @@ public class SelectTrackServlet extends HttpServlet {
                 allTrackIds.add(thisTrack.getName());
             }
         }
+
+        request.setAttribute("hasPrevious", offset>0);
+        request.setAttribute("hasNext", iterator.hasNext());
 
         request.setAttribute("allTrackIds", allTrackIds);
         request.setAttribute("trackViews", trackTableList);

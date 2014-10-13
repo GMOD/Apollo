@@ -480,9 +480,9 @@ function open_user_manager_dialog() {
 <form action="selectTrack" method="get">
     <div class="row">
         <div class="col-2">&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}<br/><em>&nbsp;&nbsp;${organism}</em></div>
-        <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">
+        <input type="button" class="btn btn-mini col-1 ${!hasPrevious? 'disabled' :''}" href="#" id="previous-page" value="&larr; Previous">
         <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
-        <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
+        <input type="button" class="btn btn-mini col-1 ${!hasNext ? 'disabled' :''}" href="#" id="next-page" value="Next &rarr;">
         <input type="submit" id="search-button" value="Search" class=" col-offset-1 btn ui-icon-search btn-default col-1">
         <a href="selectTrack.jsp" class="col-offset-2 col-2 btn-mini btn-default btn-link">Older Track Select Page<br>(smaller data only)</a>
     </div>
