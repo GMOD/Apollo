@@ -48,7 +48,9 @@ Login|Password : demo|demo
 
 -- Tools (see 3.2)
 
--- View: set and clear highlights, show plus/minus strands, resize quantitative tracks, color by CDS (also tested in 5).
+-- View: goes to recent changes / select track page, set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 5).
+
+-- Help: All links go to a new screen.
 
 3.2) From “Tools” menu, query genome with BLAT using a sequence: 
 
@@ -100,12 +102,27 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 File / Add combination track
 
-### Test the “Reference Sequence Selection” screen. 
+### Test the “Select Tracks” screen.
 
 11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File / Export menu option.
 
 12) Check that you are able to query the entire genome using BLAT from this window using the Tools / Search sequence menu option.
 
+13) Check all filters, pagination, and number of results shown.
+
+14) Clicking on group name link should take you to the corresponding group track in the main window.
+
+15) Test all File Menu as in section 3.
+
+### Test the “Recent Changes” screen.
+
+16) Check all filters, pagination, and number of results shown.
+
+17) Clicking on group name link should take you to the corresponding group track in the main window.
+
+18) Test all File Menu as in section 3.
+
+<!--
 ### Test Bulk-Update
 
 13) Click on "Recent Changes"  Verify that we can select all / none / displayed and paginate
@@ -115,3 +132,4 @@ File / Add combination track
 15) Verify that we can delete multiple selected types.   If a gene is deleted, the sub-features should also be deleted.   Should a gene exist without sub-features?
 
 16) Select features across multiple tracks and confirm above bulk updates.
+-->

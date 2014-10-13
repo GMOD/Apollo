@@ -152,7 +152,7 @@ return declare( JBPlugin,
                 new dijitMenuItem(
                     {
                         id: 'menubar_apollo_users_guide',
-                        label: 'Apollo Users Guide',
+                        label: 'Apollo User\'s Guide',
                         // iconClass: 'jbrowseIconHelp',
                         onClick: function()  {
                             window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
@@ -425,7 +425,7 @@ return declare( JBPlugin,
             {
                 label: "Select tracks",
                 onClick: function(event) {
-                    window.location="../selectTrack";
+                    window.open('../selectTrack', '_blank');
                 }
             });
         browser.addGlobalMenuItem( 'view', select_Tracks );
@@ -433,7 +433,7 @@ return declare( JBPlugin,
             {
                 label: "Recent changes",
                 onClick: function(event) {
-                    window.location="../recentChanges";
+                    window.open('../recentChanges', '_blank');
                 }
             });
         browser.addGlobalMenuItem( 'view', recent_Changes );
