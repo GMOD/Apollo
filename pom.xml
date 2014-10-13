@@ -139,13 +139,6 @@
                 </configuration>
             </plugin>
 
-            <!--<plugin>-->
-            <!--<groupId>org.apache.tomcat.maven</groupId>-->
-            <!--<artifactId>tomcat7-maven-plugin</artifactId>-->
-            <!--<version>2.0</version>-->
-            <!--</plugin>-->
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -154,40 +147,6 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
-
-            <!--<plugin>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-maven-plugin</artifactId>-->
-            <!--<version>9.1.3.v20140225</version>-->
-            <!--<configuration>-->
-            <!--<webApp>-->
-            <!--<defaultsDescriptor>${basedir}/src/main/resources/webdefault.xml</defaultsDescriptor>-->
-            <!--<contextPath>/dfghdfg</contextPath>-->
-            <!--</webApp>-->
-            <!--<classesDirectory>${basedir}/src/main/webapp/WEB-INF/classes</classesDirectory>-->
-            <!--<webAppSourceDirectory>${basedir}/src/main/webapp</webAppSourceDirectory>-->
-            <!--<connectors>-->
-            <!--<connector implementation="org.eclipse.jetty.server.ServerConnector">-->
-            <!--<port>8080</port>-->
-            <!--<maxIdleTime>7000000</maxIdleTime>-->
-            <!--</connector>-->
-            <!--</connectors>-->
-            <!--</configuration>-->
-
-            <!--<dependencies>-->
-            <!--<dependency>-->
-            <!--<groupId>org.ow2.asm</groupId>-->
-            <!--<artifactId>asm</artifactId>-->
-            <!--<version>5.0.2</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-            <!--<groupId>org.ow2.asm</groupId>-->
-            <!--<artifactId>asm-commons</artifactId>-->
-            <!--<version>5.0.2</version>-->
-            <!--</dependency>-->
-            <!--</dependencies>-->
-
-            <!--</plugin>-->
 
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
@@ -201,8 +160,6 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            <!--</plugins>-->
-
         </plugins>
     </build>
 </project>
