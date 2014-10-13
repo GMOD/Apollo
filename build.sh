@@ -75,6 +75,16 @@ if [ -e "$APOLLO_ROOT_DIRECTORY/config.xml" ]; then
     cp  $APOLLO_ROOT_DIRECTORY/config.xml $APOLLO_WEBAPP_DIRECTORY/config/config.xml
 else
    echo "No config.xml found, not copying."
+   echo "You must copy and sample_config.xml to config.xml in order to build."
+   exit ;
+fi
+
+if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
+    cp  $APOLLO_ROOT_DIRECTORY/config.properties $APOLLO_WEBAPP_DIRECTORY/config/config.properties
+else
+   echo "No config.properties found, not copying."
+   echo "You must copy and sample_config.properties to config.properties in order to build."
+   exit ;
 fi
 
 # optional
@@ -91,11 +101,6 @@ else
     echo "No hibernate.xml found, not copying."
 fi
 
-if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
-    cp  $APOLLO_ROOT_DIRECTORY/config.properties $APOLLO_WEBAPP_DIRECTORY/config/config.properties
-else
-   echo "No config.properties found, not copying."
-fi
 
 # optional
 if [ -e "$APOLLO_ROOT_DIRECTORY/log4j2.json" ]; then

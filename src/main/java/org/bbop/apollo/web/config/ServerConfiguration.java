@@ -235,9 +235,11 @@ public class ServerConfiguration {
         String databaseUrlOverride = null ;
         String databaseUsernameOverride = null ;
         String databasePasswordOverride= null ;
+        String jbrowseDirectory = null ;
 //        String jbrowseData = null ;
         if(loaded){
             logger.debug("overriden: " + loaded) ;
+            jbrowseDirectory = properties.getProperty("jbrowse.data");
             dataStoreDirectoryOverride = properties.getProperty("datastore.directory");
             databaseUrlOverride = properties.getProperty("database.url");
             databaseUsernameOverride = properties.getProperty("database.username");
@@ -369,24 +371,28 @@ public class ServerConfiguration {
                     tracks.put(name, new TrackConfiguration(name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites));
                 }
             }
-            Node refSeqsNode = tracksNode.getElementsByTagName("refseqs").item(0);
+//            Node refSeqsNode = tracksNode.getElementsByTagName("refseqs").item(0);
             Node annotationTrackNameNode = tracksNode.getElementsByTagName("annotation_track_name").item(0);
             Node organismNode = tracksNode.getElementsByTagName("organism").item(0);
             Node sequenceTypeNode = tracksNode.getElementsByTagName("sequence_type").item(0);
             Node translationTableNode = tracksNode.getElementsByTagName("translation_table").item(0);
             Node spliceSitesNode = tracksNode.getElementsByTagName("splice_sites").item(0);
-            if (refSeqsNode != null && annotationTrackNameNode != null && organismNode != null && sequenceTypeNode != null) {
+//            if (refSeqsNode != null && annotationTrackNameNode != null && organismNode != null && sequenceTypeNode != null) {
                 Set<String> spliceDonorSites = parseSpliceDonorSites((Element)spliceSitesNode);
                 Set<String> spliceAcceptorSites = parseSpliceAcceptorSites((Element)spliceSitesNode);
                 try {
-                    parseRefSeqs(refSeqsNode.getTextContent(), annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
+
+                    String refSeqFile = jbrowseDirectory.concat("/seq/refSeqs.json");
+//                    parseRefSeqs(refSeqsNode.getTextContent(), annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
+//                            translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
+                    parseRefSeqs(refSeqFile, annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
                             translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
                 }
                 catch (Exception e) {
                     logger.debug("ERROR loading seq data:");
                     e.printStackTrace();
                 }
-            }
+//            }
         }
         Element cannedCommentsNode = (Element)doc.getElementsByTagName("canned_comments").item(0);
         if (cannedCommentsNode != null) {
