@@ -481,6 +481,7 @@ function open_user_manager_dialog() {
         <ul id="help_menu">
             <li><a id='web_services_api'>Web Services API</a></li>
             <li><a id='apollo_users_guide'>Apollo User's Guide</a></li>
+            <li><jsp:include page="version.jsp"></jsp:include></li>
         </ul>
     </li>
 </ul>

@@ -12,8 +12,8 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
-           'dijit/MenuItem', 
-           'dijit/MenuSeparator', 
+           'dijit/MenuItem',
+           'dijit/MenuSeparator',
            'dijit/CheckedMenuItem',
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
@@ -28,7 +28,7 @@ define(
            './InformationEditor',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
-    function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin, 
+    function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver ) {
 
 return declare( JBPlugin,
@@ -51,7 +51,7 @@ return declare( JBPlugin,
           script.async = false;
           document.head.appendChild(script);
         });
-        
+
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
@@ -107,7 +107,7 @@ return declare( JBPlugin,
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
-                                            id: 'menubar_apollo_quickstart', 
+                                            id: 'menubar_apollo_quickstart',
                                             label: 'General',
                                             onClick: function()  { window.open(helpUrl,'help_window').focus(); }
                                         })
@@ -116,7 +116,7 @@ return declare( JBPlugin,
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
-                                            id: 'menubar_apollo_userguide', 
+                                            id: 'menubar_apollo_userguide',
                                             label: 'User Guide',
                                             onClick: function()  { window.open(guideUrl,'help_window').focus(); }
                                         })
@@ -124,7 +124,7 @@ return declare( JBPlugin,
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
-                                            id: 'menubar_apollo_wiki', 
+                                            id: 'menubar_apollo_wiki',
                                             label: 'Wiki',
                                             onClick: function()  { window.open(wikiUrl,'help_window').focus(); }
                                         })
@@ -133,7 +133,7 @@ return declare( JBPlugin,
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
-                                            id: 'menubar_powered_by_jbrowse', 
+                                            id: 'menubar_powered_by_jbrowse',
                                             label: 'Powered by JBrowse',
                                             // iconClass: 'jbrowseIconHelp', 
                                             onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
@@ -159,6 +159,17 @@ return declare( JBPlugin,
                         }
                     })
             );
+            browser.addGlobalMenuItem( 'help',
+                new dijitMenuItem(
+                    {
+                        id: 'menubar_apollo_version',
+                        label: 'Get Version',
+                        // iconClass: 'jbrowseIconHelp',
+                        onClick: function()  {
+                            window.open("../version.jsp",'help_window').focus();
+                        }
+                    })
+            );
         }
 
         // register the WebApollo track types with the browser, so
@@ -167,14 +178,14 @@ return declare( JBPlugin,
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
             defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
-                                    'JBrowse/Store/SeqFeature/GFF3', 
+                                    'JBrowse/Store/SeqFeature/GFF3',
                                     'WebApollo/Store/SeqFeature/ApolloGFF3'
                                   ],
             label: 'WebApollo Features'
         });
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableAlignments',
-            defaultForStoreTypes: [ 
+            defaultForStoreTypes: [
                                     'JBrowse/Store/SeqFeature/BAM'
                                   ],
             label: 'WebApollo Alignments'
@@ -193,7 +204,7 @@ return declare( JBPlugin,
             var track_config = track_configs[i];
             this.trackTransformer.transform(track_config);
         }
-        
+
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
         if (!browser.config.trackSelector) {
@@ -207,7 +218,7 @@ return declare( JBPlugin,
         else if (browser.config.trackSelector.type == "Faceted") {
             browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
         }
-        
+
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
@@ -232,23 +243,23 @@ return declare( JBPlugin,
             */
             var view = browser.view;
             view.oldOnResize = view.onResize;
-  
-             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
+
+             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
               *    bug appears in Chrome, not Firefox, unsure of other browsers
               */
-            view.onResize = function() {  
+            view.onResize = function() {
                 // detect if zoomed into base level
                 // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
                 // if showing residues (full zoom), then pxPerBp == maxPxPerBp
                 //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
                 var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2); 
+                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
                 var oldCharSize = thisB.getSequenceCharacterSize();
                 var newCharSize = thisB.getSequenceCharacterSize(true);
                 // detect if something happened to change pixel size of residues font (likely a web browser zoom)
                 var charWidthChanged = (newCharSize.width != oldCharSize.width);
                 var charWidth = newCharSize.width;
-                if (charWidthChanged) {  
+                if (charWidthChanged) {
                     // if charWidth changed, need to change maxPxPerBp to match
                     // console.log("residues font size changed, new char width = " + newCharSize.width);
                     if (! browser.config.view) { browser.config.view = {}; }
@@ -265,7 +276,7 @@ return declare( JBPlugin,
                     view.oldOnResize();
                 }
             };
-        
+
             var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
                 constructor: function( args ) {
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
@@ -275,13 +286,13 @@ return declare( JBPlugin,
             browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
-       
+
 
     },
 
 
-    /** 
-     *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used 
+    /**
+     *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
      *    bug appears in Chrome, not Firefox, unsure of other browsers
      *    based on GenomeView.zoomToBaseLevel(), GenomeView.updateZoom(), then stripping away unneeded
     */
@@ -348,8 +359,8 @@ return declare( JBPlugin,
         if (strand == -1 || strand == '-')  { return true; }
         else  { return false; }
     },
-    passAllFilter: function(feature)  {  return true; }, 
-    passNoneFilter: function(feature)  { return false; }, 
+    passAllFilter: function(feature)  {  return true; },
+    passNoneFilter: function(feature)  { return false; },
 
     addStrandFilterOptions: function()  {
         var thisB = this;
@@ -440,17 +451,17 @@ return declare( JBPlugin,
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
 
-    /** 
-     * hacking addition of a "tools" menu to standard JBrowse menubar, 
+    /**
+     * hacking addition of a "tools" menu to standard JBrowse menubar,
      *    with a "Search Sequence" dropdown
      */
     initSearchMenu: function()  {
-        if (! this.searchMenuInitialized) { 
+        if (! this.searchMenuInitialized) {
             var webapollo = this;
             this.browser.addGlobalMenuItem( 'tools',
                                             new dijitMenuItem(
                                                 {
-                                                    id: 'menubar_apollo_seqsearch', 
+                                                    id: 'menubar_apollo_seqsearch',
                                                     label: "Search sequence",
                                                     onClick: function() {
                                                         webapollo.getAnnotTrack().searchSequence();
@@ -478,9 +489,9 @@ return declare( JBPlugin,
         var $helpMenu = $('.menu[widgetid="dropdownbutton_help"');
         $toolsMenu.insertBefore($helpMenu);
         this.searchMenuInitialized = true;
-    }, 
+    },
 
-    
+
     initLoginMenu: function(username) {
         var webapollo = this;
         var loginButton;
@@ -501,11 +512,11 @@ return declare( JBPlugin,
                                     title: 'user logged in: UserName',
                                     dropDown: userMenu
                             });
-            // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left' 
+            // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left'
             //     styling in CSS rule for 'menu' class
             // dojo.addClass( loginButton.domNode, 'menu' );
         }
-        else  { 
+        else  {
             loginButton = new dijitButton(
                             { className: 'login',
                                     innerHTML: "Login",
@@ -516,8 +527,8 @@ return declare( JBPlugin,
         }
         this.browser.menuBar.appendChild( loginButton.domNode );
         this.loginMenuInitialized = true;
-    }, 
-    
+    },
+
     /**
      *  get the GenomeView's user annotation track
      *  WebApollo assumes there is only one AnnotTrack
@@ -535,7 +546,7 @@ return declare( JBPlugin,
             }
         }
         return null;
-    }, 
+    },
 
     /**
      *  get the GenomeView's sequence track
@@ -555,10 +566,10 @@ return declare( JBPlugin,
             }
         }
         return null;
-    }, 
-  
+    },
 
-    /** ported from berkeleybop/jbrowse GenomeView.js 
+
+    /** ported from berkeleybop/jbrowse GenomeView.js
       * returns char height/width on GenomeView
       */
     getSequenceCharacterSize: function(recalc)  {
@@ -571,10 +582,10 @@ return declare( JBPlugin,
             this._charSize = this.calculateSequenceCharacterSize(container);
         }
         return this._charSize;
-    }, 
+    },
 
     /**
-     * ported from berkeleybop/jbrowse GenomeView.js 
+     * ported from berkeleybop/jbrowse GenomeView.js
      * Conducts a test with DOM elements to measure sequence text width
      * and height.
      */
@@ -593,9 +604,9 @@ return declare( JBPlugin,
 
         containerElement.removeChild(widthTest);
         return result;
-    }, 
+    },
 
-    /** utility function, given an array with objects that have label props, 
+    /** utility function, given an array with objects that have label props,
      *        return array with all objects that don't have label
      *   D = [ { label: A }, { label: B}, { label: C } ]
      *   E = D.removeItemWithLabel("B");
@@ -610,7 +621,7 @@ return declare( JBPlugin,
             }
         }
         return outarray;
-    }, 
+    },
 
     setFavicon: function(favurl) {
         var $head = $('head');

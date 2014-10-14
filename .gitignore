@@ -14,3 +14,4 @@ log4j2.json
 log4j2-test.json
 tmp
 hibernate.xml
+version.jsp

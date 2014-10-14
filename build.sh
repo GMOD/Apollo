@@ -9,8 +9,10 @@ CURRENT=`pwd`
 : ${JBROWSE_GITHUB:="https://github.com/GMOD/jbrowse"}
 : ${JBROWSE_RELEASE:="master"}
 : ${JBROWSE_VERSION:="dev"}
+: ${GIT_VERSION:=`git rev-parse --verify HEAD`}
+: ${POM_VERSION:=`mvn validate | grep Building | cut -d' ' -f4`}
 
-
+echo "Building ${POM_VERSION} from ${GIT_VERSION}"
 
 if [[ $1 == help || $1 == --help ]]; then
     echo "Usage: build.sh [release|debug|github]"
@@ -29,6 +31,10 @@ if [[ $1 == help || $1 == --help ]]; then
     echo "APOLLO_ROOT_DIRECTORY: Location of local WebApollo repo ($APOLLO_ROOT_DIRECTORY)"
     exit 0
 fi
+
+# create version.jsp 
+echo "<a href='https://github.com/GMOD/Apollo/commit/${GMOD_VERSION}' target='_blank'>Version: ${POM_VERSION}</a>" > $APOLLO_WEBAPP_DIRECTORY/version.jsp
+
 
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
