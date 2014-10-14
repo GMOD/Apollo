@@ -34,17 +34,6 @@
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
--->
 <script type="text/javascript">
 
 jQuery.fn.dataTableExt.oSort['track-name-asc'] = function (a, b) {
@@ -175,7 +164,7 @@ $(function () {
         open_search_dialog();
     });
     $("#recent_changes").click(function () {
-        window.location = "recentChanges";
+        window.location = "changes";
     });
     $("#user_manager_item").click(function () {
         open_user_manager_dialog();
@@ -187,6 +176,7 @@ $(function () {
         var offset = parseInt($("#offset").val());
         if (offset != 0) {
             offset = offset - ${maximum};
+            if(offset < 0 ) offset = 0 ;
             $("#offset").val(offset);
             $('#search-button').click();
         }
@@ -419,7 +409,7 @@ function open_user_manager_dialog() {
 
         <li><a id="view_item">View</a>
             <ul id="view_menu">
-                <li><a id="recent_changes">Recent changes</a></li>
+                <li><a id="recent_changes">Changes</a></li>
             </ul>
         </li>
 
@@ -477,7 +467,7 @@ function open_user_manager_dialog() {
 <%--<div id="tracks_div">--%>
 <%--<table id="tracks"></table>--%>
 <%--</div>--%>
-<form action="selectTrack" method="get">
+<form action="sequences" method="get">
     <div class="row">
         <div class="col-2">&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}<br/><em>&nbsp;&nbsp;${organism}</em></div>
         <input type="button" class="btn btn-mini col-1 ${!hasPrevious? 'disabled' :''}" href="#" id="previous-page" value="&larr; Previous">

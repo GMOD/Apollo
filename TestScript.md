@@ -48,7 +48,7 @@ Login|Password : demo|demo
 
 -- Tools (see 3.2)
 
--- View: goes to recent changes / select track page, set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 5).
+-- View: goes to changes / select track page, set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 5).
 
 -- Help: All links go to a new screen.
 
@@ -102,7 +102,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 File / Add combination track
 
-### Test the “Select Tracks” screen.
+### Test the “Sequences” screen (formerly Select tracks)
 
 11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File / Export menu option.
 
@@ -114,7 +114,7 @@ File / Add combination track
 
 15) Test all File Menu as in section 3.
 
-### Test the “Recent Changes” screen.
+### Test the “Changes” screen (formerly Recent Changes)
 
 16) Check all filters, pagination, and number of results shown.
 
@@ -125,7 +125,7 @@ File / Add combination track
 <!--
 ### Test Bulk-Update
 
-13) Click on "Recent Changes"  Verify that we can select all / none / displayed and paginate
+13) Click on "Changes"  Verify that we can select all / none / displayed and paginate
 
 14) Verify that, if "Status" is enabled, we can update the status for multiple selected.
 

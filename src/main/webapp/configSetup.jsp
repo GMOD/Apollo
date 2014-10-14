@@ -121,10 +121,10 @@ $(function () {
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack";
+        window.location = "sequences";
     });
     $("#recent_changes").click(function () {
-        window.location = "recentChanges";
+        window.location = "changes";
     });
 
     $("#search_sequence_item").click(function () {
@@ -310,8 +310,8 @@ function open_user_manager_dialog() {
 
         <li><a id="view_item">View</a>
             <ul id="view_menu">
-                <li><a id="select_tracks">Select tracks</a></li>
-                <li><a id="recent_changes">Recent changes</a></li>
+                <li><a id="select_tracks">Sequences</a></li>
+                <li><a id="recent_changes">Changes</a></li>
             </ul>
         </li>
 

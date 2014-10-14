@@ -7,7 +7,7 @@
 
 <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
-<title>Recent changes</title>
+<title>Changes</title>
 
 <link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
@@ -130,7 +130,7 @@ $(function () {
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack";
+        window.location = "sequences";
     });
 
     $("#genes").click(function () {
@@ -150,6 +150,7 @@ $(function () {
         var offset = parseInt($("#offset").val());
         if (offset != 0) {
             offset = offset - ${maximum};
+            if(offset<0) offset = 0 ;
             $("#offset").val(offset);
             $('#search-button').click();
         }
@@ -207,7 +208,7 @@ function change_status_selected_items(updated_status) {
         url: "AnnotationEditorService",
         success: function (data, textStatus, jqXHR) {
             console.log('success');
-            window.location = "recentChanges";
+            window.location = "changes";
 
         },
         error: function (qXHR, textStatus, errorThrown) {
@@ -250,7 +251,7 @@ function delete_selected_items() {
             success: function (data, textStatus, jqXHR) {
                 console.log('success');
 //                    alert('Deleted '+tracks.size() + ' successfully.');
-                window.location = "recentChanges";
+                window.location = "changes";
 
             },
             error: function (qXHR, textStatus, errorThrown) {
@@ -462,7 +463,7 @@ function open_user_manager_dialog() {
 
         <li><a id="view_item">View</a>
             <ul id="view_menu">
-                <li><a id="select_tracks">Select tracks</a></li>
+                <li><a id="select_tracks">Sequences</a></li>
             </ul>
         </li>
 
@@ -533,7 +534,7 @@ function open_user_manager_dialog() {
 <div id="login_dialog" title="Login">
 </div>
 
-<form action="recentChanges" method="get">
+<form action="changes" method="get">
     <div class="row form-group">
         <div class="col-3"><h4>&nbsp;&nbsp;Scanned &nbsp;${tracks.size()} of ${trackCount} tracks</h4></div>
         <input type="button" class="btn btn-mini col-1" href="#" id="previous-page" value="&larr; Previous">

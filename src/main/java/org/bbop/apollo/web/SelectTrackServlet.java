@@ -19,7 +19,7 @@ import java.util.*;
 
 /**
  */
-@WebServlet(name = "/selectTrack", urlPatterns = {"/selectTrack"}, asyncSupported = true)
+@WebServlet(name = "/sequences", urlPatterns = {"/sequences"}, asyncSupported = true)
 public class SelectTrackServlet extends HttpServlet {
 
     final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);

@@ -18,7 +18,7 @@ Features:
 + Using javascript minimization for JBrowse+WebApollo to allow faster initial load time
 + Using Maven build system for deployment (See new installation guide)
 + Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
-+ Added menus for recentChanges / selectTrack to annotation screen.
++ Added menus for changes / sequences to annotation screen.
 + Added ability to hide track labels under "view".
 + Alt-click brings up info editor on annotated track.
 + Added webservices doc links to interface.
@@ -29,7 +29,7 @@ Bugfixes:
 + Fixed phase in GFF3 output
 + Disabled scrollToPreviousEdge/scrollToNextEdge if the feature is fully visible at the current zoom level
 + Included Chado libraries that were missing in 2014-04-03 release
-+ Removed 'null' tracks from recentChanges
++ Removed 'null' tracks from changes
 + Menus use proper CSS pointer.
 
 
@@ -54,7 +54,7 @@ Features:
 + Can now continue dragging an exon boundary after initial drag (used to require reclicking on the exon)
 + FASTA output in GFF3 now contains at most 60 residues per line
 + Can now directly set an annotation to a specific state from the history display
-+ Added / updated filters for recentChanges and selectTrack to be more memory effecient and added added filters.
++ Added / updated filters for changes and sequences to be more memory efficient and added added filters.
 
 Bugfixes:
 
@@ -73,7 +73,7 @@ Bugfixes:
 + Fix error adding transposable_element annotation with only a match and no match_part
 + Fix off-by-one error in blat highlight
 + Fixed empty block that hides tracks on top when zooming in to base level then zooming out while not logged in
-+ In selectTrack, data adapters will now not appear in the Export submenu if the current user does not have sufficient privileges to use the adapter (assumes same privileges through all genomic regions for the user)
++ In sequences, data adapters will now not appear in the Export submenu if the current user does not have sufficient privileges to use the adapter (assumes same privileges through all genomic regions for the user)
 
 
 

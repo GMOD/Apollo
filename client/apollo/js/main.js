@@ -423,17 +423,17 @@ return declare( JBPlugin,
         var browser = this.browser;
         var select_Tracks = new dijitMenuItem(
             {
-                label: "Select tracks",
+                label: "Sequences",
                 onClick: function(event) {
-                    window.open('../selectTrack', '_blank');
+                    window.open('../sequences', '_blank');
                 }
             });
         browser.addGlobalMenuItem( 'view', select_Tracks );
         var recent_Changes = new dijitMenuItem(
             {
-                label: "Recent changes",
+                label: "Changes",
                 onClick: function(event) {
-                    window.open('../recentChanges', '_blank');
+                    window.open('../changes', '_blank');
                 }
             });
         browser.addGlobalMenuItem( 'view', recent_Changes );

@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * Created by NathanDunn on 10/7/14.
  */
-@WebServlet(name = "/recentChanges", urlPatterns = {"/recentChanges"}, asyncSupported = true)
+@WebServlet(name = "/changes", urlPatterns = {"/changes"}, asyncSupported = true)
 public class RecentChangeServlet extends HttpServlet {
 
     private ServerConfiguration serverConfig;
@@ -151,17 +151,9 @@ public class RecentChangeServlet extends HttpServlet {
         }
 
         Object maximumString = request.getParameter("maximum");
-//        Object typeString = request.getParameter("type");
-//        Object group = request.getParameter("group");
-////        Object editor = request.getParameter("editor");
-//        Object owner = request.getParameter("owner");
-//        Object status = request.getParameter("status");
 
         int maximum = DEFAULT_LIST_SIZE;
         if (maximumString != null) {
-//            if(maximumString.equals("All")){
-//                maximum = Integer.MAX_VALUE;
-//            }
             maximum = Integer.parseInt(maximumString.toString());
         }
         int count = 0;
@@ -200,11 +192,6 @@ public class RecentChangeServlet extends HttpServlet {
                         if (!database.exists()) {
                             continue;
                         }
-//                    System.out.println("database exists: "+my_database );
-//                    File databaseHistory = new File(my_database + "_history");
-//                    System.out.println("database histry exists: "+databaseHistory.exists());
-                        // load database
-
 
                         JEDatabase dataStore = new JEDatabase(my_database, false);
                         JEHistoryDatabase historyDataStore = null;
@@ -225,7 +212,6 @@ public class RecentChangeServlet extends HttpServlet {
                                     if(count >= offset){
                                         changeList.add(s);
                                     }
-//                                out.println("recent_changes.push(" + s + ");\n");
                                     ++count;
                                 }
 
@@ -245,7 +231,6 @@ public class RecentChangeServlet extends HttpServlet {
                                     if(count >= offset){
                                         changeList.add(s);
                                     }
-//                                out.println("recent_changes.push(" + s + ");\n");
                                     ++count;
                                 }
 
@@ -311,9 +296,6 @@ public class RecentChangeServlet extends HttpServlet {
         request.setAttribute("days_filter_logic", request.getParameter("days_filter_logic"));
         request.setAttribute("days_filter", request.getParameter("days_filter"));
 
-//        PrintWriter out = resp.getWriter();
-//        out.write("whadup!");
-//        out.close();
         RequestDispatcher view = request.getRequestDispatcher("/changes.jsp");
         view.forward(request, response);
     }
@@ -335,7 +317,6 @@ public class RecentChangeServlet extends HttpServlet {
         boolean matches = true;
 
         if (matches && daysFilterLogic != null && daysFilter!=null && daysFilter.toString().trim().length() > 0 && !daysFilterLogic.equals("None")) {
-//            matches = track.getName().contains(trackString.toString());
             Date lastDate = gbolFeature.getTimeLastModified();
             Calendar lastDateCal= Calendar.getInstance();
             lastDateCal.setTime(lastDate);

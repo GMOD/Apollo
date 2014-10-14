@@ -43,7 +43,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
-<title>Recent changes</title>
+<title>Changes</title>
 
 <link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
@@ -68,17 +68,6 @@
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
--->
 <script type="text/javascript">
 
 
@@ -301,7 +290,7 @@ $(function () {
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack";
+        window.location = "sequences";
     });
 
     $("#search_sequence_item").click(function () {
@@ -632,7 +621,7 @@ function open_user_manager_dialog() {
 
         <li><a id="view_item">View</a>
             <ul id="view_menu">
-                <li><a id="select_tracks">Select tracks</a></li>
+                <li><a id="select_tracks">Sequences</a></li>
             </ul>
         </li>
 

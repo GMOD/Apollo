@@ -63,17 +63,6 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
--->
 <script type="text/javascript">
 
 <%
@@ -228,7 +217,7 @@ $(function() {
         open_search_dialog();
     });
     $("#recent_changes").click(function() {
-        window.location="recentChanges";
+        window.location="changes";
     });
     $("#user_manager_item").click(function() {
         open_user_manager_dialog();
@@ -458,7 +447,7 @@ function open_user_manager_dialog() {
     
     <li><a id="view_item">View</a>
         <ul id="view_menu">
-            <li><a id="recent_changes">Recent changes</a></li>
+            <li><a id="recent_changes">Changes</a></li>
         </ul>
     </li>
             
@@ -517,7 +506,7 @@ function open_user_manager_dialog() {
 </div>
 
 
-<a href="selectTrack" class="col-offset-4 btn-mini btn-default btn-link">Default Track Select</a>
+<a href="sequences" class="col-offset-4 btn-mini btn-default btn-link">Default Track Select</a>
 <div id="login_dialog" title="Login">
 </div>
 <div id="tracks_div">

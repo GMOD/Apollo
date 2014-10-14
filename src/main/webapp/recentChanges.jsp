@@ -68,17 +68,6 @@
 
 <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
--->
 <script type="text/javascript">
 
 
@@ -321,7 +310,7 @@ $(function () {
     });
 
     $("#select_tracks").click(function () {
-        window.location = "selectTrack";
+        window.location = "sequences";
     });
 
     $("#genes").click(function () {
@@ -387,7 +376,7 @@ function change_status_selected_items(updated_status) {
         url: "AnnotationEditorService",
         success: function (data, textStatus, jqXHR) {
             console.log('success');
-            window.location = "recentChanges";
+            window.location = "changes";
 
         },
         error: function (qXHR, textStatus, errorThrown) {
@@ -431,7 +420,7 @@ function delete_selected_items() {
             success: function (data, textStatus, jqXHR) {
                 console.log('success');
 //                    alert('Deleted '+tracks.size() + ' successfully.');
-                window.location = "recentChanges";
+                window.location = "changes";
 
             },
             error: function (qXHR, textStatus, errorThrown) {
@@ -665,7 +654,7 @@ function open_user_manager_dialog() {
 
         <li><a id="view_item">View</a>
             <ul id="view_menu">
-                <li><a id="select_tracks">Select tracks</a></li>
+                <li><a id="select_tracks">Sequences</a></li>
                 <%--<li><a id="genes">Genes</a></li>--%>
             </ul>
         </li>
@@ -747,7 +736,7 @@ function open_user_manager_dialog() {
     <div id="data_adapter_loading"><img src="images/loading.gif" alt=""/></div>
     <div id="data_adapter_message"></div>
 </div>
-<a href="recentChanges" class="col-offset-4 btn-mini btn-default btn-link">Default Recent Changes</a>
+<a href="changes" class="col-offset-4 btn-mini btn-default btn-link">Default Changes</a>
 <div id="login_dialog" title="Login">
 </div>
 <div id="recent_changes_div">
