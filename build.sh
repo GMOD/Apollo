@@ -82,7 +82,7 @@ if [ -e "$APOLLO_ROOT_DIRECTORY/config.xml" ]; then
 else
    echo "No config.xml found, not copying."
    echo "You must copy and sample_config.xml to config.xml in order to build."
-   exit ;
+   exit 1;
 fi
 
 if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
@@ -90,7 +90,7 @@ if [ -e "$APOLLO_ROOT_DIRECTORY/config.properties" ]; then
 else
    echo "No config.properties found, not copying."
    echo "You must copy and sample_config.properties to config.properties in order to build."
-   exit ;
+   exit 1 ;
 fi
 
 # optional
