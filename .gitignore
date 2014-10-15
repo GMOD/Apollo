@@ -15,3 +15,4 @@ log4j2-test.json
 tmp
 hibernate.xml
 version.jsp
+update_client.sh
