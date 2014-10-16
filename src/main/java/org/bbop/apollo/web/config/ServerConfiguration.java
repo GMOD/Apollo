@@ -236,6 +236,7 @@ public class ServerConfiguration {
         String databaseUsernameOverride = null ;
         String databasePasswordOverride= null ;
         String jbrowseDirectory = null ;
+        String organismOverride = null ;
 //        String jbrowseData = null ;
         if(loaded){
             logger.debug("overriden: " + loaded) ;
@@ -244,11 +245,13 @@ public class ServerConfiguration {
             databaseUrlOverride = properties.getProperty("database.url");
             databaseUsernameOverride = properties.getProperty("database.username");
             databasePasswordOverride = properties.getProperty("database.password");
+            organismOverride = properties.getProperty("organism");
 
             logger.debug("dataStoreDirectoryOverride: " + dataStoreDirectoryOverride) ;
             logger.debug("databaseUrlOverride: " + databaseUrlOverride) ;
             logger.debug("databaseUsernameOverride: " + databaseUsernameOverride) ;
             logger.debug("databasePasswordOverride: " + databasePasswordOverride) ;
+            logger.debug("organismOverride: " + organismOverride) ;
         }
 
 
@@ -335,12 +338,14 @@ public class ServerConfiguration {
                     if (nameNode != null) {
                         name = nameNode.getTextContent();
                     }
-                    String organism = null;
-                    Node organismNode = trackNode.getElementsByTagName("organism").item(0);
-                    if (organismNode != null) {
-                        organism = organismNode.getTextContent();
+                    String organism = organismOverride;
+                    if(organism==null){
+                        Node organismNode = trackNode.getElementsByTagName("organism").item(0);
+                        if (organismNode != null) {
+                            organism = organismNode.getTextContent();
+                        }
                     }
-                    
+
                     String translationTable = null;
                     Node translationTableNode = trackNode.getElementsByTagName("translation_table").item(0);
                     if (translationTableNode != null) {
@@ -385,7 +390,7 @@ public class ServerConfiguration {
                     String refSeqFile = jbrowseDirectory.concat("/seq/refSeqs.json");
 //                    parseRefSeqs(refSeqsNode.getTextContent(), annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
 //                            translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
-                    parseRefSeqs(refSeqFile, annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
+                    parseRefSeqs(refSeqFile, annotationTrackNameNode.getTextContent(), organismOverride!=null ? organismOverride : organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
                             translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
                 }
                 catch (Exception e) {
