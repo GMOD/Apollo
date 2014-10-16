@@ -7,6 +7,8 @@ import org.junit.Ignore;
 @Ignore
 public class FlybaseConfigurationTest extends AbstractGBOLHibernateTest{
 
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
+
     public FlybaseConfigurationTest(String name) {
         super(name);
         try {
@@ -24,9 +26,9 @@ public class FlybaseConfigurationTest extends AbstractGBOLHibernateTest{
     public void testConfigure(){
         
         CVTerm cvterm = (CVTerm) this.sf.getCurrentSession().get(CVTerm.class, 30);
-        System.out.println("Parent: " + cvterm.getName());
+        logger.info("Parent: " + cvterm.getName());
         for (CVTermRelationship cvtr : cvterm.getChildCVTermRelationships()){
-            System.out.println(cvtr.getSubjectCVTerm().getName() + " " + cvtr.getType().getName() + " " + cvtr.getObjectCVTerm().getName());
+            logger.info(cvtr.getSubjectCVTerm().getName() + " " + cvtr.getType().getName() + " " + cvtr.getObjectCVTerm().getName());
         }
         
         

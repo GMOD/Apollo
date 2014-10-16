@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.test.mixin.TestFor
+import org.bbop.apollo.web.AnnotationEditorService
 import spock.lang.Specification
 
 /**

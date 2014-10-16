@@ -1,21 +1,24 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
 import org.junit.Ignore;
 
 import java.util.Iterator;
 
+//import org.apache.log4j.PropertyConfigurator;
+
 @Ignore
 public class HibernateHandlerTest extends TestCase {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private HibernateHandler handler;
     
     public HibernateHandlerTest() throws Exception
     {
-        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
+//        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
         try {
             handler = new HibernateHandler("src/test/resources/testSupport/gbolOne.cfg.xml");
         }
@@ -31,7 +34,7 @@ public class HibernateHandlerTest extends TestCase {
         int counter = 0;
         for( Iterator<? extends Feature> genes = handler.getFeaturesByCVTerm(new CVTerm("gene", new CV("SO"))); genes.hasNext();) {
             Feature f = genes.next();
-            System.out.println(f.getName());
+            logger.info(f.getName());
             counter++;
         }
         assertEquals("Number of genes", 2, counter);

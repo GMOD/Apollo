@@ -1,14 +1,12 @@
 package org.bbop.apollo.web.dataadapter;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.log4j.Logger;
+import org.bbop.apollo.web.config.ServerConfiguration;
+import org.bbop.apollo.web.user.Permission;
+import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.util.JSONUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -17,13 +15,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.bbop.apollo.web.config.ServerConfiguration;
-import org.bbop.apollo.web.user.Permission;
-import org.bbop.apollo.web.user.UserManager;
-import org.bbop.apollo.web.util.JSONUtil;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Servlet implementation class Servlet
@@ -34,7 +30,8 @@ public class IOService extends HttpServlet {
 
     private Map<String, DataAdapterValue> dataAdapters;
     private Collection<String> allTracks;
-    
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
+
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -48,7 +45,7 @@ public class IOService extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
             if (!UserManager.getInstance().isInitialized()) {
                 ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
                 UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
@@ -173,7 +170,8 @@ public class IOService extends HttpServlet {
             for (int i = 0; i < tracksParam.length(); ++i) {
                 String track = tracksParam.getString(i);
                 if (!isValidTrack(track, permissions, permission)) {
-                    throw new ServletException("You do not have permissions for " + operation + " on " + tracksParam);
+                    logger.error("You do not have permissions for " + operation + " on " + track);
+//                    throw new ServletException("You do not have permissions for " + operation + " on " + tracksParam);
                 }
                 tracks.add(track);
             }
@@ -206,7 +204,11 @@ public class IOService extends HttpServlet {
     }
     
     private boolean isValidTrack(String track, Map<String, Integer> permissions, String permission) throws SQLException {
-        return (permissions.get(track) & Permission.getValueForPermission(permission)) != 0;
+        Integer trackPermission = permissions.get(track);
+        int permissionValue = Permission.getValueForPermission(permission);
+        if(trackPermission==null) return false ;
+
+        return (trackPermission & permissionValue) != 0;
     }
     
     private class DataAdapterValue {

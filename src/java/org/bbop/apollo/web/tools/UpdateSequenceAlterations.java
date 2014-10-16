@@ -1,20 +1,18 @@
 package org.bbop.apollo.web.tools;
 
+import org.apache.commons.cli.*;
+import org.apache.log4j.Logger;
+import org.bbop.apollo.web.datastore.JEDatabase;
+import org.gmod.gbol.simpleObject.Feature;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.bbop.apollo.web.datastore.JEDatabase;
-import org.gmod.gbol.simpleObject.Feature;
-
 public class UpdateSequenceAlterations {
-    
+
+    private final static Logger logger = Logger.getLogger(UpdateSequenceAlterations.class);
+
     public static void fixDbs(String[] inputDbs, String outputDb, boolean forceOverwrite) {
         for (String inputDb : inputDbs) {
             JEDatabase in = new JEDatabase(inputDb, false);
@@ -49,12 +47,12 @@ public class UpdateSequenceAlterations {
                 System.exit(1);
             }
             else if (!line.hasOption('i')) {
-                System.err.println("Missing required input database(s)");
+                logger.error("Missing required input database(s)");
                 System.exit(1);
             }
         }
         catch( ParseException exp ) {
-            System.err.println( "Unexpected exception:" + exp.getMessage() );
+            logger.error("Unexpected exception:" + exp.getMessage());
             System.exit(1);
         }
         return line;
@@ -66,7 +64,7 @@ public class UpdateSequenceAlterations {
             fixDbs(line.getOptionValues('i'), line.getOptionValue('o'), line.hasOption('f'));
         }
         catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

@@ -47,7 +47,7 @@ public class Configuration {
 
     /** Set the NCBI translation table code to be used in translation.
      * 
-     * @param NCBI translation table code to be used in translation
+     * @param translationCode NCBI translation table code to be used in translation
      */
     public void setTranslationCode(int translationCode) {
         this.translationCode = translationCode;

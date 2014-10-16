@@ -1,8 +1,32 @@
 package org.gmod.gbol.bioObject.conf;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
 import org.gmod.gbol.bioObject.AbstractBioFeature;
-import org.gmod.gbol.bioObject.AbstractBioFeatureProperty;
 import org.gmod.gbol.bioObject.AbstractBioObject;
+import org.gmod.gbol.bioObject.AbstractBioFeatureProperty;
+import org.gmod.gbol.bioObject.SequenceFeature;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.CV;
 import org.gmod.gbol.simpleObject.CVTerm;
@@ -12,16 +36,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.*;
-import java.util.*;
 
 /** Class that stores the mapping between classes and types.
  * 
@@ -86,11 +100,6 @@ public class BioObjectConfiguration implements Serializable {
      */
     public Collection<CVTerm> getCVTermsForClass(String className)
     {
-//        System.out.println("IN: -------");
-//        for(String key : classToTerms.keySet()){
-//            System.out.println("key: "+key);
-//        }
-//        System.out.println("OUT: -------");
         Collection<CVTerm> classNames = classToTerms.get(className);
         if (classNames == null) {
             System.err.println("No CVTerms for class: " + className);
@@ -120,10 +129,8 @@ public class BioObjectConfiguration implements Serializable {
         classToTerms = new HashMap<String, List<CVTerm>>();
         try {
             SchemaFactory sf = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-//            URL xsd = getClass().getResource("/config/gbol_mappings.xsd");
-//            Schema schema = sf.newSchema(xsd);
-            File file = new File("src/main/webapp/config/gbol_mappings.xsd");
-            Schema schema = sf.newSchema(file);
+            URL xsd = getClass().getResource("/conf/gbol_mappings.xsd");
+            Schema schema = sf.newSchema(xsd);
             Validator validator = schema.newValidator();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
@@ -147,7 +154,6 @@ public class BioObjectConfiguration implements Serializable {
                 try {
                     current = (Class<AbstractBioObject>)Class.forName(pkg + "." + className);
                 } catch (ClassNotFoundException e) {
-                    System.err.println("trying to parse: "+pkg+className);
                     throw new BioObjectConfigurationException("Error parsing configuration: " + e.getMessage());
                 }
                 if (!AbstractBioFeature.class.isAssignableFrom(current) &&

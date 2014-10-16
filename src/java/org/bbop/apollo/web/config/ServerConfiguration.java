@@ -1,6 +1,7 @@
 package org.bbop.apollo.web.config;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,6 +11,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,6 +20,8 @@ import java.util.*;
 import java.util.zip.CRC32;
 
 public class ServerConfiguration {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private String gbolMappingFile;
     private String dataStoreDirectory;
@@ -35,14 +39,21 @@ public class ServerConfiguration {
     private boolean useCDS;
     private boolean useMemoryStore;
     private Map<String, AnnotationInfoEditorConfiguration> annotationInfoEditors;
+
+    private ServletContext servletContext ;
 //    private Collection<AnnotationInfoEditorConfiguration> annotationInfoEditors;
 
+    public ServerConfiguration(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
+        throw new RuntimeException("No longer supported");
+    }
 
-    public ServerConfiguration(String xmlFileName) throws FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+    public ServerConfiguration(String xmlFileName) throws  ParserConfigurationException, SAXException, IOException {
         this(new FileInputStream(xmlFileName));
     }
-    
-    public ServerConfiguration(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
+
+    public ServerConfiguration(ServletContext servletContext) throws ParserConfigurationException, SAXException, IOException {
+        this.servletContext = servletContext ;
+        InputStream configuration = servletContext.getResourceAsStream("/config/config.xml");
         defaultMinimumIntronSize = 1;
         historySize = 0;
         sequenceSearchTools = new ArrayList<SequenceSearchToolConfiguration>();
@@ -54,7 +65,7 @@ public class ServerConfiguration {
         init(configuration);
         configuration.close();
     }
-    
+
     public String getGBOLMappingFile() {
         return gbolMappingFile;
     }
@@ -186,17 +197,30 @@ public class ServerConfiguration {
     }
 
     private void init(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
+        logger.debug("init inputStrea" + configuration);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
+        logger.debug("going to parse");
         Document doc = db.parse(configuration);
+        logger.debug("PARSED");
 
         String[] extensions = new String[]{"properties"};
 
         Properties properties = new Properties();
+
+        // some file-systems are kind of stupid and assumes that it is the root directory, so this may not always work (though it supports dev niceley)_
         File currentDirectory= new File(".");
-//        System.out.println("current directory: "+currentDirectory.getAbsolutePath());
+        logger.debug("path: " + servletContext.getContextPath());
+        logger.debug("real path: " + servletContext.getRealPath("."));
+        if(currentDirectory.getAbsolutePath().startsWith("/")){
+            currentDirectory = new File(servletContext.getRealPath("."));
+            logger.debug("curretn directory reset: " + currentDirectory);
+            logger.debug("exists: " + currentDirectory.exists());
+            logger.debug("is directory: " + currentDirectory.isDirectory());
+        }
+        logger.debug("current directory: " + currentDirectory.getAbsolutePath());
         Collection<File> files = FileUtils.listFiles(currentDirectory,extensions,true);
-//        System.out.println("files found: "+files.size());
+        logger.debug("files found: " + files.size());
         boolean loaded = false ;
         for(File file : files){
             if(file.getName().equals("config.properties")){
@@ -204,17 +228,29 @@ public class ServerConfiguration {
                 loaded = true;
             }
         }
+        logger.debug("loaded: " + loaded) ;
 
         String dataStoreDirectoryOverride = null ;
         String databaseUrlOverride = null ;
         String databaseUsernameOverride = null ;
         String databasePasswordOverride= null ;
+        String jbrowseDirectory = null ;
+        String organismOverride = null ;
 //        String jbrowseData = null ;
         if(loaded){
+            logger.debug("overriden: " + loaded) ;
+            jbrowseDirectory = properties.getProperty("jbrowse.data");
             dataStoreDirectoryOverride = properties.getProperty("datastore.directory");
             databaseUrlOverride = properties.getProperty("database.url");
             databaseUsernameOverride = properties.getProperty("database.username");
             databasePasswordOverride = properties.getProperty("database.password");
+            organismOverride = properties.getProperty("organism");
+
+            logger.debug("dataStoreDirectoryOverride: " + dataStoreDirectoryOverride) ;
+            logger.debug("databaseUrlOverride: " + databaseUrlOverride) ;
+            logger.debug("databaseUsernameOverride: " + databaseUsernameOverride) ;
+            logger.debug("databasePasswordOverride: " + databasePasswordOverride) ;
+            logger.debug("organismOverride: " + organismOverride) ;
         }
 
 
@@ -229,6 +265,7 @@ public class ServerConfiguration {
 
         if(dataStoreDirectoryOverride!=null){
             dataStoreDirectory = dataStoreDirectoryOverride;
+            logger.debug("override dataStore directory: " + dataStoreDirectory);
         }
         else{
             Node dataStoreDirectoryNode = doc.getElementsByTagName("datastore_directory").item(0);
@@ -260,8 +297,10 @@ public class ServerConfiguration {
             trackNameComparator = trackNameComparatorNode.getTextContent();
         }
         Element userNode = (Element)doc.getElementsByTagName("user").item(0);
+        logger.debug("has user node: " + userNode);
         if (userNode != null) {
             Element databaseNode = (Element)userNode.getElementsByTagName("database").item(0);
+            logger.debug("has database node: " + databaseNode);
             if (databaseNode != null) {
                 String driver = databaseNode.getElementsByTagName("driver").item(0).getTextContent();
                 String url = databaseUrlOverride!=null ? databaseUrlOverride : databaseNode.getElementsByTagName("url").item(0).getTextContent();
@@ -276,7 +315,10 @@ public class ServerConfiguration {
 //                if (passwordNode != null) {
 //                    password = passwordNode.getTextContent();
 //                }
+                logger.debug("loading database with: " + driver + " " + url + " " + userName + " " + password);
+
                 userDatabase = new UserDatabaseConfiguration(driver, url, userName, password);
+                logger.debug("loaded database");
             }
             Element authenticationClassNode = (Element)userNode.getElementsByTagName("authentication_class").item(0);
             if (authenticationClassNode != null) {
@@ -295,12 +337,14 @@ public class ServerConfiguration {
                     if (nameNode != null) {
                         name = nameNode.getTextContent();
                     }
-                    String organism = null;
-                    Node organismNode = trackNode.getElementsByTagName("organism").item(0);
-                    if (organismNode != null) {
-                        organism = organismNode.getTextContent();
+                    String organism = organismOverride;
+                    if(organism==null){
+                        Node organismNode = trackNode.getElementsByTagName("organism").item(0);
+                        if (organismNode != null) {
+                            organism = organismNode.getTextContent();
+                        }
                     }
-                    
+
                     String translationTable = null;
                     Node translationTableNode = trackNode.getElementsByTagName("translation_table").item(0);
                     if (translationTableNode != null) {
@@ -331,24 +375,28 @@ public class ServerConfiguration {
                     tracks.put(name, new TrackConfiguration(name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites));
                 }
             }
-            Node refSeqsNode = tracksNode.getElementsByTagName("refseqs").item(0);
+//            Node refSeqsNode = tracksNode.getElementsByTagName("refseqs").item(0);
             Node annotationTrackNameNode = tracksNode.getElementsByTagName("annotation_track_name").item(0);
             Node organismNode = tracksNode.getElementsByTagName("organism").item(0);
             Node sequenceTypeNode = tracksNode.getElementsByTagName("sequence_type").item(0);
             Node translationTableNode = tracksNode.getElementsByTagName("translation_table").item(0);
             Node spliceSitesNode = tracksNode.getElementsByTagName("splice_sites").item(0);
-            if (refSeqsNode != null && annotationTrackNameNode != null && organismNode != null && sequenceTypeNode != null) {
+//            if (refSeqsNode != null && annotationTrackNameNode != null && organismNode != null && sequenceTypeNode != null) {
                 Set<String> spliceDonorSites = parseSpliceDonorSites((Element)spliceSitesNode);
                 Set<String> spliceAcceptorSites = parseSpliceAcceptorSites((Element)spliceSitesNode);
                 try {
-                    parseRefSeqs(refSeqsNode.getTextContent(), annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
+
+                    String refSeqFile = jbrowseDirectory.concat("/seq/refSeqs.json");
+//                    parseRefSeqs(refSeqsNode.getTextContent(), annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
+//                            translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
+                    parseRefSeqs(refSeqFile, annotationTrackNameNode.getTextContent(), organismOverride!=null ? organismOverride : organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
                             translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
                 }
                 catch (Exception e) {
-                    System.out.println("ERROR loading seq data:");
+                    logger.debug("ERROR loading seq data:");
                     e.printStackTrace();
                 }
-            }
+//            }
         }
         Element cannedCommentsNode = (Element)doc.getElementsByTagName("canned_comments").item(0);
         if (cannedCommentsNode != null) {

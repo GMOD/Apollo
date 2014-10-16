@@ -5,6 +5,9 @@ apollo.i*
 target/**
 config.properties
 src/main/webapp/config.properties
+src/main/webapp/config.xml
+config.xml
+blat_config.xml
 src/main/webapp/jbrowse/
 .project
 .classpath
@@ -13,3 +16,9 @@ src/main/webapp/jbrowse/
 *.iws
 out
 web-app/jbrowse
+jbrowse-github
+log4j2.json
+log4j2-test.json
+tmp
+version.jsp
+update_client.sh

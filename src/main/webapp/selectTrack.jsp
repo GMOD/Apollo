@@ -14,9 +14,14 @@
 <%@ page import="java.io.BufferedReader" %>
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.net.URL" %>
+<%@ page import="org.apache.log4j.Logger" %>
 
 <%
-ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+    Logger logger = Logger.getLogger(this.getClass().getName());
+//ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+    ServletContext servletContext = getServletContext();
+    logger.info("servlet context: "+servletContext);
+    ServerConfiguration serverConfig = new ServerConfiguration(servletContext);
 if (!UserManager.getInstance().isInitialized()) {
     ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
     UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
@@ -49,7 +54,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <script src="jslib/jquery-ui-menubar/jquery.ui.menu.js"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js"></script>
 <script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js"></script>
-<script type="text/javascript" src="<%=new URL(request.getRequestURL().toString()).getProtocol()%>://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 
 <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
@@ -57,17 +62,6 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 
 <script type="text/javascript" src="../../../web-app/js/SequenceSearch.js"></script>
 
-<!--
-<link rel="stylesheet" type="text/css" href="styles/selectTrack.css" />
-<link rel="stylesheet" type="text/css" href="styles/search_sequence.css" />
-<link rel="stylesheet" type="text/css" href="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.css" />
-<link rel="stylesheet" type="text/css" href="http://view.jqueryui.com/menubar/themes/base/jquery.ui.menubar.css" />
-<script type="text/javascript" src="jslib/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
-
-
-<script type="text/javascript" src="http://view.jqueryui.com/menubar/ui/jquery.ui.menubar.js"></script>
--->
 <script type="text/javascript">
 
 <%
@@ -222,10 +216,16 @@ $(function() {
         open_search_dialog();
     });
     $("#recent_changes").click(function() {
-        window.location="recentChanges.jsp";
+        window.location="changes";
     });
     $("#user_manager_item").click(function() {
         open_user_manager_dialog();
+    });
+    $("#web_services_api").click(function() {
+        window.open('web_services/web_service_api.html','_blank');
+    });
+    $("#apollo_users_guide").click(function () {
+        window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
     });
     cleanup_user_item();
 } );
@@ -407,7 +407,7 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
 <ul id="menu">
-    <li><a><img id="logo" src="../../../web-app/images/ApolloLogo_100x36.png" onload="cleanup_logo()"/></a></li>
+    <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="../../../web-app/images/ApolloLogo_100x36.png" onload="cleanup_logo()"/></a></li>
     <li><a id="file_item">File</a>
         <ul id="file_menu">
             <li><a id="export_menu">Export</a>
@@ -446,7 +446,7 @@ function open_user_manager_dialog() {
     
     <li><a id="view_item">View</a>
         <ul id="view_menu">
-            <li><a id="recent_changes">Recent changes</a></li>
+            <li><a id="recent_changes">Changes</a></li>
         </ul>
     </li>
             
@@ -457,25 +457,37 @@ function open_user_manager_dialog() {
     </li>
 <%
     if (isAdmin) {
-        out.println("<li><a id=\"admin_item\">Admin</a>");
-        out.println("<ul id=\"tools_menu\">");
-        out.println("\t<li><a id='user_manager_item'>Manage users</a></li>");
-        out.println("</ul>");
-        out.println("</li>");
+        %>
+
+        <li><a id="admin_item">Admin</a>
+            <ul id="admin_menu">
+        <li><a id='user_manager_item'>Manage users</a></li>
+        </ul>
+        </li>
+    <%
     }
     if (username != null) {
-        out.println("<li><a id=\"user_item\"><span class='usericon'></span>" + username + "</a>");
-        out.println("<ul id=\"user_menu\">");
-        out.println("\t<li><a id=\"logout_item\">Logout</a></li>");
-        out.println("</ul>");
-        out.println("</li>");
+        %>
+        <li><a id="user_item"><span class='usericon'></span> <%=username %> </a>
+            <ul id="user_menu">
+                <li><a id="logout_item">Logout</a></li>
+            </ul>
+        </li>
+    <%
     }
 %>
+    <li><a id="help_item">Help</a>
+        <ul id="help_menu">
+            <li><a id='web_services_api'>Web Services API</a></li>
+            <li><a id='apollo_users_guide'>Apollo User's Guide</a></li>
+            <li><jsp:include page="version.jsp"></jsp:include></li>
+        </ul>
+    </li>
 </ul>
 </div>
 <div id="checkbox_menu_div">
 <ul id="checkbox_menu">
-    <li><a><input type="checkbox" id="checkbox_option"/></a>
+    <li><a><input type="checkbox" id="checkbox_option"/>Select</a>
     <ul>
         <li><a id="check_all">All</a></li>
         <li><a id="check_displayed">Displayed</a>
@@ -492,6 +504,9 @@ function open_user_manager_dialog() {
     <div id="data_adapter_loading"><img src="../../../web-app/images/loading.gif"/></div>
     <div id="data_adapter_message"></div>
 </div>
+
+
+<a href="sequences" class="col-offset-4 btn-mini btn-default btn-link">Default Track Select</a>
 <div id="login_dialog" title="Login">
 </div>
 <div id="tracks_div">

@@ -1,7 +1,6 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.impl.HibernateHandler;
 import org.junit.Ignore;
@@ -10,14 +9,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+//import org.apache.log4j.PropertyConfigurator;
+
 @Ignore
 public class HibernateHandlerTestGeneDB extends TestCase {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private HibernateHandler handler;
     
     public HibernateHandlerTestGeneDB() throws Exception
     {
-        PropertyConfigurator.configure("testSupport/log4j.properties");
+//        PropertyConfigurator.configure("testSupport/log4j.properties");
         try {
             handler = new HibernateHandler("testSupport/genedb.cfg.xml");
         }
@@ -36,7 +39,7 @@ public class HibernateHandlerTestGeneDB extends TestCase {
         }
         assertEquals("Number of snoRNAs", 3743, genes.size());
         for (Feature f : genes) {
-            System.out.println(f.getName());
+            logger.info(f.getName());
         }
     }
     

@@ -1,7 +1,6 @@
 package org.gmod.gbol.hibernate;
 
 import junit.framework.TestCase;
-import org.apache.log4j.PropertyConfigurator;
 import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
 import org.gmod.gbol.bioObject.io.BioObjectHandler;
@@ -13,14 +12,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+//import org.apache.log4j.PropertyConfigurator;
+
 @Ignore
 public class BioObjectHandlerTestGeneDB extends TestCase {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private BioObjectHandler handler;
     
     public BioObjectHandlerTestGeneDB() throws Exception
     {
-        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
+//        PropertyConfigurator.configure("src/test/resources/testSupport/log4j.properties");
         BioObjectConfiguration conf = new BioObjectConfiguration("src/test/resources/testSupport/gbolTwo.mapping.xml");
         SimpleObjectIOInterface h = new HibernateHandler("src/test/resources/testSupport/gbolTwo.cfg.xml");
         handler = new BioObjectHandler(conf, h);
@@ -88,9 +91,9 @@ public class BioObjectHandlerTestGeneDB extends TestCase {
     private void printFeatureInfo(AbstractSingleLocationBioFeature feature, int indent)
     {
         for (int i = 0; i < indent; ++i) {
-            System.out.print("\t");
+            logger.info("\t");
         }
-        System.out.printf("%s\t(%d,%d)%n", feature.getName(), feature.getFeatureLocation().getFmin(),
+        logger.info("%s\t(%d,%d)%n", feature.getName(), feature.getFeatureLocation().getFmin(),
                 feature.getFeatureLocation().getFmax());
     }
 

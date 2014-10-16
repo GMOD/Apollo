@@ -1,25 +1,18 @@
 package org.bbop.apollo.web.tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
+import org.apache.log4j.Logger;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureLocation;
 import org.gmod.gbol.simpleObject.FeatureRelationship;
 
+import java.util.*;
+
 public class FixGeneBoundaries {
-    
+
+    private final static Logger logger = Logger.getLogger(FixGeneBoundaries.class);
+
     private static Set<String> geneTypes;
     
     static {
@@ -47,7 +40,7 @@ public class FixGeneBoundaries {
                 }
                 FeatureLocation featureLoc = feature.getFeatureLocations().iterator().next();
                 if (featureLoc.getFmin() != fmin || featureLoc.getFmax() != fmax) {
-                    System.out.println("Updating " + feature.getUniqueName());
+                    logger.info("Updating " + feature.getUniqueName());
                     featureLoc.setFmin(fmin);
                     featureLoc.setFmax(fmax);
                     featuresToUpdate.add(feature);
@@ -74,12 +67,12 @@ public class FixGeneBoundaries {
                 System.exit(1);
             }
             else if (!line.hasOption('i')) {
-                System.err.println("Missing required input database");
+                logger.error("Missing required input database");
                 System.exit(1);
             }
         }
         catch( ParseException exp ) {
-            System.err.println( "Unexpected exception:" + exp.getMessage() );
+            logger.error( "Unexpected exception:" + exp.getMessage() );
             System.exit(1);
         }
         return line;
@@ -91,7 +84,7 @@ public class FixGeneBoundaries {
             fixGeneBoundaries(line.getOptionValue('i'));
         }
         catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

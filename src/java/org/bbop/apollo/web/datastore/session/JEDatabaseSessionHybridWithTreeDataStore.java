@@ -1,15 +1,6 @@
 package org.bbop.apollo.web.datastore.session;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-
+import org.apache.log4j.Logger;
 import org.bbop.apollo.editor.session.DataStore;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
@@ -19,7 +10,11 @@ import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.Feature;
 import org.gmod.gbol.simpleObject.FeatureLocation;
 
+import java.util.*;
+
 public class JEDatabaseSessionHybridWithTreeDataStore implements DataStore {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private JEDatabase db;
     private BioObjectConfiguration conf;
@@ -128,7 +123,7 @@ public class JEDatabaseSessionHybridWithTreeDataStore implements DataStore {
         features.remove(new FeatureData(feature));
         unindexFeature(feature);
         
-        System.out.println(features.size());
+        logger.info(features.size());
         
         /*    
         FeatureDataPositionComparator comparator = new FeatureDataPositionComparator();
@@ -267,7 +262,7 @@ public class JEDatabaseSessionHybridWithTreeDataStore implements DataStore {
     public void unindexFeature(AbstractSingleLocationBioFeature feature) {
         uniqueNameToStoredUniqueName.remove(feature.getUniqueName());
         
-//        System.out.println("unindexing :" + feature.getUniqueName());
+//        logger.info("unindexing :" + feature.getUniqueName());
         
         for (AbstractSingleLocationBioFeature child : feature.getChildren()) {
             unindexFeature(child);
@@ -288,18 +283,18 @@ public class JEDatabaseSessionHybridWithTreeDataStore implements DataStore {
         if (!dirtyFeatures.containsKey(topLevelFeature.getUniqueName())) {
             dirtyFeatures.put(topLevelFeature.getUniqueName(), topLevelFeature);
         }
-//        System.out.println("beginTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
+//        logger.info("beginTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
     }
     
     public void endTransactionForFeature(AbstractSingleLocationBioFeature feature) {
         AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
         dirtyFeatures.remove(topLevelFeature.getUniqueName());
-//        System.out.println("endTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
+//        logger.info("endTransactionForFeature: " + dirtyFeatures.size() + " [" + topLevelFeature.getUniqueName() + "]");
     }
 
     public void endTransactionForAllFeatures() {
         dirtyFeatures.clear();
-//        System.out.println("endTransactionForAllFeatures: " + dirtyFeatures.size());
+//        logger.info("endTransactionForAllFeatures: " + dirtyFeatures.size());
     }
     
     private AbstractSingleLocationBioFeature getTopLevelFeature(AbstractSingleLocationBioFeature feature) {

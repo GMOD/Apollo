@@ -39,7 +39,7 @@ public class UserManagerService extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
+            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
             if (!UserManager.getInstance().isInitialized()) {
                 ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
                 UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());

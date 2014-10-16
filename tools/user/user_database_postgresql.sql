@@ -1,4 +1,6 @@
+DROP TABLE IF EXISTS permissions;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS tracks;
 
 CREATE TABLE users(
 	user_id SERIAL,
@@ -8,8 +10,6 @@ CREATE TABLE users(
 );
 
 
-DROP TABLE IF EXISTS tracks;
-
 CREATE TABLE tracks(
 	track_id SERIAL,
 	track_name VARCHAR,
@@ -17,7 +17,6 @@ CREATE TABLE tracks(
 );
 
 
-DROP TABLE IF EXISTS permissions;
 
 CREATE TABLE permissions(
 	track_id INT,

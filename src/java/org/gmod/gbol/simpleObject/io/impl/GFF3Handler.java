@@ -1,29 +1,18 @@
 package org.gmod.gbol.simpleObject.io.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.gmod.gbol.simpleObject.AbstractSimpleObject;
-import org.gmod.gbol.simpleObject.CV;
-import org.gmod.gbol.simpleObject.CVTerm;
-import org.gmod.gbol.simpleObject.DB;
-import org.gmod.gbol.simpleObject.DBXref;
-import org.gmod.gbol.simpleObject.Feature;
-import org.gmod.gbol.simpleObject.FeatureLocation;
-import org.gmod.gbol.simpleObject.FeatureRelationship;
-import org.gmod.gbol.simpleObject.Organism;
-import org.gmod.gbol.simpleObject.SimpleObjectIteratorInterface;
+import org.apache.log4j.Logger;
+import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.simpleObject.io.FileHandler;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOException;
 import org.gmod.gbol.simpleObject.io.SimpleObjectIOInterface;
 
+import java.io.IOException;
+import java.util.*;
+
 
 public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private Organism organism;
     private String newlineCharacter;
@@ -138,14 +127,14 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
                         try {
                             this.constructFeature(line);
                         } catch (Exception e){
-                            System.err.println("Error parsing line " + i + " of GFF3 file " + this.getFilePath());
-                            System.err.println("Error message: " + e.getMessage());
+                            logger.error("Error parsing line " + i + " of GFF3 file " + this.getFilePath());
+                            logger.error("Error message: " + e.getMessage());
                             System.exit(-1);
                         }
                     } else if (this.parseMode.equals(ParseMode.FASTA)){
                         this.parseFASTA(line.trim());
                     } else {
-                        System.err.println("Don't know how to handle line " + line + " in parse mode " + this.parseMode.toString() + "");
+                        logger.error("Don't know how to handle line " + line + " in parse mode " + this.parseMode.toString() + "");
                     }
                 }
             }
@@ -158,7 +147,7 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
     }
 
     public void write(SimpleObjectIteratorInterface simpleObjects) {
-        System.err.println("Not implemented yet.");
+        logger.error("Not implemented yet.");
     }
     
     private void parseFASTA(String line) {
@@ -174,12 +163,12 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
     
     private void processDirective(String directive) {
         if (directive.equals("#")){
-            System.out.println("Feature Parsing Complete.");
+            logger.info("Feature Parsing Complete.");
             this.parseMode = ParseMode.FEATURE_COMPLETE;
         } else if (directive.equals("FASTA")){
             this.parseMode = ParseMode.FASTA;
         } else {
-            System.err.println("Can't handle directive '" + directive + "' yet.");
+            logger.error("Can't handle directive '" + directive + "' yet.");
         }
     }
     
@@ -268,11 +257,11 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
                 feature.getParentFeatureRelationships().add(fr);
             }
         } else if (key.equals("Target")){
-            System.err.println("Can't handle 'Target' attribute yet.");
+            logger.warn("Can't handle 'Target' attribute yet.");
         } else if (key.equals("Gap")){
-            System.err.println("Can't handle 'Gap' attribute yet.");
+            logger.warn("Can't handle 'Gap' attribute yet.");
         } else if (key.equals("Derives_from")){
-            System.err.println("Can't handle 'Derives_from' attribute yet.");
+            logger.warn("Can't handle 'Derives_from' attribute yet.");
         } else if (key.equals("Dbxref")){
             if (!value.contains(":")){
                 throw new Exception("Dbxref must be of the form DBTAG:ID");
@@ -287,7 +276,7 @@ public class GFF3Handler extends FileHandler implements SimpleObjectIOInterface 
             dbxref.setAccession(accession);
             feature.addDBXref(dbxref);
         } else if (key.equals("Ontology_term")){
-            System.err.println("Can't handle 'Ontology_term' attribute yet.");
+            logger.warn("Can't handle 'Ontology_term' attribute yet.");
         } else {
             if (!this.featurePropertyTypes.containsKey(key)){
                 this.featurePropertyTypes.put(key, new CVTerm(key,this.gffFeaturePropertyOntology));

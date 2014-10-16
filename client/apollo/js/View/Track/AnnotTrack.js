@@ -169,7 +169,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         
         this.topLevelParents = {};
     },
-    
+
     renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
         displayStart, displayEnd, priorCdsLength, reverse)  {
         var utrClass;
@@ -639,7 +639,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         console.log(featDiv);
                     }
                 }
-            } );
+            } )
+                .click(function(event){
+                    if (event.altKey) {
+                        track.getAnnotationInfoEditor();
+                    }
+                })
+            ;
         }
         
         if (!history) {

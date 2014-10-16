@@ -1,3 +1,3 @@
 #!/bin/bash
-./build.sh 
-mvn package
+./build.sh $1 && mvn package
+

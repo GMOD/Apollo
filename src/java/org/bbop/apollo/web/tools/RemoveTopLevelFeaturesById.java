@@ -1,6 +1,7 @@
 package org.bbop.apollo.web.tools;
 
 import org.apache.commons.cli.*;
+import org.apache.log4j.Logger;
 import org.bbop.apollo.web.datastore.JEDatabase;
 import org.gmod.gbol.simpleObject.Feature;
 
@@ -10,14 +11,16 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class RemoveTopLevelFeaturesById {
-    
+
+    private final static Logger logger = Logger.getLogger(RemoveTopLevelFeaturesById.class);
+
     public static void removeFeatures(String inputDb, Set<String> idsToRemove) {
         JEDatabase in = new JEDatabase(inputDb, false);
         for (Iterator<Feature> iter = in.getFeatureIterator(); iter.hasNext(); ) {
             Feature feature = iter.next();
             if (idsToRemove.contains(feature.getUniqueName())) {
                 iter.remove();
-                System.out.println("Removing " + feature);
+                logger.info("Removing " + feature);
             }
         }
     }
@@ -37,15 +40,15 @@ public class RemoveTopLevelFeaturesById {
                 System.exit(1);
             }
             else if (!line.hasOption('i')) {
-                System.err.println("Missing required input database");
+                logger.error("Missing required input database");
                 System.exit(1);
             }
             else if (!line.hasOption('I')) {
-                System.err.println("Missing required ID(s) to remove");
+                logger.error("Missing required ID(s) to remove");
             }
         }
         catch( ParseException exp ) {
-            System.err.println( "Unexpected exception:" + exp.getMessage() );
+            logger.error( "Unexpected exception:" + exp.getMessage() );
             System.exit(1);
         }
         return line;
@@ -57,7 +60,7 @@ public class RemoveTopLevelFeaturesById {
             removeFeatures(line.getOptionValue('i'), new HashSet<String>(Arrays.asList(line.getOptionValues('I'))));
         }
         catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             System.exit(1);
         }
     }

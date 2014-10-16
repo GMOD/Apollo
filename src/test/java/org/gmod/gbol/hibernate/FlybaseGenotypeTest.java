@@ -19,8 +19,6 @@ public class FlybaseGenotypeTest extends AbstractGBOLHibernateTest{
     }
     
     public void testAllelQuery(){
-        System.out.println("YO!");
-        
     }
     
 }
