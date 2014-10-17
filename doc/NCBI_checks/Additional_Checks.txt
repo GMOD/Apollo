@@ -1,0 +1,26 @@
+
+There were a variety of issues we dealt with the exported GFF from Apollo, and just ended up writing a set of post-apollo-export cleanup scripts that formatted everything back how it should be. Most of these are part of my biocode collection of scripts (https://github.com/jorvis/biocode).
+
+I think there might have been a few extras manually done to take care of a few other things (like those where the coordinates were negative) but what I'm pasting below represented the bulk of them:
+
+$ cat /home/jorvis/bin/process_webapollo_gff3.bash
+#!/bin/bash
+
+#1. Replace all instances of 'transcript' in the third column with 'mRNA'
+#2. Removes any orphaned features (which have no children or parent)
+#3. Finds RNAs which have no parent gene and adds them
+#4. Checks for any exon's which don't point to the right parent, corrects them
+#5. Collapse each gene coordinates to the widest child RNA
+#6. Removes any duplicate features based on the key string: molecule_id, parent_id, feature_type, start, stop
+
+/home/jorvis/git/biocode/gff/replace_gff_type_column_value.py -i $1 -it transcript -o $1.mRNA -ot mRNA
+
+/home/jorvis/git/biocode/gff/remove_orphaned_features.py -i $1.mRNA -o $1.mRNA.noorphans
+
+/home/jorvis/git/biocode/sandbox/jorvis/correct_RNAs_missing_genes.py -i $1.mRNA.noorphans -o $1.mRNA.noorphans.nomissinggenes
+
+/home/jorvis/git/biocode/sandbox/jorvis/correct_gff3_exon_parentage.py -i $1.mRNA.noorphans.nomissinggenes -o $1.mRNA.noorphans.nomissinggenes.fixedparents
+
+/home/jorvis/git/biocode/sandbox/jorvis/collapse_gene_coordinates_to_mRNA_range.py -i $1.mRNA.noorphans.nomissinggenes.fixedparents -o $1.mRNA.noorphans.nomissinggenes.fixedparents.collapsedgenes
+
+/home/jorvis/git/biocode/gff/remove_duplicate_features.py -i $1.mRNA.noorphans.nomissinggenes.fixedparents.collapsedgenes -o $1.mRNA.noorphans.nomissinggenes.fixedparents.collapsedgenes.nodupes
