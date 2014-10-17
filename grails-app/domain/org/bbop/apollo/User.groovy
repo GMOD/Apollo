@@ -4,7 +4,7 @@ class User {
     String username
     String passwordHash
     
-    static hasMany = [ roles: Role, permissions: String , tracks: Track,groupAnnotations: GroupAnnotation, userGroups:UserGroup]
+    static hasMany = [ roles: Role, permissions: String , sequences: Sequence,groupAnnotations: GroupAnnotation, userGroups:UserGroup]
 
     static belongsTo = [
             UserGroup

@@ -5,14 +5,16 @@ package org.bbop.apollo
 import grails.test.mixin.*
 import spock.lang.*
 
-@TestFor(TrackController)
-@Mock(Track)
-class TrackControllerSpec extends Specification {
+@TestFor(SequenceController)
+@Mock([Sequence,User,Genome])
+class SequenceControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["name"] = 'someValidName'
+        params["sequenceType"] = "sequence:scaffold"
+        params["sequenceCV"] = "sequence:scaffold"
     }
 
     void "Test the index action returns the correct model"() {
@@ -21,8 +23,8 @@ class TrackControllerSpec extends Specification {
             controller.index()
 
         then:"The model is correct"
-            !model.trackInstanceList
-            model.trackInstanceCount == 0
+            !model.sequenceInstanceList
+            model.sequenceInstanceCount == 0
     }
 
     void "Test the create action returns the correct model"() {
@@ -30,7 +32,7 @@ class TrackControllerSpec extends Specification {
             controller.create()
 
         then:"The model is correctly created"
-            model.trackInstance!= null
+            model.sequenceInstance!= null
     }
 
     void "Test the save action correctly persists an instance"() {
@@ -38,25 +40,25 @@ class TrackControllerSpec extends Specification {
         when:"The save action is executed with an invalid instance"
             request.contentType = FORM_CONTENT_TYPE
             request.method = 'POST'
-            def track = new Track()
-            track.validate()
-            controller.save(track)
+            def sequence = new Sequence()
+            sequence.validate()
+            controller.save(sequence)
 
         then:"The create view is rendered again with the correct model"
-            model.trackInstance!= null
+            model.sequenceInstance!= null
             view == 'create'
 
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            track = new Track(params)
+            sequence = new Sequence(params)
 
-            controller.save(track)
+            controller.save(sequence)
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/track/show/1'
+            response.redirectedUrl == '/sequence/show/1'
             controller.flash.message != null
-            Track.count() == 1
+            Sequence.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
@@ -68,11 +70,11 @@ class TrackControllerSpec extends Specification {
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def track = new Track(params)
-            controller.show(track)
+            def sequence = new Sequence(params)
+            controller.show(sequence)
 
         then:"A model is populated containing the domain instance"
-            model.trackInstance == track
+            model.sequenceInstance == sequence
     }
 
     void "Test that the edit action returns the correct model"() {
@@ -84,11 +86,11 @@ class TrackControllerSpec extends Specification {
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def track = new Track(params)
-            controller.edit(track)
+            def sequence = new Sequence(params)
+            controller.edit(sequence)
 
         then:"A model is populated containing the domain instance"
-            model.trackInstance == track
+            model.sequenceInstance == sequence
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
@@ -98,28 +100,28 @@ class TrackControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/track/index'
+            response.redirectedUrl == '/sequence/index'
             flash.message != null
 
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def track = new Track()
-            track.validate()
-            controller.update(track)
+            def sequence = new Sequence()
+            sequence.validate()
+            controller.update(sequence)
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.trackInstance == track
+            model.sequenceInstance == sequence
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
             populateValidParams(params)
-            track = new Track(params).save(flush: true)
-            controller.update(track)
+            sequence = new Sequence(params).save(flush: true)
+            controller.update(sequence)
 
         then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/track/show/$track.id"
+            response.redirectedUrl == "/sequence/show/$sequence.id"
             flash.message != null
     }
 
@@ -130,23 +132,23 @@ class TrackControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/track/index'
+            response.redirectedUrl == '/sequence/index'
             flash.message != null
 
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def track = new Track(params).save(flush: true)
+            def sequence = new Sequence(params).save(flush: true)
 
         then:"It exists"
-            Track.count() == 1
+            Sequence.count() == 1
 
         when:"The domain instance is passed to the delete action"
-            controller.delete(track)
+            controller.delete(sequence)
 
         then:"The instance is deleted"
-            Track.count() == 0
-            response.redirectedUrl == '/track/index'
+            Sequence.count() == 0
+            response.redirectedUrl == '/sequence/index'
             flash.message != null
     }
 }

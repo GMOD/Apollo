@@ -28,10 +28,10 @@
 	
 <ul class="one-to-many">
 <g:each in="${genomeInstance?.tracks?}" var="t">
-    <li><g:link controller="track" action="show" id="${t.id}">${t?.encodeAsHTML()}</g:link></li>
+    <li><g:link controller="sequence" action="show" id="${t.id}">${t?.encodeAsHTML()}</g:link></li>
 </g:each>
 <li class="add">
-<g:link controller="track" action="create" params="['genome.id': genomeInstance?.id]">${message(code: 'default.add.label', args: [message(code: 'track.label', default: 'Track')])}</g:link>
+<g:link controller="sequence" action="create" params="['genome.id': genomeInstance?.id]">${message(code: 'default.add.label', args: [message(code: 'track.label', default: 'Track')])}</g:link>
 </li>
 </ul>
 

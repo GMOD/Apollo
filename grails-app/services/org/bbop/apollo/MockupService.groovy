@@ -48,7 +48,7 @@ class MockupService {
         if (Genome.count > 0) return
 
         Genome genome1 = new Genome(name: "Danio rerio").save()
-        Track track1 = new Track(name: "Zebrafish Track 1", organismName: "Bunny Foofo"
+        Sequence track1 = new Sequence(name: "Zebrafish Track 1", organismName: "Bunny Foofo"
                 , sequenceCV: "sequence", sequenceType: "mRNA"
                 , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"
                 , dataDirectory: "/opt/apollo/jbrowse/data"
@@ -80,7 +80,7 @@ class MockupService {
     def addDataAdapters() {
         if (DataAdapter.count > 0) return
         new DataAdapter(permission: 1, key: "GFF3", options: "output=file&format=gzip").save()
-        DataAdapter fastaDataAdapter = new DataAdapter(permission: 1, key: "FASTA").save()
+        DataAdapter fastaDataAdapter = new DataAdapter(permission: 1, key: "FASTA").save(failOnError: true,flush: true)
         DataAdapter peptideFastaDataAdapater = new DataAdapter(permission: 1, key: "peptide", options: "output=file&format=gzip&seqType=peptide").save()
         DataAdapter cDNAFastaDataAdapater = new DataAdapter(permission: 1, key: "cDNA", options: "output=file&format=gzip&seqType=cdna").save()
         DataAdapter cdsFastaDataAdapater = new DataAdapter(permission: 1, key: "cDNA", options: "output=file&format=gzip&seqType=cds").save()

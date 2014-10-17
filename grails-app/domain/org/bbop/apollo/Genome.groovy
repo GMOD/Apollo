@@ -7,7 +7,7 @@ class Genome {
     }
 
     static hasMany = [
-            tracks: Track
+            tracks: Sequence
     ]
 
     String name

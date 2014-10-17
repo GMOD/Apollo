@@ -143,9 +143,9 @@ log4j.main = {
 }
 
 
-grails.gorm.default.constraints = {
-    '*'(nullable: true)
-}
+//grails.gorm.default.constraints = {
+//    '*'(nullable: true)
+//}
 
 apollo.datastore.directory = "/opt/apollo/data"
 apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"

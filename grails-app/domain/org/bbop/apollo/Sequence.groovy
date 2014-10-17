@@ -3,7 +3,7 @@ package org.bbop.apollo
 /**
  * Replaces tracks in config.xml/tracks
  */
-class Track {
+class Sequence {
 
     static constraints = {
         genome nullable: true
@@ -11,6 +11,8 @@ class Track {
         dataDirectory nullable: true
         organismName nullable: true
         translationTableLocation nullable: true
+        spliceDonorSite nullable: true
+        spliceAcceptor nullable: true
     }
 
     static hasMany = [

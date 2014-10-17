@@ -6,11 +6,11 @@ class GroupAnnotation {
     }
 
     static hasMany = [
-            tracks: Track
+            sequences: Sequence
             ,annotations: Annotation
     ]
 
-    static belongsTo = [Track]
+    static belongsTo = [Sequence]
 
     String name
 }

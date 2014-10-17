@@ -5,14 +5,13 @@ package org.bbop.apollo
 import grails.test.mixin.*
 import spock.lang.*
 
-@TestFor(GroupController)
-@Mock(GroupAnnotation)
-class GroupControllerSpec extends Specification {
+@TestFor(GroupAnnotationController)
+@Mock([GroupAnnotation,Sequence,Annotation])
+class GroupAnnotationControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
-        // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["name"] = 'someValidName'
     }
 
     void "Test the index action returns the correct model"() {
@@ -21,8 +20,8 @@ class GroupControllerSpec extends Specification {
             controller.index()
 
         then:"The model is correct"
-            !model.groupInstanceList
-            model.groupInstanceCount == 0
+            !model.groupAnnotationInstanceList
+            model.groupAnnotationInstanceCount == 0
     }
 
     void "Test the create action returns the correct model"() {
@@ -30,7 +29,7 @@ class GroupControllerSpec extends Specification {
             controller.create()
 
         then:"The model is correctly created"
-            model.groupInstance!= null
+            model.groupAnnotationInstance!= null
     }
 
     void "Test the save action correctly persists an instance"() {
@@ -43,7 +42,7 @@ class GroupControllerSpec extends Specification {
             controller.save(group)
 
         then:"The create view is rendered again with the correct model"
-            model.groupInstance!= null
+            model.groupAnnotationInstance!= null
             view == 'create'
 
         when:"The save action is executed with a valid instance"
@@ -54,7 +53,7 @@ class GroupControllerSpec extends Specification {
             controller.save(group)
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/group/show/1'
+            response.redirectedUrl == '/groupAnnotation/show/1'
             controller.flash.message != null
             GroupAnnotation.count() == 1
     }
@@ -72,7 +71,7 @@ class GroupControllerSpec extends Specification {
             controller.show(group)
 
         then:"A model is populated containing the domain instance"
-            model.groupInstance == group
+            model.groupAnnotationInstance == group
     }
 
     void "Test that the edit action returns the correct model"() {
@@ -88,7 +87,7 @@ class GroupControllerSpec extends Specification {
             controller.edit(group)
 
         then:"A model is populated containing the domain instance"
-            model.groupInstance == group
+            model.groupAnnotationInstance == group
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
@@ -98,7 +97,7 @@ class GroupControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/group/index'
+            response.redirectedUrl == '/groupAnnotation/index'
             flash.message != null
 
 
@@ -110,7 +109,7 @@ class GroupControllerSpec extends Specification {
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.groupInstance == group
+            model.groupAnnotationInstance == group
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
@@ -119,7 +118,7 @@ class GroupControllerSpec extends Specification {
             controller.update(group)
 
         then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/group/show/$group.id"
+            response.redirectedUrl == "/groupAnnotation/show/$group.id"
             flash.message != null
     }
 
@@ -130,7 +129,7 @@ class GroupControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/group/index'
+            response.redirectedUrl == '/groupAnnotation/index'
             flash.message != null
 
         when:"A domain instance is created"
@@ -146,7 +145,7 @@ class GroupControllerSpec extends Specification {
 
         then:"The instance is deleted"
             GroupAnnotation.count() == 0
-            response.redirectedUrl == '/group/index'
+            response.redirectedUrl == '/groupAnnotation/index'
             flash.message != null
     }
 }

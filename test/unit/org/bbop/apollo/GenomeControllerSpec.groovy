@@ -11,8 +11,8 @@ class GenomeControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
-        // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["name"] = 'someValidName'
+        params["directory"] = 'someDirectory'
     }
 
     void "Test the index action returns the correct model"() {
@@ -98,7 +98,8 @@ class GenomeControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/genome/index'
+//            response.redirectedUrl == '/genome/index'
+        response.redirectedUrl == '/home'
             flash.message != null
 
 
@@ -130,7 +131,8 @@ class GenomeControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/genome/index'
+//            response.redirectedUrl == '/genome/index'
+        response.redirectedUrl == '/home'
             flash.message != null
 
         when:"A domain instance is created"
@@ -146,7 +148,8 @@ class GenomeControllerSpec extends Specification {
 
         then:"The instance is deleted"
             Genome.count() == 0
-            response.redirectedUrl == '/genome/index'
+//            response.redirectedUrl == '/genome/index'
+        response.redirectedUrl == '/home'
             flash.message != null
     }
 }

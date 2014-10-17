@@ -4,6 +4,14 @@ class DataAdapter {
 
 
     static constraints = {
+        key nullable: false
+        permission nullable: false
+        options nullable: true
+        implementationClass nullable: true
+        tempDirectory nullable: true
+        exportSourceGenomicSequence nullable: true
+        source nullable: true
+        featureTypeString nullable: true
     }
 
     static hasMany = [

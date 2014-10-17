@@ -1,4 +1,4 @@
-<%@ page import="org.bbop.apollo.User" %>
+<%@ page import="org.bbop.apollo.Sequence; org.bbop.apollo.User" %>
 
 
 
@@ -43,7 +43,7 @@
 		<g:message code="user.tracks.label" default="Tracks" />
 		
 	</label>
-	<g:select name="tracks" from="${org.bbop.apollo.Track.list()}" multiple="multiple" optionKey="id" size="5" value="${userInstance?.tracks*.id}" class="many-to-many"/>
+	<g:select name="tracks" from="${org.bbop.apollo.Sequence.list()}" multiple="multiple" optionKey="id" size="5" value="${userInstance?.tracks*.id}" class="many-to-many"/>
 
 </div>
 
