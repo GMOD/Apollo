@@ -1,5 +1,9 @@
 package org.bbop.apollo
 
+/**
+ * Converted
+ * Chado?
+ */
 class FeatureRelationshipPublication {
 
     static constraints = {

@@ -1,5 +1,9 @@
 package org.bbop.apollo
 
+/**
+ * Converted
+ * Chado?
+ */
 class FeatureCVTermProperty {
 
     static constraints = {

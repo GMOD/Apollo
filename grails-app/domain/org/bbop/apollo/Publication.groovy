@@ -1,5 +1,9 @@
 package org.bbop.apollo
 
+/**
+ * Converted
+ * Chado?
+ */
 class Publication {
 
     static constraints = {
@@ -31,5 +35,60 @@ class Publication {
             ,publicationDBXrefs: PublicationDBXref
     ]
 
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( (other == null ) ) return false;
+        if ( !(other instanceof Publication) ) return false;
+        Publication castOther = ( Publication ) other;
+
+        return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
+    }
+
+    public int hashCode() {
+        int result = 17;
+
+
+
+
+
+
+
+
+
+
+
+        result = 37 * result + ( getUniqueName() == null ? 0 : this.getUniqueName().hashCode() );
+
+
+
+
+
+
+
+        return result;
+    }
+
+    public Publication generateClone() {
+        Publication cloned = new Publication();
+        cloned.type = this.type;
+        cloned.title = this.title;
+        cloned.volumeTitle = this.volumeTitle;
+        cloned.volume = this.volume;
+        cloned.seriesName = this.seriesName;
+        cloned.issue = this.issue;
+        cloned.publicationYear = this.publicationYear;
+        cloned.pages = this.pages;
+        cloned.miniReference = this.miniReference;
+        cloned.uniqueName = this.uniqueName;
+        cloned.isObsolete = this.isObsolete;
+        cloned.publisher = this.publisher;
+        cloned.publicationPlace = this.publicationPlace;
+        cloned.childPublicationRelationships = this.childPublicationRelationships;
+        cloned.publicationAuthors = this.publicationAuthors;
+        cloned.publicationDBXrefs = this.publicationDBXrefs;
+        cloned.parentPublicationRelationships = this.parentPublicationRelationships;
+        return cloned;
+    }
 
 }

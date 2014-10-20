@@ -1,5 +1,9 @@
 package org.bbop.apollo
 
+/**
+ * Converted
+ * Chado?
+ */
 class CVTermRelationship {
 
     static constraints = {

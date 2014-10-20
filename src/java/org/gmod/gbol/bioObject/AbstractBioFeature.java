@@ -257,7 +257,8 @@ public abstract class AbstractBioFeature extends AbstractBioObject {
             }
         }
         Collections.sort(comments, new Comparator<Comment>() {
-            @Override
+
+//            @Override
             public int compare(Comment comment1, Comment comment2) {
                 if (comment1.getFeatureProperty().getType().equals(comment2.getFeatureProperty().getType())) {
                     return new Integer(comment1.getFeatureProperty().getRank()).compareTo(comment2.getFeatureProperty().getRank());

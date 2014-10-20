@@ -1,5 +1,10 @@
 package org.bbop.apollo
 
+
+/**
+ * Converted
+ * Chado?
+ */
 class FeatureSynonym {
 
     static constraints = {

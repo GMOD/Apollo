@@ -1,6 +1,10 @@
 package org.bbop.apollo
 
 
+/**
+ * Converted
+ * Chado?
+ */
 class Genotype {
 
     static constraints = {
