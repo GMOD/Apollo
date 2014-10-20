@@ -1,0 +1,42 @@
+package org.bbop.apollo
+
+class DB {
+
+    static constraints = {
+    }
+
+     Integer dbId;
+     String name;
+     String description;
+     String urlPrefix;
+     String url;
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( (other == null ) ) return false;
+        if ( !(other instanceof DB) ) return false;
+        DB castOther = ( DB ) other;
+
+        return ( (this.getName()==castOther.getName()) || ( this.getName()!=null && castOther.getName()!=null && this.getName().equals(castOther.getName()) ) );
+    }
+
+    public int hashCode() {
+        int result = 17;
+
+
+        result = 37 * result + ( getName() == null ? 0 : this.getName().hashCode() );
+
+
+
+        return result;
+    }
+
+    public DB generateClone() {
+        DB cloned = new DB();
+        cloned.name = this.name;
+        cloned.description = this.description;
+        cloned.urlPrefix = this.urlPrefix;
+        cloned.url = this.url;
+        return cloned;
+    }
+}

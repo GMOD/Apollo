@@ -1,0 +1,55 @@
+package org.bbop.apollo
+
+
+class Genotype {
+
+    static constraints = {
+    }
+
+    Integer genotypeId;
+    String name;
+    String uniqueName;
+    String description;
+//    Set<PhenotypeDescription> phenotypeDescriptions = new HashSet<PhenotypeDescription>(0);
+//    Set<FeatureGenotype> featureGenotypes = new HashSet<FeatureGenotype>(0);
+//    Set<PhenotypeStatement> phenotypeStatements = new HashSet<PhenotypeStatement>(0);
+
+    static hasMany = [
+           phenotypeDescriptions  : PhenotypeDescription
+            ,featureGenotypes: FeatureGenotype
+            ,phenotypeStatements : PhenotypeStatement
+    ]
+
+    public boolean equals(Object other) {
+        if ( (this == other ) ) return true;
+        if ( (other == null ) ) return false;
+        if ( !(other instanceof Genotype) ) return false;
+        Genotype castOther = ( Genotype ) other;
+
+        return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
+    }
+
+    public int hashCode() {
+        int result = 17;
+
+
+
+        result = 37 * result + ( getUniqueName() == null ? 0 : this.getUniqueName().hashCode() );
+
+
+
+
+        return result;
+    }
+
+    public Genotype generateClone() {
+        Genotype cloned = new Genotype();
+        cloned.name = this.name;
+        cloned.uniqueName = this.uniqueName;
+        cloned.description = this.description;
+        cloned.phenotypeDescriptions = this.phenotypeDescriptions;
+        cloned.featureGenotypes = this.featureGenotypes;
+        cloned.phenotypeStatements = this.phenotypeStatements;
+        return cloned;
+    }
+}
