@@ -1,0 +1,15 @@
+package org.bbop.apollo
+
+/**
+ * Note: top-level in the sequence ontology
+ */
+class Plus2Frameshift extends Frameshift{
+
+    static constraints = {
+    }
+
+    String ontologyId = "SO:0000860"// XX:NNNNNNN
+    String cvTerm = "Plus2Frameshift"
+
+    // add convenience methods
+}
