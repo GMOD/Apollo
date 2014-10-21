@@ -12,4 +12,13 @@ class Minus1Frameshift extends Frameshift{
     String cvTerm = "Minus1Frameshift"
 
     // add convenience methods
+    @Override
+    boolean isPlusFrameshift() {
+        return false
+    }
+
+    @Override
+    int getFrameshiftValue() {
+        return 1
+    }
 }
