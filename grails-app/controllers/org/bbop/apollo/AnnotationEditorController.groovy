@@ -8,6 +8,9 @@ import org.gmod.gbol.util.SequenceUtil
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 
+/**
+ * From the AnnotationEditorService
+ */
 class AnnotationEditorController {
 
     String REST_OPERATION = "operation"
@@ -111,17 +114,23 @@ class AnnotationEditorController {
     def getFeatures() {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         JSONArray jsonFeatures = new JSONArray()
+        returnObject.put("features",jsonFeatures)
 
-//        for (AbstractSingleLocationBioFeature gbolFeature : editor.getSession().getFeatures()) {
-//            if (gbolFeature instanceof Gene) {
-//                for (Transcript transcript : ((Gene)gbolFeature).getTranscripts()) {
+        Sequence sequence = Sequence.findByName(returnObject.get("track"))
+        List<Feature> featureList = sequence.features
+        for (Feature feature : featureList) {
+            if (feature instanceof Gene) {
+                Gene gene = (Gene) feature
+                for (Transcript transcript : gene.getTranscripts()) {
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
-//                }
-//            }
-//            else {
+                    jsonFeatures.put(transcript as JSON);
+                }
+            }
+            else {
+                jsonFeatures.put( feature as JSON)
 //                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
-//            }
-//        }
+            }
+        }
 
         returnObject.put("features",jsonFeatures)
         // TODO: get features from annotation session
@@ -141,6 +150,27 @@ class AnnotationEditorController {
 //        }
 
         render returnObject
+    }
+
+    def getOrganism() {
+//        JSONObject organism = new JSONObject();
+//        if (editor.getSession().getOrganism() == null) {
+//            return;
+//        }
+//        organism.put("genus", editor.getSession().getOrganism().getGenus());
+//        organism.put("species", editor.getSession().getOrganism().getSpecies());
+//        out.write(organism.toString());
+
+        // the editor is bound to the session
+        log.debug  "getting sequence alterations "
+        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+
+        Organism organism = editor.getSession().getOrganism()
+        render organism as JSON
+//
+//
+//        JSONArray jsonFeatures = new JSONArray()
+//        returnObject.put("features",jsonFeatures)
     }
 
     private JSONObject createJSONFeatureContainer(JSONObject ... features) throws JSONException {

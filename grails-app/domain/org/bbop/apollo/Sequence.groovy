@@ -18,6 +18,7 @@ class Sequence {
     static hasMany = [
             users:User
             ,groups:GroupAnnotation
+            ,features: Feature
     ]
 
     static belongsTo = [User]
