@@ -133,7 +133,6 @@ class AnnotationEditorController {
         }
 
         returnObject.put("features",jsonFeatures)
-        // TODO: get features from annotation session
 
         render returnObject
     }
