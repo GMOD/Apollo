@@ -12,8 +12,8 @@ class CVTermPath {
      Integer cvtermPathId;
      CVTerm type;
      CVTerm subjectCVTerm;
-     CV cv;
      CVTerm objectCVTerm;
+    CV cv;
      Integer pathDistance;
 
 

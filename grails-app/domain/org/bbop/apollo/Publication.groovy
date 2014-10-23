@@ -35,6 +35,11 @@ class Publication {
             ,publicationDBXrefs: PublicationDBXref
     ]
 
+    static mappedBy = [
+            childPublicationRelationships :"subjectPublication"
+            ,parentPublicationRelationships : "objectPublication"
+    ]
+
 
     public boolean equals(Object other) {
         if ( (this == other ) ) return true;

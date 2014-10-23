@@ -46,6 +46,13 @@ class Feature {
             ,featureProperties: FeatureProperty
     ]
 
+    static mappedBy = [
+            parentFeatureRelationships: "objectFeature"
+            ,childFeatureRelationships: "subjectFeature"
+            ,featureGenotypes: "feature"
+            ,featureLocations: "feature"
+    ]
+
 
     public boolean equals(Object other) {
         if ( (this == other ) ) return true;
