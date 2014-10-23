@@ -32,12 +32,12 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${groupInstance?.tracks}">
+				<g:if test="${groupInstance?.sequences}">
 				<li class="fieldcontain">
-					<span id="tracks-label" class="property-label"><g:message code="group.tracks.label" default="Tracks" /></span>
+					<span id="sequences-label" class="property-label"><g:message code="group.sequences.label" default="Sequences" /></span>
 					
-						<g:each in="${groupInstance.tracks}" var="t">
-						<span class="property-value" aria-labelledby="tracks-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.encodeAsHTML()}</g:link></span>
+						<g:each in="${groupInstance.sequences}" var="t">
+						<span class="property-value" aria-labelledby="sequences-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.encodeAsHTML()}</g:link></span>
 						</g:each>
 					
 				</li>

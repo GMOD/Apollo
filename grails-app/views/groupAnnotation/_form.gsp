@@ -11,9 +11,9 @@
 
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: groupInstance, field: 'tracks', 'error')} ">
-	<label for="tracks">
-		<g:message code="group.tracks.label" default="Tracks" />
+<div class="fieldcontain ${hasErrors(bean: groupInstance, field: 'sequences', 'error')} ">
+	<label for="sequences">
+		<g:message code="group.sequences.label" default="Sequences" />
 		
 	</label>
 	

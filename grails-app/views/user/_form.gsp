@@ -38,12 +38,12 @@
 
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: userInstance, field: 'tracks', 'error')} ">
-	<label for="tracks">
-		<g:message code="user.tracks.label" default="Tracks" />
+<div class="fieldcontain ${hasErrors(bean: userInstance, field: 'sequences', 'error')} ">
+	<label for="sequences">
+		<g:message code="user.sequences.label" default="Sequences" />
 		
 	</label>
-	<g:select name="tracks" from="${org.bbop.apollo.Sequence.list()}" multiple="multiple" optionKey="id" size="5" value="${userInstance?.tracks*.id}" class="many-to-many"/>
+	<g:select name="sequences" from="${org.bbop.apollo.Sequence.list()}" multiple="multiple" optionKey="id" size="5" value="${userInstance?.sequences*.id}" class="many-to-many"/>
 
 </div>
 

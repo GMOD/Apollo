@@ -53,12 +53,12 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${userInstance?.tracks}">
+				<g:if test="${userInstance?.sequences}">
 				<li class="fieldcontain">
-					<span id="tracks-label" class="property-label"><g:message code="user.tracks.label" default="Tracks" /></span>
+					<span id="sequences-label" class="property-label"><g:message code="user.sequences.label" default="Sequences" /></span>
 					
-						<g:each in="${userInstance.tracks}" var="t">
-						<span class="property-value" aria-labelledby="tracks-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.name}</g:link></span>
+						<g:each in="${userInstance.sequences}" var="t">
+						<span class="property-value" aria-labelledby="sequences-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.name}</g:link></span>
 						</g:each>
 					
 				</li>

@@ -20,18 +20,18 @@
 
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: genomeInstance, field: 'tracks', 'error')} ">
-	<label for="tracks">
-		<g:message code="genome.tracks.label" default="Tracks" />
+<div class="fieldcontain ${hasErrors(bean: genomeInstance, field: 'sequences', 'error')} ">
+	<label for="sequences">
+		<g:message code="genome.sequences.label" default="Sequences" />
 		
 	</label>
 	
 <ul class="one-to-many">
-<g:each in="${genomeInstance?.tracks?}" var="t">
+<g:each in="${genomeInstance?.sequences?}" var="t">
     <li><g:link controller="sequence" action="show" id="${t.id}">${t?.encodeAsHTML()}</g:link></li>
 </g:each>
 <li class="add">
-<g:link controller="sequence" action="create" params="['genome.id': genomeInstance?.id]">${message(code: 'default.add.label', args: [message(code: 'track.label', default: 'Track')])}</g:link>
+<g:link controller="sequence" action="create" params="['genome.id': genomeInstance?.id]">${message(code: 'default.add.label', args: [message(code: 'sequence.label', default: 'Sequence')])}</g:link>
 </li>
 </ul>
 

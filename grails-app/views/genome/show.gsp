@@ -41,12 +41,12 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${genomeInstance?.tracks}">
+				<g:if test="${genomeInstance?.sequences}">
 				<li class="fieldcontain">
-					<span id="tracks-label" class="property-label"><g:message code="genome.tracks.label" default="Tracks" /></span>
+					<span id="sequences-label" class="property-label"><g:message code="genome.sequences.label" default="Sequences" /></span>
 					
-						<g:each in="${genomeInstance.tracks}" var="t">
-						<span class="property-value" aria-labelledby="tracks-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.name}</g:link></span>
+						<g:each in="${genomeInstance.sequences}" var="t">
+						<span class="property-value" aria-labelledby="sequences-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.name}</g:link></span>
 						</g:each>
 					
 				</li>

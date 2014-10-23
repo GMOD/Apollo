@@ -39,7 +39,7 @@ class SequenceController {
 
         request.withFormat {
             form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'sequence.label', default: 'Track'), sequenceInstance.id])
+                flash.message = message(code: 'default.created.message', args: [message(code: 'sequence.label', default: 'Sequence'), sequenceInstance.id])
                 redirect sequenceInstance
             }
             '*' { respond sequenceInstance, [status: CREATED] }
@@ -66,7 +66,7 @@ class SequenceController {
 
         request.withFormat {
             form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'Track.label', default: 'Track'), sequenceInstance.id])
+                flash.message = message(code: 'default.updated.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
                 redirect sequenceInstance
             }
             '*'{ respond sequenceInstance, [status: OK] }
@@ -85,7 +85,7 @@ class SequenceController {
 
         request.withFormat {
             form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'Track.label', default: 'Track'), sequenceInstance.id])
+                flash.message = message(code: 'default.deleted.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
                 redirect action:"index", method:"GET"
             }
             '*'{ render status: NO_CONTENT }
@@ -95,7 +95,7 @@ class SequenceController {
     protected void notFound() {
         request.withFormat {
             form multipartForm {
-                flash.message = message(code: 'default.not.found.message', args: [message(code: 'sequence.label', default: 'Track'), params.id])
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'sequence.label', default: 'Sequence'), params.id])
                 redirect action: "index", method: "GET"
             }
             '*'{ render status: NOT_FOUND }
