@@ -7,6 +7,21 @@ package org.bbop.apollo
 class FeatureLocation {
 
     static constraints = {
+        feature nullable: false
+        fmin nullable: false
+        fmax nullable: false
+
+
+        isFminPartial nullable: true
+        featureLocationId nullable: true
+        sourceFeature nullable: true
+        isFmaxPartial nullable: true
+        strand nullable: true
+        phase nullable: true
+        residueInfo nullable: true
+        locgroup nullable: true
+        rank nullable: true
+
     }
 
     Integer featureLocationId;
@@ -21,8 +36,6 @@ class FeatureLocation {
     String residueInfo;
     int locgroup;
     int rank;
-
-
 
 //    Set<FeatureLocationPublication> featureLocationPublications = new HashSet<FeatureLocationPublication>(0);
 

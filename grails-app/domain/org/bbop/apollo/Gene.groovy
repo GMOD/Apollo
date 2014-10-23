@@ -50,16 +50,16 @@ class Gene extends BiologicalRegion{
         Collection<CVTerm> partOfCvterm = CVTerm.findAllByName("PartOf")
 
         // no feature location, set location to transcript's
-        if (getFeatureLocation() == null) {
-            setFeatureLocation(new FeatureLocation(transcript.getFeatureLocation()));
+        if (getSingleFeatureLocation() == null) {
+            setFeatureLocation(new FeatureLocation(transcript.getSingleFeatureLocation()));
         }
         else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
-            if (transcript.getFeatureLocation().getFmin() < getFeatureLocation().getFmin()) {
-                getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
+            if (transcript.getSingleFeatureLocation().getFmin() < getSingleFeatureLocation().getFmin()) {
+                getSingleFeatureLocation().setFmin(transcript.getSingleFeatureLocation().getFmin());
             }
-            if (transcript.getFeatureLocation().getFmax() > getFeatureLocation().getFmax()) {
-                getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax());
+            if (transcript.getSingleFeatureLocation().getFmax() > getSingleFeatureLocation().getFmax()) {
+                getSingleFeatureLocation().setFmax(transcript.getSingleFeatureLocation().getFmax());
             }
         }
 
@@ -126,11 +126,11 @@ class Gene extends BiologicalRegion{
         Integer fmin = null;
         Integer fmax = null;
         for (Transcript t : getTranscripts()) {
-            if (fmin == null || t.getFeatureLocation().getFmin() < fmin) {
-                fmin = t.getFeatureLocation().getFmin();
+            if (fmin == null || t.getSingleFeatureLocation().getFmin() < fmin) {
+                fmin = t.getSingleFeatureLocation().getFmin();
             }
-            if (fmax == null || t.getFeatureLocation().getFmax() > fmax) {
-                fmax = t.getFeatureLocation().getFmax();
+            if (fmax == null || t.getSingleFeatureLocation().getFmax() > fmax) {
+                fmax = t.getSingleFeatureLocation().getFmax();
             }
         }
         if (fmin != null) {

@@ -19,7 +19,7 @@ class FeatureLocationPublication {
         if ( !(other instanceof FeatureLocationPublication) ) return false;
         FeatureLocationPublication castOther = ( FeatureLocationPublication ) other;
 
-        return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && ( (this.getFeatureLocation()==castOther.getFeatureLocation()) || ( this.getFeatureLocation()!=null && castOther.getFeatureLocation()!=null && this.getFeatureLocation().equals(castOther.getFeatureLocation()) ) );
+        return ( (this.getPublication()==castOther.getPublication()) || ( this.getPublication()!=null && castOther.getPublication()!=null && this.getPublication().equals(castOther.getPublication()) ) ) && ( (this.getSingleFeatureLocation()==castOther.getSingleFeatureLocation()) || ( this.getSingleFeatureLocation()!=null && castOther.getSingleFeatureLocation()!=null && this.getSingleFeatureLocation().equals(castOther.getSingleFeatureLocation()) ) );
     }
 
     public int hashCode() {
@@ -27,7 +27,7 @@ class FeatureLocationPublication {
 
 
         result = 37 * result + ( getPublication() == null ? 0 : this.getPublication().hashCode() );
-        result = 37 * result + ( getFeatureLocation() == null ? 0 : this.getFeatureLocation().hashCode() );
+        result = 37 * result + ( getSingleFeatureLocation() == null ? 0 : this.getSingleFeatureLocation().hashCode() );
         return result;
     }
 

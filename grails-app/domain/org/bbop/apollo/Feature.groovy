@@ -7,6 +7,23 @@ package org.bbop.apollo
 class Feature {
 
     static constraints = {
+
+        featureId nullable: true
+
+        name nullable: false
+
+        type nullable: true
+
+        uniqueName nullable: true
+        dbxref nullable: true
+        organism nullable: true
+        residues nullable: true
+        sequenceLength nullable: true
+        md5checksum nullable: true
+        isAnalysis nullable: true
+        isObsolete nullable: true
+        timeAccessioned nullable: true
+        timeLastModified nullable: true
     }
 
     Integer featureId;
@@ -55,7 +72,7 @@ class Feature {
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
+//        if ( (this == other ) ) return true;
         if ( (other == null ) ) return false;
         if ( !(other instanceof Feature) ) return false;
         Feature castOther = ( Feature ) other;
@@ -126,7 +143,7 @@ class Feature {
      *
      * @return FeatureLocation of this object
      */
-    public FeatureLocation getFeatureLocation() {
+    public FeatureLocation getSingleFeatureLocation() {
         Collection<FeatureLocation> locs = getFeatureLocations();
         if (locs != null) {
             Iterator<FeatureLocation> i = locs.iterator();

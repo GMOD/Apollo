@@ -1,6 +1,5 @@
 package org.bbop.apollo
 
-import edu.sdsc.scigraph.neo4j.BatchGraph
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -115,28 +114,35 @@ class AnnotationEditorController {
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        JSONArray jsonFeatures = new JSONArray()
-        returnObject.put("features",jsonFeatures)
 
-        Sequence sequence = Sequence.findByName(returnObject.get("track"))
-        List<Feature> featureList = sequence.featureLocations
-        for (Feature feature : featureList) {
+        String sequenceName = returnObject.get("track")
+        Sequence sequence = Sequence.findByName(sequenceName)
+        Set<FeatureLocation> featureLocations = sequence.featureLocations
+        Set<Feature> featureSet = new HashSet<>()
+        for (Feature feature: featureLocations*.feature) {
             if (feature instanceof Gene) {
                 Gene gene = (Gene) feature
                 for (Transcript transcript : gene.getTranscripts()) {
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
-                    jsonFeatures.put(transcript as JSON);
+                    featureSet.add(transcript)
+//                    jsonFeatures.put(transcript as JSON);
                 }
             }
             else {
-                jsonFeatures.put( feature as JSON)
+                featureSet.add(feature)
+//                jsonFeatures.put( feature as JSON)
 //                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
             }
         }
 
+        JSONArray jsonFeatures = new JSONArray()
+//        returnObject.put("features",jsonFeatures)
+//        featureSet.each { jsonFeatures.put(it as JSON)}
+        featureSet.each { jsonFeatures.put(it)}
+
         returnObject.put("features",jsonFeatures)
 
-        render returnObject
+        render returnObject as JSON
     }
 
     def getSequenceAlterations(){
