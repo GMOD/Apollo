@@ -117,7 +117,7 @@ class AnnotationEditorController {
         returnObject.put("features",jsonFeatures)
 
         Sequence sequence = Sequence.findByName(returnObject.get("track"))
-        List<Feature> featureList = sequence.features
+        List<Feature> featureList = sequence.featureLocations
         for (Feature feature : featureList) {
             if (feature instanceof Gene) {
                 Gene gene = (Gene) feature

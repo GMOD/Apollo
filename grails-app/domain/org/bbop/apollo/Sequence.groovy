@@ -15,10 +15,11 @@ class Sequence {
         spliceAcceptor nullable: true
     }
 
+    // feature locations instead of features
     static hasMany = [
             users:User
             ,groups:GroupAnnotation
-            ,features: Feature
+            , featureLocations: FeatureLocation
     ]
 
     static belongsTo = [User]

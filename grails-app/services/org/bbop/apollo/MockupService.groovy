@@ -55,7 +55,7 @@ class MockupService {
 //                ,translationTableLocation:
         ).save()
 //        Track track2 = new Track(name: "Zebrafish Track 2").save()
-        genome1.addToTracks(track1)
+        genome1.addToSequences(track1)
 //        genome1.addToTracks(track2)
 
         User demoUser = User.findByUsername("demo@demo.gov")

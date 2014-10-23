@@ -21,6 +21,9 @@ class FeatureLocation {
     String residueInfo;
     int locgroup;
     int rank;
+
+
+
 //    Set<FeatureLocationPublication> featureLocationPublications = new HashSet<FeatureLocationPublication>(0);
 
     static hasMany = [
