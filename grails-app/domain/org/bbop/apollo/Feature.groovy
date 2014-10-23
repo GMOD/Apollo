@@ -141,6 +141,7 @@ class Feature {
         if (locs != null) {
             locs.clear();
         }
-        feature.addFeatureLocation(featureLocation);
+        featureLocations.add(featureLocation)
+//        feature.addFeatureLocation(featureLocation);
     }
 }
