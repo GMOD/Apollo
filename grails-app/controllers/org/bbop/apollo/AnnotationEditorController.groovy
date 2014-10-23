@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import edu.sdsc.scigraph.neo4j.BatchGraph
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -112,6 +113,7 @@ class AnnotationEditorController {
     }
 
     def getFeatures() {
+
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put("features",jsonFeatures)
