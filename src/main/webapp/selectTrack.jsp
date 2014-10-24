@@ -377,6 +377,9 @@ function logout() {
     $.ajax({
         type: "post",
         url: "Login?operation=logout",
+        headers: {
+            "Content-Type":"application/x-www-form-urlencoded",
+        },
         success: function(data, textStatus, jqXHR) {
         },
         error: function(qXHR, textStatus, errorThrown) {
