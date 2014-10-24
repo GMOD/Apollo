@@ -38,6 +38,8 @@ fi
 
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
+  rm -rf $APOLLO_BUILD_DIRECTORY
+  mkdir $APOLLO_BUILD_DIRECTORY
   cd $APOLLO_BUILD_DIRECTORY
   echo "git clone --depth 1 --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB"
   git clone --depth 1 --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
