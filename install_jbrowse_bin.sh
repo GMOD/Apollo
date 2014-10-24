@@ -18,12 +18,12 @@ fi
 cd $APOLLO_JBROWSE_DIRECTORY
 if [[ $1 == cpanm ]]; then
     #allow installation via cpanm
-    cpanm XML::DOM XML::Parser XML::Parser::PerlSAX
+    cpanm XML::DOM XML::Parser XML::Parser::PerlSAX Text::Markdown
     cpanm --force Heap::Simple::XS
     cpanm .
 else
     #install to system. also, force install Heap::Simple::XS due to failure on newer perl versions
-    cpan XML::DOM XML::Parser XML::Parser::PerlSAX
+    cpan XML::DOM XML::Parser XML::Parser::PerlSAX Text::Markdown
     perl -MCPAN -e 'force install Heap::Simple::XS' 
     cpan .
 fi
