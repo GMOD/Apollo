@@ -2,7 +2,7 @@
 #https://github.com/cmdcolin/jbrowse/blob/master/.travis.yml
 CURRENT=`pwd`
 : ${APOLLO_ROOT_DIRECTORY:=`pwd`}
-: ${APOLLO_BUILD_DIRECTORY:=$APOLLO_ROOT_DIRECTORY}
+: ${APOLLO_BUILD_DIRECTORY:="$APOLLO_ROOT_DIRECTORY/build"}
 : ${APOLLO_WEBAPP_DIRECTORY:="$APOLLO_ROOT_DIRECTORY/web-app"}
 : ${APOLLO_JBROWSE_DIRECTORY:="$APOLLO_WEBAPP_DIRECTORY/jbrowse"}
 : ${APOLLO_JBROWSE_GITHUB:="$APOLLO_ROOT_DIRECTORY/jbrowse-github"}
@@ -39,6 +39,7 @@ fi
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
+  echo "git clone --depth 1 --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB"
   git clone --depth 1 --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
   cd $CURRENT
 fi
