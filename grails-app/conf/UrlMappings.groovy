@@ -18,6 +18,7 @@ class UrlMappings {
         "/jbrowse/"(uri: "/jbrowse/index.html")
         "/jbrowse/data/**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/seq/refSeqs.json"(controller: "jbrowse", action: "seq")
+        "/jbrowse/data/names/root.json"(controller: "jbrowse", action: "names")
 //        "/jbrowse/data/tracks/**"(controller: "jbrowse", action: "tracks")
         "/jbrowse/data/tracks/$trackName/$groupName/${jsonFile}.json" {
             controller = 'jbrowse'

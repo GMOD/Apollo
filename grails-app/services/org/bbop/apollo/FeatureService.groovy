@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.json.JSONObject
 
 /**
  * taken from AbstractBioFeature
@@ -82,6 +83,12 @@ class FeatureService {
      */
     public void setOwner(String owner) {
         setOwner(new User(this, owner));
+    }
+
+    def generateTranscript(JSONObject jsonTranscript,String trackName){
+        Transcript transcript = new Transcript()
+
+        return transcript
     }
 
 }

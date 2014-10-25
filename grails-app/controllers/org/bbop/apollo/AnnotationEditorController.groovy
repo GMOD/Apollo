@@ -13,6 +13,8 @@ import org.springframework.messaging.handler.annotation.SendTo
  */
 class AnnotationEditorController {
 
+    def featureService
+
     String REST_OPERATION = "operation"
     String REST_TRACK = "track"
 
@@ -111,15 +113,36 @@ class AnnotationEditorController {
         render returnObject
     }
 
+    def addTranscript(){
+        println "adding transcript ${params}"
+        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        println "adding transcript return object ${returnObject}"
+        String trackName = returnObject.track
+        JSONArray featuresArray = returnObject.getJSONArray("features")
+        for(int i = 0 ; i < featuresArray.size(); i++){
+            JSONObject jsonTranscript = featuresArray.getJSONObject(i)
+            Transcript transcript = featureService.generateTranscript(jsonTranscript,trackName)
+
+
+            // should automatically write to history
+            transcript.save()
+        }
+
+        render returnObject
+    }
+
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         String sequenceName = returnObject.get("track")
+        println "sequenceName: ${sequenceName}"
+        println "Sequence count:${Sequence.count}"
+        println "sequecne all ${Sequence.all.get(0).name}"
         Sequence sequence = Sequence.findByName(sequenceName)
-        Set<FeatureLocation> featureLocations = sequence.featureLocations
+//        Set<FeatureLocation> featureLocations = sequence.featureLocations
         Set<Feature> featureSet = new HashSet<>()
-        for (Feature feature: featureLocations*.feature) {
+        for (Feature feature: sequence?.featureLocations*.feature) {
             if (feature instanceof Gene) {
                 Gene gene = (Gene) feature
                 for (Transcript transcript : gene.getTranscripts()) {

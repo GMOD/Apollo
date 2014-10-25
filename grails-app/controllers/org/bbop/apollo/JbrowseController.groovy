@@ -15,13 +15,29 @@ class JbrowseController {
 //
 //    }
 
+
     // is typically checking for trackData.json
     def tracks(String jsonFile,String trackName,String groupName){
         String filename = grailsApplication.config.apollo.jbrowse.data.directory
         filename += "/tracks/${trackName}/${groupName}/${jsonFile}.json"
         File file = new File(filename);
         if(!file.exists()){
-            log.error("Could not get find file " + filename);
+            log.error("Could not get tracks file " + filename);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        render file.text
+    }
+
+    /**
+     * For returning seq/refSeqs.json
+     */
+    def names(){
+        log.debug  "names"
+        String filename = grailsApplication.config.apollo.jbrowse.data.directory
+        File file = new File(filename+"/names/root.json");
+        if(!file.exists()){
+            log.error("Could not get names/root.json file " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
@@ -36,7 +52,7 @@ class JbrowseController {
         String filename = grailsApplication.config.apollo.jbrowse.data.directory
         File file = new File(filename+"/seq/refSeqs.json");
         if(!file.exists()){
-            log.error("Could not get find file " + filename);
+            log.error("Could not get seq file " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
@@ -104,8 +120,8 @@ class JbrowseController {
         File file = new File(filename);
 
 
-        if(!file.exists() || !file.isFile()){
-            log.error("Could not get find file " + filename);
+        if(!file.exists()){
+            log.error("Could not get data directory: " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
@@ -141,6 +157,6 @@ class JbrowseController {
         }
         fis.close();
         out.close();
-
     }
+
 }

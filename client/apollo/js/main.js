@@ -436,7 +436,7 @@ return declare( JBPlugin,
             {
                 label: "Sequences",
                 onClick: function(event) {
-                    window.open('../sequences', '_blank');
+                    window.open('../sequence', '_blank');
                 }
             });
         browser.addGlobalMenuItem( 'view', select_Tracks );

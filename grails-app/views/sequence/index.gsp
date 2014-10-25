@@ -69,12 +69,12 @@
         </tr>
         </thead>
         <tbody>
-        <g:each in="${trackInstanceList}" status="i" var="trackInstance">
+        <g:each in="${sequenceInstanceList}" status="i" var="sequenceInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 
                 <td><g:link action="show"
-                            id="${trackInstance.id}">${fieldValue(bean: trackInstance, field: "name")}</g:link></td>
-                <td>${trackInstance.genome.name}</td>
+                            id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
+                <td>${sequenceInstance.genome.name}</td>
 
             </tr>
         </g:each>
