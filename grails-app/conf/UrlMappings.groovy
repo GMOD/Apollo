@@ -9,8 +9,8 @@ class UrlMappings {
 
 
 //        "/"(view:"/index")
-//        "/"(action: "index",controller: "genome")
-        "/home"(action: "index", controller: "genome")
+        "/"(action: "index",controller: "genome")
+//        "/home"(action: "index", controller: "genome")
         "500"(view: '/error')
 
         // set this routing here

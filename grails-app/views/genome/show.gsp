@@ -46,7 +46,10 @@
 					<span id="sequences-label" class="property-label"><g:message code="genome.sequences.label" default="Sequences" /></span>
 					
 						<g:each in="${genomeInstance.sequences}" var="t">
-						<span class="property-value" aria-labelledby="sequences-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.name}</g:link></span>
+						<span class="property-value" aria-labelledby="sequences-label"><g:link controller="sequence" action="show" id="${t.id}">${t?.name}</g:link>
+						%{--${t?.name.replaceAll(" ","%20")}--}%
+						<g:link uri="/jbrowse/?loc=ctgA%3A20023..30023&tracks=${t?.name.replaceAll(" ","%20")}&highlight=">Browse</g:link>
+						</span>
 						</g:each>
 					
 				</li>
