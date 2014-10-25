@@ -99,7 +99,8 @@ class GenomeControllerSpec extends Specification {
 
         then:"A 404 error is returned"
 //            response.redirectedUrl == '/genome/index'
-        response.redirectedUrl == '/home'
+//        response.redirectedUrl == '/home'
+        response.redirectedUrl == '/'
             flash.message != null
 
 
@@ -132,7 +133,8 @@ class GenomeControllerSpec extends Specification {
 
         then:"A 404 is returned"
 //            response.redirectedUrl == '/genome/index'
-        response.redirectedUrl == '/home'
+//        response.redirectedUrl == '/home'
+        response.redirectedUrl == '/'
             flash.message != null
 
         when:"A domain instance is created"
@@ -149,7 +151,8 @@ class GenomeControllerSpec extends Specification {
         then:"The instance is deleted"
             Genome.count() == 0
 //            response.redirectedUrl == '/genome/index'
-        response.redirectedUrl == '/home'
+//        response.redirectedUrl == '/home'
+        response.redirectedUrl == '/'
             flash.message != null
     }
 }
