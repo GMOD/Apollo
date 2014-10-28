@@ -4,6 +4,10 @@ package org.bbop.apollo
  * Maps to CVTerm Owner, no Ontology term
  */
 class User implements Ontological{
+
+
+    static auditable = true
+
     String username
     String passwordHash
 

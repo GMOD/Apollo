@@ -99,7 +99,7 @@ grails.project.dependency.resolution = {
 
         //compile ":kickstart-with-bootstrap:1.1.0"
 //        compile ":twitter-bootstrap:3.1.1.3"
-//        compile ":audit-logging:1.0.0"
+        compile ":audit-logging:1.0.0"
 //        compile ":jasypt-encryption:1.1.0"
 //        compile ":joda-time:1.4"
 

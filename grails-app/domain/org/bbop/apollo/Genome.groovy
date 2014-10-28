@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 class Genome {
 
+    static auditable = true
+
     static constraints = {
         directory nullable: true
     }

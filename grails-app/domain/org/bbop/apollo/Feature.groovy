@@ -6,6 +6,8 @@ package org.bbop.apollo
  */
 class Feature {
 
+    static auditable = true
+
     static constraints = {
 
         featureId nullable: true

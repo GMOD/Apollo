@@ -1,13 +1,17 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.json.JSONObject
+import org.codehaus.groovy.grails.web.json.JSONObject
+
+//import org.json.JSONObject
 
 /**
  * taken from AbstractBioFeature
  */
 @Transactional
 class FeatureService {
+
+    def nameService
 
     def addProperty(Feature feature, FeatureProperty property) {
         int rank = 0;
@@ -87,6 +91,8 @@ class FeatureService {
 
     def generateTranscript(JSONObject jsonTranscript,String trackName){
         Transcript transcript = new Transcript()
+
+
 
         return transcript
     }

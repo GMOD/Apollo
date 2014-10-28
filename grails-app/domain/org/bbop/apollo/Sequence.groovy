@@ -5,6 +5,8 @@ package org.bbop.apollo
  */
 class Sequence {
 
+    static auditable = true
+
     static constraints = {
         genome nullable: true
         refSeqFile nullable: true
