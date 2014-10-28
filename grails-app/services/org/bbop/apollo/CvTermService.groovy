@@ -6,15 +6,12 @@ import grails.transaction.Transactional
 class CvTermService {
 
     CVTerm getPartOf(){
-        CVTerm partOfCvTerm = CVTerm.findByName(CvTermStringEnum.PART_OF.value)
+        CVTerm.findByName(CvTermStringEnum.PART_OF.value)
     }
 
     CVTerm getTerm(String term){
-
+        CVTerm.findByName(term)
     }
 
 
-    def serviceMethod() {
-
-    }
 }

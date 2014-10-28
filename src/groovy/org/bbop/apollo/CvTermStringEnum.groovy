@@ -10,11 +10,11 @@ enum CvTermStringEnum {
 
      String value
 
-     public Features(String value){
+     public CvTermStringEnum(String value){
           this.value = value
      }
 
-     public Features(){
+     public CvTermStringEnum(){
           this.value = name().toLowerCase()
      }
 }

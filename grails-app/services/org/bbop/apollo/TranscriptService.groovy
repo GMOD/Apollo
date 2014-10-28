@@ -26,7 +26,7 @@ class TranscriptService {
             if (cdsCvTerm!=fr.getSubjectFeature().getType()) {
                 continue;
             }
-            return new CDS(fr.getSubjectFeature());
+            return (CDS) fr.getSubjectFeature();
         }
         return null;
     }
@@ -63,8 +63,8 @@ class TranscriptService {
      * @return Gene that this Transcript is associated with
      */
     public Gene getGene(Transcript transcript) {
-        Collection<CVTerm> partOfCvterm = cvTermService.partOf
-        Collection<CVTerm> geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
+        CVTerm partOfCvterm = cvTermService.partOf
+        CVTerm geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
         for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
             if (partOfCvterm!=fr.getType()) {
                 continue;
@@ -86,11 +86,11 @@ class TranscriptService {
         return true;
     }
 
-    StopCodonReadThrough getStopCodonReadThrough(Transcript transcript) {
+    StopCodonReadThrough getStopCodonReadThrough(Feature feature,Transcript transcript) {
         CDS cds = getCDS(transcript)
         if(transcript){
             CVTerm partOfCvTerm = cvTermService.partOf
-            CVTerm stopCvTerm = cvTermService.term(FeatureStringEnum.STOP_CODON_READTHROUGH.value)
+            CVTerm stopCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH.value)
 //            Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
 //            Collection<CVTerm> cdsCvterms = conf.getCVTermsForClass("StopCodonReadThrough");
 
@@ -101,7 +101,7 @@ class TranscriptService {
                 if (stopCvTerm != fr.getSubjectFeature().getType()) {
                     continue;
                 }
-                return fr.subjectFeature
+                return (StopCodonReadThrough) fr.subjectFeature
 //                return new StopCodonReadThrough(fr.getSubjectFeature(), conf);
             }
             return null;
