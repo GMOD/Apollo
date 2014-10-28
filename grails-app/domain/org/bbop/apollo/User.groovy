@@ -3,7 +3,7 @@ package org.bbop.apollo
 /**
  * Maps to CVTerm Owner, no Ontology term
  */
-class User implements Ontological{
+class User extends FeatureProperty implements Ontological{
 
 
     static auditable = true
