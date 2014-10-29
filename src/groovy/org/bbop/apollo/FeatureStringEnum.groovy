@@ -13,7 +13,10 @@ enum FeatureStringEnum {
      CDS("CDS"),
      EXON("Exon"),
      GENE("Gene"),
-     STOP_CODON_READTHROUGH("StopCodonReadThrough")
+     STOP_CODON_READTHROUGH("StopCodonReadThrough"),
+     TRANSCRIPT("Transcript"),
+     NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),
+     NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),
      ;
 
 

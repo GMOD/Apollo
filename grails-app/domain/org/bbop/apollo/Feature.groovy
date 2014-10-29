@@ -189,4 +189,13 @@ class Feature {
         return null;
     }
 
+
+    /** Get the length of this feature.
+     *
+     * @return Length of feature
+     */
+    public int getLength() {
+        return getFeatureLocation().getFmax() - getFeatureLocation().getFmin();
+    }
+
 }

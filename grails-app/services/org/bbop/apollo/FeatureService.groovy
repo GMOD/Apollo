@@ -23,6 +23,8 @@ class FeatureService {
     def configWrapperService
     def transcriptService
     def cvTermService
+    def exonService
+    def nonCanonicalSplitSiteService
 
     def addProperty(Feature feature, FeatureProperty property) {
         int rank = 0;
@@ -113,7 +115,7 @@ class FeatureService {
 
 
     def generateTranscript(JSONObject jsonTranscript, String trackName) {
-        Gene gene = jsonTranscript.has("parent_id") ? (Gene) Feature.findByUniqueName(jsonTranscript.getString("parent_id")) : null;
+        Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
         if (gene != null) {
@@ -137,8 +139,9 @@ class FeatureService {
             }
 
             addTranscriptToGene(gene, transcript);
-            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
-            updateTranscriptAttributes(transcript);
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+            transcript.name = nameService.generateUniqueName(transcript)
+//            transcriptService.updateTranscriptAttributes(transcript);
         } else {
 //            Collection<AbstractSingleLocationBioFeature> overlappingFeatures = editor.getSession().getOverlappingFeatures(JSONUtil.convertJSONToFeatureLocation(jsonTranscript.getJSONObject("location"), trackToSourceFeature.get(track)));
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(JSONUtil.convertJSONToFeatureLocation(jsonTranscript.getJSONObject("location"), trackToSourceFeature.get(track)));
@@ -244,20 +247,22 @@ class FeatureService {
     }
 
     def removeExonOverlapsAndAdjacencies(Transcript transcript) {
+        List<Exon> exons = transcriptService.getExons(transcript)
         if (transcriptService.getExons(transcript).size() <= 1) {
             return;
         }
-        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcriptService.getExons(transcript), false);
+        List<Exon> sortedExons= new LinkedList<Exon>(exons);
+        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(false))
         int inc = 1;
-        for (int i = 0; i < exons.size() - 1; i += inc) {
+        for (int i = 0; i < sortedExons.size() - 1; i += inc) {
             inc = 1;
-            Exon leftExon = exons.get(i);
-            for (int j = i + 1; j < exons.size(); ++j) {
-                Exon rightExon = exons.get(j);
+            Exon leftExon = sortedExons.get(i);
+            for (int j = i + 1; j < sortedExons.size(); ++j) {
+                Exon rightExon = sortedExons.get(j);
                 overlaps(leftExon,rightExon)
                 if (overlaps(leftExon,rightExon) || isAdjacentTo(leftExon.getFeatureLocation(),rightExon.getFeatureLocation())) {
                     try {
-                        mergeExons(leftExon, rightExon);
+                        exonService.mergeExons(leftExon, rightExon);
                     } catch (AnnotationException e) {
                         log.error(e)
                     }
@@ -350,9 +355,15 @@ class FeatureService {
         }
     }
 
-
+    /**
+     * TODO: not srue if this is legit.
+     * @param jsonObject
+     * @param featureLazyResidues
+     * @return
+     */
     Transcript convertJSONToTranscript(JSONObject jsonObject, FeatureLazyResidues featureLazyResidues) {
-
+        Organism organism = featureLazyResidues.getOrganism()
+        return (Transcript) convertJSONToFeature(jsonObject,organism,featureLazyResidues)
     }
 
     public Feature convertJSONToFeature(JSONObject jsonFeature, Organism organism, Feature sourceFeature) {
@@ -480,5 +491,13 @@ class FeatureService {
         gene.featureLocation.setFmin(geneFmin);
         gene.featureLocation.setFmax(geneFmax);
         gene.setTimeLastModified(new Date());
+    }
+
+    def setFmin(Feature feature, int fmin) {
+        feature.getFeatureLocation().setFmin(fmin);
+    }
+
+    def setFmax(Feature feature, int fmax) {
+        feature.getFeatureLocation().setFmax(fmax);
     }
 }

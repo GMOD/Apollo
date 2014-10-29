@@ -35,4 +35,5 @@ abstract class BiologicalRegion extends Region{
         return getFeatureLocation().getFmax();
     }
 
+
 }

@@ -11,4 +11,5 @@ class Exon extends TranscriptRegion{
 
     String ontologyId = "SO:0000147"// XX:NNNNNNN
     String cvTerm = "Exon"
+
 }

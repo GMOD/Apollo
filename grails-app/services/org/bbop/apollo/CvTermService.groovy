@@ -13,5 +13,11 @@ class CvTermService {
         CVTerm.findByName(term)
     }
 
+    CVTerm getTerm(FeatureStringEnum featureStringEnum){
+        CVTerm.findByName(featureStringEnum.value)
+    }
 
+    CVTerm getTranscript(){
+        CVTerm.findByName(FeatureStringEnum.TRANSCRIPT.value)
+    }
 }
