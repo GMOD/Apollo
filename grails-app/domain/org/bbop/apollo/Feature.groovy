@@ -198,4 +198,17 @@ class Feature {
         return getFeatureLocation().getFmax() - getFeatureLocation().getFmin();
     }
 
+    public Integer getFmin(){
+        featureLocation.fmin
+    }
+
+    public Integer getFmax(){
+        featureLocation.fmax
+    }
+
+    public Integer getStrand(){
+        featureLocation.strand
+    }
+
+
 }

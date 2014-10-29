@@ -11,6 +11,7 @@ class NonCanonicalSplitSiteService {
     def cvTermService
     def featureRelationshipService
     def exonService
+    def featureService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.
@@ -102,7 +103,7 @@ class NonCanonicalSplitSiteService {
                 for (String acceptor : SequenceUtil.getSpliceAcceptorSites()) {
                     FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmin() - donor.length(), exon.getFmin());
                     FlankingRegion spliceDonorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmax(), exon.getFmax() + donor.length());
-                    if (exon.getStrand() == -1) {
+                    if (exon.featureLocation.getStrand() == -1) {
                         FlankingRegion tmp = spliceAcceptorSiteFlankingRegion;
                         spliceAcceptorSiteFlankingRegion = spliceDonorSiteFlankingRegion;
                         spliceDonorSiteFlankingRegion = tmp;
@@ -112,9 +113,9 @@ class NonCanonicalSplitSiteService {
                     String acceptorSpliceSiteSequence = session.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion);
                     */
                     String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sourceFeatureLength ?
-                            session.getResiduesWithAlterations(spliceDonorSiteFlankingRegion) : null;
+                            featureService.getResiduesWithAlterations(spliceDonorSiteFlankingRegion) : null;
                     String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sourceFeatureLength ?
-                            session.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
+                            featureService.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
                     if (exonNum < exons.size()) {
                         if (!validFivePrimeSplice) {
                             if (!donorSpliceSiteSequence.equals(donor)) {
@@ -136,10 +137,10 @@ class NonCanonicalSplitSiteService {
                 }
             }
             if (!validFivePrimeSplice && fivePrimeSpliceSitePosition != -1) {
-                transcript.addNonCanonicalFivePrimeSpliceSite(createNonCanonicalFivePrimeSpliceSite(transcript, fivePrimeSpliceSitePosition));
+                addNonCanonicalFivePrimeSpliceSite(transcript,createNonCanonicalFivePrimeSpliceSite(transcript, fivePrimeSpliceSitePosition));
             }
             if (!validThreePrimeSplice && threePrimeSpliceSitePosition != -1) {
-                transcript.addNonCanonicalThreePrimeSpliceSite(createNonCanonicalThreePrimeSpliceSite(transcript, threePrimeSpliceSitePosition));
+                addNonCanonicalThreePrimeSpliceSite(transcript,createNonCanonicalThreePrimeSpliceSite(transcript, threePrimeSpliceSitePosition));
             }
         }
 
@@ -147,24 +148,108 @@ class NonCanonicalSplitSiteService {
 
 
 //        editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-        for (NonCanonicalFivePrimeSpliceSite spliceSite : transcript.getNonCanonicalFivePrimeSpliceSites()) {
+        for (NonCanonicalFivePrimeSpliceSite spliceSite : getNonCanonicalFivePrimeSpliceSites(transcript)) {
             if (spliceSite.getTimeAccessioned() == null) {
                 spliceSite.setTimeAccessioned(new Date());
             }
             spliceSite.setTimeLastModified(new Date());
-            spliceSite.setOwner(transcript.getOwner());
+//            spliceSite.setOwner(transcript.getOwner());
         }
-        for (NonCanonicalThreePrimeSpliceSite spliceSite : transcript.getNonCanonicalThreePrimeSpliceSites()) {
+        for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
             if (spliceSite.getTimeAccessioned() == null) {
                 spliceSite.setTimeAccessioned(new Date());
             }
             spliceSite.setTimeLastModified(new Date());
-            spliceSite.setOwner(transcript.getOwner());
+//            spliceSite.setOwner(transcript.getOwner());
         }
 
 
         // event fire
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 
+    }
+
+    /** Add a non canonical 5' splice site.  Sets the splice site's transcript to this transcript object.
+     *
+     * @param nonCanonicalFivePrimeSpliceSite - Non canonical 5' splice site to be added
+     */
+    public void addNonCanonicalFivePrimeSpliceSite(Transcript transcript,NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
+        CVTerm partOfCvterm = cvTermService.partOf
+
+        // add non canonical 5' splice site
+        FeatureRelationship fr = new FeatureRelationship(
+                type: cvTermService.partOf
+                ,objectFeature: transcript
+                ,subjectFeature: nonCanonicalFivePrimeSpliceSite
+                ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
+        );
+        transcript.getChildFeatureRelationships().add(fr);
+        nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().add(fr);
+    }
+
+    /** Add a non canonical 3' splice site.  Sets the splice site's transcript to this transcript object.
+     *
+     * @param nonCanonicalThreePrimeSpliceSite - Non canonical 3' splice site to be added
+     */
+    public void addNonCanonicalThreePrimeSpliceSite(Transcript transcript,NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
+
+        // add non canonical 3' splice site
+        FeatureRelationship fr = new FeatureRelationship(
+                type: cvTermService.partOf
+                ,objectFeature: transcript
+                ,subjectFeature: nonCanonicalThreePrimeSpliceSite
+                ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
+        );
+        transcript.getChildFeatureRelationships().add(fr);
+        nonCanonicalThreePrimeSpliceSite.getParentFeatureRelationships().add(fr);
+    }
+
+    private NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
+        String uniqueName = transcript.getUniqueName() + "-non_canonical_five_prive_splice_site-" + position;
+        NonCanonicalFivePrimeSpliceSite spliceSite = new NonCanonicalFivePrimeSpliceSite(
+                organism: transcript.getOrganism()
+                ,uniqueName: uniqueName
+                ,isAnalysis: transcript.isAnalysis
+                ,isObsolete: transcript.isObsolete
+                ,timeAccessioned: new Date()
+                );
+        spliceSite.setFeatureLocation(new FeatureLocation());
+        spliceSite.featureLocation.setStrand(transcript.getStrand());
+        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
+        spliceSite.featureLocation.setFmin(position);
+        spliceSite.featureLocation.setFmax(position);
+        spliceSite.setTimeLastModified(new Date());
+        return spliceSite;
+    }
+
+
+    private NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
+        String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prive_splice_site-" + position;
+        NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(
+                organism: transcript.getOrganism()
+                ,uniqueName: uniqueName
+                ,isAnalysis: transcript.isAnalysis
+                ,isObsolete: transcript.isObsolete
+                ,timeAccessioned: new Date()
+        );
+        spliceSite.setFeatureLocation(new FeatureLocation());
+        spliceSite.featureLocation.setStrand(transcript.getStrand());
+        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
+        spliceSite.featureLocation.setFmin(position);
+        spliceSite.featureLocation.setFmax(position);
+        spliceSite.setTimeLastModified(new Date());
+        return spliceSite;
+    }
+
+    private FlankingRegion createFlankingRegion(Feature feature, int fmin, int fmax) {
+        FlankingRegion flankingRegion = new FlankingRegion();
+        flankingRegion.setIsAnalysis(false)
+        flankingRegion.setIsObsolete(false)
+        flankingRegion.setFeatureLocation(new FeatureLocation());
+        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
+        flankingRegion.featureLocation.setStrand(feature.getStrand());
+        flankingRegion.featureLocation.setFmin(fmin);
+        flankingRegion.featureLocation.setFmax(fmax);
+        return flankingRegion;
     }
 }

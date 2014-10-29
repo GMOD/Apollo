@@ -242,9 +242,6 @@ class FeatureService {
 //        fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.ADD);
     }
 
-    Object updateGeneBoundaries(Gene gene) {
-        null
-    }
 
     def removeExonOverlapsAndAdjacencies(Transcript transcript) {
         List<Exon> exons = transcriptService.getExons(transcript)
@@ -301,8 +298,8 @@ class FeatureService {
         return false;
     }
 
-    def overlaps(Exon leftExon, Exon rightExon) {
-        return overlaps(leftExon.featureLocation,rightExon.featureLocation)
+    def overlaps(Feature leftFeature, Feature rightFeature,boolean compareStrands = true) {
+        return overlaps(leftFeature.featureLocation,rightFeature.featureLocation,compareStrands)
     }
 
     def overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation,boolean compareStrands = true) {
@@ -499,5 +496,67 @@ class FeatureService {
 
     def setFmax(Feature feature, int fmax) {
         feature.getFeatureLocation().setFmax(fmax);
+    }
+
+    public String getResiduesWithAlterations(Feature feature) {
+        return getResiduesWithAlterations(feature, SequenceAlteration.all);
+    }
+
+    private String getResiduesWithAlterations(Feature feature,
+                                              Collection<SequenceAlteration> sequenceAlterations) {
+        if (sequenceAlterations.size() == 0) {
+            return feature.getResidues();
+        }
+        StringBuilder residues = new StringBuilder(feature.getResidues());
+        FeatureLocation featureLoc = feature.getFeatureLocation();
+        List<SequenceAlteration> orderedSequenceAlterationList = BioObjectUtil.createSortedFeatureListByLocation(sequenceAlterations);
+        if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
+            Collections.reverse(orderedSequenceAlterationList);
+        }
+        int currentOffset = 0;
+        for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
+            if(!overlaps(feature,sequenceAlteration,false)){
+
+            }
+//            if (!feature.overlaps(sequenceAlteration, false)) {
+//                continue;
+//            }
+            FeatureLocation sequenceAlterationLoc = sequenceAlteration.getFeatureLocation();
+            if (sequenceAlterationLoc.getSourceFeature().equals(featureLoc.getSourceFeature())) {
+                int localCoordinate = feature.convertSourceCoordinateToLocalCoordinate(sequenceAlterationLoc.getFmin());
+                String sequenceAlterationResidues = sequenceAlteration.getResidues();
+                if (feature.getFeatureLocation().getStrand() == -1) {
+                    sequenceAlterationResidues = SequenceUtil.reverseComplementSequence(sequenceAlterationResidues);
+                }
+                // Insertions
+                if (sequenceAlteration instanceof Insertion) {
+                    if (feature.getFeatureLocation().getStrand() == -1) {
+                        ++localCoordinate;
+                    }
+                    residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
+                    currentOffset += sequenceAlterationResidues.length();
+                }
+                // Deletions
+                else if (sequenceAlteration instanceof Deletion) {
+                    if (feature.getFeatureLocation().getStrand() == -1) {
+                        residues.delete(localCoordinate + currentOffset - sequenceAlteration.getLength() + 1,
+                                localCoordinate + currentOffset + 1);
+                    }
+                    else {
+                        residues.delete(localCoordinate + currentOffset,
+                                localCoordinate + currentOffset + sequenceAlteration.getLength());
+                    }
+                    currentOffset -= sequenceAlterationResidues.length();
+                }
+                // Substitions
+                else if (sequenceAlteration instanceof Substitution) {
+                    int start = feature.getStrand() == -1 ? localCoordinate - (sequenceAlteration.getLength() - 1) : localCoordinate;
+                    residues.replace(start + currentOffset,
+                            start + currentOffset + sequenceAlteration.getLength(),
+                            sequenceAlterationResidues);
+                }
+            }
+        }
+        return residues.toString();
     }
 }
