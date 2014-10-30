@@ -31,7 +31,7 @@ http://jbrowse.org
  
 Edit the property files to point to the appropriate directory. You must edit the jbrowse data and annotations directory in the config.properties: jbrowse.data=/opt/apollo/jbrowse/data and  datastore.directory=/opt/apollo/annotations
 
-The datastore.directory is where annotations are to be stored.  The jbrowse.data is where the jbrowse tracks are stored.   **They should not be in your tomcat / web-apps directory**. 
+The datastore.directory is where annotations are to be stored.  The jbrowse.data is where the jbrowse tracks are stored.   **JBrowse data should not be in your tomcat / web-apps directory as in previous versions.**. However, the jbrowse application will still be installed into your tomcat / web-apps directory.
 
 If BLAT is not installed, just copy the default blat file over.
  
