@@ -47,6 +47,7 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
         mavenRepo "http://maven.crbs.ucsd.edu/nexus/content/repositories/NIF-snapshot/"
+        mavenRepo "http://www.biojava.org/download/maven/"
     }
 
     dependencies {
@@ -61,6 +62,7 @@ grails.project.dependency.resolution = {
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
 
         compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
+        compile 'org.biojava:biojava3-core:3.1.0'
 
 
 //        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"

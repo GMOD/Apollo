@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-class Comment implements Ontological{
+class Comment extends FeatureProperty implements Ontological{
 
     static constraints = {
     }

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class CvTermService {
@@ -19,5 +20,11 @@ class CvTermService {
 
     CVTerm getTranscript(){
         CVTerm.findByName(FeatureStringEnum.TRANSCRIPT.value)
+    }
+
+    CVTerm convertJSONToCVTerm(JSONObject jsonCVTerm){
+        CV cv = CV.findOrSaveByName(jsonCVTerm.getJSONObject(FeatureStringEnum.CV).getString(FeatureStringEnum.NAME))
+        CVTerm cvTerm = CVTerm.findOrSaveByNameAndCv(jsonCVTerm.getString(FeatureStringEnum.NAME),cv)
+        return cvTerm
     }
 }

@@ -17,6 +17,13 @@ enum FeatureStringEnum {
      TRANSCRIPT("Transcript"),
      NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),
      NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),
+     COMMENT("Comment"),
+     LOCATION,
+     FMIN,
+     FMAX,
+     STRAND,
+     NAME,
+     CV,
      ;
 
 
