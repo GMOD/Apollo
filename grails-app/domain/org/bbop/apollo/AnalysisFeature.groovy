@@ -5,7 +5,7 @@ class AnalysisFeature {
     static constraints = {
     }
 
-    Integer analysisFeatureId;
+//    Integer analysisFeatureId;
     Analysis analysis;
     Feature feature;
     Double rawScore;

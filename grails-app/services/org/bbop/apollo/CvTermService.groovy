@@ -23,8 +23,8 @@ class CvTermService {
     }
 
     CVTerm convertJSONToCVTerm(JSONObject jsonCVTerm){
-        CV cv = CV.findOrSaveByName(jsonCVTerm.getJSONObject(FeatureStringEnum.CV).getString(FeatureStringEnum.NAME))
-        CVTerm cvTerm = CVTerm.findOrSaveByNameAndCv(jsonCVTerm.getString(FeatureStringEnum.NAME),cv)
+        CV cv = CV.findOrSaveByName(jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
+        CVTerm cvTerm = CVTerm.findOrSaveByNameAndCv(jsonCVTerm.getString(FeatureStringEnum.NAME.value),cv)
         return cvTerm
     }
 }

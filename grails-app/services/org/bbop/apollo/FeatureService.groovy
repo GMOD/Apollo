@@ -241,15 +241,17 @@ class FeatureService {
             for (Feature feature : overlappingFeatures) {
                 if (feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
-                    Feature gsolTranscript = convertJSONToFeature(jsonTranscript,  featureLazyResidues);
+                    Transcript gsolTranscript = (Transcript) convertJSONToFeature(jsonTranscript,  featureLazyResidues);
                     updateNewGsolFeatureAttributes(gsolTranscript, featureLazyResidues);
-                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
-                    if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
+//                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
+                    if (gsolTranscript.getFmin() < 0 || gsolTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
-                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    if (!useCDS || tmpTranscript.getCDS() == null) {
-                        calculateCDS(editor, tmpTranscript);
+//                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
+//                    String username = SecurityUtils?.subject?.principal
+                    setOwner(transcript, (String) SecurityUtils?.subject?.principal);
+                    if (!configWrapperService.useCDS() || transcriptService.getCDS(gsolTranscript) == null) {
+                        calculateCDS(gsolTranscript);
                     }
                     updateTranscriptAttributes(tmpTranscript);
                     if (overlapper.overlaps(tmpTranscript, tmpGene)) {

@@ -5,7 +5,7 @@ class AnalysisProperty {
     static constraints = {
     }
 
-    Integer analysisPropertyId;
+//    Integer analysisPropertyId;
     Analysis analysis;
     CVTerm type;
     String value;

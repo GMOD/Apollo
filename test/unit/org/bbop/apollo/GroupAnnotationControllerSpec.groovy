@@ -6,7 +6,7 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(GroupAnnotationController)
-@Mock([GroupAnnotation,Sequence,Annotation])
+@Mock([GroupAnnotation,Sequence,Feature])
 class GroupAnnotationControllerSpec extends Specification {
 
     def populateValidParams(params) {

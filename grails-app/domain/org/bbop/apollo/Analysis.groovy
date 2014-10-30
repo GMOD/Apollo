@@ -5,7 +5,7 @@ class Analysis {
     static constraints = {
     }
 
-    Integer analysisId;
+//    Integer analysisId;
     String name;
     String description;
     String program;

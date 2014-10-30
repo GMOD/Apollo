@@ -7,7 +7,7 @@ class GroupAnnotation {
 
     static hasMany = [
             sequences: Sequence
-            ,annotations: Annotation
+            ,features: Feature
     ]
 
     static belongsTo = [Sequence]

@@ -6,6 +6,8 @@ package org.bbop.apollo
  */
 class FeatureProperty {
 
+    static auditable =  true
+
     static constraints = {
     }
 

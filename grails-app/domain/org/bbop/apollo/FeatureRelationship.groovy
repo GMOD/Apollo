@@ -6,10 +6,12 @@ package org.bbop.apollo
  */
 class FeatureRelationship {
 
+    static auditable =  true
+
     static constraints = {
     }
 
-    Integer featureRelationshipId;
+//    Integer featureRelationshipId;
     CVTerm type;
     Feature objectFeature; // parent?
     Feature subjectFeature; // child?
