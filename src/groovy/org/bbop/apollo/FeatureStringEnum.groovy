@@ -13,6 +13,7 @@ enum FeatureStringEnum {
      CDS("CDS"),
      EXON("Exon"),
      GENE("Gene"),
+     PSEUDOGENE("Pseudogene"),
      STOP_CODON_READTHROUGH("StopCodonReadThrough"),
      TRANSCRIPT("Transcript"),
      NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),

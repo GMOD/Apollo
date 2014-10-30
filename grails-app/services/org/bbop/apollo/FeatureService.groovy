@@ -207,9 +207,10 @@ class FeatureService {
         }
     }
 
-    def generateTranscript(JSONObject jsonTranscript, String trackName) {
+    def generateTranscript(JSONObject jsonTranscript, String trackName,boolean isPseudogene = false ) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
+        boolean useCDS = configWrapperService.useCDS()
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
         if (gene != null) {
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
@@ -221,11 +222,9 @@ class FeatureService {
             }
 
 //            setOwner(transcript, (String) session.getAttribute("username"));
-            String username = SecurityUtils?.subject?.principal
-            setOwner(transcript, username);
+            setOwner(transcript, (String) SecurityUtils?.subject?.principal);
 
 
-            boolean useCDS = configWrapperService.useCDS()
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -250,15 +249,17 @@ class FeatureService {
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
 //                    String username = SecurityUtils?.subject?.principal
                     setOwner(transcript, (String) SecurityUtils?.subject?.principal);
-                    if (!configWrapperService.useCDS() || transcriptService.getCDS(gsolTranscript) == null) {
+                    if (!useCDS || transcriptService.getCDS(gsolTranscript) == null) {
                         calculateCDS(gsolTranscript);
                     }
-                    updateTranscriptAttributes(tmpTranscript);
-                    if (overlapper.overlaps(tmpTranscript, tmpGene)) {
-                        transcript = tmpTranscript;
+                    gsolTranscript.name = nameService.generateUniqueName(gsolTranscript)
+//                    updateTranscriptAttributes(tmpTranscript);
+                    if (overlaps(gsolTranscript, tmpGene)) {
+                        transcript = gsolTranscript;
                         gene = tmpGene;
-                        editor.addTranscript(gene, transcript);
-                        findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+//                        editor.addTranscript(gene, transcript);
+                        addTranscriptToGene(gene,transcript)
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                         break;
                     } else {
 //                        editor.getSession().endTransactionForFeature(feature);
@@ -270,25 +271,46 @@ class FeatureService {
         }
         if (gene == null) {
             JSONObject jsonGene = new JSONObject();
-            jsonGene.put("children", new JSONArray().put(jsonTranscript));
-            jsonGene.put("location", jsonTranscript.getJSONObject("location"));
-            jsonGene.put("type", JSONUtil.convertCVTermToJSON(bioObjectConfiguration.getDefaultCVTermForClass(isPseudogene ? "Pseudogene" : "Gene")));
-            Feature gsolGene = convertJSONToFeature(jsonGene, bioObjectConfiguration, trackToSourceFeature.get(track), nameAdapter);
-            updateNewGsolFeatureAttributes(gsolGene, trackToSourceFeature.get(track));
-            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
-            if (gene.getFmin() < 0 || gene.getFmax() < 0) {
-//                throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
+            jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
+            jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
+            CVTerm cvTerm = CVTerm.findByName(isPseudogene ? FeatureStringEnum.PSEUDOGENE.value :FeatureStringEnum.GENE.value )
+            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
+
+            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
+            updateNewGsolFeatureAttributes(gsolGene, featureLazyResidues);
+//            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
+            if (gsolGene.getFmin() < 0 || gsolGene.getFmax() < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            setOwner(gene, (String) session.getAttribute("username"));
-            transcript = gene.getTranscripts().iterator().next();
-            if (!useCDS || transcript.getCDS() == null) {
-                calculateCDS(editor, transcript);
+            setOwner(gene, (String) SecurityUtils?.subject?.principal);
+            transcript = transcriptService.getTranscripts(gene).iterator().next();
+            if (!useCDS || transcriptService.getCDS(transcript) == null) {
+                calculateCDS(transcript);
             }
-            editor.addFeature(gene);
-            updateTranscriptAttributes(transcript);
-            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+            addFeature(gene);
+            transcript.name = nameService.generateUniqueName(transcript)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
         }
         return transcript;
+
+    }
+
+    def addFeature(Feature feature) {
+
+        Feature topLevelFeature = getTopLevelFeature(feature);
+
+        if (feature instanceof Gene) {
+            for (Transcript transcript : ((Gene) feature).getTranscripts()) {
+                removeExonOverlapsAndAdjacencies(transcript);
+            }
+        } else if (feature instanceof Transcript) {
+            removeExonOverlapsAndAdjacencies((Transcript) feature);
+        }
+
+        // event fire
+        fireAnnotationChangeEvent(feature, topLevelFeature, AnnotationChangeEvent.Operation.ADD);
+
+        getSession().addFeature(feature);
 
     }
 
