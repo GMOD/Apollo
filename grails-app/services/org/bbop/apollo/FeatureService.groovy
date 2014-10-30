@@ -943,8 +943,11 @@ class FeatureService {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject("type");
                     FeatureProperty gsolProperty = new FeatureProperty();
-                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
-                    gsolProperty.setValue(property.getString("value"));
+                    CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
+                    CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value),cv)
+//                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
+                    gsolProperty.setType(cvTerm);
+                    gsolProperty.setValue(property.getString(FeatureStringEnum.VALUE.value));
                     gsolProperty.setFeature(gsolFeature);
                     int rank = 0;
                     for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {

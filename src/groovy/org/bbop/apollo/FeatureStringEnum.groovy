@@ -24,6 +24,7 @@ enum FeatureStringEnum {
      FMAX,
      STRAND,
      NAME,
+     VALUE,
      CV,
      ;
 
