@@ -1,16 +1,16 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
+import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.editor.AnnotationEditor
 
-@CompileStatic
+@GrailsCompileStatic
 @Transactional
 class ExonService {
 
-    def cvTermService
-    def transcriptService
-    def featureService
+    CvTermService cvTermService
+    TranscriptService transcriptService
+    FeatureService featureService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns

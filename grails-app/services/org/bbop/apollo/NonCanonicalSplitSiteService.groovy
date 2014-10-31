@@ -1,17 +1,17 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
+import grails.compiler.GrailsCompileStatic
 import org.gmod.gbol.util.SequenceUtil
 
-@CompileStatic
+@GrailsCompileStatic
 @Transactional
 class NonCanonicalSplitSiteService {
 
-    def cvTermService
-    def featureRelationshipService
-    def exonService
-    def featureService
+    CvTermService cvTermService
+    FeatureRelationshipService featureRelationshipService
+    ExonService exonService
+    FeatureService featureService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.

@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
+import grails.compiler.GrailsCompileStatic
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
@@ -17,21 +17,21 @@ import org.gmod.gbol.bioObject.util.BioObjectUtil
 /**
  * taken from AbstractBioFeature
  */
-@CompileStatic
+@GrailsCompileStatic
 @Transactional
 class FeatureService {
 
     public static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
     public static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
 
-    def nameService
-    def configWrapperService
-    def transcriptService
-    def cvTermService
-    def exonService
-    def cdsService
-    def nonCanonicalSplitSiteService
-    def featureRelationshipService
+    NameService nameService
+    ConfigWrapperService configWrapperService
+    TranscriptService transcriptService
+    CvTermService cvTermService
+    ExonService exonService
+    CdsService cdsService
+    NonCanonicalSplitSiteService nonCanonicalSplitSiteService
+    FeatureRelationshipService featureRelationshipService
 
     def addProperty(Feature feature, FeatureProperty property) {
         int rank = 0;
@@ -151,7 +151,7 @@ class FeatureService {
         int high = Feature.count - 1;
         int index = -1;
         while (low <= high) {
-            int mid = low + ((high - low) / 2);
+            int mid = (low + ((high - low) / 2)).intValue();
             Feature.all.get(mid)
             Feature feature = Feature.all.get(mid)
             if (feature == null) {
@@ -1309,7 +1309,10 @@ class FeatureService {
         }
         StringBuilder residues = new StringBuilder(feature.getResidues());
         FeatureLocation featureLoc = feature.getFeatureLocation();
-        List<SequenceAlteration> orderedSequenceAlterationList = BioObjectUtil.createSortedFeatureListByLocation(sequenceAlterations);
+//        List<SequenceAlteration> orderedSequenceAlterationList = BioObjectUtil.createSortedFeatureListByLocation(sequenceAlterations);
+
+        List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterations)
+        Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
         if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
             Collections.reverse(orderedSequenceAlterationList);
         }

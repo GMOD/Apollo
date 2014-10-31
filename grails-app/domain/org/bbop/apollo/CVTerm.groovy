@@ -9,7 +9,7 @@ class CVTerm {
     static constraints = {
     }
 
-    Integer cvtermId;
+//    Integer cvtermId;
     CV cv;
     DBXref dbxref;
     String name;

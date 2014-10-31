@@ -1,15 +1,16 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
+import grails.compiler.GrailsCompileStatic
 
-@CompileStatic
+
+@GrailsCompileStatic
 @Transactional
 class TranscriptService {
 
-    def cvTermService
-    def featureService
-    def featureRelationshipService
+    CvTermService cvTermService
+    FeatureService featureService
+//    def featureRelationshipService
 //    def nonCanonicalSplitSiteService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine

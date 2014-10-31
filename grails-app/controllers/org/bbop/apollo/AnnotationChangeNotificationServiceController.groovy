@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
-import groovy.transform.CompileStatic
 import org.codehaus.groovy.grails.web.json.JSONObject
+import grails.compiler.GrailsCompileStatic
 
 import javax.servlet.AsyncContext
 import javax.servlet.AsyncEvent
@@ -11,7 +11,7 @@ import javax.servlet.http.HttpSession
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
-@CompileStatic
+@GrailsCompileStatic
 class AnnotationChangeNotificationServiceController {
 
     private static Map<String, Queue<AsyncContext>> queue = new ConcurrentHashMap<String, Queue<AsyncContext>>();

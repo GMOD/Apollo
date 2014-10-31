@@ -1,15 +1,15 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
+import grails.compiler.GrailsCompileStatic
 
-@CompileStatic
+@GrailsCompileStatic
 @Transactional
 class CdsService {
 
-    def featureService
-    def cvTermService
-    def featureRelationshipService
+    FeatureService featureService
+    CvTermService cvTermService
+    FeatureRelationshipService featureRelationshipService
 
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
