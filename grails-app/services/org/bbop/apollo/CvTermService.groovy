@@ -36,4 +36,17 @@ class CvTermService {
         jsonCVTerm.put(FeatureStringEnum.NAME.value, cvTerm.getName());
         return jsonCVTerm;
     }
+
+    /**
+     * TODO: replace with a proper subclass
+     * @return
+     */
+    Collection<CVTerm> getFrameshifts() {
+        List<CVTerm> cvTermList = new ArrayList<>()
+        cvTermList.add(getTerm(FeatureStringEnum.MINUS1FRAMESHIFT))
+        cvTermList.add(getTerm(FeatureStringEnum.MINUS2FRAMESHIFT))
+        cvTermList.add(getTerm(FeatureStringEnum.PLUS1FRAMESHIFT))
+        cvTermList.add(getTerm(FeatureStringEnum.PLUS2FRAMESHIFT))
+        return cvTermList
+    }
 }

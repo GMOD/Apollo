@@ -9,7 +9,8 @@ class TranscriptService {
 
     def cvTermService
     def featureService
-    def nonCanonicalSplitSiteService
+    def featureRelationshipService
+//    def nonCanonicalSplitSiteService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -22,17 +23,12 @@ class TranscriptService {
         CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS.value)
 
         for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if(partOfCvTerm!=fr.getType()){
-                continue;
+            if (partOfCvTerm == fr.getType() && fr.subjectFeature.type == cdsCvTerm) {
+                return (CDS) fr.getSubjectFeature();
             }
-            if (cdsCvTerm!=fr.getSubjectFeature().getType()) {
-                continue;
-            }
-            return (CDS) fr.getSubjectFeature();
         }
         return null;
     }
-
 
     /** Retrieve all the exons associated with this transcript.  Uses the configuration to determine
      *  which children are exons.  Exon objects are generated on the fly.  The collection
@@ -43,20 +39,19 @@ class TranscriptService {
     public Collection<Exon> getExons(Transcript transcript) {
         Collection<Exon> exons = new ArrayList<Exon>();
         CVTerm partOfCVTerm = cvTermService.partOf
-        CVTerm exonCvTerm= cvTermService.getTerm(FeatureStringEnum.EXON.value)
+        CVTerm exonCvTerm = cvTermService.getTerm(FeatureStringEnum.EXON.value)
 
         for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCVTerm!=fr.getType()) {
+            if (partOfCVTerm != fr.getType()) {
                 continue;
             }
-            if (exonCvTerm!=fr.getSubjectFeature().getType()) {
+            if (exonCvTerm != fr.getSubjectFeature().getType()) {
                 continue;
             }
             exons.add((Exon) fr.getSubjectFeature())
         }
         return exons;
     }
-
 
     /** Retrieve the gene that this transcript is associated with.  Uses the configuration to
      * determine which parent is a gene.  The gene object is generated on the fly.  Returns
@@ -68,10 +63,10 @@ class TranscriptService {
         CVTerm partOfCvterm = cvTermService.partOf
         CVTerm geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
         for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-            if (partOfCvterm!=fr.getType()) {
+            if (partOfCvterm != fr.getType()) {
                 continue;
             }
-            if (geneCvterm!=fr.getObjectFeature().getType()) {
+            if (geneCvterm != fr.getObjectFeature().getType()) {
                 continue;
             }
 //            return ((Gene)BioObjectUtil.createBioObject(fr.getObjectFeature(), conf));
@@ -88,16 +83,41 @@ class TranscriptService {
         return true;
     }
 
-    StopCodonReadThrough getStopCodonReadThrough(Feature feature,Transcript transcript) {
+    CDS createCDS(Transcript transcript) {
+        Date date = new Date();
+        String uniqueName = transcript.getUniqueName() + FeatureStringEnum.CDS_SUFFIX.value;
+
+        CDS cds = new CDS(
+                organism: transcript.organism
+                , uniqueName: uniqueName
+                , isAnalysis: transcript.isAnalysis
+                , isObsolete: transcript.isObsolete
+//                ,timeAccessioned: new Date()
+//                ,timeLastModified: new Date()
+        ).save()
+
+//        CDS cds = new CDS(transcript.getOrganism(), uniqueName, transcript.isAnalysis(),
+//                transcript.isObsolete(), null, transcript.getConfiguration());
+        FeatureLocation featureLocation = new FeatureLocation(
+                strand: transcript.strand
+                , sourceFeature: transcript.featureLocation.sourceFeature
+                , feature: cds
+        ).save(insert: true)
+        cds.setFeatureLocation(featureLocation);
+        cds.save(flush: true, insert: true)
+        return cds;
+    }
+
+    StopCodonReadThrough getStopCodonReadThrough(Feature feature, Transcript transcript) {
         CDS cds = getCDS(transcript)
-        if(transcript){
+        if (transcript) {
             CVTerm partOfCvTerm = cvTermService.partOf
             CVTerm stopCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH.value)
 //            Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
 //            Collection<CVTerm> cdsCvterms = conf.getCVTermsForClass("StopCodonReadThrough");
 
             for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-                if (partOfCvTerm !=fr.getType()) {
+                if (partOfCvTerm != fr.getType()) {
                     continue;
                 }
                 if (stopCvTerm != fr.getSubjectFeature().getType()) {
@@ -110,7 +130,7 @@ class TranscriptService {
         }
     }
 
-    public void removeChildFeature(Transcript transcript,Feature feature,String type){
+    public void removeChildFeature(Transcript transcript, Feature feature, String type) {
         CVTerm partOfCvterm = cvTermService.partOf
         CVTerm exonCvterm = cvTermService.getTerm(type);
         CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT);
@@ -129,7 +149,7 @@ class TranscriptService {
 
     }
 
-    public void removeParentFeature(Transcript transcript,Feature feature,String type){
+    public void removeParentFeature(Transcript transcript, Feature feature, String type) {
         CVTerm partOfCvterm = cvTermService.partOf
         CVTerm exonCvterm = cvTermService.getTerm(type);
         CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT);
@@ -153,16 +173,16 @@ class TranscriptService {
      *
      * @param transcript - Transcript to be deleted
      */
-    public void deleteTranscript(Gene gene,Transcript transcript) {
+    public void deleteTranscript(Gene gene, Transcript transcript) {
         CVTerm partOfCvterm = CVTerm.findByName("PartOf")
-        List<String> geneNameList = ["Gene","Pseudogene"]
+        List<String> geneNameList = ["Gene", "Pseudogene"]
         Collection<CVTerm> geneCvterms = CVTerm.findAllByNameInList(geneNameList);
-        List<String> transcriptNameList = ["Transcript","SnRNA","MRNA","SnoRNA","MiRNA","TRNA","NcRNA","RRNA"]
+        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
         Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
 
         // delete gene -> transcript child relationship
         for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCvterm.name!=(fr.getType())) {
+            if (partOfCvterm.name != (fr.getType())) {
                 continue;
             }
             if (!transcriptCvterms.contains(fr.getSubjectFeature().getType())) {
@@ -170,14 +190,14 @@ class TranscriptService {
             }
             if (fr.getSubjectFeature().equals(transcript)) {
                 transcript.getChildFeatureRelationships().remove(fr);
-                transcript.save(flush:true)
+                transcript.save(flush: true)
                 break;
             }
         }
 
         // delete gene -> transcript parent relationship
         for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-            if (partOfCvterm.name!=(fr.getType())) {
+            if (partOfCvterm.name != (fr.getType())) {
                 continue;
             }
             if (!geneCvterms.contains(fr.getObjectFeature().getType())) {
@@ -185,7 +205,7 @@ class TranscriptService {
             }
             if (fr.getSubjectFeature().equals(transcript)) {
                 transcript.getParentFeatureRelationships().remove(fr);
-                transcript.save(flush:true)
+                transcript.save(flush: true)
                 break;
             }
         }
@@ -202,10 +222,10 @@ class TranscriptService {
             }
         }
         if (fmin != null) {
-            setFmin(transcript,fmin)
+            setFmin(transcript, fmin)
         }
         if (fmax != null) {
-            setFmax(transcript,fmin)
+            setFmax(transcript, fmin)
         }
 
     }
@@ -220,7 +240,7 @@ class TranscriptService {
         int numTranscripts = 0;
 
         for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-            if(partOfCvterms==fr.type && transcriptCvterms==fr.subjectFeature.type){
+            if (partOfCvterms == fr.type && transcriptCvterms == fr.subjectFeature.type) {
                 ++numTranscripts;
             }
 
@@ -239,7 +259,7 @@ class TranscriptService {
 //        Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
         Collection<CVTerm> partOfCvterms = CVTerm.findAllByName("PartOf")
 //        Collection<CVTerm> transcriptCvterms = conf.getDescendantCVTermsForClass("Transcript");
-        List<String> transcriptNameList = ["Transcript","SnRNA","MRNA","SnoRNA","MiRNA","TRNA","NcRNA","RRNA"]
+        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
         Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
 
         for (FeatureRelationship fr : gene.getChildFeatureRelationships()) {
@@ -256,21 +276,21 @@ class TranscriptService {
     }
 
     @Override
-    public void setFmin(Transcript transcript,Integer fmin) {
+    public void setFmin(Transcript transcript, Integer fmin) {
 //        super.setFmin(fmin);
         transcript.getFeatureLocation().setFmin(fmin);
         Gene gene = getGene(transcript)
-        if (gene!=null && fmin < gene.getFmin()) {
-            featureService.setFmin(gene,fmin)
+        if (gene != null && fmin < gene.getFmin()) {
+            featureService.setFmin(gene, fmin)
         }
     }
 
     @Override
-    public void setFmax(Transcript transcript,Integer fmax) {
+    public void setFmax(Transcript transcript, Integer fmax) {
         transcript.getFeatureLocation().setFmax(fmax);
         Gene gene = getGene(transcript)
         if (gene != null && fmax > gene.getFmax()) {
-            featureService.setFmax(gene,fmax);
+            featureService.setFmax(gene, fmax);
         }
     }
 
@@ -289,11 +309,24 @@ class TranscriptService {
                 geneFmax = t.getFmax();
             }
         }
-        featureService.setFmin(gene,geneFmin)
-        featureService.setFmax(gene,geneFmax)
-        gene.setTimeLastModified(new Date());
+        featureService.setFmin(gene, geneFmin)
+        featureService.setFmax(gene, geneFmax)
 
+        // not sure if we want this if not actually saved
+//        gene.setLastUpdated(new Date());
     }
 
+    List<Frameshift> getFrameshifts(Transcript transcript) {
+        List<Frameshift> frameshiftList = new ArrayList<>()
+//        featureRelationshipService
+        Collection<CVTerm> frameshiftCvterms = cvTermService.frameshifts
 
+        for (FeatureProperty featureProperty : transcript.getFeatureProperties()) {
+            if (frameshiftCvterms.contains(featureProperty.getType())) {
+                frameshiftList.add((Frameshift) featureProperty);
+            }
+        }
+
+        return frameshiftList
+    }
 }

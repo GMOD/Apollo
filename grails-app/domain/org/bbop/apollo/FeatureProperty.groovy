@@ -9,9 +9,13 @@ class FeatureProperty {
     static auditable =  true
 
     static constraints = {
+        type nullable: false
+        feature nullable: false
+        value nullable: false
+        rank nullable: true
     }
 
-    Integer featurePropertyId;
+//    Integer featurePropertyId;
     CVTerm type;
     Feature feature;
     String value;

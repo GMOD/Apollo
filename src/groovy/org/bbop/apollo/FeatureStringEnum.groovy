@@ -29,6 +29,11 @@ enum FeatureStringEnum {
      DB,
      DBXREFS,
      ACCESSION,
+     CDS_SUFFIX("-CDS"),
+     MINUS1FRAMESHIFT("Minus1Frameshift"),
+     MINUS2FRAMESHIFT("Minus2Frameshift"),
+     PLUS1FRAMESHIFT("Plus1Frameshift"),
+     PLUS2FRAMESHIFT("Plus2Frameshift"),
      ;
 
 

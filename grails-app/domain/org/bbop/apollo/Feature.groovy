@@ -10,7 +10,7 @@ class Feature {
 
     static constraints = {
 
-        featureId nullable: true
+//        featureId nullable: true
 
         name nullable: false
 
@@ -24,11 +24,11 @@ class Feature {
         md5checksum nullable: true
         isAnalysis nullable: true
         isObsolete nullable: true
-        timeAccessioned nullable: true
-        timeLastModified nullable: true
+        dateCreated nullable: true
+        lastUpdated nullable: true
     }
 
-    Integer featureId;
+//    Integer featureId;
     CVTerm type;
     DBXref dbxref;
     Organism organism;
@@ -39,8 +39,12 @@ class Feature {
     String md5checksum;
     boolean isAnalysis;
     boolean isObsolete;
-    Date timeAccessioned;
-    Date timeLastModified;
+
+    Date dateCreated;
+    Date lastUpdated ;
+
+//    Date timeAccessioned;
+//    Date timeLastModified;
 //    Set<FeatureLocation> featureLocations = new HashSet<FeatureLocation>(0);
 //    Set<FeatureGenotype> featureGenotypes = new HashSet<FeatureGenotype>(0);
 //    Set<FeatureRelationship> parentFeatureRelationships = new HashSet<FeatureRelationship>(0);
@@ -109,8 +113,8 @@ class Feature {
         cloned.md5checksum = this.md5checksum;
         cloned.isAnalysis = this.isAnalysis;
         cloned.isObsolete = this.isObsolete;
-        cloned.timeAccessioned = this.timeAccessioned;
-        cloned.timeLastModified = this.timeLastModified;
+        cloned.dateCreated = this.dateCreated;
+        cloned.lastUpdated = this.lastUpdated;
         cloned.featureLocations = this.featureLocations;
         cloned.featureGenotypes = this.featureGenotypes;
         cloned.parentFeatureRelationships = this.parentFeatureRelationships;

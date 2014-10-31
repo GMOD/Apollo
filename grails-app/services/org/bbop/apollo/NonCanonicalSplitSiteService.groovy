@@ -144,22 +144,22 @@ class NonCanonicalSplitSiteService {
             }
         }
 
-        transcript.setTimeLastModified(new Date());
+        transcript.setLastUpdated(new Date());
 
 
 //        editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
         for (NonCanonicalFivePrimeSpliceSite spliceSite : getNonCanonicalFivePrimeSpliceSites(transcript)) {
-            if (spliceSite.getTimeAccessioned() == null) {
-                spliceSite.setTimeAccessioned(new Date());
+            if (spliceSite.getDateCreated() == null) {
+                spliceSite.setDateCreated(new Date());
             }
-            spliceSite.setTimeLastModified(new Date());
+            spliceSite.setLastUpdated(new Date());
 //            spliceSite.setOwner(transcript.getOwner());
         }
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
-            if (spliceSite.getTimeAccessioned() == null) {
-                spliceSite.setTimeAccessioned(new Date());
+            if (spliceSite.getDateCreated() == null) {
+                spliceSite.setDateCreated(new Date());
             }
-            spliceSite.setTimeLastModified(new Date());
+            spliceSite.setLastUpdated(new Date());
 //            spliceSite.setOwner(transcript.getOwner());
         }
 
@@ -218,7 +218,7 @@ class NonCanonicalSplitSiteService {
         spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
         spliceSite.featureLocation.setFmin(position);
         spliceSite.featureLocation.setFmax(position);
-        spliceSite.setTimeLastModified(new Date());
+        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 
@@ -237,7 +237,7 @@ class NonCanonicalSplitSiteService {
         spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
         spliceSite.featureLocation.setFmin(position);
         spliceSite.featureLocation.setFmax(position);
-        spliceSite.setTimeLastModified(new Date());
+        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 

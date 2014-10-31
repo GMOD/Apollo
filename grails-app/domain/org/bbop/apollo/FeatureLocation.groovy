@@ -13,7 +13,7 @@ class FeatureLocation {
 
 
         isFminPartial nullable: true
-        featureLocationId nullable: true
+//        featureLocationId nullable: true
         sourceFeature nullable: true
         isFmaxPartial nullable: true
         strand nullable: true
@@ -21,10 +21,11 @@ class FeatureLocation {
         residueInfo nullable: true
         locgroup nullable: true
         rank nullable: true
+        sequence nullable: false
 
     }
 
-    Integer featureLocationId;
+//    Integer featureLocationId;
     Feature sourceFeature;
     Feature feature;
     Integer fmin;
@@ -36,6 +37,7 @@ class FeatureLocation {
     String residueInfo;
     int locgroup;
     int rank;
+    Sequence sequence
 
 //    Set<FeatureLocationPublication> featureLocationPublications = new HashSet<FeatureLocationPublication>(0);
 
