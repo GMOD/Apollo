@@ -198,7 +198,7 @@ class FeatureService {
         return overlappingFeatures;
     }
 
-    private void updateNewGsolFeatureAttributes(Feature gsolFeature, Feature sourceFeature) {
+    void updateNewGsolFeatureAttributes(Feature gsolFeature, Feature sourceFeature) {
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
         gsolFeature.setDateCreated(new Date()); //new Timestamp(new Date().getTime()));
@@ -302,7 +302,7 @@ class FeatureService {
 
     }
 
-    private Feature getTopLevelFeature(Feature feature) {
+    Feature getTopLevelFeature(Feature feature) {
         Collection<? extends Feature> parents = feature.getParentFeatureRelationships()*.objectFeature
         if (parents.size() > 0) {
             return getTopLevelFeature(parents.iterator().next());
@@ -391,7 +391,7 @@ class FeatureService {
 
 
     def removeExonOverlapsAndAdjacencies(Transcript transcript) {
-        List<Exon> exons = transcriptService.getExons(transcript)
+        Collection<Exon> exons = transcriptService.getExons(transcript)
         if (transcriptService.getExons(transcript).size() <= 1) {
             return;
         }
@@ -857,7 +857,7 @@ class FeatureService {
 
     }
 
-    private void setTranslationFmin(Transcript transcript, int translationFmin) {
+    void setTranslationFmin(Transcript transcript, int translationFmin) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
@@ -870,7 +870,7 @@ class FeatureService {
 
     }
 
-    private void setTranslationFmax(Transcript transcript, int translationFmax) {
+    void setTranslationFmax(Transcript transcript, int translationFmax) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
@@ -955,7 +955,7 @@ class FeatureService {
         return allSequenceAlterationList
     }
 
-    private List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {
+    List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {
         List<SequenceAlteration> frameshifts = new ArrayList<SequenceAlteration>();
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
@@ -1253,7 +1253,7 @@ class FeatureService {
 //        return new CVTerm(jsonCVTerm.getString("name"), new CV(jsonCVTerm.getJSONObject("cv").getString("name")));
 //    }
 
-    private void updateGeneBoundaries(Gene gene) {
+    void updateGeneBoundaries(Gene gene) {
         if (gene == null) {
             return;
         }
@@ -1302,8 +1302,8 @@ class FeatureService {
 //        return getResiduesWithAlterations(feature, SequenceAlteration.all);
 //    }
 
-    private String getResiduesWithAlterations(Feature feature,
-                                              Collection<SequenceAlteration> sequenceAlterations) {
+    String getResiduesWithAlterations(Feature feature,
+                                              Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
         if (sequenceAlterations.size() == 0) {
             return feature.getResidues();
         }

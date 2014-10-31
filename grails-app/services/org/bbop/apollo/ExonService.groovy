@@ -62,9 +62,9 @@ class ExonService {
 //        setLongestORF(getTranscript(exon1));
         featureService.removeExonOverlapsAndAdjacencies(transcript);
 
-        Date date = new Date();
-        exon1.setTimeLastModified(date);
-        transcript.setTimeLastModified(date);
+//        Date date = new Date();
+//        exon1.setTimeLastModified(date);
+//        transcript.setTimeLastModified(date);
 
         // TODO: event fire
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
@@ -122,7 +122,7 @@ class ExonService {
 //        getSession().unindexFeature(exon);
 //        getSession().indexFeature(transcript);
 
-        transcript.setTimeLastModified(new Date());
+//        transcript.setTimeLastModified(new Date());
 
         // event fire?? TODO: not really active?
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationEditor.AnnotationChangeEvent.Operation.UPDATE);
@@ -130,7 +130,6 @@ class ExonService {
     }
 
 
-    @Override
     public void setFmin(Exon exon, Integer fmin) {
         exon.getFeatureLocation().setFmin(fmin);
         Transcript transcript = getTranscript(exon)
@@ -139,7 +138,6 @@ class ExonService {
         }
     }
 
-    @Override
     public void setFmax(Exon exon, Integer fmax) {
         exon.getFeatureLocation().setFmax(fmax);
         Transcript transcript = getTranscript(exon)

@@ -276,7 +276,6 @@ class TranscriptService {
         return transcripts;
     }
 
-    @Override
     public void setFmin(Transcript transcript, Integer fmin) {
 //        super.setFmin(fmin);
         transcript.getFeatureLocation().setFmin(fmin);
@@ -286,7 +285,6 @@ class TranscriptService {
         }
     }
 
-    @Override
     public void setFmax(Transcript transcript, Integer fmax) {
         transcript.getFeatureLocation().setFmax(fmax);
         Gene gene = getGene(transcript)
