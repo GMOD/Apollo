@@ -329,4 +329,38 @@ class TranscriptService {
 
         return frameshiftList
     }
+
+    /** Set the CDS associated with this transcript.  Uses the configuration to determine
+     *  the default term to use for CDS features.
+     *
+     * @param cds - CDS to be set to this transcript
+     */
+    public void setCDS(Feature feature,CDS cds,boolean replace = true) {
+        CVTerm partOfCvTerm = cvTermService.partOf
+        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS)
+
+        if(replace){
+            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
+                if(partOfCvTerm==fr.type && cdsCvTerm==fr.objectFeature.type){
+                    fr.setSubjectFeature(cds);
+                    return;
+                }
+
+            }
+        }
+
+        FeatureRelationship fr = new FeatureRelationship(
+                type:partOfCvTerm
+                ,objectFeature: feature
+                ,subjectFeature: cds
+                ,rank: 0
+        ).save(insert:true)
+
+
+        feature.getChildFeatureRelationships().add(fr);
+        cds.getParentFeatureRelationships().add(fr);
+
+        cds.save()
+        feature.save(flush: true)
+    }
 }

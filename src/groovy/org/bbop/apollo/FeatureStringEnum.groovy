@@ -15,6 +15,7 @@ enum FeatureStringEnum {
      GENE("Gene"),
      PSEUDOGENE("Pseudogene"),
      STOP_CODON_READTHROUGH("StopCodonReadThrough"),
+     STOP_CODON_READHTHROUGH_SUFFIX("-stop_codon_read_through"),
      TRANSCRIPT("Transcript"),
      NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),
      NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),
@@ -34,7 +35,8 @@ enum FeatureStringEnum {
      MINUS2FRAMESHIFT("Minus2Frameshift"),
      PLUS1FRAMESHIFT("Plus1Frameshift"),
      PLUS2FRAMESHIFT("Plus2Frameshift"),
-     ;
+     DELETION_PREFIX("Deletion-"),
+     INSERTION_PREFIX("Insertion-")
 
 
      String value

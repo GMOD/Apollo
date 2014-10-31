@@ -7,7 +7,7 @@ package org.bbop.apollo
 
 // its unclear how this should be handled properly as its closer to a CDS
 //class StopCodonReadThrough extends CDS{
-class StopCodonReadThrough extends FeatureProperty implements Ontological {
+class StopCodonReadThrough extends Feature implements Ontological {
 
     static constraints = {
     }
