@@ -8,7 +8,7 @@ class FeatureDBXref {
 
     static constraints = {
     }
-    Integer featureDBXrefId;
+//    Integer featureDBXrefId;
     Feature feature;
     DBXref dbxref;
     boolean isCurrent;

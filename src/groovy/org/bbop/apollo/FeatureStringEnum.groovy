@@ -26,6 +26,9 @@ enum FeatureStringEnum {
      NAME,
      VALUE,
      CV,
+     DB,
+     DBXREFS,
+     ACCESSION,
      ;
 
 

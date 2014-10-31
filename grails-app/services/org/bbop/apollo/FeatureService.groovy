@@ -287,20 +287,33 @@ class FeatureService {
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
+            // I don't thikn that this does anything
             addFeature(gene);
             transcript.name = nameService.generateUniqueName(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+            gsolGene.save(insert:true)
+            transcript.save(flush:true)
         }
         return transcript;
 
     }
 
+    private Feature getTopLevelFeature(Feature feature) {
+        Collection<? extends Feature> parents = feature.getParentFeatureRelationships()*.objectFeature
+        if (parents.size() > 0) {
+            return getTopLevelFeature(parents.iterator().next());
+        } else {
+            return feature;
+        }
+    }
+
+
     def addFeature(Feature feature) {
 
-        Feature topLevelFeature = getTopLevelFeature(feature);
+//        Feature topLevelFeature = getTopLevelFeature(feature);
 
         if (feature instanceof Gene) {
-            for (Transcript transcript : ((Gene) feature).getTranscripts()) {
+            for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                 removeExonOverlapsAndAdjacencies(transcript);
             }
         } else if (feature instanceof Transcript) {
@@ -308,9 +321,22 @@ class FeatureService {
         }
 
         // event fire
-        fireAnnotationChangeEvent(feature, topLevelFeature, AnnotationChangeEvent.Operation.ADD);
+//        fireAnnotationChangeEvent(feature, topLevelFeature, AnnotationChangeEvent.Operation.ADD);
 
-        getSession().addFeature(feature);
+//        getSession().addFeature(feature);
+
+        // old version was deleting the feature .. . badness!! , we want to update if its there.
+
+//        if (uniqueNameToStoredUniqueName.containsKey(feature.getUniqueName())) {
+//            deleteFeature(feature);
+//        }
+//        AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
+//        features.add(new FeatureData(topLevelFeature));
+//        if (getFeatureByUniqueName(topLevelFeature.getUniqueName()) == null) {
+//            beginTransactionForFeature(topLevelFeature);
+//        }
+//        indexFeature(topLevelFeature);
+//        Collections.sort(features, new FeatureDataPositionComparator());
 
     }
 
@@ -578,7 +604,7 @@ class FeatureService {
      * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
      */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, TranslationTable translationTable, boolean readThroughStopCodon) {
-        CDS cds = transcript.getCDS();
+        CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = createCDS(transcript);
             transcript.setCDS(cds);
@@ -961,12 +987,26 @@ class FeatureService {
                     gsolFeature.getFeatureProperties().add(gsolProperty);
                 }
             }
-            if (jsonFeature.has("dbxrefs")) {
-                JSONArray dbxrefs = jsonFeature.getJSONArray("dbxrefs");
+            if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
+                JSONArray dbxrefs = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value);
                 for (int i = 0; i < dbxrefs.length(); ++i) {
                     JSONObject dbxref = dbxrefs.getJSONObject(i);
-                    JSONObject db = dbxref.getJSONObject("db");
-                    gsolFeature.addFeatureDBXref(new DB(db.getString("name")), dbxref.getString("accession"));
+                    JSONObject db = dbxref.getJSONObject(FeatureStringEnum.DB.value);
+
+
+                    DB newDB = DB.findOrSaveByName(db.getString(FeatureStringEnum.NAME.value))
+                    DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(
+                            newDB
+                            ,dbxref.getString(FeatureStringEnum.ACCESSION.value)
+                    )
+                    FeatureDBXref featureDBXref = new FeatureDBXref(
+                            feature: gsolFeature
+                            ,dbxref: newDBXref
+                    ).save()
+                    gsolFeature.addToFeatureDBXrefs(
+                            featureDBXref
+                    ).save()
+//                    gsolFeature.addFeatureDBXref(new DB(db.getString("name")), dbxref.getString(FeatureStringEnum.ACCESSION.value));
                 }
             }
         }

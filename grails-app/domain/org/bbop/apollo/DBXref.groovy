@@ -5,7 +5,7 @@ class DBXref {
     static constraints = {
     }
 
-    Integer dbxrefId;
+//    Integer dbxrefId;
     String version;
     DB db;
     String accession;
