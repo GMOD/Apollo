@@ -26,6 +26,7 @@ class Feature {
         isObsolete nullable: true
         dateCreated nullable: true
         lastUpdated nullable: true
+        featureLocation nullable: true
     }
 
 //    Integer featureId;
@@ -74,6 +75,10 @@ class Feature {
             ,childFeatureRelationships: "subjectFeature"
             ,featureGenotypes: "feature"
             ,featureLocations: "feature"
+    ]
+
+    static belongsTo = [
+            User
     ]
 
 

@@ -36,7 +36,8 @@ enum FeatureStringEnum {
      PLUS1FRAMESHIFT("Plus1Frameshift"),
      PLUS2FRAMESHIFT("Plus2Frameshift"),
      DELETION_PREFIX("Deletion-"),
-     INSERTION_PREFIX("Insertion-")
+     INSERTION_PREFIX("Insertion-"),
+     OWNER("Owner")
 
 
      String value

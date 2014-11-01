@@ -35,12 +35,13 @@ class UserController {
             return
         }
 
-        userInstance.save flush:true
+        userInstance.save flush:true,failOnError: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.created.message', args: [message(code: 'user.label', default: 'User'), userInstance.id])
                 redirect userInstance
+//                redirect model:["userInstance":userInstance], view: "show",id: userInstance.id
             }
             '*' { respond userInstance, [status: CREATED] }
         }

@@ -10,22 +10,40 @@ class FeatureProperty {
 
     static constraints = {
         type nullable: false
-        feature nullable: false
+        feature nullable: true
         value nullable: false
         rank nullable: true
     }
 
 //    Integer featurePropertyId;
     CVTerm type;
-    Feature feature;
+    // I think a FeatureProperty can be associated with more than one
+//    Feature feature;
     String value;
     int rank;
 //    Set<FeaturePropertyPublication> featurePropertyPublications = new HashSet<FeaturePropertyPublication>(0);
 
     static hasMany = [
             featurePropertyPublications :  FeaturePropertyPublication
+            ,features: Feature
     ]
 
+    static belongsTo = [
+            Feature
+    ]
+
+    void setFeature(Feature feature){
+        if(!features){
+            features = new TreeSet<>()
+        }
+        features.add(feature)
+    }
+
+    Feature getFeature(){
+        if(features){
+            return features.iterator().next()
+        }
+    }
 
     public boolean equals(Object other) {
         if ( (this == other ) ) return true;

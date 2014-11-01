@@ -6,13 +6,17 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(UserController)
-@Mock(User)
+@Mock([User,UserGroup,FeatureProperty,Feature])
 class UserControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
         params["username"] = 'bob.jones@company.com'
         params["passwordHash"] = 'asdfadfdfadsf'
+        params["type"] = new CVTerm(
+                name: FeatureStringEnum.OWNER.value
+        )
+        params["value"] = params.username
     }
 
     void "Test the index action returns the correct model"() {

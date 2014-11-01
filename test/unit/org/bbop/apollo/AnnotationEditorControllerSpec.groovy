@@ -30,6 +30,7 @@ class AnnotationEditorControllerSpec extends Specification {
 
         FeatureLocation featureLocation = new FeatureLocation(
                 feature: feature
+                ,sequence: sequence
                 ,fmin: 100
                 ,fmax: 200
         ).save(failOnError: true)
