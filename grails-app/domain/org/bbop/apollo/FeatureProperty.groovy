@@ -31,13 +31,13 @@ class FeatureProperty {
             Feature
     ]
 
-    void addFeature(Feature feature){
-        features.add(feature)
-    }
-
-    Feature getSingleFeature(){
-            return features?.iterator()?.next()
-    }
+//    void addFeature(Feature feature){
+//        features.add(feature)
+//    }
+//
+//    Feature getSingleFeature(){
+//            return features?.iterator()?.next()
+//    }
 
     public boolean equals(Object other) {
         if ( (this == other ) ) return true;

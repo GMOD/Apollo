@@ -1206,7 +1206,7 @@ class FeatureService {
 //                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
                     gsolProperty.setType(cvTerm);
                     gsolProperty.setValue(property.getString(FeatureStringEnum.VALUE.value));
-                    gsolProperty.setFeature(gsolFeature);
+                    gsolProperty.addToFeatures(gsolFeature);
                     int rank = 0;
                     for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
                         if (fp.getType().equals(gsolProperty.getType())) {
