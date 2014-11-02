@@ -13,7 +13,6 @@ class FeatureLocation {
 
 
         isFminPartial nullable: true
-//        featureLocationId nullable: true
         sourceFeature nullable: true
         isFmaxPartial nullable: true
         strand nullable: true
@@ -25,7 +24,6 @@ class FeatureLocation {
 
     }
 
-//    Integer featureLocationId;
     Feature sourceFeature;
     Feature feature;
     Integer fmin;
@@ -39,7 +37,6 @@ class FeatureLocation {
     int rank;
     Sequence sequence
 
-//    Set<FeatureLocationPublication> featureLocationPublications = new HashSet<FeatureLocationPublication>(0);
 
     static hasMany = [
             featureLocationPublications: FeatureLocationPublication

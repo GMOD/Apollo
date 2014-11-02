@@ -10,8 +10,6 @@ class Organism {
      String species;
      String commonName;
      String comment;
-//     Set<OrganismProperty> organismProperties = new HashSet<OrganismProperty>(0);
-//     Set<OrganismDBXref> organismDBXrefs = new HashSet<OrganismDBXref>(0);
 
     static hasMany = [
             organismProperties: OrganismProperty

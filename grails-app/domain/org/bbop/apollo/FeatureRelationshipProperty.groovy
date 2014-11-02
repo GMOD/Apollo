@@ -16,7 +16,6 @@ class FeatureRelationshipProperty {
     FeatureRelationship featureRelationship;
     String value;
     int rank;
-//    Set<FeatureRelationshipPropertyPublication> featureRelationshipPropertyPublications = new HashSet<FeatureRelationshipPropertyPublication>(0);
 
     static hasMany = [
             featureRelationshipPropertyPublications:FeatureRelationshipPropertyPublication

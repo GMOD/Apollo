@@ -2,10 +2,22 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
+import grails.compiler.GrailsCompileStatic
 
+@GrailsCompileStatic
 @Transactional
 class MockupService {
 
+    CvTermService cvTermService
+
+    def addCVTerms(){
+
+        FeatureStringEnum.values().each {
+            CVTerm.findOrSaveByName(it.value)
+            it.value
+        }
+
+    }
 
     def addUsers() {
         if (User.count > 0) return
@@ -14,14 +26,21 @@ class MockupService {
         def adminRole = new Role(name: UserService.ADMIN).save()
         adminRole.addToPermissions("*:*")
 
-        User demoUser = new User(username: "demo@demo.gov"
+        CVTerm userCvTerm = cvTermService.getTerm(FeatureStringEnum.OWNER.value)
+
+        User demoUser = new User(
+                username: "demo@demo.gov"
                 , passwordHash: new Sha256Hash("demo").toHex()
-        ).save()
+                ,value: "demo@demo.gov"
+                ,type: userCvTerm
+        ).save(failOnError: true)
         demoUser.addToRoles(userRole)
 
         User adminUser = new User(username: "admin@admin.gov"
                 , passwordHash: new Sha256Hash("admin").toHex()
-        ).save()
+                ,value: "admin@admin.gov"
+                ,type: userCvTerm
+        ).save(failOnError: true)
         adminUser.addToRoles(userRole)
     }
 

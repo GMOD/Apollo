@@ -14,9 +14,6 @@ class Genotype {
     String name;
     String uniqueName;
     String description;
-//    Set<PhenotypeDescription> phenotypeDescriptions = new HashSet<PhenotypeDescription>(0);
-//    Set<FeatureGenotype> featureGenotypes = new HashSet<FeatureGenotype>(0);
-//    Set<PhenotypeStatement> phenotypeStatements = new HashSet<PhenotypeStatement>(0);
 
     static hasMany = [
            phenotypeDescriptions  : PhenotypeDescription

@@ -12,7 +12,7 @@ class Environment {
     Integer environmentId;
     String uniquename;
     String description;
-//    Set<EnvironmentCVTerm> environmentCVTerms = new HashSet<EnvironmentCVTerm>(0);
+
     static hasMany = [
            environmentCVTerms  : EnvironmentCVTerm
     ]

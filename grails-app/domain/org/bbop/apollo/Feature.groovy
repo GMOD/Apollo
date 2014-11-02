@@ -46,16 +46,6 @@ class Feature {
 
 //    Date timeAccessioned;
 //    Date timeLastModified;
-//    Set<FeatureLocation> featureLocations = new HashSet<FeatureLocation>(0);
-//    Set<FeatureGenotype> featureGenotypes = new HashSet<FeatureGenotype>(0);
-//    Set<FeatureRelationship> parentFeatureRelationships = new HashSet<FeatureRelationship>(0);
-//    Set<FeatureRelationship> childFeatureRelationships = new HashSet<FeatureRelationship>(0);
-//    Set<FeatureCVTerm> featureCVTerms = new HashSet<FeatureCVTerm>(0);
-//    Set<FeatureSynonym> featureSynonyms = new HashSet<FeatureSynonym>(0);
-//    Set<FeatureDBXref> featureDBXrefs = new HashSet<FeatureDBXref>(0);
-//    Set<FeaturePublication> featurePublications = new HashSet<FeaturePublication>(0);
-//    Set<FeaturePhenotype> featurePhenotypes = new HashSet<FeaturePhenotype>(0);
-//    Set<FeatureProperty> featureProperties = new HashSet<FeatureProperty>(0);
 
     static hasMany = [
             featureLocations: FeatureLocation

@@ -16,9 +16,6 @@ class Phenotype {
     CVTerm observable;
     String uniqueName;
     String value;
-//    Set<PhenotypeCVTerm> phenotypeCVTerms = new HashSet<PhenotypeCVTerm>(0);
-//    Set<PhenotypeStatement> phenotypeStatements = new HashSet<PhenotypeStatement>(0);
-//    Set<FeaturePhenotype> featurePhenotypes = new HashSet<FeaturePhenotype>(0);
 
     static hasMany = [
             phenotypeCVTerms : PhenotypeCVTerm

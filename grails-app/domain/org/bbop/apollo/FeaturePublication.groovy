@@ -12,7 +12,6 @@ class FeaturePublication {
     Integer featurePublicationId;
     Publication publication;
     Feature feature;
-//    Set<FeaturePublicationProperty> featurePublicationProperties = new HashSet<FeaturePublicationProperty>(0);
 
     static hasMany = [
             featurePublicationProperties : FeaturePublicationProperty

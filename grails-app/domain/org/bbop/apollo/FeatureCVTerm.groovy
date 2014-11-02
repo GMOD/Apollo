@@ -15,9 +15,6 @@ class FeatureCVTerm {
     CVTerm cvterm;
     boolean isNot;
     int rank;
-//    Set<FeatureCVTermProperty> featureCVTermProperties = new HashSet<FeatureCVTermProperty>(0);
-//    Set<FeatureCVTermPublication> featureCVTermPublications = new HashSet<FeatureCVTermPublication>(0);
-//    Set<FeatureCVTermDBXref> featureCVTermDBXrefs = new HashSet<FeatureCVTermDBXref>(0);
 
     static hasMany = [
             featureCVTermProperties : FeatureCVTermProperty

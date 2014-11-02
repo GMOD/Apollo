@@ -5,7 +5,6 @@ class Analysis {
     static constraints = {
     }
 
-//    Integer analysisId;
     String name;
     String description;
     String program;
@@ -15,8 +14,6 @@ class Analysis {
     String sourceVersion;
     String sourceURI;
     Date timeExecuted;
-//    Set<AnalysisFeature> analysisFeatures = new HashSet<AnalysisFeature>(0);
-//    Set<AnalysisProperty> analysisProperties = new HashSet<AnalysisProperty>(0);
 
     static hasMany = [
             analysisFeatures : AnalysisFeature

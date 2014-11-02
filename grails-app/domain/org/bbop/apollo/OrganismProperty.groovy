@@ -15,8 +15,12 @@ class OrganismProperty {
      String species;
      String commonName;
      String comment;
-     Set<OrganismProperty> organismProperties = new HashSet<OrganismProperty>(0);
-     Set<OrganismDBXref> organismDBXrefs = new HashSet<OrganismDBXref>(0);
+
+    static hasMany = [
+            organismProperties : OrganismProperty
+            ,organismDBXrefs : OrganismDBXref
+    ]
+
 
     public boolean equals(Object other) {
         if ( (this == other ) ) return true;

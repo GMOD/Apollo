@@ -10,7 +10,7 @@ class FeatureProperty {
 
     static constraints = {
         type nullable: false
-        feature nullable: true
+//        feature nullable: true
         value nullable: false
         rank nullable: true
     }
@@ -21,7 +21,6 @@ class FeatureProperty {
 //    Feature feature;
     String value;
     int rank;
-//    Set<FeaturePropertyPublication> featurePropertyPublications = new HashSet<FeaturePropertyPublication>(0);
 
     static hasMany = [
             featurePropertyPublications :  FeaturePropertyPublication
@@ -32,17 +31,12 @@ class FeatureProperty {
             Feature
     ]
 
-    void setFeature(Feature feature){
-        if(!features){
-            features = new TreeSet<>()
-        }
+    void addFeature(Feature feature){
         features.add(feature)
     }
 
-    Feature getFeature(){
-        if(features){
-            return features.iterator().next()
-        }
+    Feature getSingleFeature(){
+            return features?.iterator()?.next()
     }
 
     public boolean equals(Object other) {

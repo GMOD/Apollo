@@ -16,10 +16,6 @@ class CVTerm {
     String definition;
     int isObsolete;
     int isRelationshipType;
-//     Set<CVTermRelationship> childCVTermRelationships = new HashSet<CVTermRelationship>(0);
-//     Set<CVTermRelationship> parentCVTermRelationships = new HashSet<CVTermRelationship>(0);
-//     Set<CVTermPath> parentCVTermPaths = new HashSet<CVTermPath>(0);
-//     Set<CVTermPath> childCVTermPaths = new HashSet<CVTermPath>(0);
 
     static hasMany = [
             childCVTermRelationships   : CVTermRelationship

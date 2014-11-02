@@ -17,8 +17,6 @@ class FeatureRelationship {
     Feature subjectFeature; // child?
     String value;
     int rank;
-//    Set<FeatureRelationshipProperty> featureRelationshipProperties = new HashSet<FeatureRelationshipProperty>(0);
-//    Set<FeatureRelationshipPublication> featureRelationshipPublications = new HashSet<FeatureRelationshipPublication>(0);
 
     static hasMany = [
             featureRelationshipProperties : FeatureRelationshipProperty

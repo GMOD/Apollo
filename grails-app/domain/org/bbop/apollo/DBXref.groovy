@@ -10,7 +10,6 @@ class DBXref {
     DB db;
     String accession;
     String description;
-//    Set<DBXrefProperty> dbxrefProperties = new HashSet<DBXrefProperty>(0);
 
     static hasMany = [
             dbxrefProperties : DBXrefProperty
