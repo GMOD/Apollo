@@ -10,14 +10,6 @@ class MockupService {
 
     CvTermService cvTermService
 
-    def addCVTerms(){
-
-        FeatureStringEnum.values().each {
-            CVTerm.findOrSaveByName(it.value)
-            it.value
-        }
-
-    }
 
     def addUsers() {
         if (User.count > 0) return
