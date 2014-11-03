@@ -4,7 +4,7 @@ import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
 import org.grails.datastore.mapping.query.api.Criteria
 
-//@GrailsCompileStatic
+@GrailsCompileStatic
 @Transactional
 class CdsService {
 

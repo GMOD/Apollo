@@ -8,7 +8,7 @@ import grails.compiler.GrailsCompileStatic
 @Transactional
 class TranscriptService {
 
-    CvTermService cvTermService
+//    CvTermService cvTermService
     FeatureService featureService
     FeatureRelationshipService featureRelationshipService
 //    def nonCanonicalSplitSiteService
@@ -61,7 +61,7 @@ class TranscriptService {
 //            exons.add((Exon) fr.getSubjectFeature())
 //        }
 
-        return featureRelationshipService.getChildrenForFeature(transcript,Exon.ontologyId)
+        return (Collection<Exon>) featureRelationshipService.getChildrenForFeature(transcript,Exon.ontologyId)
 //        return exons;
     }
 
@@ -98,7 +98,6 @@ class TranscriptService {
     }
 
     CDS createCDS(Transcript transcript) {
-        Date date = new Date();
         String uniqueName = transcript.getUniqueName() + FeatureStringEnum.CDS_SUFFIX.value;
 
         CDS cds = new CDS(
