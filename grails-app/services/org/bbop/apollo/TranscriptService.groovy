@@ -10,7 +10,7 @@ class TranscriptService {
 
     CvTermService cvTermService
     FeatureService featureService
-    def featureRelationshipService
+    FeatureRelationshipService featureRelationshipService
 //    def nonCanonicalSplitSiteService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
@@ -21,7 +21,7 @@ class TranscriptService {
      */
     public CDS getCDS(Transcript transcript) {
 
-        return featureRelationshipService.getChildForFeature(transcript,CDS.ontologyId)
+        return (CDS) featureRelationshipService.getChildForFeature(transcript,CDS.ontologyId)
 
 //        CVTerm partOfCvTerm = cvTermService.partOf
 //        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS.value)
@@ -73,7 +73,7 @@ class TranscriptService {
      */
     public Gene getGene(Transcript transcript) {
 
-        return featureRelationshipService.getParentForFeature(transcript,Gene.ontologyId)
+        return (Gene) featureRelationshipService.getParentForFeature(transcript,Gene.ontologyId)
 //        CVTerm partOfCvterm = cvTermService.partOf
 //        CVTerm geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
 //        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
@@ -210,19 +210,19 @@ class TranscriptService {
      *
      * @return Number of transcripts
      */
-    public int getNumberOfTranscripts(Feature feature) {
-        CVTerm partOfCvterms = cvTermService.partOf
-        CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT)
-        int numTranscripts = 0;
-
-        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-            if (partOfCvterms == fr.type && transcriptCvterms == fr.subjectFeature.type) {
-                ++numTranscripts;
-            }
-
-        }
-        return numTranscripts;
-    }
+//    public int getNumberOfTranscripts(Feature feature) {
+//        CVTerm partOfCvterms = cvTermService.partOf
+//        CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT)
+//        int numTranscripts = 0;
+//
+//        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
+//            if (partOfCvterms == fr.type && transcriptCvterms == fr.subjectFeature.type) {
+//                ++numTranscripts;
+//            }
+//
+//        }
+//        return numTranscripts;
+//    }
 
     /** Retrieve all the transcripts associated with this gene.  Uses the configuration to determine
      *  which children are transcripts.  Transcript objects are generated on the fly.  The collection
@@ -237,6 +237,7 @@ class TranscriptService {
 //        Collection<CVTerm> transcriptCvterms = conf.getDescendantCVTermsForClass("Transcript");
         List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
         Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
+
 
         for (FeatureRelationship fr : gene.getChildFeatureRelationships()) {
             if (!partOfCvterms.contains(fr.getType())) {
@@ -290,16 +291,30 @@ class TranscriptService {
 //        gene.setLastUpdated(new Date());
     }
 
-    List<Frameshift> getFrameshifts(Transcript transcript) {
-        List<Frameshift> frameshiftList = new ArrayList<>()
-//        featureRelationshipService
-        Collection<CVTerm> frameshiftCvterms = cvTermService.frameshifts
+    List<String> getFrameShiftOntologyIds(){
+        List<String> frameshiftOntologyIds = new ArrayList<>()
 
-        for (FeatureProperty featureProperty : transcript.getFeatureProperties()) {
-            if (frameshiftCvterms.contains(featureProperty.getType())) {
-                frameshiftList.add((Frameshift) featureProperty);
-            }
-        }
+        frameShiftOntologyIds.add(Plus1Frameshift.ontologyId)
+        frameShiftOntologyIds.add(Plus2Frameshift.ontologyId)
+        frameShiftOntologyIds.add(Minus1Frameshift.ontologyId)
+        frameShiftOntologyIds.add(Minus2Frameshift.ontologyId)
+
+
+        return frameshiftOntologyIds
+    }
+
+    List<Frameshift> getFrameshifts(Transcript transcript) {
+
+        List<Frameshift> frameshiftList =  featureRelationshipService.getFeaturePropertyForTypes(transcript,frameShiftOntologyIds)
+
+////        featureRelationshipService
+//        Collection<CVTerm> frameshiftCvterms = cvTermService.frameshifts
+//
+//        for (FeatureProperty featureProperty : transcript.getFeatureProperties()) {
+//            if (frameshiftCvterms.contains(featureProperty.getType())) {
+//                frameshiftList.add((Frameshift) featureProperty);
+//            }
+//        }
 
         return frameshiftList
     }
@@ -315,7 +330,9 @@ class TranscriptService {
 
 
         if(replace){
-            featureRelationshipService.setChildForType(feature,cds)
+            if(featureRelationshipService.setChildForType(feature,cds)){
+                return
+            }
 //            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
 //                if(partOfCvTerm==fr.type && cdsCvTerm==fr.objectFeature.type){
 //                    fr.setSubjectFeature(cds);

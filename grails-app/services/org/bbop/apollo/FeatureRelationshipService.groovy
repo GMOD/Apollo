@@ -263,4 +263,12 @@ class FeatureRelationshipService {
 //        }
 //
 //    }
+    List<Frameshift> getFeaturePropertyForTypes(Transcript transcript, List<String> strings) {
+        return (List<Frameshift>) FeatureProperty.findAllByFeaturesInListAndOntologyIdsInList([transcript],strings)
+//        for (FeatureProperty featureProperty : transcript.getFeatureProperties()) {
+//            if (frameshiftCvterms.contains(featureProperty.getType())) {
+//                frameshiftList.add((Frameshift) featureProperty);
+//            }
+//        }
+    }
 }

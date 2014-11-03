@@ -24,7 +24,7 @@ class ExonService {
 //        CVTerm partOfCvTerm = cvTermService.partOf
 //        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
 
-        return featureRelationshipService.getParentForFeature(exon,Transcript.ontologyId)
+        return (Transcript) featureRelationshipService.getParentForFeature(exon,Transcript.ontologyId)
 //        for (FeatureRelationship fr : exon.getParentFeatureRelationships()) {
 //            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
 //                return (Transcript) fr.getObjectFeature()
