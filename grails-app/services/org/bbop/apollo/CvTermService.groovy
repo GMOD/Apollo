@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONObject
 
+@Deprecated
 @Transactional
 class CvTermService {
 

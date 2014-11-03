@@ -2,13 +2,14 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
+import org.grails.datastore.mapping.query.api.Criteria
 
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class CdsService {
 
     FeatureService featureService
-    CvTermService cvTermService
+//    CvTermService cvTermService
     FeatureRelationshipService featureRelationshipService
 
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
@@ -37,10 +38,10 @@ class CdsService {
         return false;
     }
 
-    public StopCodonReadThrough getStopCodonReadThrough(CDS cds) {
-        List<Feature> featureList = featureRelationshipService.getChildrenForFeature(cds, FeatureStringEnum.STOP_CODON_READTHROUGH)
-        return featureList.size() == 1 ? (StopCodonReadThrough) featureList.get(0) : null
-    }
+//    public StopCodonReadThrough getStopCodonReadThrough(CDS cds) {
+//        List<Feature> featureList = featureRelationshipService.getChildrenForFeature(cds, StopCodonReadThrough.ontologyId )
+//        return featureList.size() == 1 ? (StopCodonReadThrough) featureList.get(0) : null
+//    }
 
     /**
      * TODO: is this right?  I think it should be CDS , not transcript?
@@ -50,15 +51,15 @@ class CdsService {
      * @return
      */
     def deleteStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough) {
-        CVTerm partOfCvTerm = cvTermService.partOf
-        CVTerm childCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
-        CVTerm parentCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT)
-        featureRelationshipService.deleteChildrenForType(cds, childCvTerm, partOfCvTerm)
-        featureRelationshipService.deleteParentForType(stopCodonReadThrough, parentCvTerm, partOfCvTerm)
+//        CVTerm partOfCvTerm = cvTermService.partOf
+//        CVTerm childCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
+//        CVTerm parentCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT)
+        featureRelationshipService.deleteChildrenForType(cds, StopCodonReadThrough.ontologyId)
+        featureRelationshipService.deleteParentForType(stopCodonReadThrough, Transcript.ontologyId)
     }
 
     def deleteStopCodonReadThrough(CDS cds) {
-        StopCodonReadThrough stopCodonReadThrough = getStopCodonReadThrough(cds);
+        StopCodonReadThrough stopCodonReadThrough = (StopCodonReadThrough) featureRelationshipService.getChildForFeature(cds,StopCodonReadThrough.ontologyId)
         if (stopCodonReadThrough != null) {
             deleteStopCodonReadThrough(cds, stopCodonReadThrough);
         }
@@ -66,10 +67,29 @@ class CdsService {
     }
 
 
-    Transcript getTranscript(CDS cds) {
-        List<Feature> featureList = featureRelationshipService.getParentForFeature(cds, FeatureStringEnum.TRANSCRIPT)
-        featureList.size() == 1 ? (Transcript) featureList.get(0) : null
-    }
+//    Transcript getTranscript(CDS cds) {
+//        Criteria criteria = FeatureRelationship.createCriteria()
+//        List<FeatureRelationship> featureRelationshipList = criteria {
+//            eq("subjectFeature", cds)
+//            eq("objectFeature.ontologyId", Transcript.ontologyId)
+//        }
+//
+//        if (featureRelationshipList.size() == 0) {
+//            return null
+//        }
+//
+//        if (featureRelationshipList.size() > 1) {
+//            log.error "More than one feature relationships found for CDS ${cds} and ID ${Transcript.ontologyId}"
+//        }
+//
+//        return (Transcript) featureRelationshipList.get(0).objectFeature
+//
+//        List<Feature> featureList = featureRelationshipService.getParentForFeature(cds,Transcript.ontologyId)
+//
+////
+////        List<Feature> featureList = featureRelationshipService.getParentForFeature(cds, FeatureStringEnum.TRANSCRIPT)
+////        featureList.size() == 1 ? (Transcript) featureList.get(0) : null
+//    }
 
     public StopCodonReadThrough createStopCodonReadThrough(CDS cds) {
 //        Date date = new Date();
@@ -100,30 +120,33 @@ class CdsService {
         return stopCodonReadThrough;
     }
 
-    def setStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough,boolean replace=true) {
-        CVTerm partOfCvTerm = cvTermService.partOf
-        CVTerm stopCodonReadThroughCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
+    def setStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough, boolean replace = true) {
+//        CVTerm partOfCvTerm = cvTermService.partOf
+//        CVTerm stopCodonReadThroughCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
 
-        if(replace){
-            for (FeatureRelationship fr : cds.getChildFeatureRelationships()) {
-                if(partOfCvTerm==fr.type && stopCodonReadThroughCvTerm==fr.objectFeature.type){
-                    fr.setSubjectFeature(stopCodonReadThrough);
-                    return;
-                }
-            }
+
+        if (replace) {
+            featureRelationshipService.setChildForType(cds,stopCodonReadThrough)
+//            featureRelationshipService.deleteChildrenForType(cds,StopCodonReadThrough.ontologyId)
+//            for (FeatureRelationship fr : cds.getChildFeatureRelationships()) {
+//                if (partOfCvTerm == fr.type && stopCodonReadThroughCvTerm == fr.objectFeature.type) {
+//                    fr.setSubjectFeature(stopCodonReadThrough);
+//                    return;
+//                }
+//            }
         }
 
         FeatureRelationship fr = new FeatureRelationship(
-                type: partOfCvTerm
-                ,objectFeature: cds
-                ,subjectFeature: stopCodonReadThrough
-                ,rank: 0 // TODO: Do we need to rank the order of any other transcripts?
+//                type: partOfCvTerm
+                objectFeature: cds
+                , subjectFeature: stopCodonReadThrough
+                , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         ).save(insert: true)
         cds.getChildFeatureRelationships().add(fr);
         stopCodonReadThrough.getParentFeatureRelationships().add(fr);
 
         stopCodonReadThrough.save()
-        cds.save(flush:true)
+        cds.save(flush: true)
 
     }
 }

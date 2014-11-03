@@ -8,6 +8,6 @@ class RepeatRegion extends BiologicalRegion{
     static constraints = {
     }
 
-    String cvTerm  = "RepeatRegion"
-    String ontologyId = "SO:0000657"
+    static String cvTerm  = "RepeatRegion"
+    static String ontologyId = "SO:0000657"
 }

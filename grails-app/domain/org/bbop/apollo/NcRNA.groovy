@@ -5,6 +5,6 @@ class NcRNA extends Transcript{
     static constraints = {
     }
 
-    String cvTerm =  "NcRNA"
-    String ontologyId = "SO:0000655"
+    static String cvTerm =  "NcRNA"
+    static String ontologyId = "SO:0000655"
 }

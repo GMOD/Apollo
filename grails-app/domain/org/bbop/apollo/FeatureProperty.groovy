@@ -4,12 +4,12 @@ package org.bbop.apollo
  * Converted
  * Chado?
  */
-class FeatureProperty {
+class FeatureProperty implements Ontological{
 
     static auditable =  true
 
     static constraints = {
-        type nullable: false
+        type nullable: true
 //        feature nullable: true
         value nullable: false
         rank nullable: true

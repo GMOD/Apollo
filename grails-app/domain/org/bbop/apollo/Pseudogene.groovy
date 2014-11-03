@@ -9,6 +9,6 @@ class Pseudogene extends BiologicalRegion{
     static constraints = {
     }
 
-    String ontologyId = "SO:0000336"// XX:NNNNNNN
-    String cvTerm = "Pseudogene"// may have a link
+    static String ontologyId = "SO:0000336"// XX:NNNNNNN
+    static String cvTerm = "Pseudogene"// may have a link
 }

@@ -5,5 +5,5 @@ class Description implements Ontological{
     static constraints = {
     }
 
-    String cvTerm = "Description"
+    static String cvTerm = "Description"
 }

@@ -12,8 +12,8 @@ class StopCodonReadThrough extends Feature implements Ontological {
     static constraints = {
     }
 
-    String ontologyId = "SO:0000883"// XX:NNNNNNN
-    String cvTerm = "ReadthroughStopCodon"
+    static String ontologyId = "SO:0000883"// XX:NNNNNNN
+    static String cvTerm = "ReadthroughStopCodon"
 
     // add convenience methods
 }

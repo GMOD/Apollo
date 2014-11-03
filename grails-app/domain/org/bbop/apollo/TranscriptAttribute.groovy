@@ -8,7 +8,7 @@ class TranscriptAttribute extends FeatureAttribute{
     static constraints = {
     }
 
-    String ontologyId = "SO:0000237"// XX:NNNNNNN
+    static String ontologyId = "SO:0000237"// XX:NNNNNNN
 
     // add convenience methods
 }

@@ -10,7 +10,7 @@ abstract class BiologicalRegion extends Region{
     }
 
 
-    String ontologyId = "SO:0001411"// XX:NNNNNNN
+    static String ontologyId = "SO:0001411"// XX:NNNNNNN
 
 
     /** Convenience method to get the fmin for the location of this feature.

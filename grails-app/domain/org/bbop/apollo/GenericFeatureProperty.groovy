@@ -7,7 +7,7 @@ class GenericFeatureProperty extends FeatureProperty implements Ontological{
     static constraints = {
     }
 
-    String cvTerm  = "GenericFeatureProperty"
+    static String cvTerm  = "GenericFeatureProperty"
 
     public String getTag() {
         return getValue().split(TAG_VALUE_DELIMITER)[0];

@@ -10,8 +10,8 @@ class Gene extends BiologicalRegion{
     }
 
 
-    String ontologyId = "SO:0000704"// XX:NNNNNNN
-    String cvTerm = "Gene"// may have a link
+    static String ontologyId = "SO:0000704"// XX:NNNNNNN
+    static String cvTerm = "Gene"// may have a link
 
 
 }

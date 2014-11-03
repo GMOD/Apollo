@@ -9,6 +9,6 @@ class CDS extends TranscriptRegion{
     }
 
 
-    String ontologyId = "SO:0000316"// XX:NNNNNNN
-    String cvTerm = "CDS"
+    static String ontologyId = "SO:0000316"// XX:NNNNNNN
+    static String cvTerm = "CDS"
 }

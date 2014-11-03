@@ -5,7 +5,7 @@ package org.bbop.apollo
  */
 interface Ontological {
 
-    String ontologyId = null // XX:NNNNNNN
-    String cvTerm = null // may have a link
+    static String ontologyId = null // XX:NNNNNNN
+    static String cvTerm = null // may have a link
 
 }

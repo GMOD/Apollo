@@ -9,5 +9,5 @@ class TranscriptRegion extends BiologicalRegion{
     }
 
 
-    String ontologyId = "SO:0000833"  // XX:NNNNNNN
+    static String ontologyId = "SO:0000833"  // XX:NNNNNNN
 }

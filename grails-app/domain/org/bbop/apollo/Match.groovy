@@ -11,8 +11,8 @@ class Match extends Region{
     // added
     AnalysisFeature analysisFeature;
 
-    String ontologyId = "SO:0000343"// XX:NNNNNNN
-    String cvTerm = "Match"// may have a link
+    static String ontologyId = "SO:0000343"// XX:NNNNNNN
+    static String cvTerm = "Match"// may have a link
 
     // add convenience methods
 }

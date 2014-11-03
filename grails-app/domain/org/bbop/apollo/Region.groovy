@@ -9,8 +9,8 @@ class Region extends SequenceFeature {
     }
 
 
-    String ontologyId = "SO:0000001"// XX:NNNNNNN
-    String cvTerm = "Region"// may have a link
+    static String ontologyId = "SO:0000001"// XX:NNNNNNN
+    static String cvTerm = "Region"// may have a link
 
     // add convenience methods
 }

@@ -4,7 +4,7 @@ package org.bbop.apollo
  * Converted
  * Chado?
  */
-class Feature {
+class Feature implements Ontological{
 
     static auditable = true
 

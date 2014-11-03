@@ -8,7 +8,7 @@ import org.gmod.gbol.util.SequenceUtil
 @Transactional
 class NonCanonicalSplitSiteService {
 
-    CvTermService cvTermService
+//    CvTermService cvTermService
     FeatureRelationshipService featureRelationshipService
     ExonService exonService
     FeatureService featureService
@@ -19,29 +19,33 @@ class NonCanonicalSplitSiteService {
      * @param nonCanonicalFivePrimeSpliceSite - NonCanonicalFivePrimeSpliceSite to be deleted
      */
     public void deleteNonCanonicalFivePrimeSpliceSite(Transcript transcript, NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
-        CVTerm partOfCvterms = cvTermService.partOf
-        CVTerm nonCanonicalFivePrimeSpliceSiteCvterms = cvTermService.getTerm(FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE)
-        CVTerm transcriptCvTerm = cvTermService.transcript
+//        CVTerm partOfCvterms = cvTermService.partOf
+//        CVTerm nonCanonicalFivePrimeSpliceSiteCvterms = cvTermService.getTerm(FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE)
+//        CVTerm transcriptCvTerm = cvTermService.transcript
 //        Collection<CVTerm> nonCanonicalFivePrimeSpliceSiteCvterms = conf.getCVTermsForClass("NonCanonicalFivePrimeSpliceSite");
 
-        // delete transcript -> non canonical 5' splice site child relationship
-        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCvterms == fr.type
-                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.subjectFeature.type
-                    && fr.getSubjectFeature().equals(nonCanonicalFivePrimeSpliceSite)) {
-                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
-//                break;
-            }
-        }
+        featureRelationshipService.deleteChildrenForType(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
+        featureRelationshipService.deleteParentForType(nonCanonicalFivePrimeSpliceSite,Transcript.ontologyId)
 
-        // delete transcript -> non canonical 5' splice site parent relationship
-        for (FeatureRelationship fr : nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships()) {
-            if (partOfCvterms == fr.type
-                    && transcriptCvTerm == fr.objectFeature.type
-                    && fr.subjectFeature == nonCanonicalFivePrimeSpliceSite) {
-                boolean ok = nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().remove(fr);
-            }
-        }
+//        // delete transcript -> non canonical 5' splice site child relationship
+//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
+//            if (partOfCvterms == fr.type
+//                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.subjectFeature.type
+//                    && fr.getSubjectFeature().equals(nonCanonicalFivePrimeSpliceSite)) {
+//                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
+////                break;
+//            }
+//        }
+//
+//
+//        // delete transcript -> non canonical 5' splice site parent relationship
+//        for (FeatureRelationship fr : nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships()) {
+//            if (partOfCvterms == fr.type
+//                    && transcriptCvTerm == fr.objectFeature.type
+//                    && fr.subjectFeature == nonCanonicalFivePrimeSpliceSite) {
+//                boolean ok = nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().remove(fr);
+//            }
+//        }
 
     }
 
@@ -62,7 +66,7 @@ class NonCanonicalSplitSiteService {
      * @return Collection of non canonical 5' splice sites associated with this transcript
      */
     public Collection<NonCanonicalFivePrimeSpliceSite> getNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
-        return (Collection<NonCanonicalFivePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE)
+        return (Collection<NonCanonicalFivePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
     }
 
     /** Retrieve all the non canonical 3' splice sites associated with this transcript.  Uses the configuration to determine
@@ -72,7 +76,8 @@ class NonCanonicalSplitSiteService {
      * @return Collection of non canonical 3' splice sites associated with this transcript
      */
     public Collection<NonCanonicalThreePrimeSpliceSite> getNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
-        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,FeatureStringEnum.NONCANONICALTHREEPRIMESPLICESITE)
+//        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,FeatureStringEnum.NONCANONICALTHREEPRIMESPLICESITE)
+        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
     }
 
     /** Delete all non canonical 3' splice site.  Deletes all transcript -> non canonical 3' splice sites and
@@ -81,7 +86,7 @@ class NonCanonicalSplitSiteService {
      */
     public void deleteAllNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
-            featureRelationshipService.deleteRelationships(transcript,FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE,FeatureStringEnum.TRANSCRIPT)
+            featureRelationshipService.deleteRelationships(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId,Transcript.ontologyId)
         }
     }
 
@@ -174,12 +179,12 @@ class NonCanonicalSplitSiteService {
      * @param nonCanonicalFivePrimeSpliceSite - Non canonical 5' splice site to be added
      */
     public void addNonCanonicalFivePrimeSpliceSite(Transcript transcript,NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
-        CVTerm partOfCvterm = cvTermService.partOf
+//        CVTerm partOfCvterm = cvTermService.partOf
 
         // add non canonical 5' splice site
         FeatureRelationship fr = new FeatureRelationship(
-                type: cvTermService.partOf
-                ,objectFeature: transcript
+//                type: cvTermService.partOf
+                objectFeature: transcript
                 ,subjectFeature: nonCanonicalFivePrimeSpliceSite
                 ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
         );
@@ -195,8 +200,8 @@ class NonCanonicalSplitSiteService {
 
         // add non canonical 3' splice site
         FeatureRelationship fr = new FeatureRelationship(
-                type: cvTermService.partOf
-                ,objectFeature: transcript
+//                type: cvTermService.partOf
+                objectFeature: transcript
                 ,subjectFeature: nonCanonicalThreePrimeSpliceSite
                 ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
         );
@@ -211,7 +216,7 @@ class NonCanonicalSplitSiteService {
                 ,uniqueName: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
-                ,timeAccessioned: new Date()
+//                ,timeAccessioned: new Date()
                 );
         spliceSite.setFeatureLocation(new FeatureLocation());
         spliceSite.featureLocation.setStrand(transcript.getStrand());
@@ -230,7 +235,7 @@ class NonCanonicalSplitSiteService {
                 ,uniqueName: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
-                ,timeAccessioned: new Date()
+//                ,timeAccessioned: new Date()
         );
         spliceSite.setFeatureLocation(new FeatureLocation());
         spliceSite.featureLocation.setStrand(transcript.getStrand());

@@ -8,7 +8,7 @@ class SequenceFeature extends Feature implements Ontological {
     static constraints = {
     }
 
-    String ontologyId = "SO:0000110"// XX:NNNNNNN
+    static String ontologyId = "SO:0000110"// XX:NNNNNNN
 
     // add convenience methods
 }

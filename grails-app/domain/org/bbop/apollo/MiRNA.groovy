@@ -5,6 +5,6 @@ class MiRNA extends NcRNA{
     static constraints = {
     }
 
-    String cvTerm =  "MiRNA"
-    String ontologyId = "SO:0000276"
+    static String cvTerm =  "MiRNA"
+    static String ontologyId = "SO:0000276"
 }

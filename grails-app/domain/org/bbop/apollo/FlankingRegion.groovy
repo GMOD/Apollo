@@ -6,8 +6,8 @@ class FlankingRegion extends Region{
     static constraints = {
     }
 
-    String cvTerm  = "FlankingRegion"
-    String ontologyId = "SO:0000239"
+    static String cvTerm  = "FlankingRegion"
+    static String ontologyId = "SO:0000239"
 
 
 }

@@ -8,9 +8,10 @@ import org.bbop.apollo.editor.AnnotationEditor
 @Transactional
 class ExonService {
 
-    CvTermService cvTermService
+//    CvTermService cvTermService
     TranscriptService transcriptService
     FeatureService featureService
+    FeatureRelationshipService featureRelationshipService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
@@ -20,14 +21,16 @@ class ExonService {
      */
     public Transcript getTranscript(Exon exon) {
 
-        CVTerm partOfCvTerm = cvTermService.partOf
-        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
-        for (FeatureRelationship fr : exon.getParentFeatureRelationships()) {
-            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
-                return (Transcript) fr.getObjectFeature()
-            }
-        }
-        return null;
+//        CVTerm partOfCvTerm = cvTermService.partOf
+//        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
+
+        return featureRelationshipService.getParentForFeature(exon,Transcript.ontologyId)
+//        for (FeatureRelationship fr : exon.getParentFeatureRelationships()) {
+//            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
+//                return (Transcript) fr.getObjectFeature()
+//            }
+//        }
+//        return null;
     }
 
     /**
@@ -81,8 +84,9 @@ class ExonService {
      */
     public void deleteExon(Transcript transcript, Exon exon) {
 //        transcript.deleteExon(exon);
-        transcriptService.removeChildFeature(transcript,exon,FeatureStringEnum.EXON.value)
-        transcriptService.removeParentFeature(transcript,exon,FeatureStringEnum.EXON.value)
+//        transcriptService.removeChildFeature(transcript,exon,FeatureStringEnum.EXON.value)
+//        transcriptService.removeParentFeature(transcript,exon,FeatureStringEnum.EXON.value)
+        featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
 
         // an empty transcript should be removed from gene,  TODO??
@@ -152,25 +156,28 @@ class ExonService {
      *
      * @param transcript - Transcript that this transcript will be associated with
      */
-    public void setTranscript(Exon exon, Transcript transcript) {
-        CVTerm partOfCvTerm = cvTermService.partOf
-        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
-        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
-                fr.setObjectFeature(transcript);
-            }
-            return;
-        }
-
-        FeatureRelationship fr = new FeatureRelationship(
-                type: partOfCvTerm,
-                subjectFeature: transcript,
-                objectFeature: exon,
-                rank: 0 // TODO: Do we need to rank the order of any other transcripts?
-        );
-        exon.getParentFeatureRelationships().add(fr);
-        transcript.getChildFeatureRelationships().add(fr);
-    }
+//    public void setTranscript(Exon exon, Transcript transcript) {
+//        CVTerm partOfCvTerm = cvTermService.partOf
+//        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
+//
+//        featureRelationshipService.setChildForType(transcript,exon)
+//
+////        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
+////            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
+////                fr.setObjectFeature(transcript);
+////            }
+////            return;
+////        }
+//
+////        FeatureRelationship fr = new FeatureRelationship(
+////                type: partOfCvTerm,
+////                subjectFeature: transcript,
+////                objectFeature: exon,
+////                rank: 0 // TODO: Do we need to rank the order of any other transcripts?
+////        );
+////        exon.getParentFeatureRelationships().add(fr);
+////        transcript.getChildFeatureRelationships().add(fr);
+//    }
 
 /**
  * Splits the exon, creating two exons, the left one which starts at exon.getFmin() and ends at

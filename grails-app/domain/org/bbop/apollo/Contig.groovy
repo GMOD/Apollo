@@ -9,7 +9,7 @@ class Contig extends Region{
     }
 
 
-    String ontologyId = "SO:0000149"// XX:NNNNNNN
-//    String cvTerm = "Match"// may have a link
-    String cvTerm = "Contig"
+    static String ontologyId = "SO:0000149"// XX:NNNNNNN
+//    static String cvTerm = "Match"// may have a link
+    static String cvTerm = "Contig"
 }

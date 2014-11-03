@@ -6,8 +6,8 @@ class NonCanonicalFivePrimeSpliceSite extends SpliceSite{
     static constraints = {
     }
 
-    String cvTerm  = "NonCanonicalFivePrimeSpliceSite"
-    String ontologyId = "SO:0000679"
+    static String cvTerm  = "NonCanonicalFivePrimeSpliceSite"
+    static String ontologyId = "SO:0000679"
 
 
 }

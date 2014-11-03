@@ -10,5 +10,5 @@ class GeneMemberRegion extends BiologicalRegion{
     }
 
 
-    String ontologyId = "SO:0000831"// XX:NNNNNNN
+    static String ontologyId = "SO:0000831"// XX:NNNNNNN
 }

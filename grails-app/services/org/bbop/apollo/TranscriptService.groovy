@@ -10,7 +10,7 @@ class TranscriptService {
 
     CvTermService cvTermService
     FeatureService featureService
-//    def featureRelationshipService
+    def featureRelationshipService
 //    def nonCanonicalSplitSiteService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
@@ -20,20 +20,23 @@ class TranscriptService {
      * @return CDS associated with this transcript
      */
     public CDS getCDS(Transcript transcript) {
-        CVTerm partOfCvTerm = cvTermService.partOf
-        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS.value)
 
-        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCvTerm == fr.getType() && fr.subjectFeature.type == cdsCvTerm) {
-                return (CDS) fr.getSubjectFeature();
-            }
-        }
+        return featureRelationshipService.getChildForFeature(transcript,CDS.ontologyId)
 
-
-//        CDS.
-//        FeatureRelationship. find all children relationships where type is CDS
-
-        return null;
+//        CVTerm partOfCvTerm = cvTermService.partOf
+//        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS.value)
+//
+//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
+//            if (partOfCvTerm == fr.getType() && fr.subjectFeature.type == cdsCvTerm) {
+//                return (CDS) fr.getSubjectFeature();
+//            }
+//        }
+//
+//
+////        CDS.
+////        FeatureRelationship. find all children relationships where type is CDS
+//
+//        return null;
     }
 
     /** Retrieve all the exons associated with this transcript.  Uses the configuration to determine
@@ -43,20 +46,23 @@ class TranscriptService {
      * @return Collection of exons associated with this transcript
      */
     public Collection<Exon> getExons(Transcript transcript) {
-        Collection<Exon> exons = new ArrayList<Exon>();
-        CVTerm partOfCVTerm = cvTermService.partOf
-        CVTerm exonCvTerm = cvTermService.getTerm(FeatureStringEnum.EXON.value)
+//        Collection<Exon> exons = new ArrayList<Exon>();
+//        CVTerm partOfCVTerm = cvTermService.partOf
+//        CVTerm exonCvTerm = cvTermService.getTerm(FeatureStringEnum.EXON.value)
+//
+//
+//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
+//            if (partOfCVTerm != fr.getType()) {
+//                continue;
+//            }
+//            if (exonCvTerm != fr.getSubjectFeature().getType()) {
+//                continue;
+//            }
+//            exons.add((Exon) fr.getSubjectFeature())
+//        }
 
-        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCVTerm != fr.getType()) {
-                continue;
-            }
-            if (exonCvTerm != fr.getSubjectFeature().getType()) {
-                continue;
-            }
-            exons.add((Exon) fr.getSubjectFeature())
-        }
-        return exons;
+        return featureRelationshipService.getChildrenForFeature(transcript,Exon.ontologyId)
+//        return exons;
     }
 
     /** Retrieve the gene that this transcript is associated with.  Uses the configuration to
@@ -66,19 +72,21 @@ class TranscriptService {
      * @return Gene that this Transcript is associated with
      */
     public Gene getGene(Transcript transcript) {
-        CVTerm partOfCvterm = cvTermService.partOf
-        CVTerm geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
-        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-            if (partOfCvterm != fr.getType()) {
-                continue;
-            }
-            if (geneCvterm != fr.getObjectFeature().getType()) {
-                continue;
-            }
-//            return ((Gene)BioObjectUtil.createBioObject(fr.getObjectFeature(), conf));
-            return (Gene) fr.getObjectFeature()
-        }
-        return null;
+
+        return featureRelationshipService.getParentForFeature(transcript,Gene.ontologyId)
+//        CVTerm partOfCvterm = cvTermService.partOf
+//        CVTerm geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
+//        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
+//            if (partOfCvterm != fr.getType()) {
+//                continue;
+//            }
+//            if (geneCvterm != fr.getObjectFeature().getType()) {
+//                continue;
+//            }
+////            return ((Gene)BioObjectUtil.createBioObject(fr.getObjectFeature(), conf));
+//            return (Gene) fr.getObjectFeature()
+//        }
+//        return null;
     }
 
 
@@ -114,65 +122,27 @@ class TranscriptService {
         return cds;
     }
 
-    StopCodonReadThrough getStopCodonReadThrough(Feature feature, Transcript transcript) {
-        CDS cds = getCDS(transcript)
-        if (transcript) {
-            CVTerm partOfCvTerm = cvTermService.partOf
-            CVTerm stopCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH.value)
-//            Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
-//            Collection<CVTerm> cdsCvterms = conf.getCVTermsForClass("StopCodonReadThrough");
-
-            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-                if (partOfCvTerm != fr.getType()) {
-                    continue;
-                }
-                if (stopCvTerm != fr.getSubjectFeature().getType()) {
-                    continue;
-                }
-                return (StopCodonReadThrough) fr.subjectFeature
-//                return new StopCodonReadThrough(fr.getSubjectFeature(), conf);
-            }
-            return null;
-        }
-    }
-
-    public void removeChildFeature(Transcript transcript, Feature feature, String type) {
-        CVTerm partOfCvterm = cvTermService.partOf
-        CVTerm exonCvterm = cvTermService.getTerm(type);
-        CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT);
-
-        // delete transcript -> exon child relationship
-        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCvterm == fr.type
-                    && exonCvterm == fr.subjectFeature.type
-                    && fr.getSubjectFeature().equals(feature)
-            ) {
-                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
-                break;
-
-            }
-        }
-
-    }
-
-    public void removeParentFeature(Transcript transcript, Feature feature, String type) {
-        CVTerm partOfCvterm = cvTermService.partOf
-        CVTerm exonCvterm = cvTermService.getTerm(type);
-        CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT);
-
-        // delete transcript -> exon child relationship
-        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-            if (partOfCvterm == fr.type
-                    && transcriptCvterms == fr.objectFeature.type
-                    && fr.getSubjectFeature().equals(feature)
-            ) {
-                boolean ok = feature.getParentFeatureRelationships().remove(fr);
-                break;
-
-            }
-        }
-
-    }
+//    StopCodonReadThrough getStopCodonReadThrough(Feature feature, Transcript transcript) {
+//        CDS cds = getCDS(transcript)
+//        if (transcript) {
+//            CVTerm partOfCvTerm = cvTermService.partOf
+//            CVTerm stopCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH.value)
+////            Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
+////            Collection<CVTerm> cdsCvterms = conf.getCVTermsForClass("StopCodonReadThrough");
+//
+//            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
+//                if (partOfCvTerm != fr.getType()) {
+//                    continue;
+//                }
+//                if (stopCvTerm != fr.getSubjectFeature().getType()) {
+//                    continue;
+//                }
+//                return (StopCodonReadThrough) fr.subjectFeature
+////                return new StopCodonReadThrough(fr.getSubjectFeature(), conf);
+//            }
+//            return null;
+//        }
+//    }
 
     /** Delete a transcript.  Deletes both the gene -> transcript and transcript -> gene
      *  relationships.
@@ -340,22 +310,24 @@ class TranscriptService {
      * @param cds - CDS to be set to this transcript
      */
     public void setCDS(Feature feature,CDS cds,boolean replace = true) {
-        CVTerm partOfCvTerm = cvTermService.partOf
-        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS)
+//        CVTerm partOfCvTerm = cvTermService.partOf
+//        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS)
+
 
         if(replace){
-            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-                if(partOfCvTerm==fr.type && cdsCvTerm==fr.objectFeature.type){
-                    fr.setSubjectFeature(cds);
-                    return;
-                }
-
-            }
+            featureRelationshipService.setChildForType(feature,cds)
+//            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
+//                if(partOfCvTerm==fr.type && cdsCvTerm==fr.objectFeature.type){
+//                    fr.setSubjectFeature(cds);
+//                    return;
+//                }
+//
+//            }
         }
 
         FeatureRelationship fr = new FeatureRelationship(
-                type:partOfCvTerm
-                ,objectFeature: feature
+//                type:partOfCvTerm
+                objectFeature: feature
                 ,subjectFeature: cds
                 ,rank: 0
         ).save(insert:true)

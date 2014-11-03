@@ -6,8 +6,8 @@ class TransposableElement extends BiologicalRegion{
     static constraints = {
     }
 
-    String cvTerm  = "TransposableElement"
-    String ontologyId = "SO:0000101"
+    static String cvTerm  = "TransposableElement"
+    static String ontologyId = "SO:0000101"
 
 
 }

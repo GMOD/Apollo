@@ -726,7 +726,7 @@ public class AnnotationEditorServiceTest extends TestCase {
         return null;
     }
     
-    private JSONObject createJSONFeature(int fmin, int fmax, int strand, String cvterm, String name) throws JSONException {
+    private JSONObject createJSONFeature(int fmin, int fmax, int strand, static String cvTerm, String name) throws JSONException {
         JSONObject feature = new JSONObject();
         JSONObject type = new JSONObject();
         feature.put("type", type);
@@ -743,20 +743,20 @@ public class AnnotationEditorServiceTest extends TestCase {
         return feature;
     }
     
-    private JSONObject createJSONFeature(int fmin, int fmax, int strand, String cvterm, String name, String residues) throws JSONException {
+    private JSONObject createJSONFeature(int fmin, int fmax, int strand, static String cvTerm, String name, String residues) throws JSONException {
         JSONObject feature = createJSONFeature(fmin, fmax, strand, cvterm, name);
         feature.put("residues", residues);
         return feature;
     }
         
-    private JSONObject createJSONFeature(String cvterm, String name, String residues) throws JSONException {
+    private JSONObject createJSONFeature(static String cvTerm, String name, String residues) throws JSONException {
         JSONObject feature = createJSONFeature(0, 0, 0, cvterm, name);
         feature.remove("location");
         feature.put("residues", residues);
         return feature;
     }
 
-    private JSONObject createJSONFeatureProperty(String cvterm, String value) throws JSONException {
+    private JSONObject createJSONFeatureProperty(static String cvTerm, String value) throws JSONException {
         JSONObject property = new JSONObject();
         JSONObject type = new JSONObject();
         property.put("type", type);

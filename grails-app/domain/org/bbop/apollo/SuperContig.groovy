@@ -8,6 +8,6 @@ class SuperContig extends Region{
     static constraints = {
     }
 
-    String cvTerm  = "Chromosome"
-    String ontologyId = "SO:0000148"
+    static String cvTerm  = "Chromosome"
+    static String ontologyId = "SO:0000148"
 }

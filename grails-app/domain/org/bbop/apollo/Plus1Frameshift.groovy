@@ -8,8 +8,8 @@ class Plus1Frameshift extends Frameshift{
     static constraints = {
     }
 
-    String ontologyId = "SO:0000868"// XX:NNNNNNN
-    String cvTerm = "Plus1Frameshift"
+    static String ontologyId = "SO:0000868"// XX:NNNNNNN
+    static String cvTerm = "Plus1Frameshift"
 
     // add convenience methods
     @Override

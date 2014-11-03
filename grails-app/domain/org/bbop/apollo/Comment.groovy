@@ -5,5 +5,6 @@ class Comment extends FeatureProperty implements Ontological{
     static constraints = {
     }
 
-    String cvTerm = "Comment"
+    static String cvTerm = "Comment"
+    static String ontologyId = "Comment" // TODO: not in the SO
 }

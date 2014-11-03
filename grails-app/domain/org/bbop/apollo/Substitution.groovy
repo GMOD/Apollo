@@ -6,8 +6,8 @@ class Substitution extends SequenceAlteration{
     static constraints = {
     }
 
-    String cvTerm  = "Substitution"
-    String ontologyId = "SO:1000002"
+    static String cvTerm  = "Substitution"
+    static String ontologyId = "SO:1000002"
 
 
 }

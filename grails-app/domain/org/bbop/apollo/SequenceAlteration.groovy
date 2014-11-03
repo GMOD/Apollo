@@ -6,8 +6,8 @@ class SequenceAlteration extends SequenceFeature{
     static constraints = {
     }
 
-    String cvTerm  = "SequenceAlteration"
-    String ontologyId = "SO:0001059"
+    static String cvTerm  = "SequenceAlteration"
+    static String ontologyId = "SO:0001059"
 
     /** Get the offset added by the sequence alteration.
      *

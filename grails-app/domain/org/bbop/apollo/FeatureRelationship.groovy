@@ -4,7 +4,7 @@ package org.bbop.apollo
  * Converted
  * Chado?
  */
-class FeatureRelationship {
+class FeatureRelationship implements  Ontological{
 
     static auditable =  true
 
@@ -17,6 +17,7 @@ class FeatureRelationship {
     Feature subjectFeature; // child?
     String value;
     int rank;
+    static String ontologyId = "part_of"
 
     static hasMany = [
             featureRelationshipProperties : FeatureRelationshipProperty

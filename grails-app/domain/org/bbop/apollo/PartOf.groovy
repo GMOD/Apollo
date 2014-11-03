@@ -5,6 +5,6 @@ class PartOf implements Ontological{
     static constraints = {
     }
 
-    String cvTerm = "PartOf"
-    String ontologyId = "part_of"
+    static String cvTerm = "PartOf"
+    static String ontologyId = "part_of"
 }

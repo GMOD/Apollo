@@ -5,6 +5,6 @@ class Status extends FeatureAttribute{
     static constraints = {
     }
 
-//    String cvTerm = "Comment"
-    String ontologyId = "SO:0000905"
+//    static String cvTerm = "Comment"
+    static String ontologyId = "SO:0000905"
 }

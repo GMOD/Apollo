@@ -5,5 +5,5 @@ class Symbol implements Ontological{
     static constraints = {
     }
 
-    String cvTerm = "Symbol"
+    static String cvTerm = "Symbol"
 }

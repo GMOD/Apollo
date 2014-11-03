@@ -9,6 +9,6 @@ class Chromosome extends BiologicalRegion{
     }
 
 
-    String ontologyId = "SO:0000340"// XX:NNNNNNN
-    String cvTerm = "Chromosome"
+    static String ontologyId = "SO:0000340"// XX:NNNNNNN
+    static String cvTerm = "Chromosome"
 }
