@@ -1138,7 +1138,7 @@ class FeatureService {
     }
 
     /**
-     * TODO: not srue if this is legit.
+     * TODO: not sure if this is legit.
      * @param jsonObject
      * @param featureLazyResidues
      * @return
@@ -1152,28 +1152,28 @@ class FeatureService {
         Feature gsolFeature = new Feature();
         try {
             gsolFeature.setOrganism(organism);
-            JSONObject type = jsonFeature.getJSONObject("type");
+            JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
             gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
-            if (jsonFeature.has("uniquename")) {
-                gsolFeature.setUniqueName(jsonFeature.getString("uniquename"));
+            if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
+                gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
             }
-            if (jsonFeature.has("name")) {
-                gsolFeature.setName(jsonFeature.getString("name"));
+            if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
                 gsolFeature.setUniqueName(nameService.generateUniqueName(gsolFeature));
             }
             else{
                 gsolFeature.setUniqueName(nameService.generateUniqueName());
             }
-            if (jsonFeature.has("residues")) {
-                gsolFeature.setResidues(jsonFeature.getString("residues"));
+            if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
+                gsolFeature.setResidues(jsonFeature.getString(FeatureStringEnum.RESIDUES.value));
             }
-            if (jsonFeature.has("location")) {
-                JSONObject jsonLocation = jsonFeature.getJSONObject("location");
+            if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
+                JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
                 gsolFeature.addToFeatureLocations(convertJSONToFeatureLocation(jsonLocation, sourceFeature));
             }
-            if (jsonFeature.has("children")) {
-                JSONArray children = jsonFeature.getJSONArray("children");
-                CVTerm partOfCvTerm = CVTerm.findByName("PartOf")
+            if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
+                JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
+                CVTerm partOfCvTerm = cvTermService.partOf
                 for (int i = 0; i < children.length(); ++i) {
                     Feature child = convertJSONToFeature(children.getJSONObject(i),  sourceFeature != null ? sourceFeature.getOrganism() : null, sourceFeature);
                     FeatureRelationship fr = new FeatureRelationship();
@@ -1185,21 +1185,21 @@ class FeatureService {
                     gsolFeature.getChildFeatureRelationships().add(fr);
                 }
             }
-            if (jsonFeature.has("timeaccessioned")) {
-                gsolFeature.setDateCreated(new Date(jsonFeature.getInt("timeaccessioned")));
+            if (jsonFeature.has(FeatureStringEnum.TIMEACCESSION.value)) {
+                gsolFeature.setDateCreated(new Date(jsonFeature.getInt(FeatureStringEnum.TIMEACCESSION.value)));
             } else {
                 gsolFeature.setDateCreated(new Date());
             }
-            if (jsonFeature.has("timelastmodified")) {
-                gsolFeature.setLastUpdated(new Date(jsonFeature.getInt("timelastmodified")));
+            if (jsonFeature.has(FeatureStringEnum.TIMELASTMODIFIED.value)) {
+                gsolFeature.setLastUpdated(new Date(jsonFeature.getInt(FeatureStringEnum.TIMELASTMODIFIED.value)));
             } else {
                 gsolFeature.setLastUpdated(new Date());
             }
-            if (jsonFeature.has("properties")) {
-                JSONArray properties = jsonFeature.getJSONArray("properties");
+            if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
+                JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
-                    JSONObject propertyType = property.getJSONObject("type");
+                    JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
                     FeatureProperty gsolProperty = new FeatureProperty();
                     CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
                     CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value),cv)

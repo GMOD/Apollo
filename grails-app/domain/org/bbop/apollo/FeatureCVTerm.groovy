@@ -9,7 +9,7 @@ class FeatureCVTerm {
     static constraints = {
     }
 
-    Integer featureCVTermId;
+//    Integer featureCVTermId;
     Publication publication;
     Feature feature;
     CVTerm cvterm;

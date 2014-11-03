@@ -28,6 +28,11 @@ class TranscriptService {
                 return (CDS) fr.getSubjectFeature();
             }
         }
+
+
+//        CDS.
+//        FeatureRelationship. find all children relationships where type is CDS
+
         return null;
     }
 

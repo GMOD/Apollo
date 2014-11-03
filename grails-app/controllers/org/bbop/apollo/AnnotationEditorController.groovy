@@ -118,7 +118,7 @@ class AnnotationEditorController {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         println "adding transcript return object ${returnObject}"
         String trackName = returnObject.track
-        JSONArray featuresArray = returnObject.getJSONArray("features")
+        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = Sequence.findByName(trackName)
 
         for(int i = 0 ; i < featuresArray.size(); i++){
@@ -204,6 +204,7 @@ class AnnotationEditorController {
 
         Organism organism = editor.getSession().getOrganism()
         render organism as JSON
+
 //
 //
 //        JSONArray jsonFeatures = new JSONArray()

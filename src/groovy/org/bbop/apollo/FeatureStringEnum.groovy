@@ -8,6 +8,9 @@ enum FeatureStringEnum {
      PARENT_ID,
      USERNAME,
      TYPE,
+     PROPERTIES,
+     TIMEACCESSION,
+     TIMELASTMODIFIED,
      RESIDUES,
      CHILDREN,
      CDS("CDS"),
@@ -37,7 +40,8 @@ enum FeatureStringEnum {
      PLUS2FRAMESHIFT("Plus2Frameshift"),
      DELETION_PREFIX("Deletion-"),
      INSERTION_PREFIX("Insertion-"),
-     OWNER("Owner")
+     OWNER("Owner"),
+     UNIQUENAME
 
 
      String value
