@@ -9,18 +9,19 @@ grails.project.source.level = 1.6
 //def gebVersion = '0.9.3'
 //def seleniumVersion = '2.21.0'
 
+forkConfig = [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
 grails.project.fork = [
     // configure settings for compilation JVM, note that if you alter the Groovy version forked compilation is required
     //  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
 
     // configure settings for the test-app JVM, uses the daemon by default
-    test: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
+    test: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, daemon:true],
     // configure settings for the run-app JVM
-    run: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
+    run: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve:false],
     // configure settings for the run-war JVM
-    war: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
+    war: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve:false],
     // configure settings for the Console UI JVM
-    console: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256]
+    console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
 ]
 
 grails.project.dependency.resolver = "maven" // or ivy
@@ -61,8 +62,8 @@ grails.project.dependency.resolution = {
         compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
 
-        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
-        compile 'org.biojava:biojava3-core:3.1.0'
+//        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
+//        compile 'org.biojava:biojava3-core:3.1.0'
 
 
 //        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"

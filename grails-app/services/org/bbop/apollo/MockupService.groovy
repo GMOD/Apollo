@@ -8,7 +8,7 @@ import grails.compiler.GrailsCompileStatic
 @Transactional
 class MockupService {
 
-    CvTermService cvTermService
+//    CvTermService cvTermService
 
 
     def addUsers() {
@@ -18,20 +18,21 @@ class MockupService {
         def adminRole = new Role(name: UserService.ADMIN).save()
         adminRole.addToPermissions("*:*")
 
-        CVTerm userCvTerm = cvTermService.getTerm(FeatureStringEnum.OWNER.value)
+//        CVTerm userCvTerm = cvTermService.getTerm(FeatureStringEnum.OWNER.value)
 
         User demoUser = new User(
                 username: "demo@demo.gov"
                 , passwordHash: new Sha256Hash("demo").toHex()
                 ,value: "demo@demo.gov"
-                ,type: userCvTerm
+//                ,type: userCvTerm
         ).save(failOnError: true)
         demoUser.addToRoles(userRole)
 
-        User adminUser = new User(username: "admin@admin.gov"
+        User adminUser = new User(
+                username: "admin@admin.gov"
                 , passwordHash: new Sha256Hash("admin").toHex()
                 ,value: "admin@admin.gov"
-                ,type: userCvTerm
+//                ,type: userCvTerm
         ).save(failOnError: true)
         adminUser.addToRoles(userRole)
     }

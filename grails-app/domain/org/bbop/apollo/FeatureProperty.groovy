@@ -40,12 +40,28 @@ class FeatureProperty implements Ontological{
 //    }
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
-        if ( (other == null ) ) return false;
+//        if ( (this == other ) ) return true;
+//        if ( (other == null ) ) return false;
         if ( !(other instanceof FeatureProperty) ) return false;
         FeatureProperty castOther = ( FeatureProperty ) other;
 
-        return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getFeature()==castOther.getFeature()) || ( this.getFeature()!=null && castOther.getFeature()!=null && this.getFeature().equals(castOther.getFeature()) ) ) && (this.getRank()==castOther.getRank());
+        if(castOther?.id == this?.id) return true
+        if(castOther?.ontologyId != this?.ontologyId) return false
+        if(castOther?.rank != this?.rank) return false
+
+//        if(castOther?.features?.size() != this?.features?.size()) return false
+//
+//        // iterate over them
+//        for(Feature feature in castOther?.features){
+//            if(this.features)
+//        }
+
+
+//        return ( (this.getType()==castOther.getType())
+//                || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ))    \
+//        && ( (this.getFeatures()==castOther.getFeatures())   \
+//                || ( this.getFeatures()!=null && castOther.getFeatures()!=null && this.getFeatures().equals(castOther.getFeatures()) ) )   \
+//                (this.getRank()==castOther.getRank());
     }
 
     public int hashCode() {
@@ -53,21 +69,21 @@ class FeatureProperty implements Ontological{
 
 
         result = 37 * result + ( getType() == null ? 0 : this.getType().hashCode() );
-        result = 37 * result + ( getFeature() == null ? 0 : this.getFeature().hashCode() );
+//        result = 37 * result + ( getFeatures() == null ? 0 : this.getFeatures()*.hashCode() );
 
         result = 37 * result + this.getRank();
 
         return result;
     }
 
-    public FeatureProperty generateClone() {
-        FeatureProperty cloned = new FeatureProperty();
-        cloned.type = this.type;
-        cloned.feature = this.feature;
-        cloned.value = this.value;
-        cloned.rank = this.rank;
-        cloned.featurePropertyPublications = this.featurePropertyPublications;
-        return cloned;
-    }
+//    public FeatureProperty generateClone() {
+//        FeatureProperty cloned = new FeatureProperty();
+//        cloned.type = this.type;
+//        cloned.features = this.features;
+//        cloned.value = this.value;
+//        cloned.rank = this.rank;
+//        cloned.featurePropertyPublications = this.featurePropertyPublications;
+//        return cloned;
+//    }
 
 }
