@@ -47,6 +47,21 @@ class JbrowseController {
     /**
      * For returning seq/refSeqs.json
      */
+    def meta(){
+        log.debug  "meta"
+        String filename = grailsApplication.config.apollo.jbrowse.data.directory
+        File file = new File(filename+"/names/meta.json");
+        if(!file.exists()){
+            log.error("Could not get names/meta.json file " + filename);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        render file.text
+    }
+
+    /**
+     * For returning seq/refSeqs.json
+     */
     def seq(){
         log.debug  "seq"
         String filename = grailsApplication.config.apollo.jbrowse.data.directory
