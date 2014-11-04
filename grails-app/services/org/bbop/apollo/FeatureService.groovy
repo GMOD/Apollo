@@ -210,9 +210,24 @@ class FeatureService {
 
     def generateTranscript(JSONObject jsonTranscript, String trackName, boolean isPseudogene = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
+        println "JSON transcript ${jsonTranscript}"
+        println "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
+        println "gene ${gene}"
+        println "sequence ${trackName}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
+
+        // TODO: not sure if this is a good idea or not
+        Sequence sequence = Sequence.findByName(trackName)
+        println "# SEQUENCEs: ${Sequence.count}"
+        println "FIRST SEQUENCE: ${Sequence.first().name}"
+        println "FIRST SEQUENCE roganism: ${Sequence.first().organismName}"
+        println "organism name: ${sequence.organismName}"
+        Organism organism = Organism.findByCommonName(sequence.organismName)
+
+
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
+        println "featureLazyResidues ${featureLazyResidues}"
         if (gene != null) {
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues);
@@ -280,7 +295,8 @@ class FeatureService {
 //            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
 
-            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
+//            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
+            Feature gsolGene = convertJSONToFeature(jsonGene, organism,featureLazyResidues);
             updateNewGsolFeatureAttributes(gsolGene, featureLazyResidues);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gsolGene.getFmin() < 0 || gsolGene.getFmax() < 0) {
@@ -1166,7 +1182,7 @@ class FeatureService {
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
 //            gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
 //            gsolFeature.ontologyId = (cvTermService.convertJSONToCVTerm(type));
-            gsolFeature.ontologyId = (convertJSONToOntologyId(type));
+            gsolFeature.ontologyId = convertJSONToOntologyId(type)
 
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));

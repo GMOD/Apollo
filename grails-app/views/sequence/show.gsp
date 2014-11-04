@@ -8,7 +8,7 @@
 		<title><g:message code="default.show.label" args="[entityName]" /></title>
 	</head>
 	<body>
-		<a href="#show-track" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
+		<a href="#show-sequence" class="skip" tabindex="-1"><g:message code="default.link.skip.label" default="Skip to content&hellip;"/></a>
 		<div class="nav" role="navigation">
 			<ul>
 				<li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
@@ -16,26 +16,26 @@
 				<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>
 			</ul>
 		</div>
-		<div id="show-track" class="content scaffold-show" role="main">
+		<div id="show-sequence" class="content scaffold-show" role="main">
 			<h1><g:message code="default.show.label" args="[entityName]" /></h1>
 			<g:if test="${flash.message}">
 			<div class="message" role="status">${flash.message}</div>
 			</g:if>
-			<ol class="property-list track">
+			<ol class="property-list sequence">
 			
-				<g:if test="${trackInstance?.genome}">
+				<g:if test="${sequenceInstance?.genome}">
 				<li class="fieldcontain">
-					<span id="genome-label" class="property-label"><g:message code="track.genome.label" default="Genome" /></span>
+					<span id="genome-label" class="property-label"><g:message code="sequence.genome.label" default="Genome" /></span>
 					
-						<span class="property-value" aria-labelledby="genome-label"><g:link controller="genome" action="show" id="${trackInstance?.genome?.id}">${trackInstance?.genome?.name}</g:link></span>
+						<span class="property-value" aria-labelledby="genome-label"><g:link controller="genome" action="show" id="${sequenceInstance?.genome?.id}">${sequenceInstance?.genome?.name}</g:link></span>
 					
 				</li>
 				</g:if>
 			
 				<li class="fieldcontain">
-					<span id="name-label" class="property-label"><g:message code="track.name.label" default="Name" /></span>
+					<span id="name-label" class="property-label"><g:message code="sequence.name.label" default="Name" /></span>
 					
-						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${trackInstance}" field="name"/>
+						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${sequenceInstance}" field="name"/>
 
                             %{--<g:link action="show" controller="jbrowse"--}%
                         </span>
@@ -43,11 +43,11 @@
 				</li>
 
 
-				<g:if test="${trackInstance?.users}">
+				<g:if test="${sequenceInstance?.users}">
 				<li class="fieldcontain">
-					<span id="users-label" class="property-label"><g:message code="track.users.label" default="Users" /></span>
+					<span id="users-label" class="property-label"><g:message code="sequence.users.label" default="Users" /></span>
 					
-						<g:each in="${trackInstance.users}" var="u">
+						<g:each in="${sequenceInstance.users}" var="u">
 						<span class="property-value" aria-labelledby="users-label"><g:link controller="user" action="show" id="${u.id}">${u?.username}</g:link></span>
 						</g:each>
 					
@@ -55,9 +55,9 @@
 				</g:if>
 			
 			</ol>
-			<g:form url="[resource:trackInstance, action:'delete']" method="DELETE">
+			<g:form url="[resource:sequenceInstance, action:'delete']" method="DELETE">
 				<fieldset class="buttons">
-					<g:link class="edit" action="edit" resource="${trackInstance}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
+					<g:link class="edit" action="edit" resource="${sequenceInstance}"><g:message code="default.button.edit.label" default="Edit" /></g:link>
 					<g:actionSubmit class="delete" action="delete" value="${message(code: 'default.button.delete.label', default: 'Delete')}" onclick="return confirm('${message(code: 'default.button.delete.confirm.message', default: 'Are you sure?')}');" />
 				</fieldset>
 			</g:form>

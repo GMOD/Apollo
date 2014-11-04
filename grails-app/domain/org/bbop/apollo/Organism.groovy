@@ -4,7 +4,8 @@ class Organism {
 
     static constraints = {
     }
-     Integer organismId;
+
+//     Integer organismId;
      String abbreviation;
      String genus;
      String species;
