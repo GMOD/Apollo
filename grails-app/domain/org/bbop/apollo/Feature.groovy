@@ -128,7 +128,7 @@ class Feature implements Ontological{
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", getUniqueName(), getType());
+        return String.format("%s (%s)", getUniqueName(), ontologyId);
     }
 
     public String getResidues(int fmin, int fmax) {
@@ -209,6 +209,5 @@ class Feature implements Ontological{
     public Integer getStrand(){
         featureLocation.strand
     }
-
 
 }

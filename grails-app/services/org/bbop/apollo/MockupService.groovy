@@ -59,7 +59,7 @@ class MockupService {
     def addOrganisms() {
         if (Organism.count > 0) return
 
-        Organism organism = new Organism(genus: "Danio",species: "rerio").save()
+        Organism organism = new Organism(abbreviation: "ZF",commonName: "Zebrafish", genus: "Danio",species: "rerio").save(failOnError: true)
         Sequence track1 = new Sequence(name: "Annotations-Group1.1", organism: organism
                 , sequenceCV: "sequence", sequenceType: "mRNA"
                 , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"

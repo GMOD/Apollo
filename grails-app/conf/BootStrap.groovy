@@ -10,7 +10,7 @@ class BootStrap {
         mockupService.addUsers()
         mockupService.addDataAdapters()
         mockupService.addTerms()
-        mockupService.addGenomes()
+        mockupService.addOrganisms()
 
 
     }

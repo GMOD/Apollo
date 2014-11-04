@@ -61,7 +61,7 @@ class TranscriptService {
 //            exons.add((Exon) fr.getSubjectFeature())
 //        }
 
-        return (Collection<Exon>) featureRelationshipService.getChildrenForFeature(transcript,Exon.ontologyId)
+        return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,Exon.ontologyId)
 //        return exons;
     }
 
@@ -148,41 +148,48 @@ class TranscriptService {
      * @param transcript - Transcript to be deleted
      */
     public void deleteTranscript(Gene gene, Transcript transcript) {
-        CVTerm partOfCvterm = CVTerm.findByName("PartOf")
-        List<String> geneNameList = ["Gene", "Pseudogene"]
-        Collection<CVTerm> geneCvterms = CVTerm.findAllByNameInList(geneNameList);
-        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
-        Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
+//        CVTerm partOfCvterm = CVTerm.findByName("PartOf")
+//        List<String> geneNameList = ["Gene", "Pseudogene"]
+//        Collection<CVTerm> geneCvterms = CVTerm.findAllByNameInList(geneNameList);
+//        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
+//        Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
 
-        // delete gene -> transcript child relationship
-        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-            if (partOfCvterm.name != (fr.getType())) {
-                continue;
-            }
-            if (!transcriptCvterms.contains(fr.getSubjectFeature().getType())) {
-                continue;
-            }
-            if (fr.getSubjectFeature().equals(transcript)) {
-                transcript.getChildFeatureRelationships().remove(fr);
-                transcript.save(flush: true)
-                break;
-            }
-        }
+
+        List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
+
+        featureRelationshipService.deleteChildrenForTypes(gene,ontologyIds as String[])
+        featureRelationshipService.deleteParentForTypes(transcript,Gene.ontologyId,Pseudogene.ontologyId)
+
+
+//        // delete gene -> transcript child relationship
+//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
+//            if (partOfCvterm.name != (fr.getType())) {
+//                continue;
+//            }
+//            if (!transcriptCvterms.contains(fr.getSubjectFeature().getType())) {
+//                continue;
+//            }
+//            if (fr.getSubjectFeature().equals(transcript)) {
+//                transcript.getChildFeatureRelationships().remove(fr);
+//                transcript.save(flush: true)
+//                break;
+//            }
+//        }
 
         // delete gene -> transcript parent relationship
-        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-            if (partOfCvterm.name != (fr.getType())) {
-                continue;
-            }
-            if (!geneCvterms.contains(fr.getObjectFeature().getType())) {
-                continue;
-            }
-            if (fr.getSubjectFeature().equals(transcript)) {
-                transcript.getParentFeatureRelationships().remove(fr);
-                transcript.save(flush: true)
-                break;
-            }
-        }
+//        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
+//            if (partOfCvterm.name != (fr.getType())) {
+//                continue;
+//            }
+//            if (!geneCvterms.contains(fr.getObjectFeature().getType())) {
+//                continue;
+//            }
+//            if (fr.getSubjectFeature().equals(transcript)) {
+//                transcript.getParentFeatureRelationships().remove(fr);
+//                transcript.save(flush: true)
+//                break;
+//            }
+//        }
 
         // update bounds
         Integer fmin = null;
@@ -229,25 +236,31 @@ class TranscriptService {
      * @return Collection of transcripts associated with this gene
      */
     public Collection<Transcript> getTranscripts(Gene gene) {
-        Collection<Transcript> transcripts = new ArrayList<Transcript>();
-//        Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
-        Collection<CVTerm> partOfCvterms = CVTerm.findAllByName("PartOf")
-//        Collection<CVTerm> transcriptCvterms = conf.getDescendantCVTermsForClass("Transcript");
-        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
-        Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
+//        Collection<Transcript> transcripts = new ArrayList<Transcript>();
+////        Collection<CVTerm> partOfCvterms = conf.getCVTermsForClass("PartOf");
+//        Collection<CVTerm> partOfCvterms = CVTerm.findAllByName("PartOf")
+////        Collection<CVTerm> transcriptCvterms = conf.getDescendantCVTermsForClass("Transcript");
+//        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
+//        Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
 
+        List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
 
-        for (FeatureRelationship fr : gene.getChildFeatureRelationships()) {
-            if (!partOfCvterms.contains(fr.getType())) {
-                continue;
-            }
-            if (!transcriptCvterms.contains(fr.getSubjectFeature().getType())) {
-                continue;
-            }
-            transcripts.add((Transcript) fr.getSubjectFeature())
-//            transcripts.add((Transcript)BioObjectUtil.createBioObject(fr.getSubjectFeature(), conf));
-        }
-        return transcripts;
+        return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene,ontologyIds as String[])
+////        featureRelationshipService.deleteParentForTypes(transcript,Gene.ontologyId,Pseudogene.ontologyId)
+//
+//        featureRelationshipService.getChildrenForFeatureAndTypes(gene,)
+//
+//        for (FeatureRelationship fr : gene.getChildFeatureRelationships()) {
+//            if (!partOfCvterms.contains(fr.getType())) {
+//                continue;
+//            }
+//            if (!transcriptCvterms.contains(fr.getSubjectFeature().getType())) {
+//                continue;
+//            }
+//            transcripts.add((Transcript) fr.getSubjectFeature())
+////            transcripts.add((Transcript)BioObjectUtil.createBioObject(fr.getSubjectFeature(), conf));
+//        }
+//        return transcripts;
     }
 
     public void setFmin(Transcript transcript, Integer fmin) {

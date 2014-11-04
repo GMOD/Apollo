@@ -19,7 +19,7 @@ class AnnotationEditorController {
     def transcriptService
 
     String REST_OPERATION = "operation"
-    String REST_TRACK = "track"
+    public static String REST_TRACK = "track"
 
     String REST_USERNAME = "username"
     String REST_PERMISSION = "permission"

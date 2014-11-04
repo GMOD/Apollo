@@ -24,17 +24,17 @@
 			<thead>
 					<tr>
 					
-						<g:sortableColumn property="directory" title="${message(code: 'organism.directory.label', default: 'Directory')}" />
+						%{--<g:sortableColumn property="directory" title="${message(code: 'organism.directory.label', default: 'Directory')}" />--}%
 					
 						<g:sortableColumn property="abbreviation" title="${message(code: 'organism.abbreviation.label', default: 'Abbreviation')}" />
 					
-						<g:sortableColumn property="comment" title="${message(code: 'organism.comment.label', default: 'Comment')}" />
+						%{--<g:sortableColumn property="comment" title="${message(code: 'organism.comment.label', default: 'Comment')}" />--}%
 					
 						<g:sortableColumn property="commonName" title="${message(code: 'organism.commonName.label', default: 'Common Name')}" />
 					
 						<g:sortableColumn property="genus" title="${message(code: 'organism.genus.label', default: 'Genus')}" />
 					
-						<g:sortableColumn property="species" title="${message(code: 'organism.species.label', default: 'Species')}" />
+						%{--<g:sortableColumn property="species" title="${message(code: 'organism.species.label', default: 'Species')}" />--}%
 					
 					</tr>
 				</thead>
@@ -42,17 +42,17 @@
 				<g:each in="${organismInstanceList}" status="i" var="organismInstance">
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
-						<td><g:link action="show" id="${organismInstance.id}">${fieldValue(bean: organismInstance, field: "directory")}</g:link></td>
+						%{--<td><g:link action="show" id="${organismInstance.id}">${fieldValue(bean: organismInstance, field: "directory")}</g:link></td>--}%
 					
-						<td>${fieldValue(bean: organismInstance, field: "abbreviation")}</td>
+						<td><g:link action="show" id="${organismInstance.id}">${fieldValue(bean: organismInstance, field: "abbreviation")}</g:link></td>
 					
-						<td>${fieldValue(bean: organismInstance, field: "comment")}</td>
+						%{--<td>${fieldValue(bean: organismInstance, field: "comment")}</td>--}%
 					
 						<td>${fieldValue(bean: organismInstance, field: "commonName")}</td>
 					
-						<td>${fieldValue(bean: organismInstance, field: "genus")}</td>
+						<td>${fieldValue(bean: organismInstance, field: "genus")} ${organismInstance.species}</td>
 					
-						<td>${fieldValue(bean: organismInstance, field: "species")}</td>
+						%{--<td>${fieldValue(bean: organismInstance, field: "species")}</td>--}%
 					
 					</tr>
 				</g:each>

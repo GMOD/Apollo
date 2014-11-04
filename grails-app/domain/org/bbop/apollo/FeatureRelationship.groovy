@@ -9,13 +9,16 @@ class FeatureRelationship implements  Ontological{
     static auditable =  true
 
     static constraints = {
+//        type nullable: true
+        rank nullable: true
+        value nullable: true
     }
 
 //    Integer featureRelationshipId;
-    CVTerm type;
+//    CVTerm type;
     Feature objectFeature; // parent?
     Feature subjectFeature; // child?
-    String value;
+    String value; // unused, but could be used like metadata (strength / quality of connection)
     int rank;
     static String ontologyId = "part_of"
 
@@ -26,19 +29,19 @@ class FeatureRelationship implements  Ontological{
 
 
     public boolean equals(Object other) {
-        if ( (this == other ) ) return true;
+//        if ( (this == other ) ) return true;
         if ( (other == null ) ) return false;
         if ( !(other instanceof FeatureRelationship) ) return false;
         FeatureRelationship castOther = ( FeatureRelationship ) other;
+        if(this?.id == castOther?.id) return true
 
-        return ( (this.type==castOther.type) || ( this.type!=null && castOther.type!=null && this.type.equals(castOther.type) ) ) && ( (this.getObjectFeature()==castOther.getObjectFeature()) || ( this.getObjectFeature()!=null && castOther.getObjectFeature()!=null && this.getObjectFeature().equals(castOther.getObjectFeature()) ) ) && ( (this.getSubjectFeature()==castOther.getSubjectFeature()) || ( this.getSubjectFeature()!=null && castOther.getSubjectFeature()!=null && this.getSubjectFeature().equals(castOther.getSubjectFeature()) ) ) && (this.getRank()==castOther.getRank());
+        return  this.objectFeature ==castOther.objectFeature  \
+                && this.subjectFeature ==  castOther.subjectFeature
     }
 
     public int hashCode() {
         int result = 17;
 
-
-        result = 37 * result + ( type == null ? 0 : this.type.hashCode() );
         result = 37 * result + ( objectFeature == null ? 0 : this.objectFeature.hashCode() );
         result = 37 * result + ( subjectFeature == null ? 0 : this.subjectFeature.hashCode() );
 

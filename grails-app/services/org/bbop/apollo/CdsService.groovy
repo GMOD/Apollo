@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
-import org.grails.datastore.mapping.query.api.Criteria
 
 @GrailsCompileStatic
 @Transactional
@@ -39,7 +38,7 @@ class CdsService {
     }
 
 //    public StopCodonReadThrough getStopCodonReadThrough(CDS cds) {
-//        List<Feature> featureList = featureRelationshipService.getChildrenForFeature(cds, StopCodonReadThrough.ontologyId )
+//        List<Feature> featureList = featureRelationshipService.getChildrenForFeatureAndTypes(cds, StopCodonReadThrough.ontologyId )
 //        return featureList.size() == 1 ? (StopCodonReadThrough) featureList.get(0) : null
 //    }
 
@@ -54,8 +53,8 @@ class CdsService {
 //        CVTerm partOfCvTerm = cvTermService.partOf
 //        CVTerm childCvTerm = cvTermService.getTerm(FeatureStringEnum.STOP_CODON_READTHROUGH)
 //        CVTerm parentCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT)
-        featureRelationshipService.deleteChildrenForType(cds, StopCodonReadThrough.ontologyId)
-        featureRelationshipService.deleteParentForType(stopCodonReadThrough, Transcript.ontologyId)
+        featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
+        featureRelationshipService.deleteParentForTypes(stopCodonReadThrough, Transcript.ontologyId)
     }
 
     def deleteStopCodonReadThrough(CDS cds) {
@@ -126,13 +125,6 @@ class CdsService {
 
         if (replace) {
             featureRelationshipService.setChildForType(cds,stopCodonReadThrough)
-//            featureRelationshipService.deleteChildrenForType(cds,StopCodonReadThrough.ontologyId)
-//            for (FeatureRelationship fr : cds.getChildFeatureRelationships()) {
-//                if (partOfCvTerm == fr.type && stopCodonReadThroughCvTerm == fr.objectFeature.type) {
-//                    fr.setSubjectFeature(stopCodonReadThrough);
-//                    return;
-//                }
-//            }
         }
 
         FeatureRelationship fr = new FeatureRelationship(

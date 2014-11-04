@@ -248,7 +248,7 @@ class FeatureService {
 
             addTranscriptToGene(gene, transcript);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-            transcript.name = nameService.generateUniqueName(transcript)
+            transcript.name = nameService.generateUniqueName()
 //            transcriptService.updateTranscriptAttributes(transcript);
         } else {
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), featureLazyResidues)
@@ -268,7 +268,7 @@ class FeatureService {
                     if (!useCDS || transcriptService.getCDS(gsolTranscript) == null) {
                         calculateCDS(gsolTranscript);
                     }
-                    gsolTranscript.name = nameService.generateUniqueName(gsolTranscript)
+                    gsolTranscript.name = nameService.generateUniqueName()
 //                    updateTranscriptAttributes(tmpTranscript);
                     if (overlaps(gsolTranscript, tmpGene)) {
                         transcript = gsolTranscript;
@@ -309,7 +309,7 @@ class FeatureService {
             }
             // I don't thikn that this does anything
             addFeature(gene);
-            transcript.name = nameService.generateUniqueName(transcript)
+            transcript.name = nameService.generateUniqueName()
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gsolGene.save(insert: true)
             transcript.save(flush: true)
@@ -1162,14 +1162,19 @@ class FeatureService {
 
 
     public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature) {
-        Feature gsolFeature = new Feature();
+        Feature gsolFeature = null
         try {
 //            gsolFeature.setOrganism(organism);
 
             // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
             println "type ${type}"
-            gsolFeature = generateFeatureForType(convertJSONToOntologyId(type))
+            String ontologyId = convertJSONToOntologyId(type)
+            println "ontology Id ${ontologyId}"
+            gsolFeature = generateFeatureForType(ontologyId)
+            println "Created feature: ${gsolFeature}"
+            Sequence sequence = Sequence.findByName(jsonFeature.get(AnnotationEditorController.REST_TRACK))
+            println "found sequnce: ${sequence}"
 //            gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
 //            gsolFeature.ontologyId = (cvTermService.convertJSONToCVTerm(type));
 //            gsolFeature.ontologyId = convertJSONToOntologyId(type)
@@ -1177,27 +1182,38 @@ class FeatureService {
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
             }
+            else{
+                gsolFeature.setUniqueName(nameService.generateUniqueName());
+            }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
-                gsolFeature.setUniqueName(nameService.generateUniqueName(gsolFeature));
-            } else {
-                gsolFeature.setUniqueName(nameService.generateUniqueName());
+            }
+            else{
+                gsolFeature.name = gsolFeature.uniqueName
             }
             if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
                 gsolFeature.setResidues(jsonFeature.getString(FeatureStringEnum.RESIDUES.value));
             }
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
-                gsolFeature.addToFeatureLocations(convertJSONToFeatureLocation(jsonLocation, sourceFeature));
+                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, sourceFeature)
+                featureLocation.sequence = sequence
+                featureLocation.save(failOnError: true)
+                gsolFeature.addToFeatureLocations(featureLocation);
             }
+
+            gsolFeature.save(failOnError: true)
+
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
 //                CVTerm partOfCvTerm = cvTermService.partOf
                 for (int i = 0; i < children.length(); ++i) {
                     Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature);
+                    child.save()
                     FeatureRelationship fr = new FeatureRelationship();
                     fr.setObjectFeature(gsolFeature);
                     fr.setSubjectFeature(child);
+                    fr.save()
 //                    fr.setType(configuration.getDefaultCVTermForClass("PartOf"));
 //                    fr.setType(partOfCvTerm);
                     child.getParentFeatureRelationships().add(fr);
@@ -1281,6 +1297,8 @@ class FeatureService {
             case SnRNA.ontologyId: return new SnRNA()
             case RRNA.ontologyId: return new RRNA()
             case TRNA.ontologyId: return new TRNA()
+            case Exon.ontologyId: return new Exon()
+            case Intron.ontologyId: return new Intron()
             case Gene.ontologyId: return new Gene()
             case Pseudogene.ontologyId: return new Pseudogene()
             case Transcript.ontologyId: return new Transcript()
@@ -1301,21 +1319,22 @@ class FeatureService {
         println "cvString ${cvString}"
         println "cvTermString ${cvTermString}"
 
-        if (cvString == FeatureStringEnum.CV.value || cvString == FeatureStringEnum.SEQUENCE.value) {
-            switch (cvTermString) {
-                case MRNA.cvTerm:
-                case MRNA.alternateCvTerm: return MRNA.ontologyId
-                case MiRNA.cvTerm: return MiRNA.ontologyId
-                case NcRNA.cvTerm: return NcRNA.ontologyId
-                case SnoRNA.cvTerm: return SnoRNA.ontologyId
-                case SnRNA.cvTerm: return SnRNA.ontologyId
-                case RRNA.cvTerm: return RRNA.ontologyId
-                case TRNA.cvTerm: return TRNA.ontologyId
-                case Transcript.cvTerm: return Transcript.ontologyId
-                case Gene.cvTerm: return Gene.ontologyId
-                case Pseudogene.cvTerm: return Pseudogene.ontologyId
-                case TransposableElement.cvTerm: return TransposableElement.ontologyId
-                case RepeatRegion.cvTerm: return RepeatRegion.ontologyId
+        if (cvString.equalsIgnoreCase(FeatureStringEnum.CV.value) || cvString.equalsIgnoreCase(FeatureStringEnum.SEQUENCE.value)) {
+            switch (cvTermString.toUpperCase()) {
+                case MRNA.cvTerm.toUpperCase(): return MRNA.ontologyId
+                case MiRNA.cvTerm.toUpperCase(): return MiRNA.ontologyId
+                case NcRNA.cvTerm.toUpperCase(): return NcRNA.ontologyId
+                case SnoRNA.cvTerm.toUpperCase(): return SnoRNA.ontologyId
+                case SnRNA.cvTerm.toUpperCase(): return SnRNA.ontologyId
+                case RRNA.cvTerm.toUpperCase(): return RRNA.ontologyId
+                case TRNA.cvTerm.toUpperCase(): return TRNA.ontologyId
+                case Transcript.cvTerm.toUpperCase(): return Transcript.ontologyId
+                case Gene.cvTerm.toUpperCase(): return Gene.ontologyId
+                case Exon.cvTerm.toUpperCase(): return Exon.ontologyId
+                case Intron.cvTerm.toUpperCase(): return Intron.ontologyId
+                case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
+                case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
+                case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
                 default:
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null

@@ -8,4 +8,5 @@ interface Ontological {
     static String ontologyId = null // XX:NNNNNNN
     static String cvTerm = null // may have a link
 
+
 }

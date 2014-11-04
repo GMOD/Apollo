@@ -95,7 +95,12 @@
 					<span id="sequences-label" class="property-label"><g:message code="organism.sequences.label" default="Sequences" /></span>
 					
 						<g:each in="${organismInstance.sequences}" var="s">
-						<span class="property-value" aria-labelledby="sequences-label"><g:link controller="sequence" action="show" id="${s.id}">${s?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="sequences-label">
+							<g:link controller="sequence" action="show" id="${s.id}">${s?.name}</g:link>
+							%{--<g:link controller="jbrowse" action="show" id="${s.id}">${s?.name}</g:link>--}%
+							<g:link uri="/jbrowse/?loc=Group1.1%3A20023..30023&tracks=${s?.name.replaceAll(" ","%20")}&highlight=">Browse</g:link>
+
+						</span>
 						</g:each>
 					
 				</li>

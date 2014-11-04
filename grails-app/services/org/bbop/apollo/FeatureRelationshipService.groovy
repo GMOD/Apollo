@@ -18,17 +18,17 @@ class FeatureRelationshipService {
         return features;
     }
 
-//    List<Feature> getChildrenForFeature(Feature feature, FeatureStringEnum featureStringEnum) {
+//    List<Feature> getChildrenForFeatureAndTypes(Feature feature, FeatureStringEnum featureStringEnum) {
 //        CVTerm featureCvTerm = cvTermService.getTerm(featureStringEnum)
-//        return getChildrenForFeature(feature, featureCvTerm, cvTermService.partOf)
+//        return getChildrenForFeatureAndTypes(feature, featureCvTerm, cvTermService.partOf)
 //    }
 
-    List<Feature> getChildrenForFeature(Feature feature, String ontologyId) {
+    List<Feature> getChildrenForFeatureAndTypes(Feature feature, String ... ontologyId) {
 
         Criteria criteria = FeatureRelationship.createCriteria()
         List<FeatureRelationship> featureRelationshipList = criteria {
             eq("objectFeature", feature)
-            eq("subjectFeature.ontologyId", ontologyId)
+            inList("subjectFeature.ontologyId", ontologyId)
         }
 
         return featureRelationshipList*.subjectFeature
@@ -51,7 +51,7 @@ class FeatureRelationshipService {
 
 
     Feature getChildForFeature(Feature feature, String ontologyId) {
-        List<Feature> featureList = getChildrenForFeature(feature,ontologyId)
+        List<Feature> featureList = getChildrenForFeatureAndTypes(feature,ontologyId)
 
         if (featureList.size() == 0) {
             return null
@@ -102,8 +102,8 @@ class FeatureRelationshipService {
 //        CVTerm childFeatureCvTerm = cvTermService.getTerm(childFeatureEnum)
 //        CVTerm partOfCvTerm = cvTermService.partOf
 
-        deleteChildrenForType(feature, childOntologyId)
-        deleteParentForType(feature, parentOntologyId)
+        deleteChildrenForTypes(feature, childOntologyId)
+        deleteParentForTypes(feature, parentOntologyId)
 
     }
 
@@ -141,13 +141,13 @@ class FeatureRelationshipService {
 //        }
     }
 
-    def deleteChildrenForType(Feature feature, String ontologyId) {
+    def deleteChildrenForTypes(Feature feature, String ... ontologyIds) {
         // delete transcript -> non canonical 3' splice site child relationship
         def criteria = FeatureRelationship.createCriteria()
 
         criteria{
             eq("objectFeature", feature)
-            eq("subjectFeature.ontologyId", ontologyId)
+            inList("subjectFeature.ontologyId", ontologyIds)
         }.each {
             feature.removeFromChildFeatureRelationships(it)
         }
@@ -160,13 +160,13 @@ class FeatureRelationshipService {
 //        }
     }
 
-    def deleteParentForType(Feature feature, String ontologyId) {
+    def deleteParentForTypes(Feature feature, String ... ontologyIds) {
         // delete transcript -> non canonical 3' splice site child relationship
         def criteria = FeatureRelationship.createCriteria()
 
         criteria{
             eq("subjectFeature", feature)
-            eq("objectFeature.ontologyId", ontologyId)
+            inList("objectFeature.ontologyId", ontologyIds)
         }.each {
             feature.removeFromParentFeatureRelationships(it)
         }

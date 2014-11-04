@@ -24,8 +24,8 @@ class NonCanonicalSplitSiteService {
 //        CVTerm transcriptCvTerm = cvTermService.transcript
 //        Collection<CVTerm> nonCanonicalFivePrimeSpliceSiteCvterms = conf.getCVTermsForClass("NonCanonicalFivePrimeSpliceSite");
 
-        featureRelationshipService.deleteChildrenForType(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
-        featureRelationshipService.deleteParentForType(nonCanonicalFivePrimeSpliceSite,Transcript.ontologyId)
+        featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
+        featureRelationshipService.deleteParentForTypes(nonCanonicalFivePrimeSpliceSite,Transcript.ontologyId)
 
 //        // delete transcript -> non canonical 5' splice site child relationship
 //        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
@@ -66,7 +66,7 @@ class NonCanonicalSplitSiteService {
      * @return Collection of non canonical 5' splice sites associated with this transcript
      */
     public Collection<NonCanonicalFivePrimeSpliceSite> getNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
-        return (Collection<NonCanonicalFivePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
+        return (Collection<NonCanonicalFivePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
     }
 
     /** Retrieve all the non canonical 3' splice sites associated with this transcript.  Uses the configuration to determine
@@ -76,8 +76,8 @@ class NonCanonicalSplitSiteService {
      * @return Collection of non canonical 3' splice sites associated with this transcript
      */
     public Collection<NonCanonicalThreePrimeSpliceSite> getNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
-//        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,FeatureStringEnum.NONCANONICALTHREEPRIMESPLICESITE)
-        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeature(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
+//        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,FeatureStringEnum.NONCANONICALTHREEPRIMESPLICESITE)
+        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
     }
 
     /** Delete all non canonical 3' splice site.  Deletes all transcript -> non canonical 3' splice sites and
