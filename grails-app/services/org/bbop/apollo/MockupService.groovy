@@ -60,7 +60,7 @@ class MockupService {
         if (Genome.count > 0) return
 
         Genome genome1 = new Genome(name: "Danio rerio").save()
-        Sequence track1 = new Sequence(name: "Zebrafish Track 1", organismName: "Bunny Foofo"
+        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organismName: "Danio rerio"
                 , sequenceCV: "sequence", sequenceType: "mRNA"
                 , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"
                 , dataDirectory: "/opt/apollo/jbrowse/data"

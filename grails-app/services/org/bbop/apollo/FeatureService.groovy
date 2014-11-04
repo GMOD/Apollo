@@ -296,7 +296,7 @@ class FeatureService {
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
-            Feature gsolGene = convertJSONToFeature(jsonGene, organism,featureLazyResidues);
+            Feature gsolGene = convertJSONToFeature(jsonGene, organism, featureLazyResidues);
             updateNewGsolFeatureAttributes(gsolGene, featureLazyResidues);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gsolGene.getFmin() < 0 || gsolGene.getFmax() < 0) {
@@ -1180,9 +1180,11 @@ class FeatureService {
 
             // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
+            println "type ${type}"
+            gsolFeature = generateFeatureForType(convertJSONToOntologyId(type))
 //            gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
 //            gsolFeature.ontologyId = (cvTermService.convertJSONToCVTerm(type));
-            gsolFeature.ontologyId = convertJSONToOntologyId(type)
+//            gsolFeature.ontologyId = convertJSONToOntologyId(type)
 
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
@@ -1277,17 +1279,39 @@ class FeatureService {
         return gsolFeature;
     }
 
-    // TODO: hopefully change in the client and get rid of this ugly code
+    Feature generateFeatureForType(String ontologyId) {
+        switch (ontologyId) {
+            case MRNA.ontologyId: return new MRNA()
+            case MiRNA.ontologyId: return new MiRNA()
+            case NcRNA.ontologyId: return new NcRNA()
+            case SnoRNA.ontologyId: return new SnoRNA()
+            case SnRNA.ontologyId: return new SnRNA()
+            case RRNA.ontologyId: return new RRNA()
+            case TRNA.ontologyId: return new TRNA()
+            case Gene.ontologyId: return new Gene()
+            case Pseudogene.ontologyId: return new Pseudogene()
+            case Transcript.ontologyId: return new Transcript()
+            case TransposableElement.ontologyId: return new TransposableElement()
+            case RepeatRegion.ontologyId: return new RepeatRegion()
+            default:
+                log.error("No feature type exists for ${ontologyId}")
+                return null
+        }
+
+    }
+// TODO: hopefully change in the client and get rid of this ugly code
     String convertJSONToOntologyId(JSONObject jsonCVTerm) {
         String cvString = jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)
 //        CV cv = CV.findOrSaveByName(jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
 //        CVTerm cvTerm = CVTerm.findOrSaveByNameAndCv(jsonCVTerm.getString(FeatureStringEnum.NAME.value),cv)
         String cvTermString = jsonCVTerm.getString(FeatureStringEnum.NAME.value)
+        println "cvString ${cvString}"
+        println "cvTermString ${cvTermString}"
 
-        if (cvString == FeatureStringEnum.SEQUENCE.value) {
-            switch (cvTermString){
+        if (cvString == FeatureStringEnum.CV.value || cvString == FeatureStringEnum.SEQUENCE.value) {
+            switch (cvTermString) {
                 case MRNA.cvTerm: return MRNA.ontologyId
-                case MiRNA.cvTerm: return MiRNA.ontologyId
+                case "mRNA": return MiRNA.ontologyId
                 case NcRNA.cvTerm: return NcRNA.ontologyId
                 case SnoRNA.cvTerm: return SnoRNA.ontologyId
                 case SnRNA.cvTerm: return SnRNA.ontologyId
@@ -1302,8 +1326,7 @@ class FeatureService {
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null
             }
-        }
-        else{
+        } else {
             log.error("CV not known ${cvString}")
         }
 
@@ -1449,8 +1472,8 @@ class FeatureService {
 
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
 
-        FeatureRelationship featureRelationship = FeatureRelationship.findByObjectFeatureAndSubjectFeature(transcript,feature)
-        if(featureRelationship){
+        FeatureRelationship featureRelationship = FeatureRelationship.findByObjectFeatureAndSubjectFeature(transcript, feature)
+        if (featureRelationship) {
             FeatureRelationship.deleteAll()
         }
 

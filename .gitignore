@@ -22,3 +22,4 @@ log4j2-test.json
 tmp
 version.jsp
 update_client.sh
+*.log
