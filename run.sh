@@ -2,5 +2,5 @@
 
 #sudo cpan install Text::Markdown prove GD::Image
 
-./build.sh github && grails run-app 
+./build.sh github && grails -reloading run-app 
 

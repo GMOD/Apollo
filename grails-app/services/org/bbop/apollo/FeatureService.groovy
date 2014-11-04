@@ -1310,8 +1310,9 @@ class FeatureService {
 
         if (cvString == FeatureStringEnum.CV.value || cvString == FeatureStringEnum.SEQUENCE.value) {
             switch (cvTermString) {
-                case MRNA.cvTerm: return MRNA.ontologyId
-                case "mRNA": return MiRNA.ontologyId
+                case MRNA.cvTerm:
+                case MRNA.alternateCvTerm: return MRNA.ontologyId
+                case MiRNA.cvTerm: return MiRNA.ontologyId
                 case NcRNA.cvTerm: return NcRNA.ontologyId
                 case SnoRNA.cvTerm: return SnoRNA.ontologyId
                 case SnRNA.cvTerm: return SnRNA.ontologyId
