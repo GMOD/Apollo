@@ -9,7 +9,6 @@ class Genome {
     }
 
     static hasMany = [
-            sequences: Sequence
     ]
 
     String name

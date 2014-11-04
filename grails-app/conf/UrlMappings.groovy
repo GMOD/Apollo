@@ -9,7 +9,7 @@ class UrlMappings {
 
 
 //        "/"(view:"/index")
-        "/"(action: "index",controller: "genome")
+        "/"(action: "index",controller: "organism")
 //        "/home"(action: "index", controller: "genome")
         "500"(view: '/error')
 

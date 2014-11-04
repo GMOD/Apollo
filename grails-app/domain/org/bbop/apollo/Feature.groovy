@@ -18,7 +18,7 @@ class Feature implements Ontological{
 
         uniqueName nullable: true
         dbxref nullable: true
-        organism nullable: true
+//        organism nullable: true
         residues nullable: true
         sequenceLength nullable: true
         md5checksum nullable: true
@@ -32,7 +32,7 @@ class Feature implements Ontological{
 //    Integer featureId;
     CVTerm type;
     DBXref dbxref;
-    Organism organism;
+//    Organism organism;
     String name;
     String uniqueName;
     String residues;
@@ -78,16 +78,17 @@ class Feature implements Ontological{
         if ( !(other instanceof Feature) ) return false;
         Feature castOther = ( Feature ) other;
 
-        return ( (this.getType()==castOther.getType()) || ( this.getType()!=null && castOther.getType()!=null && this.getType().equals(castOther.getType()) ) ) && ( (this.getOrganism()==castOther.getOrganism()) || ( this.getOrganism()!=null && castOther.getOrganism()!=null && this.getOrganism().equals(castOther.getOrganism()) ) ) && ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
+        return  (this?.ontologyId==castOther?.ontologyId) \
+                   &&  (this?.getUniqueName()==castOther?.getUniqueName())
     }
 
     public int hashCode() {
         int result = 17;
 
 
-        result = 37 * result + ( getType() == null ? 0 : this.getType().hashCode() );
+        result = 37 * result + ( ontologyId == null ? 0 : this.ontologyId.hashCode() );
 
-        result = 37 * result + ( getOrganism() == null ? 0 : this.getOrganism().hashCode() );
+//        result = 37 * result + (() == null ? 0 : this.getOrganism().hashCode() );
 
         result = 37 * result + ( getUniqueName() == null ? 0 : this.getUniqueName().hashCode() );
 
@@ -100,7 +101,7 @@ class Feature implements Ontological{
         Feature cloned = new Feature();
         cloned.type = this.type;
         cloned.dbxref = this.dbxref;
-        cloned.organism = this.organism;
+//        cloned.organism = this.organism;
         cloned.name = this.name;
         cloned.uniqueName = this.uniqueName;
         cloned.residues = this.residues;

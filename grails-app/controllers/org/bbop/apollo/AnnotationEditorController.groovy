@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -11,9 +12,11 @@ import org.springframework.messaging.handler.annotation.SendTo
 /**
  * From the AnnotationEditorService
  */
+//@GrailsCompileStatic
 class AnnotationEditorController {
 
     def featureService
+    def transcriptService
 
     String REST_OPERATION = "operation"
     String REST_TRACK = "track"
@@ -152,7 +155,7 @@ class AnnotationEditorController {
         for (Feature feature: sequence?.featureLocations*.feature) {
             if (feature instanceof Gene) {
                 Gene gene = (Gene) feature
-                for (Transcript transcript : gene.getTranscripts()) {
+                for (Transcript transcript : transcriptService.getTranscripts(gene)) {
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
                     featureSet.add(transcript)
 //                    jsonFeatures.put(transcript as JSON);
@@ -202,7 +205,8 @@ class AnnotationEditorController {
         log.debug  "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
-        Organism organism = editor.getSession().getOrganism()
+        // TODO: implement this from the session
+        Organism organism = Organism.findByCommonName(session.attributeNames(FeatureStringEnum.ORGANISM.value))
         render organism as JSON
 
 //
@@ -214,7 +218,7 @@ class AnnotationEditorController {
     private JSONObject createJSONFeatureContainer(JSONObject ... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
-        jsonFeatureContainer.put("features", jsonFeatures);
+        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
         for (JSONObject feature : features) {
             jsonFeatures.put(feature);
         }

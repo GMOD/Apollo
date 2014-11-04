@@ -27,7 +27,7 @@
 				<li class="fieldcontain">
 					<span id="genome-label" class="property-label"><g:message code="sequence.genome.label" default="Genome" /></span>
 					
-						<span class="property-value" aria-labelledby="genome-label"><g:link controller="genome" action="show" id="${sequenceInstance?.genome?.id}">${sequenceInstance?.genome?.name}</g:link></span>
+						<span class="property-value" aria-labelledby="genome-label"><g:link controller="organism" action="show" id="${sequenceInstance?.genome?.id}">${sequenceInstance?.organism?.commonName}</g:link></span>
 					
 				</li>
 				</g:if>

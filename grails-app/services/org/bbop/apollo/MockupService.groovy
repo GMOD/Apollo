@@ -56,18 +56,18 @@ class MockupService {
         // and several many more
     }
 
-    def addGenomes() {
-        if (Genome.count > 0) return
+    def addOrganisms() {
+        if (Organism.count > 0) return
 
-        Genome genome1 = new Genome(name: "Danio rerio").save()
-        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organismName: "Danio rerio"
+        Organism organism = new Organism(genus: "Danio",species: "rerio").save()
+        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organism: organism
                 , sequenceCV: "sequence", sequenceType: "mRNA"
                 , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"
                 , dataDirectory: "/opt/apollo/jbrowse/data"
 //                ,translationTableLocation:
         ).save()
 //        Track track2 = new Track(name: "Zebrafish Track 2").save()
-        genome1.addToSequences(track1)
+        organism.addToSequences(track1)
 //        genome1.addToTracks(track2)
 
         User demoUser = User.findByUsername("demo@demo.gov")
@@ -76,7 +76,7 @@ class MockupService {
         track1.addToUsers(demoUser)
         track1.addToUsers(adminUser)
 
-//        Genome genome2 = new Genome(name: "Caenorhabditis elegans").save()
+//        Organism genome2 = new Organism(name: "Caenorhabditis elegans").save()
 //        Track track3 = new Track(name: "Celegans Track 1").save()
 //        genome2.addToTracks(track3)
 //        track3.addToUsers(demoUser)

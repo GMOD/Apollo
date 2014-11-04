@@ -42,6 +42,7 @@ enum FeatureStringEnum {
      DELETION_PREFIX("Deletion-"),
      INSERTION_PREFIX("Insertion-"),
      OWNER("Owner"),
+     ORGANISM,
      UNIQUENAME
 
 

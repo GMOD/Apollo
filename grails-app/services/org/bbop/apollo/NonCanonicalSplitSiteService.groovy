@@ -212,8 +212,7 @@ class NonCanonicalSplitSiteService {
     private NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_five_prive_splice_site-" + position;
         NonCanonicalFivePrimeSpliceSite spliceSite = new NonCanonicalFivePrimeSpliceSite(
-                organism: transcript.getOrganism()
-                ,uniqueName: uniqueName
+                uniqueName: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
 //                ,timeAccessioned: new Date()
@@ -231,8 +230,7 @@ class NonCanonicalSplitSiteService {
     private NonCanonicalThreePrimeSpliceSite createNonCanonicalThreePrimeSpliceSite(Transcript transcript, int position) {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prive_splice_site-" + position;
         NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(
-                organism: transcript.getOrganism()
-                ,uniqueName: uniqueName
+                uniqueName: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
 //                ,timeAccessioned: new Date()

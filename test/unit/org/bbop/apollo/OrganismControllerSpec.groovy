@@ -5,14 +5,17 @@ package org.bbop.apollo
 import grails.test.mixin.*
 import spock.lang.*
 
-@TestFor(GenomeController)
-@Mock(Genome)
-class GenomeControllerSpec extends Specification {
+@TestFor(OrganismController)
+@Mock(Organism)
+class OrganismControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
-        params["name"] = 'someValidName'
-        params["directory"] = 'someDirectory'
+        // TODO: Populate valid properties like...
+        params["abbreviation"] = 'ZF'
+        params["genus"] = 'Danio'
+        params["species"] = 'rerio'
+        params["commonName"] = 'Zebrafish'
     }
 
     void "Test the index action returns the correct model"() {
@@ -21,8 +24,8 @@ class GenomeControllerSpec extends Specification {
             controller.index()
 
         then:"The model is correct"
-            !model.genomeInstanceList
-            model.genomeInstanceCount == 0
+            !model.organismInstanceList
+            model.organismInstanceCount == 0
     }
 
     void "Test the create action returns the correct model"() {
@@ -30,7 +33,7 @@ class GenomeControllerSpec extends Specification {
             controller.create()
 
         then:"The model is correctly created"
-            model.genomeInstance!= null
+            model.organismInstance!= null
     }
 
     void "Test the save action correctly persists an instance"() {
@@ -38,25 +41,25 @@ class GenomeControllerSpec extends Specification {
         when:"The save action is executed with an invalid instance"
             request.contentType = FORM_CONTENT_TYPE
             request.method = 'POST'
-            def genome = new Genome()
-            genome.validate()
-            controller.save(genome)
+            def organism = new Organism()
+            organism.validate()
+            controller.save(organism)
 
         then:"The create view is rendered again with the correct model"
-            model.genomeInstance!= null
+            model.organismInstance!= null
             view == 'create'
 
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            genome = new Genome(params)
+            organism = new Organism(params)
 
-            controller.save(genome)
+            controller.save(organism)
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/genome/show/1'
+            response.redirectedUrl == '/organism/show/1'
             controller.flash.message != null
-            Genome.count() == 1
+            Organism.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
@@ -68,11 +71,11 @@ class GenomeControllerSpec extends Specification {
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def genome = new Genome(params)
-            controller.show(genome)
+            def organism = new Organism(params)
+            controller.show(organism)
 
         then:"A model is populated containing the domain instance"
-            model.genomeInstance == genome
+            model.organismInstance == organism
     }
 
     void "Test that the edit action returns the correct model"() {
@@ -84,11 +87,11 @@ class GenomeControllerSpec extends Specification {
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def genome = new Genome(params)
-            controller.edit(genome)
+            def organism = new Organism(params)
+            controller.edit(organism)
 
         then:"A model is populated containing the domain instance"
-            model.genomeInstance == genome
+            model.organismInstance == organism
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
@@ -98,30 +101,29 @@ class GenomeControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-//            response.redirectedUrl == '/genome/index'
-//        response.redirectedUrl == '/home'
+//            response.redirectedUrl == '/organism/index'
         response.redirectedUrl == '/'
             flash.message != null
 
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def genome = new Genome()
-            genome.validate()
-            controller.update(genome)
+            def organism = new Organism()
+            organism.validate()
+            controller.update(organism)
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.genomeInstance == genome
+            model.organismInstance == organism
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
             populateValidParams(params)
-            genome = new Genome(params).save(flush: true)
-            controller.update(genome)
+            organism = new Organism(params).save(flush: true)
+            controller.update(organism)
 
         then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/genome/show/$genome.id"
+            response.redirectedUrl == "/organism/show/$organism.id"
             flash.message != null
     }
 
@@ -132,26 +134,24 @@ class GenomeControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-//            response.redirectedUrl == '/genome/index'
-//        response.redirectedUrl == '/home'
+//            response.redirectedUrl == '/organism/index'
         response.redirectedUrl == '/'
             flash.message != null
 
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def genome = new Genome(params).save(flush: true)
+            def organism = new Organism(params).save(flush: true)
 
         then:"It exists"
-            Genome.count() == 1
+            Organism.count() == 1
 
         when:"The domain instance is passed to the delete action"
-            controller.delete(genome)
+            controller.delete(organism)
 
         then:"The instance is deleted"
-            Genome.count() == 0
-//            response.redirectedUrl == '/genome/index'
-//        response.redirectedUrl == '/home'
+            Organism.count() == 0
+//            response.redirectedUrl == '/organism/index'
         response.redirectedUrl == '/'
             flash.message != null
     }

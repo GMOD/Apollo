@@ -61,10 +61,10 @@
         <thead>
         <tr>
 
-            %{--<th><g:message code="track.genome.label" default="Genome" /></th>--}%
+            %{--<th><g:message code="track.organism.label" default="Organism" /></th>--}%
 
             <g:sortableColumn property="name" title="${message(code: 'track.name.label', default: 'Name')}"/>
-            <g:sortableColumn property="genome.name" title="${message(code: 'track.name.label', default: 'Genome')}"/>
+            <g:sortableColumn property="organism.name" title="${message(code: 'track.name.label', default: 'Organism')}"/>
 
         </tr>
         </thead>
@@ -74,7 +74,7 @@
 
                 <td><g:link action="show"
                             id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
-                <td>${sequenceInstance.genome.name}
+                <td>${sequenceInstance.organism.name}
                 <g:link uri="">Browse</g:link>
                 </td>
 

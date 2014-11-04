@@ -221,9 +221,9 @@ class FeatureService {
         Sequence sequence = Sequence.findByName(trackName)
         println "# SEQUENCEs: ${Sequence.count}"
         println "FIRST SEQUENCE: ${Sequence.first().name}"
-        println "FIRST SEQUENCE roganism: ${Sequence.first().organismName}"
-        println "organism name: ${sequence.organismName}"
-        Organism organism = Organism.findByCommonName(sequence.organismName)
+        println "FIRST SEQUENCE roganism: ${Sequence.first().organism.commonName}"
+        println "organism name: ${sequence.organism.commonName}"
+        Organism organism = sequence.organism
 
 
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
@@ -296,7 +296,7 @@ class FeatureService {
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
-            Feature gsolGene = convertJSONToFeature(jsonGene, organism, featureLazyResidues);
+            Feature gsolGene = convertJSONToFeature(jsonGene,  featureLazyResidues);
             updateNewGsolFeatureAttributes(gsolGene, featureLazyResidues);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gsolGene.getFmin() < 0 || gsolGene.getFmax() < 0) {
@@ -1009,8 +1009,7 @@ class FeatureService {
                 )
 
                 Deletion deletion = new Deletion(
-                        organism: cds.organism
-                        , uniqueName: FeatureStringEnum.DELETION_PREFIX.value + frameshift.coordinate
+                        uniqueName: FeatureStringEnum.DELETION_PREFIX.value + frameshift.coordinate
                         , isObsolete: false
                         , isAnalysis: false
                 )
@@ -1032,8 +1031,7 @@ class FeatureService {
                 // a minus frameshift goes back bases during translation, which can be mapped to an insertion for the
                 // the repeated bases
                 Insertion insertion = new Insertion(
-                        organism: cds.organism
-                        , uniqueName: FeatureStringEnum.INSERTION_PREFIX.value + frameshift.coordinate
+                        uniqueName: FeatureStringEnum.INSERTION_PREFIX.value + frameshift.coordinate
                         , isAnalysis: false
                         , isObsolete: false
                 ).save()
@@ -1162,21 +1160,11 @@ class FeatureService {
 
     }
 
-    /**
-     * TODO: not sure if this is legit.
-     * @param jsonObject
-     * @param featureLazyResidues
-     * @return
-     */
-    Feature convertJSONToFeature(JSONObject jsonObject, FeatureLazyResidues featureLazyResidues) {
-        Organism organism = featureLazyResidues.getOrganism()
-        return convertJSONToFeature(jsonObject, organism, featureLazyResidues)
-    }
 
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Organism organism, Feature sourceFeature) {
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature) {
         Feature gsolFeature = new Feature();
         try {
-            gsolFeature.setOrganism(organism);
+//            gsolFeature.setOrganism(organism);
 
             // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
@@ -1206,7 +1194,7 @@ class FeatureService {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
 //                CVTerm partOfCvTerm = cvTermService.partOf
                 for (int i = 0; i < children.length(); ++i) {
-                    Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature != null ? sourceFeature.getOrganism() : null, sourceFeature);
+                    Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature);
                     FeatureRelationship fr = new FeatureRelationship();
                     fr.setObjectFeature(gsolFeature);
                     fr.setSubjectFeature(child);
@@ -1274,9 +1262,14 @@ class FeatureService {
             }
         }
         catch (JSONException e) {
+            log.error(e)
             return null;
         }
         return gsolFeature;
+    }
+
+    Organism getOrganism(Feature feature) {
+       feature?.featureLocation?.sequence?.organism
     }
 
     Feature generateFeatureForType(String ontologyId) {

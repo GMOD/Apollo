@@ -8,10 +8,9 @@ class Sequence {
     static auditable = true
 
     static constraints = {
-        genome nullable: true
+        organism nullable: true
         refSeqFile nullable: true
         dataDirectory nullable: true
-        organismName nullable: true
         translationTableLocation nullable: true
         spliceDonorSite nullable: true
         spliceAcceptor nullable: true
@@ -27,13 +26,13 @@ class Sequence {
     static belongsTo = [User]
 
     String name
-    Genome genome
+    Organism organism
 
     String refSeqFile
     String dataDirectory
     String sequenceType
     String sequenceCV
-    String organismName
+//    String organismName
 
 
     String translationTableLocation

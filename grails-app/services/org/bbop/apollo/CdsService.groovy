@@ -96,8 +96,7 @@ class CdsService {
 
         String uniqueName = cds.getUniqueName() + FeatureStringEnum.STOP_CODON_READHTHROUGH_SUFFIX.value;
         StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(
-                organism: cds.organism
-                , uniqueName: uniqueName
+                uniqueName: uniqueName
                 , isAnalysis: cds.isIsAnalysis()
                 , isObsolete: cds.isIsObsolete()
         )

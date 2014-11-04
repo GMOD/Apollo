@@ -101,8 +101,7 @@ class TranscriptService {
         String uniqueName = transcript.getUniqueName() + FeatureStringEnum.CDS_SUFFIX.value;
 
         CDS cds = new CDS(
-                organism: transcript.organism
-                , uniqueName: uniqueName
+                uniqueName: uniqueName
                 , isAnalysis: transcript.isAnalysis
                 , isObsolete: transcript.isObsolete
 //                ,timeAccessioned: new Date()
