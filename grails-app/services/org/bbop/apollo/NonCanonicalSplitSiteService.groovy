@@ -217,12 +217,18 @@ class NonCanonicalSplitSiteService {
                 ,isObsolete: transcript.isObsolete
 //                ,timeAccessioned: new Date()
                 );
-        spliceSite.setFeatureLocation(new FeatureLocation());
-        spliceSite.featureLocation.setStrand(transcript.getStrand());
-        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
-        spliceSite.featureLocation.setFmin(position);
-        spliceSite.featureLocation.setFmax(position);
-        spliceSite.setLastUpdated(new Date());
+        spliceSite.addToFeatureLocations(new FeatureLocation(
+                strand: transcript.strand
+                ,sourceFeature: transcript.featureLocation.sourceFeature
+                ,fmin: position
+                ,fmax: position
+                ,feature: spliceSite
+        ).save());
+//        spliceSite.featureLocation.setStrand(transcript.getStrand());
+//        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
+//        spliceSite.featureLocation.setFmin(position);
+//        spliceSite.featureLocation.setFmax(position);
+//        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 
@@ -235,12 +241,19 @@ class NonCanonicalSplitSiteService {
                 ,isObsolete: transcript.isObsolete
 //                ,timeAccessioned: new Date()
         );
-        spliceSite.setFeatureLocation(new FeatureLocation());
-        spliceSite.featureLocation.setStrand(transcript.getStrand());
-        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
-        spliceSite.featureLocation.setFmin(position);
-        spliceSite.featureLocation.setFmax(position);
-        spliceSite.setLastUpdated(new Date());
+        spliceSite.addToFeatureLocations(new FeatureLocation(
+                strand: transcript.strand
+                ,sourceFeature: transcript.featureLocation.sourceFeature
+                ,fmin: position
+                ,fmax: position
+                ,feature: spliceSite
+        ).save());
+//        spliceSite.setFeatureLocation(new FeatureLocation());
+//        spliceSite.featureLocation.setStrand(transcript.getStrand());
+//        spliceSite.getFeatureLocation().setSourceFeature(transcript.getFeatureLocation().getSourceFeature());
+//        spliceSite.featureLocation.setFmin(position);
+//        spliceSite.featureLocation.setFmax(position);
+//        spliceSite.setLastUpdated(new Date());
         return spliceSite;
     }
 
@@ -248,11 +261,19 @@ class NonCanonicalSplitSiteService {
         FlankingRegion flankingRegion = new FlankingRegion();
         flankingRegion.setIsAnalysis(false)
         flankingRegion.setIsObsolete(false)
-        flankingRegion.setFeatureLocation(new FeatureLocation());
-        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
-        flankingRegion.featureLocation.setStrand(feature.getStrand());
-        flankingRegion.featureLocation.setFmin(fmin);
-        flankingRegion.featureLocation.setFmax(fmax);
+
+        flankingRegion.addToFeatureLocations(new FeatureLocation(
+                strand: feature.strand
+                ,sourceFeature: feature.featureLocation.sourceFeature
+                ,fmin: fmin
+                ,fmax: fmax
+                ,feature: flankingRegion
+        ).save());
+//        flankingRegion.add(new FeatureLocation());
+//        flankingRegion.getFeatureLocation().setSourceFeature(feature.getFeatureLocation().getSourceFeature());
+//        flankingRegion.featureLocation.setStrand(feature.getStrand());
+//        flankingRegion.featureLocation.setFmin(fmin);
+//        flankingRegion.featureLocation.setFmax(fmax);
         return flankingRegion;
     }
 }

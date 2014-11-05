@@ -115,7 +115,7 @@ class TranscriptService {
                 , sourceFeature: transcript.featureLocation.sourceFeature
                 , feature: cds
         ).save(insert: true)
-        cds.setFeatureLocation(featureLocation);
+        cds.addToFeatureLocations(featureLocation);
         cds.save(flush: true, insert: true)
         return cds;
     }

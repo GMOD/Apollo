@@ -383,7 +383,7 @@ class FeatureService {
             featureLocation.properties = transcriptFeatureLocation.properties
             featureLocation.id = null
             featureLocation.save()
-            gene.setFeatureLocation(featureLocation);
+            gene.addToFeatureLocations(featureLocation);
         } else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
             if (transcript.getSingleFeatureLocation().getFmin() < gene.getSingleFeatureLocation().getFmin()) {
