@@ -23,14 +23,14 @@
 			</g:if>
 			<ol class="property-list sequence">
 			
-				<g:if test="${sequenceInstance?.genome}">
+				%{--<g:if test="${sequenceInstance?.sequence}">--}%
 				<li class="fieldcontain">
-					<span id="genome-label" class="property-label"><g:message code="sequence.genome.label" default="Genome" /></span>
+					<span id="sequence-label" class="property-label"><g:message code="sequence.sequence.label" default="Sequence" /></span>
 					
-						<span class="property-value" aria-labelledby="genome-label"><g:link controller="organism" action="show" id="${sequenceInstance?.genome?.id}">${sequenceInstance?.organism?.commonName}</g:link></span>
+						<span class="property-value" aria-labelledby="sequence-label"><g:link controller="organism" action="show" id="${sequenceInstance?.id}">${sequenceInstance?.organism?.commonName}</g:link></span>
 					
 				</li>
-				</g:if>
+				%{--</g:if>--}%
 			
 				<li class="fieldcontain">
 					<span id="name-label" class="property-label"><g:message code="sequence.name.label" default="Name" /></span>

@@ -74,7 +74,7 @@
 
                 <td><g:link action="show"
                             id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
-                <td>${sequenceInstance.organism.name}
+                <td>${sequenceInstance.organism.commonName}
                 <g:link uri="">Browse</g:link>
                 </td>
 

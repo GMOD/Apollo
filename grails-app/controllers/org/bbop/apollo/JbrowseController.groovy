@@ -32,32 +32,33 @@ class JbrowseController {
     /**
      * For returning seq/refSeqs.json
      */
-    def names(){
+    def names(String fileName){
         log.debug  "names"
-        String filename = grailsApplication.config.apollo.jbrowse.data.directory
-        File file = new File(filename+"/names/root.json");
+        String dataDirectory= grailsApplication.config.apollo.jbrowse.data.directory
+        String absoluteFilePath = dataDirectory+"/names/${fileName}"
+        File file = new File(absoluteFilePath);
         if(!file.exists()){
-            log.error("Could not get names/root.json file " + filename);
+            log.warn("Could not get ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
         render file.text
     }
 
-    /**
-     * For returning seq/refSeqs.json
-     */
-    def meta(){
-        log.debug  "meta"
-        String filename = grailsApplication.config.apollo.jbrowse.data.directory
-        File file = new File(filename+"/names/meta.json");
-        if(!file.exists()){
-            log.error("Could not get names/meta.json file " + filename);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-        render file.text
-    }
+//    /**
+//     * For returning seq/refSeqs.json
+//     */
+//    def meta(){
+//        log.debug  "meta"
+//        String filename = grailsApplication.config.apollo.jbrowse.data.directory
+//        File file = new File(filename+"/names/meta.json");
+//        if(!file.exists()){
+//            log.error("Could not get names/meta.json file " + filename);
+//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+//            return;
+//        }
+//        render file.text
+//    }
 
     /**
      * For returning seq/refSeqs.json
@@ -94,12 +95,11 @@ class JbrowseController {
      *
      *
      */
-    def data() {
+    def data(String fileName) {
         log.debug  "data"
         String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
 //        log.debug  "dataDir: ${dataDirectory}"
 
-        String filename = dataDirectory
 //        log.debug  "filename ${filename}"
         log.debug  "URI: " + request.getRequestURI()
         log.debug  "URL: " + request.getRequestURL()
@@ -118,25 +118,27 @@ class JbrowseController {
 //
 //        log.debug  "filename ${filename}"
 
-        if(params.id=="trackList" &&  params.format=="json"){
-            filename += "/trackList.json"
-        }
-        else
-        if(params.id=="tracks" &&  params.format=="conf"){
-            filename += "/tracks.conf"
-        }
-        else
-        if(params.id=="root" &&  params.format=="conf"){
-            filename += "/root.json"
-        }
+//        if(params.id=="trackList" &&  params.format=="json"){
+//            filename += "/trackList.json"
+//        }
+//        else
+//        if(params.id=="tracks" &&  params.format=="conf"){
+//            filename += "/tracks.conf"
+//        }
+//        else
+//        if(params.id=="root" &&  params.format=="conf"){
+//            filename += "/root.json"
+//        }
 
-        log.debug  "filename: ${filename}"
+        String dataFileName = dataDirectory+"/"+fileName
 
-        File file = new File(filename);
+        log.debug  "data directory: ${dataFileName}"
+
+        File file = new File(dataFileName);
 
 
         if(!file.exists()){
-            log.error("Could not get data directory: " + filename);
+            log.error("Could not get data directory: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
