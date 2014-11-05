@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Servlet implementation class AnnotationEditorService
  */
-@WebServlet("/AnnotationEditorService")
+//@WebServlet("/AnnotationEditorService")
 public class AnnotationEditorService extends HttpServlet {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());

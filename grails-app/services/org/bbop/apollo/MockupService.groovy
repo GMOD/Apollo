@@ -111,13 +111,15 @@ class MockupService {
     def addFeatureWithLocations() {
         if(FeatureLocation.count>0 )return
 
-        Gene gene1 = new Gene( name: "sox9a" ).save(failOnError: true)
+//        Gene gene1 = new Gene( name: "sox9a" ).save(failOnError: true)
+        Gene gene1 = new Gene( name: "geneid_mRNA_CM000054.5_3" ).save(failOnError: true)
+
 
 
         FeatureLocation featureLocation1 = new FeatureLocation(
                 feature: gene1
-                ,fmin: 100
-                ,fmax: 200
+                ,fmin: 88365
+                ,fmax: 88550
                 ,sequence: Sequence.first()
         ).save(failOnError: true)
 
@@ -125,14 +127,17 @@ class MockupService {
 
         FeatureLocation featureLocation2 = new FeatureLocation(
                 feature: gene1
-                ,fmin: 1000
-                ,fmax: 1500
+                ,fmin: 89001
+                ,fmax: 90027
                 ,sequence: Sequence.first()
         ).save(failOnError: true)
 
         gene1.addToFeatureLocations(featureLocation2)
 
         gene1.save(failOnError: true)
+
+
+
 
     }
 }

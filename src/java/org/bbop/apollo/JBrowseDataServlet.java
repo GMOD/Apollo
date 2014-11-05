@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 
-@WebServlet(urlPatterns = "/jbrowse/data/*", name = "JBrowseData")
+//@WebServlet(urlPatterns = "/jbrowse/data/*", name = "JBrowseData")
 public class JBrowseDataServlet extends HttpServlet {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.

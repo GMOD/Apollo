@@ -122,10 +122,15 @@ class AnnotationEditorController {
         println "adding transcript return object ${returnObject}"
         String trackName = returnObject.track
         JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        println "featuresArray ${featuresArray}"
         Sequence sequence = Sequence.findByName(trackName)
+        println "trackName ${trackName}"
+        println "sequence ${sequence}"
 
         for(int i = 0 ; i < featuresArray.size(); i++){
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
+            println "${i} jsonTranscript ${jsonTranscript}"
+            println "featureService ${featureService} ${trackName}"
             Transcript transcript = featureService.generateTranscript(jsonTranscript,trackName)
 
             // should automatically write to history

@@ -14,6 +14,8 @@ class Sequence {
         translationTableLocation nullable: true
         spliceDonorSite nullable: true
         spliceAcceptor nullable: true
+        sequenceCV nullable: true
+        sequenceType nullable: true
     }
 
     // feature locations instead of features

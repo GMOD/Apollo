@@ -18,7 +18,7 @@ import org.gmod.gbol.bioObject.util.BioObjectUtil
 /**
  * taken from AbstractBioFeature
  */
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class FeatureService {
 
@@ -44,7 +44,7 @@ class FeatureService {
             }
         }
         property.setRank(rank + 1);
-        boolean ok = feature.getFeatureProperties().add(property);
+        boolean ok = feature.addToFeatureProperties(property);
 
     }
 
@@ -146,64 +146,93 @@ class FeatureService {
      * @return Collection of AbstractSingleLocationBioFeature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands) {
-        LinkedList<Feature> overlappingFeatures =
-                new LinkedList<Feature>();
-        int low = 0;
-        int high = Feature.count - 1;
-        int index = -1;
-        while (low <= high) {
-            int mid = (low + ((high - low) / 2)).intValue();
-            Feature.all.get(mid)
-            Feature feature = Feature.all.get(mid)
-            if (feature == null) {
-//                uniqueNameToStoredUniqueName.remove(features.get(mid).getUniqueName());
-//                features.remove(mid);
-                return getOverlappingFeatures(location, compareStrands);
-            }
-            if (overlaps(feature.featureLocation, location, compareStrands)) {
-                index = mid;
-                break;
-            } else if (feature.getFeatureLocation().getFmin() < location.getFmin()) {
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-        if (index >= -1) {
-            for (int i = index; i >= 0; --i) {
-                Feature feature = Feature.all.get(i)
-                if (feature == null) {
-//                    uniqueNameToStoredUniqueName.remove(features.get(i).getUniqueName());
-//                    features.remove(i);
-                    return getOverlappingFeatures(location, compareStrands);
+//        LinkedList<Feature> overlappingFeatures = new LinkedList<Feature>();
+
+
+        FeatureLocation.findAllBySourceFeatureAndStrandAndFminLessThanEquals(location.sourceFeature, location.strand, location.fmin)
+//            if (compareStrands) {
+//                eq("strand", location.strand)
+//            }
+        def results = FeatureLocation.withCriteria {
+            eq("sourceFeature", location.sourceFeature)
+            or {
+                and {
+                    le("fmin", location.fmin)
+                    gt("fmax", location.fmin)
                 }
-                if (overlaps(feature.featureLocation, location, compareStrands)) {
-                    overlappingFeatures.addFirst(feature);
-                } else {
-                    break;
-                }
-            }
-            for (int i = index + 1; i < Feature.count; ++i) {
-                Feature feature = Feature.all.get(i)
-                if (overlaps(feature.featureLocation, location, compareStrands)) {
-                    overlappingFeatures.addLast(feature);
-                } else {
-                    break;
+                and {
+                    lt("fmin", location.fmax)
+                    ge("fmax", location.fmax)
                 }
             }
         }
-        return overlappingFeatures;
+
+        return results*.feature.unique()
     }
 
+//        if (strandsOverlap &&
+//                (thisFmin <= otherFmin && thisFmax > otherFmin ||
+//                        thisFmin >= otherFmin && thisFmin < otherFmax))
+
+//        int low = 0;
+//        int high = Feature.count - 1;
+//        int index = -1;
+//        while (low <= high) {
+//            int mid = (low + ((high - low) / 2)).intValue();
+//            Feature.all.get(mid)
+//            Feature feature = Feature.all.get(mid)
+//            if (feature == null) {
+////                uniqueNameToStoredUniqueName.remove(features.get(mid).getUniqueName());
+////                features.remove(mid);
+//                return getOverlappingFeatures(location, compareStrands);
+//            }
+//            if (overlaps(feature.featureLocation, location, compareStrands)) {
+//                index = mid;
+//                break;
+//            } else if (feature.getFeatureLocation().getFmin() < location.getFmin()) {
+//                low = mid + 1;
+//            } else {
+//                high = mid - 1;
+//            }
+//        }
+//        if (index >= -1) {
+//            for (int i = index; i >= 0; --i) {
+//                Feature feature = Feature.all.get(i)
+//                if (feature == null) {
+////                    uniqueNameToStoredUniqueName.remove(features.get(i).getUniqueName());
+////                    features.remove(i);
+//                    return getOverlappingFeatures(location, compareStrands);
+//                }
+//                if (overlaps(feature.featureLocation, location, compareStrands)) {
+//                    overlappingFeatures.addFirst(feature);
+//                } else {
+//                    break;
+//                }
+//            }
+//            for (int i = index + 1; i < Feature.count; ++i) {
+//                Feature feature = Feature.all.get(i)
+//                if (overlaps(feature.featureLocation, location, compareStrands)) {
+//                    overlappingFeatures.addLast(feature);
+//                } else {
+//                    break;
+//                }
+//            }
+//        }
+//    return overlappingFeatures;
+//}
+
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Feature sourceFeature) {
+
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
-        gsolFeature.setDateCreated(new Date()); //new Timestamp(new Date().getTime()));
-        gsolFeature.setLastUpdated(new Date()); //new Timestamp(new Date().getTime()));
+//        gsolFeature.setDateCreated(new Date()); //new Timestamp(new Date().getTime()));
+//        gsolFeature.setLastUpdated(new Date()); //new Timestamp(new Date().getTime()));
         if (sourceFeature != null) {
             gsolFeature.getFeatureLocations().iterator().next().setSourceFeature(sourceFeature);
         }
+
         for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
+            println "gsolFeature ${gsolFeature} - ${fr.subjectFeature}"
             updateNewGsolFeatureAttributes(fr.getSubjectFeature(), sourceFeature);
         }
     }
@@ -223,14 +252,14 @@ class FeatureService {
         println "FIRST SEQUENCE: ${Sequence.first().name}"
         println "FIRST SEQUENCE roganism: ${Sequence.first().organism.commonName}"
         println "organism name: ${sequence.organism.commonName}"
-        Organism organism = sequence.organism
+//        Organism organism = sequence.organism
 
 
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
         println "featureLazyResidues ${featureLazyResidues}"
         if (gene != null) {
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
-            transcript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues);
+            transcript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues,sequence);
 //            transcript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -252,11 +281,12 @@ class FeatureService {
 //            transcriptService.updateTranscriptAttributes(transcript);
         } else {
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), featureLazyResidues)
+            println "has a feature location ${featureLocation}"
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
             for (Feature feature : overlappingFeatures) {
                 if (feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
-                    Transcript gsolTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues);
+                    Transcript gsolTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues,sequence);
                     updateNewGsolFeatureAttributes(gsolTranscript, featureLazyResidues);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
                     if (gsolTranscript.getFmin() < 0 || gsolTranscript.getFmax() < 0) {
@@ -296,7 +326,7 @@ class FeatureService {
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
-            Feature gsolGene = convertJSONToFeature(jsonGene,  featureLazyResidues);
+            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues,sequence);
             updateNewGsolFeatureAttributes(gsolGene, featureLazyResidues);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gsolGene.getFmin() < 0 || gsolGene.getFmax() < 0) {
@@ -318,7 +348,7 @@ class FeatureService {
 
     }
 
-    // TODO: this is kind of a hack for now
+// TODO: this is kind of a hack for now
     JSONObject convertCVTermToJSON(String cv, String cvTerm) {
         JSONObject jsonCVTerm = new JSONObject();
         JSONObject jsonCV = new JSONObject();
@@ -372,6 +402,7 @@ class FeatureService {
     }
 
     def addTranscriptToGene(Gene gene, Transcript transcript) {
+        println "transcript exists ${transcript}"
         removeExonOverlapsAndAdjacencies(transcript);
 //        gene.addTranscript(transcript);
 //        CVTerm partOfCvterm = cvTermService.partOf
@@ -403,7 +434,7 @@ class FeatureService {
                 , subjectFeature: transcript
                 , rank: rank
         ).save()
-        gene.childFeatureRelationships.add(featureRelationship)
+        gene.addToChildFeatureRelationships(featureRelationship)
 
 
         updateGeneBoundaries(gene);
@@ -442,11 +473,11 @@ class FeatureService {
         }
     }
 
-    /** Checks whether this AbstractSimpleLocationBioFeature is adjacent to the FeatureLocation.
-     *
-     * @param location - FeatureLocation to check adjacency against
-     * @return true if there is adjacency
-     */
+/** Checks whether this AbstractSimpleLocationBioFeature is adjacent to the FeatureLocation.
+ *
+ * @param location - FeatureLocation to check adjacency against
+ * @return true if there is adjacency
+ */
     public boolean isAdjacentTo(FeatureLocation leftLocation, FeatureLocation location) {
         return isAdjacentTo(leftLocation, location, true);
     }
@@ -535,10 +566,10 @@ class FeatureService {
         return false;
     }
 
-    /** Get comments for this feature.
-     *
-     * @return Comments for this feature
-     */
+/** Get comments for this feature.
+ *
+ * @return Comments for this feature
+ */
     public Collection<Comment> getComments(Feature feature) {
 //        CVTerm commentCvTerm = cvTermService.getTerm(FeatureStringEnum.COMMENT)
 //        Collection<CVTerm> commentCvterms = conf.getCVTermsForClass("Comment");
@@ -576,13 +607,13 @@ class FeatureService {
         return false;
     }
 
-    /**
-     * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
-     * Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
-     * ORF calculation extensions are allowed from the configuration associated with this editor.
-     *
-     * @param transcript - Transcript to set the longest ORF to
-     */
+/**
+ * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
+ * Calls setLongestORF(Transcript, TranslationTable, boolean) with the translation table and whether partial
+ * ORF calculation extensions are allowed from the configuration associated with this editor.
+ *
+ * @param transcript - Transcript to set the longest ORF to
+ */
     public void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
         setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon);
     }
@@ -591,47 +622,47 @@ class FeatureService {
         setLongestORF(transcript, false);
     }
 
-    /**
-     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     */
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ */
     public void setTranslationStart(Transcript transcript, int translationStart) {
         setTranslationStart(transcript, translationStart, false);
     }
 
-    /**
-     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
-     */
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+ */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
         setTranslationStart(transcript, translationStart, setTranslationEnd, false);
     }
 
-    /**
-     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
-     * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
-     */
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+ * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
+ */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
         setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configWrapperService.getTranslationTable() : null, readThroughStopCodon);
     }
 
-    /** Convert local coordinate to source feature coordinate.
-     *
-     * @param localCoordinate - Coordinate to convert to source coordinate
-     * @return Source feature coordinate, -1 if local coordinate is longer than feature's length or negative
-     */
+/** Convert local coordinate to source feature coordinate.
+ *
+ * @param localCoordinate - Coordinate to convert to source coordinate
+ * @return Source feature coordinate, -1 if local coordinate is longer than feature's length or negative
+ */
     public int convertLocalCoordinateToSourceCoordinate(Feature feature, int localCoordinate) {
         if (localCoordinate < 0 || localCoordinate > feature.getLength()) {
             return -1;
@@ -676,16 +707,16 @@ class FeatureService {
         return convertLocalCoordinateToSourceCoordinate(feature, localCoordinate);
     }
 
-    /**
-     * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
-     * @param translationTable - Translation table that defines the codon translation
-     * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
-     */
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+ * @param translationTable - Translation table that defines the codon translation
+ * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
+ */
     public void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, TranslationTable translationTable, boolean readThroughStopCodon) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
@@ -757,53 +788,53 @@ class FeatureService {
 
     }
 
-    /** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     *  Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation start in
-     * @param translationEnd - Coordinate of the end of translation
-     */
-    /*
-    public void setTranslationEnd(Transcript transcript, int translationEnd) {
-        CDS cds = transcript.getCDS();
-        if (cds == null) {
-            cds = createCDS(transcript);
-            transcript.setCDS(cds);
-        }
-        if (transcript.getStrand() == -1) {
-            cds.setFmin(translationEnd + 1);
-        }
-        else {
-            cds.setFmax(translationEnd);
-        }
-        setManuallySetTranslationEnd(cds, true);
-        cds.deleteStopCodonReadThrough();
-
-        // event fire
-        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
-
+/** Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+ *  Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationEnd - Coordinate of the end of translation
+ */
+/*
+public void setTranslationEnd(Transcript transcript, int translationEnd) {
+    CDS cds = transcript.getCDS();
+    if (cds == null) {
+        cds = createCDS(transcript);
+        transcript.setCDS(cds);
     }
-    */
+    if (transcript.getStrand() == -1) {
+        cds.setFmin(translationEnd + 1);
+    }
+    else {
+        cds.setFmax(translationEnd);
+    }
+    setManuallySetTranslationEnd(cds, true);
+    cds.deleteStopCodonReadThrough();
 
-    /**
-     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation end in
-     * @param translationEnd - Coordinate of the end of translation
-     */
+    // event fire
+    fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+
+}
+*/
+
+/**
+ * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation end in
+ * @param translationEnd - Coordinate of the end of translation
+ */
     public void setTranslationEnd(Transcript transcript, int translationEnd) {
         setTranslationEnd(transcript, translationEnd, false);
     }
 
-    /**
-     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation end in
-     * @param translationEnd - Coordinate of the end of translation
-     * @param setTranslationStart - if set to true, will search for the nearest in frame start
-     */
+/**
+ * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation end in
+ * @param translationEnd - Coordinate of the end of translation
+ * @param setTranslationStart - if set to true, will search for the nearest in frame start
+ */
     public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
         setTranslationEnd(transcript, translationEnd, setTranslationStart,
                 setTranslationStart ? configWrapperService.getTranslationTable() : null
@@ -825,15 +856,15 @@ class FeatureService {
         }
     }
 
-    /**
-     * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
-     * Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation end in
-     * @param translationEnd - Coordinate of the end of translation
-     * @param setTranslationStart - if set to true, will search for the nearest in frame start codon
-     * @param translationTable - Translation table that defines the codon translation
-     */
+/**
+ * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation end in
+ * @param translationEnd - Coordinate of the end of translation
+ * @param setTranslationStart - if set to true, will search for the nearest in frame start codon
+ * @param translationTable - Translation table that defines the codon translation
+ */
     public void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, TranslationTable translationTable) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
@@ -910,16 +941,16 @@ class FeatureService {
 
     }
 
-    /**
-     * Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
-     * feature.  Instantiates the CDS object for the transcript if it doesn't already exist.
-     *
-     * @param transcript - Transcript to set the translation start in
-     * @param translationStart - Coordinate of the start of translation
-     * @param translationEnd - Coordinate of the end of translation
-     * @param manuallySetStart - whether the start was manually set
-     * @param manuallySetEnd - whether the end was manually set
-     */
+/**
+ * Set the translation start and end in the transcript.  Sets the translation start and end in the underlying CDS
+ * feature.  Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ * @param translationEnd - Coordinate of the end of translation
+ * @param manuallySetStart - whether the start was manually set
+ * @param manuallySetEnd - whether the end was manually set
+ */
     public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
         setTranslationFmin(transcript, translationStart);
         setTranslationFmax(transcript, translationEnd);
@@ -954,11 +985,11 @@ class FeatureService {
         setLongestORF(transcript, translationTable, allowPartialExtension, false);
     }
 
-    /** Get the residues for a feature with any alterations and frameshifts.
-     *
-     * @param feature - AbstractSingleLocationBioFeature to retrieve the residues for
-     * @return Residues for the feature with any alterations and frameshifts
-     */
+/** Get the residues for a feature with any alterations and frameshifts.
+ *
+ * @param feature - AbstractSingleLocationBioFeature to retrieve the residues for
+ * @return Residues for the feature with any alterations and frameshifts
+ */
     public String getResiduesWithAlterationsAndFrameshifts(Feature feature) {
         if (!(feature instanceof CDS)) {
             return getResiduesWithAlterations(feature, SequenceAlteration.all);
@@ -1064,13 +1095,13 @@ class FeatureService {
         return frameshifts;
     }
 
-    /**
-     * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
-     *
-     * @param transcript - Transcript to set the longest ORF to
-     * @param translationTable - Translation table that defines the codon translation
-     * @param allowPartialExtension - Where partial ORFs should be used for possible extension
-     */
+/**
+ * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
+ *
+ * @param transcript - Transcript to set the longest ORF to
+ * @param translationTable - Translation table that defines the codon translation
+ * @param allowPartialExtension - Where partial ORFs should be used for possible extension
+ */
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
         if (mrna == null || mrna.equals("null")) {
@@ -1161,7 +1192,7 @@ class FeatureService {
     }
 
 
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature) {
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature,Sequence sequence) {
         Feature gsolFeature = null
         try {
 //            gsolFeature.setOrganism(organism);
@@ -1173,7 +1204,7 @@ class FeatureService {
             println "ontology Id ${ontologyId}"
             gsolFeature = generateFeatureForType(ontologyId)
             println "Created feature: ${gsolFeature}"
-            Sequence sequence = Sequence.findByName(jsonFeature.get(AnnotationEditorController.REST_TRACK))
+//            Sequence sequence = Sequence.findByName(jsonFeature.get(AnnotationEditorController.REST_TRACK).toString())
             println "found sequnce: ${sequence}"
 //            gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
 //            gsolFeature.ontologyId = (cvTermService.convertJSONToCVTerm(type));
@@ -1181,23 +1212,24 @@ class FeatureService {
 
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
-            }
-            else{
+            } else {
                 gsolFeature.setUniqueName(nameService.generateUniqueName());
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
-            }
-            else{
+            } else {
                 gsolFeature.name = gsolFeature.uniqueName
             }
             if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
                 gsolFeature.setResidues(jsonFeature.getString(FeatureStringEnum.RESIDUES.value));
             }
+
+            gsolFeature.save(failOnError: true)
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
                 FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, sourceFeature)
                 featureLocation.sequence = sequence
+                featureLocation.feature = gsolFeature
                 featureLocation.save(failOnError: true)
                 gsolFeature.addToFeatureLocations(featureLocation);
             }
@@ -1208,16 +1240,18 @@ class FeatureService {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
 //                CVTerm partOfCvTerm = cvTermService.partOf
                 for (int i = 0; i < children.length(); ++i) {
-                    Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature);
-                    child.save()
+                    Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature,sequence);
+                    child.save(failOnError: true)
                     FeatureRelationship fr = new FeatureRelationship();
                     fr.setObjectFeature(gsolFeature);
                     fr.setSubjectFeature(child);
                     fr.save()
 //                    fr.setType(configuration.getDefaultCVTermForClass("PartOf"));
 //                    fr.setType(partOfCvTerm);
-                    child.getParentFeatureRelationships().add(fr);
-                    gsolFeature.getChildFeatureRelationships().add(fr);
+//                    child.getParentFeatureRelationships().add(fr);
+//                    gsolFeature.getChildFeatureRelationships().add(fr);
+                    child.addToParentFeatureRelationships(fr);
+                    gsolFeature.addToChildFeatureRelationships(fr);
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.TIMEACCESSION.value)) {
@@ -1251,7 +1285,7 @@ class FeatureService {
                         }
                     }
                     gsolProperty.setRank(rank + 1);
-                    gsolFeature.getFeatureProperties().add(gsolProperty);
+                    gsolFeature.addToFeatureProperties(gsolProperty);
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.DBXREFS.value)) {
@@ -1285,7 +1319,7 @@ class FeatureService {
     }
 
     Organism getOrganism(Feature feature) {
-       feature?.featureLocation?.sequence?.organism
+        feature?.featureLocation?.sequence?.organism
     }
 
     Feature generateFeatureForType(String ontologyId) {
@@ -1377,11 +1411,11 @@ class FeatureService {
         feature.getFeatureLocation().setFmax(fmax);
     }
 
-    /** Convert source feature coordinate to local coordinate.
-     *
-     * @param sourceCoordinate - Coordinate to convert to local coordinate
-     * @return Local coordinate, -1 if source coordinate is <= fmin or >= fmax
-     */
+/** Convert source feature coordinate to local coordinate.
+ *
+ * @param sourceCoordinate - Coordinate to convert to local coordinate
+ * @return Local coordinate, -1 if source coordinate is <= fmin or >= fmax
+ */
     public int convertSourceCoordinateToLocalCoordinate(Feature feature, int sourceCoordinate) {
         if (sourceCoordinate < feature.getFeatureLocation().getFmin() || sourceCoordinate > feature.getFeatureLocation().getFmax()) {
             return -1;
