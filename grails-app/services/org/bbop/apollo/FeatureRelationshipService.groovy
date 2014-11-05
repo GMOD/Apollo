@@ -2,9 +2,10 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.grails.datastore.mapping.query.api.Criteria
+import spock.lang.Specification
 
 @Transactional
-class FeatureRelationshipService {
+class FeatureRelationshipService extends  Specification{
 
 //    def cvTermService
 
@@ -82,18 +83,9 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getParentsForFeature(Feature feature,String ontologyId) {
-
-        Criteria criteria = FeatureRelationship.createCriteria()
-        List<FeatureRelationship> featureRelationshipList = criteria {
-            eq("subjectFeature", feature)
-            eq("objectFeature.ontologyId", ontologyId)
+        return FeatureRelationship.findAllBySubjectFeature(feature)*.objectFeature.findAll(){
+            it.ontologyId == ontologyId
         }
-
-        return featureRelationshipList*.objectFeature
-
-
-//        CVTerm featureCvTerm = cvTermService.getTerm(featureStringEnum)
-//        return getParentForFeature(feature, featureCvTerm, cvTermService.partOf)
     }
 
 //    def deleteRelationships(Feature feature, FeatureStringEnum parentFeatureEnum, FeatureStringEnum childFeatureEnum) {

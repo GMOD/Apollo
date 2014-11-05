@@ -46,8 +46,9 @@ class FeatureProperty implements Ontological{
         FeatureProperty castOther = ( FeatureProperty ) other;
 
         if(castOther?.id == this?.id) return true
-        if(castOther?.ontologyId != this?.ontologyId) return false
+//        if(castOther.ontologyId != this.ontologyId) return false
         if(castOther?.rank != this?.rank) return false
+        if(castOther?.value != this?.value) return false
 
 //        if(castOther?.features?.size() != this?.features?.size()) return false
 //
@@ -69,7 +70,7 @@ class FeatureProperty implements Ontological{
 
 
         result = 37 * result + ( getType() == null ? 0 : this.getType().hashCode() );
-//        result = 37 * result + ( getFeatures() == null ? 0 : this.getFeatures()*.hashCode() );
+        result = 37 * result + ( getValue() == null ? 0 : this.getValue().hashCode() );
 
         result = 37 * result + this.getRank();
 
