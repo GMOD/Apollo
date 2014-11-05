@@ -32,10 +32,27 @@ class JbrowseController {
     /**
      * For returning seq/refSeqs.json
      */
+    def namesFiles(String directory,String jsonFile){
+        String dataDirectory= grailsApplication.config.apollo.jbrowse.data.directory
+        String absoluteFilePath = dataDirectory+"/names/${directory}/${jsonFile}.json"
+        println "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
+        File file = new File(absoluteFilePath);
+        if(!file.exists()){
+            log.warn("Could not get for name and path: ${absoluteFilePath}");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        render file.text
+    }
+
+    /**
+     * For returning seq/refSeqs.json
+     */
     def names(String fileName){
         log.debug  "names"
         String dataDirectory= grailsApplication.config.apollo.jbrowse.data.directory
-        String absoluteFilePath = dataDirectory+"/names/${fileName}"
+        String absoluteFilePath = dataDirectory+"/names/${fileName}.json"
+        println "names ${fileName}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         if(!file.exists()){
             log.warn("Could not get ${absoluteFilePath}");
