@@ -67,7 +67,7 @@ class AnnotationEditorController {
         // TODO: wire into actual user table
         String username = session.getAttribute("username")
         log.debug  "user from ${username}"
-        username = "demo"
+        username = "demo@demo.gov"
         returnObject.put(REST_PERMISSION, 3)
         returnObject.put(REST_USERNAME, username)
 

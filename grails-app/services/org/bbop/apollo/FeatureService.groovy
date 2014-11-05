@@ -107,7 +107,12 @@ class FeatureService {
      * @param owner - User of this feature
      */
     public void setOwner(Feature feature, String owner) {
+
+        println "looking for owner ${owner}"
         User user = User.findByUsername(owner)
+        println "owner ${owner} found ${user}"
+        println "feature ${feature}"
+
         if (user) {
             setOwner(feature, user)
         } else {
@@ -231,12 +236,22 @@ class FeatureService {
             gsolFeature.getFeatureLocations().iterator().next().setSourceFeature(sourceFeature);
         }
 
-        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
+        // TODO: this may be a mistake, is different than the original code
+        // you are iterating through all of the children in order to set the SourceFeature and analsysis
+//        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
+        for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
             println "gsolFeature ${gsolFeature} - ${fr.subjectFeature}"
             updateNewGsolFeatureAttributes(fr.getSubjectFeature(), sourceFeature);
         }
     }
 
+    /**
+     * From Gene.addTranscript
+     * @param jsonTranscript
+     * @param trackName
+     * @param isPseudogene
+     * @return
+     */
     def generateTranscript(JSONObject jsonTranscript, String trackName, boolean isPseudogene = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         println "JSON transcript ${jsonTranscript}"
@@ -286,22 +301,22 @@ class FeatureService {
             for (Feature feature : overlappingFeatures) {
                 if (feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
-                    Transcript gsolTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues,sequence);
-                    updateNewGsolFeatureAttributes(gsolTranscript, featureLazyResidues);
+                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues,sequence);
+                    updateNewGsolFeatureAttributes(tmpTranscript, featureLazyResidues);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
-                    if (gsolTranscript.getFmin() < 0 || gsolTranscript.getFmax() < 0) {
+                    if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
 //                    String username = SecurityUtils?.subject?.principal
                     setOwner(transcript, (String) SecurityUtils?.subject?.principal);
-                    if (!useCDS || transcriptService.getCDS(gsolTranscript) == null) {
-                        calculateCDS(gsolTranscript);
+                    if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
+                        calculateCDS(tmpTranscript);
                     }
-                    gsolTranscript.name = nameService.generateUniqueName()
+                    tmpTranscript.name = nameService.generateUniqueName()
 //                    updateTranscriptAttributes(tmpTranscript);
-                    if (overlaps(gsolTranscript, tmpGene)) {
-                        transcript = gsolTranscript;
+                    if (overlaps(tmpTranscript, tmpGene)) {
+                        transcript = tmpTranscript;
                         gene = tmpGene;
 //                        editor.addTranscript(gene, transcript);
                         addTranscriptToGene(gene, transcript)
@@ -326,13 +341,14 @@ class FeatureService {
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
-            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues,sequence);
-            updateNewGsolFeatureAttributes(gsolGene, featureLazyResidues);
+            gene = (Gene) convertJSONToFeature(jsonGene, featureLazyResidues,sequence);
+            updateNewGsolFeatureAttributes(gene, featureLazyResidues);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
-            if (gsolGene.getFmin() < 0 || gsolGene.getFmax() < 0) {
+            if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            setOwner(gene, (String) SecurityUtils?.subject?.principal);
+            setOwner(gene, (String) SecurityUtils?.subject?.principal ?: "demo@demo.gov");
+            println "gene ${gene}"
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -341,7 +357,7 @@ class FeatureService {
             addFeature(gene);
             transcript.name = nameService.generateUniqueName()
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-            gsolGene.save(insert: true)
+            gene.save(insert: true)
             transcript.save(flush: true)
         }
         return transcript;
@@ -1245,13 +1261,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     FeatureRelationship fr = new FeatureRelationship();
                     fr.setObjectFeature(gsolFeature);
                     fr.setSubjectFeature(child);
-                    fr.save()
+                    fr.save(failOnError: true)
 //                    fr.setType(configuration.getDefaultCVTermForClass("PartOf"));
 //                    fr.setType(partOfCvTerm);
 //                    child.getParentFeatureRelationships().add(fr);
 //                    gsolFeature.getChildFeatureRelationships().add(fr);
                     child.addToParentFeatureRelationships(fr);
                     gsolFeature.addToChildFeatureRelationships(fr);
+                    child.save()
+                    gsolFeature.save()
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.TIMEACCESSION.value)) {
