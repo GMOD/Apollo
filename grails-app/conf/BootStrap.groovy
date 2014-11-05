@@ -9,8 +9,9 @@ class BootStrap {
 
         mockupService.addUsers()
         mockupService.addDataAdapters()
-        mockupService.addTerms()
         mockupService.addOrganisms()
+        mockupService.addSequences()  // add tracks
+        mockupService.addFeatureWithLocations()  // add tracks
 
 
     }

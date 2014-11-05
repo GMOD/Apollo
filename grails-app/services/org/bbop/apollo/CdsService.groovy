@@ -106,7 +106,7 @@ class CdsService {
                 , feature: stopCodonReadThrough
         ).save()
 
-        stopCodonReadThrough.featureLocation = featureLocation
+        stopCodonReadThrough.addToFeatureLocations(featureLocation)
         stopCodonReadThrough.featureLocation.setStrand(cds.getStrand());
 
         stopCodonReadThrough.save(flush: true)

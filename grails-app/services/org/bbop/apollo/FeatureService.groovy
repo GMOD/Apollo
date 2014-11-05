@@ -1015,7 +1015,7 @@ class FeatureService {
                 )
 
                 featureLocation.feature = deletion
-                deletion.featureLocation = featureLocation
+                deletion.addToFeatureLocations(featureLocation)
 
                 frameshifts.add(deletion);
                 featureLocation.save()
@@ -1046,7 +1046,7 @@ class FeatureService {
                         , sourceFeature: sourceFeature
                 ).save()
 
-                insertion.featureLocation = featureLocation
+                insertion.addToFeatureLocations(featureLocation)
                 featureLocation.feature = insertion
 
 //                insertion.setFeatureLocation(frameshift.getCoordinate() + frameshift.getFrameshiftValue(),

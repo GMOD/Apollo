@@ -14,7 +14,7 @@ class Feature implements Ontological{
 
         name nullable: false
 
-        type nullable: true
+//        type nullable: true
 
         uniqueName nullable: true
         dbxref nullable: true
@@ -26,11 +26,11 @@ class Feature implements Ontological{
         isObsolete nullable: true
         dateCreated nullable: true
         lastUpdated nullable: true
-        featureLocation nullable: true
+//        featureLocation nullable: true
     }
 
 //    Integer featureId;
-    CVTerm type;
+//    CVTerm type;
     DBXref dbxref;
 //    Organism organism;
     String name;
@@ -162,7 +162,7 @@ class Feature implements Ontological{
      *
      *  @param featureLocation - new FeatureLocation to set this gene to
      */
-    public void setFeatureLocation(FeatureLocation featureLocation) {
+    public void setOnlyFeatureLocation(FeatureLocation featureLocation) {
         Collection<FeatureLocation> locs = getFeatureLocations();
         if (locs != null) {
             locs.clear();

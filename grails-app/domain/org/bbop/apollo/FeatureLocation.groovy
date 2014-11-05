@@ -44,7 +44,7 @@ class FeatureLocation {
 
 
     public boolean equals(Object other) {
-        if ((this == other)) return true;
+//        if ((this == other)) return true;
         if ((other == null)) return false;
         if (!(other instanceof FeatureLocation)) return false;
         FeatureLocation castOther = (FeatureLocation) other;

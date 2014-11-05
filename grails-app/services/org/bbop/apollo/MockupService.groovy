@@ -37,24 +37,24 @@ class MockupService {
         adminUser.addToRoles(userRole)
     }
 
-    /**
-     * Repalce stuff in mapping.xml
-     */
-    def addTerms() {
-        if (Term.count > 0) return
-        new Term(term: "region", vocabulary: "sequence", readClass: "Region", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "gene", vocabulary: "sequence", readClass: "Gene", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "pseudogene", vocabulary: "sequence", readClass: "Pseudogene", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "transcript", vocabulary: "sequence", readClass: "Transcript", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "mRNA", vocabulary: "sequence", readClass: "MRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "tRNA", vocabulary: "sequence", readClass: "TRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "snRNA", vocabulary: "sequence", readClass: "SnRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "snoRNA", vocabulary: "sequence", readClass: "SnoRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "ncRNA", vocabulary: "sequence", readClass: "NcRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
-        new Term(term: "rRNA", vocabulary: "sequence", readClass: "RRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
-
-        // and several many more
-    }
+//    /**
+//     * Repalce stuff in mapping.xml
+//     */
+//    def addTerms() {
+//        if (Term.count > 0) return
+//        new Term(term: "region", vocabulary: "sequence", readClass: "Region", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "gene", vocabulary: "sequence", readClass: "Gene", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "pseudogene", vocabulary: "sequence", readClass: "Pseudogene", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "transcript", vocabulary: "sequence", readClass: "Transcript", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "mRNA", vocabulary: "sequence", readClass: "MRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "tRNA", vocabulary: "sequence", readClass: "TRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "snRNA", vocabulary: "sequence", readClass: "SnRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "snoRNA", vocabulary: "sequence", readClass: "SnoRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "ncRNA", vocabulary: "sequence", readClass: "NcRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
+//        new Term(term: "rRNA", vocabulary: "sequence", readClass: "RRNA", type: TermTypeEnum.FEATURE_MAPPING).save()
+//
+//        // and several many more
+//    }
 
     def addOrganisms() {
         if (Organism.count > 0) return
@@ -99,5 +99,40 @@ class MockupService {
         fastaDataAdapter.addToDataAdapters(peptideFastaDataAdapater)
         fastaDataAdapter.addToDataAdapters(cDNAFastaDataAdapater)
         fastaDataAdapter.addToDataAdapters(cdsFastaDataAdapater)
+    }
+
+    def addSequences() {
+
+        if(Sequence.count>0 )return
+
+
+    }
+
+    def addFeatureWithLocations() {
+        if(FeatureLocation.count>0 )return
+
+        Gene gene1 = new Gene( name: "sox9a" ).save(failOnError: true)
+
+
+        FeatureLocation featureLocation1 = new FeatureLocation(
+                feature: gene1
+                ,fmin: 100
+                ,fmax: 200
+                ,sequence: Sequence.first()
+        ).save(failOnError: true)
+
+        gene1.addToFeatureLocations(featureLocation1)
+
+        FeatureLocation featureLocation2 = new FeatureLocation(
+                feature: gene1
+                ,fmin: 1000
+                ,fmax: 1500
+                ,sequence: Sequence.first()
+        ).save(failOnError: true)
+
+        gene1.addToFeatureLocations(featureLocation2)
+
+        gene1.save(failOnError: true)
+
     }
 }
