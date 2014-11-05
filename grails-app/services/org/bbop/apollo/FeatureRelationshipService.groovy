@@ -2,37 +2,40 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.grails.datastore.mapping.query.api.Criteria
-import spock.lang.Specification
 
 @Transactional
-class FeatureRelationshipService extends  Specification{
+class FeatureRelationshipService {
 
 //    def cvTermService
 
-    List<Feature> getChildrenForFeature(Feature feature, CVTerm cvFeatureTerm, CVTerm cvRelationshipTerm) {
-        Collection<Feature> features = new ArrayList<Feature>();
-        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-            if (cvRelationshipTerm == fr.type && cvFeatureTerm == fr.subjectFeature.type) {
-                features.add(fr.subjectFeature)
-            }
-        }
-        return features;
-    }
+//    List<Feature> getChildrenForFeature(Feature feature, CVTerm cvFeatureTerm, CVTerm cvRelationshipTerm) {
+//        Collection<Feature> features = new ArrayList<Feature>();
+//        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
+//            if (cvRelationshipTerm == fr.type && cvFeatureTerm == fr.subjectFeature.type) {
+//                features.add(fr.subjectFeature)
+//            }
+//        }
+//        return features;
+//    }
 
 //    List<Feature> getChildrenForFeatureAndTypes(Feature feature, FeatureStringEnum featureStringEnum) {
 //        CVTerm featureCvTerm = cvTermService.getTerm(featureStringEnum)
 //        return getChildrenForFeatureAndTypes(feature, featureCvTerm, cvTermService.partOf)
 //    }
 
-    List<Feature> getChildrenForFeatureAndTypes(Feature feature, String ... ontologyId) {
+    List<Feature> getChildrenForFeatureAndTypes(Feature feature, String ... ontologyIds) {
 
-        Criteria criteria = FeatureRelationship.createCriteria()
-        List<FeatureRelationship> featureRelationshipList = criteria {
-            eq("objectFeature", feature)
-            inList("subjectFeature.ontologyId", ontologyId)
+//        Criteria criteria = FeatureRelationship.createCriteria()
+//        List<FeatureRelationship> featureRelationshipList = criteria {
+//            eq("objectFeature", feature)
+//            inList("subjectFeature.ontologyId", ontologyId)
+//        }
+
+        return FeatureRelationship.findAllByObjectFeature(feature)*.subjectFeature.findAll(){
+            it.ontologyId in ontologyIds
         }
 
-        return featureRelationshipList*.subjectFeature
+//        return featureRelationshipList*.subjectFeature
     }
 
 //    List<Feature> getParentForFeature(Feature feature, CVTerm cvFeatureTerm, CVTerm cvRelationshipTerm) {

@@ -36,7 +36,13 @@ class FeatureRelationshipServiceSpec extends Specification {
         FeatureRelationship.count==1
         List<Feature> parents = service.getParentsForFeature(mrna,Gene.ontologyId)
         parents.size() ==1
-        Gene gene2 = parents.get(0)
-        gene == gene2
+        Feature gene2 = parents.get(0)
+        assert gene == gene2
+
+        List<Feature> children = service.getChildrenForFeatureAndTypes(gene,MRNA.ontologyId)
+        children.size() ==1
+        Feature mrna2= children.get(0)
+        assert mrna == mrna2
+
     }
 }
