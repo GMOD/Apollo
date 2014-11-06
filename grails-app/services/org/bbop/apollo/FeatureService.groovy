@@ -1207,7 +1207,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature,Sequence sequence) {
-        Feature gsolFeature = null
+        Feature gsolFeature
         try {
 //            gsolFeature.setOrganism(organism);
 
