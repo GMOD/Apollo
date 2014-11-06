@@ -19,8 +19,8 @@ class ConfigWrapperService {
     }
 
     TranslationTable getTranslationTable() {
-        SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
-        return grailsApplication.config.apollo.translation_table
+        return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
+//        return grailsApplication.config.apollo.translation_table
     }
 
     int getTranslationCode(){

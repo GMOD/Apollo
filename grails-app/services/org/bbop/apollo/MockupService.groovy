@@ -67,6 +67,25 @@ class MockupService {
                 , dataDirectory: "/opt/apollo/jbrowse/data"
 //                ,translationTableLocation:
         ).save()
+
+
+        // in the config
+//        sourceFeature = new SourceFeatureConfiguration(sequenceDirectory, sequenceChunkSize, sequenceChunkPrefix, sequenceLength, uniqueName, type, start, end);
+
+
+//        FeatureSequenceChunkManager chunkManager = FeatureSequenceChunkManager.getInstance(track.getName());
+//        chunkManager.setSequenceDirectory(track.getSourceFeature().getSequenceDirectory());
+//        chunkManager.setChunkSize(track.getSourceFeature().getSequenceChunkSize());
+//        chunkManager.setChunkPrefix(track.getSourceFeature().getSequenceChunkPrefix());
+//        chunkManager.setSequenceLength(track.getSourceFeature().getEnd());
+
+//        FeatureLazyResidues sourceFeature = new FeatureLazyResidues(track.getName());
+//        sourceFeature.setUniqueName(track.getSourceFeature().getUniqueName());
+//        sourceFeature.setFmin(track.getSourceFeature().getStart());
+//        sourceFeature.setFmax(track.getSourceFeature().getEnd());
+//        String[] type = track.getSourceFeature().getType().split(":");
+//        sourceFeature.setType(new CVTerm(type[1], new CV(type[0])));
+
 //        Track track2 = new Track(name: "Zebrafish Track 2").save()
         organism.addToSequences(track1)
 //        genome1.addToTracks(track2)
