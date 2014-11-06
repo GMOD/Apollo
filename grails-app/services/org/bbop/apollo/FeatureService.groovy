@@ -1252,9 +1252,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
+                println "jsonFeature ${jsonFeature} has ${children?.size()} children"
 //                CVTerm partOfCvTerm = cvTermService.partOf
                 for (int i = 0; i < children.length(); ++i) {
-                    Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature,sequence);
+                    JSONObject childObject = children.getJSONObject(i)
+                    println "child object ${childObject}"
+                    Feature child = convertJSONToFeature(childObject, sourceFeature,sequence);
                     child.save(failOnError: true)
                     FeatureRelationship fr = new FeatureRelationship();
                     fr.setParentFeature(gsolFeature);
@@ -1264,10 +1267,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                    fr.setType(partOfCvTerm);
 //                    child.getParentFeatureRelationships().add(fr);
 //                    gsolFeature.getChildFeatureRelationships().add(fr);
-                    child.addToParentFeatureRelationships(fr);
-                    gsolFeature.addToChildFeatureRelationships(fr);
+                    child.addToChildFeatureRelationships(fr);
+                    gsolFeature.addToParentFeatureRelationships(fr);
                     child.save()
                     gsolFeature.save()
+                    println "child ${childObject}"
+                    println "fr ${fr}"
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.TIMEACCESSION.value)) {
