@@ -9,7 +9,7 @@ class FeaturePublication {
     static constraints = {
     }
 
-    Integer featurePublicationId;
+//    Integer featurePublicationId;
     Publication publication;
     Feature feature;
 

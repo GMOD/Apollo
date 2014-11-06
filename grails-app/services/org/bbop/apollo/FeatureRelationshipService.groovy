@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.grails.datastore.mapping.query.api.Criteria
 
 @Transactional
 class FeatureRelationshipService {
@@ -11,8 +10,8 @@ class FeatureRelationshipService {
 //    List<Feature> getChildrenForFeature(Feature feature, CVTerm cvFeatureTerm, CVTerm cvRelationshipTerm) {
 //        Collection<Feature> features = new ArrayList<Feature>();
 //        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-//            if (cvRelationshipTerm == fr.type && cvFeatureTerm == fr.subjectFeature.type) {
-//                features.add(fr.subjectFeature)
+//            if (cvRelationshipTerm == fr.type && cvFeatureTerm == fr.childFeature.type) {
+//                features.add(fr.childFeature)
 //            }
 //        }
 //        return features;
@@ -27,22 +26,22 @@ class FeatureRelationshipService {
 
 //        Criteria criteria = FeatureRelationship.createCriteria()
 //        List<FeatureRelationship> featureRelationshipList = criteria {
-//            eq("objectFeature", feature)
-//            inList("subjectFeature.ontologyId", ontologyId)
+//            eq("parentFeature", feature)
+//            inList("childFeature.ontologyId", ontologyId)
 //        }
 
-        return FeatureRelationship.findAllByObjectFeature(feature)*.subjectFeature.findAll(){
+        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature.findAll(){
             it.ontologyId in ontologyIds
         }
 
-//        return featureRelationshipList*.subjectFeature
+//        return featureRelationshipList*.childFeature
     }
 
 //    List<Feature> getParentForFeature(Feature feature, CVTerm cvFeatureTerm, CVTerm cvRelationshipTerm) {
 //        Collection<Feature> features = new ArrayList<Feature>();
 //        for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
-//            if (cvRelationshipTerm == fr.type && cvFeatureTerm == fr.objectFeature.type) {
-//                features.add(fr.objectFeature)
+//            if (cvRelationshipTerm == fr.type && cvFeatureTerm == fr.parentFeature.type) {
+//                features.add(fr.parentFeature)
 //            }
 //        }
 //        return features;
@@ -86,7 +85,7 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getParentsForFeature(Feature feature,String ontologyId) {
-        return FeatureRelationship.findAllBySubjectFeature(feature)*.objectFeature.findAll(){
+        return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll(){
             it.ontologyId == ontologyId
         }
     }
@@ -107,12 +106,12 @@ class FeatureRelationshipService {
         def criteria = FeatureRelationship.createCriteria()
 
         def results = criteria{
-            eq("objectFeature", feature)
-            eq("subjectFeature.ontologyId", childFeature.ontologyId)
+            eq("parentFeature", feature)
+            eq("childFeature.ontologyId", childFeature.ontologyId)
         }
 
         if(results.size()==1){
-            results.get(0).subjectFeature = childFeature
+            results.get(0).childFeature = childFeature
             return true
         }
         else{
@@ -129,7 +128,7 @@ class FeatureRelationshipService {
 
 
 //        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-//            if ( ontologyId == fr.subjectFeature.ontologyId
+//            if ( ontologyId == fr.childFeature.ontologyId
 //                    && fr.getSubjectFeature().equals(feature)) {
 //                boolean ok = feature.getChildFeatureRelationships().remove(fr);
 //            }
@@ -141,14 +140,14 @@ class FeatureRelationshipService {
         def criteria = FeatureRelationship.createCriteria()
 
         criteria{
-            eq("objectFeature", feature)
-            inList("subjectFeature.ontologyId", ontologyIds)
+            eq("parentFeature", feature)
+            inList("childFeature.ontologyId", ontologyIds)
         }.each {
             feature.removeFromChildFeatureRelationships(it)
         }
 
 //        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-//            if ( ontologyId == fr.subjectFeature.ontologyId
+//            if ( ontologyId == fr.childFeature.ontologyId
 //                    && fr.getSubjectFeature().equals(feature)) {
 //                boolean ok = feature.getChildFeatureRelationships().remove(fr);
 //            }
@@ -160,8 +159,8 @@ class FeatureRelationshipService {
         def criteria = FeatureRelationship.createCriteria()
 
         criteria{
-            eq("subjectFeature", feature)
-            inList("objectFeature.ontologyId", ontologyIds)
+            eq("childFeature", feature)
+            inList("parentFeature.ontologyId", ontologyIds)
         }.each {
             feature.removeFromParentFeatureRelationships(it)
         }
@@ -169,7 +168,7 @@ class FeatureRelationshipService {
 
 //        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
 //            if (cvRelationshipTerm == fr.type
-//                    && cvFeatureTerm == fr.objectFeature.type
+//                    && cvFeatureTerm == fr.parentFeature.type
 //                    && fr.getSubjectFeature().equals(feature)) {
 //                boolean ok = feature.getParentFeatureRelationships().remove(fr);
 //            }
@@ -186,17 +185,17 @@ class FeatureRelationshipService {
         if(replace){
             def criteria = FeatureRelationship.createCriteria()
             criteria{
-                    eq("objectFeature", parent)
-                    eq("subjectFeature.ontologyId", child.ontologyId)
+                    eq("parentFeature", parent)
+                    eq("childFeature.ontologyId", child.ontologyId)
             }
             .each {
-                it.subjectFeature = child
+                it.childFeature = child
 //                feature.removeFromParentFeatureRelationships(it)
             }
 
 //            for (FeatureRelationship fr : parent.getChildFeatureRelationships()) {
 //                if (partOfCvTerm == fr.getType() &&
-//                        childType == fr.objectFeature.type) {
+//                        childType == fr.parentFeature.type) {
 //                    fr.setSubjectFeature(child);
 //                    return
 //                }
@@ -204,8 +203,8 @@ class FeatureRelationshipService {
         }
 
         FeatureRelationship fr = new FeatureRelationship(
-                objectFeature: parent
-                ,subjectFeature: child
+                parentFeature: parent
+                , childFeature: child
                 ,rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         );
         parent.getChildFeatureRelationships().add(fr);
@@ -214,7 +213,7 @@ class FeatureRelationshipService {
 
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
 
-        FeatureRelationship featureRelationship = FeatureRelationship.findByObjectFeatureAndSubjectFeature(transcript,feature)
+        FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(transcript,feature)
         if(featureRelationship){
             FeatureRelationship.deleteAll()
         }
@@ -226,7 +225,7 @@ class FeatureRelationshipService {
 //        // delete transcript -> exon child relationship
 //        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
 //            if (partOfCvterm == fr.type
-//                    && exonCvterm == fr.subjectFeature.type
+//                    && exonCvterm == fr.childFeature.type
 //                    && fr.getSubjectFeature().equals(feature)
 //            ) {
 //                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
@@ -248,7 +247,7 @@ class FeatureRelationshipService {
 //        // delete transcript -> exon child relationship
 //        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
 //            if (partOfCvterm == fr.type
-//                    && transcriptCvterms == fr.objectFeature.type
+//                    && transcriptCvterms == fr.parentFeature.type
 //                    && fr.getSubjectFeature().equals(feature)
 //            ) {
 //                boolean ok = feature.getParentFeatureRelationships().remove(fr);

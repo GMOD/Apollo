@@ -1,17 +1,12 @@
 package org.bbop.apollo
 
-import com.sun.tools.javac.jvm.Gen
 import grails.transaction.Transactional
-import grails.compiler.GrailsCompileStatic
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
-import org.bbop.apollo.web.util.JSONUtil
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.gmod.gbol.bioObject.AbstractBioFeature
-import org.gmod.gbol.bioObject.util.BioObjectUtil
 
 //import org.json.JSONObject
 
@@ -78,7 +73,7 @@ class FeatureService {
         // if no owner found, try to get the first owner found in an ancestor
         for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
 //            Feature parent = (AbstractBioFeature)BioObjectUtil.createBioObject(fr.getObjectFeature(), getConfiguration());
-            Feature parent = fr.objectFeature // may be subject Feature . . not sure
+            Feature parent = fr.parentFeature // may be subject Feature . . not sure
             User parentOwner = getOwner(parent)
             if (parentOwner != null) {
                 return parentOwner;
@@ -240,8 +235,8 @@ class FeatureService {
         // you are iterating through all of the children in order to set the SourceFeature and analsysis
 //        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
         for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
-            println "gsolFeature ${gsolFeature} - ${fr.subjectFeature}"
-            updateNewGsolFeatureAttributes(fr.getSubjectFeature(), sourceFeature);
+            println "gsolFeature ${gsolFeature} - ${fr.childFeature}"
+            updateNewGsolFeatureAttributes(fr.getChildFeature(), sourceFeature);
         }
     }
 
@@ -332,7 +327,9 @@ class FeatureService {
         }
         if (gene == null) {
             JSONObject jsonGene = new JSONObject();
+            println "JSON TRANSCRIPT: "+jsonTranscript
             jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
+            println "JSON GENE: " + jsonGene
             jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
 //            CVTerm cvTerm = CVTerm.findByName(isPseudogene ? FeatureStringEnum.PSEUDOGENE.value :FeatureStringEnum.GENE.value )
             String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
@@ -349,6 +346,7 @@ class FeatureService {
             }
             setOwner(gene, (String) SecurityUtils?.subject?.principal ?: "demo@demo.gov");
             println "gene ${gene}"
+            println "gene ${gene.parentFeatureRelationships}"
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -376,7 +374,7 @@ class FeatureService {
 
 
     Feature getTopLevelFeature(Feature feature) {
-        Collection<? extends Feature> parents = feature.getParentFeatureRelationships()*.objectFeature
+        Collection<? extends Feature> parents = feature.getParentFeatureRelationships()*.parentFeature
         if (parents.size() > 0) {
             return getTopLevelFeature(parents.iterator().next());
         } else {
@@ -446,8 +444,8 @@ class FeatureService {
         //TODO: do we need to figure out the rank?
         FeatureRelationship featureRelationship = new FeatureRelationship(
 //                type: partOfCvterm.iterator().next()
-                objectFeature: gene
-                , subjectFeature: transcript
+                parentFeature: gene
+                , childFeature: transcript
                 , rank: rank
         ).save()
         gene.addToChildFeatureRelationships(featureRelationship)
@@ -1259,8 +1257,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     Feature child = convertJSONToFeature(children.getJSONObject(i), sourceFeature,sequence);
                     child.save(failOnError: true)
                     FeatureRelationship fr = new FeatureRelationship();
-                    fr.setObjectFeature(gsolFeature);
-                    fr.setSubjectFeature(child);
+                    fr.setParentFeature(gsolFeature);
+                    fr.setChildFeature(child);
                     fr.save(failOnError: true)
 //                    fr.setType(configuration.getDefaultCVTermForClass("PartOf"));
 //                    fr.setType(partOfCvTerm);
@@ -1537,7 +1535,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
 
-        FeatureRelationship featureRelationship = FeatureRelationship.findByObjectFeatureAndSubjectFeature(transcript, feature)
+        FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(transcript, feature)
         if (featureRelationship) {
             FeatureRelationship.deleteAll()
         }
@@ -1549,7 +1547,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        // delete transcript -> exon child relationship
 //        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
 //            if (partOfCvterm == fr.type
-//                    && exonCvterm == fr.subjectFeature.type
+//                    && exonCvterm == fr.childFeature.type
 //                    && fr.getSubjectFeature().equals(feature)
 //            ) {
 //                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
@@ -1571,7 +1569,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        // delete transcript -> exon child relationship
 //        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
 //            if (partOfCvterm == fr.type
-//                    && transcriptCvterms == fr.objectFeature.type
+//                    && transcriptCvterms == fr.parentFeature.type
 //                    && fr.getSubjectFeature().equals(feature)
 //            ) {
 //                boolean ok = feature.getParentFeatureRelationships().remove(fr);

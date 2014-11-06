@@ -28,8 +28,8 @@ class FeatureRelationshipServiceSpec extends Specification {
                 ,uniqueName: "MRNA"
         ).save(failOnError: true)
         new FeatureRelationship(
-                objectFeature: gene
-                ,subjectFeature: mrna
+                parentFeature: gene
+                , childFeature: mrna
         ).save(failOnError: true)
 
         then: "it should have parents"

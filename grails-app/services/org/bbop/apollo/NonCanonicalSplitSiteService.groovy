@@ -30,7 +30,7 @@ class NonCanonicalSplitSiteService {
 //        // delete transcript -> non canonical 5' splice site child relationship
 //        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
 //            if (partOfCvterms == fr.type
-//                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.subjectFeature.type
+//                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.childFeature.type
 //                    && fr.getSubjectFeature().equals(nonCanonicalFivePrimeSpliceSite)) {
 //                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
 ////                break;
@@ -41,8 +41,8 @@ class NonCanonicalSplitSiteService {
 //        // delete transcript -> non canonical 5' splice site parent relationship
 //        for (FeatureRelationship fr : nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships()) {
 //            if (partOfCvterms == fr.type
-//                    && transcriptCvTerm == fr.objectFeature.type
-//                    && fr.subjectFeature == nonCanonicalFivePrimeSpliceSite) {
+//                    && transcriptCvTerm == fr.parentFeature.type
+//                    && fr.childFeature == nonCanonicalFivePrimeSpliceSite) {
 //                boolean ok = nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().remove(fr);
 //            }
 //        }
@@ -184,8 +184,8 @@ class NonCanonicalSplitSiteService {
         // add non canonical 5' splice site
         FeatureRelationship fr = new FeatureRelationship(
 //                type: cvTermService.partOf
-                objectFeature: transcript
-                ,subjectFeature: nonCanonicalFivePrimeSpliceSite
+                parentFeature: transcript
+                , childFeature: nonCanonicalFivePrimeSpliceSite
                 ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
         );
         transcript.getChildFeatureRelationships().add(fr);
@@ -201,8 +201,8 @@ class NonCanonicalSplitSiteService {
         // add non canonical 3' splice site
         FeatureRelationship fr = new FeatureRelationship(
 //                type: cvTermService.partOf
-                objectFeature: transcript
-                ,subjectFeature: nonCanonicalThreePrimeSpliceSite
+                parentFeature: transcript
+                , childFeature: nonCanonicalThreePrimeSpliceSite
                 ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
         );
         transcript.getChildFeatureRelationships().add(fr);

@@ -171,8 +171,8 @@ class ExonService {
 //
 ////        FeatureRelationship fr = new FeatureRelationship(
 ////                type: partOfCvTerm,
-////                subjectFeature: transcript,
-////                objectFeature: exon,
+////                childFeature: transcript,
+////                parentFeature: exon,
 ////                rank: 0 // TODO: Do we need to rank the order of any other transcripts?
 ////        );
 ////        exon.getParentFeatureRelationships().add(fr);

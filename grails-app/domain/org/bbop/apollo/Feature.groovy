@@ -50,8 +50,8 @@ class Feature implements Ontological{
     static hasMany = [
             featureLocations: FeatureLocation
             ,featureGenotypes: FeatureGenotype
-            ,parentFeatureRelationships: FeatureRelationship
-            ,childFeatureRelationships: FeatureRelationship
+            ,parentFeatureRelationships: FeatureRelationship  // relationships where I am the parent feature relationship
+            ,childFeatureRelationships: FeatureRelationship // relationships where I am the child feature relationship
             ,featureCVTerms: FeatureCVTerm
             ,featureSynonyms: FeatureSynonym
             ,featureDBXrefs: FeatureDBXref
@@ -61,8 +61,8 @@ class Feature implements Ontological{
     ]
 
     static mappedBy = [
-            parentFeatureRelationships: "objectFeature"
-            ,childFeatureRelationships: "subjectFeature"
+            parentFeatureRelationships: 'parentFeature'
+            ,childFeatureRelationships: 'childFeature'
             ,featureGenotypes: "feature"
             ,featureLocations: "feature"
     ]

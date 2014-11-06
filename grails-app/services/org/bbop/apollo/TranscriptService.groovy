@@ -27,7 +27,7 @@ class TranscriptService {
 //        CVTerm cdsCvTerm = cvTermService.getTerm(FeatureStringEnum.CDS.value)
 //
 //        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
-//            if (partOfCvTerm == fr.getType() && fr.subjectFeature.type == cdsCvTerm) {
+//            if (partOfCvTerm == fr.getType() && fr.childFeature.type == cdsCvTerm) {
 //                return (CDS) fr.getSubjectFeature();
 //            }
 //        }
@@ -135,7 +135,7 @@ class TranscriptService {
 //                if (stopCvTerm != fr.getSubjectFeature().getType()) {
 //                    continue;
 //                }
-//                return (StopCodonReadThrough) fr.subjectFeature
+//                return (StopCodonReadThrough) fr.childFeature
 ////                return new StopCodonReadThrough(fr.getSubjectFeature(), conf);
 //            }
 //            return null;
@@ -221,7 +221,7 @@ class TranscriptService {
 //        int numTranscripts = 0;
 //
 //        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-//            if (partOfCvterms == fr.type && transcriptCvterms == fr.subjectFeature.type) {
+//            if (partOfCvterms == fr.type && transcriptCvterms == fr.childFeature.type) {
 //                ++numTranscripts;
 //            }
 //
@@ -345,7 +345,7 @@ class TranscriptService {
                 return
             }
 //            for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
-//                if(partOfCvTerm==fr.type && cdsCvTerm==fr.objectFeature.type){
+//                if(partOfCvTerm==fr.type && cdsCvTerm==fr.parentFeature.type){
 //                    fr.setSubjectFeature(cds);
 //                    return;
 //                }
@@ -355,8 +355,8 @@ class TranscriptService {
 
         FeatureRelationship fr = new FeatureRelationship(
 //                type:partOfCvTerm
-                objectFeature: feature
-                ,subjectFeature: cds
+                parentFeature: feature
+                , childFeature: cds
                 ,rank: 0
         ).save(insert:true)
 

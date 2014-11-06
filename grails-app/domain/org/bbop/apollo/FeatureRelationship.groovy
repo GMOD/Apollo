@@ -16,8 +16,8 @@ class FeatureRelationship implements  Ontological{
 
 //    Integer featureRelationshipId;
 //    CVTerm type;
-    Feature objectFeature; // parent?
-    Feature subjectFeature; // child?
+    Feature parentFeature; // parent  / object
+    Feature childFeature; // child   / subject
     String value; // unused, but could be used like metadata (strength / quality of connection)
     int rank;
     static String ontologyId = "part_of"
@@ -35,15 +35,15 @@ class FeatureRelationship implements  Ontological{
         FeatureRelationship castOther = ( FeatureRelationship ) other;
         if(this?.id == castOther?.id) return true
 
-        return  this.objectFeature ==castOther.objectFeature  \
-                && this.subjectFeature ==  castOther.subjectFeature
+        return  this.parentFeature ==castOther.parentFeature  \
+                && this.childFeature ==  castOther.childFeature
     }
 
     public int hashCode() {
         int result = 17;
 
-        result = 37 * result + ( objectFeature == null ? 0 : this.objectFeature.hashCode() );
-        result = 37 * result + ( subjectFeature == null ? 0 : this.subjectFeature.hashCode() );
+        result = 37 * result + ( parentFeature == null ? 0 : this.parentFeature.hashCode() );
+        result = 37 * result + ( childFeature == null ? 0 : this.childFeature.hashCode() );
 
         result = 37 * result + this.rank;
 
@@ -54,8 +54,8 @@ class FeatureRelationship implements  Ontological{
     public FeatureRelationship generateClone() {
         FeatureRelationship cloned = new FeatureRelationship();
         cloned.type = this.type;
-        cloned.objectFeature = this.objectFeature;
-        cloned.subjectFeature = this.subjectFeature;
+        cloned.parentFeature = this.parentFeature;
+        cloned.childFeature = this.childFeature;
         cloned.value = this.value;
         cloned.rank = this.rank;
         cloned.featureRelationshipProperties = this.featureRelationshipProperties;

@@ -69,8 +69,8 @@ class CdsService {
 //    Transcript getTranscript(CDS cds) {
 //        Criteria criteria = FeatureRelationship.createCriteria()
 //        List<FeatureRelationship> featureRelationshipList = criteria {
-//            eq("subjectFeature", cds)
-//            eq("objectFeature.ontologyId", Transcript.ontologyId)
+//            eq("childFeature", cds)
+//            eq("parentFeature.ontologyId", Transcript.ontologyId)
 //        }
 //
 //        if (featureRelationshipList.size() == 0) {
@@ -81,7 +81,7 @@ class CdsService {
 //            log.error "More than one feature relationships found for CDS ${cds} and ID ${Transcript.ontologyId}"
 //        }
 //
-//        return (Transcript) featureRelationshipList.get(0).objectFeature
+//        return (Transcript) featureRelationshipList.get(0).parentFeature
 //
 //        List<Feature> featureList = featureRelationshipService.getParentForFeature(cds,Transcript.ontologyId)
 //
@@ -129,8 +129,8 @@ class CdsService {
 
         FeatureRelationship fr = new FeatureRelationship(
 //                type: partOfCvTerm
-                objectFeature: cds
-                , subjectFeature: stopCodonReadThrough
+                parentFeature: cds
+                , childFeature: stopCodonReadThrough
                 , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         ).save(insert: true)
         cds.getChildFeatureRelationships().add(fr);

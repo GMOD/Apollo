@@ -11,7 +11,7 @@ class FeatureRelationshipProperty {
     static constraints = {
     }
 
-    Integer featureRelationshipPropertyId;
+//    Integer featureRelationshipPropertyId;
     CVTerm type;
     FeatureRelationship featureRelationship;
     String value;
