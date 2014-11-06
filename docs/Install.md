@@ -65,7 +65,7 @@ More discussion of the particular configurations can be seen in the full
     sudo su -c "service postgresql initdb && service postgresql start"
     sudo su -c "chkconfig postgresql on"
 
-    # on macOSX/homebrew, manually kickstart postgres and tomcat (and make it start on OS boot with launchctl)
+    # on macOSX/homebrew, manually kickstart postgres (and make it start on OS boot with launchctl)
     ln -sfv /usr/local/opt/postgresql/\*.plist ~/Library/LaunchAgents
     launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
 
