@@ -39,7 +39,7 @@ echo "<a href='https://github.com/GMOD/Apollo/commit/${GMOD_VERSION}' target='_b
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
-  git clone --depth 1 --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
+  git clone --recursive $JBROWSE_GITHUB $APOLLO_JBROWSE_GITHUB
   cd $CURRENT
 fi
 
@@ -67,7 +67,9 @@ if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
   elif [[ $1 == github ]]; then
       echo "Using github jbrowse"
       mkdir JBrowse-dev
-      git archive --format zip --output JBrowse-dev/JBrowse-dev.zip master
+      # fails to git recursive
+      #git archive --format zip --output JBrowse-dev/JBrowse-dev.zip master
+      zip -r JBrowse-dev/JBrowse-dev.zip  .  -x \*.git\* 
       cd JBrowse-dev
       unzip JBrowse-dev.zip
       cd ..
