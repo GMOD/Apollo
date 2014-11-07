@@ -51,7 +51,7 @@ class AnnotationEditorController {
     }
 
     private String fixTrackHeader(String trackInput){
-        return !trackInput.startsWith("Annotations-") ?: trackInput.substring("Annotations-".size())
+        return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
     }
 
     def handleOperation(String track, String operation) {
@@ -235,18 +235,20 @@ class AnnotationEditorController {
         Set<Feature> featureSet = new HashSet<>()
 
         println "# of features locations for sequence ${sequence?.featureLocations?.size()}"
-        println "# of features for sequence ${sequence?.featureLocations*.feature.size()}"
+        println "# of features for sequence ${sequence?.featureLocations*.feature?.size()}"
 
         for (Feature feature: sequence?.featureLocations*.feature) {
             if (feature instanceof Gene) {
                 Gene gene = (Gene) feature
                 for (Transcript transcript : transcriptService.getTranscripts(gene)) {
+                    println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
                     featureSet.add(transcript)
 //                    jsonFeatures.put(transcript as JSON);
                 }
             }
             else {
+                println " NOT instance of gene! ${feature.uniqueName} ${feature.ontologyId}"
                 featureSet.add(feature)
 //                jsonFeatures.put( feature as JSON)
 //                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
