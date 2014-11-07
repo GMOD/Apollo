@@ -87,15 +87,19 @@ class AnnotationEditorController {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         JSONArray dataAdaptersArray = new JSONArray();
-        returnObject.put(REST_DATA_ADAPTER, dataAdaptersArray)
+        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+        log.debug "# of data adapters ${DataAdapter.count}"
         for (DataAdapter dataAdapter in DataAdapter.all) {
+            log.debug "adding data adatapter ${dataAdapter}"
             // data-adapters are embedded in groups
             // TODO: incorporate groups at some point, just children of the original . . .
             JSONObject dataAdapterJSON = new JSONObject()
+            dataAdaptersArray.put(dataAdapterJSON)
             dataAdapterJSON.put(REST_KEY, dataAdapter.key)
             dataAdapterJSON.put(REST_PERMISSION, dataAdapter.permission)
             dataAdapterJSON.put(REST_OPTIONS, dataAdapter.options)
             JSONArray dataAdapterGroupArray = new JSONArray();
+            // handles groups
             if(dataAdapter.dataAdapters){
                 dataAdapterJSON.put(REST_DATA_ADAPTERS, dataAdapterGroupArray)
 
@@ -108,6 +112,7 @@ class AnnotationEditorController {
                 }
             }
         }
+        log.debug  "returning data adapters  ${returnObject}"
 
         render returnObject
     }

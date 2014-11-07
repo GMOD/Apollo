@@ -128,7 +128,9 @@ log4j.main = {
 
     info 'grails.app'
 
-    debug 'org.bbop.apollo'
+//    debug 'grails.app.controllers.org.bbop.apollo'
+    debug 'grails.app.controllers.org.bbop.apollo.AnnotationEditorController'
+//    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
 
 //    debug 'grails.app.jobs'
 //    debug 'grails.app.taglib'
