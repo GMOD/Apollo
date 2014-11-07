@@ -10,57 +10,12 @@ import java.util.zip.CRC32
 @Transactional
 class SequenceService {
 
-    def configWrapperService
+//    def configWrapperService
 
-    def parseAllRefSeqs() {
-        Organism.all.each { organism ->
-            organism.sequences.all.each { sequence ->
-                parseRefSeqs(sequence)
-            }
-        }
+    def getFeatureLocations(Sequence sequence){
+        FeatureLocation.findAllBySequence(sequence)
     }
 
-    def parseRefSeqs(Sequence sequence) {
-
-
-        String refSeqsFileName = sequence.refSeqFile ?: configWrapperService.getRefSeqDirectory()
-
-
-        File refSeqsFile = new File(refSeqsFileName);
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(refSeqsFile));
-        JSONArray refSeqs = convertJBrowseJSON(bufferedInputStream);
-        for (int i = 0; i < refSeqs.length(); ++i) {
-            JSONObject refSeq = refSeqs.getJSONObject(i);
-            int length = refSeq.getInt("length");
-            String name = refSeq.getString("name");
-            String seqDir;
-            String seqChunkPrefix = "";
-            if (refSeq.has("seqDir")) {
-                seqDir = refSeqsFile.getParent() + "/" + refSeq.getString("seqDir");
-            }
-            else {
-                CRC32 crc = new CRC32();
-                crc.update(name.getBytes());
-                String hex = String.format("%08x", crc.getValue());
-                String []dirs = splitStringByNumberOfCharacters(hex, 3);
-                seqDir = String.format("%s/%s/%s/%s", refSeqsFile.getParent(), dirs[0], dirs[1], dirs[2]);
-                seqChunkPrefix = name + "-";
-            }
-            int seqChunkSize = refSeq.getInt("seqChunkSize");
-            int start = refSeq.getInt("start");
-            int end = refSeq.getInt("end");
-
-
-
-
-//            SourceFeatureConfiguration sourceFeature = new SourceFeatureConfiguration(seqDir, seqChunkSize, seqChunkPrefix, length, name, sequenceType, start, end);
-//
-//            TrackConfiguration c = new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites);
-//            tracks.put(name, c);
-//            tracks.put(name, new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature));
-        }
-        bufferedInputStream.close();
-    }
 
     private String[] splitStringByNumberOfCharacters(String str, int numOfChars) {
         int numTokens = str.length() / numOfChars;

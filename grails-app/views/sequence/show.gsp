@@ -36,6 +36,8 @@
 					<span id="name-label" class="property-label"><g:message code="sequence.name.label" default="Name" /></span>
 					
 						<span class="property-value" aria-labelledby="name-label"><g:fieldValue bean="${sequenceInstance}" field="name"/>
+						${featureLocations}
+
 
                             %{--<g:link action="show" controller="jbrowse"--}%
                         </span>

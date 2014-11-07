@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 
-
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
@@ -15,11 +14,16 @@ class SequenceController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model:[sequenceInstanceCount: Sequence.count()]
+        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
     }
 
     def show(Sequence sequenceInstance) {
-        respond sequenceInstance
+//        respond sequenceInstance
+        if (sequenceInstance == null) {
+            notFound()
+            return
+        }
+        respond sequenceInstance, model: [featureLocations: FeatureLocation.findAllBySequence(sequenceInstance)]
     }
 
     def create() {
@@ -27,7 +31,7 @@ class SequenceController {
     }
 
     def loadSequence() {
-        sequenceService.loadRefSeqs(Organism.first(),configWrapperService.refSeqDirectory)
+        sequenceService.loadRefSeqs(Organism.first(), configWrapperService.refSeqDirectory)
         respond new Sequence(params)
     }
 
@@ -39,11 +43,11 @@ class SequenceController {
         }
 
         if (sequenceInstance.hasErrors()) {
-            respond sequenceInstance.errors, view:'create'
+            respond sequenceInstance.errors, view: 'create'
             return
         }
 
-        sequenceInstance.save flush:true
+        sequenceInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
@@ -66,18 +70,18 @@ class SequenceController {
         }
 
         if (sequenceInstance.hasErrors()) {
-            respond sequenceInstance.errors, view:'edit'
+            respond sequenceInstance.errors, view: 'edit'
             return
         }
 
-        sequenceInstance.save flush:true
+        sequenceInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
                 redirect sequenceInstance
             }
-            '*'{ respond sequenceInstance, [status: OK] }
+            '*' { respond sequenceInstance, [status: OK] }
         }
     }
 
@@ -89,14 +93,14 @@ class SequenceController {
             return
         }
 
-        sequenceInstance.delete flush:true
+        sequenceInstance.delete flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
-                redirect action:"index", method:"GET"
+                redirect action: "index", method: "GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
@@ -106,7 +110,7 @@ class SequenceController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'sequence.label', default: 'Sequence'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
 }

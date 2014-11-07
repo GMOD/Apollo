@@ -5,24 +5,36 @@ package org.bbop.apollo
 import grails.test.mixin.*
 import spock.lang.*
 
-@TestFor(SequenceController)
-@Mock([Sequence,User,Genome,Organism,FeatureLocation,SequenceService])
-class SequenceControllerSpec extends Specification {
+@TestFor(FeatureLocationController)
+@Mock([FeatureLocation,Sequence,Feature])
+class FeatureLocationControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
-        params["name"] = 'someValidName'
-//        params["sequenceType"] = "sequence:scaffold"
-//        params["sequenceCV"] = "sequence:scaffold"
-        params["refSeqsFile"] = "sequence:scaffold"
-        params["seqChunkPrefix"] = "sequence:scaffold"
-        params["seqChunkSize"] = 100
-        params["start"] = 100
-        params["end"] = 200
-        params["length"] = 100
-        params["dataDirectory"] = "sequence:scaffold"
-        params["sequenceDirectory"] = "sequence:scaffold"
+        Sequence sequence = new Sequence(
+//                organism: organism
+                length: 3
+                ,refSeqFile: "adsf"
+                ,seqChunkPrefix: "asdf"
+                ,seqChunkSize: 3
+                ,start: 5
+                ,end: 8
+                ,dataDirectory: "adsfads"
+                ,sequenceDirectory: "asdfadsf"
+                ,name: "chromosome7"
+        ).save(failOnError: true)
+
+        Feature feature = new Feature(
+                name: "abc123"
+        ).save(failOnError: true)
+
+        params["feature"] = feature
+        params["fmin"] = 12
+        params["fmax"] = 33
+        params["sequence"] = sequence
+
+
     }
 
     void "Test the index action returns the correct model"() {
@@ -31,8 +43,8 @@ class SequenceControllerSpec extends Specification {
             controller.index()
 
         then:"The model is correct"
-            !model.sequenceInstanceList
-            model.sequenceInstanceCount == 0
+            !model.featureLocationInstanceList
+            model.featureLocationInstanceCount == 0
     }
 
     void "Test the create action returns the correct model"() {
@@ -40,7 +52,7 @@ class SequenceControllerSpec extends Specification {
             controller.create()
 
         then:"The model is correctly created"
-            model.sequenceInstance!= null
+            model.featureLocationInstance!= null
     }
 
     void "Test the save action correctly persists an instance"() {
@@ -48,25 +60,25 @@ class SequenceControllerSpec extends Specification {
         when:"The save action is executed with an invalid instance"
             request.contentType = FORM_CONTENT_TYPE
             request.method = 'POST'
-            def sequence = new Sequence()
-            sequence.validate()
-            controller.save(sequence)
+            def featureLocation = new FeatureLocation()
+            featureLocation.validate()
+            controller.save(featureLocation)
 
         then:"The create view is rendered again with the correct model"
-            model.sequenceInstance!= null
+            model.featureLocationInstance!= null
             view == 'create'
 
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            sequence = new Sequence(params)
+            featureLocation = new FeatureLocation(params)
 
-            controller.save(sequence)
+            controller.save(featureLocation)
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/sequence/show/1'
+            response.redirectedUrl == '/featureLocation/show/1'
             controller.flash.message != null
-            Sequence.count() == 1
+            FeatureLocation.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
@@ -78,12 +90,11 @@ class SequenceControllerSpec extends Specification {
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def sequence = new Sequence(params)
-//            controller.sequenceService = new SequenceService()
-            controller.show(sequence)
+            def featureLocation = new FeatureLocation(params)
+            controller.show(featureLocation)
 
         then:"A model is populated containing the domain instance"
-            model.sequenceInstance == sequence
+            model.featureLocationInstance == featureLocation
     }
 
     void "Test that the edit action returns the correct model"() {
@@ -95,11 +106,11 @@ class SequenceControllerSpec extends Specification {
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def sequence = new Sequence(params)
-            controller.edit(sequence)
+            def featureLocation = new FeatureLocation(params)
+            controller.edit(featureLocation)
 
         then:"A model is populated containing the domain instance"
-            model.sequenceInstance == sequence
+            model.featureLocationInstance == featureLocation
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
@@ -109,28 +120,28 @@ class SequenceControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/sequence/index'
+            response.redirectedUrl == '/featureLocation/index'
             flash.message != null
 
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def sequence = new Sequence()
-            sequence.validate()
-            controller.update(sequence)
+            def featureLocation = new FeatureLocation()
+            featureLocation.validate()
+            controller.update(featureLocation)
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.sequenceInstance == sequence
+            model.featureLocationInstance == featureLocation
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
             populateValidParams(params)
-            sequence = new Sequence(params).save(flush: true)
-            controller.update(sequence)
+            featureLocation = new FeatureLocation(params).save(flush: true)
+            controller.update(featureLocation)
 
         then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/sequence/show/$sequence.id"
+            response.redirectedUrl == "/featureLocation/show/$featureLocation.id"
             flash.message != null
     }
 
@@ -141,23 +152,23 @@ class SequenceControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/sequence/index'
+            response.redirectedUrl == '/featureLocation/index'
             flash.message != null
 
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def sequence = new Sequence(params).save(flush: true)
+            def featureLocation = new FeatureLocation(params).save(flush: true)
 
         then:"It exists"
-            Sequence.count() == 1
+            FeatureLocation.count() == 1
 
         when:"The domain instance is passed to the delete action"
-            controller.delete(sequence)
+            controller.delete(featureLocation)
 
         then:"The instance is deleted"
-            Sequence.count() == 0
-            response.redirectedUrl == '/sequence/index'
+            FeatureLocation.count() == 0
+            response.redirectedUrl == '/featureLocation/index'
             flash.message != null
     }
 }
