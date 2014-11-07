@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+/**
+ * TODO: remove?
+ */
 class GenericFeatureProperty extends FeatureProperty implements Ontological{
 
     private static final String TAG_VALUE_DELIMITER = "=";

@@ -4,6 +4,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
+import org.bbop.apollo.web.util.JSONUtil
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -270,7 +271,7 @@ class FeatureService {
         println "featureLazyResidues ${featureLazyResidues}"
         if (gene != null) {
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
-            transcript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues,sequence);
+            transcript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues, sequence);
 //            transcript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -297,7 +298,7 @@ class FeatureService {
             for (Feature feature : overlappingFeatures) {
                 if (feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
-                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues,sequence);
+                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript, featureLazyResidues);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
@@ -328,7 +329,7 @@ class FeatureService {
         }
         if (gene == null) {
             JSONObject jsonGene = new JSONObject();
-            println "JSON TRANSCRIPT: "+jsonTranscript
+            println "JSON TRANSCRIPT: " + jsonTranscript
             jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
             println "JSON GENE: " + jsonGene
             jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
@@ -339,7 +340,7 @@ class FeatureService {
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
-            gene = (Gene) convertJSONToFeature(jsonGene, featureLazyResidues,sequence);
+            gene = (Gene) convertJSONToFeature(jsonGene, featureLazyResidues, sequence);
             updateNewGsolFeatureAttributes(gene, featureLazyResidues);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
@@ -1207,7 +1208,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature,Sequence sequence) {
+    public Feature convertJSONToFeature(JSONObject jsonFeature, Feature sourceFeature, Sequence sequence) {
         Feature gsolFeature
         try {
 //            gsolFeature.setOrganism(organism);
@@ -1258,7 +1259,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 for (int i = 0; i < children.length(); ++i) {
                     JSONObject childObject = children.getJSONObject(i)
                     println "child object ${childObject}"
-                    Feature child = convertJSONToFeature(childObject, sourceFeature,sequence);
+                    Feature child = convertJSONToFeature(childObject, sourceFeature, sequence);
                     child.save(failOnError: true)
                     FeatureRelationship fr = new FeatureRelationship();
                     fr.setParentFeature(gsolFeature);
@@ -1344,6 +1345,33 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         feature?.featureLocation?.sequence?.organism
     }
 
+    String generateFeatureStringForType(String ontologyId) {
+        return generateFeatureForType(ontologyId).cvTerm.toLowerCase()
+    }
+
+    String generateFeaturePropertyStringForType(String ontologyId) {
+        return generateFeaturePropertyForType(ontologyId).cvTerm.toLowerCase()
+    }
+
+    FeatureProperty generateFeaturePropertyForType(String ontologyId) {
+        switch (ontologyId) {
+            case Comment.ontologyId: return new Comment()
+            case FeatureAttribute.ontologyId: return new FeatureAttribute()
+            case SequenceAttribute.ontologyId: return new SequenceAttribute()
+//            case Frameshift.ontologyId: return new Frameshift()
+            case TranscriptAttribute.ontologyId: return new TranscriptAttribute()
+            case Status.ontologyId: return new Status()
+            case Minus1Frameshift.ontologyId: return new Minus1Frameshift()
+            case Minus2Frameshift.ontologyId: return new Minus2Frameshift()
+            case Plus1Frameshift.ontologyId: return new Plus1Frameshift()
+            case Plus2Frameshift.ontologyId: return new Plus2Frameshift()
+            default:
+                log.error("No feature type exists for ${ontologyId}")
+                return null
+        }
+    }
+
+// TODO: hopefully change in the client and get rid of this ugly code
     Feature generateFeatureForType(String ontologyId) {
         switch (ontologyId) {
             case MRNA.ontologyId: return new MRNA()
@@ -1588,4 +1616,359 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //
 //    }
 
+    /**
+     * {
+     "features": [{
+     "location": {
+     "fmin": 511,
+     "strand": - 1,
+     "fmax": 656
+     },
+     "parent_type": {
+     "name": "gene",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "name": "gnl|Amel_4.5|TA31.1_00029673-1",
+     "children": [{
+     "location": {
+     "fmin": 511,
+     "strand": - 1,
+     "fmax": 656
+     },
+     "parent_type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "properties": [{
+     "value": "demo",
+     "type": {
+     "name": "owner",
+     "cv": {
+     "name": "feature_property"
+     }
+     }
+     }
+     ],
+     "uniquename": "9690BBB8C6ADF67B972DB9DC2E89E008",
+     "type": {
+     "name": "exon",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046537689,
+     "parent_id": "CCBBA69B0C47AD5FA9F0E45710B5E589"
+     }, {
+     "location": {
+     "fmin": 595,
+     "strand": - 1,
+     "fmax": 622
+     },
+     "parent_type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "uniquename": "CCBBA69B0C47AD5FA9F0E45710B5E589-CDS",
+     "type": {
+     "name": "CDS",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046537762,
+     "parent_id": "CCBBA69B0C47AD5FA9F0E45710B5E589"
+     }
+     ],
+     "properties": [{
+     "value": "demo",
+     "type": {
+     "name": "owner",
+     "cv": {
+     "name": "feature_property"
+     }
+     }
+     }
+     ],
+     "uniquename": "CCBBA69B0C47AD5FA9F0E45710B5E589",
+     "type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046537763,
+     "parent_id": "E39A4BB7B95876512E0747AF92FB8966"
+     }, {
+     "location": {
+     "fmin": 511,
+     "strand": - 1,
+     "fmax": 656
+     },
+     "parent_type": {
+     "name": "gene",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "name": "gnl|Amel_4.5|TA31.1_00029673-1",
+     "children": [{
+     "location": {
+     "fmin": 595,
+     "strand": - 1,
+     "fmax": 622
+     },
+     "parent_type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "uniquename": "BFABBEE28A09FF795A839C990EC943C8-CDS",
+     "type": {
+     "name": "CDS",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046565147,
+     "parent_id": "BFABBEE28A09FF795A839C990EC943C8"
+     }, {
+     "location": {
+     "fmin": 511,
+     "strand": - 1,
+     "fmax": 656
+     },
+     "parent_type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "properties": [{
+     "value": "demo",
+     "type": {
+     "name": "owner",
+     "cv": {
+     "name": "feature_property"
+     }
+     }
+     }
+     ],
+     "uniquename": "B5979F69978E170011AC06CEF73ECF0C",
+     "type": {
+     "name": "exon",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046565146,
+     "parent_id": "BFABBEE28A09FF795A839C990EC943C8"
+     }
+     ],
+     "properties": [{
+     "value": "demo",
+     "type": {
+     "name": "owner",
+     "cv": {
+     "name": "feature_property"
+     }
+     }
+     }
+     ],
+     "uniquename": "BFABBEE28A09FF795A839C990EC943C8",
+     "type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046565148,
+     "parent_id": "E39A4BB7B95876512E0747AF92FB8966"
+     }, {
+     "location": {
+     "fmin": 1248,
+     "strand": - 1,
+     "fmax": 1422
+     },
+     "parent_type": {
+     "name": "gene",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "name": "GB48495-RA",
+     "children": [{
+     "location": {
+     "fmin": 1248,
+     "strand": - 1,
+     "fmax": 1422
+     },
+     "parent_type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "properties": [{
+     "value": "demo",
+     "type": {
+     "name": "owner",
+     "cv": {
+     "name": "feature_property"
+     }
+     }
+     }
+     ],
+     "uniquename": "32B569E1FD3A375112A6232940575208",
+     "type": {
+     "name": "exon",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046600891,
+     "parent_id": "173CA8771F1CB5855FCC65874ACC16C5"
+     }, {
+     "location": {
+     "fmin": 1248,
+     "strand": - 1,
+     "fmax": 1422
+     },
+     "parent_type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "uniquename": "173CA8771F1CB5855FCC65874ACC16C5-CDS",
+     "type": {
+     "name": "CDS",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046600893,
+     "parent_id": "173CA8771F1CB5855FCC65874ACC16C5"
+     }
+     ],
+     "properties": [{
+     "value": "demo",
+     "type": {
+     "name": "owner",
+     "cv": {
+     "name": "feature_property"
+     }
+     }
+     }
+     ],
+     "uniquename": "173CA8771F1CB5855FCC65874ACC16C5",
+     "type": {
+     "name": "mRNA",
+     "cv": {
+     "name": "sequence"
+     }
+     },
+     "date_last_modified": 1415046600893,
+     "parent_id": "62B8EB1512A5752E525D17A42DB37E35"
+     }
+     ]
+     }
+
+
+     * @param gsolFeature
+     * @param includeSequence
+     * @return
+     */
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = true) {
+        JSONObject jsonFeature = new JSONObject();
+        try {
+//            jsonFeature.put("type", convertCVTermToJSON(gsolFeature.getType()));
+            jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
+            jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+            if (gsolFeature.getName() != null) {
+                jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+            }
+            // get children
+//            Collection<FeatureRelationship> childrenRelationships = gsolFeature.getChildFeatureRelationships();
+            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
+            if (parentRelationships) {
+                JSONArray children = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
+                for (FeatureRelationship fr : parentRelationships) {
+                    children.put(convertFeatureToJSON(fr.getChildFeature()));
+                }
+            }
+//            Collection<FeatureRelationship> parentRelationships = gsolFeature.getParentFeatureRelationships();
+            // get parents
+            Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
+            if (parentRelationships?.size() == 1) {
+                Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
+                jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
+//                jsonFeature.put("parent_type", JSONUtil.convertCVTermToJSON(parent.getType()));
+                jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateFeatureStringForType(parent.ontologyId));
+            }
+            Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
+            if (featureLocations) {
+                FeatureLocation gsolFeatureLocation = featureLocations.iterator().next();
+                if (gsolFeatureLocation != null) {
+                    jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeatureLocation));
+                }
+            }
+            if (includeSequence && gsolFeature.getResidues() != null) {
+                jsonFeature.put(FeatureStringEnum.RESIDUES.value, gsolFeature.getResidues());
+            }
+            Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
+            if (gsolFeatureProperties) {
+                JSONArray properties = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.PROPERTIES.value, properties);
+                for (FeatureProperty property : gsolFeatureProperties) {
+                    JSONObject jsonProperty = new JSONObject();
+//                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
+                    jsonProperty.put(FeatureStringEnum.TYPE.value, generateFeaturePropertyStringForType(property.ontologyId));
+//                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
+//                    jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
+                    jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                    properties.put(jsonProperty);
+                }
+            }
+            Collection<FeatureDBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
+            if (gsolFeatureDbxrefs) {
+                JSONArray dbxrefs = new JSONArray();
+                jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
+                for (FeatureDBXref gsolDbxref : gsolFeatureDbxrefs) {
+                    JSONObject dbxref = new JSONObject();
+                    dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getDbxref().getAccession());
+                    dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDbxref().getDb().getName()));
+                    dbxrefs.put(dbxref);
+                }
+            }
+//            Date timeLastModified = gsolFeature.getTimeLastModified() != null ? gsolFeature.getTimeLastModified() : gsolFeature.getTimeAccessioned();
+            jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated);
+        }
+        catch (JSONException e) {
+            return null;
+        }
+        return jsonFeature;
+    }
+
+
+    JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
+        JSONObject jsonFeatureLocation = new JSONObject();
+        jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin());
+        jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax());
+        if (gsolFeatureLocation.isIsFminPartial()) {
+            jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, true);
+        }
+        if (gsolFeatureLocation.isIsFmaxPartial()) {
+            jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
+        }
+        jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
+        return jsonFeatureLocation;
+    }
 }

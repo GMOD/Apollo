@@ -8,6 +8,7 @@ enum FeatureStringEnum {
      PARENT_ID,
      USERNAME,
      TYPE,
+     PARENT_TYPE,
      PROPERTIES,
      TIMEACCESSION,
      TIMELASTMODIFIED,
@@ -22,10 +23,13 @@ enum FeatureStringEnum {
      TRANSCRIPT("Transcript"),
      NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),
      NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),
+     DATE_LAST_MODIFIED,
      COMMENT("Comment"),
      LOCATION,
      FMIN,
      FMAX,
+     IS_FMIN_PARTIAL,
+     IS_FMAX_PARTIAL,
      STRAND,
      NAME,
      VALUE,
@@ -56,4 +60,8 @@ enum FeatureStringEnum {
           this.value = name().toLowerCase()
      }
 
+     @Override
+     String toString() {
+          return value
+     }
 }
