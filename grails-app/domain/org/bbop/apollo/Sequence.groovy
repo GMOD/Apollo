@@ -14,9 +14,11 @@ class Sequence {
         translationTableLocation nullable: true
         spliceDonorSite nullable: true
         spliceAcceptor nullable: true
-        sequenceCV nullable: true
-        sequenceType nullable: true
+//        sequenceCV nullable: true
+//        sequenceType nullable: true
+//        sourceFeature nullable: true
     }
+
 
     // feature locations instead of features
     static hasMany = [
@@ -32,13 +34,22 @@ class Sequence {
 
     String refSeqFile
     String dataDirectory
-    String sequenceType
-    String sequenceCV
+//    String sequenceType
+//    String sequenceCV
 //    String organismName
 
 
     String translationTableLocation
     String spliceDonorSite = "GT"
     String spliceAcceptor = "AG"
-//    String refSeqFile
+
+    // SourceFeature properties
+//    FeatureLazyResidues sourceFeature
+    Integer length
+    Integer seqChunkSize
+    String seqChunkPrefix
+    Integer start
+    Integer end
+    String sequenceDirectory
+
 }

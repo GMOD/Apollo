@@ -6,15 +6,23 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(SequenceController)
-@Mock([Sequence,User,Genome])
+@Mock([Sequence,User,Genome,Organism])
 class SequenceControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
         params["name"] = 'someValidName'
-        params["sequenceType"] = "sequence:scaffold"
-        params["sequenceCV"] = "sequence:scaffold"
+//        params["sequenceType"] = "sequence:scaffold"
+//        params["sequenceCV"] = "sequence:scaffold"
+        params["refSeqsFile"] = "sequence:scaffold"
+        params["seqChunkPrefix"] = "sequence:scaffold"
+        params["seqChunkSize"] = 100
+        params["start"] = 100
+        params["end"] = 200
+        params["length"] = 100
+        params["dataDirectory"] = "sequence:scaffold"
+        params["sequenceDirectory"] = "sequence:scaffold"
     }
 
     void "Test the index action returns the correct model"() {

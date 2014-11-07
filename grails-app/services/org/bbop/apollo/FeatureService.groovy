@@ -252,6 +252,7 @@ class FeatureService {
         println "JSON transcript ${jsonTranscript}"
         println "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
         println "gene ${gene}"
+        trackName = trackName.startsWith("Annotations-") ? trackName.substring("Annotations-".size()) : trackName
         println "sequence ${trackName}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
@@ -1353,6 +1354,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case RRNA.ontologyId: return new RRNA()
             case TRNA.ontologyId: return new TRNA()
             case Exon.ontologyId: return new Exon()
+            case CDS.ontologyId: return new CDS()
             case Intron.ontologyId: return new Intron()
             case Gene.ontologyId: return new Gene()
             case Pseudogene.ontologyId: return new Pseudogene()
@@ -1386,6 +1388,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case Transcript.cvTerm.toUpperCase(): return Transcript.ontologyId
                 case Gene.cvTerm.toUpperCase(): return Gene.ontologyId
                 case Exon.cvTerm.toUpperCase(): return Exon.ontologyId
+                case CDS.cvTerm.toUpperCase(): return CDS.ontologyId
                 case Intron.cvTerm.toUpperCase(): return Intron.ontologyId
                 case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId

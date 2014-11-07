@@ -61,12 +61,12 @@ class MockupService {
         if (Organism.count > 0) return
 
         Organism organism = new Organism(abbreviation: "ZF",commonName: "Zebrafish", genus: "Danio",species: "rerio").save(failOnError: true)
-        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organism: organism
-                , sequenceCV: "sequence", sequenceType: "mRNA"
-                , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"
-                , dataDirectory: "/opt/apollo/jbrowse/data"
-//                ,translationTableLocation:
-        ).save()
+//        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organism: organism
+////                , sequenceCV: "sequence", sequenceType: "mRNA"
+//                , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"
+//                , dataDirectory: "/opt/apollo/jbrowse/data"
+////                ,translationTableLocation:
+//        ).save(failOnError: true)
 
 
         // in the config
@@ -87,14 +87,14 @@ class MockupService {
 //        sourceFeature.setType(new CVTerm(type[1], new CV(type[0])));
 
 //        Track track2 = new Track(name: "Zebrafish Track 2").save()
-        organism.addToSequences(track1)
+//        organism.addToSequences(track1)
 //        genome1.addToTracks(track2)
 
         User demoUser = User.findByUsername("demo@demo.gov")
         User adminUser = User.findByUsername("admin@admin.gov")
 
-        track1.addToUsers(demoUser)
-        track1.addToUsers(adminUser)
+//        track1.addToUsers(demoUser)
+//        track1.addToUsers(adminUser)
 
 //        Organism genome2 = new Organism(name: "Caenorhabditis elegans").save()
 //        Track track3 = new Track(name: "Celegans Track 1").save()

@@ -10,6 +10,9 @@ class SequenceController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    def sequenceService
+    def configWrapperService
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Sequence.list(params), model:[sequenceInstanceCount: Sequence.count()]
@@ -20,6 +23,11 @@ class SequenceController {
     }
 
     def create() {
+        respond new Sequence(params)
+    }
+
+    def loadSequence() {
+        sequenceService.loadRefSeqs(Organism.first(),configWrapperService.refSeqDirectory)
         respond new Sequence(params)
     }
 

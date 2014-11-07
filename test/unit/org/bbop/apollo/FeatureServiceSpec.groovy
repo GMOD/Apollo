@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.test.mixin.TestFor
+import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Specification
 
 /**
@@ -15,6 +17,15 @@ class FeatureServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "test something"() {
+    void "convertJSON to Onology ID"() {
+
+//        when: "We hav a json object of type"
+//        JSONObject json = JSON.parse("[name:exon, cv:[name:sequence]]")
+//
+//
+//        then: "We should be able to infer the ontology ID"
+//        String ontologyId = service.convertJSONToOntologyId(json)
+//        assert ontologyId != null
+//        assert ontologyId == Exon.ontologyId
     }
 }

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletResponse
 //@CompileStatic
 class JbrowseController {
 
+    def configWrapperService
 
 //    def index() {
 //
@@ -18,7 +19,7 @@ class JbrowseController {
 
     // is typically checking for trackData.json
     def tracks(String jsonFile,String trackName,String groupName){
-        String filename = grailsApplication.config.apollo.jbrowse.data.directory
+        String filename = configWrapperService.getJBrowseDirectory()
         filename += "/tracks/${trackName}/${groupName}/${jsonFile}.json"
         File file = new File(filename);
         if(!file.exists()){

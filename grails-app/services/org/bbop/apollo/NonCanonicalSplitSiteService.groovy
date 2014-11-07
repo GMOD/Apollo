@@ -98,7 +98,7 @@ class NonCanonicalSplitSiteService {
         List<Exon> exons = exonService.getSortedExons(transcript)
         int exonNum = 0;
 //        int sourceFeatureLength = transcript.getFeatureLocation().getSourceFeature().getSequenceLength();
-        int sourceFeatureLength = transcript.getFeatureLocation().getSourceFeature().getSequenceLength();
+        int sourceFeatureLength = transcript.getFeatureLocation().getSequence().getLength()
         for (Exon exon : exons) {
             ++exonNum;
             int fivePrimeSpliceSitePosition = -1;

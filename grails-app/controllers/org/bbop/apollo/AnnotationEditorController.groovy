@@ -49,6 +49,10 @@ class AnnotationEditorController {
         }
     }
 
+    private String fixTrackHeader(String trackInput){
+        return !trackInput.startsWith("Annotations-") ?: trackInput.substring("Annotations-".size())
+    }
+
     def handleOperation(String track, String operation) {
         // TODO: this is a hack, but it should come trhough the UrlMapper
         JSONObject postObject = findPost()
@@ -56,6 +60,10 @@ class AnnotationEditorController {
         def mappedAction = underscoreToCamelCase(operation)
         log.debug  "${operation} -> ${mappedAction}"
         track = postObject.get(REST_TRACK)
+
+        // TODO: hack needs to be fixed
+        track = fixTrackHeader(track)
+
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
@@ -120,13 +128,24 @@ class AnnotationEditorController {
         println "adding transcript ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         println "adding transcript return object ${returnObject}"
-        String trackName = returnObject.track
+        String trackName = fixTrackHeader(returnObject.track)
         JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        println "featuresArray ${featuresArray}"
+        println "PRE featuresArray ${featuresArray}"
+        if(featuresArray.size()==1){
+            JSONObject object = featuresArray.getJSONObject(0)
+            println "object ${object}"
+        }
+        else{
+            println "what is going on?"
+        }
+        println "POST featuresArray ${featuresArray}"
         Sequence sequence = Sequence.findByName(trackName)
         println "trackName ${trackName}"
         println "sequence ${sequence}"
+        println "features Array size ${featuresArray.size()}"
+        println "features Array ${featuresArray}"
 
+        List<Transcript> transcriptList = new ArrayList<>()
         for(int i = 0 ; i < featuresArray.size(); i++){
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             println "${i} jsonTranscript ${jsonTranscript}"
@@ -136,8 +155,12 @@ class AnnotationEditorController {
             // should automatically write to history
             transcript.save(insert:true)
 //            sequence.addFeatureLotranscript)
+            transcriptList.add(transcript)
 
-            featuresArray.put(transcript as JSON)
+        }
+
+        transcriptList.each {
+            featuresArray.put(it as JSON)
         }
         sequence.save(flush:true)
         // do I need to put it back in?
