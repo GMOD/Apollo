@@ -69,7 +69,14 @@ if [ ! -d "$APOLLO_JBROWSE_DIRECTORY" ]; then
       mv JBrowse-$JBROWSE_VERSION-dev $APOLLO_JBROWSE_DIRECTORY
   elif [[ $1 == github ]]; then
       echo "Using github jbrowse"
-      cp -R .  $APOLLO_JBROWSE_DIRECTORY
+      mkdir JBrowse-dev
+      # fails to git recursive
+      #git archive --format zip --output JBrowse-dev/JBrowse-dev.zip master
+      zip -r JBrowse-dev/JBrowse-dev.zip  .  -x \*.git\* 
+      cd JBrowse-dev
+      unzip JBrowse-dev.zip
+      cd ..
+      mv JBrowse-dev $APOLLO_JBROWSE_DIRECTORY
   fi
 
 elif [[ $1 == clean ]]; then
