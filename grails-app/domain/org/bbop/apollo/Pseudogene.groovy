@@ -4,7 +4,7 @@ package org.bbop.apollo
  * Inherited from here:
  * AbstractSingleLocationBioFeature
  */
-class Pseudogene extends BiologicalRegion{
+class Pseudogene extends Gene{
 
     static constraints = {
     }
