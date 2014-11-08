@@ -27,6 +27,14 @@ class Sequence {
             , featureLocations: FeatureLocation
     ]
 
+    static mapping = {
+//        table "grails_sequence"
+        end column: "sequence_end"
+        start column: "sequence_start"
+
+//        password column: "grails_password"
+    }
+
     static belongsTo = [User]
 
     String name
