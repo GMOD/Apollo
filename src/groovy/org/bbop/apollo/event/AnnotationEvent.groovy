@@ -1,21 +1,24 @@
 package org.bbop.apollo.event
 
-import org.bbop.apollo.Feature
+import grails.validation.Validateable
+import org.bbop.apollo.Sequence
 
 /**
  * Created by ndunn on 10/29/14.
  */
-class AnnotationEvent extends EventObject{
+@Validateable
+class AnnotationEvent {
 
     Operation operation
-    Feature feature
+    Sequence sequence
+    Object source
     // toplevel feature?
 
-    public AnnotationEvent(Object source,Feature feature,Operation operation){
-        super(source)
-        this.feature= feature
-        this.operation = operation
-    }
+//    public AnnotationEvent(Object source,Sequence sequence,Operation operation){
+////        super(source)
+//        this.sequence = sequence
+//        this.operation = operation
+//    }
 
     public enum Operation {
         ADD,

@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
+import org.bbop.apollo.editor.AnnotationEditor
+import org.bbop.apollo.event.AnnotationEvent
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -29,6 +31,9 @@ class AnnotationEditorController {
     String REST_KEY = "key"
     String REST_OPTIONS = "options"
     String REST_TRANSLATION_TABLE = "translation_table"
+
+
+    List<AnnotationEventListener> listenerList = new ArrayList<>()
 
     def index() {
         log.debug  "bang "
@@ -142,9 +147,11 @@ class AnnotationEditorController {
 
 
     /**
-     * {"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}
-     *
+     * // input
      * {"operation":"add_transcript","track":"Annotations-Group1.2","features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":258308,"strand":1,"fmax":258471},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":247976},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd","children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},"name":"00540e13-de64-4fa2-868a-e168e584f55d","uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},{"location":{"fmin":258308,"strand":1,"fmax":258471},"name":"de44177e-ce76-4a9a-8313-1c654d1174aa","uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5","uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915","uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],"uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}
+     *
+     * // returned form the fir method
+     * {"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}
      * @return
      */
     def addTranscript(){
@@ -197,10 +204,17 @@ class AnnotationEditorController {
         println "return addTranscript featuer ${returnObject}"
 //        println "VS - ${featuresArray}"
 
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                source: returnObject
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.ADD
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
         render inputObject
     }
-
-    /**
+/**
      *
      * Should return of form:
      * {
@@ -270,9 +284,45 @@ class AnnotationEditorController {
 
 
         println "final return objecct ${returnObject}"
+        // the returned option after "fireDataStoreChange::
+
+        // {"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"278478F7AB14FF3D5C6815B97AE7006D","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"},{"location":{"fmin":258308,"strand":1,"fmax":258471},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"E331BA20E79FC9393E6359EF93A63BA7","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"},{"location":{"fmin":247892,"strand":1,"fmax":247976},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"3764FC7E626155F001B412F8692E332C","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"},{"location":{"fmin":247892,"strand":1,"fmax":305356},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"DDFBC83612AF1D75B559D89B5A8822E2","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"455C6990570CE75572ED4C07FDC95AF8","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415405480434,"parent_id":"E388DDDA2901678E194CEC20663A245F"}]}
+        // {
+//        "operation": "ADD",
+//        "sequenceAlterationEvent": false,
+//        "features": [
+//                {
+//                    "location": {
+//                    "fmin": 247892,
+//                    "strand": 1,
+//                    "fmax": 305356
+//                },
+//                    "parent_type": {
+//                    "name": "gene",
+//                    "cv": {
+//                        "name": "sequence"
+//                    }
+//                },
+//                    "name": "geneid_mRNA_CM000054.5_150",
+
+
+//        if (fireUpdateChange) {
+//            fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.ADD);
+//        }
+
+        fireAnnotationEvent(new AnnotationEvent(
+                source:  returnObject
+                ,operation: AnnotationEvent.Operation.ADD
+                ,sequence: sequence
+        ))
+
 
         render returnObject as JSON
     }
+
+//    private void fireDataStoreChange(DataStoreChangeEvent... events) {
+//        AbstractDataStoreManager.getInstance().fireDataStoreChange(events);
+//    }
 
     def getSequenceAlterations(){
         log.debug  "getting sequence alterations "
@@ -302,16 +352,25 @@ class AnnotationEditorController {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: implement this from the session
-        Organism organism = Organism.findByCommonName(session.attributeNames(FeatureStringEnum.ORGANISM.value))
+        Organism organism = Organism.findByCommonName(session.getAttribute(FeatureStringEnum.ORGANISM.value).toString())
         render organism as JSON
 
-//
 //
 //        JSONArray jsonFeatures = new JSONArray()
 //        returnObject.put("features",jsonFeatures)
     }
 
+//    @Override
+//    def handleEvent(AnnotationEvent annotationEvent) {
+//        println "hadnling event"
+//        return null
+//    }
 
+    def fireAnnotationEvent(AnnotationEvent annotationEvent) {
+        listenerList.each {
+            it.handleEvent(annotationEvent)
+        }
+    }
 
     @MessageMapping("/hello")
     @SendTo("/topic/hello")
