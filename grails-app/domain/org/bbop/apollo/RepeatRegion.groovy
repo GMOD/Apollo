@@ -10,4 +10,5 @@ class RepeatRegion extends BiologicalRegion{
 
     static String cvTerm  = "RepeatRegion"
     static String ontologyId = "SO:0000657"
+    static String alternateCvTerm = "repeat_region"
 }

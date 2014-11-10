@@ -10,4 +10,5 @@ class NonCanonicalThreePrimeSpliceSite extends SpliceSite{
     static String ontologyId = "SO:0000678"
 
 
+    static String alternateCvTerm = "non_canonical_three_prime_splice_site"
 }

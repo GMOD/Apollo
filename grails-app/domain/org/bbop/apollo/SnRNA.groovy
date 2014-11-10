@@ -7,4 +7,6 @@ class SnRNA extends Transcript{
 
     static String cvTerm =  "SnRNA"
     static String ontologyId = "SO:0000274"
+    static String alternateCvTerm = "snRNA"
+
 }

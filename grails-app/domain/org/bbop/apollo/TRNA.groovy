@@ -7,4 +7,6 @@ class TRNA extends NcRNA{
 
     static String cvTerm =  "TRNA"
     static String ontologyId = "SO:0000253"
+
+    static String alternateCvTerm = "tRNA"
 }
