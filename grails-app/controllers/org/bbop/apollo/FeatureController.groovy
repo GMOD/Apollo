@@ -16,20 +16,15 @@ class FeatureController {
 
 //    def show(Feature featureInstance) {
     def show(Feature featureInstance) {
-//        respond featureInstance
         println "featureInstance: ${featureInstance}"
 
-        if(featureInstance.ontologyId==MRNA.ontologyId){
+        if(featureInstance?.ontologyId==MRNA.ontologyId){
             println "mathed MRNA"
-//            respond featureInstance: (MRNA) featureInstance
             redirect( action: "show", controller: "MRNA", id:featureInstance.id)
-//            redirect (MRNA) featureInstance
             return
         }
 
-        println "no mathed MRNA"
-        respond featureInstance: (Feature) featureInstance
-        return
+        respond featureInstance
 
     }
 

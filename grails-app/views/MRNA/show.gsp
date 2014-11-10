@@ -113,17 +113,6 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${MRNAInstance?.childFeatureRelationships}">
-				<li class="fieldcontain">
-					<span id="childFeatureRelationships-label" class="property-label"><g:message code="MRNA.childFeatureRelationships.label" default="Child Feature Relationships" /></span>
-					
-						<g:each in="${MRNAInstance.childFeatureRelationships}" var="c">
-						<span class="property-value" aria-labelledby="childFeatureRelationships-label"><g:link controller="featureRelationship" action="show" id="${c.id}">${c?.encodeAsHTML()}</g:link></span>
-						</g:each>
-					
-				</li>
-				</g:if>
-			
 				<g:if test="${MRNAInstance?.featureCVTerms}">
 				<li class="fieldcontain">
 					<span id="featureCVTerms-label" class="property-label"><g:message code="MRNA.featureCVTerms.label" default="Feature CVT erms" /></span>
@@ -162,7 +151,9 @@
 					<span id="featureLocations-label" class="property-label"><g:message code="MRNA.featureLocations.label" default="Feature Locations" /></span>
 					
 						<g:each in="${MRNAInstance.featureLocations}" var="f">
-						<span class="property-value" aria-labelledby="featureLocations-label"><g:link controller="featureLocation" action="show" id="${f.id}">${f?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="featureLocations-label">
+							<g:link controller="featureLocation" action="show" id="${f.id}">${f?.fmin}-${f.fmax} : ${f.strand ? '+' : '-'}</g:link>
+						</span>
 						</g:each>
 					
 				</li>
@@ -211,13 +202,36 @@
 					
 				</li>
 				</g:if>
-			
+
+				<g:if test="${MRNAInstance?.childFeatureRelationships}">
+					<li class="fieldcontain">
+						<span id="childFeatureRelationships-label" class="property-label"><g:message code="MRNA.childFeatureRelationships.label" default="Parents" /></span>
+
+						<g:each in="${MRNAInstance.childFeatureRelationships}" var="c">
+							<span class="property-value" aria-labelledby="childFeatureRelationships-label">
+								<g:link controller="feature" action="show" id="${c.parentFeature.id}">
+									${c.parentFeature.ontologyId}
+									${c.parentFeature.cvTerm}
+								${c?.parentFeature.name}
+								</g:link></span>
+						</g:each>
+
+					</li>
+				</g:if>
+
+
 				<g:if test="${MRNAInstance?.parentFeatureRelationships}">
 				<li class="fieldcontain">
-					<span id="parentFeatureRelationships-label" class="property-label"><g:message code="MRNA.parentFeatureRelationships.label" default="Parent Feature Relationships" /></span>
+					<span id="parentFeatureRelationships-label" class="property-label"><g:message code="MRNA.parentFeatureRelationships.label" default="Children" /></span>
 					
 						<g:each in="${MRNAInstance.parentFeatureRelationships}" var="p">
-						<span class="property-value" aria-labelledby="parentFeatureRelationships-label"><g:link controller="featureRelationship" action="show" id="${p.id}">${p?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="parentFeatureRelationships-label">
+							<g:link controller="feature" action="show" id="${p.childFeature.id}">
+							${p.childFeature.ontologyId}
+							${p.childFeature.cvTerm}
+							${p.childFeature.name}
+							%{--${p?.encodeAsHTML()}--}%
+						</g:link></span>
 						</g:each>
 					
 				</li>

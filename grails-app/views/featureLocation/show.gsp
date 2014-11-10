@@ -27,7 +27,7 @@
 				<li class="fieldcontain">
 					<span id="feature-label" class="property-label"><g:message code="featureLocation.feature.label" default="Feature" /></span>
 					
-						<span class="property-value" aria-labelledby="feature-label"><g:link controller="feature" action="show" id="${featureLocationInstance?.feature?.id}">${featureLocationInstance?.feature?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="feature-label"><g:link controller="feature" action="show" id="${featureLocationInstance?.feature?.id}">${featureLocationInstance?.feature?.cvTerm} ${featureLocationInstance?.feature?.name}</g:link></span>
 					
 				</li>
 				</g:if>
@@ -126,7 +126,7 @@
 				<li class="fieldcontain">
 					<span id="sequence-label" class="property-label"><g:message code="featureLocation.sequence.label" default="Sequence" /></span>
 					
-						<span class="property-value" aria-labelledby="sequence-label"><g:link controller="sequence" action="show" id="${featureLocationInstance?.sequence?.id}">${featureLocationInstance?.sequence?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="sequence-label"><g:link controller="sequence" action="show" id="${featureLocationInstance?.sequence?.id}">${featureLocationInstance?.sequence?.name}</g:link></span>
 					
 				</li>
 				</g:if>
