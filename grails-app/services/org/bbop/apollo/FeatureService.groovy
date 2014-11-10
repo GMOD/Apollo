@@ -1889,7 +1889,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         JSONObject jsonFeature = new JSONObject();
         try {
 //            jsonFeature.put("type", convertCVTermToJSON(gsolFeature.getType()));
-            jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
+            jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
             jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
             if (gsolFeature.getName() != null) {
                 jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
@@ -1907,11 +1907,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //            Collection<FeatureRelationship> parentRelationships = gsolFeature.getParentFeatureRelationships();
             // get parents
             Collection<FeatureRelationship> childFeatureRelationships = gsolFeature.childFeatureRelationships
-            if (parentRelationships?.size() == 1) {
+            if (childFeatureRelationships?.size() == 1) {
                 Feature parent = childFeatureRelationships.iterator().next().getParentFeature();
                 jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
 //                jsonFeature.put("parent_type", JSONUtil.convertCVTermToJSON(parent.getType()));
-                jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateFeatureStringForType(parent.ontologyId));
+                jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
             }
             Collection<FeatureLocation> featureLocations = gsolFeature.getFeatureLocations();
             if (featureLocations) {
@@ -1957,6 +1957,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return jsonFeature;
     }
 
+    JSONObject generateJSONFeatureStringForType(String ontologyId) {
+        JSONObject jSONObject = new JSONObject();
+        def feature = generateFeatureForType(ontologyId)
+
+        String cvTerm = feature.hasProperty("alternateCvTerm") ? feature.getProperty("alternateCvTerm"): feature.cvTerm.toLowerCase()
+
+        jSONObject.put(FeatureStringEnum.NAME.value,cvTerm)
+
+        JSONObject cvObject = new JSONObject()
+        cvObject.put(FeatureStringEnum.NAME.value,FeatureStringEnum.SEQUENCE.value)
+        jSONObject.put(FeatureStringEnum.CV.value,cvObject)
+
+        return jSONObject
+    }
 
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();

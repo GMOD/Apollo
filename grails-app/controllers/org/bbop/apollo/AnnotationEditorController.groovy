@@ -8,6 +8,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.gmod.gbol.util.SequenceUtil
+import org.hibernate.criterion.CriteriaSpecification
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 
@@ -251,23 +252,60 @@ class AnnotationEditorController {
         println "# of features locations for sequence ${sequence?.featureLocations?.size()}"
         println "# of features for sequence ${sequence?.featureLocations*.feature?.size()}"
 
-        for (Feature feature: sequence?.featureLocations*.feature) {
-            if (feature instanceof Gene) {
-                Gene gene = (Gene) feature
-                for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                    println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
+//        List<Feature> topLevelFeatures = sequence?.featureLocations*.feature
+
+        /**
+         * TODO: this should be one single query
+         */
+        // 1. - handle genes
+        List<Gene> topLevelGenes = Gene.executeQuery("select f from Gene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ",[sequence: sequence])
+        for (Gene gene : topLevelGenes) {
+            for (Transcript transcript : transcriptService.getTranscripts(gene)) {
+                println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
-                    featureSet.add(transcript)
+                featureSet.add(transcript)
 //                    jsonFeatures.put(transcript as JSON);
-                }
-            }
-            else {
-                println " NOT instance of gene! ${feature.uniqueName} ${feature.ontologyId}"
-                featureSet.add(feature)
-//                jsonFeatures.put( feature as JSON)
-//                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
             }
         }
+
+        // 1b. - handle psuedogenes
+        List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ",[sequence: sequence])
+        for (Gene gene : listOfPseudogenes) {
+            for (Transcript transcript : transcriptService.getTranscripts(gene)) {
+                println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
+//                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
+                featureSet.add(transcript)
+//                    jsonFeatures.put(transcript as JSON);
+            }
+        }
+
+
+        // 2. - handle transcripts
+        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty " ,[sequence: sequence])
+        println "# of top level features ${topLevelTranscripts.size()}"
+        for(Transcript transcript1 in topLevelTranscripts){
+            featureSet.add(transcript1)
+        }
+
+//        for (Feature feature: topLevelTranscripts) {
+//            println "feature onto ID ${feature.ontologyId} and CvTerm ${feature.cvTerm} and class ${feature}"
+//            feature = (Gene) feature
+//            if (feature instanceof Gene) {
+//                Gene gene = (Gene) feature
+//                for (Transcript transcript : transcriptService.getTranscripts(gene)) {
+//                    println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
+////                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
+//                    featureSet.add(transcript)
+////                    jsonFeatures.put(transcript as JSON);
+//                }
+//            }
+//            else {
+//                println " NOT instance of gene! ${feature.uniqueName} ${feature.ontologyId} ${feature.id}"
+//                featureSet.add(feature)
+////                jsonFeatures.put( feature as JSON)
+////                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
+//            }
+//        }
 
         println "feature set size: ${featureSet.size()}"
 
