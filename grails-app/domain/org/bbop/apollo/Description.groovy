@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-class Description implements Ontological{
+class Description extends FeatureProperty implements Ontological{
 
     static constraints = {
     }

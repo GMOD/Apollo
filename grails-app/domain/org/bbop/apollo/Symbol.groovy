@@ -1,9 +1,11 @@
 package org.bbop.apollo
 
-class Symbol implements Ontological{
+class Symbol extends FeatureProperty implements Ontological{
 
     static constraints = {
     }
 
     static String cvTerm = "Symbol"
+    static String ontologyId = "symbol"
+
 }

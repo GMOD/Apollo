@@ -7,9 +7,13 @@ import grails.compiler.GrailsCompileStatic
 @Transactional
 class CdsService {
 
+    public static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
+    public static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
+
     FeatureService featureService
 //    CvTermService cvTermService
     FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
 
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
@@ -19,23 +23,50 @@ class CdsService {
             return;
         }
         if (manuallySetTranslationStart) {
-            featureService.addComment(cds, FeatureService.MANUALLY_SET_TRANSLATION_START)
+            featurePropertyService.addComment(cds, MANUALLY_SET_TRANSLATION_START)
 //            cds.addComment(FeatureService.MANUALLY_SET_TRANSLATION_START);
         }
         if (!manuallySetTranslationStart) {
-            featureService.deleteComment(cds, FeatureService.MANUALLY_SET_TRANSLATION_START)
+            featurePropertyService.deleteComment(cds, MANUALLY_SET_TRANSLATION_START)
 //            cds.deleteComment(FeatureService.MANUALLY_SET_TRANSLATION_START);
         }
     }
 
     public boolean isManuallySetTranslationStart(CDS cds) {
-        for (Comment comment : featureService.getComments(cds)) {
-            if (comment.value.equals(FeatureService.MANUALLY_SET_TRANSLATION_START)) {
+        for (Comment comment : featurePropertyService.getComments(cds)) {
+            if (comment.value.equals(MANUALLY_SET_TRANSLATION_START)) {
                 return true;
             }
         }
         return false;
     }
+
+
+    public boolean isManuallySetTranslationEnd(CDS cds) {
+
+        for (Comment comment : featurePropertyService.getComments(cds)) {
+            if (comment.value.equals(MANUALLY_SET_TRANSLATION_END)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setManuallySetTranslationEnd(CDS cds, boolean manuallySetTranslationEnd) {
+        if (manuallySetTranslationEnd && isManuallySetTranslationEnd(cds)) {
+            return;
+        }
+        if (!manuallySetTranslationEnd && !isManuallySetTranslationEnd(cds)) {
+            return;
+        }
+        if (manuallySetTranslationEnd) {
+            featurePropertyService.addComment(cds, MANUALLY_SET_TRANSLATION_END)
+        }
+        if (!manuallySetTranslationEnd) {
+            featurePropertyService.deleteComment(cds, MANUALLY_SET_TRANSLATION_END)
+        }
+    }
+
 
 //    public StopCodonReadThrough getStopCodonReadThrough(CDS cds) {
 //        List<Feature> featureList = featureRelationshipService.getChildrenForFeatureAndTypes(cds, StopCodonReadThrough.ontologyId )

@@ -26,9 +26,13 @@ class Feature implements Ontological{
         isObsolete nullable: true
         dateCreated nullable: true
         lastUpdated nullable: true
+        symbol nullable: true // TODO: should be false and unique
+        description nullable: true
 //        featureLocation nullable: true
     }
 
+    Symbol symbol
+    Description description
 //    Integer featureId;
 //    CVTerm type;
     DBXref dbxref;
@@ -58,6 +62,7 @@ class Feature implements Ontological{
             ,featurePublications:FeaturePublication
             ,featurePhenotypes: FeaturePhenotype
             ,featureProperties: FeatureProperty
+//            ,owners:User
     ]
 
     static mappedBy = [

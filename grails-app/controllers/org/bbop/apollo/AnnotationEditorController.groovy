@@ -24,6 +24,7 @@ class AnnotationEditorController {
     def nonCanonicalSplitSiteService
     def featureRelationshipService
     def nameService
+    def featurePropertyService
 
     String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
@@ -149,6 +150,42 @@ class AnnotationEditorController {
         }
         return jsonFeatureContainer;
     }
+
+    /**
+     *  From AnnotationEditorService .. . deleteFeature 1 and 2
+     */
+//    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
+    def deleteFeature(){
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
+        boolean isUpdateOperation = false
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            if (feature) {
+                // is this a bug?
+                isUpdateOperation = isUpdateOperation || featureService.deleteFeature(feature);
+                List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
+                if(modifiedFeaturesList==null){
+                    modifiedFeaturesList = new ArrayList<>()
+                }
+                modifiedFeaturesList.add(feature)
+            }
+        }
+
+        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames,isUpdateOperation)
+
+
+
+
+        JSONObject returnObject = createJSONFeatureContainer()
+        render returnObject
+    }
+
 
     def addFeature() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -405,6 +442,189 @@ class AnnotationEditorController {
 //        println "hadnling event"
 //        return null
 //    }
+
+    /**
+     * TODO: link to the database for real config values
+     * @return
+     */
+    def getAnnotationInfoEditorConfiguration(){
+        JSONObject annotationInfoEditorConfigContainer = new JSONObject();
+        JSONArray annotationInfoEditorConfigs = new JSONArray();
+        annotationInfoEditorConfigContainer.put("annotation_info_editor_configs", annotationInfoEditorConfigs);
+//        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : annotationInfoEditorConfigurations.values()) {
+            JSONObject annotationInfoEditorConfig = new JSONObject();
+            annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
+//            if (annotationInfoEditorConfiguration.hasStatus()) {
+//                for (String status : annotationInfoEditorConfiguration.getStatus()) {
+//                    annotationInfoEditorConfig.append("status", status);
+//                }
+//            }
+//            if (annotationInfoEditorConfiguration.hasDbxrefs()) {
+                annotationInfoEditorConfig.put("hasDbxrefs", true);
+//            }
+//            if (annotationInfoEditorConfiguration.hasAttributes()) {
+                annotationInfoEditorConfig.put("hasAttributes", true);
+//            }
+//            if (annotationInfoEditorConfiguration.hasPubmedIds()) {
+                annotationInfoEditorConfig.put("hasPubmedIds", true);
+//            }
+//            if (annotationInfoEditorConfiguration.hasGoIds()) {
+                annotationInfoEditorConfig.put("hasGoIds", true);
+//            }
+//            if (annotationInfoEditorConfiguration.hasComments()) {
+                annotationInfoEditorConfig.put("hasComments", true);
+//            }
+            JSONArray supportedTypes = new JSONArray();
+            annotationInfoEditorConfig.put("supported_types", supportedTypes);
+//            for (String supportedType : annotationInfoEditorConfiguration.getSupportedFeatureTypes()) {
+//                supportedTypes.put(supportedType);
+//            }
+//        }
+//        out.write(annotationInfoEditorConfigContainer.toString());
+        render annotationInfoEditorConfigContainer
+    }
+
+    def setSymbol(){
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+//        String trackName = fixTrackHeader(inputObject.track)
+//        Sequence sequence = Sequence.findByName(trackName)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName =jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
+
+
+
+            Symbol symbol = feature.symbol
+            if(!symbol) {
+                symbol = new Symbol(
+                        value: symbolString
+                        , feature: feature
+                ).save()
+            }
+            else{
+                symbol.value = symbolString
+                symbol.save()
+            }
+
+            feature.symbol = symbol
+            feature.save(flush: true,failOnError: true)
+
+//            featurePropertyService.setFeatureProperty(feature,FeatureStringEnum.SYMBOL.value,symbol)
+//            editor.setSymbol(feature, symbol);
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+//            if (dataStore != null) {
+//                if (feature instanceof Transcript) {
+//                    writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript) feature), track);
+//                } else {
+//                    writeFeatureToStore(editor, dataStore, feature, track);
+//                }
+//            }
+        }
+
+
+        render updateFeatureContainer
+    }
+
+    def getAnnotationInfoEditorData(){
+
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        println "sequence ${sequence} for track ${trackName}"
+
+
+        JSONObject returnObject = createJSONFeatureContainer()
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            println "input json feature ${jsonFeature}"
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            println "feature converted? ${feature}"
+            println "retrieved feature ${feature.name} ${feature.uniqueName}"
+            JSONObject newFeature = featureService.convertFeatureToJSON(feature,false)
+//            jsonFeature.put("type", JSONUtil.convertCVTermToJSON(feature.getType()));
+//            jsonFeature.put("name", feature.getName());
+//            if (feature.getSymbol() != null) {
+//                jsonFeature.put("symbol", feature.getSymbol().getSymbol());
+//            }
+//            if (feature.getDescription() != null) {
+//                jsonFeature.put("description", feature.getDescription().getDescription());
+//            }
+
+            if(feature.symbol) jsonFeature.put(FeatureStringEnum.SYMBOL.value,feature.symbol.value)
+            if(feature.description) jsonFeature.put(FeatureStringEnum.DESCRIPTION.value,feature.description.value)
+
+
+            println "feature ${feature as JSON}"
+            println "symbol ${jsonFeature}"
+
+
+//            if (feature.getTimeAccessioned() != null) {
+                jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
+//            }
+//            if (feature.getTimeLastModified() != null) {
+                jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
+//            }
+
+            // TODO: add the rest of the attributes
+
+//            ServerConfiguration.AnnotationInfoEditorConfiguration conf = annotationInfoEditorConfigurations.get(feature.getType());
+//            if (conf == null) {
+//                conf = annotationInfoEditorConfigurations.get("default");
+//            }
+//            if (conf.hasStatus() && feature.getStatus() != null) {
+//                jsonFeature.put("status", feature.getStatus().getStatus());
+//            }
+//            if (conf.hasAttributes()) {
+//                JSONArray properties = new JSONArray();
+//                jsonFeature.put("non_reserved_properties", properties);
+//                for (GenericFeatureProperty property : feature.getNonReservedProperties()) {
+//                    JSONObject jsonProperty = new JSONObject();
+//                    jsonProperty.put("tag", property.getTag());
+//                    jsonProperty.put("value", property.getValue());
+//                    properties.put(jsonProperty);
+//                }
+//            }
+//            if (conf.hasDbxrefs() || conf.hasPubmedIds() || conf.hasGoIds()) {
+//                JSONArray dbxrefs = new JSONArray();
+//                jsonFeature.put("dbxrefs", dbxrefs);
+//                for (DBXref dbxref : feature.getNonPrimaryDBXrefs()) {
+//                    JSONObject jsonDbxref = new JSONObject();
+//                    jsonDbxref.put("db", dbxref.getDb().getName());
+//                    jsonDbxref.put("accession", dbxref.getAccession());
+//                    dbxrefs.put(jsonDbxref);
+//                }
+//            }
+//            if (conf.hasComments()) {
+//                JSONArray comments = new JSONArray();
+//                jsonFeature.put("comments", comments);
+//                for (Comment comment : feature.getComments()) {
+//                    comments.put(comment.getComment());
+//                }
+//                JSONArray cannedComments = new JSONArray();
+//                jsonFeature.put("canned_comments", cannedComments);
+//                Collection<String> cc = this.cannedComments.getCannedCommentsForType(feature.getType());
+//                if (cc != null) {
+//                    for (String comment : cc) {
+//                        cannedComments.put(comment);
+//                    }
+//                }
+//            }
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeature);
+        }
+
+
+        render returnObject
+    }
 
     def fireAnnotationEvent(AnnotationEvent annotationEvent) {
         listenerList.each {

@@ -11,20 +11,19 @@ class FeatureProperty implements Ontological{
     static constraints = {
         type nullable: true
 //        feature nullable: true
-        value nullable: false
+        value nullable: false // unique? . . or unique for feature?
         rank nullable: true
     }
 
 //    Integer featurePropertyId;
     CVTerm type;
     // I think a FeatureProperty can be associated with more than one
-//    Feature feature;
+    Feature feature;
     String value;
     int rank;
 
     static hasMany = [
             featurePropertyPublications :  FeaturePropertyPublication
-            ,features: Feature
     ]
 
     static belongsTo = [

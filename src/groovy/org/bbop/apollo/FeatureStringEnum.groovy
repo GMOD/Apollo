@@ -24,6 +24,7 @@ enum FeatureStringEnum {
      NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),
      NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),
      DATE_LAST_MODIFIED,
+     DATE_CREATION,
      COMMENT("Comment"),
      LOCATION,
      FMIN,
@@ -47,6 +48,8 @@ enum FeatureStringEnum {
      INSERTION_PREFIX("Insertion-"),
      OWNER("Owner"),
      ORGANISM,
+     SYMBOL,
+     DESCRIPTION,
      UNIQUENAME
 
 

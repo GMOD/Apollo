@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import groovy.transform.CompileStatic
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
@@ -16,10 +17,9 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 //@GrailsCompileStatic
 @Transactional
+//@CompileStatic
 class FeatureService {
 
-    public static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
-    public static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
 
     NameService nameService
     ConfigWrapperService configWrapperService
@@ -29,97 +29,9 @@ class FeatureService {
     CdsService cdsService
     NonCanonicalSplitSiteService nonCanonicalSplitSiteService
     FeatureRelationshipService featureRelationshipService
+    FeaturePropertyService featurePropertyService
 
-    def addProperty(Feature feature, FeatureProperty property) {
-        int rank = 0;
-        for (FeatureProperty fp : feature.getFeatureProperties()) {
-            if (fp.getType().equals(property.getType())) {
-                if (fp.getRank() > rank) {
-                    rank = fp.getRank();
-                }
-            }
-        }
-        property.setRank(rank + 1);
-        boolean ok = feature.addToFeatureProperties(property);
 
-    }
-
-    public boolean deleteProperty(Feature feature, FeatureProperty property) {
-        for (FeatureProperty fp : feature.getFeatureProperties()) {
-            if (fp.getType().equals(property.getType()) && fp.getValue().equals(property.getValue())) {
-                feature.getFeatureProperties().remove(fp);
-                return true;
-            }
-        }
-    }
-
-    /**
-     * Is there a feature property called "owner"
-     * @param feature
-     * @return
-     */
-    public User getOwner(Feature feature) {
-//        Collection<CVTerm> ownerCvterms = conf.getCVTermsForClass("Owner");
-        List<CVTerm> ownerCvTerms = CVTerm.findAllByName("Owner")
-
-        for (FeatureProperty fp : feature.getFeatureProperties()) {
-            if (fp.type in ownerCvTerms) {
-                return User.findByUsername(fp.type.name)
-            }
-//            if (ownerCvterms.contains(fp.getType())) {
-//                return new User(fp, conf);
-//            }
-        }
-
-        // if no owner found, try to get the first owner found in an ancestor
-        for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
-//            Feature parent = (AbstractBioFeature)BioObjectUtil.createBioObject(fr.getObjectFeature(), getConfiguration());
-            Feature parent = fr.parentFeature // may be subject Feature . . not sure
-            User parentOwner = getOwner(parent)
-            if (parentOwner != null) {
-                return parentOwner;
-            }
-        }
-
-        return null;
-    }
-
-    public void setUser(Feature feature, User owner) {
-//        Collection<CVTerm> ownerCvterms = conf.getCVTermsForClass("User");
-        List<CVTerm> ownerCvTerms = CVTerm.findAllByName("Owner")
-
-        for (FeatureProperty fp : feature.getFeatureProperties()) {
-//            if (ownerCvterms.contains(fp.getType())) {
-            if (fp.type in ownerCvTerms) {
-                feature.getFeatureProperties().remove(fp);
-                break;
-            }
-        }
-        addProperty(feature, owner);
-    }
-
-    /** Set the owner of this feature.
-     *
-     * @param owner - User of this feature
-     */
-    public void setOwner(Feature feature, String owner) {
-
-        println "looking for owner ${owner}"
-        User user = User.findByUsername(owner)
-        println "owner ${owner} found ${user}"
-        println "feature ${feature}"
-
-        if (user) {
-            setOwner(feature, user)
-        } else {
-            throw new AnnotationException("User ${owner} not found")
-        }
-//        setOwner(new User(owner));
-    }
-
-    public void setOwner(Feature feature, User user) {
-        addProperty(feature, user)
-    }
 
     public
     static FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Feature sourceFeature) throws JSONException {
@@ -134,7 +46,7 @@ class FeatureService {
     /** Get features that overlap a given location.  Compares strand as well as coordinates.
      *
      * @param location - FeatureLocation that the features overlap
-     * @return Collection of AbstractSingleLocationBioFeature objects that overlap the FeatureLocation
+     * @return Collection of Feature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location) {
         return getOverlappingFeatures(location, true);
@@ -144,7 +56,7 @@ class FeatureService {
      *
      * @param location - FeatureLocation that the features overlap
      * @param compareStrands - Whether to compare strands in overlap
-     * @return Collection of AbstractSingleLocationBioFeature objects that overlap the FeatureLocation
+     * @return Collection of Feature objects that overlap the FeatureLocation
      */
     public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands) {
 //        LinkedList<Feature> overlappingFeatures = new LinkedList<Feature>();
@@ -279,7 +191,7 @@ class FeatureService {
             }
 
 //            setOwner(transcript, (String) session.getAttribute("username"));
-            setOwner(transcript, (String) SecurityUtils?.subject?.principal);
+            featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
 
 
 
@@ -306,7 +218,7 @@ class FeatureService {
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
 //                    String username = SecurityUtils?.subject?.principal
-                    setOwner(transcript, (String) SecurityUtils?.subject?.principal);
+                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
@@ -346,7 +258,7 @@ class FeatureService {
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            setOwner(gene, (String) SecurityUtils?.subject?.principal ?: "demo@demo.gov");
+//            featurePropertyService.setOwner(gene, (String) SecurityUtils?.subject?.principal ?: "demo@demo.gov");
             println "gene ${gene}"
             println "gene ${gene.parentFeatureRelationships}"
             transcript = transcriptService.getTranscripts(gene).iterator().next();
@@ -407,7 +319,7 @@ class FeatureService {
 //        if (uniqueNameToStoredUniqueName.containsKey(feature.getUniqueName())) {
 //            addSequenceAlterationdeleteFeature(feature);
 //        }
-//        AbstractSingleLocationBioFeature topLevelFeature = getTopLevelFeature(feature);
+//        Feature topLevelFeature = getTopLevelFeature(feature);
 //        features.add(new FeatureData(topLevelFeature));
 //        if (getFeatureByUniqueName(topLevelFeature.getUniqueName()) == null) {
 //            beginTransactionForFeature(topLevelFeature);
@@ -559,8 +471,8 @@ class FeatureService {
             setLongestORF(transcript, readThroughStopCodon);
             return;
         }
-        boolean manuallySetStart = isManuallySetTranslationStart(cds);
-        boolean manuallySetEnd = isManuallySetTranslationEnd(cds);
+        boolean manuallySetStart = cdsService.isManuallySetTranslationStart(cds);
+        boolean manuallySetEnd = cdsService.isManuallySetTranslationEnd(cds);
         if (manuallySetStart && manuallySetEnd) {
             return;
         }
@@ -573,55 +485,7 @@ class FeatureService {
         }
     }
 
-    public boolean isManuallySetTranslationStart(CDS cds) {
-        for (Comment comment : getComments(cds)) {
-            if (comment.value.equals(MANUALLY_SET_TRANSLATION_START)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-/** Get comments for this feature.
- *
- * @return Comments for this feature
- */
-    public Collection<Comment> getComments(Feature feature) {
-//        CVTerm commentCvTerm = cvTermService.getTerm(FeatureStringEnum.COMMENT)
-//        Collection<CVTerm> commentCvterms = conf.getCVTermsForClass("Comment");
-        List<Comment> comments = new ArrayList<Comment>();
-
-        // TODO: move out of loop and into own service method
-        for (FeatureProperty fp : feature.getFeatureProperties()) {
-            if (Comment.ontologyId == fp.ontologyId) {
-                comments.add((Comment) fp);
-            }
-        }
-//        FeatureProperty.findByFeaturesAndOntologyId()
-
-
-        Collections.sort(comments, new Comparator<Comment>() {
-
-//            @Override
-            public int compare(Comment comment1, Comment comment2) {
-                if (comment1.getType().equals(comment2.getType())) {
-                    return new Integer(comment1.getRank()).compareTo(comment2.getRank());
-                }
-                return new Integer(comment1.hashCode()).compareTo(comment2.hashCode());
-            }
-        });
-        return comments;
-    }
-
-    public boolean isManuallySetTranslationEnd(CDS cds) {
-
-        for (Comment comment : getComments(cds)) {
-            if (comment.value.equals(MANUALLY_SET_TRANSLATION_END)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 /**
  * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
@@ -857,21 +721,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         );
     }
 
-    public void setManuallySetTranslationEnd(CDS cds, boolean manuallySetTranslationEnd) {
-        if (manuallySetTranslationEnd && isManuallySetTranslationEnd(cds)) {
-            return;
-        }
-        if (!manuallySetTranslationEnd && !isManuallySetTranslationEnd(cds)) {
-            return;
-        }
-        if (manuallySetTranslationEnd) {
-            addComment(cds, MANUALLY_SET_TRANSLATION_END)
-        }
-        if (!manuallySetTranslationEnd) {
-            deleteComment(cds, MANUALLY_SET_TRANSLATION_END)
-        }
-    }
-
 /**
  * Set the translation end in the transcript.  Sets the translation end in the underlying CDS feature.
  * Instantiates the CDS object for the transcript if it doesn't already exist.
@@ -892,7 +741,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         } else {
             cds.featureLocation.setFmax(translationEnd + 1);
         }
-        setManuallySetTranslationEnd(cds, true);
+        cdsService.setManuallySetTranslationEnd(cds, true);
         cdsService.deleteStopCodonReadThrough(cds);
         if (setTranslationStart && translationTable != null) {
             String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
@@ -970,8 +819,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     public void setTranslationEnds(Transcript transcript, int translationStart, int translationEnd, boolean manuallySetStart, boolean manuallySetEnd) {
         setTranslationFmin(transcript, translationStart);
         setTranslationFmax(transcript, translationEnd);
-        setManuallySetTranslationStart(transcriptService.getCDS(transcript), manuallySetStart);
-        setManuallySetTranslationEnd(transcriptService.getCDS(transcript), manuallySetEnd);
+        cdsService.setManuallySetTranslationStart(transcriptService.getCDS(transcript), manuallySetStart);
+        cdsService.setManuallySetTranslationEnd(transcriptService.getCDS(transcript), manuallySetEnd);
 
         Date date = new Date();
         transcriptService.getCDS(transcript).setLastUpdated(date);
@@ -982,20 +831,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
-    public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
-        if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
-            return;
-        }
-        if (!manuallySetTranslationStart && !isManuallySetTranslationStart(cds)) {
-            return;
-        }
-        if (manuallySetTranslationStart) {
-            addComment(cds, MANUALLY_SET_TRANSLATION_START)
-        }
-        if (!manuallySetTranslationStart) {
-            deleteComment(cds, MANUALLY_SET_TRANSLATION_START)
-        }
-    }
 
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
         setLongestORF(transcript, translationTable, allowPartialExtension, false);
@@ -1003,7 +838,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 /** Get the residues for a feature with any alterations and frameshifts.
  *
- * @param feature - AbstractSingleLocationBioFeature to retrieve the residues for
+ * @param feature - Feature to retrieve the residues for
  * @return Residues for the feature with any alterations and frameshifts
  */
     public String getResiduesWithAlterationsAndFrameshifts(Feature feature) {
@@ -1191,8 +1026,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         } else {
             cdsService.deleteStopCodonReadThrough(cds);
         }
-        setManuallySetTranslationStart(cds, false);
-        setManuallySetTranslationEnd(cds, false);
+        cdsService.setManuallySetTranslationStart(cds, false);
+        cdsService.setManuallySetTranslationEnd(cds, false);
 
 //        if (needCdsIndex) {
 //            getSession().indexFeature(cds);
@@ -1541,32 +1376,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
         return residues.toString();
-    }
-
-    def addComment(Feature feature, Comment comment) {
-        addProperty(feature, comment)
-    }
-
-    def addComment(Feature feature, String commentString) {
-        Comment comment = new Comment(
-//                feature: feature
-//                type: cvTermService.getTerm(FeatureStringEnum.COMMENT.value),
-                value: commentString
-        ).save()
-        comment.addToFeatures(feature)
-
-        addComment(feature, comment)
-    }
-
-    boolean deleteComment(Feature feature, String commentString) {
-//        CVTerm commentCVTerm = cvTermService.getTerm(FeatureStringEnum.COMMENT.value)
-//        Comment comment =  Comment.findByTypeAndFeatureAndValue(commentCVTerm,feature,commentString)
-        Comment comment = Comment.findByFeaturesInListAndValue([feature], commentString)
-        if (comment) {
-            Comment.deleteAll(comment)
-            return true
-        }
-        return false
     }
 
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
@@ -1984,5 +1793,146 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, gsolFeatureLocation.getStrand());
         return jsonFeatureLocation;
+    }
+
+    Boolean deleteFeature(Feature feature,HashMap<String, List<Feature>> modifiedFeaturesUniqueNames) {
+
+        if (feature instanceof Exon) {
+            Exon exon = (Exon) feature;
+            Transcript transcript = (Transcript) Transcript.findByUniqueName(exonService.getTranscript(exon).getUniqueName());
+
+            if (!(transcriptService.getGene(transcript) instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
+                CDS cds = transcriptService.getCDS(transcript);
+                if (cdsService.isManuallySetTranslationStart(cds)) {
+                    int cdsStart = cds.getStrand() == -1 ? cds.getFmax() : cds.getFmin();
+                    if (cdsStart >= exon.getFmin() && cdsStart <= exon.getFmax()) {
+                        cdsService.setManuallySetTranslationStart(cds, false);
+                    }
+                }
+            }
+
+            exonService.deleteExon(transcript,exon)
+            List<Feature> deletedFeatures = modifiedFeaturesUniqueNames.get(transcript.getUniqueName());
+            if (deletedFeatures == null) {
+                deletedFeatures = new ArrayList<Feature>();
+                modifiedFeaturesUniqueNames.put(transcript.getUniqueName(), deletedFeatures);
+            }
+            deletedFeatures.add(exon);
+            return transcriptService.getExons(transcript)?.size() > 0;
+        } else {
+            List<Feature> deletedFeatures = modifiedFeaturesUniqueNames.get(feature.getUniqueName());
+            if (deletedFeatures == null) {
+                deletedFeatures = new ArrayList<Feature>();
+                modifiedFeaturesUniqueNames.put(feature.getUniqueName(), deletedFeatures);
+            }
+            deletedFeatures.add(feature);
+            return false;
+        }
+    }
+
+    /**
+     * TODO: finish this method
+     * @param modifiedFeaturesUniqueNames
+     * @param isUpdateOperation
+     */
+    def updateModifiedFeaturesAfterDelete(HashMap<String, List<Feature>> modifiedFeaturesUniqueNames, Boolean isUpdateOperation) {
+        if(true) throw new RuntimeException("Not implemented")
+
+        for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
+            String uniqueName = entry.getKey();
+            List<Feature> deletedFeatures = entry.getValue();
+            Feature feature = Feature.findByUniqueName(uniqueName);
+            if (feature == null) {
+                log.info("Feature already deleted");
+                continue;
+            }
+//            SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
+//            Feature gsolFeature = (Feature) iterator.next();
+//            if (!isUpdateOperation) {
+//                featureContainer.getJSONArray("features").put(new JSONObject().put("uniquename", uniqueName));
+//
+//                if (feature instanceof Transcript) {
+//                    Transcript transcript = (Transcript) feature;
+//                    Gene gene = transcript.getGene();
+//                    editor.deleteTranscript(transcript.getGene(), transcript);
+//                    if (gene.getTranscripts().size() == 0) {
+//                        editor.deleteFeature(gene);
+//                    }
+//                    if (dataStore != null) {
+//                        if (gene.getTranscripts().size() > 0) {
+//                            dataStore.writeFeature(gene);
+//                        } else {
+//                            dataStore.deleteFeature(gene);
+//                        }
+//                    }
+//
+////                    editor.getSession().endTransactionForFeature(gene);
+//
+//                } else {
+//                    editor.deleteFeature(feature);
+//                    if (dataStore != null) {
+//                        dataStore.deleteFeature(gsolFeature);
+//                    }
+//
+////                    editor.getSession().endTransactionForFeature(feature);
+//
+//                }
+//
+//                if (historyStore != null) {
+////                    Transaction transaction = new Transaction(operation, feature.getUniqueName());
+////                    transaction.setAttribute("feature", feature);
+////                    transaction.addOldFeature(feature);
+////                    writeHistoryToStore(historyStore, transaction);
+//                    List<String> toBeDeleted = new ArrayList<String>();
+//                    toBeDeleted.add(feature.getUniqueName());
+//                    while (!toBeDeleted.isEmpty()) {
+//                        String id = toBeDeleted.remove(toBeDeleted.size() - 1);
+//                        for (Transaction t : historyStore.getTransactionListForFeature(id)) {
+//                            if (t.getOperation().equals(Transaction.Operation.MERGE_TRANSCRIPTS)) {
+//                                if (editor.getSession().getFeatureByUniqueName(t.getOldFeatures().get(1).getUniqueName()) == null) {
+//                                    toBeDeleted.add(t.getOldFeatures().get(1).getUniqueName());
+//                                }
+//                            }
+//                        }
+//                        historyStore.deleteHistoryForFeature(id);
+//                    }
+//                }
+//            } else {
+//                Transaction.Operation operation;
+//                if (feature instanceof Transcript) {
+//                    Transcript transcript = (Transcript) feature;
+//                    calculateCDS(editor, transcript);
+//                    findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+//                    updateTranscriptAttributes(transcript);
+//                    operation = Transaction.Operation.DELETE_EXON;
+//                    if (dataStore != null) {
+//                        dataStore.writeFeature(transcript.getGene());
+//                    }
+//
+////                    editor.getSession().endTransactionForFeature(transcript);
+//
+//                } else {
+//                    operation = Transaction.Operation.DELETE_FEATURE;
+//                    if (dataStore != null) {
+//                        dataStore.writeFeature(gsolFeature);
+//                    }
+//
+////                    editor.getSession().endTransactionForFeature(feature);
+//
+//                }
+//                if (historyStore != null) {
+//                    Transaction transaction = new Transaction(operation, feature.getUniqueName(), username);
+////                    transaction.setAttribute("feature", feature);
+////                    transaction.setAttribute("children", deletedFeatures);
+//                    transaction.getOldFeatures().addAll(deletedFeatures);
+//                    if (operation == Transaction.Operation.DELETE_EXON) {
+//                        transaction.addNewFeature(feature);
+//                    }
+//                    writeHistoryToStore(historyStore, transaction);
+//                }
+//                featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(editor.getSession().getFeatureByUniqueName(uniqueName)));
+//            }
+        }
+
     }
 }
