@@ -1949,7 +1949,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
 //            Date timeLastModified = gsolFeature.getTimeLastModified() != null ? gsolFeature.getTimeLastModified() : gsolFeature.getTimeAccessioned();
-            jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated);
+            jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
         }
         catch (JSONException e) {
             return null;
