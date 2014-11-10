@@ -222,16 +222,31 @@
 				</li>
 				</g:if>
 			
-				<g:if test="${geneInstance?.parentFeatureRelationships}">
+				%{--<g:if test="${geneInstance?.parentFeatureRelationships}">--}%
 				<li class="fieldcontain">
 					<span id="parentFeatureRelationships-label" class="property-label"><g:message code="gene.parentFeatureRelationships.label" default="Parent Feature Relationships" /></span>
 					
 						<g:each in="${geneInstance.parentFeatureRelationships}" var="p">
-						<span class="property-value" aria-labelledby="parentFeatureRelationships-label"><g:link controller="featureRelationship" action="show" id="${p.id}">${p?.encodeAsHTML()}</g:link></span>
+						<span class="property-value" aria-labelledby="parentFeatureRelationships-label">
+							%{--<g:link controller="featureRelationship" action="show" id="${p.id}">--}%
+								<g:link controller="feature" action="show" id="${p.childFeature.id}">
+								${p.childFeature.ontologyId}
+								${p.childFeature.cvTerm}
+							%{--${p?.encodeAsHTML()}--}%
+						</g:link>
+						</span>
 						</g:each>
 					
 				</li>
-				</g:if>
+				<li class="fieldcontain">
+					<span id="childFeatureRelationships-label" class="property-label"><g:message code="gene.childFeatureRelationships.label" default="Child Feature Relationships" /></span>
+
+					<g:each in="${geneInstance.childFeatureRelationships}" var="p">
+						<span class="property-value" aria-labelledby="childFeatureRelationships-label"><g:link controller="featureRelationship" action="show" id="${p.id}">${p?.encodeAsHTML()}</g:link></span>
+					</g:each>
+
+				</li>
+				%{--</g:if>--}%
 			
 			</ol>
 			<g:form url="[resource:geneInstance, action:'delete']" method="DELETE">
