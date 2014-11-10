@@ -26,7 +26,8 @@
 					
 						<g:sortableColumn property="name" title="${message(code: 'gene.name.label', default: 'Name')}" />
 					
-						<g:sortableColumn property="uniqueName" title="${message(code: 'gene.uniqueName.label', default: 'Unique Name')}" />
+						%{--<g:sortableColumn property="uniqueName" title="${message(code: 'gene.uniqueName.label', default: 'Unique Name')}" />--}%
+						<th>Count</th>
 					
 						<th><g:message code="gene.dbxref.label" default="Dbxref" /></th>
 					
@@ -43,8 +44,13 @@
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
 						<td><g:link action="show" id="${geneInstance.id}">${fieldValue(bean: geneInstance, field: "name")}</g:link></td>
-					
-						<td>${fieldValue(bean: geneInstance, field: "uniqueName")}</td>
+
+						<td>
+							${geneInstance?.childFeatureRelationships?.size()}
+							${geneInstance?.parentFeatureRelationships?.size()}
+
+						</td>
+						%{--<td>${fieldValue(bean: geneInstance, field: "uniqueName")}</td>--}%
 					
 						<td>${fieldValue(bean: geneInstance, field: "dbxref")}</td>
 					
