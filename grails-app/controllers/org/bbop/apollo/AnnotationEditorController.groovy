@@ -20,6 +20,10 @@ class AnnotationEditorController {
 
     def featureService
     def transcriptService
+    def configWrapperService
+    def nonCanonicalSplitSiteService
+    def featureRelationshipService
+    def nameService
 
     String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
@@ -37,7 +41,7 @@ class AnnotationEditorController {
     List<AnnotationEventListener> listenerList = new ArrayList<>()
 
     def index() {
-        log.debug  "bang "
+        log.debug "bang "
     }
 
     private String underscoreToCamelCase(String underscore) {
@@ -56,7 +60,7 @@ class AnnotationEditorController {
         }
     }
 
-    private String fixTrackHeader(String trackInput){
+    private String fixTrackHeader(String trackInput) {
         return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
     }
 
@@ -65,7 +69,7 @@ class AnnotationEditorController {
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
-        log.debug  "${operation} -> ${mappedAction}"
+        log.debug "${operation} -> ${mappedAction}"
         track = postObject.get(REST_TRACK)
 
         // TODO: hack needs to be fixed
@@ -76,12 +80,12 @@ class AnnotationEditorController {
 
 
     def getUserPermission() {
-        log.debug  "gettinguser permission !! ${params.data}"
+        log.debug "gettinguser permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: wire into actual user table
         String username = session.getAttribute("username")
-        log.debug  "user from ${username}"
+        log.debug "user from ${username}"
         username = "demo@demo.gov"
         returnObject.put(REST_PERMISSION, 3)
         returnObject.put(REST_USERNAME, username)
@@ -90,7 +94,7 @@ class AnnotationEditorController {
     }
 
     def getDataAdapters() {
-        log.debug  "get data adapters !! ${params}"
+        log.debug "get data adapters !! ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         JSONArray dataAdaptersArray = new JSONArray();
@@ -107,10 +111,10 @@ class AnnotationEditorController {
             dataAdapterJSON.put(REST_OPTIONS, dataAdapter.options)
             JSONArray dataAdapterGroupArray = new JSONArray();
             // handles groups
-            if(dataAdapter.dataAdapters){
+            if (dataAdapter.dataAdapters) {
                 dataAdapterJSON.put(REST_DATA_ADAPTERS, dataAdapterGroupArray)
 
-                for(da in dataAdapter.dataAdapters){
+                for (da in dataAdapter.dataAdapters) {
                     JSONObject dataAdapterChild = new JSONObject()
                     dataAdapterChild.put(REST_KEY, da.key)
                     dataAdapterChild.put(REST_PERMISSION, da.permission)
@@ -119,24 +123,24 @@ class AnnotationEditorController {
                 }
             }
         }
-        log.debug  "returning data adapters  ${returnObject}"
+        log.debug "returning data adapters  ${returnObject}"
 
         render returnObject
     }
 
     def getTranslationTable() {
-        log.debug  "get translation table!! ${params}"
+        log.debug "get translation table!! ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         SequenceUtil.TranslationTable translationTable = SequenceUtil.getDefaultTranslationTable()
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue());
         }
-        returnObject.put(REST_TRANSLATION_TABLE,ttable);
+        returnObject.put(REST_TRANSLATION_TABLE, ttable);
         render returnObject
     }
 
-    private JSONObject createJSONFeatureContainer(JSONObject ... features) throws JSONException {
+    private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
         jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
@@ -146,16 +150,62 @@ class AnnotationEditorController {
         return jsonFeatureContainer;
     }
 
+    def addFeature() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        JSONObject returnObject = createJSONFeatureContainer()
+
+        println "adding transcript return object ${returnObject}"
+        String trackName = fixTrackHeader(inputObject.track)
+        println "PRE featuresArray ${featuresArray}"
+        Sequence sequence = Sequence.findByName(trackName)
+        println "sequence ${sequence}"
+        println "features Array size ${featuresArray.size()}"
+        println "features Array ${featuresArray}"
+
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, null, sequence)
+            featureService.updateNewGsolFeatureAttributes(newFeature, null)
+            featureService.addFeature(newFeature)
+            newFeature.save(insert: true, flush: true)
+
+            if (newFeature instanceof Gene) {
+                for (Transcript transcript : transcriptService.getTranscripts((Gene) newFeature)) {
+                    if (!(newFeature instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
+                        if (!configWrapperService.useCDS() || transcriptService.getCDS(transcript) == null) {
+                            featureService.calculateCDS(transcript);
+                        }
+                    } else {
+                        if (transcriptService.getCDS(transcript) != null) {
+                            featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+//                            transcriptService.deleteCDS(transcript);
+                        }
+                    }
+                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+                    transcript.name = nameService.generateUniqueName()
+                    transcript.uniqueName = transcript.name
+
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+                }
+            } else {
+                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(newFeature));
+            }
+
+        }
+
+
+        render returnObject
+    }
 
     /**
      * // input
-     * {"operation":"add_transcript","track":"Annotations-Group1.2","features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":258308,"strand":1,"fmax":258471},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":247976},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd","children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},"name":"00540e13-de64-4fa2-868a-e168e584f55d","uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},{"location":{"fmin":258308,"strand":1,"fmax":258471},"name":"de44177e-ce76-4a9a-8313-1c654d1174aa","uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5","uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915","uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],"uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}
-     *
+     *{"operation":"add_transcript","track":"Annotations-Group1.2","features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":258308,"strand":1,"fmax":258471},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":247976},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd","children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},"name":"00540e13-de64-4fa2-868a-e168e584f55d","uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},{"location":{"fmin":258308,"strand":1,"fmax":258471},"name":"de44177e-ce76-4a9a-8313-1c654d1174aa","uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5","uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915","uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],"uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}*
      * // returned form the fir method
-     * {"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}
-     * @return
+     *{"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
      */
-    def addTranscript(){
+    def addTranscript() {
         println "adding transcript ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -165,11 +215,10 @@ class AnnotationEditorController {
         println "adding transcript return object ${inputObject}"
         String trackName = fixTrackHeader(inputObject.track)
         println "PRE featuresArray ${featuresArray}"
-        if(featuresArray.size()==1){
+        if (featuresArray.size() == 1) {
             JSONObject object = featuresArray.getJSONObject(0)
             println "object ${object}"
-        }
-        else{
+        } else {
             println "what is going on?"
         }
         println "POST featuresArray ${featuresArray}"
@@ -180,25 +229,25 @@ class AnnotationEditorController {
         println "features Array ${featuresArray}"
 
         List<Transcript> transcriptList = new ArrayList<>()
-        for(int i = 0 ; i < featuresArray.size(); i++){
+        for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             println "${i} jsonTranscript ${jsonTranscript}"
             println "featureService ${featureService} ${trackName}"
-            Transcript transcript = featureService.generateTranscript(jsonTranscript,trackName)
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
 
             // should automatically write to history
-            transcript.save(insert:true,flush:true)
+            transcript.save(insert: true, flush: true)
 //            sequence.addFeatureLotranscript)
             transcriptList.add(transcript)
 
 
         }
 
-        sequence.save(flush:true)
+        sequence.save(flush: true)
         // do I need to put it back in?
 //        returnObject.putJSONArray("features",featuresArray)
         transcriptList.each { transcript ->
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false));
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
 //            featuresArray.put(featureService.convertFeatureToJSON(transcript,false))
         }
 
@@ -213,27 +262,19 @@ class AnnotationEditorController {
 
         fireAnnotationEvent(annotationEvent)
 
-        render inputObject
+        render returnObject
     }
 /**
-     *
-     * Should return of form:
-     * {
-     "features": [{
-     "location": {
-     "fmin": 511,
-     "strand": - 1,
-     "fmax": 656
-     },
-     "parent_type": {
-     "name": "gene",
-     "cv": {
-     "name": "sequence"
-     }
-     },
-     "name": "gnl|Amel_4.5|TA31.1_00029673-1",
-     * @return
-     */
+ *
+ * Should return of form:
+ *{"features": [{"location": {"fmin": 511,
+ "strand": - 1,
+ "fmax": 656},
+ "parent_type": {"name": "gene",
+ "cv": {"name": "sequence"}},
+ "name": "gnl|Amel_4.5|TA31.1_00029673-1",
+ * @return
+ */
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
@@ -258,10 +299,10 @@ class AnnotationEditorController {
          * TODO: this should be one single query
          */
         // 1. - handle genes
-        List<Gene> topLevelGenes = Gene.executeQuery("select f from Gene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ",[sequence: sequence])
+        List<Gene> topLevelGenes = Gene.executeQuery("select f from Gene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
         for (Gene gene : topLevelGenes) {
             for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
+                println " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
                 featureSet.add(transcript)
 //                    jsonFeatures.put(transcript as JSON);
@@ -269,89 +310,44 @@ class AnnotationEditorController {
         }
 
         // 1b. - handle psuedogenes
-        List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ",[sequence: sequence])
+        List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
         for (Gene gene : listOfPseudogenes) {
             for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
+                println " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
                 featureSet.add(transcript)
 //                    jsonFeatures.put(transcript as JSON);
             }
         }
 
-
         // 2. - handle transcripts
-        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty " ,[sequence: sequence])
+        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
         println "# of top level features ${topLevelTranscripts.size()}"
-        for(Transcript transcript1 in topLevelTranscripts){
+        for (Transcript transcript1 in topLevelTranscripts) {
             featureSet.add(transcript1)
         }
-
-//        for (Feature feature: topLevelTranscripts) {
-//            println "feature onto ID ${feature.ontologyId} and CvTerm ${feature.cvTerm} and class ${feature}"
-//            feature = (Gene) feature
-//            if (feature instanceof Gene) {
-//                Gene gene = (Gene) feature
-//                for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-//                    println" getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-////                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
-//                    featureSet.add(transcript)
-////                    jsonFeatures.put(transcript as JSON);
-//                }
-//            }
-//            else {
-//                println " NOT instance of gene! ${feature.uniqueName} ${feature.ontologyId} ${feature.id}"
-//                featureSet.add(feature)
-////                jsonFeatures.put( feature as JSON)
-////                jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(gbolFeature));
-//            }
-//        }
 
         println "feature set size: ${featureSet.size()}"
 
         JSONArray jsonFeatures = new JSONArray()
-//        returnObject.put("features",jsonFeatures)
-//        featureSet.each { jsonFeatures.put(it as JSON)}
-        featureSet.each {  feature ->
-//            jsonFeatures.put(feature as JSON)
-            JSONObject jsonObject = featureService.convertFeatureToJSON(feature,false)
+        featureSet.each { feature ->
+            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
 
-        returnObject.put(REST_FEATURES,jsonFeatures)
+        returnObject.put(REST_FEATURES, jsonFeatures)
 
 
         println "final return objecct ${returnObject}"
-        // the returned option after "fireDataStoreChange::
-
-        // {"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"278478F7AB14FF3D5C6815B97AE7006D","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"},{"location":{"fmin":258308,"strand":1,"fmax":258471},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"E331BA20E79FC9393E6359EF93A63BA7","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"},{"location":{"fmin":247892,"strand":1,"fmax":247976},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"3764FC7E626155F001B412F8692E332C","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"},{"location":{"fmin":247892,"strand":1,"fmax":305356},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"DDFBC83612AF1D75B559D89B5A8822E2","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415405480429,"parent_id":"455C6990570CE75572ED4C07FDC95AF8"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"455C6990570CE75572ED4C07FDC95AF8","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415405480434,"parent_id":"E388DDDA2901678E194CEC20663A245F"}]}
-        // {
-//        "operation": "ADD",
-//        "sequenceAlterationEvent": false,
-//        "features": [
-//                {
-//                    "location": {
-//                    "fmin": 247892,
-//                    "strand": 1,
-//                    "fmax": 305356
-//                },
-//                    "parent_type": {
-//                    "name": "gene",
-//                    "cv": {
-//                        "name": "sequence"
-//                    }
-//                },
-//                    "name": "geneid_mRNA_CM000054.5_150",
-
 
 //        if (fireUpdateChange) {
 //            fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.ADD);
 //        }
 
         fireAnnotationEvent(new AnnotationEvent(
-                source:  returnObject
-                ,operation: AnnotationEvent.Operation.ADD
-                ,sequence: sequence
+                source: returnObject
+                , operation: AnnotationEvent.Operation.ADD
+                , sequence: sequence
         ))
 
 
@@ -362,11 +358,11 @@ class AnnotationEditorController {
 //        AbstractDataStoreManager.getInstance().fireDataStoreChange(events);
 //    }
 
-    def getSequenceAlterations(){
-        log.debug  "getting sequence alterations "
+    def getSequenceAlterations() {
+        log.debug "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         JSONArray jsonFeatures = new JSONArray()
-        returnObject.put("features",jsonFeatures)
+        returnObject.put("features", jsonFeatures)
 
         // TODO: get alternations from session
 //        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
@@ -386,12 +382,18 @@ class AnnotationEditorController {
 //        out.write(organism.toString());
 
         // the editor is bound to the session
-        log.debug  "getting sequence alterations "
+        log.debug "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: implement this from the session
-        Organism organism = Organism.findByCommonName(session.getAttribute(FeatureStringEnum.ORGANISM.value).toString())
-        render organism as JSON
+        String organismName = session.getAttribute(FeatureStringEnum.ORGANISM.value)
+        if (organismName) {
+            Organism organism = Organism.findByCommonName(organismName)
+            if (organism) {
+                render organism as JSON
+            }
+        }
+        render new JSONObject()
 
 //
 //        JSONArray jsonFeatures = new JSONArray()
@@ -413,14 +415,14 @@ class AnnotationEditorController {
     @MessageMapping("/hello")
     @SendTo("/topic/hello")
     protected String hello(String world) {
-        log.debug  "got here! . . . "
+        log.debug "got here! . . . "
         return "hello from controller, ${world}!"
     }
 
     @MessageMapping("/AnnotationEditorService")
     @SendTo("/topic/AnnotationEditorService")
     protected String annotationEditor(String inputString) {
-        log.debug  " annotation editor service ${inputString}"
+        log.debug " annotation editor service ${inputString}"
         return "annotationEditor ${inputString}!"
     }
 }
