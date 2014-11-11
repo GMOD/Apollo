@@ -16,32 +16,13 @@ this quick-start guide can help by automating some setup steps. This
 WebApollo instance from scratch.
 
 This guide assumes that you have...
-
--   Ability to use a unix-y command line, along with perl, and
-    postgreSQL.
--   Ability to install some prerequisites to the system with a package
-    manager
--   Ability to configure a postgres user and use password
-    authentication. Some systems only use ident or user based
-    authentication for postgres (notably redhat). Please see
-    [Authentication](Install.md#authentication "wikilink") for details on how to
-    configure password authentication.
--   Use of cpan or cpanm for perl package management
-
-In this guide, we will be...
-
--   Installing system and perl prerequisites
--   Setting up a postgres user
--   Downloading webapollo from github
--   Running the WebApollo build.sh script
--   Creating a new data directory for the jbrowse data (outside of the
-    webapp directory)
--   Creating a new data directory for the WebApollo annotations (also
-    outside of the webapp directory)
--   Configuring WebApollo using the config.properties file (most xml
-    files do not necessarily have to be touched except for more
-    extensive configuration)
-
+ - Installing system and perl prerequisites
+ - Setting up a postgres user and database
+ - Downloading WebApollo from github
+ - Running the WebApollo build script
+ - Creating a new data directory for the JBrowse data
+ - Creating a new data directory for the WebApollo annotations
+ - Configuring WebApollo using the config.properties file
 More discussion of the particular configurations can be seen in the full
 [installation guide](Install.md#installation "wikilink").
 
