@@ -14,8 +14,6 @@ This guide assumes that you have...
  - Creating a new data directory for the JBrowse data
  - Creating a new data directory for the WebApollo annotations
  - Configuring WebApollo using the config.properties file
-More discussion of the particular configurations can be seen in the full
-[installation guide](Install.md#installation "wikilink").
 
     # set some environmental variables
     export PGUSER=`whoami`
@@ -44,7 +42,7 @@ More discussion of the particular configurations can be seen in the full
     cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
     cpanm DateTime Text::Markdown Crypt::PBKDF2 DBI DBD::Pg
 
-    # ubuntu/redhat/centOS - create a new postgres user and database for the webapollo instance. see (Authentication)[Install.md#authentication "wikilink"] section for more details
+    # ubuntu/redhat/centOS - create a new postgres user and database for the webapollo instance. see (database set)[Database_setup.md#authentication "wikilink"] section for more details
     sudo su postgres -c "createuser -RDIElPS $PGUSER"
     sudo su postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
     # macOSX/homebrew, no need to createuser
@@ -104,5 +102,4 @@ More discussion of the particular configurations can be seen in the full
 
 Note: you may have to shutdown any running instances of tomcat before
 doing a run.sh for testing. Alternatively, continue to the [Deploying
-the servlet](Install.md#deploying-the-servlet "wikilink") for instructions on
-deploying to production.
+the servlet](Deploy.md) for instructions on deploying to production.
