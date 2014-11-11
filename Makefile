@@ -10,8 +10,6 @@ JBROWSE_VERSION=dev
 GIT_VERSION=`git rev-parse --verify HEAD`
 POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`
 
-run: copy-webapollo-config
-	mvn tomcat7:run
 package: copy-webapollo-config
 	mvn package
 release: download-jbrowse copy-webapollo-plugin version build-jbrowse
@@ -24,7 +22,7 @@ build-jbrowse:
 	ulimit -n 1000;cd $(APOLLO_JBROWSE_GITHUB)&&$(MAKE) -f build/Makefile release-notest
 version:
 	echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp
-download-jbrowse: | $(APOLLO_JBROWSE_GITHUB)
+download-jbrowse:
 	test -d $(APOLLO_JBROWSE_GITHUB) || git clone --recursive $(JBROWSE_GITHUB) $(APOLLO_JBROWSE_GITHUB)
 copy-webapollo-plugin:
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(APOLLO_JBROWSE_GITHUB)/plugins/WebApollo
@@ -50,6 +48,10 @@ clean-repos: clean
 	rm -rf $(APOLLO_JBROWSE_GITHUB)
 clean-jbrowse-repo: clean
 	cd $(APOLLO_JBROWSE_GITHUB)&&make -f build/Makefile superclean
+test:
+	mvn test
+test-jbrowse:
+	prove -I $(APOLLO_JBROWSE_GITHUB)/src/perl5/ -r $(APOLLO_JBROWSE_GITHUB)/tests/perl_tests
 
 
-.PHONY: clean clean-webapp clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-config-files version
+.PHONY: clean clean-webapp clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-webapollo-config version test package test-jbrowse download-jbrowse
