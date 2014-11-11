@@ -23,10 +23,10 @@ debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
 github: download-jbrowse copy-webapollo-plugin version
 	cp -R $(APOLLO_JBROWSE_GITHUB) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
 download-release: download-jbrowse-static-debug
-	unzip JBrowse-$(JBROWSE_VERSION).zip
+	unzip `basename $(JBROWSE_RELEASE)`
 	mv `basename -s .zip $(JBROWSE_RELEASE)` $(APOLLO_JBROWSE_DIRECTORY)
 download-debug: download-jbrowse-static
-	unzip JBrowse-$(JBROWSE_VERSION)-dev.zip
+	unzip `basename $(JBROWSE_DEBUG)`
 	mv `basename -s .zip $(JBROWSE_DEBUG)` $(APOLLO_JBROWSE_DIRECTORY)
 build-jbrowse:
 	ulimit -n 1000;cd $(APOLLO_JBROWSE_GITHUB)&&$(MAKE) -f build/Makefile release-notest
