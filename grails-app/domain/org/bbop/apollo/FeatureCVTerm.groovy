@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+import org.gmod.gbol.simpleObject.CVTermDBXref
+import org.gmod.gbol.simpleObject.CVTermProperty
+
 /**
  * Converted
  * Chado?
@@ -17,9 +20,9 @@ class FeatureCVTerm {
     int rank;
 
     static hasMany = [
-            featureCVTermProperties : FeatureCVTermProperty
-            ,featureCVTermPublications: FeatureCVTermPublication
-            ,featureCVTermDBXrefs: FeatureCVTermDBXref
+            featureCVTermProperties : CVTermProperty
+            ,featureCVTermPublications: Publication
+            ,featureCVTermDBXrefs: DBXref
     ]
 
 

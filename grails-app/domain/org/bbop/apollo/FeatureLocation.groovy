@@ -39,7 +39,7 @@ class FeatureLocation {
 
 
     static hasMany = [
-            featureLocationPublications: FeatureLocationPublication
+            featureLocationPublications: Publication
     ]
 
 

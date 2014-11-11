@@ -20,7 +20,7 @@ class Phenotype {
     static hasMany = [
             phenotypeCVTerms : PhenotypeCVTerm
             ,phenotypeStatements: PhenotypeStatement
-            ,featurePhenotypes : FeaturePhenotype
+            ,features: Feature
     ]
 
 
@@ -59,7 +59,7 @@ class Phenotype {
         cloned.value = this.value;
         cloned.phenotypeCVTerms = this.phenotypeCVTerms;
         cloned.phenotypeStatements = this.phenotypeStatements;
-        cloned.featurePhenotypes = this.featurePhenotypes;
+        cloned.features = this.features
         return cloned;
     }
 }
