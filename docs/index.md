@@ -35,5 +35,3 @@ We'll use sample data from the Pythium ultimum genome, provided as a
 
 Latest release: https://github.com/GMOD/Apollo/archive/1.0.0-RC2.tar.gz
 
-
-Continue to the [installation guide](Install.md)
