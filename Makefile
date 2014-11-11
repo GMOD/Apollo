@@ -22,10 +22,10 @@ debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
 	mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
 github: download-jbrowse copy-webapollo-plugin version
 	cp -R $(APOLLO_JBROWSE_GITHUB) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
-download-release: download-jbrowse-static-debug
+download-release: download-jbrowse-static
 	unzip `basename $(JBROWSE_RELEASE)`
 	mv `basename -s .zip $(JBROWSE_RELEASE)` $(APOLLO_JBROWSE_DIRECTORY)
-download-debug: download-jbrowse-static
+download-debug: download-jbrowse-static-debug
 	unzip `basename $(JBROWSE_DEBUG)`
 	mv `basename -s .zip $(JBROWSE_DEBUG)` $(APOLLO_JBROWSE_DIRECTORY)
 build-jbrowse:
