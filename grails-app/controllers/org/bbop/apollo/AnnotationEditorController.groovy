@@ -488,6 +488,25 @@ class AnnotationEditorController {
         render annotationInfoEditorConfigContainer
     }
 
+
+    def setName(){
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
+
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
+        render updateFeatureContainer
+    }
+
     def setDescription(){
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
