@@ -76,7 +76,7 @@ More discussion of the particular configurations can be seen in the full
     tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
 
     # build a compressed release package and install jbrowse binaries (also installs JBrowse's perl prerequisites using cpanm)
-    ./build.sh release
+    make download-jbrowse
     ./install_jbrowse_bin.sh cpanm
 
     # setup jbrowse data directory in WEB_APOLLO_ROOT/data
@@ -103,7 +103,7 @@ More discussion of the particular configurations can be seen in the full
     mv sample_config.xml config.xml
 
     # launch instance for testing, login to `http://localhost:8080/apollo` as web_apollo_admin:web_apollo_admin
-    ./run.sh
+    make clean release run
 
 Note: you may have to shutdown any running instances of tomcat before
 doing a run.sh for testing. Alternatively, continue to the [Deploying
