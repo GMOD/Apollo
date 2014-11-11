@@ -10,22 +10,30 @@ JBROWSE_VERSION=dev
 GIT_VERSION=`git rev-parse --verify HEAD`
 POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`
 
-release: version build
+package: 
+	mvn package
+release: download-jbrowse copy-webapollo-plugin version build-jbrowse
 	mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
-debug: version build
+debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
 	mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
-github: version
-	cd $(APOLLO_JBROWSE_GITHUB)&&mkdir JBrowse-dev&&zip -r JBrowse-dev/JBrowse-dev.zip . -x \*.git\*&&cd JBrowse-dev&&unzip JBrowse-dev.zip&&cd .. &&mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
-build:
+github: download-jbrowse copy-webapollo-plugin version
+	cp -R $(APOLLO_JBROWSE_GITHUB) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
+build-jbrowse:
 	ulimit -n 1000;cd $(APOLLO_JBROWSE_GITHUB)&&$(MAKE) -f build/Makefile release-notest
 version:
 	echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp
-
-clean:
+download-jbrowse: | $(APOLLO_JBROWSE_GITHUB)
+	test -d $(APOLLO_JBROWSE_GITHUB) || git clone --recursive $(JBROWSE_GITHUB) $(APOLLO_JBROWSE_GITHUB)
+copy-webapollo-plugin:
+	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(APOLLO_JBROWSE_GITHUB)/plugins/WebApollo
+clean: clean-webapp
+clean-webapp:
 	mvn clean
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 clean-repos: clean
 	rm -rf $(APOLLO_JBROWSE_GITHUB)
-clean-jbrowse: clean
+clean-jbrowse-repo: clean
 	cd $(APOLLO_JBROWSE_GITHUB)&&make -f build/Makefile superclean
-.PHONY: clean clean-repos debug release build
+
+
+.PHONY: clean clean-webapp clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-config-files version
