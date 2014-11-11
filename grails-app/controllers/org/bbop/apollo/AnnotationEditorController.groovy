@@ -327,8 +327,8 @@ class AnnotationEditorController {
 
         Set<Feature> featureSet = new HashSet<>()
 
-        println "# of features locations for sequence ${sequence?.featureLocations?.size()}"
-        println "# of features for sequence ${sequence?.featureLocations*.feature?.size()}"
+//        println "# of features locations for sequence ${sequence?.featureLocations?.size()}"
+//        println "# of features for sequence ${sequence?.featureLocations*.feature?.size()}"
 
 //        List<Feature> topLevelFeatures = sequence?.featureLocations*.feature
 
@@ -484,12 +484,43 @@ class AnnotationEditorController {
         render annotationInfoEditorConfigContainer
     }
 
+    def setDescription(){
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
+
+
+
+            Description description = feature.description
+            if (!description) {
+                description = new Description(
+                        value: descriptionString
+                        , feature: feature
+                ).save()
+            } else {
+                description.value = descriptionString
+                description.save()
+            }
+
+            feature.description = description
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
+        render updateFeatureContainer
+    }
+
     def setSymbol(){
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-//        String trackName = fixTrackHeader(inputObject.track)
-//        Sequence sequence = Sequence.findByName(trackName)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
@@ -515,16 +546,7 @@ class AnnotationEditorController {
             feature.symbol = symbol
             feature.save(flush: true,failOnError: true)
 
-//            featurePropertyService.setFeatureProperty(feature,FeatureStringEnum.SYMBOL.value,symbol)
-//            editor.setSymbol(feature, symbol);
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
-//            if (dataStore != null) {
-//                if (feature instanceof Transcript) {
-//                    writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript((Transcript) feature), track);
-//                } else {
-//                    writeFeatureToStore(editor, dataStore, feature, track);
-//                }
-//            }
         }
 
 

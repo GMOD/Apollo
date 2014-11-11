@@ -1180,7 +1180,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     String generateFeaturePropertyStringForType(String ontologyId) {
-        return generateFeaturePropertyForType(ontologyId).cvTerm.toLowerCase()
+        return generateFeaturePropertyForType(ontologyId)?.cvTerm?.toLowerCase() ?: ontologyId
     }
 
     FeatureProperty generateFeaturePropertyForType(String ontologyId) {
@@ -1698,6 +1698,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (gsolFeature.getName() != null) {
                 jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
             }
+            if (gsolFeature.symbol) {
+                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol.value);
+            }
+            if (gsolFeature.description) {
+                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description.value);
+            }
             // get children
 //            Collection<FeatureRelationship> childrenRelationships = gsolFeature.getChildFeatureRelationships();
             Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
@@ -1754,6 +1760,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 //            Date timeLastModified = gsolFeature.getTimeLastModified() != null ? gsolFeature.getTimeLastModified() : gsolFeature.getTimeAccessioned();
             jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
+            jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
         }
         catch (JSONException e) {
             return null;
