@@ -58,9 +58,9 @@ class Feature implements Ontological{
             ,childFeatureRelationships: FeatureRelationship // relationships where I am the child feature relationship
             ,featureCVTerms: FeatureCVTerm
             ,featureSynonyms: FeatureSynonym
-            ,featureDBXrefs: FeatureDBXref
-            ,featurePublications:FeaturePublication
-            ,featurePhenotypes: FeaturePhenotype
+            ,featureDBXrefs: DBXref
+            ,featurePublications: Publication
+            ,featurePhenotypes: Phenotype
             ,featureProperties: FeatureProperty
 //            ,owners:User
     ]

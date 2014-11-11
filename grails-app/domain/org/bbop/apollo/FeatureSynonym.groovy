@@ -10,7 +10,7 @@ class FeatureSynonym {
     static constraints = {
     }
 
-    Integer featureSynonymId;
+//    Integer featureSynonymId;
     Publication publication;
     Feature feature;
     Synonym synonym;

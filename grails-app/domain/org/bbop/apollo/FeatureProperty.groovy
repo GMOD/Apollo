@@ -23,7 +23,7 @@ class FeatureProperty implements Ontological{
     int rank;
 
     static hasMany = [
-            featurePropertyPublications :  FeaturePropertyPublication
+            featurePropertyPublications :  Publication
     ]
 
     static belongsTo = [

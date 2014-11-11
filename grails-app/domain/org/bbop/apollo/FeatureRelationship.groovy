@@ -23,8 +23,8 @@ class FeatureRelationship implements  Ontological{
     static String ontologyId = "part_of"
 
     static hasMany = [
-            featureRelationshipProperties : FeatureRelationshipProperty
-            ,featureRelationshipPublications: FeatureRelationshipPublication
+            featureRelationshipProperties : FeatureProperty
+            ,featureRelationshipPublications: Publication
     ]
 
 

@@ -1158,13 +1158,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                             newDB
                             , dbxref.getString(FeatureStringEnum.ACCESSION.value)
                     )
-                    FeatureDBXref featureDBXref = new FeatureDBXref(
-                            feature: gsolFeature
-                            , dbxref: newDBXref
-                    ).save()
-                    gsolFeature.addToFeatureDBXrefs(
-                            featureDBXref
-                    ).save()
+                    gsolFeature.addToFeatureDBXrefs(dbxref)
+                    gsolFeature.save()
 //                    gsolFeature.addFeatureDBXref(new DB(db.getString("name")), dbxref.getString(FeatureStringEnum.ACCESSION.value));
                 }
             }
@@ -1746,11 +1741,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     properties.put(jsonProperty);
                 }
             }
-            Collection<FeatureDBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
+            Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
             if (gsolFeatureDbxrefs) {
                 JSONArray dbxrefs = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
-                for (FeatureDBXref gsolDbxref : gsolFeatureDbxrefs) {
+                for (DBXref gsolDbxref : gsolFeatureDbxrefs) {
                     JSONObject dbxref = new JSONObject();
                     dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getDbxref().getAccession());
                     dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDbxref().getDb().getName()));
