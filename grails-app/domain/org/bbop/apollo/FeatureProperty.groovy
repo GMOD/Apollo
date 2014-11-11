@@ -8,6 +8,8 @@ class FeatureProperty implements Ontological{
 
     static auditable =  true
 
+    private static final String TAG_VALUE_DELIMITER = "=";
+
     static constraints = {
         type nullable: true
 //        feature nullable: true
@@ -86,4 +88,17 @@ class FeatureProperty implements Ontological{
 //        return cloned;
 //    }
 
+    String getValue(){
+        if(value.contains(TAG_VALUE_DELIMITER)){
+            return value.split(TAG_VALUE_DELIMITER)[1]
+        }
+        return value
+    }
+
+    String getTag() {
+        if(value.contains(TAG_VALUE_DELIMITER)){
+            return value.split(TAG_VALUE_DELIMITER)[0]
+        }
+        return ""
+    }
 }

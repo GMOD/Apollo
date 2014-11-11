@@ -28,6 +28,7 @@ class Feature implements Ontological{
         lastUpdated nullable: true
         symbol nullable: true // TODO: should be false and unique
         description nullable: true
+        status nullable: true
 //        featureLocation nullable: true
     }
 
@@ -42,6 +43,7 @@ class Feature implements Ontological{
     String residues;
     Integer sequenceLength;
     String md5checksum;
+    Status status
     boolean isAnalysis;
     boolean isObsolete;
 

@@ -37,4 +37,25 @@ class ConfigWrapperService {
     Overlapper getOverlapper(){
         (Overlapper) Class.forName(grailsApplication.config.apollo.overlapper_class).newInstance();
     }
+
+
+    Boolean hasDbxrefs(){
+        return true
+    }
+    Boolean hasAttributes(){
+        return true
+    }
+
+    Boolean hasPubmedIds(){
+        return true
+    }
+    Boolean hasGoIds(){
+        return true
+    }
+    Boolean hasComments(){
+        return true
+    }
+    Boolean hasStatus(){
+        return true
+    }
 }

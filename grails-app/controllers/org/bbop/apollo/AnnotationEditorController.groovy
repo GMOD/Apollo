@@ -452,17 +452,23 @@ class AnnotationEditorController {
      * @return
      */
     def getAnnotationInfoEditorConfiguration(){
+        println "getting the config "
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
 //        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : annotationInfoEditorConfigurations.values()) {
             JSONObject annotationInfoEditorConfig = new JSONObject();
             annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
-//            if (annotationInfoEditorConfiguration.hasStatus()) {
+            if (configWrapperService.hasStatus()) {
+                JSONArray statusArray = new JSONArray()
+                annotationInfoEditorConfig.put(FeatureStringEnum.STATUS.value,statusArray);
+                Status.all.each { status ->
+                    statusArray.add(status.value)
+                }
 //                for (String status : annotationInfoEditorConfiguration.getStatus()) {
 //                    annotationInfoEditorConfig.append("status", status);
 //                }
-//            }
+            }
 //            if (annotationInfoEditorConfiguration.hasDbxrefs()) {
                 annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
 //            }
@@ -479,12 +485,14 @@ class AnnotationEditorController {
                 annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
 //            }
             JSONArray supportedTypes = new JSONArray();
+            supportedTypes.add(FeatureStringEnum.DEFAULT.value)
             annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
 //            for (String supportedType : annotationInfoEditorConfiguration.getSupportedFeatureTypes()) {
 //                supportedTypes.put(supportedType);
 //            }
 //        }
 //        out.write(annotationInfoEditorConfigContainer.toString());
+        println "return config ${annotationInfoEditorConfigContainer}"
         render annotationInfoEditorConfigContainer
     }
 
@@ -605,12 +613,12 @@ class AnnotationEditorController {
 //                jsonFeature.put("description", feature.getDescription().getDescription());
 //            }
 
-            if(feature.symbol) jsonFeature.put(FeatureStringEnum.SYMBOL.value,feature.symbol.value)
-            if(feature.description) jsonFeature.put(FeatureStringEnum.DESCRIPTION.value,feature.description.value)
+            if(feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value,feature.symbol.value)
+            if(feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value,feature.description.value)
 
 
-            println "feature ${feature as JSON}"
-            println "symbol ${jsonFeature}"
+//            println "feature ${feature as JSON}"
+//            println "symbol ${jsonFeature}"
 
 
 //            if (feature.getTimeAccessioned() != null) {
@@ -626,44 +634,45 @@ class AnnotationEditorController {
 //            if (conf == null) {
 //                conf = annotationInfoEditorConfigurations.get("default");
 //            }
-//            if (conf.hasStatus() && feature.getStatus() != null) {
-//                jsonFeature.put("status", feature.getStatus().getStatus());
+//            if (configWrapperService.hasStatus() && feature.status) {
+//                jsonFeature.put(FeatureStringEnum.STATUS.value, feature.status.value);
 //            }
-//            if (conf.hasAttributes()) {
-//                JSONArray properties = new JSONArray();
-//                jsonFeature.put("non_reserved_properties", properties);
-//                for (GenericFeatureProperty property : feature.getNonReservedProperties()) {
-//                    JSONObject jsonProperty = new JSONObject();
-//                    jsonProperty.put("tag", property.getTag());
-//                    jsonProperty.put("value", property.getValue());
-//                    properties.put(jsonProperty);
-//                }
-//            }
-//            if (conf.hasDbxrefs() || conf.hasPubmedIds() || conf.hasGoIds()) {
-//                JSONArray dbxrefs = new JSONArray();
-//                jsonFeature.put("dbxrefs", dbxrefs);
-//                for (DBXref dbxref : feature.getNonPrimaryDBXrefs()) {
-//                    JSONObject jsonDbxref = new JSONObject();
-//                    jsonDbxref.put("db", dbxref.getDb().getName());
-//                    jsonDbxref.put("accession", dbxref.getAccession());
-//                    dbxrefs.put(jsonDbxref);
-//                }
-//            }
-//            if (conf.hasComments()) {
-//                JSONArray comments = new JSONArray();
-//                jsonFeature.put("comments", comments);
-//                for (Comment comment : feature.getComments()) {
-//                    comments.put(comment.getComment());
-//                }
-//                JSONArray cannedComments = new JSONArray();
-//                jsonFeature.put("canned_comments", cannedComments);
-//                Collection<String> cc = this.cannedComments.getCannedCommentsForType(feature.getType());
-//                if (cc != null) {
-//                    for (String comment : cc) {
-//                        cannedComments.put(comment);
-//                    }
-//                }
-//            }
+            if (configWrapperService.hasAttributes()) {
+                JSONArray properties = new JSONArray();
+                newFeature.put(FeatureStringEnum.NON_RESERVED_PROPERTIES.value, properties);
+                for (FeatureProperty property : feature.featureProperties) {
+                    JSONObject jsonProperty = new JSONObject();
+                    jsonProperty.put(FeatureStringEnum.TAG.value, property.getTag());
+                    jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                    properties.put(jsonProperty);
+                }
+            }
+            if (configWrapperService.hasDbxrefs() || configWrapperService.hasPubmedIds() || configWrapperService.hasGoIds()) {
+                JSONArray dbxrefs = new JSONArray();
+                newFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
+                for (DBXref dbxref : feature.featureDBXrefs) {
+                    JSONObject jsonDbxref = new JSONObject();
+                    jsonDbxref.put(FeatureStringEnum.CV.value, dbxref.getDb().getName());
+                    jsonDbxref.put(FeatureStringEnum.ACCESSION.value, dbxref.getAccession());
+                    dbxrefs.put(jsonDbxref);
+                }
+            }
+            if (configWrapperService.hasComments()) {
+                JSONArray comments = new JSONArray();
+                newFeature.put(FeatureStringEnum.COMMENTS.value, comments);
+                for (Comment comment : featurePropertyService.getComments(feature)) {
+                    comments.put(comment.value);
+                }
+                JSONArray cannedComments = new JSONArray();
+                newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
+
+                Collection<String> cc = CannedComment.findAllByOntologyId(feature.ontologyId)*.comment;
+                if (cc != null) {
+                    for (String comment : cc) {
+                        cannedComments.put(comment);
+                    }
+                }
+            }
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeature);
         }
 
