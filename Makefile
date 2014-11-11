@@ -10,7 +10,9 @@ JBROWSE_VERSION=dev
 GIT_VERSION=`git rev-parse --verify HEAD`
 POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`
 
-package: 
+run: copy-webapollo-config
+	mvn tomcat7:run
+package: copy-webapollo-config
 	mvn package
 release: download-jbrowse copy-webapollo-plugin version build-jbrowse
 	mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
@@ -26,9 +28,23 @@ download-jbrowse: | $(APOLLO_JBROWSE_GITHUB)
 	test -d $(APOLLO_JBROWSE_GITHUB) || git clone --recursive $(JBROWSE_GITHUB) $(APOLLO_JBROWSE_GITHUB)
 copy-webapollo-plugin:
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(APOLLO_JBROWSE_GITHUB)/plugins/WebApollo
+copy-webapollo-config:
+	if [ -e $(APOLLO_ROOT_DIRECTORY)/config.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.xml $(APOLLO_WEBAPP_DIRECTORY)/config/config.xml; \
+	    else echo "no config.xml found"; fi;
+	if [ -e $(APOLLO_ROOT_DIRECTORY)/config.properties ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.properties $(APOLLO_WEBAPP_DIRECTORY)/config/config.properties; \
+	    else echo "no config.properties found"; fi;
+	if [ -e $(APOLLO_ROOT_DIRECTORY)/blat_config.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/blat_config.xml $(APOLLO_WEBAPP_DIRECTORY)/config/blat_config.xml; \
+	    else echo "no blat_config.xml found"; fi;
+	if [ -e $(APOLLO_ROOT_DIRECTORY)/hibernate.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/hibernate.xml $(APOLLO_WEBAPP_DIRECTORY)/config/hibernate.xml; \
+	    else echo "no hibernate.xml found"; fi;
+	if [ -e $(APOLLO_ROOT_DIRECTORY)/log4j2.json ]; then cp $(APOLLO_ROOT_DIRECTORY)/log4j2.json $(APOLLO_WEBAPP_DIRECTORY)/src/main/resources/log4j2.json; \
+	    else echo "no log4j2.json found"; fi;
+	if [ -e $(APOLLO_ROOT_DIRECTORY)/log4j2-test.json ]; then cp $(APOLLO_ROOT_DIRECTORY)/log4j2-test.json $(APOLLO_WEBAPP_DIRECTORY)/src/test/resources/log4j2-test.json; \
+	    else echo "no log4j2-test.json found"; fi;
+
 clean: clean-webapp
-clean-webapp:
 	mvn clean
+clean-webapp:
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 clean-repos: clean
 	rm -rf $(APOLLO_JBROWSE_GITHUB)
