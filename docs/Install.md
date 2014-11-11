@@ -35,12 +35,12 @@ More discussion of the particular configurations can be seen in the full
     export ORGANISM="Pythium ultimum"
 
     # install system prerequisites (debian/ubuntu)
-    sudo apt-get install openjdk-7-jdk libexpat1-dev cpanminus postgresql postgresql-server-dev-all postgresql-server nodejs-legacy git maven
+    sudo apt-get install openjdk-7-jdk libexpat1-dev cpanminus postgresql postgresql-server-dev-all postgresql-server maven
     # install system prerequisites (centOS/redhat)
     sudo yum install epel-release
-    sudo yum install cpanminus postgresql postgresql-devel git maven npm expat-devel
+    sudo yum install cpanminus postgresql postgresql-devel maven expat-devel
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
-    brew install git maven node cpanminus postgresql wget
+    brew install maven cpanminus postgresql wget
 
     # on centOS/redhat, manually init and start postgres (and make it start on OS boot using chkconfig)
     sudo su -c "service postgresql initdb && service postgresql start"
@@ -52,7 +52,8 @@ More discussion of the particular configurations can be seen in the full
 
     # setup cpanm and install jbrowse and webapollo perl prerequisites
     cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
-    cpanm DateTime Text::Markdown Crypt::PBKDF2 DBI DBD::Pg
+    cpanm Crypt::PBKDF2 DBI DBD::Pg
+
 
     # ubuntu/redhat/centOS - create a new postgres user and database for the webapollo instance. see (Authentication)[Install.md#authentication "wikilink"] section for more details
     sudo su postgres -c "createuser -RDIElPS $PGUSER"
@@ -75,9 +76,13 @@ More discussion of the particular configurations can be seen in the full
     tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
     tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
 
-    # build a compressed release package and install jbrowse binaries (also installs JBrowse's perl prerequisites using cpanm)
-    make download-jbrowse
-    ./install_jbrowse_bin.sh cpanm
+    # build a release package by downloading the pre-compiled jbrowse
+    make clean download-release package
+
+    # install jbrowse perl scripts using cpanm 
+    cd src/webapps/main/jbrowse
+    cpanm .
+    cd ../../../../
 
     # setup jbrowse data directory in WEB_APOLLO_ROOT/data
     mkdir split_gff
