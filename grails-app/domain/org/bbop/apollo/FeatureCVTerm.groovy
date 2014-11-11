@@ -1,7 +1,5 @@
 package org.bbop.apollo
 
-import org.gmod.gbol.simpleObject.CVTermDBXref
-import org.gmod.gbol.simpleObject.CVTermProperty
 
 /**
  * Converted
@@ -20,8 +18,8 @@ class FeatureCVTerm {
     int rank;
 
     static hasMany = [
-            featureCVTermProperties : CVTermProperty
-            ,featureCVTermPublications: Publication
+//            featureCVTermProperties : CVTermProperty
+            featureCVTermPublications: Publication
             ,featureCVTermDBXrefs: DBXref
     ]
 
@@ -58,7 +56,7 @@ class FeatureCVTerm {
         cloned.cvterm = this.cvterm;
         cloned.isNot = this.isNot;
         cloned.rank = this.rank;
-        cloned.featureCVTermProperties = this.featureCVTermProperties;
+//        cloned.cv= this.featureCVTermProperties;
         cloned.featureCVTermPublications = this.featureCVTermPublications;
         cloned.featureCVTermDBXrefs = this.featureCVTermDBXrefs;
         return cloned;

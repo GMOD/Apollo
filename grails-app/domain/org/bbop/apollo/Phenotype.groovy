@@ -9,7 +9,7 @@ class Phenotype {
     static constraints = {
     }
 
-    Integer phenotypeId;
+//    Integer phenotypeId;
     CVTerm attribute;
     CVTerm cvalue;
     CVTerm assay;
@@ -18,9 +18,13 @@ class Phenotype {
     String value;
 
     static hasMany = [
-            phenotypeCVTerms : PhenotypeCVTerm
+            phenotypeCVTerms : CVTerm
             ,phenotypeStatements: PhenotypeStatement
             ,features: Feature
+    ]
+
+    static belongsTo = [
+            Feature
     ]
 
 
@@ -37,13 +41,7 @@ class Phenotype {
         int result = 17;
 
 
-
-
-
-
         result = 37 * result + ( getUniqueName() == null ? 0 : this.getUniqueName().hashCode() );
-
-
 
 
         return result;

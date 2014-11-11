@@ -24,7 +24,7 @@ class MockupService {
         User demoUser = new User(
                 username: "demo@demo.gov"
                 , passwordHash: new Sha256Hash("demo").toHex()
-                ,value: "demo@demo.gov"
+//                ,value: "demo@demo.gov"
 //                ,type: userCvTerm
         ).save(failOnError: true)
         demoUser.addToRoles(userRole)
@@ -32,7 +32,7 @@ class MockupService {
         User adminUser = new User(
                 username: "admin@admin.gov"
                 , passwordHash: new Sha256Hash("admin").toHex()
-                ,value: "admin@admin.gov"
+//                ,value: "admin@admin.gov"
 //                ,type: userCvTerm
         ).save(failOnError: true)
         adminUser.addToRoles(userRole)

@@ -10,7 +10,7 @@ class PhenotypeStatement {
     }
 
 
-    Integer phenotypeStatementId;
+//    Integer phenotypeStatementId;
     Environment environment;
     CVTerm type;
     Publication publication;
