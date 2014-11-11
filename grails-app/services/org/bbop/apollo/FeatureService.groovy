@@ -1772,7 +1772,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
 
-        String cvTerm = feature.hasProperty("alternateCvTerm") ? feature.getProperty("alternateCvTerm"): feature.cvTerm
+        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value): feature.cvTerm
 
         jSONObject.put(FeatureStringEnum.NAME.value,cvTerm)
 

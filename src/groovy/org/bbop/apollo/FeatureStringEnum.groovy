@@ -49,7 +49,15 @@ enum FeatureStringEnum {
      OWNER("Owner"),
      ORGANISM,
      SYMBOL,
+     ALTERNATECVTERM("alternateCvTerm"),
      DESCRIPTION,
+     ANNOTATION_INFO_EDITOR_CONFIGS,
+     HASDBXREFS("hasDbxrefs"),
+     HASATTRIBUTES("hasAttributes"),
+     HASPUBMEDIDS("hasPubmedIds"),
+     HASGOIDS("hasGoIds"),
+     HASCOMMENTS("hasComments"),
+     SUPPORTED_TYPES,
      UNIQUENAME
 
 

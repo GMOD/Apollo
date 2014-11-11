@@ -399,7 +399,7 @@ class AnnotationEditorController {
         log.debug "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         JSONArray jsonFeatures = new JSONArray()
-        returnObject.put("features", jsonFeatures)
+        returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
         // TODO: get alternations from session
 //        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
@@ -450,7 +450,7 @@ class AnnotationEditorController {
     def getAnnotationInfoEditorConfiguration(){
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
-        annotationInfoEditorConfigContainer.put("annotation_info_editor_configs", annotationInfoEditorConfigs);
+        annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
 //        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : annotationInfoEditorConfigurations.values()) {
             JSONObject annotationInfoEditorConfig = new JSONObject();
             annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
@@ -460,22 +460,22 @@ class AnnotationEditorController {
 //                }
 //            }
 //            if (annotationInfoEditorConfiguration.hasDbxrefs()) {
-                annotationInfoEditorConfig.put("hasDbxrefs", true);
+                annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasAttributes()) {
-                annotationInfoEditorConfig.put("hasAttributes", true);
+                annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasPubmedIds()) {
-                annotationInfoEditorConfig.put("hasPubmedIds", true);
+                annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasGoIds()) {
-                annotationInfoEditorConfig.put("hasGoIds", true);
+                annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasComments()) {
-                annotationInfoEditorConfig.put("hasComments", true);
+                annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
 //            }
             JSONArray supportedTypes = new JSONArray();
-            annotationInfoEditorConfig.put("supported_types", supportedTypes);
+            annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
 //            for (String supportedType : annotationInfoEditorConfiguration.getSupportedFeatureTypes()) {
 //                supportedTypes.put(supportedType);
 //            }
