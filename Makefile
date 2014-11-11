@@ -10,6 +10,8 @@ JBROWSE_VERSION=dev
 GIT_VERSION=`git rev-parse --verify HEAD`
 POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`
 
+run: copy-webapollo-config
+	mvn tomcat7:run
 package: copy-webapollo-config
 	mvn package
 release: download-jbrowse copy-webapollo-plugin version build-jbrowse
@@ -47,7 +49,7 @@ clean-webapp:
 clean-repos: clean
 	rm -rf $(APOLLO_JBROWSE_GITHUB)
 clean-jbrowse-repo: clean
-	cd $(APOLLO_JBROWSE_GITHUB)&&make -f build/Makefile superclean
+	cd $(APOLLO_JBROWSE_GITHUB)&&$(MAKE) -f build/Makefile superclean
 test:
 	mvn test
 test-jbrowse:
