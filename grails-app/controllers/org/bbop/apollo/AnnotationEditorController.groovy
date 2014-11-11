@@ -74,12 +74,15 @@ class AnnotationEditorController {
         track = postObject.get(REST_TRACK)
 
         // TODO: hack needs to be fixed
-        track = fixTrackHeader(track)
+//        track = fixTrackHeader(track)
 
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
-
+    /**
+     * TODO: Integrate with SHIRO
+     * @return
+     */
     def getUserPermission() {
         log.debug "gettinguser permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
@@ -152,6 +155,7 @@ class AnnotationEditorController {
     }
 
     /**
+     * TODO
      *  From AnnotationEditorService .. . deleteFeature 1 and 2
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:

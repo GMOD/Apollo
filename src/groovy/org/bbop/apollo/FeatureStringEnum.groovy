@@ -5,6 +5,7 @@ package org.bbop.apollo
  */
 enum FeatureStringEnum {
      FEATURES,
+     FEATURE_PROPERTY,
      PARENT_ID,
      USERNAME,
      TYPE,

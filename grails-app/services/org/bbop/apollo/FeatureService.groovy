@@ -1740,7 +1740,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 for (FeatureProperty property : gsolFeatureProperties) {
                     JSONObject jsonProperty = new JSONObject();
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
-                    jsonProperty.put(FeatureStringEnum.TYPE.value, generateFeaturePropertyStringForType(property.ontologyId));
+//                    jsonProperty.put(FeatureStringEnum.TYPE.value, generateFeaturePropertyStringForType(property.ontologyId));
+                    JSONObject jsonPropertyType = new JSONObject()
+                    jsonPropertyType.put(FeatureStringEnum.NAME.value,property.type)
+                    JSONObject jsonPropertyTypeCv = new JSONObject()
+                    jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value,FeatureStringEnum.FEATURE_PROPERTY.value)
+                    jsonPropertyType.put(FeatureStringEnum.CV.value,jsonPropertyTypeCv)
+
+                    println "jsonPropertyType ${jsonPropertyType}"
+
+                    jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
 //                    jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
                     jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
