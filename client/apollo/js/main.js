@@ -100,18 +100,18 @@ return declare( JBPlugin,
 
 
         if (browser.config.show_nav) {
-            var helpUrl = browser.config.helpUrl;
+            //var helpUrl = browser.config.helpUrl;
 //            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
 //            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
             var jbrowseUrl = "http://jbrowse.org";
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_quickstart',
-                                            label: 'General',
-                                            onClick: function()  { window.open(helpUrl,'help_window').focus(); }
-                                        })
-                                  );
+            //browser.addGlobalMenuItem( 'help',
+            //                        new dijitMenuItem(
+            //                            {
+            //                                id: 'menubar_apollo_quickstart',
+            //                                label: 'General',
+            //                                onClick: function()  { window.open(helpUrl,'help_window').focus(); }
+            //                            })
+            //                      );
            /*
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
