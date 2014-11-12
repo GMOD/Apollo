@@ -92,7 +92,7 @@ We will install the jbrowse perl scripts using cpanm. This will allow you to run
     ./install_jbrowse_bin.sh cpanm
 
 #### Setup genome browser data
-Now we will setup our data directory. In this example we will use the sample data. For other purposes, refer to the [configuration guide](Configuration.md) guide for more details.
+Now we will setup our data directory. In this example we will use the sample data. For other purposes, refer to the [configuration guide](Configure.md) guide for more details.
 
 Here, the split_gff.pl script will split our example GFF into different types, and we will use flatfile-to-json.pl to load the maker track.
 
@@ -119,7 +119,7 @@ Configure data directories using config.properties (note: here we use /apoll
     echo database.password=$PGPASSWORD >> config.properties
     echo organism=$ORGANISM >> config.properties
 
-The sample_config.xml can be used largely unmodified, so we will just copy it for now. For more details on the configuration, see the [configuration guide](Config.md)
+The sample_config.xml can be used largely unmodified, so we will just copy it for now. For more details on the configuration, see the [configuration guide](Configure.md)
 
     mv sample_config.xml config.xml
 
