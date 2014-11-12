@@ -6,8 +6,6 @@ APOLLO_JBROWSE_DIRECTORY=$(APOLLO_WEBAPP_DIRECTORY)/jbrowse
 JBROWSE_GIT_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/jbrowse-github
 JBROWSE_GITHUB=https://github.com/GMOD/jbrowse
 JBROWSE_VERSION=dev
-JBROWSE_RELEASE=https://github.com/GMOD/Apollo/releases/download/1.0.0-RC2/JBrowse-webapollo-1.x.zip
-JBROWSE_DEBUG=https://github.com/GMOD/Apollo/releases/download/1.0.0-RC2/JBrowse-webapollo-1.x-dev.zip
 GIT_VERSION=`git rev-parse --verify HEAD`
 POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`
 
@@ -22,22 +20,12 @@ debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
 	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
 unoptimized: download-jbrowse copy-webapollo-plugin version
 	cp -R $(JBROWSE_GIT_DIRECTORY) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
-download-release: download-jbrowse-static
-	unzip `basename $(JBROWSE_RELEASE)`
-	mv `basename -s .zip $(JBROWSE_RELEASE)` $(APOLLO_JBROWSE_DIRECTORY)
-download-debug: download-jbrowse-static-debug
-	unzip `basename $(JBROWSE_DEBUG)`
-	mv `basename -s .zip $(JBROWSE_DEBUG)` $(APOLLO_JBROWSE_DIRECTORY)
 build-jbrowse:
 	ulimit -n 1000;cd $(JBROWSE_GIT_DIRECTORY)&&$(MAKE) -f build/Makefile release-notest
 version:
 	echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp
 download-jbrowse:
 	test -d $(JBROWSE_GIT_DIRECTORY) || git clone --recursive $(JBROWSE_GITHUB) $(JBROWSE_GIT_DIRECTORY)
-download-jbrowse-static:
-	test -e `basename $(JBROWSE_RELEASE)` || wget $(JBROWSE_RELEASE)
-download-jbrowse-static-debug:
-	test -e `basename $(JBROWSE_DEBUG)` || wget $(JBROWSE_DEBUG)
 
 copy-webapollo-plugin:
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo

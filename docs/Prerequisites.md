@@ -34,14 +34,4 @@ quickest way to take care of pre-requisites.
         or
         [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/|Mac)
         binaries)
-### Conventions
 
-This guide will use the following conventions to make it more concise
-(you might want to keep these convention definitions handy so that you
-can easily reference them as you go through this guide):
-
--   WEB\_APOLLO\_DIR
-    -   Location where the tarball was uncompressed and will include
-        `WebApollo-RELEASE_DATE` (e.g.,
-        `~/webapollo/WebApollo-2012-10-08`)
--   WEB\_APOLLO\_SAMPLE\_DIR
