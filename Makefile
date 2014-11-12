@@ -3,7 +3,7 @@ APOLLO_ROOT_DIRECTORY=$(BASEDIR)
 APOLLO_BUILD_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)
 APOLLO_WEBAPP_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/src/main/webapp
 APOLLO_JBROWSE_DIRECTORY=$(APOLLO_WEBAPP_DIRECTORY)/jbrowse
-APOLLO_JBROWSE_GITHUB=$(APOLLO_ROOT_DIRECTORY)/jbrowse-github
+JBROWSE_GIT_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/jbrowse-github
 JBROWSE_GITHUB=https://github.com/GMOD/jbrowse
 JBROWSE_VERSION=dev
 JBROWSE_RELEASE=https://github.com/GMOD/Apollo/releases/download/1.0.0-RC2/JBrowse-webapollo-1.x.zip
@@ -17,11 +17,11 @@ run: copy-webapollo-config
 package: copy-webapollo-config
 	mvn package
 release: download-jbrowse copy-webapollo-plugin version build-jbrowse
-	mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
+	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
 debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
-	mv $(APOLLO_JBROWSE_GITHUB)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
+	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
 unoptimized: download-jbrowse copy-webapollo-plugin version
-	cp -R $(APOLLO_JBROWSE_GITHUB) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
+	cp -R $(JBROWSE_GIT_DIRECTORY) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
 download-release: download-jbrowse-static
 	unzip `basename $(JBROWSE_RELEASE)`
 	mv `basename -s .zip $(JBROWSE_RELEASE)` $(APOLLO_JBROWSE_DIRECTORY)
@@ -29,18 +29,18 @@ download-debug: download-jbrowse-static-debug
 	unzip `basename $(JBROWSE_DEBUG)`
 	mv `basename -s .zip $(JBROWSE_DEBUG)` $(APOLLO_JBROWSE_DIRECTORY)
 build-jbrowse:
-	ulimit -n 1000;cd $(APOLLO_JBROWSE_GITHUB)&&$(MAKE) -f build/Makefile release-notest
+	ulimit -n 1000;cd $(JBROWSE_GIT_DIRECTORY)&&$(MAKE) -f build/Makefile release-notest
 version:
 	echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp
 download-jbrowse:
-	test -d $(APOLLO_JBROWSE_GITHUB) || git clone --recursive $(JBROWSE_GITHUB) $(APOLLO_JBROWSE_GITHUB)
+	test -d $(JBROWSE_GIT_DIRECTORY) || git clone --recursive $(JBROWSE_GITHUB) $(JBROWSE_GIT_DIRECTORY)
 download-jbrowse-static:
 	test -e `basename $(JBROWSE_RELEASE)` || wget $(JBROWSE_RELEASE)
 download-jbrowse-static-debug:
 	test -e `basename $(JBROWSE_DEBUG)` || wget $(JBROWSE_DEBUG)
 
 copy-webapollo-plugin:
-	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(APOLLO_JBROWSE_GITHUB)/plugins/WebApollo
+	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo
 copy-webapollo-config:
 	if [ -e $(APOLLO_ROOT_DIRECTORY)/config.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.xml $(APOLLO_WEBAPP_DIRECTORY)/config/config.xml; \
 	    else echo "no config.xml found"; fi;
@@ -60,13 +60,13 @@ clean: clean-webapp
 clean-webapp:
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 clean-repos: clean
-	rm -rf $(APOLLO_JBROWSE_GITHUB)
+	rm -rf $(JBROWSE_GIT_DIRECTORY)
 clean-jbrowse-repo: clean
-	cd $(APOLLO_JBROWSE_GITHUB)&&$(MAKE) -f build/Makefile superclean
+	cd $(JBROWSE_GIT_DIRECTORY)&&$(MAKE) -f build/Makefile superclean
 test:
 	mvn test
 test-jbrowse:
-	prove -I $(APOLLO_JBROWSE_GITHUB)/src/perl5/ -r $(APOLLO_JBROWSE_GITHUB)/tests/perl_tests
+	cd $(JBROWSE_GIT_DIRECTORY)&&prove -I $(JBROWSE_GIT_DIRECTORY)/src/perl5/ -r $(JBROWSE_GIT_DIRECTORY)/tests/perl_tests
 
 
 .PHONY: clean clean-webapp clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-webapollo-config version test package test-jbrowse download-jbrowse
