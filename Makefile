@@ -35,9 +35,9 @@ version:
 download-jbrowse:
 	test -d $(APOLLO_JBROWSE_GITHUB) || git clone --recursive $(JBROWSE_GITHUB) $(APOLLO_JBROWSE_GITHUB)
 download-jbrowse-static:
-	wget $(JBROWSE_RELEASE)
+	test -e `basename $(JBROWSE_RELEASE)` || wget $(JBROWSE_RELEASE)
 download-jbrowse-static-debug:
-	wget $(JBROWSE_DEBUG)
+	test -e `basename $(JBROWSE_DEBUG)` || wget $(JBROWSE_DEBUG)
 
 copy-webapollo-plugin:
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(APOLLO_JBROWSE_GITHUB)/plugins/WebApollo
