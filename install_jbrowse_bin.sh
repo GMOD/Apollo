@@ -11,7 +11,7 @@ CURRENT=`pwd`
 : ${APOLLO_WEBAPP_DIRECTORY:="$APOLLO_ROOT_DIRECTORY/src/main/webapp"}
 : ${APOLLO_JBROWSE_DIRECTORY:="$APOLLO_WEBAPP_DIRECTORY/jbrowse"}
 if [ ! -d $APOLLO_JBROWSE_DIRECTORY ]; then
-    echo "JBrowse has not been built yet. Please build jbrowse first with build.sh"
+    echo "JBrowse has not been built yet. Please build or download jbrowse with the download-release or release targets on the Makefile"
     exit 0
 fi
 

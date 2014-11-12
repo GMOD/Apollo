@@ -18,7 +18,7 @@ Features:
 + Using javascript minimization for JBrowse+WebApollo to allow faster initial load time
 + Using Maven build system for deployment (See new installation guide)
 + Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
-+ Added menus for changes / sequences to annotation screen.
++ Added menus for changes / sequences to annotation screen, fixing memory issues from selectTrack.jsp and recentChanges.jsp pages.
 + Added ability to hide track labels under "view".
 + Alt-click brings up info editor on annotated track.
 + Added webservices doc links to interface.
@@ -29,7 +29,7 @@ Bugfixes:
 + Fixed phase in GFF3 output
 + Disabled scrollToPreviousEdge/scrollToNextEdge if the feature is fully visible at the current zoom level
 + Included Chado libraries that were missing in 2014-04-03 release
-+ Removed 'null' tracks from changes
++ Removed 'null' tracks from changes.
 + Menus use proper CSS pointer.
 
 

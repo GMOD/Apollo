@@ -39,17 +39,25 @@ If BLAT is not installed, just copy the default blat file over.
 
 ### Generate a war file
 
-Generates proper build:
+Generates build using pre-compiled client code:
 
-    deploy.sh release
+    make clean download-release package
 
-Generates a "debug" build, used in development:
+Generates a "debug" build, using pre-compiled client code:
 
-    deploy.sh debug 
+    make clean download-debug package 
 
-Generates an unoptimized war file using github code:
+Generates an unoptimized war file using code straight from github (easy):
 
-    deploy.sh github
+    make clean unoptimized package
+
+Generates a release package using custom compilation of the client (requires pre-requisites):
+
+    make clean release package
+
+Generates a release package using custom compilation of the client (requires pre-requisites):
+
+    make clean debug package
 
 ### Install jbrowse binaries
 
@@ -70,6 +78,7 @@ To run tomcat on 8080, list to debug port on 8000:
 
 Runs all unit tests (optionally including the jbrowse unit tests):
 
-    test.sh [jbrowse]
+    make test
+    make test-jbrowse
 
 

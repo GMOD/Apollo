@@ -1,74 +1,28 @@
-Apollo
-======
+# Apollo
 
-A genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
+A genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.
 
 For general information on WebApollo, go to: 
-http://genomearchitect.org/
-
-For the full WebApollo installation and configuration instructions for 1.x, go to:
-http://gmod.org/wiki/WebApollo_Installation_1.x
+[http://genomearchitect.org/]()
 
 The WebApollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
-http://jbrowse.org
+[http://jbrowse.org]()
 
-![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
+[![Build status](https://travis-ci.org/GMOD/Apollo.png?branch=master)](https://travis-ci.org/GMOD/Apollo)
 
+Note: this is documentation for the release candidates for the 1.x version of WebApollo. For the original Web Apollo documentation, please see [http://gmod.org/wiki/WebApollo_Installation](http://gmod.org/wiki/WebApollo_Installation)
 
+## Table of contents
 
-## Quick build steps.
+Let's get started!
 
-
-### Edit property files and config files before deploying
-
-    cp ./sample_config.properties ./config.properties 
-    cp ./sample_config.xml ./config.xml 
-    cp ./sample_blat_config.xml ./blat_config.xml     # optional
-    cp ./sample_hibernate.xml ./hibernate.xml    # optional
-    cp ./sample_log4j2.json ./log4j2.json     # optional
-    cp ./sample_log4j2-test.json ./log4j2-test.json     # optional
-
- 
-Edit the property files to point to the appropriate directory. You must edit the jbrowse data and annotations directory in the config.properties: jbrowse.data=/opt/apollo/jbrowse/data and  datastore.directory=/opt/apollo/annotations
-
-The datastore.directory is where annotations are to be stored.  The jbrowse.data is where the jbrowse tracks are stored.   **JBrowse data should not be in your tomcat / web-apps directory as in previous versions.**. However, the jbrowse application will still be installed into your tomcat / web-apps directory.
-
-If BLAT is not installed, just copy the default blat file over.
- 
-
-### Generate a war file
-
-Generates proper build:
-
-    deploy.sh release
-
-Generates a "debug" build, used in development:
-
-    deploy.sh debug 
-
-Generates an unoptimized war file using github code:
-
-    deploy.sh github
-
-### Install jbrowse binaries
-
-As a convenience, JBrowse binaries can be installed to the system:
-
-    install_jbrowse_bin.sh [cpanm]
-
-Having jbrowse binaries installed to the system makes it easier to create data directories in appropriate system directories instead of inside the tomcat webapps directory. This script can optionally install using cpanm using the cpanm argument.
-
-### Deploy
-
-To run tomcat on 8080:
-
-    run.sh
-To run tomcat on 8080, list to debug port on 8000:
-
-    debug.sh
-
-Runs all unit tests (optionally including the jbrowse unit tests):
-
-    test.sh [jbrowse]
-
+1. [Introduction](Introduction.md)
+2. [Quick-start guide](Quick_start_guide.md)
+3. [Pre-requisites](Prerequisites.md)
+4. [Database setup](Database_setup.md)
+5. [Configure](Configure.md)
+6. [Build](Build.md)
+7. [Deploy](Deploy.md)
+8. [Troubleshooting](Troubleshooting.md)
+9. [Developers guide](Developer.md)
 
