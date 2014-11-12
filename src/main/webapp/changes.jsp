@@ -152,7 +152,7 @@ $(function () {
             offset = offset - ${maximum};
             if(offset<0) offset = 0 ;
             $("#offset").val(offset);
-            $('#search-button').click();
+            $('.search-button').click();
         }
 
     });
@@ -161,7 +161,7 @@ $(function () {
 //        if(offset!='0'){
         offset = offset + ${maximum};
         $("#offset").val(offset);
-        $('#search-button').click();
+        $('.search-button').click();
 //        }
     });
     $("#apollo_users_guide").click(function () {
@@ -542,8 +542,8 @@ function open_user_manager_dialog() {
         <input type="text" class="col-1" name="offset" id="offset" value="${offset==null ? '0' : offset}">
         <input type="button" class="btn btn-mini col-1" href="#" id="next-page" value="Next &rarr;">
         <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
-        <input type="submit" id="search-button" value="Search"
-               class=" col-offset-1 btn ui-icon-search btn-default col-1">
+        <input type="submit"  value="Search"
+               class="search-button col-offset-1 btn ui-icon-search btn-default col-1">
         <a href="recentChanges.jsp" class="col-offset-1 col-2 btn-mini btn-default btn-link">Older Recent Changes Page<br/>(smaller
             data only)</a>
     </div>
@@ -557,6 +557,8 @@ function open_user_manager_dialog() {
                 <option ${maximum=='100' ? 'selected=true' : ''}>100</option>
                 <option ${maximum=='1000' ? 'selected=true' : ''}>1000</option>
             </select>
+
+                <input type="submit" value="Go" class="search-button col-offset-1 btn btn-small ui-icon-search btn-default col-2-lg">
 
             </td>
             <th>
