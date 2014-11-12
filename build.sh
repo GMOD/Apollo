@@ -100,6 +100,14 @@ else
    exit 1 ;
 fi
 
+if [ -e "$APOLLO_ROOT_DIRECTORY/canned_comments.xml" ]; then
+    cp  $APOLLO_ROOT_DIRECTORY/canned_comments.xml $APOLLO_WEBAPP_DIRECTORY/config/canned_comments.xml
+else
+   echo "No canned_comments.xml found, not copying."
+   echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
+   exit 1 ;
+fi
+
 # optional
 if [ -e "$APOLLO_ROOT_DIRECTORY/blat_config.xml" ]; then
     cp $APOLLO_ROOT_DIRECTORY/blat_config.xml $APOLLO_WEBAPP_DIRECTORY/config/blat_config.xml

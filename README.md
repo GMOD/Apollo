@@ -23,6 +23,7 @@ http://jbrowse.org
 
     cp ./sample_config.properties ./config.properties 
     cp ./sample_config.xml ./config.xml 
+    cp ./sample_canned_comments.xml ./canned_comments.xml 
     cp ./sample_blat_config.xml ./blat_config.xml     # optional
     cp ./sample_hibernate.xml ./hibernate.xml    # optional
     cp ./sample_log4j2.json ./log4j2.json     # optional
