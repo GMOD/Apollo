@@ -31,8 +31,8 @@ config.xml file, which are copied into the war file.
 **IMPORTANT: the jbrowse.data directory should not be placed
 anywhere inside the Tomcat webapps folder, not even using
 symlinks!! To avoid data loss when doing Tomcat Undeploy operations,
-users are advised not to be touching anything inside of the webapps
-folder.**
+users are advised not to be modifying the contents of the webapps folder
+for anything besides deploying new WAR files**
 
 ### Building the servlet
 
