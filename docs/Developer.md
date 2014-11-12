@@ -24,15 +24,36 @@ We will also need these two extra perl packages
     cpanm DateTime Text::Markdown
 
 
-With this setup, we can try to compile the jbrowse+webapollo client package.
+Now we can try to compile a new client package.
 
     make clean release package
 
-This step will automatically clone jbrowse from github, copy WebApollo to the plugins folder, and run the required build scripts. If you have your own custom jbrowse repository, you can also set that using some custom environmental variables:
+This step will do the following
+
+ - automatically clone jbrowse from github
+ - copy webapollo's plugin code to the jbrowse plugins folder
+ - run the required build scripts to compress the javascript
+ 
+ 
+Note: If you have your own custom jbrowse repository, you can use it by custom environmental variables on the command line, e.g.:
 
 
     make clean release package APOLLO_JBROWSE_GIT=/home/you/jbrowse
 
 This will use your custom jbrowse instead of the default action of cloning the https://github.com/GMOD/jbrowse.git
 
+Some other options that are available for the Makefile
 
+     # Build options using pre-compiled client
+     make download-debug    # download the latest pre-compiled debug client
+     make download-release  # download the latest pre-compiled release client (minified javascript)
+
+     # Custom build options to compile client
+     make download-jbrowse  # download jbrowse (and dependencies from submodules) from github. this automatically done if APOLLO_JBROWSE_GIT is not set. 
+     make release           # compile the jbrowse+webapollo client manually
+     make debug             # compile the jbrowse+webapollo client manually
+     make unoptimized       # create unoptimized jbrowse+webapollo  (no compilation step, no nodejs required)
+
+     # Tests
+     make test              # run the command line tests for webapollo
+     make test-jbrowse      # run the command line tests for jbrowse (requires extra perl pre-requisites)

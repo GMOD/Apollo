@@ -20,7 +20,6 @@ config.xml file, which are copied into the war file.
 -   Edit the config.properties file to point to the appropriate directories. A sample config might look like:
 
     ```
-    #config.properties
     jbrowse.data=/apollo/data
     datastore.directory=/apollo/annotations
     database.url=jdbc:postgresql:web_apollo_users
@@ -42,25 +41,6 @@ download-release target to get the pre-compiled JBrowse+WebApollo package:
 
      make clean download-release package
 
-This runs three separate build steps
-- Clean out old files
-- Download the pre-compiled client from github
-- Create a WAR package with your custom properties and config files
+This will compile a release package and produce the a WAR file in WEB_APOLLO_ROOT/target/apollo-1.0-SNAPSHOT.war that is ready to deploy. See [deploying webapollo](Deploy.md) for the next steps for deploying.
 
-The download-release is the recommended step for most users. Other options to the Makefile include:
-
-     # Build options
-     make download-debug    # download the latest pre-compiled debug client
-     make download-release  # download the latest pre-compiled release client (minified javascript)
-     make release           # compile the jbrowse+webapollo client manually
-     make debug             # compile the jbrowse+webapollo client manually
-     make unoptimized       # create unoptimized jbrowse+webapollo  (no compilation step, no nodejs required)
-
-     # Deploy test server
-     make run               # run the the built package using a temporary tomcat server for testing
-
-     # Tests
-     make test              # run the command line tests for webapollo
-     make test-jbrowse      # run the command line tests for jbrowse (requires extra perl pre-requisites)
-
-Developers are advised to review the [developer's guide](Developer.md) for further instructions on creating their own builds.
+Alternatively, developers or user's with custom builds are advised to review the [developer's guide](Developer.md) for further instructions on creating their own builds.
