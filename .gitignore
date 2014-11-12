@@ -6,6 +6,7 @@ target/**
 config.properties
 src/main/webapp/config.properties
 src/main/webapp/config.xml
+src/main/webapp/canned_comments.xml
 config.xml
 blat_config.xml
 src/main/webapp/jbrowse/
@@ -16,3 +17,4 @@ tmp
 hibernate.xml
 version.jsp
 update_client.sh
+canned_comments.xml
