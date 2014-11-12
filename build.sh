@@ -12,6 +12,7 @@ CURRENT=`pwd`
 : ${GIT_VERSION:=`git rev-parse --verify HEAD`}
 : ${POM_VERSION:=`mvn validate | grep Building | cut -d' ' -f4`}
 
+# TODO: POM_VERSION also bringing up SNAPSHOT
 echo "Building ${POM_VERSION} from ${GIT_VERSION}"
 
 if [[ $1 == help || $1 == --help ]]; then
@@ -32,8 +33,14 @@ if [[ $1 == help || $1 == --help ]]; then
     exit 0
 fi
 
-# create version.jsp 
-echo "<a href='https://github.com/GMOD/Apollo/commit/${GMOD_VERSION}' target='_blank'>Version: ${POM_VERSION}</a>" > $APOLLO_WEBAPP_DIRECTORY/version.jsp
+# create version.jsp
+#if [[ ${POM_VERSION} == *SNAPSHOT* ]]; then
+echo "<a href='https://github.com/GMOD/Apollo/releases' target='_blank'>Version: ${POM_VERSION}</a>" > $APOLLO_WEBAPP_DIRECTORY/version.jsp
+#else
+#echo "<a href='https://github.com/GMOD/Apollo/releases/tag/${POM_VERSION}' target='_blank'>Version: ${POM_VERSION}</a>" > $APOLLO_WEBAPP_DIRECTORY/version.jsp
+#fi
+
+exit 0
 
 
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
