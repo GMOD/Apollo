@@ -18,11 +18,12 @@ your browser to
 
     http://SERVER_ADDRESS:8080/WebApollo
 
-The user name and password from our setup is normally `web_apollo_admin` or whatever was configured
-earlier. Enter them into the login dialog.
+The user name and password from our setup will be `web_apollo_admin` or whatever was configured earlier. Enter them into the login dialog.
 
-Once the page is ready, we only see one reference sequence (scaffold) to annotate since we're only working
+If we are using the sample data, we will only see one reference sequence (scaffold) to annotate since we're only working
 with a small example. Click on `scf1117875582023` under the `Name` column to be taken to the genome browser.
+
+If you have any problems after this stage, please see the [troubleshooting](Troubleshooting.md) page.
 
 Now have fun annotating!!!
 

@@ -109,7 +109,7 @@ Once the tracks are initialized, we can add the webapollo plugin to the jb
     client/apollo/bin/add-webapollo-plugin.pl -i data/trackList.json
 
 #### Configure the locations of the data directories and database login
-Configure data directories using config.properties (note: here we use /apollo/data and /apollo/annotations, but you can put them in appropriate locations you deem fit)
+Configure data directories using config.properties (note: here we use /apollo/data and /apollo/annotations)
 
     mkdir annotations
     echo jbrowse.data=/apollo/data > config.properties
