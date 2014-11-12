@@ -20,5 +20,5 @@ as our servlet container and PostgreSQL to manage authentication data.
 We'll use sample data from the Pythium ultimum genome, provided as a
 [separate download](http://icebox.lbl.gov/webapollo/data/pyu_data.tgz).
 
-To get started, download one of the releases from the release page: [https://github.com/GMOD/Apollo/releases/]()
+To get started, download one of the releases from the release page: https://github.com/GMOD/Apollo/releases/
 
