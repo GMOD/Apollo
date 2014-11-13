@@ -40,6 +40,6 @@ Web Apollo uses maven to create a WAR package which bundles your config files. A
 
     mvn package
 
-This will produce the a WAR file in WEB_APOLLO_ROOT/target/ (e.g. target/apollo-1.0-SNAPSHOT.war) that is ready to deploy. See [deploying webapollo](Deploy.md) for the next steps for deploying.
+This will produce the a WAR file in WEB\_APOLLO\_DIR/target/ (e.g. target/apollo-1.0-SNAPSHOT.war) that is ready to deploy. See [deploying webapollo](Deploy.md) for the next steps for deploying.
 
 Alternatively, developers or user's with custom builds are advised to review the [developer's guide](Developer.md) for further instructions on creating their own builds.
