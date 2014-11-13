@@ -40,9 +40,6 @@ echo "<a href='https://github.com/GMOD/Apollo/releases' target='_blank'>Version:
 #echo "<a href='https://github.com/GMOD/Apollo/releases/tag/${POM_VERSION}' target='_blank'>Version: ${POM_VERSION}</a>" > $APOLLO_WEBAPP_DIRECTORY/version.jsp
 #fi
 
-exit 0
-
-
 if [ ! -d "$APOLLO_JBROWSE_GITHUB" ]; then
   echo "No jbrowse repo found at $APOLLO_JBROWSE_GITHUB, cloning from $JBROWSE_GITHUB"
   cd $APOLLO_BUILD_DIRECTORY
