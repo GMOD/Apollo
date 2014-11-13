@@ -1,7 +1,7 @@
 Building WebApollo
 --------------------
 
-To build WebApollo, we will first edit the configuration files, and *then* run a Makefile to create a WAR package.
+To build WebApollo, we will first edit the configuration files, and *then* run Maven to create a WAR package.
 
 ### Before you build
 

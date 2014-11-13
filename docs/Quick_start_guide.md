@@ -32,7 +32,7 @@ First set some environmental variables
 Then get some system pre-requisites. These commands will try to get everything in one bang for several system types.
 
     # install system prerequisites (debian/ubuntu)
-    sudo apt-get install openjdk-7-jdk libexpat1-dev cpanminus postgresql postgresql-server-dev-all postgresql-server maven tomcat
+    sudo apt-get install openjdk-7-jdk libexpat1-dev cpanminus postgresql postgresql-server-dev-all postgresql-server maven tomcat7
     # install system prerequisites (centOS/redhat)
     sudo yum install cpanminus postgresql postgresql-devel maven expat-devel tomcat
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
@@ -87,9 +87,9 @@ The permissions for the Web Apollo user are configured on a track by track basis
     tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
     tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
 
-We will install the jbrowse perl scripts using cpanm. This will allow you to run the data processing pipeline scripts from anywhere.
+We will install the jbrowse perl scripts using setup.sh. This will allow you to run the data processing pipeline scripts the bin directory similar to the normal jbrowse pipeline.
 
-    ./install_jbrowse_bin.sh cpanm
+    ./setup.sh
 
 #### Setup genome browser data
 Now we will setup our data directory. In this example we will use the sample data. For other purposes, refer to the [configuration guide](Configure.md) guide for more details.
@@ -98,15 +98,15 @@ Here, the split_gff.pl script will split our example GFF into different types, a
 
     mkdir split_gff
     tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d split_gff
-    prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /apollo/data
-    flatfile-to-json.pl --gff split_gff/maker.gff --arrowheadClass trellis-arrowhead \
+    bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /apollo/data
+    bin/flatfile-to-json.pl --gff split_gff/maker.gff --arrowheadClass trellis-arrowhead \
         --subfeatureClasses '{"wholeCDS": null, "CDS":"brightgreen-80pct", "UTR": "darkgreen-60pct", "exon":"container-100pct"}' \
         --className container-16px --type mRNA --trackLabel maker --out /apollo/data
 
 ##### Add webapollo plugin to the genome browser
 Once the tracks are initialized, we can add the webapollo plugin to the jbrowse config using the add-webapollo-plugin.pl script.
 
-    client/apollo/bin/add-webapollo-plugin.pl -i data/trackList.json
+    client/apollo/bin/add-webapollo-plugin.pl -i /apollo/data/trackList.json
 
 #### Configure the locations of the data directories and database login
 Configure data directories using config.properties (note: here we use /apollo/data and /apollo/annotations)

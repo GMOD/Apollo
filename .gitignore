@@ -16,3 +16,8 @@ tmp
 hibernate.xml
 version.jsp
 update_client.sh
+/extlib/
+setup.log
+/src/perl5/
+/bin/
+/site/
