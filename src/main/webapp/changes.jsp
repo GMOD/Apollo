@@ -451,15 +451,15 @@ function open_user_manager_dialog() {
     <ul id="menu">
         <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"
                                                                        onload="cleanup_logo()" alt=""/></a></li>
-        <li><a id="file_item">File</a>
-            <ul id="file_menu">
-                <li><a id="export_menu">Export</a>
-                    <ul>
-                        <li><a class='none'>N/A</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
+        <%--<li><a id="file_item">File</a>--%>
+            <%--<ul id="file_menu">--%>
+                <%--<li><a id="export_menu">Export</a>--%>
+                    <%--<ul>--%>
+                        <%--<li><a class='none'>N/A</a></li>--%>
+                    <%--</ul>--%>
+                <%--</li>--%>
+            <%--</ul>--%>
+        <%--</li>--%>
 
         <li><a id="view_item">View</a>
             <ul id="view_menu">
