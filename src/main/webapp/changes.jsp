@@ -626,7 +626,7 @@ function open_user_manager_dialog() {
                     <%--<c:forTokens var="col" items="${change.replaceAll('\\\\[|\\\\]','')}" delims="," varStatus="innerIter">--%>
                 <c:forEach var="col" items="${change}" varStatus="innerIter">
                     <td>
-                        <c:if test="${innerIter.first}">${iter.count + offset}</c:if>
+                        <%--<c:if test="${innerIter.first}">${iter.count + offset}</c:if>--%>
                             ${col}
                     </td>
                 </c:forEach>
