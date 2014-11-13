@@ -160,6 +160,55 @@
                     </systemProperties>
                 </configuration>
             </plugin>
+            <!--<plugin>-->
+            <!--<groupId>org.fortasoft</groupId>-->
+            <!--<artifactId>gradle-maven-plugin</artifactId>-->
+            <!--<version>1.0.5</version>-->
+            <!--<configuration>-->
+            <!--<tasks>-->
+            <!--&lt;!&ndash; this would effectively call "gradle doSomething" &ndash;&gt;-->
+            <!--<task>doSomething</task>-->
+            <!--</tasks>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--&lt;!&ndash; You can bind this to any phase you like &ndash;&gt;-->
+            <!--<phase>compile</phase>-->
+            <!--<goals>-->
+            <!--&lt;!&ndash; goal must be "invoke" &ndash;&gt;-->
+            <!--<goal>invoke</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <!--<target name="asdf">-->
+                                    <echo>Hello</echo>
+                                <!--</target>-->
+                                <!--
+                                  Place any ant task here. You can add anything
+                                  you can add between <target> and </target> in a
+                                  build.xml.
+                                -->
+                                <ant antfile="${basedir}/build.xml"
+                                     target="hello"/>
+
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

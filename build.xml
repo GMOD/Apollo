@@ -1,0 +1,47 @@
+<project>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes"/>
+    </target>
+
+    <target name="jar">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/HelloWorld.jar" basedir="build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="oata.HelloWorld"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="hello">
+        <echo>Hello again!</echo>
+    </target>
+
+    <target name="run">
+        <java jar="build/jar/HelloWorld.jar" fork="true"/>
+    </target>
+
+    <target name="usage">
+        <echo>
+            Usage: build.sh [release|debug|github]
+            Options:
+            release: builds in release mode (minimized javascript)
+            debug: builds in debug mode (non-minimized javascript)
+            github: builds straight from github (no processing of javascript)
+            clean: removes any existing jbrowse builds from build directory
+
+            Additional environment variables:
+            JBROWSE_GITHUB: URL of git repository for JBrowse ($JBROWSE_GITHUB)
+            JBROWSE_RELEASE: Release tag, commit tag, or branch for JBrowse ($JBROWSE_RELEASE)
+            JBROWSE_VERSION: Release version stored in package.json for JBrowse ($JBROWSE_VERSION)
+            APOLLO_JBROWSE_GITHUB: Location of local JBrowse repo ($APOLLO_JBROWSE_GITHUB)
+            APOLLO_ROOT_DIRECTORY: Location of local WebApollo repo ($APOLLO_ROOT_DIRECTORY)
+        </echo>
+    </target>
+
+</project>
