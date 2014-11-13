@@ -5,9 +5,9 @@ In the [build guide](Build.md) we discussed briefly how to create a build packag
 If you are a developer and have a custom setup of WebApollo or JBrowse, then you can use this guide to compile your own release package.
 
 ## Pre-requisites for developers
-You will need the system [pre-requisites](Prerequisites.md) as well as some
-some additional dependencies for the javascript compilation (NodeJS). The easiest way
-to get NodeJS on ubuntu is nodejs-legacy, and on centos, from npm in the epel-release repository.
+You will need the system [pre-requisites](Prerequisites.md) as well as some some additional dependencies for the javascript compilation (NodeJS).
+
+The easiest way to get NodeJS on ubuntu is nodejs-legacy. On centos, it's easiest to use npm in the epel-release repository.
 
     # install nodejs (debian/ubuntu)
     sudo apt-get install git nodejs-legacy
