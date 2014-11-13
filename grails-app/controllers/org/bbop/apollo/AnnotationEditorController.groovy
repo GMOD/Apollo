@@ -424,7 +424,7 @@ class AnnotationEditorController {
 
         // the editor is bound to the session
         log.debug "getting sequence alterations "
-        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+//        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: implement this from the session
         String organismName = session.getAttribute(FeatureStringEnum.ORGANISM.value)
@@ -432,6 +432,7 @@ class AnnotationEditorController {
             Organism organism = Organism.findByCommonName(organismName)
             if (organism) {
                 render organism as JSON
+                return
             }
         }
         render new JSONObject()
