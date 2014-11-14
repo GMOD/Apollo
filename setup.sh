@@ -17,11 +17,7 @@ if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then
     echo "WARNING: Your Perl installation does not seem to include a complete set of core modules.  Attempting to cope with this, but if installation fails please make sure that at least ExtUtils::MakeMaker is installed.  For most users, the best way to do this is to use your system's package manager: apt, yum, fink, homebrew, or similar.";
 fi;
 ( set -x;
-  bin/cpanm -v --notest -l extlib DBD::Pg < /dev/null;
-  bin/cpanm -v --notest -l extlib DBI DBD::Pg < /dev/null;
-  bin/cpanm -v --notest -l extlib Crypt::PBKDF2 < /dev/null;
-  bin/cpanm -v --notest -l extlib LWP::UserAgent < /dev/null;
-  bin/cpanm -v --notest -l extlib JSON < /dev/null;
+  bin/cpanm -v --notest -l extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON < /dev/null;
   cd src/main/webapp/jbrowse;
   bin/cpanm -v --notest -l ../../../../extlib/ --installdeps .< /dev/null;
   bin/cpanm -v --notest -l ../../../../extlib/ --installdeps .< /dev/null;

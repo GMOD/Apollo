@@ -52,10 +52,9 @@ copy-webapollo-config:
 	if [ -e $(APOLLO_ROOT_DIRECTORY)/log4j2-test.json ]; then cp $(APOLLO_ROOT_DIRECTORY)/log4j2-test.json $(APOLLO_WEBAPP_DIRECTORY)/src/test/resources/log4j2-test.json; \
 	    else echo "no log4j2-test.json found"; fi;
 
-clean: clean-webapp
+clean:
 	mvn clean
-clean-webapp:
-	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
+	git clean -fdx
 clean-repos: clean
 	rm -rf $(JBROWSE_GIT_DIRECTORY)
 clean-jbrowse-repo: clean
@@ -66,4 +65,4 @@ test-jbrowse:
 	cd $(JBROWSE_GIT_DIRECTORY)&&prove -I $(JBROWSE_GIT_DIRECTORY)/src/perl5/ -r $(JBROWSE_GIT_DIRECTORY)/tests/perl_tests
 
 
-.PHONY: clean clean-webapp clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-webapollo-config version test package test-jbrowse download-jbrowse
+.PHONY: clean clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-webapollo-config version test package test-jbrowse download-jbrowse create-precompiled debug-package release-package
