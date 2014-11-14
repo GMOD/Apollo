@@ -141,7 +141,7 @@ You can use run.sh to launch a temporary Tomcat server for testing.
 
     ./run.sh
 
-Then you will be able to access Web Apollo from  http://localhost:8080/apollo/ and login with your web_apollo_user information. 
+Then you will be able to access Web Apollo from  http://localhost:8080/apollo/ and login with your web_apollo_user information. Note: if you already have a tomcat instance running, you may have to shut it down to run this test server.
 
 #### Congratulations
 
