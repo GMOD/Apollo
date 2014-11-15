@@ -1,7 +1,18 @@
 #!/bin/sh
 
-echo $@
+echo "number of args is $#"
 
-if [[ $1 == help || $1 == --help ]]; then
-   echo what?
+function usage(){
+    echo "Usage: apollo [release|debug|github|clean|help]";
+    echo "";
+    echo "Options:";
+    echo "release: builds in release mode (minimized javascript)";
+    echo "debug:   builds in debug mode (non-minimized javascript)";
+    echo "github:  builds straight from github (no processing of javascript)";
+    echo "clean:   removes any existing jbrowse builds from build directory";
+    echo "help:    this message";
+};
+
+if [[ $# == 0 || $1 == help || $1 == --help ]]; then
+   usage
 fi
