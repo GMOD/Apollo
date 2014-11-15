@@ -5,6 +5,11 @@ use Data::Dumper;
 use File::Basename;
 use lib dirname($0);
 
+
+use FindBin qw($RealBin);
+use lib "$RealBin/../../src/perl5";
+use JBlibs;
+
 use Getopt::Long qw(:config no_ignore_case bundling);
 use IO::File;
 use LWP::UserAgent;

@@ -18,3 +18,8 @@ hibernate.xml
 version.jsp
 update_client.sh
 canned_comments.xml
+/extlib/
+setup.log
+/src/perl5/
+/bin/
+/site/

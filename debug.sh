@@ -9,7 +9,7 @@ export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspe
 
 #MAVEN_DEBUG_OPTS="-Xmx512m -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5000"
 
-./build.sh && mvn tomcat7:run   
+mvn tomcat7:run
 #mvnDebug tomcat7:run   
 export MAVEN_OPTS=$OLD_MAVEN_OPTS
 unset OLD_MAVEN_OPTS

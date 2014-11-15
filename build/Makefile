@@ -8,7 +8,7 @@ JBROWSE_GITHUB=https://github.com/GMOD/jbrowse
 JBROWSE_VERSION=dev
 GIT_VERSION=`git rev-parse --verify HEAD`
 POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`
-
+SHASUM=shasum
 
 run: copy-webapollo-config
 	mvn tomcat7:run
@@ -26,6 +26,15 @@ version:
 	echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp
 download-jbrowse:
 	test -d $(JBROWSE_GIT_DIRECTORY) || git clone --recursive $(JBROWSE_GITHUB) $(JBROWSE_GIT_DIRECTORY)
+release-package: clean release
+	rsync -a . Apollo-$(POM_VERSION)-release --exclude='.git*' --exclude='Apollo-*'
+	tar czf Apollo-$(POM_VERSION)-release.tar.gz Apollo-$(POM_VERSION)-release
+debug-package: clean debug
+	rsync -a . Apollo-$(POM_VERSION)-debug --exclude='.git*' --exclude='Apollo-*'
+	tar czf Apollo-$(POM_VERSION)-debug.tar.gz Apollo-$(POM_VERSION)-debug
+create-precompiled: release-package debug-package
+	ls -lh Apollo-*.tar.gz
+	$(SHASUM) Apollo-*.tar.gz
 
 copy-webapollo-plugin:
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo
@@ -43,10 +52,9 @@ copy-webapollo-config:
 	if [ -e $(APOLLO_ROOT_DIRECTORY)/log4j2-test.json ]; then cp $(APOLLO_ROOT_DIRECTORY)/log4j2-test.json $(APOLLO_WEBAPP_DIRECTORY)/src/test/resources/log4j2-test.json; \
 	    else echo "no log4j2-test.json found"; fi;
 
-clean: clean-webapp
+clean:
 	mvn clean
-clean-webapp:
-	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
+	git clean -fdx
 clean-repos: clean
 	rm -rf $(JBROWSE_GIT_DIRECTORY)
 clean-jbrowse-repo: clean
@@ -57,4 +65,4 @@ test-jbrowse:
 	cd $(JBROWSE_GIT_DIRECTORY)&&prove -I $(JBROWSE_GIT_DIRECTORY)/src/perl5/ -r $(JBROWSE_GIT_DIRECTORY)/tests/perl_tests
 
 
-.PHONY: clean clean-webapp clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-webapollo-config version test package test-jbrowse download-jbrowse
+.PHONY: clean clean-jbrowse-repo clean-repos debug release build-jbrowse github copy-webapollo-plugin copy-webapollo-config version test package test-jbrowse download-jbrowse create-precompiled debug-package release-package

@@ -18,25 +18,31 @@ This guide will be doing the following steps
  - Configuring WebApollo using the config.properties file
 
 #### Setup environment
-First set some environmental variables
+First set some environmental variables. Note that PGUSER is simply your username in this setup, but if you set it to something different, make sure to see [database setup](Database_setup.md) for details.
 
-    export PGUSER=web_apollo_users_admin
-    export PGPASSWORD=web_apollo_users_admin
+    export PGUSER=`whoami`
+    export PGPASSWORD=password
     export WEBAPOLLO_USER=web_apollo_admin
     export WEBAPOLLO_PASSWORD=web_apollo_admin
     export WEBAPOLLO_DATABASE=web_apollo_users
     export ORGANISM="Pythium ultimum"
+
+#### Download webapollo
+
+You can download the latest Web Apollo release from [github](https://github.com/gmod/Apollo.git) or from
+[genomearchitect.org](http://genomearchitect.org) (the 1.x release branch is not available from genomearchitect yet).
+
 
 #### Get prerequisites
 
 Then get some system pre-requisites. These commands will try to get everything in one bang for several system types.
 
     # install system prerequisites (debian/ubuntu)
-    sudo apt-get install openjdk-7-jdk libexpat1-dev cpanminus postgresql postgresql-server-dev-all postgresql-server maven tomcat
+    sudo apt-get install openjdk-7-jdk libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7
     # install system prerequisites (centOS/redhat)
-    sudo yum install cpanminus postgresql postgresql-devel maven expat-devel tomcat
+    sudo yum install postgresql postgresql-devel maven expat-devel tomcat
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
-    brew install maven cpanminus postgresql wget tomcat
+    brew install maven postgresql wget tomcat
 
 #### Kickstart postgres (not needed for ubuntu)
 One debian/ubuntu, postgres is started automatically so this is unnecessary when it is installed, but on others (centOS/redhat, mac OSX) they need to be kickstarted. You can manually init and start postgres
@@ -49,31 +55,30 @@ One debian/ubuntu, postgres is started automatically so this is unnecessary when
     ln -sfv /usr/local/opt/postgresql/\*.plist ~/Library/LaunchAgents
     launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
 
-#### Configure cpanminus
-Next, we will configure cpanminus and install some webapollo-specific perl prerequisites
-
-    cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
-    cpanm Crypt::PBKDF2 DBI DBD::Pg
-
 #### Initialize postgres database
 We will setup a new user and database for Web Apollo. Note: see [database setup](Database_setup.md#authentication) for more details about postgres setup details
 
+    # On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
     sudo su postgres -c "createuser -RDIElPS $PGUSER"
     sudo su postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
-    # macOSX/homebrew, not necessary to use postgres user to login
+    # macOSX/homebrew , not necessary to login to postgres user
     createuser -RDIElPS $PGUSER
     createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
 
-#### Download Web Apollo and sample data
-Now we will get the latest WebApollo release distribution
+#### Download sample data
 
-    wget https://github.com/GMOD/Apollo/releases/download/1.0.0-RC2/Apollo-1.0.0-RC2-release.tar.gz
-    tar xvzf Apollo-1.0.0-RC2-release.tar.gz
-
-If you are following our example, you can also download the sample data
+If you are following our example, you can download the sample data
 
     wget http://icebox.lbl.gov/webapollo/data/pyu_data.tgz
     tar xvzf pyu_data.tgz
+
+#### Setup some basic dependencies
+
+We will use Web Apollo's setup.sh script to install perl scripts and dependencies scripts to WEB\_APOLLO\_ROOT/bin/
+
+    ./setup.sh
+
+If there are any errors during this build step, you can check setup.log.
 
 #### Initialize Web Apollo logins and permissions
 Now we will initialize the database tables and setup permissions for a new Web Apollo user
@@ -87,48 +92,58 @@ The permissions for the Web Apollo user are configured on a track by track basis
     tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
     tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
 
-We will install the jbrowse perl scripts using cpanm. This will allow you to run the data processing pipeline scripts from anywhere.
-
-    ./install_jbrowse_bin.sh cpanm
 
 #### Setup genome browser data
-Now we will setup our data directory. In this example we will use the sample data. For other purposes, refer to the [configuration guide](Configuration.md) guide for more details.
+Now we will setup our data directory. In this example we will use the Pythium ultimum sample data. For more info on adding genome browser tracks, see the [configuration guide](Configure.md) guide.
 
-Here, the split_gff.pl script will split our example GFF into different types, and we will use flatfile-to-json.pl to load the maker track.
+Here, the split_gff.pl script will split our example GFF into different types, and we will load the reference sequence FASTA file with prepare-refseqs.pl and the Maker GFF with flatfile-to-json.pl.
 
     mkdir split_gff
     tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d split_gff
-    prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /apollo/data
-    flatfile-to-json.pl --gff split_gff/maker.gff --arrowheadClass trellis-arrowhead \
+    bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out data
+    bin/flatfile-to-json.pl --gff split_gff/maker.gff --arrowheadClass trellis-arrowhead \
         --subfeatureClasses '{"wholeCDS": null, "CDS":"brightgreen-80pct", "UTR": "darkgreen-60pct", "exon":"container-100pct"}' \
-        --className container-16px --type mRNA --trackLabel maker --out /apollo/data
+        --className container-16px --type mRNA --trackLabel maker --out data
 
 ##### Add webapollo plugin to the genome browser
 Once the tracks are initialized, we can add the webapollo plugin to the jbrowse config using the add-webapollo-plugin.pl script.
 
     client/apollo/bin/add-webapollo-plugin.pl -i data/trackList.json
 
-#### Configure the locations of the data directories and database login
-Configure data directories using config.properties (note: here we use /apollo/data and /apollo/annotations, but you can put them in appropriate locations you deem fit)
+#### Configure the directories and database info in config.properties
+
+Once we have our data directories and database configuration setup, we can put this information in the config.properties file.
 
     mkdir annotations
-    echo jbrowse.data=/apollo/data > config.properties
-    echo datastore.directory=/apollo/annotations >> config.properties
+    echo jbrowse.data=`pwd`/data > config.properties
+    echo datastore.directory=`pwd`/annotations >> config.properties
     echo database.url=jdbc:postgresql:$WEBAPOLLO_DATABASE >> config.properties
     echo database.username=$PGUSER >> config.properties
     echo database.password=$PGPASSWORD >> config.properties
     echo organism=$ORGANISM >> config.properties
 
-The sample_config.xml can be used largely unmodified, so we will just copy it for now. For more details on the configuration, see the [configuration guide](Config.md)
+It's best to set this file up before creating the Maven package.
+
+Note: here we used local directory paths for storing the jbrowse data and Web Apollo annotations,
+but you may choose to to store these directories elsewhere.
+
+#### (Optional) Setup other webapollo configurations in config.xml
+
+The config.xml offers many options for customizing Web Apollo, but you can use most of the defaults from sample_config.xml for our purposes.
 
     mv sample_config.xml config.xml
 
+For more details on the config.xml options, see the [configuration guide](Configure.md).
 
-#### Build the release package
+#### Run a test server
 
-Build a release package
+You can use run.sh to launch a temporary Tomcat server for testing.
 
-    mvn package
+    ./run.sh
 
-Your Web Apollo instance is now ready to deploy! For deployment instructions, see the [deployment guide](Deploy.md).
+Then you will be able to access Web Apollo from  http://localhost:8080/apollo/ and login with your web_apollo_user information. Note: if you already have a tomcat instance running, you may have to shut it down to run this test server.
+
+#### Congratulations
+
+If everything works, then you can continue to the [build guide](Build.md) for more instructions on packaging the build, and to the [deployment guide](Deploy.md) for information about deploying to a production server.
 
