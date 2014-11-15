@@ -107,8 +107,8 @@
     <target name="copy-web-apollo-config">
 
         <echo>copying config ...</echo>
-        <copy failonerror="true" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
-        <copy failonerror="true" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
+        <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
+        <copy failonerror="false" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
         <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" />
         <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
         <copy failonerror="false" file="log4j2.json" tofile="${apollo.webapp.directory}/src/main/resources/log4j2.json;" />

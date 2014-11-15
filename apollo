@@ -6,7 +6,7 @@ function usage(){
     echo "Commands:";
     echo "";
     echo "release: builds in release mode (minimized javascript)";
-    echo "war:     builds unoptimized war file (no processing of javascript)";
+    echo "deploy:  builds unoptimized war file (no processing of javascript)";
     echo "run:     runs from current directory debug mode (non-minimized javascript)";
     echo "debug:   runs from current directory in debug mode (non-minimized javascript)";
     echo "clean:   removes any existing jbrowse builds from build directory";
@@ -17,6 +17,17 @@ if [[ $# == 0 || $1 == help || $1 == --help ]]; then
    usage
 fi
 
+if [ ! -e "./config.xml" ]; then
+   echo "No config.xml found, exiting."
+   echo "You must copy and sample_config.xml to config.xml in order to build."
+   exit 1;
+fi
+
+if [ ! -e "./config.properties" ]; then
+   echo "No config.properties found, exiting."
+   echo "You must copy and sample_config.properties to config.properties in order to build."
+   exit 1;
+fi
 
 if [[ $1 == "run" ]];then
     # should call the copy target first
@@ -24,8 +35,12 @@ if [[ $1 == "run" ]];then
 fi
 
 if [[ $1 == "debug" ]];then
-    # should call the copy target first
+    # TODO: feel like there is a better way to do this
+    OLD_MAVEN_OPTS=$MAVEN_OPTS
+    export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
     mvn tomcat7:run
+    export MAVEN_OPTS=$OLD_MAVEN_OPTS
+    unset OLD_MAVEN_OPTS
 fi
 
 if [[ $1 == "release" ]];then
@@ -33,17 +48,13 @@ if [[ $1 == "release" ]];then
     mvn tomcat7:run
 fi
 
-if [[ $1 == "war" ]];then
+if [[ $1 == "deploy" ]];then
     # should call the copy target first
-    mvn tomcat7:run
+    mvn package
 fi
 
-if [[ $1 == "debug" ]];then
-    # should call the copy target first
-    mvn tomcat7:run
-fi
 
 if [[ $1 == "clean" ]];then
     # should call the copy target first
-    mvn tomcat7:run
+    mvn clean
 fi

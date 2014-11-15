@@ -205,14 +205,6 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <!--<target name="asdf">-->
-                                <echo>Hello</echo>
-                                <!--</target>-->
-                                <!--
-                                  Place any ant task here. You can add anything
-                                  you can add between <target> and </target> in a
-                                  build.xml.
-                                -->
                                 <ant antfile="${basedir}/build.xml"
                                      target="copy-resources"/>
                             </tasks>
