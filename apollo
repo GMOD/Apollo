@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo $@
+
+if [[ $1 == help || $1 == --help ]]; then
+   echo what?
+fi

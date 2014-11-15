@@ -9,6 +9,7 @@
     <name>Apollo</name>
     <url>http://genomearchitect.org</url>
 
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java-version>1.7</java-version>
@@ -128,6 +129,7 @@
     </repositories>
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
+        <defaultGoal>help:system</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -186,15 +188,24 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>java</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<tasks>-->
+                                <!--<echo>safsdf</echo>-->
+                            <!--</tasks>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
                     <execution>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
                         <configuration>
                             <tasks>
                                 <!--<target name="asdf">-->
-                                    <echo>Hello</echo>
+                                <echo>Hello</echo>
                                 <!--</target>-->
                                 <!--
                                   Place any ant task here. You can add anything
