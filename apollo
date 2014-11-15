@@ -1,18 +1,49 @@
 #!/bin/sh
 
-echo "number of args is $#"
-
 function usage(){
-    echo "Usage: apollo [release|debug|github|clean|help]";
+    echo "Usage: apollo <command>";
     echo "";
-    echo "Options:";
+    echo "Commands:";
+    echo "";
     echo "release: builds in release mode (minimized javascript)";
-    echo "debug:   builds in debug mode (non-minimized javascript)";
-    echo "github:  builds straight from github (no processing of javascript)";
+    echo "war:     builds unoptimized war file (no processing of javascript)";
+    echo "run:     runs from current directory debug mode (non-minimized javascript)";
+    echo "debug:   runs from current directory in debug mode (non-minimized javascript)";
     echo "clean:   removes any existing jbrowse builds from build directory";
     echo "help:    this message";
 };
 
 if [[ $# == 0 || $1 == help || $1 == --help ]]; then
    usage
+fi
+
+
+if [[ $1 == "run" ]];then
+    # should call the copy target first
+    mvn tomcat7:run
+fi
+
+if [[ $1 == "debug" ]];then
+    # should call the copy target first
+    mvn tomcat7:run
+fi
+
+if [[ $1 == "release" ]];then
+    # should call the copy target first
+    mvn tomcat7:run
+fi
+
+if [[ $1 == "war" ]];then
+    # should call the copy target first
+    mvn tomcat7:run
+fi
+
+if [[ $1 == "debug" ]];then
+    # should call the copy target first
+    mvn tomcat7:run
+fi
+
+if [[ $1 == "clean" ]];then
+    # should call the copy target first
+    mvn tomcat7:run
 fi

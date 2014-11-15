@@ -1,4 +1,4 @@
-<project>
+<project name="Web Apollo">
 
     <!--APOLLO_ROOT_DIRECTORY=$(BASEDIR)-->
     <!--APOLLO_BUILD_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)-->
@@ -11,10 +11,10 @@
     <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
 
     <property name="apollo.webapp.directory" location="src/main/webapp" relative="true" basedir="."/>
-    <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse" />
-    <property name="apollo.client.directory" location="client/apollo" basedir="." relative="true" />
-    <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo" />
-    <property name="jbrowse.git.directory" location="jbrowse-github" />
+    <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
+    <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
+    <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
+    <property name="jbrowse.git.directory" location="jbrowse-github"/>
     <!--<property name="jbrowse.github"  />-->
     <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
@@ -29,7 +29,7 @@
         <!--test -d $(JBROWSE_GIT_DIRECTORY) || git clone \-\-recursive $(JBROWSE_GITHUB) $(JBROWSE_GIT_DIRECTORY)-->
     </target>
 
-    <target name="git.clone" description="Clone git repository." if="jbrowse.git.present" >
+    <target name="git.clone" description="Clone git repository." if="jbrowse.git.present">
         <exec executable="git" failifexecutionfails="false" errorproperty="">
             <arg value="clone"/>
             <arg value="--recursive"/>
@@ -66,8 +66,16 @@
         <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
     </target>
 
+    <target name="copy-resources" depends="copy-web-apollo-config,copy-web-apollo-plugin">
+
+    </target>
+
     <target name="copy-web-apollo-plugin">
-        <copydir src="${client.apollo.dir}" dest="${jbrowse.git.directory}" overwrite="true"/>
+        <echo>copying plugin ...</echo>
+        <!--<delete dest="${jbrowse.git.directory}/plugins/WebApollo"/>-->
+        <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
+            <fileset dir="${apollo.client.directory}"/>
+        </copy>
         <!--cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo-->
     </target>
 
@@ -97,12 +105,15 @@
 
 
     <target name="copy-web-apollo-config">
-        <copy failonerror="true" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" overwite="true"  />
-        <copy failonerror="true" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" overwite="true"  />
-        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" overwite="true"  />
-        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" overwite="true"  />
-        <copy failonerror="false" file="log4j2.json" tofile="${apollo.webapp.directory}/src/main/resources/log4j2.json;" overwite="true"  />
-        <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.webapp.directory}/src/main/resources/log4j2-test.json;" overwite="true"  />
+
+        <echo>copying config ...</echo>
+        <copy failonerror="true" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
+        <copy failonerror="true" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
+        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" />
+        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
+        <copy failonerror="false" file="log4j2.json" tofile="${apollo.webapp.directory}/src/main/resources/log4j2.json;" />
+        <copy failonerror="false" file="log4j2-test.json"
+              tofile="${apollo.webapp.directory}/src/main/resources/log4j2-test.json;" />
         <!--if [ -e $(APOLLO_ROOT_DIRECTORY)/config.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.xml $(APOLLO_WEBAPP_DIRECTORY)/config/config.xml; \-->
         <!--else echo "no config.xml found"; fi;-->
         <!--if [ -e $(APOLLO_ROOT_DIRECTORY)/config.properties ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.properties $(APOLLO_WEBAPP_DIRECTORY)/config/config.properties; \-->
