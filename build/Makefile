@@ -34,11 +34,12 @@ release-package: release
 debug-package: debug
 	rsync -a . Apollo-$(POM_VERSION)-debug --exclude='.git*' --exclude='Apollo-*'
 	tar czf Apollo-$(POM_VERSION)-debug.tar.gz Apollo-$(POM_VERSION)-debug
-create-precompiled: release-package debug-package
+create-precompiled: clean release-package debug-package
 	ls -lh Apollo-*.tar.gz
 	$(SHASUM) Apollo-*.tar.gz
 
 copy-webapollo-plugin:
+	rm -rf $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo
 copy-webapollo-config:
 	if [ -e $(APOLLO_ROOT_DIRECTORY)/config.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.xml $(APOLLO_WEBAPP_DIRECTORY)/config/config.xml; \
