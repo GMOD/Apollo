@@ -5,10 +5,10 @@ function usage(){
     echo "";
     echo "Commands:";
     echo "";
-    echo "release: builds in release mode (minimized javascript)";
+    echo "run:     Runs from current directory debug mode (non-minimized javascript)";
+    echo "debug:   Runs from current directory in debug mode (non-minimized javascript)";
     echo "deploy:  builds unoptimized war file (no processing of javascript)";
-    echo "run:     runs from current directory debug mode (non-minimized javascript)";
-    echo "debug:   runs from current directory in debug mode (non-minimized javascript)";
+    echo "release: builds in release mode (minimized javascript)";
     echo "clean:   removes any existing jbrowse builds from build directory";
     echo "help:    this message";
 };
@@ -43,15 +43,16 @@ if [[ $1 == "debug" ]];then
     unset OLD_MAVEN_OPTS
 fi
 
+if [[ $1 == "deploy" ]];then
+    # should call the copy target first
+    mvn package
+fi
+
 if [[ $1 == "release" ]];then
     # should call the copy target first
     mvn tomcat7:run
 fi
 
-if [[ $1 == "deploy" ]];then
-    # should call the copy target first
-    mvn package
-fi
 
 
 if [[ $1 == "clean" ]];then
