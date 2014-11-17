@@ -15,8 +15,10 @@ run: copy-webapollo-config
 package: copy-webapollo-config
 	mvn package
 release: download-jbrowse copy-webapollo-plugin version build-jbrowse
+	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
 debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
+	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
 unoptimized: download-jbrowse copy-webapollo-plugin version
 	cp -R $(JBROWSE_GIT_DIRECTORY) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
@@ -26,17 +28,18 @@ version:
 	echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp
 download-jbrowse:
 	test -d $(JBROWSE_GIT_DIRECTORY) || git clone --recursive $(JBROWSE_GITHUB) $(JBROWSE_GIT_DIRECTORY)
-release-package: clean release
+release-package: release
 	rsync -a . Apollo-$(POM_VERSION)-release --exclude='.git*' --exclude='Apollo-*'
 	tar czf Apollo-$(POM_VERSION)-release.tar.gz Apollo-$(POM_VERSION)-release
-debug-package: clean debug
+debug-package: debug
 	rsync -a . Apollo-$(POM_VERSION)-debug --exclude='.git*' --exclude='Apollo-*'
 	tar czf Apollo-$(POM_VERSION)-debug.tar.gz Apollo-$(POM_VERSION)-debug
-create-precompiled: release-package debug-package
+create-precompiled: clean release-package debug-package
 	ls -lh Apollo-*.tar.gz
 	$(SHASUM) Apollo-*.tar.gz
 
 copy-webapollo-plugin:
+	rm -rf $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo
 	cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo
 copy-webapollo-config:
 	if [ -e $(APOLLO_ROOT_DIRECTORY)/config.xml ]; then cp $(APOLLO_ROOT_DIRECTORY)/config.xml $(APOLLO_WEBAPP_DIRECTORY)/config/config.xml; \
