@@ -23,6 +23,12 @@ if [ ! -e "./config.xml" ]; then
    exit 1;
 fi
 
+if [ ! -e "./canned_comments.xml" ]; then
+   echo "No canned_comments.xml found, exiting."
+   echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
+   exit 1;
+fi
+
 if [ ! -e "./config.properties" ]; then
    echo "No config.properties found, exiting."
    echo "You must copy and sample_config.properties to config.properties in order to build."
