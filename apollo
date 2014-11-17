@@ -1,6 +1,7 @@
 #!/bin/sh
 
 function usage(){
+    echo "";
     echo "Usage: apollo <command>";
     echo "";
     echo "Commands:";
@@ -9,7 +10,7 @@ function usage(){
     echo "run:     Runs from current directory debug mode (non-minimized javascript).";
     echo "test:    Runs test-suite.";
     echo "debug:   Runs from current directory in debug mode (non-minimized javascript).";
-    echo "release: Builds in release mode (minimized javascript).";
+    echo "release: Builds in release mode (minimized javascript). (advanced)";
     echo "compile: Compiled the build.";
     echo "clean:   Removes any existing jbrowse builds from build directory.";
     echo "help:    This message.";
@@ -17,6 +18,7 @@ function usage(){
 
 if [[ $# == 0 || $1 == help || $1 == --help ]]; then
    usage
+   exit 1;
 fi
 
 if [ ! -e "./config.xml" ]; then
@@ -50,6 +52,9 @@ elif [[ $1 == "deploy" ]];then
 elif [[ $1 == "release" ]];then
     # should call the copy target first
     mvn tomcat7:run
+elif [[ $1 == "compile" ]];then
+    # should call the copy target first
+    mvn compile
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
     mvn clean
