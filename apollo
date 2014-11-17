@@ -5,12 +5,14 @@ function usage(){
     echo "";
     echo "Commands:";
     echo "";
-    echo "run:     Runs from current directory debug mode (non-minimized javascript)";
-    echo "debug:   Runs from current directory in debug mode (non-minimized javascript)";
-    echo "deploy:  builds unoptimized war file (no processing of javascript)";
-    echo "release: builds in release mode (minimized javascript)";
-    echo "clean:   removes any existing jbrowse builds from build directory";
-    echo "help:    this message";
+    echo "deploy:  Builds Unoptimized war file (no processing of javascript) into the target directory.";
+    echo "run:     Runs from current directory debug mode (non-minimized javascript).";
+    echo "test:    Runs test-suite.";
+    echo "debug:   Runs from current directory in debug mode (non-minimized javascript).";
+    echo "release: Builds in release mode (minimized javascript).";
+    echo "compile: Compiled the build.";
+    echo "clean:   Removes any existing jbrowse builds from build directory.";
+    echo "help:    This message.";
 };
 
 if [[ $# == 0 || $1 == help || $1 == --help ]]; then
@@ -32,30 +34,25 @@ fi
 if [[ $1 == "run" ]];then
     # should call the copy target first
     mvn tomcat7:run
-fi
-
-if [[ $1 == "debug" ]];then
+elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
     mvn tomcat7:run
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
-fi
-
-if [[ $1 == "deploy" ]];then
+elif [[ $1 == "test" ]];then
+    # should call the copy target first
+    mvn test
+elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     mvn package
-fi
-
-if [[ $1 == "release" ]];then
+elif [[ $1 == "release" ]];then
     # should call the copy target first
     mvn tomcat7:run
-fi
-
-
-
-if [[ $1 == "clean" ]];then
+elif [[ $1 == "clean" ]];then
     # should call the copy target first
     mvn clean
+else
+    usage
 fi

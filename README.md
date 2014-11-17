@@ -21,20 +21,12 @@ Note: For documentation of older Web Apollo versions, please see [http://gmod.or
 
 ### Edit property files and config files before deploying
 
-<<<<<<< HEAD
-    cp ./sample_config.properties ./config.properties 
-    cp ./sample_config.xml ./config.xml 
-    cp ./sample_canned_comments.xml ./canned_comments.xml 
+    cp ./sample_config.properties ./config.properties  # must set database parameters and data directories
+    cp ./sample_config.xml ./config.xml # see configuration guide for more details
+    cp ./sample_canned_comments.xml ./canned_comments.xml  # see configuration guide for more details 
     cp ./sample_blat_config.xml ./blat_config.xml     # optional
     cp ./sample_hibernate.xml ./hibernate.xml    # optional
     cp ./sample_log4j2.json ./log4j2.json     # optional
-=======
-    cp ./sample_config.properties ./config.properties   # must set database parameters and data directories
-    cp ./sample_config.xml ./config.xml                 # see configuration guide for more details
-    cp ./sample_blat_config.xml ./blat_config.xml       # optional
-    cp ./sample_hibernate.xml ./hibernate.xml           # optional
-    cp ./sample_log4j2.json ./log4j2.json               # optional
->>>>>>> e7d8530bccb395dfda8bfef5fe922a1992fb299f
     cp ./sample_log4j2-test.json ./log4j2-test.json     # optional
 
 
@@ -47,22 +39,26 @@ You must edit config.properties to supply the jbrowse data and annotations direc
 
 Most users will only need to use Maven to generate a war file:
 
-    mvn package
+    apollo deploy 
 
 Users wanting to compile a custom package can refer to the [developers guide](docs/Developer.md)
 
+<!-- 
+Have to add this back.
 ### Install jbrowse binaries
 
-As a convenience, JBrowse scripts can be installed to a local directory (./bin) using the setup.sh script:
+As part of the installation process, JBrowse scripts are installed to a local directory (./bin) using install\_jbrowse.sh:
 
-    setup.sh
+    install_jbrowse.sh 
+-->
 
 ### Deploy
 
 To run tomcat on 8080:
 
-    run.sh
+    apollo run 
+
 To run tomcat on 8080, list to debug port on 8000:
 
-    debug.sh
+    apollo debug 
 
