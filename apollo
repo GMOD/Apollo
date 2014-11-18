@@ -22,30 +22,34 @@ if [[ $# == 0 || $1 == help || $1 == --help ]]; then
    exit 1;
 fi
 
-if [ ! -e "./config.xml" ]; then
-   echo "No config.xml found, exiting."
-   echo "You must copy and sample_config.xml to config.xml in order to build."
-   exit 1;
-fi
+function check_configs(){
+	if [ ! -e "./config.xml" ]; then
+	   echo "No config.xml found, exiting."
+	   echo "You must copy and sample_config.xml to config.xml in order to build."
+	   exit 1;
+	fi
 
-if [ ! -e "./canned_comments.xml" ]; then
-   echo "No canned_comments.xml found, exiting."
-   echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
-   exit 1;
-fi
+	if [ ! -e "./canned_comments.xml" ]; then
+	   echo "No canned_comments.xml found, exiting."
+	   echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
+	   exit 1;
+	fi
 
-if [ ! -e "./config.properties" ]; then
-   echo "No config.properties found, exiting."
-   echo "You must copy and sample_config.properties to config.properties in order to build."
-   exit 1;
-fi
+	if [ ! -e "./config.properties" ]; then
+	   echo "No config.properties found, exiting."
+	   echo "You must copy and sample_config.properties to config.properties in order to build."
+	   exit 1;
+	fi
+}
 
 if [[ $1 == "run" ]];then
     # should call the copy target first
+    check_configs
     mvn tomcat7:run
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
+    check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
     mvn tomcat7:run
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
@@ -55,10 +59,12 @@ elif [[ $1 == "test" ]];then
     mvn test
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
+    check_configs
     mvn package
 elif [[ $1 == "release" ]];then
     # should call the copy target first
-    mvn tomcat7:run
+    check_configs
+    make -f build/Makefile clean release
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     mvn compile
