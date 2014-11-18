@@ -112,7 +112,13 @@
 
 
 
-    <target name="setup-jbrowse" depends="git.clone,copy.apollo.plugin.webapp,install.jbrowse.perl" unless="jbrowse.webapp.installed">
+    <target name="setup-jbrowse"  unless="jbrowse.webapp.installed">
+
+        <antcall target="git.clone"/>
+        <antcall target="copy.apollo.plugin.jbrowse"/>
+        <antcall target="install.jbrowse.perl"/>
+
+
         <echo>Will be setting up jbrowse</echo>
         <delete dir="${apollo.jbrowse.directory}"/>
 
@@ -123,7 +129,7 @@
     </target>
 
 
-    <target name="copy.apollo.plugin.webapp">
+    <target name="copy.apollo.plugin.jbrowse">
         <echo>copying plugin ...</echo>
         <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
