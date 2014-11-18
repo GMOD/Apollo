@@ -1,8 +1,5 @@
 # Apollo
-{% if display_github %}
-<li><a href="https://github.com/{{ github_user }}/{{ github_repo }}/blob/{{ github_version }}{{ conf_py_path }}{{ pagename }}.rst">
-Show on GitHub</a></li>
-{% endif %}
+<li><a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a></li>
 
 A genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.
 
