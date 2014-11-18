@@ -3234,9 +3234,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 updateTimeLastUpdated();
             }
             else {
-                goIdTable.close();
                 alert("Invalid ID " + goId + " - Must be formatted as 'GO:#######' - Removing entry");
                 goIdTable.store.deleteItem(goIdTable.getItem(row));
+                goIdTable.close();
             }
         };
 
@@ -3262,9 +3262,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             else {
                 alert("Invalid ID " + newGoId + " - Undoing update");
-                goIdTable.close();
 // goIdTable.store.setValue(goIdTable.getItem(row), "go_id", oldGoId);
                 goIdTable.store.setValue(item, "go_id", oldGoId);
+                goIdTable.close();
             }
         };
         
