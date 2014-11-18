@@ -10,7 +10,7 @@ function usage(){
     echo "run:       Runs from current directory debug mode (non-minimized javascript).";
     echo "test:      Runs test-suite.";
     echo "debug:     Runs from current directory in debug mode (non-minimized javascript).";
-    echo "release:   Builds in release mode (minimized javascript). (advanced)";
+    #echo "release:   Builds in release mode (minimized javascript). (advanced)";
     echo "compile:   Compiled the build.";
     echo "clean:     Removes class files.";
     echo "clean-all: Removes class files and jbrowse files.";
@@ -63,8 +63,8 @@ elif [[ $1 == "deploy" ]];then
     mvn package
 elif [[ $1 == "release" ]];then
     # should call the copy target first
-    check_configs
-    make -f build/Makefile clean release-package
+    #check_configs
+    make -f build/Makefile release-package
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     mvn compile
