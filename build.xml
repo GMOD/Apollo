@@ -1,5 +1,4 @@
-<project name="Web Apollo"
-        >
+<project name="Web Apollo" default="usage" basedir=".">
 
     <!--APOLLO_ROOT_DIRECTORY=$(BASEDIR)-->
     <!--APOLLO_BUILD_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)-->
@@ -51,6 +50,10 @@
             <arg value="${jbrowse.github}"/>
             <arg value="${jbrowse.git.directory}"/>
         </exec>
+    </target>
+
+    <target name="usage">
+        <exec executable="./apollo" failifexecutionfails="false" errorproperty=""/>
     </target>
 
     <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present" unless="jbrowse.perl.installed">
@@ -122,7 +125,7 @@
 
     <target name="copy.apollo.plugin.webapp">
         <echo>copying plugin ...</echo>
-        <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
+        <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true" verbose="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
     </target>
