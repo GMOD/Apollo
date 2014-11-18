@@ -27,7 +27,7 @@
     <!--<property name="jbrowse.github"  />-->
     <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
-    <property name="jbrowse.perl.dependency.test.file" value=""/>
+    <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
     <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
     <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
 
@@ -79,14 +79,6 @@
     </target>
 
 
-    <target name="hello">
-        <echo>Hello again!</echo>
-    </target>
-
-    <!--<target name="run">-->
-        <!--&lt;!&ndash;mvn tomcat7:run&ndash;&gt;-->
-    <!--</target>-->
-
     <target name="install-version" depends="git.revision">
         <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
         <copy file="${version.template.file}" tofile="${version.file}">
@@ -99,7 +91,7 @@
 
 
 
-    <target name="setup-jbrowse" depends="git.clone,install.jbrowse.perl,copy.apollo.plugin.webapp" unless="jbrowse.webapp.installed">
+    <target name="setup-jbrowse" depends="git.clone,copy.apollo.plugin.webapp,install.jbrowse.perl" unless="jbrowse.webapp.installed">
         <echo>Will be setting up jbrowse</echo>
         <delete dir="${apollo.jbrowse.directory}"/>
 
@@ -110,22 +102,11 @@
     </target>
 
 
-    <target name="copy-resources" depends="copy-web-apollo-config,install-version,setup-jbrowse"
-            description="This is called externally by shell script.">
-
-    </target>
-
     <target name="copy.apollo.plugin.webapp">
         <echo>copying plugin ...</echo>
-        <!--<delete dest="${jbrowse.git.directory}/plugins/WebApollo"/>-->
         <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
-        <!--going to copy to both directories in the interim-->
-        <!--<copy todir="${apollo.plugin.directory}" failonerror="">-->
-            <!--<fileset dir="${apollo.client.directory}"/>-->
-        <!--</copy>-->
-        <!--cp -R $(APOLLO_ROOT_DIRECTORY)/client/apollo $(JBROWSE_GIT_DIRECTORY)/plugins/WebApollo-->
     </target>
 
     <target name="copy-web-apollo-config">
@@ -139,22 +120,10 @@
         <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.webapp.directory}/src/main/resources/log4j2-test.json"/>
     </target>
 
-    <!--<target name="usage">-->
-    <!--<echo>-->
-    <!--Usage: build.sh [release|debug|github]-->
-    <!--Options:-->
-    <!--release: builds in release mode (minimized javascript)-->
-    <!--debug: builds in debug mode (non-minimized javascript)-->
-    <!--github: builds straight from github (no processing of javascript)-->
-    <!--clean: removes any existing jbrowse builds from build directory-->
 
-    <!--Additional environment variables:-->
-    <!--JBROWSE_GITHUB: URL of git repository for JBrowse ($JBROWSE_GITHUB)-->
-    <!--JBROWSE_RELEASE: Release tag, commit tag, or branch for JBrowse ($JBROWSE_RELEASE)-->
-    <!--JBROWSE_VERSION: Release version stored in package.json for JBrowse ($JBROWSE_VERSION)-->
-    <!--APOLLO_JBROWSE_GITHUB: Location of local JBrowse repo ($APOLLO_JBROWSE_GITHUB)-->
-    <!--APOLLO_ROOT_DIRECTORY: Location of local WebApollo repo ($APOLLO_ROOT_DIRECTORY)-->
-    <!--</echo>-->
-    <!--</target>-->
+    <target name="copy-resources" depends="copy-web-apollo-config,install-version,setup-jbrowse"
+            description="This is called externally by shell script.">
+
+    </target>
 
 </project>

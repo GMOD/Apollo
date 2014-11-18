@@ -43,20 +43,19 @@ Most users will only need to use Maven to generate a war file:
 
 Users wanting to compile a custom package can refer to the [developers guide](docs/Developer.md)
 
-Have to add this back.
 ### Install jbrowse binaries
 
 As part of the installation process, JBrowse scripts are installed to a local directory (./bin) using install\_jbrowse.sh:
 
     install_jbrowse.sh 
 
-### Deploy
+### Run locally
 
 To run tomcat on 8080:
 
-    apollo run 
+    apollo run
 
 To run tomcat on 8080, list to debug port on 8000:
 
-    apollo debug 
+    apollo debug
 
