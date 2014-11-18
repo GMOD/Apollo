@@ -1,6 +1,8 @@
 Building WebApollo
 --------------------
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Build.md">On GitHub</a>
+
 To build WebApollo, we will first edit the configuration files, and *then* run Maven to create a WAR package.
 
 ### Before you build

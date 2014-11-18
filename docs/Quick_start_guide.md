@@ -1,5 +1,6 @@
 # Quick start guide
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Quick_start_guide.md">On GitHub</a>
 
 While there are a number of prerequisites to WebApollo, we hope that
 this quick-start guide can help by automating some setup steps. This

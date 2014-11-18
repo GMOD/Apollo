@@ -1,6 +1,8 @@
 Introduction
 ------------
- 
+
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Introduction.md">On GitHub</a>
+
 This guide will walk you through the server side installation for Web
 Apollo. Web Apollo is a web-based application, so the only client side
 requirement is a web browser. Note that Web Apollo has only been tested

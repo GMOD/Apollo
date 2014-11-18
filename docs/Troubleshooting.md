@@ -1,6 +1,9 @@
 
 ### Tomcat memory
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md">On GitHub</a>
+
+
 Many times the default memory allowance is too low.
 The memory requirements of WebApollo will depend on the the size of your genome and
 how many instances of Web Apollo you host in the same Tomcat instance, but in general,

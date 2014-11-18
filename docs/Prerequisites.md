@@ -1,5 +1,7 @@
 ### Prerequisites
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Prerequisites.md">On GitHub</a>
+
 Note: see the [Quick-start guide](Quick_start_guide.md "wikilink") for the
 quickest way to take care of pre-requisites.
 

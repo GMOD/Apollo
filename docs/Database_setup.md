@@ -1,5 +1,7 @@
 # Database setup
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md">On GitHub</a>
+
 WebApollo uses a database backed authentication by default that uses postgres.
 This is the so called LocalDbUserAuthentication class. To configure it, you must
 setup a postgres database.

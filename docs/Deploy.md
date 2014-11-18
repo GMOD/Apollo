@@ -1,5 +1,6 @@
 ## Deploying the servlet
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Deploy.md">On GitHub</a>
 
 After the WAR file is generated using Maven, it
 will be outputted to the WEB\_APOLLO\_DIR/target directory (e.g. target/apollo-1.0.war)

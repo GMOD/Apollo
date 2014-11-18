@@ -1,5 +1,7 @@
 ## WebApollo Configuration
 
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">On GitHub</a>
+
 WebApollo's basic configuration is simply giving it parameters in the config.properties file but more extensive configuration can be added to the XML configuration files as well.
 
 The available configuration files include
