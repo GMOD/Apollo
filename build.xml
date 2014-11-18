@@ -34,7 +34,7 @@
 
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
-    <available file="${jbrowse.webapp.file}" type="file" property="jbrowse.webapp.installed"/>
+    <available file="${jbrowse.webapp.test.file}" type="file" property="jbrowse.webapp.installed"/>
     <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
     <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
 
@@ -100,6 +100,7 @@
 
 
     <target name="setup-jbrowse" depends="git.clone,install.jbrowse.perl,copy.apollo.plugin.webapp" unless="jbrowse.webapp.installed">
+        <echo>Will be setting up jbrowse</echo>
         <delete dir="${apollo.jbrowse.directory}"/>
 
         <copy todir="${apollo.jbrowse.directory}">
