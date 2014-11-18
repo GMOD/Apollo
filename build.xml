@@ -122,7 +122,7 @@
         <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
             <filterset>
                 <filter token="POM_VERSION" value="${project.version}"/>
-                <filter token="GITHUB_VERSION" value="tags/${repository.version}"/>
+                <filter token="GITHUB_VERSION" value="tag/${project.version}"/>
             </filterset>
         </copy>
     </target>
