@@ -64,7 +64,9 @@ elif [[ $1 == "compile" ]];then
     mvn compile
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
+    rm -rf bin
     rm -rf jbrowse-github
+    rm -rf src/main/webapp/jbrowse
      # remove in webapp, as well? 
     mvn clean
 elif [[ $1 == "clean" ]];then

@@ -125,7 +125,7 @@
 
     <target name="copy.apollo.plugin.webapp">
         <echo>copying plugin ...</echo>
-        <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true" verbose="true">
+        <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
     </target>
