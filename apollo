@@ -64,7 +64,7 @@ elif [[ $1 == "deploy" ]];then
 elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
-    make -f build/Makefile clean release
+    make -f build/Makefile clean release-package
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     mvn compile
