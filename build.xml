@@ -78,15 +78,33 @@
         </condition>
     </target>
 
+    <!--<property name="release.is.snapshot" value="${project.version}"/>-->
+    <condition property="release.is.snapshot">
+        <contains substring="SNAPSHOT" string="${project.version}" casesensitive="true"/>
+    </condition>
 
-    <target name="install-version" depends="git.revision">
-        <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
-        <copy file="${version.template.file}" tofile="${version.file}">
+    <target name="install-no-release-version"  if="${release.is.snapshot}">
+        <echo>IS SNAPSHOT ${project.version}</echo>
+        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
             <filterset>
                 <filter token="POM_VERSION" value="${project.version}"/>
-                <filter token="GITHUB_VERSION" value="${repository.version}"/>
+                <filter token="GITHUB_VERSION" value=""/>
             </filterset>
         </copy>
+    </target>
+
+    <target name="install-release-version"  unless="${release.is.snapshot}">
+        <echo>IS RELEASE ${project.version}</echo>
+        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
+            <filterset>
+                <filter token="POM_VERSION" value="${project.version}"/>
+                <filter token="GITHUB_VERSION" value="tags/${repository.version}"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <target name="install-version" depends="git.revision,install-release-version,install-no-release-version">
+        <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
     </target>
 
 
