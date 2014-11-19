@@ -225,7 +225,7 @@ return declare( JBPlugin,
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
-                browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
+                browser.poweredByLink.href = 'http://genomearchitect.org/';
                 browser.poweredByLink.target = "_blank";
             }
 

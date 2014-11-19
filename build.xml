@@ -19,6 +19,7 @@
     <property name="jbrowse.git.directory" location="jbrowse-github"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
     <property name="webapp.apollo.plugin.test.file" location="${apollo.plugin.directory}/js/main.js"/>
+    <property name="webapp.apollo.plugin.uncompressed.test.file" location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
     <property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>
     <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
@@ -42,6 +43,7 @@
     <available file="${jbrowse.webapp.test.file}" type="file" property="jbrowse.webapp.installed"/>
     <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
     <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
+    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled" />
 
     <!--<property name="pom.version" value="${mypom.properties.apollo.version}"/>-->
 
@@ -151,8 +153,16 @@
 
 
     <target name="copy.apollo.plugin.jbrowse">
-        <echo>copying plugin ...</echo>
+        <echo>copying plugin to jbrowse git ...</echo>
         <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
+            <fileset dir="${apollo.client.directory}"/>
+        </copy>
+    </target>
+
+
+    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed" description="Copy client into webapp plugin directory.">
+        <echo>copying plugin to webapp ...</echo>
+        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
     </target>
@@ -169,7 +179,7 @@
     </target>
 
 
-    <target name="copy-resources" depends="copy-web-apollo-config,install-version,setup-jbrowse"
+    <target name="copy-resources" depends="copy-web-apollo-config,copy.apollo.plugin.webapp,install-version,setup-jbrowse"
             description="This is called externally by shell script.">
 
     </target>
