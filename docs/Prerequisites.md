@@ -1,7 +1,15 @@
-### Prerequisites
+## Prerequisites
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Prerequisites.md">On GitHub</a>
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On GitHub</a>
 
+
+### Client Prerequisites
+
+Web Apollo is a web-based application, so the only client side
+requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and Safari
+and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
+
+### Server-side Prerequisites
 Note: see the [Quick-start guide](Quick_start_guide.md "wikilink") for the
 quickest way to take care of pre-requisites.
 
@@ -14,10 +22,9 @@ quickest way to take care of pre-requisites.
     -   Relational Database Management System [officially supported:
         PostgreSQL]
     -   Git
--   Perl prerequisites for WebApollo's authorization scripts
-    -   Crypt::PBKDF2
-    -   DBI
-    -   DBD::Pg
+-   Perl prerequisites:
+    -   Web Apollo will automatically try to install all perl-pre-requisites using install_jbrowse.sh
+    -   If you experience problems with this script, please review setup.log
 -   Data generation pipeline prerequisites (see [JBrowse
     prerequisites](http://gmod.org/wiki/JBrowse_Configuration_Guide "wikilink") for more
     information on its prerequisites)

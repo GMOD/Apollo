@@ -10,7 +10,7 @@ To build WebApollo, we will first edit the configuration files, and *then* run M
 You need to configure your instance using a config.properties and a
 config.xml file, which are copied into the war file.
 
--   Copy the sample config / logging files to the right location.
+-   Copy the sample config / logging files to the right location. You can use the sample_config.xml defaults but make sure to edit config.properties
 
 <!-- blank code comment -->
 
@@ -40,7 +40,7 @@ for anything besides deploying new WAR files**
 
 Web Apollo uses maven to create a WAR package which bundles your config files. After setting up the config, you can use the command:
 
-    mvn package
+    ./apollo deploy
 
 This will produce the a WAR file in WEB\_APOLLO\_DIR/target/ (e.g. target/apollo-1.0-SNAPSHOT.war) that is ready to deploy. See [deploying webapollo](Deploy.md) for the next steps for deploying.
 

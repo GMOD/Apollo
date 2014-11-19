@@ -75,9 +75,9 @@ If you are following our example, you can download the sample data
 
 #### Setup some basic dependencies
 
-We will use Web Apollo's setup.sh script to install perl scripts and dependencies scripts to WEB\_APOLLO\_ROOT/bin/
+We will use Web Apollo's install_jbrowse.sh script to install perl scripts and dependencies scripts to WEB\_APOLLO\_ROOT/bin/
 
-    ./setup.sh
+    ./install_jbrowse.sh
 
 If there are any errors during this build step, you can check setup.log.
 
@@ -140,7 +140,7 @@ For more details on the config.xml options, see the [configuration guide](Config
 
 You can use run.sh to launch a temporary Tomcat server for testing.
 
-    ./run.sh
+    ./apollo run
 
 Then you will be able to access Web Apollo from  http://localhost:8080/apollo/ and login with your web_apollo_user information. Note: if you already have a tomcat instance running, you may have to shut it down to run this test server.
 

@@ -1,1 +1,14 @@
 site_name: Web Apollo
+theme: readthedocs
+pages:
+- ['index.md', 'Index']
+- ['Introduction.md', 'Introduction']
+- ['Quick_start_guide.md', 'Quick-start guide']
+- ['Prerequisites.md', 'Pre-requisites']
+- ['Database_setup.md', 'Database setup']
+- ['Configure.md', 'Configure']
+- ['Build.md', 'Build']
+- ['Deploy.md', 'Deploy']
+- ['Troubleshooting.md', 'Troubleshooting']
+- ['Developer.md', 'Developers guide']
+
