@@ -1,5 +1,4 @@
 site_name: Web Apollo
-theme: readthedocs
 pages:
 - ['index.md', 'Index']
 - ['Introduction.md', 'Introduction']
