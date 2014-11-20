@@ -36,7 +36,7 @@ Login|Password : demo|demo
 
 4) Clicking on group name link should take you to the corresponding group track in the main window.
 
-5) Test all File Menu as shown in section 8 below.
+5) Test that you are able to Log out from the upper-right corner, top-level menu.
 
 
 ###Testing functions in the main window
