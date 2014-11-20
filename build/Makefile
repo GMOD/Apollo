@@ -14,14 +14,14 @@ run: copy-webapollo-config
 	mvn tomcat7:run
 package: copy-webapollo-config
 	mvn package
-release: download-jbrowse copy-webapollo-plugin version build-jbrowse
+release: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
-debug: download-jbrowse copy-webapollo-plugin version build-jbrowse
+debug: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
-unoptimized: download-jbrowse copy-webapollo-plugin version
-	cp -R $(JBROWSE_GIT_DIRECTORY) $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
+unoptimized: clean download-jbrowse copy-webapollo-plugin version
+	cp -R $(JBROWSE_GIT_DIRECTORY)/ $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
 build-jbrowse:
 	ulimit -n 1000;cd $(JBROWSE_GIT_DIRECTORY)&&$(MAKE) -f build/Makefile release-notest
 version:
@@ -34,7 +34,7 @@ release-package: release
 debug-package: debug
 	rsync -a . Apollo-$(POM_VERSION)-debug --exclude='.git*' --exclude='Apollo-*'
 	tar czf Apollo-$(POM_VERSION)-debug.tar.gz Apollo-$(POM_VERSION)-debug
-create-precompiled: clean release-package debug-package
+create-precompiled: superclean release-package debug-package
 	ls -lh Apollo-*.tar.gz
 	$(SHASUM) Apollo-*.tar.gz
 
@@ -56,7 +56,9 @@ copy-webapollo-config:
 	    else echo "no log4j2-test.json found"; fi;
 
 clean:
+	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
 	mvn clean
+superclean:
 	git clean -fdx
 clean-repos: clean
 	rm -rf $(JBROWSE_GIT_DIRECTORY)
