@@ -59,7 +59,7 @@ Login|Password : demo|demo
 
    /Add Sequence Search Track (perform search test)
 
--- Tools (see 3.2)
+-- Tools (see 8.2)
 
 -- View: goes to changes / select track page, set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 5).
 
