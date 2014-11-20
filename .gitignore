@@ -10,7 +10,7 @@ src/main/webapp/canned_comments.xml
 config.xml
 blat_config.xml
 src/main/webapp/jbrowse/
-jbrowse-github
+jbrowse-download
 log4j2.json
 log4j2-test.json
 tmp
