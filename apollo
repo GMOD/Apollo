@@ -72,8 +72,9 @@ elif [[ $1 == "compile" ]];then
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     rm -rf bin
-    rm -rf jbrowse-github
+    rm -rf jbrowse-download
     rm -rf src/main/webapp/jbrowse
+    rm -f *.zip
      # remove in webapp, as well? 
     mvn clean
 elif [[ $1 == "clean" ]];then

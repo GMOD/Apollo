@@ -16,23 +16,24 @@
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
     <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
-    <property name="jbrowse.git.directory" location="jbrowse-github"/>
+    <property name="jbrowse.download.directory" location="jbrowse-download"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
     <property name="webapp.apollo.plugin.test.file" location="${apollo.plugin.directory}/js/main.js"/>
     <property name="webapp.apollo.plugin.uncompressed.test.file" location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
     <property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>
     <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
-    <property name="jbrowse.git.test.file" location="${jbrowse.git.directory}/src/dojo/dojo.js"/>
+    <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
     <!--<property name="jbrowse.github"  />-->
     <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
     <property name="jbrowse.release.version" value="1.11.5-release.zip"/>
-    <property name="jbrowse.download.file.name" value="jbrowse-1.11.5-release"/>
+    <property name="jbrowse.download.file.name" value="JBrowse-1.11.5-dev"/>
 
-    <property name="jbrowse.download.url" value="${jbrowse.github}/archive/${jbrowse.release.version}"/>
+    <!--<property name="jbrowse.download.url" value="${jbrowse.github}/archive/${jbrowse.release.version}"/>-->
+    <property name="jbrowse.download.url" value="http://jbrowse.org/releases/JBrowse-1.11.5-dev.zip"/>
     <property name="jbrowse.download.file" value="${basedir}/${jbrowse.release.version}"/>
     <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
     <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
@@ -56,20 +57,20 @@
             <arg value="clone"/>
             <arg value="--recursive"/>
             <arg value="${jbrowse.github}"/>
-            <arg value="${jbrowse.git.directory}"/>
+            <arg value="${jbrowse.download.directory}"/>
         </exec>
     </target>
 
 <!--    NOTE: this does not contain the additional libraries needed.-->
     <target name="git.download" unless="jbrowse.git.present" description="Downloads static release, but static release does not have other libraries">
-		<delete dir="${jbrowse.git.directory}"/>
+		<delete dir="${jbrowse.download.directory}"/>
 		<delete dir="${jbrowse.download.file.name}"/>
 
 		<get src="${jbrowse.download.url}" dest="${jbrowse.download.file}" />
 		<delete dir="${jbrowse.download.file.name}"/>
 		<unzip src="${jbrowse.download.file}" dest="${basedir}"/>
-		<delete dir="${jbrowse.git.directory}"/>
-		<move todir="${jbrowse.git.directory}">
+		<delete dir="${jbrowse.download.directory}"/>
+		<move todir="${jbrowse.download.directory}">
 			<fileset dir="${jbrowse.download.file.name}"/>
 		</move>
 		<delete dir="${jbrowse.download.file.name}"/>
@@ -84,8 +85,8 @@
             <!--<arg value="${jbrowse.git.directory}"/>-->
         <!--</exec>-->
         <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
-            <arg value="${jbrowse.git.directory}"/>
-            <arg value="${jbrowse.git.directory}"/>
+            <arg value="${jbrowse.download.directory}"/>
+            <arg value="${jbrowse.download.directory}"/>
         </exec>
     </target>
 
@@ -137,7 +138,8 @@
 
     <target name="setup-jbrowse"  unless="jbrowse.webapp.installed">
 
-        <antcall target="git.clone"/>
+        <antcall target="git.download"/>
+        <!--<antcall target="git.clone"/>-->
         <antcall target="copy.apollo.plugin.jbrowse"/>
         <antcall target="install.jbrowse.perl"/>
 
@@ -146,7 +148,7 @@
         <delete dir="${apollo.jbrowse.directory}"/>
 
         <copy todir="${apollo.jbrowse.directory}">
-            <fileset dir="${jbrowse.git.directory}"/>
+            <fileset dir="${jbrowse.download.directory}"/>
         </copy>
 
     </target>
@@ -154,7 +156,7 @@
 
     <target name="copy.apollo.plugin.jbrowse">
         <echo>copying plugin to jbrowse git ...</echo>
-        <copy todir="${jbrowse.git.directory}/plugins/WebApollo" failonerror="true">
+        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
     </target>
