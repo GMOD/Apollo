@@ -18,7 +18,7 @@ The easiest way to get NodeJS on ubuntu is nodejs-legacy. On centos, it's easies
     # install nodejs (macOSX/homebrew)
     brew install node
 
-We will also need two extra perl packages to 
+We will also need two extra perl packages to run the build
 
     # Used to make the build process smoother
     cpanm DateTime Text::Markdown
@@ -38,15 +38,16 @@ This step will do the following
  
 Note: you can set your own JBrowse repo using JBROWSE_GIT_DIRECTORY on the command line, e.g.:
 
-    make -f build/Makefile clean release JBROWSE_GIT_DIRECTORY=/home/devel/jbrowse_repo/
+    make -f build/Makefile create-precompiled JBROWSE_GIT_DIRECTORY=/home/devel/jbrowse_repo/
 
 This will use your custom jbrowse repository instead of taking the default action of cloning from [https://github.com/GMOD/jbrowse.git](http://github.com/GMOD/jbrowse.git).
 
-Alternatively, a quick "unoptimized build" or other build options can be created using the Makefile
+Alternatively, a quick "unoptimized build" or other build options can be specified for quick-development
 
      # Custom build options to compile client
      make -f build/Makefile unoptimized      # create unoptimized jbrowse+webapollo build (no compilation step)
      make -f build/Makefile release          # compile jbrowse+webapollo build (with minified javascript)
      make -f build/Makefile debug            # compile jbrowse+webapollo build
 
-Once the client is compiled, you can use `mvn package` to complete the custom build. See the [build guide](Build.md) for more details.
+Once the client is compiled, you can use `apollo deploy` or `apollo run` to complete the custom build.
+See the [build guide](Build.md) for more details.

@@ -2,7 +2,7 @@
 
 <a href="https://github.com/GMOD/Apollo/blob/master/docs/Deploy.md">On GitHub</a>
 
-After the WAR file is generated using Maven, it
+After the WAR file is generated using the apollo script or with Maven, it
 will be outputted to the WEB\_APOLLO\_DIR/target directory (e.g. target/apollo-1.0.war)
 This WAR file can be copied into the tomcat7 webapps directory:
 
