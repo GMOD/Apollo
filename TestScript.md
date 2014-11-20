@@ -26,15 +26,28 @@ Login|Password : demo|demo
 
 ## Testing a Web Apollo Instance
 
+### Test the “Sequences” screen (formerly Select tracks)
+
+1) Select one scaffold / group (containing annotations) and check that you are able to export GFF3 and FASTA from the File / Export menu option.
+
+2) Check that you are able to query the entire genome using BLAT from this window using the Tools / Search sequence menu option.
+
+3) Check all filters, pagination, and number of results shown.
+
+4) Clicking on group name link should take you to the corresponding group track in the main window.
+
+5) Test all File Menu as shown in section 8 below.
+
+
 ###Testing functions in the main window
 
-1) Check display of tracks by "check" and "uncheck" clicks on list of evidence tracks. Display evidence available on other tracks. 
+6) Check display of tracks by "check" and "uncheck" clicks on list of evidence tracks. Display evidence available on other tracks. 
 
-2) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
+7) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
 
-3) Test top-level menu options in the main window.
+8) Test top-level menu options in the main window.
 
-3.1) Test functions on each menu option:
+8.1) Test functions on each menu option:
 
 -- Login: login/logout. 
 
@@ -52,17 +65,17 @@ Login|Password : demo|demo
 
 -- Help: All links go to a new screen.
 
-3.2) From “Tools” menu, query genome with BLAT using a sequence: 
+8.2) From “Tools” menu, query genome with BLAT using a sequence: 
 
 E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
 
 >sp|P04632|CPNS1_HUMAN Calpain small subunit 1 MFLVNSFLKGGGGGGGGGGGLGGGLGNVLGGLISGAGGGGGGGGGGGGGGGGGGGGTAMRILGGVISAISEAAAQYNPEPPPPRTHYSNIEANESEEVRQFRRLFAQLAGDDMEVSATELMNILNKVVTRHPDLKTDGFGIDTCRSMVAVMDSDTTGKLGFEEFKYLWNNIKRWQAIYKQFDTDRSGTICSSELPGAFEAAGFHLNEHLYNMIIRRYSDESGNMDFDNFISCLVRLDAMFRAFKSLDKDGTGQIQVNIQEWLQLTMYS
 
-3.3) Clear highlight using the command from the 'View' menu.
+8.3) Clear highlight using the command from the 'View' menu.
 
-4) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box. 
+9) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box. 
 
-5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
+10) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
 -- change intron/exon boundary (dragging)
 
@@ -70,7 +83,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 -- color by CDS
 
-6) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
+11) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
 
 -- Insertions 
 
@@ -78,9 +91,9 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 -- Substitutions
 
-7) 'Zoom back out', then reveal right-click menu. 
+12) 'Zoom back out', then reveal right-click menu. 
 
-7.1) Test: 
+13.1) Test: 
 
 -- Get Sequence
 
@@ -92,35 +105,24 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 -- Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
 
-7.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
+13.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
-8) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
+14) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
 
-9) Test Export of User-created Annotations to Chado, GFF3, FASTA
+15) Test Export of User-created Annotations to Chado, GFF3, FASTA
 
-10) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: 
+16) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: 
 
 File / Add combination track
 
-### Test the “Sequences” screen (formerly Select tracks)
 
-11) Select one scaffold / group and check that you are able to export GFF3 and FASTA from the File / Export menu option.
+### Test the “Changes” screen (formerly “Recent Changes”)
 
-12) Check that you are able to query the entire genome using BLAT from this window using the Tools / Search sequence menu option.
+17) Check all filters, pagination, and number of results shown.
 
-13) Check all filters, pagination, and number of results shown.
+18) Clicking on group name link should take you to the corresponding group track in the main window.
 
-14) Clicking on group name link should take you to the corresponding group track in the main window.
-
-15) Test all File Menu as in section 3.
-
-### Test the “Changes” screen (formerly Recent Changes)
-
-16) Check all filters, pagination, and number of results shown.
-
-17) Clicking on group name link should take you to the corresponding group track in the main window.
-
-18) Test all File Menu as in section 3.
+19) Test all File Menu as in section 3.
 
 <!--
 ### Test Bulk-Update
