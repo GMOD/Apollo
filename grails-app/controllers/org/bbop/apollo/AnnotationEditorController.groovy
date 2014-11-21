@@ -1,14 +1,13 @@
 package org.bbop.apollo
 
-import grails.compiler.GrailsCompileStatic
+//import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
-import org.bbop.apollo.editor.AnnotationEditor
+//import org.bbop.apollo.editor.AnnotationEditor
 import org.bbop.apollo.event.AnnotationEvent
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.gmod.gbol.util.SequenceUtil
-import org.hibernate.criterion.CriteriaSpecification
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 
@@ -238,6 +237,17 @@ class AnnotationEditorController {
 
 
         render returnObject
+    }
+
+
+    def addExon(){
+        println "adding exon ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+
+        JSONObject returnObject = createJSONFeatureContainer()
+
     }
 
     /**
