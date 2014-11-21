@@ -20,7 +20,7 @@ Features:
 + Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
 + Added menus for changes / sequences to annotation screen, fixing memory issues from selectTrack.jsp and recentChanges.jsp pages.
 + Added ability to hide track labels under "view".
-+ Alt-click brings up info editor on annotated track.
++ alt/Option click brings up Information Editor on annotated track.
 + Added webservices doc links to interface.
 + Added command line exporters for GFF3 files.
 
