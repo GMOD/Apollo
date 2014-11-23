@@ -19,6 +19,8 @@ http://genomearchitect.org/web_apollo_user_guide
 http://www.slideshare.net/MonicaMunozTorres/
 - Web Apollo at GMOD page: 
 http://www.gmod.org/wiki/WebApollo 
+- Web Apollo installation and configuration guide
+http://webapollo.readthedocs.org/en/latest/
 
 If testing the Web Apollo demo, go to: http://genomearchitect.org/WebApolloDemo/ 
 Login|Password : demo|demo
@@ -36,8 +38,9 @@ Login|Password : demo|demo
 
 4) Clicking on group name link should take you to the corresponding group track in the main window.
 
-5) Test that you are able to Log out from the upper-right corner, top-level menu.
+5.1) Test that you are able to Log out from the upper-right corner, top-level menu.
 
+5.2) In top-level menu, go to Tools -> Manage Users. Create a new user and grant read, write and publish permissions. Logout and log back in as the newly created user. Create some new annotations or modify existing ones.
 
 ###Testing functions in the main window
 
