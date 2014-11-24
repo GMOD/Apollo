@@ -11,7 +11,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -87,6 +90,18 @@ public class JBrowseDataServlet extends HttpServlet {
 //                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 //                return;
             }
+        }
+
+        if(filename.endsWith(".txt")){
+            String fileName = file.getName();
+            long length = file.length();
+            long lastModified = file.lastModified();
+            String eTag = fileName + "_" + length + "_" + lastModified;
+            DateFormat simpleDateFormat = SimpleDateFormat.getDateInstance();
+            String dateString = simpleDateFormat.format(new Date(file.lastModified()));
+
+            response.setHeader("ETag",eTag);
+            response.setHeader("Last-Modified",dateString );
         }
 
         String range = request.getHeader("range");
