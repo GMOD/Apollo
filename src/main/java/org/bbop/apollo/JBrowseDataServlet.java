@@ -92,13 +92,9 @@ public class JBrowseDataServlet extends HttpServlet {
             }
         }
 
-        if(filename.endsWith(".txt")){
-            String fileName = file.getName();
-            long length = file.length();
-            long lastModified = file.lastModified();
-            String eTag = fileName + "_" + length + "_" + lastModified;
-            DateFormat simpleDateFormat = SimpleDateFormat.getDateInstance();
-            String dateString = simpleDateFormat.format(new Date(file.lastModified()));
+        if(isCacheableFile(filename)){
+            String eTag = createHashFromFile(file);
+            String dateString = formatLastModifiedDate(file);
 
             response.setHeader("ETag",eTag);
             response.setHeader("Last-Modified",dateString );
@@ -194,6 +190,29 @@ public class JBrowseDataServlet extends HttpServlet {
 
 
 
+    }
+
+    private boolean isCacheableFile(String filename) {
+        if(filename.endsWith(".txt")) return true ;
+        if(filename.endsWith(".json")){
+            String[] names = filename.split("\\/");
+            String requestName = names[names.length-1];
+            return requestName.startsWith("lf-");
+        }
+
+        return false ;
+    }
+
+    private String formatLastModifiedDate(File file) {
+        DateFormat simpleDateFormat = SimpleDateFormat.getDateInstance();
+        return simpleDateFormat.format(new Date(file.lastModified()));
+    }
+
+    private String createHashFromFile(File file) {
+        String fileName = file.getName();
+        long length = file.length();
+        long lastModified = file.lastModified();
+        return fileName + "_" + length + "_" + lastModified;
     }
 
     /**
