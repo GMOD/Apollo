@@ -23,6 +23,7 @@ Features:
 + alt/Option click brings up Information Editor on annotated track.
 + Added webservices doc links to interface.
 + Added command line exporters for GFF3 files.
++ Added light / dark color schemes.
 
 Bugfixes:
 
