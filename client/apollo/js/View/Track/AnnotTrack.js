@@ -4333,7 +4333,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             //annot_context_menu.addChild(new dijit.MenuSeparator());
             //index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information Editor",
+                label: "Information Editor (option-click)",
                 onClick: function(event) {
                     thisObj.getAnnotationInfoEditor();
                 }

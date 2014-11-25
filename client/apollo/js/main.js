@@ -26,10 +26,11 @@ define(
            './View/TrackList/Hierarchical',
            './View/TrackList/Faceted',
            './InformationEditor',
-           'JBrowse/View/FileDialog/TrackList/GFF3Driver'
+           'JBrowse/View/FileDialog/TrackList/GFF3Driver',
+           'lazyload/lazyload'
        ],
     function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
 {
@@ -51,6 +52,16 @@ return declare( JBPlugin,
           script.async = false;
           document.head.appendChild(script);
         });
+
+        // Checking for cookie for determining the color scheme of WebApollo
+        if (document.cookie.indexOf("Scheme=Dark") === -1) {
+            this.changeCssScheme = false;
+        }
+        else {
+            this.changeCssScheme = true;
+            LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
+        }
+
 
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
@@ -95,6 +106,34 @@ return declare( JBPlugin,
                     }
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+        //Adding a global menu option for changing CSS color scheme
+        var box_check;
+        if (this.changeCssScheme) {
+            box_check = true;
+        }
+        else {
+            box_check = false;
+        }
+        var css_frame_toggle = new dijitCheckedMenuItem(
+            {
+                label: "Change Color Scheme",
+                checked: box_check,
+                onClick: function (event) {
+
+                    if (css_frame_toggle.checked) {
+                        document.cookie = "Scheme=Dark"; // adding cookie to browser to remember the choice of CSS
+                        this.changeCssScheme = css_frame_toggle.checked;
+                        window.location.reload();
+                    }
+                    else {
+                        document.cookie = "Scheme=Light";
+                        this.changeCssScheme = css_frame_toggle.unchecked;
+                        window.location.reload();
+                    }
+                }
+            });
+        browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
 
