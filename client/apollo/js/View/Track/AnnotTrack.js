@@ -1991,7 +1991,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         dojo.place(annotContent, content);
         ++numItems;
         dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-        track.openDialog("Information Editor", content);
+        track.openDialog("Information Editor (option-click)", content);
         AnnotTrack.popupDialog.resize();
         AnnotTrack.popupDialog._position();
     },
@@ -4310,7 +4310,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information Editor",
+                label: "Information Editor (option-click)",
                 onClick: function(event) {
                     thisObj.getAnnotationInfoEditor();
                 }

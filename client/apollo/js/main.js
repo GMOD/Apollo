@@ -12,9 +12,11 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
            'dijit/CheckedMenuItem',
+           'dijit/PopupMenuItem',
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
            'dijit/form/Button',
@@ -29,7 +31,7 @@ define(
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+    function( declare, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
@@ -115,24 +117,37 @@ return declare( JBPlugin,
         else {
             box_check = false;
         }
-        var css_frame_toggle = new dijitCheckedMenuItem(
-            {
-                label: "Change Color Scheme",
-                checked: box_check,
-                onClick: function (event) {
 
-                    if (css_frame_toggle.checked) {
-                        document.cookie = "Scheme=Dark"; // adding cookie to browser to remember the choice of CSS
-                        this.changeCssScheme = css_frame_toggle.checked;
-                        window.location.reload();
-                    }
-                    else {
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
                         document.cookie = "Scheme=Light";
-                        this.changeCssScheme = css_frame_toggle.unchecked;
                         window.location.reload();
                     }
                 }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Dark";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
             });
+
         browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
