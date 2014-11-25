@@ -601,6 +601,11 @@ public class AnnotationEditorService extends HttpServlet {
                         }
 
                         // get_sequence
+                        else if (operation.equals("get_gff3")) {
+                            getGff3(editor, json.getJSONArray("features"), json.getString("type"), json.has("flank") ? json.getInt("flank") : 0, out);
+                        }
+
+                        // get_sequence
                         else if (operation.equals("get_sequence")) {
                             getSequence(editor, json.getJSONArray("features"), json.getString("type"), json.has("flank") ? json.getInt("flank") : 0, out);
                         }
@@ -866,6 +871,97 @@ public class AnnotationEditorService extends HttpServlet {
             } catch (JSONException e2) {
             }
         }
+    }
+
+    private void getGff3(AnnotationEditor editor, JSONArray features, String type, int flank, BufferedWriter out)  throws JSONException, IOException {
+        JSONObject featureContainer = createJSONFeatureContainer();
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            String uniqueName = jsonFeature.getString("uniquename");
+            AbstractSingleLocationBioFeature gbolFeature = editor.getSession().getFeatureByUniqueName(uniqueName);
+            String sequence = null;
+            if (type.equals("peptide")) {
+                if (gbolFeature instanceof Transcript && ((Transcript) gbolFeature).isProteinCoding()) {
+                    String rawSequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(((Transcript) gbolFeature).getCDS());
+                    sequence = SequenceUtil.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Transcript) gbolFeature).getCDS().getStopCodonReadThrough() != null);
+                    if (sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
+                        sequence = sequence.substring(0, sequence.length() - 1);
+                    }
+                    int idx;
+                    if ((idx = sequence.indexOf(TranslationTable.STOP)) != -1) {
+                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3);
+                        String aa = editor.getConfiguration().getTranslationTable().getAlternateTranslationTable().get(codon);
+                        if (aa != null) {
+                            sequence = sequence.replace(TranslationTable.STOP, aa);
+                        }
+                    }
+                } else if (gbolFeature instanceof Exon && ((Exon) gbolFeature).getTranscript().isProteinCoding()) {
+                    String rawSequence = getCodingSequenceInPhase(editor, (Exon) gbolFeature, true);
+                    sequence = SequenceUtil.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Exon) gbolFeature).getTranscript().getCDS().getStopCodonReadThrough() != null);
+                    if (sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
+                        sequence = sequence.substring(0, sequence.length() - 1);
+                    }
+                    int idx;
+                    if ((idx = sequence.indexOf(TranslationTable.STOP)) != -1) {
+                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3);
+                        String aa = editor.getConfiguration().getTranslationTable().getAlternateTranslationTable().get(codon);
+                        if (aa != null) {
+                            sequence = sequence.replace(TranslationTable.STOP, aa);
+                        }
+                    }
+                } else {
+//                    sequence = SequenceUtil.translateSequence(editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature), editor.getConfiguration().getTranslationTable());
+                    sequence = "";
+                }
+
+            } else if (type.equals("cdna")) {
+                if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
+                    sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature);
+                } else {
+                    sequence = "";
+                }
+            } else if (type.equals("cds")) {
+                if (gbolFeature instanceof Transcript && ((Transcript) gbolFeature).isProteinCoding()) {
+                    sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(((Transcript) gbolFeature).getCDS());
+                } else if (gbolFeature instanceof Exon && ((Exon) gbolFeature).getTranscript().isProteinCoding()) {
+                    sequence = getCodingSequenceInPhase(editor, (Exon) gbolFeature, false);
+                } else {
+//                    sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature);
+                    sequence = "";
+                }
+            } else if (type.equals("genomic")) {
+                AbstractSingleLocationBioFeature genomicFeature = new AbstractSingleLocationBioFeature((Feature) ((SimpleObjectIteratorInterface) gbolFeature.getWriteableSimpleObjects(bioObjectConfiguration)).next(), bioObjectConfiguration) {
+                };
+                FeatureLazyResidues sourceFeature = (FeatureLazyResidues) gbolFeature.getFeatureLocation().getSourceFeature();
+                genomicFeature.getFeatureLocation().setSourceFeature(sourceFeature);
+                if (flank > 0) {
+                    int fmin = genomicFeature.getFmin() - flank;
+//                    if (fmin < 0) {
+//                        fmin = 0;
+//                    }
+                    if (fmin < sourceFeature.getFmin()) {
+                        fmin = sourceFeature.getFmin();
+                    }
+                    int fmax = genomicFeature.getFmax() + flank;
+//                    if (fmax > genomicFeature.getFeatureLocation().getSourceFeature().getSequenceLength()) {
+//                        fmax = genomicFeature.getFeatureLocation().getSourceFeature().getSequenceLength();
+//                    }
+                    if (fmax > sourceFeature.getFmax()) {
+                        fmax = sourceFeature.getFmax();
+                    }
+                    genomicFeature.setFmin(fmin);
+                    genomicFeature.setFmax(fmax);
+                }
+                gbolFeature = genomicFeature;
+                sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature);
+            }
+            JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature);
+            outFeature.put("residues", sequence);
+            outFeature.put("uniquename", uniqueName);
+            outFeature.put("residues", sequence);
+            featureContainer.getJSONArray("features").put(outFeature);
+        }
+        out.write(featureContainer.toString());
     }
 
     private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
