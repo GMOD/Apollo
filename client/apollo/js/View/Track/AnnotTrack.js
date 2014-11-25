@@ -4330,6 +4330,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          */
 
         if (permission & Permission.WRITE) {
+            //annot_context_menu.addChild(new dijit.MenuSeparator());
+            //index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Information Editor",
+                onClick: function(event) {
+                    thisObj.getAnnotationInfoEditor();
+                }
+            } ));
+            contextMenuItems["annotation_info_editor"] = index++;
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
@@ -4483,15 +4492,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             thisObj.setToUpstreamAcceptor();
                     }
             }));
-            annot_context_menu.addChild(new dijit.MenuSeparator());
-            index++;
-            annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information Editor",
-                onClick: function(event) {
-                    thisObj.getAnnotationInfoEditor();
-                }
-            } ));
-            contextMenuItems["annotation_info_editor"] = index++;
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
