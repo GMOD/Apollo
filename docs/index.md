@@ -11,7 +11,7 @@ The WebApollo client is implemented as a plugin for JBrowse, for more informatio
 
 [![Build status](https://travis-ci.org/GMOD/Apollo.png?branch=master)](https://travis-ci.org/GMOD/Apollo)
 
-Note: this is documentation for the release candidates for the 1.x version of WebApollo. For the original Web Apollo documentation, please see [http://gmod.org/wiki/WebApollo_Installation](http://gmod.org/wiki/WebApollo_Installation)
+Note: This documentation covers release versions 1.x of Web Apollo. Documentation for previous versions of Web Apollo can be found on the [Web Apollo installation Guide on GMOD](http://gmod.org/wiki/WebApollo_Installation)
 
 ## Table of contents
 
