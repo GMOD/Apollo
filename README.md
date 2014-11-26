@@ -40,7 +40,7 @@ You must edit config.properties to supply the jbrowse data and annotations direc
 
 ### Generate a war file
 
-Most users will only need to use Maven to generate a war file:
+Most users will only need to generate a war file (for example target/apollo-1.0.2.war) that will be copied into their tomcat webapps directory:
 
     apollo deploy 
 
