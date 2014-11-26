@@ -206,7 +206,9 @@ public class FastaDataAdapter extends DataAdapter {
                 Feature sourceFeature = trackToSourceFeature.get(track);
                 fastaIO.writeFeatures(sourceFeature, seqTypeParameter, featureTypes, metaDataToExport);
             }
-            fastaIO.close();
+            if(fastaIO!=null){
+                fastaIO.close();
+            }
 
             tmpFile.renameTo(doneFile);
             
