@@ -18,7 +18,7 @@ The WebApollo client is implemented as a plugin for JBrowse, for more informatio
 
 Note: For documentation of older Web Apollo versions, please see [http://gmod.org/wiki/WebApollo_Installation](http://gmod.org/wiki/WebApollo_Installation)
 
-## Quick Update Guide.
+## Quick Update Guide to Version 1.0.x
 
 If you already have Web Apollo instances running, you can easily update using these steps.
 
