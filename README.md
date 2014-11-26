@@ -20,7 +20,7 @@ Note: For documentation of older Web Apollo versions, please see [http://gmod.or
 
 ## Quick Update Guide to Version 1.0.x
 
-If you already have Web Apollo instances running, you can easily update using these steps.
+If you already have Web Apollo instances running, you can use these steps to update to Version 1.0.x.
 
 ### Edit property files and config files before deploying
 
