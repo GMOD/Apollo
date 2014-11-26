@@ -1,4 +1,4 @@
-## 1.0.x release 
+## 1.0.2 release 
 
 Features: 
 
