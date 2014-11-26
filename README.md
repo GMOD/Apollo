@@ -3,7 +3,7 @@ Apollo
 
 <a href="https://github.com/GMOD/Apollo/blob/master/README.md">On GitHub</a>
 
-A genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
+An instantaneous, collaborative, genome annotation editor..  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
 
 For general information on WebApollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org/)
