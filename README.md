@@ -8,7 +8,7 @@ An instantaneous, collaborative, genome annotation editor.  The stack is a Java 
 For general information on WebApollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org/)
 
-For the full WebApollo installation and configuration instructions for 1.x, please see:
+Complete WebApollo installation and configuration instructions for 1.x, are available at:
 [http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
 
 The WebApollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
