@@ -12,9 +12,11 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
            'dijit/CheckedMenuItem',
+           'dijit/PopupMenuItem',
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
            'dijit/form/Button',
@@ -26,10 +28,11 @@ define(
            './View/TrackList/Hierarchical',
            './View/TrackList/Faceted',
            './InformationEditor',
-           'JBrowse/View/FileDialog/TrackList/GFF3Driver'
+           'JBrowse/View/FileDialog/TrackList/GFF3Driver',
+           'lazyload/lazyload'
        ],
-    function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver ) {
+    function( declare, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
 {
@@ -51,6 +54,16 @@ return declare( JBPlugin,
           script.async = false;
           document.head.appendChild(script);
         });
+
+        // Checking for cookie for determining the color scheme of WebApollo
+        if (document.cookie.indexOf("Scheme=Dark") === -1) {
+            this.changeCssScheme = false;
+        }
+        else {
+            this.changeCssScheme = true;
+            LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
+        }
+
 
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
@@ -95,6 +108,47 @@ return declare( JBPlugin,
                     }
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+        //Adding a global menu option for changing CSS color scheme
+        var box_check;
+        if (this.changeCssScheme) {
+            box_check = true;
+        }
+        else {
+            box_check = false;
+        }
+
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Light";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Dark";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
 

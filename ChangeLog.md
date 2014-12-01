@@ -1,4 +1,4 @@
-## 1.0.0 release 
+## 1.0.2 release 
 
 Features: 
 
@@ -16,13 +16,14 @@ Features:
 + Added tool to split all isoforms into individual genes (RemoveIsoforms.java)
 + Added tool for fixing gene boundaries based on children transcripts (FixGeneBoundaries.java)
 + Using javascript minimization for JBrowse+WebApollo to allow faster initial load time
-+ Using Maven build system for deployment (See new installation guide)
++ Using Maven build system for deployment ([See new installation guide] (https://github.com/GMOD/Apollo/blob/master/docs/index.md))
 + Integrate with TravisCI: https://travis-ci.org/GMOD/Apollo
 + Added menus for changes / sequences to annotation screen, fixing memory issues from selectTrack.jsp and recentChanges.jsp pages.
 + Added ability to hide track labels under "view".
 + alt/Option click brings up Information Editor on annotated track.
 + Added webservices doc links to interface.
 + Added command line exporters for GFF3 files.
++ Added light / dark color schemes.
 
 Bugfixes:
 

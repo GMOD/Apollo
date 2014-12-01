@@ -3,12 +3,12 @@ Apollo
 
 <a href="https://github.com/GMOD/Apollo/blob/master/README.md">On GitHub</a>
 
-A genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
+An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
 
 For general information on WebApollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org/)
 
-For the full WebApollo installation and configuration instructions for 1.x, please see:
+Complete WebApollo installation and configuration instructions for 1.x, are available at:
 [http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
 
 The WebApollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
@@ -18,8 +18,9 @@ The WebApollo client is implemented as a plugin for JBrowse, for more informatio
 
 Note: For documentation of older Web Apollo versions, please see [http://gmod.org/wiki/WebApollo_Installation](http://gmod.org/wiki/WebApollo_Installation)
 
-## Quick build steps.
+## Quick Update Guide to Version 1.0.x
 
+If you already have Web Apollo instances running, you can use these steps to update to Version 1.0.x.
 
 ### Edit property files and config files before deploying
 
@@ -39,7 +40,7 @@ You must edit config.properties to supply the jbrowse data and annotations direc
 
 ### Generate a war file
 
-Most users will only need to use Maven to generate a war file:
+Most users will only need to generate a war file (for example target/apollo-1.0.2.war) that will be copied into their tomcat webapps directory:
 
     apollo deploy 
 

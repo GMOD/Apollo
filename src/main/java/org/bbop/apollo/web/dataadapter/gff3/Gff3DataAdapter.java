@@ -44,12 +44,12 @@ public class Gff3DataAdapter extends DataAdapter {
     private String source;
     private Set<String> metaDataToExport;
     private boolean exportSourceGenomicSequence;
-    
+
     private enum Output {
         DISPLAY,
         FILE
     }
-    
+
     public Gff3DataAdapter() {
         super();
         trackToSourceFeature = new HashMap<String, Feature>();
@@ -70,15 +70,14 @@ public class Gff3DataAdapter extends DataAdapter {
             source = sourceNode != null ? source = sourceNode.getTextContent() : ".";
             Node metaDataNode = doc.getElementsByTagName("metadata_to_export").item(0);
             if (metaDataNode != null) {
-                NodeList metaDataList = ((Element)metaDataNode).getElementsByTagName("metadata");
+                NodeList metaDataList = ((Element) metaDataNode).getElementsByTagName("metadata");
                 for (int i = 0; i < metaDataList.getLength(); ++i) {
-                    String type = ((Element)metaDataList.item(i)).getAttribute("type");
+                    String type = ((Element) metaDataList.item(i)).getAttribute("type");
                     if (type.length() > 0) {
                         metaDataToExport.add(type);
                     }
                 }
-            }
-            else {
+            } else {
                 metaDataToExport.add("name");
                 metaDataToExport.add("symbol");
                 metaDataToExport.add("description");
@@ -101,7 +100,7 @@ public class Gff3DataAdapter extends DataAdapter {
                 chunkManager.setSequenceLength(track.getSourceFeature().getEnd());
                 Feature sourceFeature = new FeatureLazyResidues(track.getName());
                 sourceFeature.setUniqueName(track.getSourceFeature().getUniqueName());
-                String [] type = track.getSourceFeature().getType().split(":");
+                String[] type = track.getSourceFeature().getType().split(":");
                 sourceFeature.setType(new CVTerm(type[1], new CV(type[0])));
                 FeatureLocation loc = new FeatureLocation();
                 loc.setFmin(track.getSourceFeature().getStart());
@@ -113,7 +112,7 @@ public class Gff3DataAdapter extends DataAdapter {
             throw new DataAdapterException(e.getMessage());
         }
     }
-    
+
     @Override
     public void write(List<String> tracks, Map<String, String[]> parameters, HttpServletResponse response) throws IOException {
         try {
@@ -125,8 +124,7 @@ public class Gff3DataAdapter extends DataAdapter {
             if (outputParameter != null) {
                 if (outputParameter.equals("display")) {
                     output = Output.DISPLAY;
-                }
-                else if (outputParameter.equals("file")) {
+                } else if (outputParameter.equals("file")) {
                     output = Output.FILE;
                 }
             }
@@ -135,8 +133,7 @@ public class Gff3DataAdapter extends DataAdapter {
             if (formatParameter != null) {
                 if (formatParameter.equals("text")) {
                     format = GFF3Handler.Format.TEXT;
-                }
-                else if (formatParameter.equals("gzip")) {
+                } else if (formatParameter.equals("gzip")) {
                     format = GFF3Handler.Format.GZIP;
                 }
             }
@@ -149,10 +146,10 @@ public class Gff3DataAdapter extends DataAdapter {
             if (format.equals(GFF3Handler.Format.GZIP)) {
                 filename += ".gz";
             }
-            
+
             File tmpFile = new File(outputDir.getAbsolutePath() + "/" + filename + ".tmp");
             File doneFile = new File(outputDir.getAbsolutePath() + "/" + filename);
-            
+
             List<Feature> sourceFeatures = new ArrayList<Feature>();
             List<Feature> sequenceAlterations = new ArrayList<Feature>();
             for (String track : tracks) {
@@ -164,52 +161,48 @@ public class Gff3DataAdapter extends DataAdapter {
                 }
                 if (gff3IO == null) {
                     gff3IO = new Gff3JEDatabaseIO(jePath, tmpFile.getAbsolutePath(), source, bioObjectConfiguration, false, format, metaDataToExport);
-                }
-                else {
+                } else {
                     gff3IO.setJeDatabase(jePath, false);
                 }
                 Feature sourceFeature = trackToSourceFeature.get(track);
                 sourceFeatures.add(sourceFeature);
                 sequenceAlterations.addAll(gff3IO.writeFeatures(sourceFeature, source));
             }
-            if (exportSourceGenomicSequence) {
-                gff3IO.writeFasta(sourceFeatures);
-                gff3IO.writeFasta(sequenceAlterations, false, false);
+            if (gff3IO != null) {
+                if (exportSourceGenomicSequence) {
+                    gff3IO.writeFasta(sourceFeatures);
+                    gff3IO.writeFasta(sequenceAlterations, false, false);
+                } else {
+                    gff3IO.writeFasta(sequenceAlterations, true, false);
+                }
+                gff3IO.close();
             }
-            else {
-                gff3IO.writeFasta(sequenceAlterations, true, false);
-            }
-            gff3IO.close();
 
             tmpFile.renameTo(doneFile);
-            
+
             PrintWriter out = response.getWriter();
             switch (output) {
-            case DISPLAY:
-            {
-                response.setContentType("text/plain");
-                BufferedReader reader = null;
-                if (format.equals(GFF3Handler.Format.TEXT)) {
-                    reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputDir.getAbsolutePath() + "/" + filename)));
+                case DISPLAY: {
+                    response.setContentType("text/plain");
+                    BufferedReader reader = null;
+                    if (format.equals(GFF3Handler.Format.TEXT)) {
+                        reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputDir.getAbsolutePath() + "/" + filename)));
+                    } else if (format.equals(GFF3Handler.Format.GZIP)) {
+                        reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(outputDir.getAbsolutePath() + "/" + filename))));
+                    }
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        out.println(line);
+                    }
+                    reader.close();
+                    break;
                 }
-                else if (format.equals(GFF3Handler.Format.GZIP)) {
-                    reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(outputDir.getAbsolutePath() + "/" + filename))));
+                case FILE: {
+                    response.setContentType("text/html");
+                    out.println("<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='" + path + "/" + uniquePath + "/" + filename + "' target='hidden_iframe'>Download " + filename + "</a></body></html>");
                 }
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    out.println(line);
-                }
-                reader.close();
-                break;
             }
-            case FILE:
-            {
-                response.setContentType("text/html");
-                out.println("<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='" + path + "/" + uniquePath + "/" + filename + "' target='hidden_iframe'>Download " + filename + "</a></body></html>");
-            }
-            }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             StringWriter buf = new StringWriter();
             e.printStackTrace(new PrintWriter(buf));
             e.printStackTrace();
@@ -221,7 +214,7 @@ public class Gff3DataAdapter extends DataAdapter {
     @Override
     public void read(List<String> tracks, Map<String, String[]> parameters, HttpServletResponse response) throws IOException {
         // TODO Auto-generated method stub
-        
+
     }
 
 }
