@@ -16,10 +16,16 @@ package: copy-webapollo-config
 	mvn package
 release: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
-	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
+	cp $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION).zip .
+	unzip JBrowse-$(JBROWSE_VERSION).zip
+	mv JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
+	rm JBrowse-$(JBROWSE_VERSION).zip
 debug: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
 	rm -rf $(APOLLO_JBROWSE_DIRECTORY)
-	mv $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
+	cp $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev.zip .
+	unzip JBrowse-$(JBROWSE_VERSION)-dev.zip
+	mv JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
+	rm JBrowse-$(JBROWSE_VERSION)-dev.zip
 unoptimized: clean download-jbrowse copy-webapollo-plugin version
 	cp -R $(JBROWSE_GIT_DIRECTORY)/ $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git
 build-jbrowse:
