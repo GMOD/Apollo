@@ -878,9 +878,10 @@ public class AnnotationEditorService extends HttpServlet {
     }
 
     private void getGff3(AnnotationEditor editor, JSONArray features, BufferedWriter out)  throws JSONException, IOException {
-        JSONObject featureContainer = createJSONFeatureContainer();
+//        JSONObject featureContainer = createJSONFeatureContainer();
         File tempFile = File.createTempFile("feature",".gff3");
 
+        // TODO: use specified metadata?
         Set<String> metaDataToExport = new HashSet<>();
         metaDataToExport.add("name");
         metaDataToExport.add("symbol");
@@ -893,11 +894,13 @@ public class AnnotationEditorService extends HttpServlet {
         metaDataToExport.add("comments");
 
         List<AbstractSingleLocationBioFeature> featuresToWrite = new ArrayList<>();
-        System.out.println("# of features: "+features.length() );
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString("uniquename");
             AbstractSingleLocationBioFeature gbolFeature = editor.getSession().getFeatureByUniqueName(uniqueName);
+            while(gbolFeature.getParents().size()>0){
+                gbolFeature = gbolFeature.getParents().iterator().next() ;
+            }
             featuresToWrite.add(gbolFeature);
         }
 
@@ -908,17 +911,12 @@ public class AnnotationEditorService extends HttpServlet {
         gff3Handler.writeFeatures(featuresToWrite,inputString);
         gff3Handler.close();
         Charset encoding = Charset.defaultCharset();
-        System.out.println(tempFile.getAbsolutePath());
-        List<String> lines = Files.readAllLines(Paths.get(tempFile.getAbsolutePath()), encoding);
+//        List<String> lines = Files.readAllLines(Paths.get(tempFile.getAbsolutePath()), encoding);
 
         byte[] encoded = Files.readAllBytes(Paths.get(tempFile.getAbsolutePath()));
         String gff3String = new String(encoded, encoding);
 
-        System.out.println("lines read: "+lines.size());
-
-        for(String line : lines){
-            System.out.println(line);
-        }
+        assert tempFile.delete();
 
         out.write(gff3String);
 
