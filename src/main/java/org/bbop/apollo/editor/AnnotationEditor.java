@@ -654,7 +654,7 @@ public class AnnotationEditor {
 
         Date date = new Date();
 
-        if (transcript.getType().equals("SO:transcript")) {
+        if (transcript.getType().equals("sequence:mRNA")) {
 
             boolean needCdsIndex = transcript.getCDS() == null;
             CDS cds = transcript.getCDS();
