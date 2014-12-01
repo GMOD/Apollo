@@ -3688,6 +3688,69 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             });
     },
 
+    getGff3: function()  {
+        var selected = this.selectionManager.getSelection();
+        this.getGff3ForSelectedFeatures(selected);
+    },
+
+    getGff3ForSelectedFeatures: function(records) {
+        var track = this;
+
+        var content = dojo.create("div", { className: "get_gff3" });
+        var textArea = dojo.create("textarea", { className: "gff3_area", readonly: true }, content);
+
+        var fetchGff3 = function() {
+            var features = '"features": [';
+            for (var i = 0; i < records.length; ++i)  {
+                var record = records[i];
+                var annot = record.feature;
+                var seltrack = record.track;
+                var uniqueName = annot.getUniqueName();
+                // just checking to ensure that all features in selection are
+                // from this track
+                if (seltrack === track)  {
+                    var trackdiv = track.div;
+                    var trackName = track.getUniqueTrackName();
+
+                    if (i > 0) {
+                        features += ',';
+                    }
+                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                }
+            }
+            features += ']';
+            var operation = "get_gff3";
+            var trackName = track.getUniqueTrackName();
+            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+            postData += ' }';
+            dojo.xhrPost( {
+                postData: postData,
+                url: context_path + "/AnnotationEditorService",
+                handleAs: "text",
+                timeout: 5000 * 1000, // Time in milliseconds
+                load: function(response, ioArgs) {
+                    var textAreaContent = response;
+                    dojo.attr(textArea, "innerHTML", textAreaContent);
+                },
+                // The ERROR function will be called in an error case.
+                error: function(response, ioArgs) {
+                    track.handleError(response);
+                    console.log(response);
+                    console.log("Annotation server error--maybe you forgot to login to the server?");
+                    console.error("HTTP status code: ", ioArgs.xhr.status);
+                    //
+                    // dojo.byId("replace").innerHTML = 'Loading the
+                    // resourcgetFeaturee from the server did not work';
+                    return response;
+                }
+
+            });
+        };
+        fetchGff3(records);
+
+        this.openDialog("Gff3", content);
+    },
+
     getSequence: function()  {
         var selected = this.selectionManager.getSelection();
         this.getSequenceForSelectedFeatures(selected);
@@ -4293,6 +4356,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         } ));
         contextMenuItems["get_sequence"] = index++;
+
+        annot_context_menu.addChild(new dijit.MenuItem( {
+            label: "Get gff3",
+            onClick: function(event) {
+                thisObj.getGff3();
+            }
+        } ));
+        contextMenuItems["get_gff3"] = index++;
 
         annot_context_menu.addChild(new dijit.MenuItem( {
             label: "Zoom to base level",

@@ -137,6 +137,7 @@ public class GFF3Handler {
     }
     
     private void writeGroupDirectives(Feature sourceFeature) {
+        if(sourceFeature.getFeatureLocations().size()==0) return ;
         FeatureLocation loc = sourceFeature.getFeatureLocations().iterator().next();
         out.println(String.format("##sequence-region %s %d %d", sourceFeature.getUniqueName(), loc.getFmin() + 1, loc.getFmax()));
     }
