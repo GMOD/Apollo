@@ -33,6 +33,7 @@ fi;
   bin/cpanm -v --notest -l ../../../../extlib/ --installdeps .< /dev/null;
   cd -;
   cp -r src/main/webapp/jbrowse/bin/ bin;
+  chmod +x bin/*.pl;
   cp -r src/main/webapp/jbrowse/src/perl5 src/perl5;
 ) >>setup.log 2>&1;
 done_message "" "As a first troubleshooting step, make sure development libraries and header files for GD, Zlib, and libpng are installed and try again.";
