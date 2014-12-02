@@ -19,11 +19,11 @@ directory where the Tomcat binaries reside.
 ### No refseqs when opening up selectTrack.jsp
 
 
-This problem often indicates that credentials for the LocalDbUserAuthentication script were not initialized properly because only tracks that the user has permissions for will be shown. Please refer to [the quick install guide](Quick_install_guide.md) for details on these steps, paying attention particularly to the set_user_track_permissions.pl script which sets the permissions for which which refseqs a user can access.
+This problem often indicates that credentials for the LocalDbUserAuthentication script were not initialized properly because only tracks that the user has permissions for will be shown. Please refer to the [quick install guide](Quick_start_guide.md) for details on these steps, paying attention particularly to the set_user_track_permissions.pl script which sets the permissions for which which refseqs a user can access.
 
 ### Getting logged out when entering JBrowse
 
-This often indicates that the add-webapollo-plugin.pl script wasn't run properly, which will update JBrowse's configuration and load the Web Apollo plugin. See [the install guide](Build.md) for details on this step.
+This often indicates that the add-webapollo-plugin.pl script wasn't run properly, which will update JBrowse's configuration and load the Web Apollo plugin. See the [data generation](Data_loading.md) for details on this step.
 
 
 ### No error message from failed Web Apollo login

@@ -11,308 +11,27 @@ The available configuration files include
 - blat_config.xml - basic blat plugin setup for searching blat in the browser
 - hibernate.xml - basic hibernate database parameters for chado export
 - mapping.xml - GBOL mapping to sequence ontology terms
+- canned_comments.xml - canned comments for annotation edits
+- log4j2.json - settings for logging
 
 ### Main configuration
 
-The main configuration is config.xml. Let’s take a look at the file.
+The main configuration is config.xml. The sample_config.xml contains the default settings that are sufficient for normal usage, but all options are configurable.
 
-``` xml
-<?xml version="1.0" encoding="UTF-8"?>
-<server_configuration>
+Let's look through each element in more detail with values filled in.
 
-    <!-- mapping configuration for GBOL data structures -->
-    <gbol_mapping>/config/mapping.xml</gbol_mapping>
 
-    <!-- directory where JE database will be created -->
-    <datastore_directory>ENTER_DATASTORE_DIRECTORY_HERE</datastore_directory>
-
-    <!-- minimum size for introns created -->
-    <default_minimum_intron_size>1</default_minimum_intron_size>
-
-    <!-- size of history for each feature - setting to 0 means unlimited history -->
-    <history_size>0</history_size>
-
-    <!-- overlapping strategy for adding transcripts to genes -->
-    <overlapper_class>org.bbop.apollo.web.overlap.OrfOverlapper</overlapper_class>
-
-    <!-- javascript file for comparing track names (refseqs) (used for sorting in selection table) -->
-    <track_name_comparator>/config/track_name_comparator.js</track_name_comparator>
-
-    <!-- whether to use an existing CDS when creating new transcripts -->
-    <use_cds_for_new_transcripts>true</use_cds_for_new_transcripts>
-
-    <!-- set to false to use hybrid disk/memory store which provides a little slower performance
-    but uses a lot less memory - great for annotation rich genomes -->
-    <use_pure_memory_store>true</use_pure_memory_store>
-
-    <!-- user authentication/permission configuration -->
-    <user>
-
-        <!-- database configuration -->
-        <database>
-
-            <!-- driver for user database -->
-            <driver>org.postgresql.Driver</driver>
-
-            <!-- JDBC URL for user database -->
-            <url>jdbc:postgresql:web_apollo_users</url>
-
-            <!-- username for user database -->
-            <username>web_apollo_users_admin</username>
-
-            <!-- password for user database -->
-            <password>web_apollo_users_admin</password>
-
-        </database>
-
-        <!-- class for generating user authentication page
-        (login page) -->
-        <authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>
-
-    </user>
-
-    <tracks>
-
-        <!-- annotation track name the current convention is to append
-        the genomic region id to the the name of the annotation track
-        e.g., if the annotation track is called "Annotations" and the
-        genomic region is chr2L, the track name will be
-        "Annotations-chr2L".-->
-        <annotation_track_name>Annotations</annotation_track_name>
-
-        <!-- CV term for the genomic sequences - should be in the form
-        of "CV:term".  This applies to all sequences -->
-        <!--<sequence_type>ENTER_CVTERM_FOR_SEQUENCE</sequence_type>-->
-        <sequence_type>sequence:supercontig</sequence_type>
-
-        <!-- path to file containing translation table.
-        optional - defaults to NCBI translation table 1 if
-        absent -->
-        <translation_table>/config/translation_tables/ncbi_1_translation_table.txt</translation_table>
-
-        <!-- splice acceptor and donor sites. Multiple entries may be
-        added to allow multiple accepted sites.
-        optional - defaults to GT for donor and AG for acceptor
-        if absent -->
-        <splice_sites>
-            <donor_site>GT</donor_site>
-            <acceptor_site>AG</acceptor_site>
-        </splice_sites>
-
-    </tracks>
-
-    <!-- path to file containing canned comments XML -->
-    <canned_comments>/config/canned_comments.xml</canned_comments>
-
-    <!-- configuration for what to display in the annotation info editor.
-    Sections can be commented out to not be displayed or uncommented
-    to make them active -->
-    <annotation_info_editor>
-
-        <!-- grouping for the configuration.  The "feature_types" attribute takes a list of
-        SO terms (comma separated) to apply this configuration to
-        (e.g., feature_types="sequence:transcript,sequence:mRNA" will make it so the group
-        configuration will only apply to features of type "sequence:transcript" or "sequence:mRNA").
-        A value of "default" will make this the default configuration for any types not explicitly
-        defined in other groups.  You can have any many groups as you'd like -->
-        <annotation_info_editor_group feature_types="default">
-
-            <!-- display status section.  The text for each <status_flag>
-            element will be displayed as a radio button in the status
-            section, in the same order -->
-            <!--
-            <status>
-                <status_flag>Approved</status_flag>
-                <status_flag>Needs review</status_flag>
-            </status>
-            -->
-            
-            <!-- display generic attributes section -->
-            <attributes />
-
-            <!-- display dbxrefs section -->
-            <dbxrefs />
-
-            <!-- display PubMed IDs section -->
-            <pubmed_ids />
-
-            <!-- display GO IDs section -->
-            <go_ids />
-
-            <!-- display comments section -->
-            <comments />
-
-        </annotation_info_editor_group>
-
-    </annotation_info_editor>
-
-    <!-- tools to be used for sequence searching.  This is optional.
-    If this is not setup, WebApollo will not have sequence search support -->
-    <sequence_search_tools>
-
-        <!-- one <sequence_search_tool> element per tool -->
-        <sequence_search_tool>
-
-            <!-- display name for the search tool -->
-            <key>BLAT nucleotide</key>
-
-            <!-- class for handling search -->
-            <class>org.bbop.apollo.tools.seq.search.blat.BlatCommandLineNucleotideToNucleotide</class>
-
-            <!-- configuration for search tool -->
-            <config>/config/blat_config.xml</config>
-
-        </sequence_search_tool>
-
-        <sequence_search_tool>
-
-            <!-- display name for the search tool -->
-            <key>BLAT protein</key>
-
-            <!-- class for handling search -->
-            <class>org.bbop.apollo.tools.seq.search.blat.BlatCommandLineProteinToNucleotide</class>
-
-            <!-- configuration for search tool -->
-            <config>/config/blat_config.xml</config>
-
-        </sequence_search_tool>
-
-    </sequence_search_tools>
-
-    <!-- data adapters for writing annotation data to different formats.
-    These will be used to dynamically generate data adapters within
-    WebApollo.  It contains either <data_adapter> or <data_adapter_group> elements.
-    <data_adapter_group> will allow grouping adapters together and will provide a
-    submenu for those adapters in WebApollo. This is optional.  -->
-    <data_adapters>
-
-        <!-- one <data_adapter> element per data adapter -->
-        <data_adapter>
-
-            <!-- display name for data adapter -->
-            <key>GFF3</key>
-
-            <!-- class for data adapter plugin -->
-            <class>org.bbop.apollo.web.dataadapter.gff3.Gff3DataAdapter</class>
-
-            <!-- required permission for using data adapter
-            available options are: read, write, publish -->
-            <permission>read</permission>
-
-            <!-- configuration file for data adapter -->
-            <config>/config/gff3_config.xml</config>
-
-            <!-- options to be passed to data adapter -->
-            <options>output=file&amp;format=gzip</options>
-
-        </data_adapter>
-
-        <data_adapter>
-
-            <!-- display name for data adapter -->
-            <key>Chado</key>
-
-            <!-- class for data adapter plugin -->
-            <class>org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter</class>
-
-            <!-- required permission for using data adapter
-            available options are: read, write, publish -->
-            <permission>publish</permission>
-
-            <!-- configuration file for data adapter -->
-            <config>/config/chado_config.xml</config>
-
-            <!-- options to be passed to data adapter -->
-            <options>display_features=false</options>
-
-        </data_adapter>
-
-        <!-- group the <data_adapter> children elements together -->
-        <data_adapter_group>
-
-            <!-- display name for adapter group -->
-            <key>FASTA</key>
-
-            <!-- required permission for using data adapter group
-            available options are: read, write, publish -->
-            <permission>read</permission>
-
-            <!-- one child <data_adapter> for each data adapter in the group -->
-            <data_adapter>
-
-                <!-- display name for data adapter -->
-                <key>peptide</key>
-
-                <!-- class for data adapter plugin -->
-                <class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
-                
-                <!-- required permission for using data adapter
-                available options are: read, write, publish -->
-                <permission>read</permission>
-
-                <!-- configuration file for data adapter -->
-                <config>/config/fasta_config.xml</config>
-
-                <!-- options to be passed to data adapter -->
-                <options>output=file&amp;format=gzip&amp;seqType=peptide</options>
-
-            </data_adapter>
-
-            <data_adapter>
-
-                <!-- display name for data adapter -->
-                <key>cDNA</key>
-
-                <!-- class for data adapter plugin -->
-                <class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
-                
-                <!-- required permission for using data adapter
-                available options are: read, write, publish -->
-                <permission>read</permission>
-
-                <!-- configuration file for data adapter -->
-                <config>/config/fasta_config.xml</config>
-
-                <!-- options to be passed to data adapter -->
-                <options>output=file&amp;format=gzip&amp;seqType=cdna</options>
-
-            </data_adapter>
-
-            <data_adapter>
-
-                <!-- display name for data adapter -->
-                <key>CDS</key>
-
-                <!-- class for data adapter plugin -->
-                <class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
-                
-                <!-- required permission for using data adapter
-                available options are: read, write, publish -->
-                <permission>read</permission>
-
-                <!-- configuration file for data adapter -->
-                <config>/config/fasta_config.xml</config>
-
-                <!-- options to be passed to data adapter -->
-                <options>output=file&amp;format=gzip&amp;seqType=cds</options>
-
-            </data_adapter>
-
-        </data_adapter_group>
-
-    </data_adapters>
-
-</server_configuration>
-```
-
-Let’s look through each element in more detail with values filled in.
+#### GBOL mapping for sequence features
 
 ``` xml
 <!-- mapping configuration for GBOL data structures -->
 <gbol_mapping>/config/mapping.xml</gbol_mapping>
 ```
 
+
 File that contains type mappings used by the underlying data model. It’s best not to change the default option.
+
+#### Web Apollo annotation directory
 
 ``` xml
 <!-- directory where JE database will be created -->
@@ -321,6 +40,8 @@ File that contains type mappings used by the underlying data model. It’s best 
 
 Directory where user generated annotations will be stored. The data is stored using Berkeley DB.
 
+#### Default minimum intron size
+
 ``` xml
 <!-- minimum size for introns created -->
 <default_minimum_intron_size>1</default_minimum_intron_size>
@@ -328,12 +49,16 @@ Directory where user generated annotations will be stored. The data is stored us
 
 Minimum length of intron to be created when using the “Make intron” operation. The operation will try to make the shortest intron that’s at least as long as this parameter. So if you set it to a value of “40”, then all calculated introns will be at least of length 40.
 
+#### Feature history size
+
 ``` xml
 <!-- size of history for each feature - setting to 0 means unlimited history -->
 <history_size>0</history_size>
 ```
 
 The size of your history stack, meaning how many “Undo/Redo” steps you can do. The larger the number, the larger the storage space needed. Setting it to “0” makes it to that there’s no limit.
+
+#### Feature overlapper class (important)
 
 ``` xml
 <!-- overlapping strategy for adding transcripts to genes -->
@@ -349,12 +74,18 @@ Defines the strategy to be used for deciding whether overlapping transcripts sho
 -   `org.bbop.apollo.web.overlap.OrfOverlapper`
     -   Only transcripts that overlap within the coding region and within frame are considered part of the same gene
 
+
+#### Track name comparator (unused in 1.x
+)
 ``` xml
 <!-- javascript file for comparing track names (refseqs) (used for sorting in selection table) -->
 <track_name_comparator>/config/track_name_comparator.js</track_name_comparator>
 ```
 
 Defines how to compare genomic sequence names for sorting purposes in the genomic region selection list. Points to a javascript file. You can implement your logic to allow whatever sorting you’d like for your own organism. This doesn't make much of a difference in our case since we're only dealing with one genomic region. The default behavior is to sort names lexicographically.
+
+
+#### Use existing CDS in annotations
 
 ``` xml
 <!-- whether to use an existing CDS when creating new transcripts -->
@@ -370,6 +101,13 @@ but uses a lot less memory - great for annotation rich genomes -->
 ```
 
 Defines whether the internal data store is purely a memory one or a hybrid memory/disk store. The memory store provides faster performance at the cost of more memory. The hybrid store provides a little slower performance but uses a lot less memory, so it's a good option for annotation rich genomes. Set to `true` to use the memory store and `false` to use the hybrid one.
+
+
+
+
+### Database configuration
+
+It is recommended to use config.properties for most database configuration, but these settings can also be added via config.xml
 
 Let’s take look at the `user` element, which handles configuration for user authentication and permission handling.
 
@@ -441,10 +179,15 @@ Defines how user authentication is handled. This points to a class implementing 
 
 -   `org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication`
     -   Uses the user permission database to also store authentication information, meaning it stores user passwords in the database
+- `org.bbop.apollo.web.user.localdb.EncryptedLocalDbUserAuthentication`
+    -   Uses the user permission database to also store authentication information, but encrypts user passwords using PBKDF2. The add_user.pl script accepts a -e or --encrypted argument to accomodate this, as well as the change_password.pl script. 
 -   `org.bbop.apollo.web.user.browserid.BrowserIdUserAuthentication`
     -   Uses Mozilla’s [BrowserID](https://browserid.org) service for authentication. This has the benefits of offloading all authentication security to Mozilla and allows one account to have access to multiple resources (as long as they have BrowserID support). Being that the service is provided through Mozilla, it will require users to create a BrowserID account
 
-Now let’s look at the configuration for accessing the annotation tracks for the genomic sequences.
+
+### Annotation information
+
+Now let’s look at the configuration for accessing the annotation tracks for the genomic sequences. 
 
 ``` xml
 <tracks>
@@ -484,27 +227,32 @@ Now let’s look at the configuration for accessing the annotation tracks for th
 
 Let’s look at each element individually.
 
+
+#### JBrowse data dir (optional if already specified in config.properties)
 ``` xml
 <!-- path to JBrowse refSeqs.json file -->
-<refseqs>TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse/data/seq/refSeqs.json</refseqs>
+<refseqs>/apollo/data/seq/refSeqs.json</refseqs>
 ```
 
-Location where the `refSeqs.json` file resides, which is created from the data generation pipeline (see the [data generation](#Data_generation "wikilink") section). By default, the JBrowse data needs to reside in `TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse/data`. If you want the data to reside elsewhere, you’ll need to do configure your servlet container to handle the appropriate alias to `jbrowse/data` or symlink the `data` directory to somewhere else. Web Apollo is pre-configured to allow symlinks.
+Location where the `refSeqs.json` file resides, which is created from the data generation pipeline (see the [data generation](#Data_generation "wikilink") section). The JBrowse data directory should reside outside of the webapps directory, i.e. $JBROWSE_DATA_DIR from the [Quick start guide](Quick_start_guide.md). 
 
-<font color="red">IMPORTANT</font>: In the previous versions of Web Apollo (2013-05-16 and prior), this element pointed to the symlink created from the data generation pipeline. The current pipeline no longer creates the symlink, so you need to point to the actual file itself (hence `jbrowse/data/<font color="red">seq</font>/refSeqs.json` as opposed to `jbrowse/data/refSeqs.json` in the previous versions. If you're accessing data generated from a previous version of Web Apollo, you'll still need to point to the symlink.
+#### Annotation prefix
 
 ``` xml
 <annotation_track_name>Annotations</annotation_track_name>
 ```
 
-Name of the annotation track. Leave it as the default value of `Annotations`.
+Name of the annotation track. This corresponds to the prefix the is set during the extract_seqids_from_fasta.pl. Normally, it can be left as the default value of `Annotations`.
 
+#### Organism genus and species
 ``` xml
 <!-- organism being annotated -->
 <organism>Pythium ultimum</organism>
 ```
 
-Scientific name of the organism being annotated (genus and species). We're annotating `Pythium ultimum`.
+Scientific name of the organism being annotated (genus and species). Both genus and species are required when exporting to Chado. We're annotating `Pythium ultimum`.
+
+#### Reference sequence CV term
 
 ``` xml
 <!-- CV term for the genomic sequences - should be in the form
@@ -514,6 +262,7 @@ Scientific name of the organism being annotated (genus and species). We're annot
 
 The type for the genomic sequences. Should be in the form of `CV:term`. Our genomic sequences are of the type `sequence:contig`.
 
+#### Translation table
 ``` xml
 <!-- path to file containing translation table.
     optional - defaults to NCBI translation table 1 if absent -->
@@ -521,6 +270,8 @@ The type for the genomic sequences. Should be in the form of `CV:term`. Our geno
 ```
 
 File that contains the codon translation table. This is optional and defaults to NCBI translation table 1 if absent. See the [translation tables](#Translation_tables "wikilink") section for details on which tables are available and how to customize your own table.
+
+#### Splice site definition
 
 ``` xml
 <!-- splice acceptor and donor sites. Multiple entries may be
@@ -535,12 +286,16 @@ File that contains the codon translation table. This is optional and defaults to
 
 Defines what the accepted donor and acceptor splice sites are. This will determine whether the client displays a warning on splice sites (if the splice site sequence doesn't match what's defined here, then it flags the splice site). You can add multiple `<donor_site>` and `<acceptor_site>` elements if your organism should support multiple values. This is optional and defaults to `GT` for donor and `AG` for acceptor sites.
 
+#### Canned comments file
+
 ``` xml
 <!-- path to file containing canned comments XML -->
 <canned_comments>/config/canned_comments.xml</canned_comments>
 ```
 
-File that contains canned comments (predefined comments that will be available from a pull-down menu when creating comments). It’s best not to change the default option. See the [canned comments](#Canned_comments "wikilink") section for details on configuring canned comments.
+File that contains canned comments. See sample_canned_comments.xml for details. The predefined comments that will be available from a pull-down menu when creating comments. See the [canned comments](#Canned_comments "wikilink") section for details on configuring canned comments.
+
+### "Edit annotations" dialogbox settings
 
 ``` xml
 <!-- configuration for what to display in the annotation info editor.
@@ -651,6 +406,8 @@ Allows editing of Gene Ontology terms (for associating an annotation to a partic
 
 Allows editing of comments for annotations.
 
+### BLAT configuration
+
 ``` xml
 <!-- tools to be used for sequence searching.  This is optional.
     If this is not setup, WebApollo will not have sequence search support -->
@@ -714,6 +471,9 @@ Should point to the class that will handle the search request. Searching is hand
 
 File that contains the configuration for the searching plugin chosen. If you’re using Blat, you should not change this. If you’re using your own plugin, you’ll want to point this to the right configuration file (which will be dependent on your plugin). See the [Blat](#Blat "wikilink") section for details on configuring Web Apollo to use Blat.
 
+
+
+### Data adapter class settings
 ``` xml
 <!-- data adapters for writing annotation data to different formats.
 These will be used to dynamically generate data adapters within
@@ -1304,251 +1064,7 @@ Defines which metadata to export in the defline for each feature. The default is
 
 Note that like the GFF3 adapter, the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. You can use the `remove_temporary_files.sh` script to handle the cleanup. In fact, if you configure both the GFF3 and FASTA adapters to use the same temporary directory, you'll only need to worry about cleanup from a single location. See the [GFF3](#GFF3 "wikilink") section for information about `remove_temporary_files.sh`.
 
-Data generation
----------------
 
-The steps for generating data (in particular static data) are mostly similar to [JBrowse](JBrowse "wikilink") data generation steps, with some extra steps required. The scripts for data generation reside in `TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse/bin`. Let's go into WebApollo's JBrowse directory.
-
-`$ `<span class="enter">`cd TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse`</span>
-
-It will make things easier if we make sure that the scripts in the `bin` directory are executable.
-
-`$ `<span class="enter">`chmod 755 bin/*`</span>
-
-As mentioned previously, the data resides in the `data` directory by default. We can symlink `JBROWSE_DATA_DIR` giving you a lot of flexibility in allowing your WebApollo instance to easily point to a new data directory.
-
-`$ `<span class="enter">`ln -sf JBROWSE_DATA_DIR data`</span>
-
-<font color="red">IMPORTANT</font>: If you're using data generated in previous versions of WebApollo (2013-09-04 and prior), you won't need to regenerate the data, but you will need to run the [Adding the WebApollo plugin](#Adding_the_WebApollo_plugin "wikilink") step.
-
-### DNA track setup
-
-The first thing we need to do before processing our evidence is to generate the reference sequence data to be used by JBrowse. We'll use the `prepare-refseqs.pl` script.
-
-`$ `<span class="enter">`bin/prepare-refseqs.pl --fasta WEB_APOLLO_SAMPLE_DIR/scf1117875582023.fa`</span>
-
-We now have the DNA track setup. Note that you can also use a GFF3 file containing the genomic sequence by using the `--gff` option instead of `--fasta` and point it to the GFF3 file.
-
-### Adding the WebApollo plugin
-
-We now need to setup the data configuration to use the WebApollo plugin. We'll use the `add-webapollo-plugin.pl` script to do so.
-
-`$ `<span class="enter">`bin/add-webapollo-plugin.pl -i data/trackList.json`</span>
-
-### Static data generation
-
-Generating data from GFF3 works best by having a separate GFF3 per source type. If your GFF3 has all source types in the same file, we need to split up the GFF3. We can use the `split_gff_by_source.pl` script in `WEB_APOLLO_DIR/tools/data` to do so. We'll output the split GFF3 to some temporary directory (we'll use `WEB_APOLLO_SAMPLE_DIR/split_gff`).
-
-`$ `<span class="enter">`mkdir -p WEB_APOLLO_SAMPLE_DIR/split_gff`</span>
-`$ `<span class="enter">`WEB_APOLLO_DIR/tools/data/split_gff_by_source.pl \`
-`-i WEB_APOLLO_SAMPLE_DIR/scf1117875582023.gff -d WEB_APOLLO_SAMPLE_DIR/split_gff`</span>
-
-If we look at the contents of `WEB_APOLLO_SAMPLE_DIR/split_gff`, we can see we have the following files:
-
-`$ `<span class="enter">`ls WEB_APOLLO_SAMPLE_DIR/split_gff`</span>
-`blastn.gff  est2genome.gff  protein2genome.gff  repeatrunner.gff`
-`blastx.gff  maker.gff       repeatmasker.gff    snap_masked.gff`
-
-We need to process each file and create the appropriate tracks.
-
-(If you've previously used JBrowse, you may know that JBrowse also has an alternative approach to generating multiple static data tracks from a GFF3 file, which uses the biodb-to-json script and a configuration file. However, WebApollo is not yet compatible with that approach)
-
-#### GFF3 with gene/transcript/exon/CDS/polypeptide features
-
-We'll start off with `maker.gff`. We need to handle that file a bit differently than the rest of the files since the GFF represents the features as gene, transcript, exons, and CDSs.
-
-`$ `<span class="enter">`bin/flatfile-to-json.pl --gff WEB_APOLLO_SAMPLE_DIR/split_gff/maker.gff \`
-`--arrowheadClass trellis-arrowhead --getSubfeatures \`
-`--subfeatureClasses '{"wholeCDS": null, "CDS":"brightgreen-80pct", "UTR": "darkgreen-60pct", "exon":"container-100pct"}' \`
-`--className container-16px --type mRNA --trackLabel maker`</span>
-
-Note that `brightgreen-80pct`, `darkgreen-60pct`, `container-100pct`, `container-16px`, `gray-center-20pct` are all CSS classes defined in WebApollo stylesheets that describe how to display their respective features and subfeatures. WebApollo also tries to use reasonable default CSS styles, so it is possible to omit these CSS class arguments. For example, to accept default styles for maker.gff, the above could instead be shortened to:
-
-`$ `<span class="enter">`bin/flatfile-to-json.pl --gff WEB_APOLLO_SAMPLE_DIR/split_gff/maker.gff \`
-`--getSubfeatures --type mRNA --trackLabel maker`</span>
-
-See the [Customizing features](#Customizing_features "wikilink") section for more information on CSS styles. There are also many other configuration options for flatfile-to-json.pl, see [JBrowse data formatting](JBrowse_Configuration_Guide#Data_Formatting "wikilink") for more information.
-
-#### GFF3 with match/match\_part features
-
-Now we need to process the other remaining GFF3 files. The entries in those are stored as "match/match\_part", so they can all be handled in a similar fashion.
-
-We'll start off with `blastn` as an example.
-
-`$ `<span class="enter">`bin/flatfile-to-json.pl --gff WEB_APOLLO_SAMPLE_DIR/split_gff/blastn.gff \`
-`--arrowheadClass webapollo-arrowhead --getSubfeatures \`
-`--subfeatureClasses '{"match_part": "darkblue-80pct"}' \`
-`--className container-10px --trackLabel blastn`</span>
-
-Again, `container-10px` and `darkblue-80pct` are CSS class names that define how to display those elements. See the [Customizing features](#Customizing_features "wikilink") section for more information.
-
-We need to follow the same steps for the remaining GFF3 files. It can be a bit tedious to do this for the remaining six files, so we can use a simple Bash shell script to help us out (write the script to a file and execute as shown below). Don't worry if the script doesn't make sense, you can always process each file manually on the command line:
-
-`  `<span class="enter">`for i in $(ls WEB_APOLLO_SAMPLE_DIR/split_gff/*.gff | grep -v maker); do`
-`    j=$(basename $i)`
-`    j=${j/.gff/}`
-`    echo "Processing $j"`
-`    bin/flatfile-to-json.pl --gff $i --arrowheadClass webapollo-arrowhead \`
-`    --getSubfeatures --subfeatureClasses "{\"match_part\": \"darkblue-80pct\"}" \`
-`    --className container-10px --trackLabel $j`
-`  done`
-
-`$ /bin/bash myscript.sh`
-
-</span>
-
-#### Generate searchable name index
-
-Once data tracks have been created, you will need to generate a searchable index of names using the generate-names.pl script:
-
-`$ `<span class="enter">`bin/generate-names.pl`</span>
-
-This script creates an index of sequence names and feature names in order to enable auto-completion in the navigation text box. This index is required, so if you do not wish any of the feature tracks to be indexed for auto-completion, you can instead run generate-names.pl immediately after running prepare\_refseqs.pl, but before generating other tracks.
-
-The script can be also rerun after any additional tracks are generated if you wish feature names from that track to be added to the index (using the `--incremental` option).
-
-<font color="red">IMPORTANT</font>: If you're running this script with a Perl version 5.10 or older, you'll need to add the `--safeMode` option. Note that running it in safe mode will be much slower.
-
-#### BAM data
-
-Now let's look how to configure BAM support. WebApollo has native support for BAM, so no extra processing of the data is required.
-
-First we'll copy the BAM data into the WebApollo data directory. We'll put it in the `data/bam` directory. Keep in mind that this BAM data was randomly generated, so there's really no biological meaning to it. We only created it to show BAM support.
-
-`$ `<span class="enter">`mkdir data/bam`</span>
-`$ `<span class="enter">`cp WEB_APOLLO_SAMPLE_DIR/*.bam* data/bam`</span>
-
-Now we need to add the BAM track.
-
-`$ `<span class="enter">`bin/add-bam-track.pl --bam_url bam/simulated-sorted.bam \ `
-`   --label simulated_bam --key "simulated BAM"`</span>
-
-You should now have a `simulated BAM` track available.
-
-#### BigWig data
-
-WebApollo has native support for BigWig files (.bw), so no extra processing of the data is required.
-
-Configuring a BigWig track is very similar to configuring a BAM track. First we'll copy the BigWig data into the WebApollo data directory. We'll put it in the `data/bigwig` directory. Keep in mind that this BigWig data was generated as a coverage map derived from the randomly generated BAM data, so like the BAM data there's really no biological meaning to it. We only created it to show BigWig support.
-
-`$ `<span class="enter">`mkdir data/bigwig`</span>
-`$ `<span class="enter">`cp WEB_APOLLO_SAMPLE_DIR/*.bw data/bigwig`</span>
-
-Now we need to add the BigWig track.
-
-`$ `<span class="enter">`bin/add-bw-track.pl --bw_url bigwig/simulated-sorted.coverage.bw \ `
-`  --label simulated_bw --key "simulated BigWig"`</span>
-
-You should now have a `simulated BigWig` track available.
-
-### Customizing different annotation types
-
-To change how the different annotation types look in the annotation track, you'll need to update the mapping of the annotation type to the appropriate CSS class. This data resides in `trackList.json` after running `add-webapollo-plugin.pl`. You'll need to modify the JSON entry whose label is `Annotations`. Of particular interest is the `alternateClasses` element. Let's look at that default element:
-
-    "alternateClasses": {
-        "pseudogene" : {
-           "className" : "light-purple-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "tRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "snRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "snoRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "ncRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "miRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "rRNA" : {
-           "className" : "brightgreen-80pct",
-           "renderClassName" : "gray-center-30pct"
-        },
-        "repeat_region" : {
-           "className" : "magenta-80pct"
-        },
-        "transposable_element" : {
-           "className" : "blue-ibeam",
-           "renderClassName" : "blue-ibeam-render"
-        }
-    },
-
-For each annotation type, you can override the default class mapping for both `className` and `renderClassName` to use another CSS class. Check out the [Customizing features](#Customizing_features "wikilink") section for more information on customizing the CSS classes.
-
-### Customizing features
-
-The visual appearance of biological features in WebApollo (and JBrowse) is handled by CSS stylesheets. Every feature and subfeature is given a default CSS "class" that matches a default CSS style in a CSS stylesheet. These styles are are defined in `TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse/track_styles.css` and `TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse/plugins/WebApollo/css/webapollo_track_styles.css`. Additional styles are also defined in these files, and can be used by explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or --arrowheadClass parameters to flatfile-to-json.pl. See example [above](#GFF3_with_gene/transcript/exon/CDS/polypeptide_features "wikilink")
-
-WebApollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching, and dragging. WebApollo by default uses invisible container elements (with style class names like "container-16px") for features that have children, so that the children are fully contained within the parent feature. This is paired with another styled element that gets rendered *within* the feature but underneath the subfeatures, and is specified by the --renderClassname argument to flatfile-to-json.pl. Exons are also by default treated as special invisible containers, which hold styled elements for UTRs and CDS.
-
-It is relatively easy to add other stylesheets that have custom style classes that can be used as parameters to flatfile-to-json.pl. An example is `TOMCAT_WEBAPPS_DIR/WebApollo/jbrowse/sample_data/custom_track_styles.css` which contains two new styles:
-
-    .gold-90pct, 
-    .plus-gold-90pct, 
-    .minus-gold-90pct  {
-        background-color: gold;
-        height: 90%;
-        top: 5%;
-        border: 1px solid gray;
-    }
-
-    .dimgold-60pct, 
-    .plus-dimgold-60pct, 
-    .minus-dimgold-60pct  {
-        background-color: #B39700;
-        height: 60%;
-        top: 20%;
-    }
-
-In this example, two subfeature styles are defined, and the *top* property is being set to (100%-height)/2 to assure that the subfeatures are centered vertically within their parent feature. When defining new styles for features, it is important to specify rules that apply to plus-*stylename* and minus-*stylename* in addition to *stylename*, as WebApollo adds the "plus-" or "minus-" to the class of the feature if the the feature has a strand orientation.
-
-You need to tell WebApollo where to find these styles. This can be done via standard CSS loading in the index.html file by adding a <link> element:
-
-<link rel="stylesheet" type="text/css" href="sample_data/custom_track_styles.css">
-
-Or alternatively, to avoid modifying the web application, additional CSS can be specified in the trackList.json file that is created in the data directory during static data generation, by adding a "css" property to the JSON data:
-
-       "css" : "sample_data/custom_track_styles.css" 
-
-Then these new styles can be used as arguments to flatfile-to-json.pl, for example:
-
-    bin/flatfile-to-json.pl --gff WEB_APOLLO_SAMPLE_DIR/split_gff/maker.gff 
-    --getSubfeatures --type mRNA --trackLabel maker --webApollo 
-    --subfeatureClasses '{"CDS":"gold-90pct", "UTR": "dimgold-60pct"}' 
-
-Depending on how your Tomcat server is setup, you might need to restart the server to pick up all the changes (or at least restart the WebApollo web application). You'll also need to do this any time you change the configuration files (not needed when changing the data files).
-
-### Bulk loading annotations to the user annotation track
-
-#### GFF3
-
-You can use the `WEB_APOLLO_DIR/tools/data/add_transcripts_from_gff3_to_annotations.pl` script to bulk load GFF3 files with transcripts to the user annotation track. Let's say we want to load our `maker.gff` transcripts.
-
-`$ `<span class="enter">`WEB_APOLLO_DIR/tools/data/add_transcripts_from_gff3_to_annotations.pl \`
-`-U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \`
-`-i WEB_APOLLO_SAMPLE_DIR/split_gff/maker.gff`</span>
-
-The default options should be handle GFF3 most files that contain genes, transcripts, and exons.
-
-You can still use this script even if the file you're loading does not contain transcripts and exons. Let's say we want to load `match` and `match_part` features as transcripts and exons respectively. We'll use the `blastn.gff` file as an example.
-
-`$ `<span class="enter">`WEB_APOLLO_DIR/tools/data/add_transcripts_from_gff3_to_annotations.pl \`
-`-U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \`
-`-i WEB_APOLLO_SAMPLE_DIR/split_gff/blastn.gff -t match -e match_part`</span>
-
-Look at the script's help (`-h`) for all available options.
-
-Congratulations, you're done configuring WebApollo!
 
 Upgrading existing instances
 ----------------------------

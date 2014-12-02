@@ -22,8 +22,9 @@ Let's get started!
 3. [Pre-requisites](Prerequisites.md)
 4. [Database setup](Database_setup.md)
 5. [Configure](Configure.md)
-6. [Build](Build.md)
-7. [Deploy](Deploy.md)
-8. [Troubleshooting](Troubleshooting.md)
-9. [Developers guide](Developer.md)
+6. [Data loading](Data_loading.md)
+7. [Build](Build.md)
+8. [Deploy](Deploy.md)
+9. [Troubleshooting](Troubleshooting.md)
+10. [Developers guide](Developer.md)
 

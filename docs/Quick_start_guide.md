@@ -137,7 +137,7 @@ Once we have our data directories and database configuration setup, we can put t
     echo organism=$ORGANISM >> config.properties
 
 
-Note: the organism property should be a two-word "genus species" ID for proper chado exports. For more details on chado export see the [configuration guide](Configuration.md).
+Note: the organism property should be a two-word "genus species" ID for proper chado exports. For more details on chado export see the [configuration guide](Configure.md).
 
 #### Setup additional Web Apollo configuration
 
