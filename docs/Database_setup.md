@@ -4,72 +4,7 @@
 
 WebApollo uses a database backed authentication by default that uses postgres.
 This is the so called LocalDbUserAuthentication class. To configure it, you must
-setup a postgres database.
-
-## Background: postgres authentication methods
-
-If you are a postgres pro, you can skip this section, but for new users, understanding postgres
-authentication methods is important. There are several different types of authentication methods
-that can be configured for a postgres database, the most common ones being:
-
--   peer - allows shell based logins without a password
--   ident - based off of operating system logins
--   md5 - basic password based-logins
-
-For webapollo, "peer" is recommended for "local" logins, an "md5" is recommended for "host" logins.
-The login methods are configured through the pg\_hba.conf file, which can be different depending 
-on the system you are on.
-
-### Debian/Ubuntu default pg_hba.conf (not essential to change)
-
-On ubuntu/debian, the pg\_hba.conf shows the following:
-
-    local   all             postgres                                peer
-
-    # TYPE  DATABASE        USER            ADDRESS                 METHOD
-
-    # "local" is for Unix domain socket connections only
-    local   all             all                                     peer
-    # IPv4 local connections:
-    host    all             all             127.0.0.1/32            md5
-    # IPv6 local connections:
-    host    all             all             ::1/128                 md5
-
-This means on ubuntu, command line logins to psql are allowed for the postgres user without any
-password. Logins over TCP/IP will use password based authentication however, which is what we
-want for WebApollo.
-
-### CentOS/RedHat default pg_hba.conf (should be changed)
-On redhat/centOS however, the default pg\_hba.conf file is not ideal for WebApollo, and uses ident by default:
-
-    # TYPE  DATABASE        USER            ADDRESS                 METHOD
-
-    # "local" is for Unix domain socket connections only
-    local   all             all                                     peer
-    # IPv4 local connections:
-    host    all             all             127.0.0.1/32            ident
-    # IPv6 local connections:
-    host    all             all             ::1/128                 ident
-
-It is important that on redhat, the IPv4 and IPv6 are changed from ident
-to md5 so that perl scripts like add\_user.pl can work.
-
-### An ideal pg_hba.conf for WebApollo
-An ideal pg_hba.conf file would allow password based authentication for TCP/IP connections to the database. Ideally, we might also add authentication for a non-operating system user, `web_apollo_users_admin` to manage the Web Apollo database.
-
-    local   all             postgres                                peer
-    local   all             web_apollo_users_admin                  md5
-
-    # TYPE  DATABASE        USER            ADDRESS                 METHOD
-
-    # "local" is for Unix domain socket connections only
-    local   all             all                                     peer
-    # IPv4 local connections:
-    host    all             all             127.0.0.1/32            md5
-    # IPv6 local connections:
-    host    all             all             ::1/128                 md5
-
-
+setup a postgres database. Make sure to understand the [postgres configuration](http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html) for configuring the database and see our [troubleshooting guide](Troubleshooting.md) to help with any problems with these steps.
 
 ## User database
 

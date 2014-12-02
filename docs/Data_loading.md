@@ -1,5 +1,5 @@
-Data generation pipeline
----------------
+# Data generation pipeline
+
 
 The data generation pipeline will use jbrowse and webapollo perl scripts. The preferred way to install these is through the `apollo deploy` command, which will install the necessary pre-requisites automatically into a local directory.
 
