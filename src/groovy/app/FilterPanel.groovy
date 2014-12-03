@@ -23,8 +23,8 @@ class FilterPanel extends CustomComponent{
 
 //        tabSheet.setHeight("400px")
 //        browserPanel.setSizeFull()
+        tabSheet.addTab(browserPanel,"Browse")
         tabSheet.addTab(searchPanel,"Search")
-        tabSheet.addTab(browserPanel,"Browse B")
         tabSheet.addTab(validationPanel,"Validate")
 
         setCompositionRoot(tabSheet)
