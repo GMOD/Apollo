@@ -1,7 +1,0 @@
-<module>
-    <!-- Inherit the core Web Toolkit stuff.                  -->
-    <inherits name="com.google.gwt.user.User"/>
-
-    <!-- Specify the module entry point class.                   -->
-    <entry-point class="org.bbop.apollo.client.Annotator"/>
-</module>

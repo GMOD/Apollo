@@ -18,7 +18,7 @@ grails.project.source.level = 1.7
 //
 //gwt {
 //    version="2.7.0"
-////    gin.version = '2.1.2'
+//    gin.version = '2.1.2'
 //}
 
 
@@ -74,6 +74,8 @@ grails.project.dependency.resolution = {
         compile 'org.json:json:20140107'
         compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
+//        compile 'asm:asm:3.1'
+
 
 
 //        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
@@ -111,6 +113,7 @@ grails.project.dependency.resolution = {
 
         compile ":spring-websocket:1.1.0"
         compile ":shiro:1.2.1"
+
 
         compile ":vaadin:7.3.5"
 
