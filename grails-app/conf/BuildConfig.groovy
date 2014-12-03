@@ -9,18 +9,6 @@ grails.project.source.level = 1.7
 //def gebVersion = '0.9.3'
 //def seleniumVersion = '2.21.0'
 
-//gwt.compile.args = {
-////    arg(value: '-strict')
-////    arg(value: "-XjsInteropMode JS")
-//    arg(value: '-XjsInteropMode')
-//    arg(value: 'JS')
-//}
-//
-//gwt {
-//    version="2.7.0"
-//    gin.version = '2.1.2'
-//}
-
 
 forkConfig = [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
 grails.project.fork = [
@@ -74,10 +62,14 @@ grails.project.dependency.resolution = {
         compile 'org.json:json:20140107'
         compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
-        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
-//        compile 'asm:asm:3.1'
+//        compile 'org.spiffyui:spiffyuitasks:1.5'
+//        compile 'org.spiffyui:spiffyui:1.5'
+
+//        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
+        compile 'asm:asm:3.1'
 
 
+        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 
 //        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
 //        compile 'org.biojava:biojava3-core:3.1.0'
@@ -116,13 +108,16 @@ grails.project.dependency.resolution = {
         compile ":shiro:1.2.1"
 
 
-        compile ":vaadin:7.3.5"
+//        compile ":vaadin:7.3.5"
 
 
-//        build ":extended-dependency-manager:0.5.5"
-//        compile ":gwt:1.0", {
-//            transitive=false
-//        }
+//        runtime ":resources:1.2.1"
+        runtime ":resources:1.2.13"
+        build ":extended-dependency-manager:0.5.5"
+
+        compile ":gwt:1.0" , {
+            transitive=true
+        }
 
 //        compile ":crypto:2.0"
 
@@ -135,3 +130,15 @@ grails.project.dependency.resolution = {
 //        test    ":geb:$gebVersion"
     }
 }
+
+gwt.compile.args = {
+    arg(value: '-strict')
+    arg(value: '-XjsInteropMode')
+    arg(value: 'JS')
+}
+
+gwt {
+    version="2.7.0"
+    gin.version = '2.1.2'
+}
+
