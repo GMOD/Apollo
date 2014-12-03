@@ -74,6 +74,7 @@ grails.project.dependency.resolution = {
         compile 'org.json:json:20140107'
         compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
+        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
 //        compile 'asm:asm:3.1'
 
 

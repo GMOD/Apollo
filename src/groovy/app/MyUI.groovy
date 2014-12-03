@@ -1,12 +1,12 @@
 package app
 
+import com.vaadin.data.Property
 import com.vaadin.server.Sizeable
 import com.vaadin.ui.HorizontalSplitPanel
 import com.vaadin.ui.UI
 import com.vaadin.ui.VerticalLayout
 import com.vaadin.server.VaadinRequest
 import com.vaadin.ui.Label
-import com.vaadin.grails.Grails
 
 /**
  *
@@ -32,9 +32,12 @@ class Annotator extends UI {
 
         Label jbrowseComponent = new Label("JBrowse")
 
+
         mainLayout.setFirstComponent(appLayout)
         mainLayout.setSecondComponent(jbrowseComponent)
 
 		setContent(mainLayout)
     }
+
+
 }
