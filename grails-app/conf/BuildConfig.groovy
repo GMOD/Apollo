@@ -3,11 +3,24 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 grails.project.work.dir = "target/work"
-grails.project.target.level = 1.6
-grails.project.source.level = 1.6
+grails.project.target.level = 1.7
+grails.project.source.level = 1.7
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 //def gebVersion = '0.9.3'
 //def seleniumVersion = '2.21.0'
+
+//gwt.compile.args = {
+////    arg(value: '-strict')
+////    arg(value: "-XjsInteropMode JS")
+//    arg(value: '-XjsInteropMode')
+//    arg(value: 'JS')
+//}
+//
+//gwt {
+//    version="2.7.0"
+////    gin.version = '2.1.2'
+//}
+
 
 forkConfig = [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
 grails.project.fork = [
@@ -62,6 +75,7 @@ grails.project.dependency.resolution = {
         compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
 
+
 //        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
 //        compile 'org.biojava:biojava3-core:3.1.0'
 
@@ -97,6 +111,14 @@ grails.project.dependency.resolution = {
 
         compile ":spring-websocket:1.1.0"
         compile ":shiro:1.2.1"
+
+        compile ":vaadin:7.3.5"
+
+
+//        build ":extended-dependency-manager:0.5.5"
+//        compile ":gwt:1.0", {
+//            transitive=false
+//        }
 
 //        compile ":crypto:2.0"
 
