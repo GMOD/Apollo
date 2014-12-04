@@ -10,7 +10,7 @@ requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and
 and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
 
 ### Server-side Prerequisites
-Note: see the [Quick-start guide](Quick_start_guide.md "wikilink") for the
+Note: see the [Quick-start guide](Quick_start_guide.md) for the
 quickest way to take care of pre-requisites.
 
 -   System prerequisites
@@ -26,7 +26,7 @@ quickest way to take care of pre-requisites.
     -   Web Apollo will automatically try to install all perl-pre-requisites using install_jbrowse.sh
     -   If you experience problems with this script, please review setup.log
 -   Data generation pipeline prerequisites (see [JBrowse
-    prerequisites](http://gmod.org/wiki/JBrowse_Configuration_Guide "wikilink") for more
+    prerequisites](http://gmod.org/wiki/JBrowse_Configuration_Guide) for more
     information on its prerequisites)
     -   System packages
         -   libpng12-0 (optional, for JBrowse imagetrack)
