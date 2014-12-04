@@ -3748,7 +3748,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         };
         fetchGff3(records);
 
-        this.openDialog("Gff3", content);
+        this.openDialog("GFF3", content);
     },
 
     getSequence: function()  {

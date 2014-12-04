@@ -105,6 +105,12 @@ public class ChadoIO {
             catch (SimpleObjectIOException e) {
             }
             if (propCvterm == null) {
+
+                DB cloneDb = handler.getDB("SOFP");
+                if (cloneDb == null) {
+                    cloneDb = new DB("SOFP");
+                    handler.write(cloneDb);
+                }
                 DBXref dbxref = new DBXref(handler.getDB("SOFP"), property.getType().getName());
                 dbxref.setVersion("");
                 property.getType().setDbxref(dbxref);
