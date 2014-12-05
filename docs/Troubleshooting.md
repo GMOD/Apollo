@@ -94,4 +94,4 @@ You must install chado to use the Chado export feature, and you must also set it
         at org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter.execute(ChadoDataAdapter.java:134)
         at org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter.write(ChadoDataAdapter.java:68)
 
-Then you must also make sure to import your genome into Chado. One way is to convert the fasta into gff3 and use Chado's gff3 bulk loader.
+Then you must also make sure to import your genome into Chado. Refer to the configuration guide for this note on [Chado export](Configure.md#important-note-for-chado-export).

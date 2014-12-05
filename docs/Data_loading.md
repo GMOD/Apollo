@@ -53,7 +53,7 @@ Also note: `brightgreen-80pct`, `darkgreen-60pct`, `container-100pct`, `containe
     $ bin/flatfile-to-json.pl --gff split_gff/maker.gff \
       --getSubfeatures --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
 
-See the [Customizing features](Data_loading.md#Customizing_features) section for more information on CSS styles. There are also many other configuration options for flatfile-to-json.pl, see [JBrowse data formatting](JBrowse_Configuration_Guide#Data_Formatting) for more information.
+See the [Customizing features](Data_loading.md#customizing-features) section for more information on CSS styles. There are also many other configuration options for flatfile-to-json.pl, see [JBrowse data formatting](JBrowse_Configuration_Guide#Data_Formatting) for more information.
 
 #### GFF3 with match/match\_part features
 
@@ -165,7 +165,7 @@ After running `add-webapollo-plugin.pl`, the annotation track will be added to `
         }
     },
 
-For each annotation type, you can override the default class mapping for both `className` and `renderClassName` to use another CSS class. Check out the [Customizing features](Data_loading.md#Customizing_features) section for more information on customizing the CSS classes.
+For each annotation type, you can override the default class mapping for both `className` and `renderClassName` to use another CSS class. Check out the [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS classes.
 
 ### Customizing features
 

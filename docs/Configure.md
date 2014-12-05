@@ -271,7 +271,7 @@ The type for the genomic sequences. Should be in the form of `CV:term`. Our geno
 <translation_table>/config/translation_tables/ncbi_1_translation_table.txt</translation_table>
 ```
 
-File that contains the codon translation table. This is optional and defaults to NCBI translation table 1 if absent. See the [translation tables](Configure.md#Translation_tables) section for details on which tables are available and how to customize your own table.
+File that contains the codon translation table. This is optional and defaults to NCBI translation table 1 if absent. See the [translation tables](Configure.md#translation-tables) section for details on which tables are available and how to customize your own table.
 
 #### Splice site definition
 
@@ -295,7 +295,7 @@ Defines what the accepted donor and acceptor splice sites are. This will determi
 <canned_comments>/config/canned_comments.xml</canned_comments>
 ```
 
-File that contains canned comments. See sample_canned_comments.xml for details. The predefined comments that will be available from a pull-down menu when creating comments. See the [canned comments](Configure.md#Canned_comments) section for details on configuring canned comments.
+File that contains canned comments. See sample_canned_comments.xml for details. The predefined comments that will be available from a pull-down menu when creating comments. See the [canned comments](Configure.md#canned-comments) section for details on configuring canned comments.
 
 ### "Edit annotations" dialogbox settings
 
@@ -357,7 +357,7 @@ defined in other groups.  You can have any many groups as you'd like -->
 </annotation_info_editor_group>
 ```
 
-Each configuration is grouped by annotation type. This allows you to have different options on what's displayed for specified types. The `feature_types` attribute defines which types this group will apply to. `feature_types` takes a list of SO terms (comma separated), such as `"sequence:transcript,sequence:mRNA"`, which will apply this configuration to annotations of type `sequence:transcript` and `sequence:mRNA`. Alternatively, you can set the value to `"default"` which will become the default configuration for any types not explicitly defined in other groups. You can have any many groups as you'd like. All supported annotation types](Configure.md#Supported_annotation_types) can be used.
+Each configuration is grouped by annotation type. This allows you to have different options on what's displayed for specified types. The `feature_types` attribute defines which types this group will apply to. `feature_types` takes a list of SO terms (comma separated), such as `"sequence:transcript,sequence:mRNA"`, which will apply this configuration to annotations of type `sequence:transcript` and `sequence:mRNA`. Alternatively, you can set the value to `"default"` which will become the default configuration for any types not explicitly defined in other groups. You can have any many groups as you'd like. All supported annotation types](Configure.md#supported-annotation-types) can be used.
 
 Next, let's look at each item to configure in each group.
 
@@ -471,7 +471,7 @@ Should point to the class that will handle the search request. Searching is hand
 <config>/config/blat_config.xml</config>
 ```
 
-File that contains the configuration for the searching plugin chosen. If you’re using Blat, you should not change this. If you’re using your own plugin, you’ll want to point this to the right configuration file (which will be dependent on your plugin). See the [Blat](Configure.md#Blat) section for details on configuring Web Apollo to use Blat.
+File that contains the configuration for the searching plugin chosen. If you’re using Blat, you should not change this. If you’re using your own plugin, you’ll want to point this to the right configuration file (which will be dependent on your plugin). See the [Blat](Configure.md#blat) section for details on configuring Web Apollo to use Blat.
 
 
 
@@ -618,9 +618,9 @@ This is a string that will be used for the data adapter name, in the dynamically
 Should point to the class that will handle the write request. Writing is handled by classes that implement the `org.bbop.apollo.web.dataadapter.DataAdapter` interface. This allows you to add support for writing to different formats. We currently only have support for:
 
 -   `org.bbop.apollo.web.dataadapter.gff3.Gff3DataAdapter`
-    -   GFF3 (see the [GFF3](Configure.md#GFF3) section for details on this adapter)
+    -   GFF3 (see the [GFF3](Configure.md#gff3) section for details on this adapter)
 -   `org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter`
-    -   Chado (see the [Chado](Configure.md#Chado_configuration) section for details on this adapter)
+    -   Chado (see the [Chado](Configure.md#chado-configuration) section for details on this adapter)
 
 ``` xml
 <!-- required permission for using data adapter
@@ -713,7 +713,7 @@ You’ll need one `<comment>` element for each predefined comment. The element n
 <comment feature_types="sequence:transcript,sequence:mRNA">This is a comment for both a transcript or mRNA</comment>
 ```
 
-All [supported annotation types](Configure.md#Supported_annotation_types) can be used.
+All [supported annotation types](Configure.md#supported-annotation-types) can be used.
 
 ### Search tools
 
@@ -906,7 +906,7 @@ Note that the generated files will reside in that directory indefinitely to allo
 
 #### Chado configuration
 
-The Chado data adapter will allow writing the current annotations to a Chado database. For more information about Chado, see  can get more information about the Chado at [GMOD Chado page](http://gmod.org/wiki/Chado). The configuration is stored in `TOMCAT_WEBAPPS_DIR/WebApollo/config/chado_config.xml`. Let’s take a look at the configuration file:
+The Chado data adapter will allow writing the current annotations to a Chado database. For more information about Chado, see  can get more information about the Chado at [GMOD Chado page](http://gmod.org/wiki/Chado). The configuration is stored in `src/main/webapp/config/chado_config.xml`. Let’s take a look at the configuration file:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1056,7 +1056,7 @@ This is the root directory where the FASTA files will be generated. The actual F
 </feature_types>
 ```
 
-This defines which annotation types should be processed when exporting the FASTA data. You'll need one `<feature_type>` element for each type you want to have processed. Only the defined `feature_type` elements will all be processed, so you might want to have different configuration files for processing different types of annotations (which you can point to in FASTA data adapter in the `config` element in `config.xml`). All [supported annotation types](Configure.md#Supported_annotation_types) can be used for the value of `feature_type`, with the addition of `sequence:exon`.
+This defines which annotation types should be processed when exporting the FASTA data. You'll need one `<feature_type>` element for each type you want to have processed. Only the defined `feature_type` elements will all be processed, so you might want to have different configuration files for processing different types of annotations (which you can point to in FASTA data adapter in the `config` element in `config.xml`). All [supported annotation types](Configure.md#supported-annotation-types) can be used for the value of `feature_type`, with the addition of `sequence:exon`.
 
 In `config.xml`, in the `<options>` element in the `<data_adapter>` configuration for the FASTA adapter, you'll notice that there's a `seqType` option. You can change that value to modify which type of sequence will be exported as FASTA. Available options are:
 
@@ -1090,7 +1090,7 @@ Default does not export any metadata -->
 
 Defines which metadata to export in the defline for each feature. The default is to not output any of the listed metadata. Uncomment to turn on this option. Note that you can remove (or comment) any `<metadata>` elements that you're not interested in exporting.
 
-Note that like the GFF3 adapter, the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. You can use the `remove_temporary_files.sh` script to handle the cleanup. In fact, if you configure both the GFF3 and FASTA adapters to use the same temporary directory, you'll only need to worry about cleanup from a single location. See the [GFF3](Configure.md#GFF3) section for information about `remove_temporary_files.sh`.
+Note that like the GFF3 adapter, the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. You can use the `remove_temporary_files.sh` script to handle the cleanup. In fact, if you configure both the GFF3 and FASTA adapters to use the same temporary directory, you'll only need to worry about cleanup from a single location. See the [GFF3](Configure.md#gff3) section for information about `remove_temporary_files.sh`.
 
 
 
@@ -1122,7 +1122,7 @@ You might also want to update `<datastore_directory>` back to `WEBAPOLLO_DATA_DI
 
 #### Upgrading existing JBrowse data stores
 
-You'll need to upgrade the `trackList.json` file in your JBROWSE\_DATA\_DIR directory. The WebApollo plugin needs to be reconfigured, so run through the steps in the [Adding the WebApollo plugin](Data_loading.md#Adding_the_WebApollo_plugin) section.
+You'll need to upgrade the `trackList.json` file in your JBROWSE\_DATA\_DIR directory. The WebApollo plugin needs to be reconfigured, so run through the steps in the [Adding the WebApollo plugin](Data_loading.md#adding-the-webapollo-plugin) section.
 
 #### Upgrading existing annotation data stores
 
