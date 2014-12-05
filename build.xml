@@ -55,18 +55,19 @@
   <target name="devmode" depends="javac" description="Run development mode (pass -Dgwt.args=-nosuperDevMode to fallback to classic DevMode)">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode" maxmemory="1g">
       <classpath>
-        <pathelement location="src"/>
+        <pathelement location="src/gwt"/>
         <path refid="project.class.path"/>
         <pathelement location="${gwt.sdk}/gwt-codeserver.jar"/>
       </classpath>
       <arg value="-startupUrl"/>
-      <arg value="Annotator.html"/>
+      <arg value="http://localhost:8080/apollo/annotator/"/>
+      <!--<arg value="/apollo/annotator/"/>-->
       <arg line="-war"/>
-      <arg value="war"/>
+      <arg value="web-app"/>
       <!-- Additional arguments like -style PRETTY, -logLevel DEBUG or -nosuperDevMode -->
       <arg line="${gwt.args}"/>
-      <arg value="org.bbop.apollo.Annotator"/>
-      <arg value="org.bbop.apollo.Annotator"/>
+      <arg value="org.bbop.apollo.gwt.Annotator"/>
+      <arg value="org.bbop.apollo.gwt.Annotator"/>
     </java>
   </target>
 
@@ -137,13 +138,14 @@ Test targets suppressed because -junit argument was not specified when running w
 
   <target name="build" depends="gwtc" description="Build this project" />
 
-  <target name="war" depends="build" description="Create a war file">
-    <zip destfile="Annotator.war" basedir="war"/>
-  </target>
+  <!--<target name="war" depends="build" description="Create a war file">-->
+    <!--<zip destfile="Annotator.war" basedir="war"/>-->
+  <!--</target>-->
 
   <target name="clean" description="Cleans this project">
-    <delete dir="war/WEB-INF/classes" failonerror="false" />
-    <delete dir="war/annotator" failonerror="false" />
+    <delete dir="web-app/WEB-INF/deploy" failonerror="false" />
+    <delete dir="web-app/annotator" failonerror="false" />
+    <delete dir="target/classes/gwt" failonerror="false" />
   </target>
 
 </project>
