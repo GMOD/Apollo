@@ -79,3 +79,19 @@ An ideal pg_hba.conf for WebApollo might have a line for our special local login
     host    all             all             ::1/128                 md5
 
 
+
+### Chado export
+
+You must install chado to use the Chado export feature, and you must also set it up for your organism. If, after setting up chado, and you receive this error:
+
+    java.lang.IllegalArgumentException: entity for parameter binding cannot be null
+        at org.hibernate.impl.AbstractQueryImpl.resolveEntityName(AbstractQueryImpl.java:587)
+        at org.hibernate.impl.AbstractQueryImpl.setEntity(AbstractQueryImpl.java:581)
+        at org.gmod.gbol.simpleObject.io.impl.HibernateHandler.getAllFeaturesBySourceFeature(HibernateHandler.java:166)
+        at org.bbop.apollo.web.dataadapter.chado.ChadoIO.deleteFeatures(ChadoIO.java:164)
+        at org.bbop.apollo.web.dataadapter.chado.ChadoIO.writeFeatures(ChadoIO.java:66)
+        at org.bbop.apollo.web.dataadapter.chado.ChadoJEDatabaseIO.writeFeatures(ChadoJEDatabaseIO.java:31)
+        at org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter.execute(ChadoDataAdapter.java:134)
+        at org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter.write(ChadoDataAdapter.java:68)
+
+Then you must also make sure to import your genome into Chado. Refer to the configuration guide for this note on [Chado export](Configure.md#important-note-for-chado-export).

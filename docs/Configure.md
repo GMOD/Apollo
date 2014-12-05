@@ -12,6 +12,8 @@ The available configuration files include
 - hibernate.xml - basic hibernate database parameters for chado export
 - mapping.xml - GBOL mapping to sequence ontology terms
 - canned_comments.xml - canned comments for annotation edits
+- gff3_config.xml - settings for gff3 export
+- fasta_config.xml - settings for the fasta export
 - log4j2.json - settings for logging
 
 ### Main configuration
@@ -35,7 +37,7 @@ File that contains type mappings used by the underlying data model. It’s best 
 
 ``` xml
 <!-- directory where JE database will be created -->
-<datastore_directory>WEB_APOLLO_DATA_DIR</datastore_directory>
+<datastore_directory>WEBAPOLLO_DATA_DIR</datastore_directory>
 ```
 
 Directory where user generated annotations will be stored. The data is stored using Berkeley DB.
@@ -234,7 +236,7 @@ Let’s look at each element individually.
 <refseqs>/apollo/data/seq/refSeqs.json</refseqs>
 ```
 
-Location where the `refSeqs.json` file resides, which is created from the data generation pipeline (see the [data generation](#Data_generation "wikilink") section). The JBrowse data directory should reside outside of the webapps directory, i.e. $JBROWSE_DATA_DIR from the [Quick start guide](Quick_start_guide.md). 
+Location where the `refSeqs.json` file resides, which is created from the data generation pipeline (see the [data generation](Data_loading.md) guide). The JBrowse data directory should reside outside of the webapps directory, i.e. $JBROWSE_DATA_DIR because Tomcat undeploy will delete the data, even if is symlinked.
 
 #### Annotation prefix
 
@@ -250,7 +252,7 @@ Name of the annotation track. This corresponds to the prefix the is set during t
 <organism>Pythium ultimum</organism>
 ```
 
-Scientific name of the organism being annotated (genus and species). Both genus and species are required when exporting to Chado. We're annotating `Pythium ultimum`.
+Scientific name of the organism being annotated (genus and species). Both genus and species are required when exporting to Chado. We're annotating `Pythium ultimum`. This option is also available in `config.properties`.
 
 #### Reference sequence CV term
 
@@ -269,7 +271,7 @@ The type for the genomic sequences. Should be in the form of `CV:term`. Our geno
 <translation_table>/config/translation_tables/ncbi_1_translation_table.txt</translation_table>
 ```
 
-File that contains the codon translation table. This is optional and defaults to NCBI translation table 1 if absent. See the [translation tables](#Translation_tables "wikilink") section for details on which tables are available and how to customize your own table.
+File that contains the codon translation table. This is optional and defaults to NCBI translation table 1 if absent. See the [translation tables](Configure.md#translation-tables) section for details on which tables are available and how to customize your own table.
 
 #### Splice site definition
 
@@ -293,7 +295,7 @@ Defines what the accepted donor and acceptor splice sites are. This will determi
 <canned_comments>/config/canned_comments.xml</canned_comments>
 ```
 
-File that contains canned comments. See sample_canned_comments.xml for details. The predefined comments that will be available from a pull-down menu when creating comments. See the [canned comments](#Canned_comments "wikilink") section for details on configuring canned comments.
+File that contains canned comments. See sample_canned_comments.xml for details. The predefined comments that will be available from a pull-down menu when creating comments. See the [canned comments](Configure.md#canned-comments) section for details on configuring canned comments.
 
 ### "Edit annotations" dialogbox settings
 
@@ -355,7 +357,7 @@ defined in other groups.  You can have any many groups as you'd like -->
 </annotation_info_editor_group>
 ```
 
-Each configuration is grouped by annotation type. This allows you to have different options on what's displayed for specified types. The `feature_types` attribute defines which types this group will apply to. `feature_types` takes a list of SO terms (comma separated), such as `"sequence:transcript,sequence:mRNA"`, which will apply this configuration to annotations of type `sequence:transcript` and `sequence:mRNA`. Alternatively, you can set the value to `"default"` which will become the default configuration for any types not explicitly defined in other groups. You can have any many groups as you'd like. All [supported annotation types](#Supported_annotation_types "wikilink") can be used.
+Each configuration is grouped by annotation type. This allows you to have different options on what's displayed for specified types. The `feature_types` attribute defines which types this group will apply to. `feature_types` takes a list of SO terms (comma separated), such as `"sequence:transcript,sequence:mRNA"`, which will apply this configuration to annotations of type `sequence:transcript` and `sequence:mRNA`. Alternatively, you can set the value to `"default"` which will become the default configuration for any types not explicitly defined in other groups. You can have any many groups as you'd like. All supported annotation types](Configure.md#supported-annotation-types) can be used.
 
 Next, let's look at each item to configure in each group.
 
@@ -469,7 +471,7 @@ Should point to the class that will handle the search request. Searching is hand
 <config>/config/blat_config.xml</config>
 ```
 
-File that contains the configuration for the searching plugin chosen. If you’re using Blat, you should not change this. If you’re using your own plugin, you’ll want to point this to the right configuration file (which will be dependent on your plugin). See the [Blat](#Blat "wikilink") section for details on configuring Web Apollo to use Blat.
+File that contains the configuration for the searching plugin chosen. If you’re using Blat, you should not change this. If you’re using your own plugin, you’ll want to point this to the right configuration file (which will be dependent on your plugin). See the [Blat](Configure.md#blat) section for details on configuring Web Apollo to use Blat.
 
 
 
@@ -599,7 +601,7 @@ submenu for those adapters in WebApollo. This is optional.  -->
 </data_adapters>
 ```
 
-Here’s the configuration for data adapters (allows writing annotations to different formats). This is optional. If it’s not configured, Web Apollo will not have data writing support. You'll need one `&lt;data_adapter&gt;` element per data adapter. You can group data adapters by placing each `&lt;data_adapter&gt;` inside a `&lt;data_adapter_group&gt;` element. Let's look at the `&lt;data_adapter&gt;` element in more detail.
+Here’s the configuration for data adapters (allows writing annotations to different formats). This is optional. If it’s not configured, Web Apollo will not have data writing support. You'll need one `<data_adapter>` element per data adapter. You can group data adapters by placing each `<data_adapter>` inside a `<data_adapter_group>` element. Let's look at the `<data_adapter>` element in more detail.
 
 ``` xml
 <!-- display name for data adapter -->
@@ -616,9 +618,9 @@ This is a string that will be used for the data adapter name, in the dynamically
 Should point to the class that will handle the write request. Writing is handled by classes that implement the `org.bbop.apollo.web.dataadapter.DataAdapter` interface. This allows you to add support for writing to different formats. We currently only have support for:
 
 -   `org.bbop.apollo.web.dataadapter.gff3.Gff3DataAdapter`
-    -   GFF3 (see the [GFF3](#GFF3 "wikilink") section for details on this adapter)
+    -   GFF3 (see the [GFF3](Configure.md#gff3) section for details on this adapter)
 -   `org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter`
-    -   Chado (see the [Chado](#Chado "wikilink") section for details on this adapter)
+    -   Chado (see the [Chado](Configure.md#chado-configuration) section for details on this adapter)
 
 ``` xml
 <!-- required permission for using data adapter
@@ -642,7 +644,7 @@ File that contains the configuration for the data adapter plugin chosen.
 
 Options to be passed to the data adapter. These are dependent on the data adapter.
 
-Next, let's look at the `&lt;data_adapter_group&gt;` element:
+Next, let's look at the `<data_adapter_group>` element:
 
 ``` xml
 <!-- display name for adapter group -->
@@ -651,11 +653,15 @@ Next, let's look at the `&lt;data_adapter_group&gt;` element:
 
 This is a string that will be used for the data adapter submenu name.
 
-<permission>read</permission> Required user permission for accessing this data adapter group. If the user does not have the required permission, it will not be available in the list of data adapters. Available permissions are `read`, `write`, and `publish`.
+``` xml
+<permission>read</permission>
+```
+
+Required user permission for accessing this data adapter group. If the user does not have the required permission, it will not be available in the list of data adapters. Available permissions are `read`, `write`, and `publish`.
 
 ### Translation tables
 
-Web Apollo has support for alternate translation tables. For your convenience, Web Apollo comes packaged with the current NCBI translation tables. They reside in the `config/translation_tables` directory in your installation (`TOMCAT_WEBAPPS_DIR/WebApollo/config/translation_tables`). They're all named `ncbi_#_translation_table.txt` where `#` represents the NCBI translation table number (for example, for ciliates, you'd use `ncbi_6_translation_table.txt`).
+Web Apollo has support for alternate translation tables. For your convenience, Web Apollo comes packaged with the current NCBI translation tables. They reside in the `config/translation_tables` directory in your installation (`src/main/webapp/config/translation_tables`). They're all named `ncbi_#_translation_table.txt` where `#` represents the NCBI translation table number (for example, for ciliates, you'd use `ncbi_6_translation_table.txt`).
 
 You can also customize your own translation table. The format is tab delimited, with each entry containing either 2 or 3 columns. The 3rd column is only used in the cases of start and stop codons. You only need to put entries for codons that differ from the standard translation table (\#1). The first column has the codon triplet and the second has the IUPAC single letter representation for the translated amino acid. The stop codon should be represented as `*` (asterisk).
 
@@ -707,15 +713,32 @@ You’ll need one `<comment>` element for each predefined comment. The element n
 <comment feature_types="sequence:transcript,sequence:mRNA">This is a comment for both a transcript or mRNA</comment>
 ```
 
-All [supported annotation types](#Supported_annotation_types "wikilink") can be used.
+All [supported annotation types](Configure.md#supported-annotation-types) can be used.
 
 ### Search tools
 
 As mentioned previously, Web Apollo makes use of tools for sequence searching rather than employing its own search algorithm. The only currently supported tool is command line Blat.
 
+### Supported annotation types
+
+Many configurations will require you to define which annotation types the configuration will apply to. WebApollo supports the following "higher level" types (from the Sequence Ontology):
+
+* sequence:gene
+* sequence:pseudogene
+* sequence:transcript
+* sequence:mRNA
+* sequence:tRNA
+* sequence:snRNA
+* sequence:snoRNA
+* sequence:ncRNA
+* sequence:rRNA
+* sequence:miRNA
+* sequence:repeat_region
+* sequence:transposable_element
+
 #### Blat
 
-You’ll need to have Blat installed and a search database with your genomic sequences available to make use of this feature. You can get documentation on the Blat command line suite of tools at [BLAT Suite Program Specifications and User Guide](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) and get information on setting up the tool in the official [BLAT FAQ](http://genome.ucsc.edu/FAQ/FAQblat.html#blat3). The configuration is stored in `TOMCAT_WEBAPPS_DIR/WebApollo/config/blat_config.xml`. Let’s take a look at the configuration file:
+You’ll need to have Blat installed and a search database with your genomic sequences available to make use of this feature. You can get documentation on the Blat command line suite of tools at [BLAT Suite Program Specifications and User Guide](http://genome.ucsc.edu/goldenPath/help/blatSpec.html) and get information on setting up the tool in the official [BLAT FAQ](http://genome.ucsc.edu/FAQ/FAQblat.html#blat3). The configuration is stored in `sample_blat_config.xml` which should be renamed to `blat_config.xml` before deployment. Let’s take a look at the configuration file:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -783,7 +806,7 @@ Whether to delete the temporary files generated for the BLAT search. Set it to `
 
 #### GFF3
 
-The GFF3 data adapter will allow exporting the current annotations as a GFF3 file. You can get more information about the GFF3 format at [The Sequence Ontology GFF3 page](http://www.sequenceontology.org/gff3.shtml). The configuration is stored in `TOMCAT_WEBAPPS_DIR/WebApollo/config/gff3_config.xml`. Let’s take a look at the configuration file:
+The GFF3 data adapter will allow exporting the current annotations as a GFF3 file. You can get more information about the GFF3 format at [The Sequence Ontology GFF3 page](http://www.sequenceontology.org/gff3.shtml). The configuration is stored in `gff3_config.xml`. Let’s take a look at the configuration file:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -856,7 +879,7 @@ This is what to put as the source (column 2) in the generated GFF3 file. You can
 </metadata_to_export>
 ```
 
-This defines which metadata to export in the GFF3 (in column 9). This configuration is optional. The default is to export everything except owner, date\_creation, and date\_last\_modified. You need to define one `&lt;metadata<&gt;` element with the appropriate `type` attribute per metadata type you want to export. Available types are:
+This defines which metadata to export in the GFF3 (in column 9). This configuration is optional. The default is to export everything except owner, date\_creation, and date\_last\_modified. You need to define one `<metadata>` element with the appropriate `type` attribute per metadata type you want to export. Available types are:
 
 -   name
 -   symbol
@@ -877,13 +900,13 @@ Defaults to true -->
 
 Determines whether to export the underlying genomic sequence as FASTA attached to the GFF3 file. Set to `false` to disable it. Defaults to `true`.
 
-Note that the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. There's a script that will traverse the directory and remove any files that are older than a provided time and cleanup directories as they become empty. It's recommended to setup this script as a `cron` job that runs hourly to remove any files older than an hour (should provide plenty of time for users to download those files). The script is in `WEB_APOLLO_DIR/tools/cleanup/remove_temporary_files.sh`.
+Note that the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. There's a script that will traverse the directory and remove any files that are older than a provided time and cleanup directories as they become empty. It's recommended to setup this script as a `cron` job that runs hourly to remove any files older than an hour (should provide plenty of time for users to download those files). The script is in `tools/cleanup/remove_temporary_files.sh`.
 
-`$ WEB_APOLLO_DIR/tools/cleanup/remove_temporary_files.sh -d TOMCAT_WEBAPPS_DIR/WebApollo/tmp -m 60`
+`$ tools/cleanup/remove_temporary_files.sh -d TOMCAT_WEBAPPS_DIR/WebApollo/tmp -m 60`
 
-#### Chado
+#### Chado configuration
 
-The Chado data adapter will allow writing the current annotations to a Chado database. You can get more information about the Chado at [GMOD Chado page](http://gmod.org/wiki/Chado). The configuration is stored in `TOMCAT_WEBAPPS_DIR/WebApollo/config/chado_config.xml`. Let’s take a look at the configuration file:
+The Chado data adapter will allow writing the current annotations to a Chado database. For more information about Chado, see  can get more information about the Chado at [GMOD Chado page](http://gmod.org/wiki/Chado). The configuration is stored in `src/main/webapp/config/chado_config.xml`. Let’s take a look at the configuration file:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -904,7 +927,11 @@ There's only one element to be configured:
 <hibernate_config>/config/hibernate.xml</hibernate_config>
 ```
 
-This points to the Hibernate configuration for accessing the Chado database. Hibernate provides an ORM (Object Relational Mapping) for relational databases. This is used to access the Chado database. The Hibernate configuration is stored in `TOMCAT_WEBAPPS_DIR/WebApollo/config/hibernate.xml`. It is quite large (as it contains a lot of mapping resources), so let's take a look at the parts of the configuration file that are of interest (near the top of the file):
+This points to the Hibernate configuration for accessing the Chado database. Hibernate provides an ORM (Object Relational Mapping) for relational databases. This is used to access the Chado database.
+
+##### Chado connection parameters
+
+The Hibernate configuration is stored in `sample_hibernate.xml` which can be renamed to `hibernate.xml` before deploying. The key configuration values are simply the database connection parameters at the top:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -936,7 +963,7 @@ The database driver for the RDBMS where the Chado database exists. It will most 
 <property name="hibernate.connection.url">ENTER_DATABASE_CONNECTION_URL</property>
 ```
 
-JDBC URL to connect to the Chado database. It will be in the form of `jdbc:$RDBMS://$SERVERNAME:$PORT/$DATABASE_NAME` where `$RDBMS` is the RDBMS used for the Chado database, `$SERVERNAME` is the server's name, `$PORT` is the database port, and `$DATABASE_NAME` is the database's name. Let's say we're connecting to a Chado database running on PostgreSQL on server `my_server`, port `5432` (PostgreSQL's default), and a database name of `my_organism`, the connection URL will look as follows: `jdbc:postgresql://my_server:5432/my_organism`.
+JDBC URL to connect to the Chado database. On localhost, it can be `jdbc:postgresql:chado_db`. On a remote machine, you can specify the servername as `jdbc:postgresql://my_server:5432/chado_db`.
 
 ``` xml
 <property name="hibernate.connection.username">ENTER_USERNAME</property>
@@ -950,20 +977,21 @@ User name used to connect to the database. This user should have write privilege
 
 Password for the provided user name.
 
-'''Important Note for first-time Export '''
+##### Important Note for Chado Export
 
 Make sure to load your chromosomes into Chado before you do an export.
 
-To do this you export your GFF file from Apollo (using the GFF3 export also detailed in this section) and [<http://gmod.org/wiki/Load_GFF_Into_Chado>| import the GFF3 file into Chado]. Example:
+To do this you should obtain a GFF3 file for your organism with FASTA sequence embedded in it and [import the GFF3 file into Chado](http://gmod.org/wiki/Load_GFF_Into_Chado). Example:
 
-``` bash
-./load/bin/gmod_bulk_load_gff3.pl --gfffile ~/Amel/Amel_4.5_scaffolds.gff --dbuser USERNAME \ 
---dbpass PASSWORD --dbname CHADO_DB --organism "Apis mellifera"
-```
+
+    gmod_fasta2gff3.pl --fasta_dir pyu_data/ --type contig --gfffile out.gff
+    gmod_bulk_load_gff3.pl --gfffile out.gff --dbuser USERNAME \
+        --dbpass PASSWORD --dbname CHADO_DB --organism "Pythium ultimum"
+
 
 #### FASTA
 
-The FASTA data adapter will allow exporting the current annotations to a FASTA file. The configuration is stored in `TOMCAT_WEBAPPS_DIR/WebApollo/config/fasta_config.xml`. Let’s take a look at the configuration file:
+The FASTA data adapter will allow exporting the current annotations to a FASTA file. The configuration is stored in `src/main/webapp/config/fasta_config.xml`. Let’s take a look at the configuration file:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1028,9 +1056,9 @@ This is the root directory where the FASTA files will be generated. The actual F
 </feature_types>
 ```
 
-This defines which annotation types should be processed when exporting the FASTA data. You'll need one `&lt;feature_type&gt;` element for each type you want to have processed. Only the defined `feature_type` elements will all be processed, so you might want to have different configuration files for processing different types of annotations (which you can point to in FASTA data adapter in the `config` element in `config.xml`). All [supported annotation types](#Supported_annotation_types "wikilink") can be used for the value of `feature_type`, with the addition of `sequence:exon`.
+This defines which annotation types should be processed when exporting the FASTA data. You'll need one `<feature_type>` element for each type you want to have processed. Only the defined `feature_type` elements will all be processed, so you might want to have different configuration files for processing different types of annotations (which you can point to in FASTA data adapter in the `config` element in `config.xml`). All [supported annotation types](Configure.md#supported-annotation-types) can be used for the value of `feature_type`, with the addition of `sequence:exon`.
 
-In `config.xml`, in the `&lt;options&gt;` element in the `&lt;data_adapter&gt;` configuration for the FASTA adapter, you'll notice that there's a `seqType` option. You can change that value to modify which type of sequence will be exported as FASTA. Available options are:
+In `config.xml`, in the `<options>` element in the `<data_adapter>` configuration for the FASTA adapter, you'll notice that there's a `seqType` option. You can change that value to modify which type of sequence will be exported as FASTA. Available options are:
 
 -   peptide
     -   Export the peptide sequence. This will only apply to protein coding transcripts and protein coding exons
@@ -1060,63 +1088,64 @@ Default does not export any metadata -->
 -->
 ```
 
-Defines which metadata to export in the defline for each feature. The default is to not output any of the listed metadata. Uncomment to turn on this option. Note that you can remove (or comment) any `&lt;metadata&gt;` elements that you're not interested in exporting.
+Defines which metadata to export in the defline for each feature. The default is to not output any of the listed metadata. Uncomment to turn on this option. Note that you can remove (or comment) any `<metadata>` elements that you're not interested in exporting.
 
-Note that like the GFF3 adapter, the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. You can use the `remove_temporary_files.sh` script to handle the cleanup. In fact, if you configure both the GFF3 and FASTA adapters to use the same temporary directory, you'll only need to worry about cleanup from a single location. See the [GFF3](#GFF3 "wikilink") section for information about `remove_temporary_files.sh`.
+Note that like the GFF3 adapter, the generated files will reside in that directory indefinitely to allow users to download them. You'll need to eventually remove those files to prevent the file system from cluttering up. You can use the `remove_temporary_files.sh` script to handle the cleanup. In fact, if you configure both the GFF3 and FASTA adapters to use the same temporary directory, you'll only need to worry about cleanup from a single location. See the [GFF3](Configure.md#gff3) section for information about `remove_temporary_files.sh`.
 
 
 
-Upgrading existing instances
-----------------------------
+### Upgrading existing instances
 
 We suggest creating a new instance to prevent disruption to existing instances and to have a staging site before making the upgrade public. Since the local storage is file based, you can just copy the BerkeleyDB databases to another directory and have the new instance point to it:
 
-`$ `<span class="enter">`cp -R WEB_APOLLO_DATA_DIR WEB_APOLLO_DATA_DIR_STAGING`</span>
+    $ cp -R WEBAPOLLO_DATA_DIR temp
 
 Create a staging instance in your `TOMCAT_WEBAPPS_DIR`:
 
-`$ `<span class="enter">`cd TOMCAT_WEBAPPS_DIR`<span>
-`$ `<span class="enter">`mkdir WebApolloStaging`</span>
+    $ cd TOMCAT_WEBAPPS_DIR
+    $ mkdir WebApolloStaging
 
-Unpack the WAR in the WebApoloStaging and point `&lt;datastore_directory&gt;` in `TOMCAT_WEBAPPS_DIR/WebApolloStaging/config.xml` file to wherever `WEB_APOLLO_DATA_DIR_STAGING` is. Afterwards, just setup the configuration as normal.
+Unpack the WAR in the WebApoloStaging and point `<datastore_directory>` in `TOMCAT_WEBAPPS_DIR/WebApolloStaging/config.xml` file to wherever `WEBAPOLLO_DATA_DIR_STAGING` is. Afterwards, just setup the configuration as normal.
 
 To use the existing static data, we can just copy the data symlink (or directory if you chose not to use a symlink):
 
-`$ `<span class="enter">`cp -R WebApollo/jbrowse/data WebApolloStaging/jbrowse/data`
+    $ cp -R WebApollo/jbrowse/data WebApolloStaging/jbrowse/data`
 
 You can also copy over any custom CSS modifications you may have made to the staging site.
 
 Once you've had a chance to test out the upgrade and make sure everything's working fine, just delete (or move it somewhere else for backup purposes) and rename the staging site:
 
-`$ `<span class="enter">`rm -rf WebApollo`</span>
-`$ `<span class="enter">`mv WebApolloStaging WebApollo`</span>
+    $ rm -rf WebApollo
+    $ mv WebApolloStaging WebApollo
 
-You might also want to update `&lt;datastore_directory&gt;` back to `WEB_APOLLO_DATA_DIR` and delete `WEB_APOLLO_DATA_DIR_STAGING` so that you can continue to keep the data in the same location. It's also recommended that you restart Tomcat after this.
+You might also want to update `<datastore_directory>` back to `WEBAPOLLO_DATA_DIR` and delete `WEBAPOLLO_DATA_DIR_STAGING` so that you can continue to keep the data in the same location. It's also recommended that you restart Tomcat after this.
 
 #### Upgrading existing JBrowse data stores
 
-You'll need to upgrade the `trackList.json` file in your JBROWSE\_DATA\_DIR directory. The WebApollo plugin needs to be reconfigured, so run through the steps in the [Adding the WebApollo plugin](#Adding_the_WebApollo_plugin "wikilink") section.
+You'll need to upgrade the `trackList.json` file in your JBROWSE\_DATA\_DIR directory. The WebApollo plugin needs to be reconfigured, so run through the steps in the [Adding the WebApollo plugin](Data_loading.md#adding-the-webapollo-plugin) section.
 
 #### Upgrading existing annotation data stores
 
 ##### Transcript type updating
 
+Upgrading annotations from the 2014-04-03 to WebApollo 1.0.2 is fully backwards compatible.
+
 Releases 2013-09-04 and prior only supported annotating protein coding genes. WebApollo now supports annotating other feature types. If you're running WebApollo on annotation data generated from the 2013-09-04 and prior releases, you might want to run a tool that will update all protein coding transcripts from type "sequence:transcript" to "sequence:mRNA". Although this step is not required (WebApollo has proper backwards support for the generic "sequence:transcript" type, we recommend updating your data.
 
 Although issues with the update are not expected, it's highly recommended to backup the databases before the update (you can delete them once you've tested the update and made sure that everything's ok).
 
-`$ `<span class="enter">`cp -R WEB_APOLLO_DATA_DIR WEB_APOLLO_DATA_DIR.bak`</span>
+    $ cp -R WEBAPOLLO_DATA_DIR WEBAPOLLO_DATA_DIR.bak
 
 Note that before you run the update, you'll need to stop WebApollo (either by shutting down Tomcat or stopping WebApollo through Tomcat's Application Manager).
 
 You'll need to run `update_transcript_to_mrna.sh`, located in WEB\_APOLLO\_DIR/tools/data. You'll only need to run this tool when first upgrading your WebApollo version. You can either choose to run the tool on individual annotation data stores (using the `-i` option) or more conveniently run through all the data stores that are within a parent directory (using the `-d` option). We'll go ahead with the later. You can choose to update either the annotation data store or the history data store (using the `-H` option). You'll need to tell the tool where you deployed WebApollo (using the `-w` option).
 
-`$ `<span class="enter">`WEB_APOLLO_DIR/tools/data/update_transcripts_to_mrna.sh -w TOMCAT_WEBAPPS_DIR/WebApollo -d WEB_APOLLO_DATA_DIR`</span>
-`$ `<span class="enter">`WEB_APOLLO_DIR/tools/data/update_transcripts_to_mrna.sh -w TOMCAT_WEBAPPS_DIR/WebApollo -d WEB_APOLLO_DATA_DIR -H`</span>
+    $ tools/data/update_transcripts_to_mrna.sh -w TOMCAT_WEBAPPS_DIR/WebApollo -d $WEBAPOLLO_DATA_DIR
+    $ tools/data/update_transcripts_to_mrna.sh -w TOMCAT_WEBAPPS_DIR/WebApollo -d $WEBAPOLLO_DATA_DIR -H
 
 Restart WebApollo and test out that the update didn't break anything. Once you're satisfied, you can go ahead and remove the backup we made:
 
-`$ `<span class="enter">`rm -rf WEB_APOLLO_DATA_DIR.bak`</span>
+    $ rm -rf WEBAPOLLO_DATA_DIR.bak
 
 ##### Sequence alterations updating
 
@@ -1124,7 +1153,7 @@ We've modified how sequence alterations are indexed compared to releases 2013-09
 
 Although issues with the update are not expected, it's highly recommended to backup the databases before the update (you can delete them once you've tested the update and made sure that everything's ok).
 
-`$ `<span class="enter">`cp -R WEB_APOLLO_DATA_DIR WEB_APOLLO_DATA_DIR.bak`</span>
+    $ cp -R WEBAPOLLO_DATA_DIR WEBAPOLLO_DATA_DIR.bak
 
 Note that before you run the update, you'll need to stop WebApollo (either by shutting down Tomcat or stopping WebApollo through Tomcat's Application Manager).
 
@@ -1132,14 +1161,14 @@ You'll need to run `update_sequence_alterations.sh`. You can get the tarball [he
 
 Uncompress the tarball:
 
-`$ `<span class="enter">`tar -xvzf update_sequence_alterations.tgz`</span>
-`$ `<span class="enter">`cd update_sequence_alterations`</span>
+    $ tar -xvzf update_sequence_alterations.tgz
+    $ cd update_sequence_alterations
 
 You'll only need to run this tool when first upgrading your WebApollo version. You can either choose to run the tool on individual annotation data stores (using the `-i` option) or more conveniently run through all the data stores that are within a parent directory (using the `-d` option). We'll go ahead with the later. You'll need to tell the tool where you deployed WebApollo (using the `-w` option).
 
-`$ `<span class="enter">`./update_sequence_alterations.sh -w TOMCAT_WEBAPPS_DIR/WebApollo -d WEB_APOLLO_DATA_DIR`</span>
+    $ ./update_sequence_alterations.sh -w TOMCAT_WEBAPPS_DIR/WebApollo -d WEBAPOLLO_DATA_DIR
 
 Restart WebApollo and test out that the update didn't break anything. Once you're satisfied, you can go ahead and remove the backup we made:
 
-`$ `<span class="enter">`rm -rf WEB_APOLLO_DATA_DIR.bak`</span>
+    $ rm -rf WEBAPOLLO_DATA_DIR.bak
 
