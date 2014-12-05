@@ -1,11 +1,9 @@
-package org.bbop.apollo.client;
+package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import org.bbop.apollo.shared.FieldVerifier;
+import org.bbop.apollo.gwt.shared.FieldVerifier;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.

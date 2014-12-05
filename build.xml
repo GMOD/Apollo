@@ -7,7 +7,7 @@
   <property name="gwt.sdk" location="gwt-sdk" />
 
   <path id="project.class.path">
-    <pathelement location="target/classes"/>
+    <pathelement location="target/classes/gwt"/>
     <pathelement location="lib/gwt"/>
     <pathelement location="${gwt.sdk}/gwt-user.jar"/>
     <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
@@ -26,9 +26,9 @@
 
   <target name="javac" description="Compile java source to bytecode">
     <!--<mkdir dir="war/WEB-INF/classes"/>-->
-    <mkdir dir="target/classes"/>
+    <mkdir dir="target/classes/gwt"/>
     <javac srcdir="src/gwt" includes="**" encoding="utf-8"
-        destdir="target/classes"
+        destdir="target/classes/gwt"
         source="1.7" target="1.7" nowarn="true"
         debug="true" debuglevel="lines,vars,source">
       <classpath refid="project.class.path"/>
@@ -41,14 +41,14 @@
   <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="256m">
       <classpath>
-        <pathelement location="src"/>
+        <pathelement location="src/gwt"/>
         <path refid="project.class.path"/>
       </classpath>
       <arg line="-war"/>
-      <arg value="war"/>
+      <arg value="web-app"/>
       <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
       <arg line="${gwt.args}"/>
-      <arg value="org.bbop.apollo.Annotator"/>
+      <arg value="org.bbop.apollo.gwt.Annotator"/>
     </java>
   </target>
 

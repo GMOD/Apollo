@@ -1,4 +1,4 @@
-package org.bbop.apollo.shared;
+package org.bbop.apollo.gwt.shared;
 
 /**
  * <p>

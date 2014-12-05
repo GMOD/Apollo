@@ -11,7 +11,7 @@
   <!--                                                               -->
   <!-- Consider inlining CSS to reduce the number of requested files -->
   <!--                                                               -->
-  <link type="text/css" rel="stylesheet" href="/css/Annotator.css">
+  <link type="text/css" rel="stylesheet" href="/apollo/css/Annotator.css">
 
   <!--                                           -->
   <!-- Any title is fine                         -->
@@ -23,7 +23,7 @@
   <!-- If you add any GWT meta tags, they must   -->
   <!-- be added before this line.                -->
   <!--                                           -->
-  <script type="text/javascript" language="javascript" src="annotator/annotator.nocache.js"></script>
+  <script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>
 </head>
 
 <!--                                           -->
