@@ -112,12 +112,12 @@ grails.project.dependency.resolution = {
 
 
 //        runtime ":resources:1.2.1"
-        runtime ":resources:1.2.13"
-        build ":extended-dependency-manager:0.5.5"
+//        runtime ":resources:1.2.13"
+//        build ":extended-dependency-manager:0.5.5"
 
-        compile ":gwt:1.0" , {
-            transitive=true
-        }
+//        compile ":gwt:1.0" , {
+//            transitive=true
+//        }
 
 //        compile ":crypto:2.0"
 
@@ -131,14 +131,14 @@ grails.project.dependency.resolution = {
     }
 }
 
-gwt.compile.args = {
-    arg(value: '-strict')
-    arg(value: '-XjsInteropMode')
-    arg(value: 'JS')
-}
-
-gwt {
-    version="2.7.0"
-    gin.version = '2.1.2'
-}
+//gwt.compile.args = {
+//    arg(value: '-strict')
+//    arg(value: '-XjsInteropMode')
+//    arg(value: 'JS')
+//}
+//
+//gwt {
+//    version="2.7.0"
+//    gin.version = '2.1.2'
+//}
 
