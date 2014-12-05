@@ -2,6 +2,8 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.shared.FieldVerifier;
 
@@ -100,13 +102,39 @@ public class Annotator implements EntryPoint {
         // Then, we send the input to the server.
         sendButton.setEnabled(false);
         textToServerLabel.setText(textToServer);
-        serverResponseLabel.setText("");
+        serverResponseLabel.setText("asdfasd");
       }
     }
 
     // Add a handler to send the name to the server
-    MyHandler handler = new MyHandler();
-    sendButton.addClickHandler(handler);
-    nameField.addKeyUpHandler(handler);
+//    MyHandler handler = new MyHandler();
+    sendButton.addClickHandler(new ClickHandler() {
+      @Override
+      public void onClick(ClickEvent event) {
+//        RequestBuilder requestBuilder  = new RequestBuilder();
+        String url = "http://localhost:8080/apollo/annotator/what";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        RequestCallback requestCallback = new RequestCallback() {
+          @Override
+          public void onResponseReceived(Request request, Response response) {
+            Window.alert("success: ["+response.getText()+"]");
+          }
+
+          @Override
+          public void onError(Request request, Throwable exception) {
+            Window.alert("ow");
+          }
+        };
+        try {
+          builder.setCallback(requestCallback);
+          builder.send();
+        } catch (RequestException e) {
+          // Couldn't connect to server
+          Window.alert(e.getMessage());
+        }
+
+      }
+    });
+//    nameField.addKeyUpHandler(handler);
   }
 }
