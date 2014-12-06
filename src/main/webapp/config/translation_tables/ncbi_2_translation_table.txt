@@ -2,6 +2,3 @@ AGA	*
 AGG	*
 ATA	M start
 TGA	W
-ATT	I	start
-ATC	I	start
-GTG	V	start
