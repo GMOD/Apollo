@@ -3,6 +3,9 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.shared.FieldVerifier;
@@ -27,6 +30,7 @@ public class Annotator implements EntryPoint {
     final TextBox nameField = new TextBox();
     nameField.setText("Jerry the GWT User");
     final Label errorLabel = new Label();
+    final Label feedbackLabel = new Label("pre-response");
 
     // We can add style names to widgets
     sendButton.addStyleName("sendButton");
@@ -36,6 +40,7 @@ public class Annotator implements EntryPoint {
     RootPanel.get("nameFieldContainer").add(nameField);
     RootPanel.get("sendButtonContainer").add(sendButton);
     RootPanel.get("errorLabelContainer").add(errorLabel);
+    RootPanel.get("feedbackLabelContainer").add(feedbackLabel);
 
     // Focus the cursor on the name field when the app loads
     nameField.setFocus(true);
@@ -69,42 +74,6 @@ public class Annotator implements EntryPoint {
       }
     });
 
-    // Create a handler for the sendButton and nameField
-    class MyHandler implements ClickHandler, KeyUpHandler {
-      /**
-       * Fired when the user clicks on the sendButton.
-       */
-      public void onClick(ClickEvent event) {
-        sendNameToServer();
-      }
-
-      /**
-       * Fired when the user types in the nameField.
-       */
-      public void onKeyUp(KeyUpEvent event) {
-        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-          sendNameToServer();
-        }
-      }
-
-      /**
-       * Send the name from the nameField to the server and wait for a response.
-       */
-      private void sendNameToServer() {
-        // First, we validate the input.
-        errorLabel.setText("");
-        String textToServer = nameField.getText();
-        if (!FieldVerifier.isValidName(textToServer)) {
-          errorLabel.setText("Please enter at least four characters");
-          return;
-        }
-        
-        // Then, we send the input to the server.
-        sendButton.setEnabled(false);
-        textToServerLabel.setText(textToServer);
-        serverResponseLabel.setText("asdfasd");
-      }
-    }
 
     // Add a handler to send the name to the server
 //    MyHandler handler = new MyHandler();
@@ -113,11 +82,19 @@ public class Annotator implements EntryPoint {
       public void onClick(ClickEvent event) {
 //        RequestBuilder requestBuilder  = new RequestBuilder();
         String url = "http://localhost:8080/apollo/annotator/what";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("data", new JSONString("asdasdf"));
+        jsonObject.put("thekey", new JSONString("asdasdf"));
+        builder.setRequestData("data="+jsonObject.toString());
+//        builder.setHeader("Content-Type", "application/json");
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+//        builder.setHeader("Accept","application/json");
+//        builder.setHeader("Accept","/json");
         RequestCallback requestCallback = new RequestCallback() {
           @Override
           public void onResponseReceived(Request request, Response response) {
-            Window.alert("success: ["+response.getText()+"]");
+            feedbackLabel.setText("success: ["+response.getText()+"]");
           }
 
           @Override

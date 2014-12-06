@@ -1,0 +1,49 @@
+/* Styles go here */
+/**
+*= require ui-layout.css
+*= require bootstrap.min.css
+*/
+/**= // require themes/ui-lightness/jquery-ui-1.10.3.custom*/
+
+
+.html-back{
+    background : #eee url("http://placehold.it/400x300/eee/666&text=HTML") no-repeat center;
+
+}
+.css-back{
+    background : #eee url("http://placehold.it/400x300/eee/666&text=CSS") no-repeat center;
+
+}
+.js-back{
+    background : #eee url("http://placehold.it/400x300/eee/666&text=JS") no-repeat center;
+}
+.left-cell{
+    /*padding-top: 10px;*/
+    margin-top: 20px;
+}
+
+.wrap {
+    width: 100%;
+    height: 100%;
+    border: 1px brown solid;
+    font-size: 0;
+}
+.resizable {
+    width: 50%;
+    height: 100%;
+    /*height: 120px;*/
+    padding: 0.5em;
+    /*background-color: coral;*/
+    display: inline-block;
+}
+.resizable2 {
+    background-color: lightblue;
+}
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 16px;
+    right: -5px;
+    top: 0;
+    bottom: 0;
+    background-color: gray;
+}

@@ -1,17 +1,16 @@
-<!doctype html>
 <!-- The DOCTYPE declaration above will set the     -->
 <!-- browser's rendering engine into                -->
 <!-- "Standards Mode". Replacing this declaration   -->
 <!-- with a "Quirks Mode" doctype is not supported. -->
 
+<%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    %{--<meta name="layout" content="main"/>--}%
+    <title>Annotator</title>
 
-  <!--                                                               -->
-  <!-- Consider inlining CSS to reduce the number of requested files -->
-  <!--                                                               -->
-  <link type="text/css" rel="stylesheet" href="/apollo/css/Annotator.css">
+    <asset:javascript src="annotator/controllers/Annotator.js"/>
+    <asset:stylesheet src="annotator.css"/>
 
   <!--                                           -->
   <!-- Any title is fine                         -->
@@ -52,7 +51,8 @@
     <td id="sendButtonContainer"></td>
   </tr>
   <tr>
-    <td colspan="2" style="color:red;" id="errorLabelContainer"></td>
+    <td id="feedbackLabelContainer"></td>
+    <td colspan="1" style="color:red;" id="errorLabelContainer"></td>
   </tr>
 </table>
 </body>
