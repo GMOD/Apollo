@@ -1,7 +1,6 @@
 AGA	G
 AGG	G
-ATA	M
+ATA	M start
 TGA	W
 TTG	L	start
-ATA	M	start
 GTG	V	start
