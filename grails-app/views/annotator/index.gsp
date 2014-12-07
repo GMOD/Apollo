@@ -40,20 +40,20 @@
   </div>
 </noscript>
 
-<h1>Web Application Starter Project</h1>
+%{--<h1>Web Application Starter Project</h1>--}%
 
-<table align="center">
-  <tr>
-    <td colspan="2" style="font-weight:bold;">Please enter your name:</td>
-  </tr>
-  <tr>
-    <td id="nameFieldContainer"></td>
-    <td id="sendButtonContainer"></td>
-  </tr>
-  <tr>
-    <td id="feedbackLabelContainer"></td>
-    <td colspan="1" style="color:red;" id="errorLabelContainer"></td>
-  </tr>
-</table>
+%{--<table align="center">--}%
+  %{--<tr>--}%
+    %{--<td colspan="2" style="font-weight:bold;">Please enter your name:</td>--}%
+  %{--</tr>--}%
+  %{--<tr>--}%
+    %{--<td id="nameFieldContainer"></td>--}%
+    %{--<td id="sendButtonContainer"></td>--}%
+  %{--</tr>--}%
+  %{--<tr>--}%
+    %{--<td id="feedbackLabelContainer"></td>--}%
+    %{--<td colspan="1" style="color:red;" id="errorLabelContainer"></td>--}%
+  %{--</tr>--}%
+%{--</table>--}%
 </body>
 </html>

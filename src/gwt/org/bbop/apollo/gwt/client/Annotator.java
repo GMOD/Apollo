@@ -28,8 +28,8 @@ public class Annotator implements EntryPoint {
   public void onModuleLoad() {
     final Button sendButton = new Button("Send");
     final Button doJsButton = new Button("Do JS");
-    final TextBox nameField = new TextBox();
-    nameField.setText("Jerry the GWT User");
+//    final TextBox nameField = new TextBox();
+//    nameField.setText("Jerry the GWT User");
     final Label errorLabel = new Label();
     final Label feedbackLabel = new Label("pre-response");
 
@@ -43,23 +43,54 @@ public class Annotator implements EntryPoint {
 //    RootPanel.get("errorLabelContainer").add(errorLabel);
 //    RootPanel.get("feedbackLabelContainer").add(feedbackLabel);
 
-    VerticalPanel oldPanel = new VerticalPanel();
-    oldPanel.add(nameField);
-    oldPanel.add(sendButton);
-    oldPanel.add(doJsButton);
-    oldPanel.add(errorLabel);
-    oldPanel.add(feedbackLabel);
+//    VerticalPanel oldPanel = new VerticalPanel();
+////    oldPanel.add(nameField);
+//    oldPanel.add(sendButton);
+//    oldPanel.add(doJsButton);
+//    oldPanel.add(errorLabel);
+//    oldPanel.add(feedbackLabel);
 
     Frame frame = new Frame("http://localhost:8080/apollo/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
     frame.setHeight("100%");
     frame.setWidth("100%");
 
 
+    SplitLayoutPanel navigationPanel = new SplitLayoutPanel();
+    StackPanel stackPanel = new StackPanel();
+    stackPanel.setStackText(0,"Search");
+    stackPanel.setWidth("100%");
+
+    final TextBox nameField = new TextBox();
+    stackPanel.add(new HTML("Search"));
+    stackPanel.add(nameField);
+
+
+    Tree tree = new Tree();
+    TreeItem pax6a = new TreeItem();
+    pax6a.setText("pax6a");
+    pax6a.addTextItem("pax6a-001");
+    pax6a.addTextItem("pax6a-002");
+    pax6a.addTextItem("pax6a-004");
+    tree.addItem(pax6a);
+
+    TreeItem sox9b = new TreeItem();
+    sox9b.setText("sox9b");
+    sox9b.addTextItem("sox9b-001");
+    sox9b.addTextItem("sox9b-002");
+    sox9b.addTextItem("sox9b-004");
+    tree.addItem(sox9b);
+
+    navigationPanel.addNorth(stackPanel, 100);
+    navigationPanel.add(tree);
+
+
+    VerticalPanel detailPanel = new VerticalPanel();
+    detailPanel.add(new HTML("12 Genes, 8 Transcripts"));
 
     SplitLayoutPanel p = new SplitLayoutPanel();
-    p.addWest(new HTML("navigation"), 128);
-    p.addNorth(oldPanel, 384);
-    p.add(frame);
+    p.addWest(navigationPanel, 300);
+    p.addNorth(frame, 600);
+    p.add(detailPanel);
     RootLayoutPanel rp = RootLayoutPanel.get();
     rp.add(p);
 
