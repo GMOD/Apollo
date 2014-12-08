@@ -29,7 +29,6 @@ public class Annotator implements EntryPoint {
 
         SplitLayoutPanel navigationPanel = new SplitLayoutPanel();
 
-        StackLayoutPanel stackPanel = new StackLayoutPanel(Style.Unit.EM);
 
         nameField.setWidth("100%");
         nameField.setEnabled(true);
@@ -37,10 +36,19 @@ public class Annotator implements EntryPoint {
         searchPanel.add(searchButton);
         searchPanel.add(nameField);
 
-        stackPanel.add(searchPanel, new HTML("Search"), 4);
+//        StackLayoutPanel filterPanel = new StackLayoutPanel(Style.Unit.EM);
+//        filterPanel.add(searchPanel, new HTML("Search"), 4);
+//        filterPanel.add(new HTML("that"), new HTML("[that]"), 4);
+//        filterPanel.add(new HTML("the other"), new HTML("[the other]"), 4);
 
-        stackPanel.add(new HTML("that"), new HTML("[that]"), 4);
-        stackPanel.add(new HTML("the other"), new HTML("[the other]"), 4);
+        TabPanel filterPanel = new TabPanel();
+        filterPanel.setWidth("100%");
+        filterPanel.add(searchPanel,"Search");
+        filterPanel.add(new HTML("Browse Form"),"Browse");
+        filterPanel.add(new HTML("Flag"), "Check");
+        filterPanel.selectTab(0);
+
+
 
         Tree tree = new Tree();
         TreeItem pax6a = new TreeItem();
@@ -57,7 +65,7 @@ public class Annotator implements EntryPoint {
         sox9b.addTextItem("sox9b-004");
         tree.addItem(sox9b);
 
-        navigationPanel.addNorth(stackPanel, 200);
+        navigationPanel.addNorth(filterPanel, 200);
         navigationPanel.add(tree);
 
 
