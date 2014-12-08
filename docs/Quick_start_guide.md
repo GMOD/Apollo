@@ -42,11 +42,11 @@ You can download the latest Web Apollo release from [github](https://github.com/
 Then get some system pre-requisites. These commands will try to get everything in one bang for several system types.
 
     # install system prerequisites (debian/ubuntu)
-    sudo apt-get install openjdk-7-jdk libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7
+    sudo apt-get install openjdk-7-jdk libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7 git
     # install system prerequisites (centOS/redhat)
-    sudo yum install postgresql postgresql-devel maven expat-devel tomcat
+    sudo yum install postgresql postgresql-devel maven expat-devel tomcat git
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
-    brew install maven postgresql wget tomcat
+    brew install maven postgresql wget tomcat git
 
 #### Kickstart postgres (not needed for ubuntu)
 
