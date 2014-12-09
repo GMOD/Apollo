@@ -16,6 +16,13 @@ To use this setting, edit the setenv.sh script in
 `$TOMCAT_BIN_DIR/setenv.sh` where `$TOMCAT_BIN_DIR` is where the
 directory where the Tomcat binaries reside.
 
+### Tomcat permissions
+
+When deploying your war file to tomcat or another web application server, you may run into permissions problems in your annotations directory or your web application directory.   Tomcat on many production systems will typically belong to a user and group called something like 'tomcat'.    Make sure that that user can read in the tomcat "webapps" directory (where you placed your war file) and write into the annotations and any other relevant directory (e.g. tomcat/logs).   As such, it is sometimes helpful to add the user you logged-in as to the same group as your tomcat user and set group write permissions for both. 
+
+http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
+
+
 ### No refseqs when opening up selectTrack.jsp
 
 
