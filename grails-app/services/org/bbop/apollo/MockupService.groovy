@@ -60,7 +60,13 @@ class MockupService {
     def addOrganisms() {
         if (Organism.count > 0) return
 
-        Organism organism = new Organism(abbreviation: "ZF",commonName: "Zebrafish", genus: "Danio",species: "rerio").save(failOnError: true)
+        new Organism(abbreviation: "ZF",commonName: "Zebrafish", genus: "Danio",species: "rerio").save(failOnError: true)
+        new Organism(abbreviation: "PIPE",commonName: "Alligator Pipefish", genus: "Syngnathoides",species: "biaculeatus").save(failOnError: true)
+        new Organism(abbreviation: "BloodSD",commonName: "Bloody Stickleback", genus: "Apeltes",species: "quadracus").save(failOnError: true)
+        new Organism(abbreviation: "BrookSD",commonName: "Brook Stickleback", genus: "Culaea",species: "inconstans").save(failOnError: true)
+        new Organism(abbreviation: "3SD",commonName: "Three-spined Stickleback", genus: "Gasterosteus",species: "aculeatus").save(failOnError: true)
+        new Organism(abbreviation: "ASD",commonName: "Amur Stickleback", genus: "Pungitius",species: "sinensis").save(failOnError: true)
+        new Organism(abbreviation: "SPINSB",commonName: "Spinach Stickleback", genus: "Spinachia",species: "spinachia").save(failOnError: true)
 //        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organism: organism
 ////                , sequenceCV: "sequence", sequenceType: "mRNA"
 //                , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"

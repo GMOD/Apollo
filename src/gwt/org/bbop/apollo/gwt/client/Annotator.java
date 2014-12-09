@@ -1,7 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
@@ -43,11 +42,10 @@ public class Annotator implements EntryPoint {
 
         TabPanel filterPanel = new TabPanel();
         filterPanel.setWidth("100%");
-        filterPanel.add(searchPanel,"Search");
-        filterPanel.add(new HTML("Browse Form"),"Browse");
+        filterPanel.add(searchPanel, "Search");
+        filterPanel.add(new HTML("Browse Form"), "Browse");
         filterPanel.add(new HTML("Flag"), "Check");
         filterPanel.selectTab(0);
-
 
 
         Tree tree = new Tree();
@@ -104,9 +102,9 @@ public class Annotator implements EntryPoint {
 
                         // TODO: use proper array parsing
                         String resultString = jsonObject.get("result").isString().stringValue();
-                        resultString = resultString.replace("[","");
-                        resultString = resultString.replace("]","");
-                        searchResult.setText("search for " + queryString + " yields [" + resultString + "]");
+                        resultString = resultString.replace("[", "");
+                        resultString = resultString.replace("]", "");
+                        searchResult.setText(" asdflkj asdflkjdas fsearch for " + queryString + " yields [" + resultString + "]");
                     }
 
                     @Override

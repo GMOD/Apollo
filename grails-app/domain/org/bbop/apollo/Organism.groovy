@@ -7,6 +7,7 @@ class Organism {
     static constraints = {
         directory nullable: true
         comment nullable: true
+
     }
 
 //     Integer organismId;
