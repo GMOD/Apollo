@@ -42,6 +42,7 @@ return declare( JBPlugin,
         var thisB = this;
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
+        this.showTrackLabel = true ;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -470,16 +471,26 @@ return declare( JBPlugin,
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: true,
+                checked: this.showTrackLabel,
                 onClick: function(event) {
                     if(hide_track_label_toggle.checked){
                         $('.track-label').show();
+                        this.showTrackLabel = true ;
                     }
                     else{
                         $('.track-label').hide();
+                        this.showTrackLabel = false ;
                     }
                 }
             });
+
+        if(this.showTrackLabel){
+            $('.track-label').show();
+        }
+        else{
+            $('.track-label').hide();
+        }
+
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
