@@ -10,4 +10,5 @@
 *= require main
 *= require mobile
 *= require_self
+*= require bootstrap
 */

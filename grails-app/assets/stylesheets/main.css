@@ -51,6 +51,10 @@ body {
 	background-color: #abbf78;
 }
 
+#apolloLogo {
+	background-color: #d3d3d3;
+}
+
 /* replace with .no-boxshadow body if you have modernizr available */
 .ie6 body,
 .ie7 body,
@@ -65,7 +69,18 @@ body {
 }
 
 a:link, a:visited, a:hover {
-	color: #48802c;
+	/*color: #48802c;*/
+	color: #0000ff;
+}
+
+a:link, a:visited, a:hover {
+	/*color: #48802c;*/
+	color: lightblue;
+}
+
+a:link, a:visited, a:hover {
+	/*color: #48802c;*/
+	color: #800080;
 }
 
 a:hover, a:active {
@@ -108,7 +123,7 @@ img {
 }
 
 .footer {
-	background: #abbf78;
+	background: #d3d3d3;
 	color: #000;
 	clear: both;
 	font-size: 0.8em;

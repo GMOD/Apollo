@@ -100,6 +100,7 @@ grails.project.dependency.resolution = {
 
 
 
+
         // Uncomment these to enable additional asset-pipeline capabilities
         //compile ":sass-asset-pipeline:1.9.0"
         //compile ":less-asset-pipeline:1.10.0"
@@ -109,6 +110,7 @@ grails.project.dependency.resolution = {
         compile ":spring-websocket:1.1.0"
         compile ":shiro:1.2.1"
 
+        runtime ':twitter-bootstrap:3.3.1'
 
 //        compile ":vaadin:7.3.5"
 
