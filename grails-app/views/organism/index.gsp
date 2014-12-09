@@ -1,6 +1,6 @@
 <%@ page import="org.bbop.apollo.Organism" %>
 <!DOCTYPE html>
-<html ng-app="OrganismApp">
+<html>
 <head>
     <meta name="layout" content="main">
     <g:set var="entityName" value="${message(code: 'organism.label', default: 'Organism')}"/>
@@ -23,7 +23,8 @@
     </ul>
 </div>
 
-<div id="list-organism" class="content scaffold-list" role="main" ng-controller="OrganismController">
+<div id="list-organism" class="content scaffold-list" role="main" ng-app="OrganismApp" ng-controller="OrganismController">
+
     <h1><g:message code="default.list.label" args="[entityName]"/></h1>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
@@ -72,7 +73,7 @@
                 </td>
 
                 <td>
-                    {{3+2}}
+                    {{getRandomSpan()}}
                 </td>
 
                 <td>
@@ -99,9 +100,15 @@
 
     //    angular.module('myModule', ['ui.bootstrap']);
 
-    var as = angular.module('OrganismApp', ['ui.bootstrap']);
+    var as = angular.module('OrganismApp', []);
 
     as.controller('OrganismController', function ($scope, $rootScope, $http, $location) {
+
+        // TODO: make a rest request instead for the # of features
+        $scope.getRandomSpan = function(){
+//            return Math.floor((Math.random()*1000)+1);
+            return  42
+        };
     });
 
 </script>
