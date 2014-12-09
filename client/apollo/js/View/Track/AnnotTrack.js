@@ -4460,7 +4460,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["make_intron"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Flip strand",
+                label: "Move to opposte strand",
                 onClick: function(event) {
                     thisObj.flipStrand();
                 }
