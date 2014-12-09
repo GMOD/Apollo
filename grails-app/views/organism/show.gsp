@@ -120,7 +120,8 @@
                         <span class="property-value" aria-labelledby="sequences-label">
                             <g:link controller="sequence" action="show" id="${s.id}">${s?.name}</g:link>
                             %{--<g:link controller="jbrowse" action="show" id="${s.id}">${s?.name}</g:link>--}%
-                            <g:link uri="/jbrowse/?loc=Group1.1%3A20023..30023&tracks=${s?.name.replaceAll(" ", "%20")}&highlight=">Browse</g:link>
+                            %{--<g:link uri="/jbrowse/?loc=Group1.1%3A20023..30023&tracks=${s?.name.replaceAll(" ", "%20")}&highlight=">Annotate</g:link>--}%
+                            <g:link controller="annotator">Annotate</g:link>
 
                         </span>
                     </g:each>

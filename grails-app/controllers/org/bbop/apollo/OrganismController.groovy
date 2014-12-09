@@ -15,6 +15,10 @@ class OrganismController {
         respond Organism.list(params), model:[organismInstanceCount: Organism.count()]
     }
 
+    def featureCountForOrganism(Organism organism){
+
+    }
+
     def show(Organism organismInstance) {
         respond organismInstance
     }

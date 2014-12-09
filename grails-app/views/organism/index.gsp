@@ -1,10 +1,14 @@
 <%@ page import="org.bbop.apollo.Organism" %>
 <!DOCTYPE html>
-<html>
+<html ng-app="OrganismApp">
 <head>
     <meta name="layout" content="main">
     <g:set var="entityName" value="${message(code: 'organism.label', default: 'Organism')}"/>
     <title><g:message code="default.list.label" args="[entityName]"/></title>
+
+    <asset:javascript src="grails-angularjs.js"/>
+    <asset:stylesheet src="grails-angularjs.css"/>
+
 </head>
 
 <body>
@@ -19,7 +23,7 @@
     </ul>
 </div>
 
-<div id="list-organism" class="content scaffold-list" role="main">
+<div id="list-organism" class="content scaffold-list" role="main" ng-controller="OrganismController">
     <h1><g:message code="default.list.label" args="[entityName]"/></h1>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
@@ -35,6 +39,7 @@
             <g:sortableColumn property="genus" title="${message(code: 'organism.genus.label', default: 'Genus')}"/>
 
             <th># Sequences</th>
+            <th># Annotations</th>
             <th>Action</th>
 
             %{--<g:sortableColumn property="abbreviation" title="${message(code: 'organism.abbreviation.label', default: 'Abbreviation')}" />--}%
@@ -65,9 +70,17 @@
                 <td>
                     ${organismInstance.sequences?.size()}
                 </td>
+
+                <td>
+                    {{3+2}}
+                </td>
+
                 <td>
                     <g:link action="show" id="${organismInstance.id}">Details</g:link>
-                    <g:link url="/jbrowse">Browse</g:link>
+                    %{--&nbsp;--}%
+                    &bull;
+                    %{--&nbsp;--}%
+                    <g:link controller="annotator">Annotate</g:link>
                 </td>
 
                 %{--<td>${fieldValue(bean: organismInstance, field: "species")}</td>--}%
@@ -81,5 +94,17 @@
         <g:paginate total="${organismInstanceCount ?: 0}"/>
     </div>
 </div>
+
+<script type="text/javascript">
+
+    //    angular.module('myModule', ['ui.bootstrap']);
+
+    var as = angular.module('OrganismApp', ['ui.bootstrap']);
+
+    as.controller('OrganismController', function ($scope, $rootScope, $http, $location) {
+    });
+
+</script>
+
 </body>
 </html>
