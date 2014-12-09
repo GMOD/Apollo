@@ -6,6 +6,7 @@ package org.bbop.apollo
  */
 class Gene extends BiologicalRegion{
 
+
     static constraints = {
     }
 

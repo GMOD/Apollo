@@ -14,6 +14,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 @GrailsCompileStatic
 class AnnotationChangeNotificationServiceController {
 
+    static navigationScope = 'admin'
+
     private static Map<String, Queue<AsyncContext>> queue = new ConcurrentHashMap<String, Queue<AsyncContext>>();
     private static Map<String, Queue<AsyncContext>> sessionToAsyncContext = new ConcurrentHashMap<String, Queue<AsyncContext>>();
 

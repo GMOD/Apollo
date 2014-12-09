@@ -7,12 +7,20 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class SequenceController {
 
+
+    static navigationScope = 'app'
+
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def sequenceService
     def configWrapperService
 
     def index(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
+    }
+
+    def websocketTest(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
     }

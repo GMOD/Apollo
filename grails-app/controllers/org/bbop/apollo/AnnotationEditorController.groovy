@@ -17,6 +17,9 @@ import org.springframework.messaging.handler.annotation.SendTo
 //@GrailsCompileStatic
 class AnnotationEditorController {
 
+
+    static navigationScope = 'service'
+
     def featureService
     def transcriptService
     def configWrapperService

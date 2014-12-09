@@ -53,6 +53,9 @@ body {
 
 #apolloLogo {
 	background-color: #d3d3d3;
+	/*background-color: #ffffff;*/
+	width: 100%;
+	/*box-shadow: none;*/
 }
 
 /* replace with .no-boxshadow body if you have modernizr available */

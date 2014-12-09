@@ -20,9 +20,19 @@
 </head>
 
 <body>
-<div id="apolloLogo" role="banner"><a href="http://genomearchitect.org">
-    <asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a></div>
+
+<div id="apolloLogo"><a href="http://genomearchitect.org">
+    <asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>
+    %{--Genome Annotator--}%
+    <nav:primary/>
+</div>
+
+
+%{--<g:include view="mainMenu"/>--}%
+%{--<nav:secondary/>--}%
+
 <g:layoutBody/>
+
 <div class="footer" role="contentinfo"></div>
 
 <div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt" default="Loading&hellip;"/></div>

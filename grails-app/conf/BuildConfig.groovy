@@ -112,6 +112,8 @@ grails.project.dependency.resolution = {
         runtime ":jquery:1.11.1"
         runtime ':twitter-bootstrap:3.3.1'
         compile ":angularjs:1.0.0"
+        compile ":platform-core:1.0.0"
+
 
 
 //        compile ":vaadin:7.3.5"

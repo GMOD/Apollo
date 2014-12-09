@@ -15,6 +15,10 @@ class OrganismController {
         respond Organism.list(params), model:[organismInstanceCount: Organism.count()]
     }
 
+    def list(Integer max) {
+        forward action: "index"
+    }
+
     def featureCountForOrganism(Organism organism){
 
     }
