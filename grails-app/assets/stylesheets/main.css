@@ -54,8 +54,9 @@ body {
 #apolloLogo {
     background-color: #d3d3d3;
     /*background-color: #ffffff;*/
-    width: 20%;
+    width: 100%;
     display: inline;
+    margin-bottom: 20px;
     /*box-shadow: none;*/
 }
 
@@ -161,10 +162,19 @@ img {
 .nav {
     background-color: #efefef;
     padding: 0.5em 0.75em;
-    -moz-box-shadow: 0 0 3px 1px #aaaaaa;
-    -webkit-box-shadow: 0 0 3px 1px #aaaaaa;
-    box-shadow: 0 0 3px 1px #aaaaaa;
-    zoom: 1;
+    /*-moz-box-shadow: 0 0 3px 1px #aaaaaa;*/
+    /*-webkit-box-shadow: 0 0 3px 1px #aaaaaa;*/
+    /*box-shadow: 0 0 3px 1px #aaaaaa;*/
+    /*zoom: 1;*/
+}
+
+.header1{
+    background-color: #ffffff;
+    /*margin-top: 10px;*/
+}
+
+.menu-item{
+    margin-top: 10px;
 }
 
 .nav ul {
