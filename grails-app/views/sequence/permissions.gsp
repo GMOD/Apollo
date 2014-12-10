@@ -21,15 +21,25 @@
 
 <div id="list-user" class="content scaffold-list col-lg-offset-1" role="main">
     %{--<h1><g:message code="default.list.label" args="[entityName]"/></h1>--}%
-    <h1>User Permissions</h1>
+    <h1>Sequence Permissions</h1>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
 
     <div class="col-lg-6 col-lg-offset-1">
-        <g:include view="user/singleUser.gsp"/>
-        <g:include view="user/singleUser.gsp"/>
-        <g:include view="user/singleUser.gsp"/>
+        <table>
+            <th>Sequence</th>
+            <th>Admin</th>
+            <th>Write</th>
+            <th>Export</th>
+            <th>Read</th>
+
+        <g:include view="sequence/singleUser.gsp"/>
+        <g:include view="sequence/singleUser.gsp"/>
+        <g:include view="sequence/singleUser.gsp"/>
+        <g:include view="sequence/singleUser.gsp"/>
+        <g:include view="sequence/singleUser.gsp"/>
+        </table>
     </div>
 
     <div class="pagination">

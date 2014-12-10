@@ -1,12 +1,12 @@
-<button class="btn btn-primary" type="button">User <div class="badge badge-success">Bob${Math.random()}</div></button>
+<button class="btn btn-primary" type="button">Group <div class="badge badge-success">${params.groupName}</div></button>
 <g:if test="${Math.random() > 0.2}">
-    <g:link action="permissions" controller="userGroup"><span class="badge">Public</span></g:link>
+    <g:link action="permissions" controller="user"><span class="badge">Public</span></g:link>
 </g:if>
 <g:if test="${Math.random() > 0.2}">
-    <g:link action="permissions" controller="userGroup"><span class="badge">Elsik Internal</span></g:link>
+    <g:link action="permissions" controller="user"><span class="badge">Bob${Math.random()}</span></g:link>
 </g:if>
 <g:if test="${Math.random() > 0.2}">
-    <g:link action="permissions" controller="userGroup"><span class="badge">Elsik Collaborator</span></g:link>
+    <g:link action="permissions" controller="user"><span class="badge">Bob${Math.random()}</span></g:link>
 </g:if>
 <table>
     <thead>

@@ -15,6 +15,10 @@ class SequenceController {
     def sequenceService
     def configWrapperService
 
+    def permissions(){
+
+    }
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
