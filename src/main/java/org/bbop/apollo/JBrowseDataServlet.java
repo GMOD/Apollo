@@ -115,6 +115,7 @@ public class JBrowseDataServlet extends HttpServlet {
             if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
                 response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                 response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+//                response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                 return;
             } else {
                 // If any valid If-Range header, then process each part of byte range.
@@ -137,6 +138,7 @@ public class JBrowseDataServlet extends HttpServlet {
                         if (start > end) {
                             response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                             response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+//                            response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                             return;
                         }
 

@@ -168,7 +168,9 @@ public class AnnotationChangeNotificationService extends HttpServlet implements 
     
     private void sendError(HttpServletResponse response, String message, int errorCode) {
         try {
-            response.sendError(errorCode, new JSONObject().put("error", message).toString());
+//            response.sendError(errorCode, new JSONObject().put("error", message).toString());
+            response.setStatus(errorCode);
+            response.getWriter().write(new JSONObject().put("error", message).toString());
         }
         catch (Exception e) {
         }

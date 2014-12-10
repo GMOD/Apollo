@@ -206,7 +206,9 @@ public class Gff3DataAdapter extends DataAdapter {
             StringWriter buf = new StringWriter();
             e.printStackTrace(new PrintWriter(buf));
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error writing GFF3" + "\n" + buf.toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error writing GFF3" + "\n" + buf.toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error writing GFF3" + "\n" + buf.toString());
         }
     }
 

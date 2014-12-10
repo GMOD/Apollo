@@ -4125,7 +4125,9 @@ public class AnnotationEditorService extends HttpServlet {
 
     private void sendConfirm(HttpServletResponse response, String message) {
         try {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("confirm", message).toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("confirm", message).toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(new JSONObject().put("confirm", message).toString());
         } catch (Exception e) {
         }
     }

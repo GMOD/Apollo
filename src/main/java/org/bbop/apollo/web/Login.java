@@ -103,7 +103,11 @@ public class Login extends HttpServlet {
 
     private void sendError(HttpServletResponse response, Exception e) throws IOException {
         try {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
         }
         catch (JSONException e2) {
         }

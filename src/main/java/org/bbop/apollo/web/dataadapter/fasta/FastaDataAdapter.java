@@ -242,7 +242,9 @@ public class FastaDataAdapter extends DataAdapter {
             StringWriter buf = new StringWriter();
             e.printStackTrace(new PrintWriter(buf));
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error writing FASTA" + "\n" + buf.toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error writing FASTA" + "\n" + buf.toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error writing FASTA" + "\n" + buf.toString());
         }
     }
 
