@@ -54,8 +54,15 @@ body {
 #apolloLogo {
 	background-color: #d3d3d3;
 	/*background-color: #ffffff;*/
-	width: 100%;
+	width: 20%;
+	display: inline;
 	/*box-shadow: none;*/
+}
+
+
+.small-menu{
+	width: 60%;
+	display: inline;
 }
 
 /* replace with .no-boxshadow body if you have modernizr available */

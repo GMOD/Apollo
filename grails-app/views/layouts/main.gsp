@@ -24,6 +24,7 @@
 <div id="apolloLogo"><a href="http://genomearchitect.org">
     <asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>
     %{--Genome Annotator--}%
+    %{--<nav:primary class="nav primary small-menu"/>--}%
     <nav:primary/>
 </div>
 

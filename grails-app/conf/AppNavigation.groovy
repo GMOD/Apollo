@@ -7,6 +7,7 @@ navigation = {
         organism(controller:'organism',action: 'list',titleText:'Organisms')
         sequence(controller:  'sequence',action: 'index',titleText:'Sequences')
         annotator(controller:'annotator',action: 'index',titleText:'Annotate')
+        user(controller:'user',action: 'permissions',titleText:'User Permissions')
 
         // Items pointing to ContentController, using the specific action
 //        about(controller:'content')

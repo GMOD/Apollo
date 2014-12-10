@@ -8,9 +8,13 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class UserController {
 
-    static navigationScope = 'admin'
+    static navigationScope = 'app'
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+
+    def permissions(){
+
+    }
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
