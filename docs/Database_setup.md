@@ -38,7 +38,7 @@ as the *postgres* user.
     $ createdb -U web_apollo_users_admin web_apollo_users
 
 If you get an authentication error, use the -W flag to get a password
-prompt.
+prompt.  "-h localhost" may also be needed.
 
     $ createdb -U web_apollo_users_admin -W web_apollo_users
 
