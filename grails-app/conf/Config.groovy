@@ -18,8 +18,8 @@ grails.config.locations = [
 ]
 
 //grails.assetsminifyJs = true
-grails.assets.minifyJs = true
-grails.assets.minifyCss = true
+grails.assets.minifyJs = false
+grails.assets.minifyCss = false
 grails.assets.enableSourceMaps = true
 
 // this works
