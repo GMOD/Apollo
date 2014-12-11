@@ -18,6 +18,10 @@
   <!--<inherits name="org.fusesource.restygwt.RestyGWT"/>-->
 
 
+  <!--<inherits name="org.gwtbootstrap3.GwtBootstrap3"/>-->
+  <!--<inherits name="org.gwtbootstrap3.extras.respond.Respond"/>-->
+
+
   <!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->

@@ -41,10 +41,12 @@ public class Annotator implements EntryPoint {
         Panel check1Panel = new HorizontalPanel();
         check1Panel.add(cdsCheckBox);
         check1Panel.add(new HTML("&nbsp;Check CDS"));
+        cdsCheckBox.setValue(true);
         searchPanel.add(check1Panel);
 
         Panel check2Panel = new HorizontalPanel();
         check2Panel.add(codonCheckBox);
+        codonCheckBox.setValue(true);
         check2Panel.add(new HTML("&nbsp;Check Codons"));
         searchPanel.add(check2Panel);
 
@@ -66,9 +68,10 @@ public class Annotator implements EntryPoint {
         Tree tree = new Tree();
         TreeItem pax6a = new TreeItem();
         pax6a.setText("pax6a");
-        pax6a.addTextItem("pax6a-001");
+//        pax6a.addTextItem("pax6a-001");
+        pax6a.addItem(new HTML("pax6a-001 <span class='label label-warning'>CDS</span>"));
         pax6a.addTextItem("pax6a-002");
-        pax6a.addTextItem("pax6a-004");
+        pax6a.addItem(new HTML("pax6a-006 <span class='label label-danger'>Codon</span>"));
         tree.addItem(pax6a);
 
         TreeItem sox9b = new TreeItem();
@@ -78,19 +81,24 @@ public class Annotator implements EntryPoint {
         sox9b.addTextItem("sox9b-004");
         tree.addItem(sox9b);
 
+        pax6a.setState(true);
+        sox9b.setState(true);
+
         navigationPanel.addNorth(filterPanel, 200);
         navigationPanel.add(tree);
 
 
-        VerticalPanel detailPanel = new VerticalPanel();
-        detailPanel.add(new HTML("12 Genes, 8 Transcripts"));
-        detailPanel.add(searchResult);
+//        VerticalPanel detailPanel = new VerticalPanel();
+//        detailPanel.add(new HTML("12 Genes, 8 Transcripts"));
+//        detailPanel.add(searchResult);
+
+        FeatureDetailPanel featureDetailPanel = new FeatureDetailPanel();
 
 
         SplitLayoutPanel p = new SplitLayoutPanel();
         p.addWest(navigationPanel, 300);
-        p.addNorth(frame, 600);
-        p.add(detailPanel);
+        p.addNorth(frame, 500);
+        p.add(featureDetailPanel);
         RootLayoutPanel rp = RootLayoutPanel.get();
 //        RootPanel rp = RootPanel.get("annotator");
         rp.add(p);
