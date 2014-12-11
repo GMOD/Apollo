@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
@@ -77,7 +78,9 @@ public class Annotator implements EntryPoint {
         p.addNorth(frame, 600);
         p.add(detailPanel);
         RootLayoutPanel rp = RootLayoutPanel.get();
+//        RootPanel rp = RootPanel.get("annotator");
         rp.add(p);
+        rp.setWidgetTopHeight(p, 60, Style.Unit.PX,100, Style.Unit.PCT);
 
 
         // Focus the cursor on the name field when the app loads

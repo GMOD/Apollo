@@ -32,6 +32,36 @@
 <!--                                           -->
 <body>
 
+<div id="apolloLogo" style="width: 100%">
+  %{--<a href="http://genomearchitect.org">--}%
+  %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
+  %{--Genome Annotator--}%
+  %{--<nav:primary class="nav primary small-menu"/>--}%
+  %{--<nav:primary/>--}%
+  <ul class="nav nav-pills header1" >
+    <li role="presentation" class="">
+      <a href="http://genomearchitect.org">
+        <asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>
+    </li>
+
+    <li role="presentation" class="menu-item">
+      <g:link action="list" controller="organism">Organisms</g:link>
+    </li>
+    <li role="presentation" class="active menu-item">
+      <g:link action="index" controller="sequence">Sequences</g:link>
+    </li>
+    <li role="presentation" class=" menu-item">
+      <g:link action="index" controller="annotator">Annotate</g:link>
+    </li>
+    <li role="presentation" class=" menu-item">
+      <g:link action="permissions" controller="user">Permissions</g:link>
+    </li>
+  </ul>
+
+</div>
+
+<div id="annotator"></div>
+
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
 <noscript>
   <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
