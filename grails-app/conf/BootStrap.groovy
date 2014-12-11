@@ -25,11 +25,11 @@ class BootStrap {
         try {
             if(Sequence.count==0){
                 File testFile = new File(configWrapperService.refSeqDirectory)
-                if(testFile.exists() && testFile.isDirectory()){
+                if(testFile.exists() && testFile.isFile()){
                     sequenceService.loadRefSeqs(Organism.first(),configWrapperService.refSeqDirectory)
                 }
                 else{
-                    log.error "directory not found: "+configWrapperService.refSeqDirectory
+                    log.error "file not found: "+configWrapperService.refSeqDirectory
                 }
             }
         } catch (e) {

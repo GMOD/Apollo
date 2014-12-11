@@ -118,7 +118,7 @@ class JbrowseController {
     def data(String fileName) {
         log.debug  "data"
         String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
-//        log.debug  "dataDir: ${dataDirectory}"
+        log.debug  "dataDir: ${dataDirectory}"
 
 //        log.debug  "filename ${filename}"
         log.debug  "URI: " + request.getRequestURI()
