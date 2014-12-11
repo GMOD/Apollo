@@ -51,6 +51,132 @@
     <!--<target name="download-jbrowse">-->
     <!--test -d $(JBROWSE_GIT_DIRECTORY) || git clone \-\-recursive $(JBROWSE_GITHUB) $(JBROWSE_GIT_DIRECTORY)-->
     <!--</target>-->
+    <target name="get.project.version" description="Get the project version from Maven">
+        <exec executable="sh" failifexecutionfails="false" outputproperty="project.version">
+            <arg value="-c"/>
+            <arg line="'mvn validate | grep Building | cut -d &quot; &quot; -f 4'"/>
+        </exec>
+    </target>
+
+    <target name="check.project.version" depends="get.project.version">
+        <echo>${project.version}</echo>
+    </target>
+
+<!-- build-jbrowse:
+    ulimit -n 1000;cd $(JBROWSE_GIT_DIRECTORY)&&$(MAKE) -f build/Makefile release-notest
+ -->    
+    <target name="build.jbrowse" description="Build JBrowse using the build/Makefile">
+        <exec executable="sh" failifexecutionfails="false">
+            <arg value="-c"/>
+            <arg line="'ulimit -n 1000; cd ${jbrowse.download.directory} &amp;&amp; make -f build/Makefile release-notest'"/>
+        </exec>
+    </target>
+
+<!-- unoptimized: clean download-jbrowse copy-webapollo-plugin version
+    cp -R $(JBROWSE_GIT_DIRECTORY)/ $(APOLLO_JBROWSE_DIRECTORY) && rm -rf $(APOLLO_JBROWSE_DIRECTORY)/.git -->
+    <target name="unoptimized" description="unoptimized" depends="git.clone,copy.apollo.plugin.jbrowse,install-version">
+        <copy todir="${apollo.jbrowse.directory}">
+            <fileset dir="${jbrowse.download.directory}"/>
+        </copy>
+        <delete dir="${apollo.jbrowse.directory}/.git"/>
+        <echo>${jbrowse.download.directory}</echo>
+    </target>
+
+
+<!-- release: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
+    rm -rf $(APOLLO_JBROWSE_DIRECTORY)
+    cp $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION).zip .
+    unzip JBrowse-$(JBROWSE_VERSION).zip
+    mv JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
+    rm JBrowse-$(JBROWSE_VERSION).zip -->
+    <target name="release" description="" depends="git.clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+        <delete dir="${apollo.jbrowse.directory}"/>
+        <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
+        <exec executable="unzip" failifexecutionfails="false" errorproperty="">
+            <arg value="JBrowse-${jbrowse.version}.zip"/>
+        </exec>
+        <move todir="${apollo.jbrowse.directory}">
+            <fileset dir="JBrowse-${jbrowse.version}"/>
+        </move>
+        <delete file="JBrowse-${jbrowse.version}.zip"/>
+        <delete file="JBrowse-${jbrowse.version}"/>
+    </target>
+
+<!-- release-package: release
+    rsync -a . Apollo-$(POM_VERSION)-release \-\-exclude='.git*' \-\-exclude='Apollo-*'
+    tar czf Apollo-$(POM_VERSION)-release.tar.gz Apollo-$(POM_VERSION)-release -->
+    <target name="release.package" description="release package" depends="release,get.project.version">
+        <echo>Apollo-${project.version}-release</echo>
+        <exec executable="rsync" failifexecutionfails="false" errorproperty="">
+            <arg line="-a . Apollo-${project.version}-release --exclude='.git*' --exclude='Apollo-*'"/>
+        </exec>
+        <exec executable="tar" failifexecutionfails="false" errorproperty="">
+            <arg value="czf"/>
+            <arg value="Apollo-${project.version}-release.tar.gz"/>
+            <arg value="Apollo-${project.version}-release"/>
+        </exec>
+    </target>
+
+<!-- debug: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
+    rm -rf $(APOLLO_JBROWSE_DIRECTORY)
+    cp $(JBROWSE_GIT_DIRECTORY)/JBrowse-$(JBROWSE_VERSION)-dev.zip .
+    unzip JBrowse-$(JBROWSE_VERSION)-dev.zip
+    mv JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
+    rm JBrowse-$(JBROWSE_VERSION)-dev.zip -->
+    <target name="debug" description="" depends="git.clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+        <delete dir="${apollo.jbrowse.directory}"/>
+        <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
+        <exec executable="unzip" failifexecutionfails="false" errorproperty="">
+            <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
+        </exec>
+        <move todir="${apollo.jbrowse.directory}">
+            <fileset dir="JBrowse-${jbrowse.version}-dev"/>
+        </move>
+        <delete file="JBrowse-${jbrowse.version}-dev.zip"/>
+        <delete dir="JBrowse-${jbrowse.version}-dev"/>
+    </target>  
+
+<!-- debug-package: debug
+    rsync -a . Apollo-$(POM_VERSION)-debug \-\-exclude='.git*' \-\-exclude='Apollo-*'
+    tar czf Apollo-$(POM_VERSION)-debug.tar.gz Apollo-$(POM_VERSION)-debug -->
+    <target name="debug.package" description="debug package" depends="debug,get.project.version">
+        <exec executable="rsync" failifexecutionfails="false" errorproperty="">
+            <arg line="-a . Apollo-${project.version}-debug --exclude='.git*' --exclude='Apollo-*'"/>
+        </exec>
+        <exec executable="tar" failifexecutionfails="false" errorproperty="">
+            <arg value="czf"/>
+            <arg value="Apollo-${project.version}-debug.tar.gz"/>
+            <arg value="Apollo-${project.version}-debug"/>
+        </exec>
+    </target>
+
+<!-- create-precompiled: superclean release-package debug-package
+    ls -lh Apollo-*.tar.gz
+    $(SHASUM) Apollo-*.tar.gz -->
+    <target name="create.precompiled" description="" depends="git.clean,release.package,debug.package">
+        <exec executable="shasum" failifexecutionfails="false" errorproperty="">
+            <arg line="Apollo-*.tar.gz"/>
+        </exec>
+    </target>
+
+<!-- clean:
+    rm -rf $(APOLLO_JBROWSE_DIRECTORY)
+    mvn clean  -->
+    <target name="clean" description="">
+        <delete dir="${apollo.jbrowse.directory}"/>
+        <exec executable="mvn" failifexecutionfails="" errorproperty="">
+            <arg value="clean"/>
+        </exec>
+    </target>
+
+<!-- superclean:
+    git clean -fdx -->
+    <target name="git.clean" description="Remove all unstaged files from ${basedir}">
+        <exec executable="git" failifexecutionfails="false" errorproperty="">
+            <arg value="clean"/>
+            <arg value="-fdx"/>
+        </exec>
+    </target>
 
     <target name="git.clone" description="Clone git repository." unless="jbrowse.git.present">
         <exec executable="git" failifexecutionfails="false" errorproperty="">
@@ -59,10 +185,11 @@
             <arg value="${jbrowse.github}"/>
             <arg value="${jbrowse.download.directory}"/>
         </exec>
-        <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
+        <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
+<!--         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <arg value="tags/${jbrowse.release.version}"/>
-        </exec>
+        </exec> -->
     </target>
 
 <!--    NOTE: this does not contain the additional libraries needed.-->
@@ -134,7 +261,7 @@
         </copy>
     </target>
 
-    <target name="install-version" depends="git.revision,install-release-version,install-no-release-version">
+    <target name="install-version" depends="git.revision,check.project.version,install-release-version,install-no-release-version">
         <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
     </target>
 
@@ -165,7 +292,7 @@
         </copy>
     </target>
 
-
+    <!-- 'make::copy-webapollo-plugin' -->
     <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed" description="Copy client into webapp plugin directory.">
         <echo>copying plugin to webapp ...</echo>
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
@@ -173,6 +300,7 @@
         </copy>
     </target>
 
+    <!-- 'make::copy-webapollo-config' -->
     <target name="copy-web-apollo-config">
         <echo>copying config ...</echo>
         <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />

@@ -24,10 +24,48 @@ if [[ $# == 0 || $1 == help || $1 == --help ]]; then
    exit 1;
 fi
 
+function check_node(){
+    node_executable=$(which node)
+    if ! [ -x "$node_executable" ] ; then
+        nodejs_executable=$(which nodejs)
+        if ! [ -x "$nodejs_executable" ] ; then
+            echo "You must install 'Node JS' to do a release of web apollo."
+            exit 1 ;
+        else
+            echo "Creating an alias 'node' for 'nodejs'"
+            alias node="nodejs"
+        fi
+    fi
+}
+
+function check_perldependencies(){
+    perl -e 'use Text::Markdown'
+    if [ $? != 0 ] ; then
+        echo "Perl package 'Text::Markdown' is required in order to do a release of web apollo."
+        exit 1 ;
+    fi
+    perl -e 'use DateTime'
+    if [ $? != 0 ] ; then
+        echo "Perl package 'DateTime' is required in order to do a release of web apollo."
+        exit 1 ;
+    fi
+}
+
+function check_configs_for_release(){
+    make_executable=$(which make)
+    if ! [ -x "$make_executable" ] ; then
+        echo "You must install 'Make' to do a release of web apollo."
+        exit 1 ;
+    fi
+    check_node
+    check_perldependencies
+}
+
 function check_configs(){
 
 	maven_executable=$(which mvn)
 	git_executable=$(which git)
+
 	if ! [ -x "$maven_executable" ] ; then
 	   echo "You must install 'maven (mvn)' to install web apollo."
 	   exit 1 ;
@@ -77,11 +115,12 @@ elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
     mvn package
-#elif [[ $1 == "release" ]];then
-#    # should call the copy target first
-#    #check_configs
-#    make -f build/Makefile release
-#    make -f build/Makefile create-precompiled
+elif [[ $1 == "release" ]];then
+   # should call the copy target first
+   check_configs
+   check_configs_for_release
+    make -f build/Makefile release
+    make -f build/Makefile create-precompiled
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     mvn compile
