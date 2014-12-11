@@ -24,7 +24,8 @@ public class Annotator implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        Frame frame = new Frame("http://localhost:8080/apollo/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+//        Frame frame = new Frame("http://localhost:8080/apollo/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+        Frame frame = new Frame("/apollo/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
         frame.setHeight("100%");
         frame.setWidth("100%");
 
