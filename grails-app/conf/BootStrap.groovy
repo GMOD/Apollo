@@ -22,8 +22,18 @@ class BootStrap {
 
 //        sequenceService.parseRefSeqs()
 //        sequenceService.parseAllRefSeqs()
-        if(Sequence.count==0){
-            sequenceService.loadRefSeqs(Organism.first(),configWrapperService.refSeqDirectory)
+        try {
+            if(Sequence.count==0){
+                File testFile = new File(configWrapperService.refSeqDirectory)
+                if(testFile.exists() && testFile.isDirectory()){
+                    sequenceService.loadRefSeqs(Organism.first(),configWrapperService.refSeqDirectory)
+                }
+                else{
+                    log.error "directory not found: "+configWrapperService.refSeqDirectory
+                }
+            }
+        } catch (e) {
+            log.error "Problem loading in external sequences: "+e
         }
 
 
