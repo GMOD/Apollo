@@ -89,8 +89,7 @@
     unzip JBrowse-$(JBROWSE_VERSION).zip
     mv JBrowse-$(JBROWSE_VERSION) $(APOLLO_JBROWSE_DIRECTORY)
     rm JBrowse-$(JBROWSE_VERSION).zip -->
-    <target name="release" description="" depends="git.clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
-        <delete dir="${apollo.jbrowse.directory}"/>
+    <target name="release" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -105,17 +104,17 @@
 <!-- release-package: release
     rsync -a . Apollo-$(POM_VERSION)-release \-\-exclude='.git*' \-\-exclude='Apollo-*'
     tar czf Apollo-$(POM_VERSION)-release.tar.gz Apollo-$(POM_VERSION)-release -->
-    <target name="release.package" description="release package" depends="release,get.project.version">
+<!--     <target name="release.package" description="release package" depends="release,get.project.version">
         <echo>Apollo-${project.version}-release</echo>
         <exec executable="rsync" failifexecutionfails="false" errorproperty="">
-            <arg line="-a . Apollo-${project.version}-release --exclude='.git*' --exclude='Apollo-*'"/>
+            <arg line="-a . Apollo-${project.version}-release \-\-exclude='.git*' \-\-exclude='Apollo-*'"/>
         </exec>
         <exec executable="tar" failifexecutionfails="false" errorproperty="">
             <arg value="czf"/>
             <arg value="Apollo-${project.version}-release.tar.gz"/>
             <arg value="Apollo-${project.version}-release"/>
         </exec>
-    </target>
+    </target> -->
 
 <!-- debug: clean download-jbrowse copy-webapollo-plugin version build-jbrowse
     rm -rf $(APOLLO_JBROWSE_DIRECTORY)
@@ -123,8 +122,7 @@
     unzip JBrowse-$(JBROWSE_VERSION)-dev.zip
     mv JBrowse-$(JBROWSE_VERSION)-dev $(APOLLO_JBROWSE_DIRECTORY)
     rm JBrowse-$(JBROWSE_VERSION)-dev.zip -->
-    <target name="debug" description="" depends="git.clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
-        <delete dir="${apollo.jbrowse.directory}"/>
+    <target name="debug" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
@@ -139,25 +137,25 @@
 <!-- debug-package: debug
     rsync -a . Apollo-$(POM_VERSION)-debug \-\-exclude='.git*' \-\-exclude='Apollo-*'
     tar czf Apollo-$(POM_VERSION)-debug.tar.gz Apollo-$(POM_VERSION)-debug -->
-    <target name="debug.package" description="debug package" depends="debug,get.project.version">
+<!--     <target name="debug.package" description="debug package" depends="debug,get.project.version">
         <exec executable="rsync" failifexecutionfails="false" errorproperty="">
-            <arg line="-a . Apollo-${project.version}-debug --exclude='.git*' --exclude='Apollo-*'"/>
+            <arg line="-a . Apollo-${project.version}-debug \-\-exclude='.git*' \-\-exclude='Apollo-*'"/>
         </exec>
         <exec executable="tar" failifexecutionfails="false" errorproperty="">
             <arg value="czf"/>
             <arg value="Apollo-${project.version}-debug.tar.gz"/>
             <arg value="Apollo-${project.version}-debug"/>
         </exec>
-    </target>
+    </target> -->
 
 <!-- create-precompiled: superclean release-package debug-package
     ls -lh Apollo-*.tar.gz
     $(SHASUM) Apollo-*.tar.gz -->
-    <target name="create.precompiled" description="" depends="git.clean,release.package,debug.package">
+<!--     <target name="create.precompiled" description="" depends="git.clean,release,debug">
         <exec executable="shasum" failifexecutionfails="false" errorproperty="">
             <arg line="Apollo-*.tar.gz"/>
         </exec>
-    </target>
+    </target> -->
 
 <!-- clean:
     rm -rf $(APOLLO_JBROWSE_DIRECTORY)
@@ -216,8 +214,8 @@
             <!--<arg value="${jbrowse.git.directory}"/>-->
         <!--</exec>-->
         <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
-            <arg value="${jbrowse.download.directory}"/>
-            <arg value="${jbrowse.download.directory}"/>
+<!--             <arg value="${jbrowse.download.directory}"/>
+            <arg value="${jbrowse.download.directory}"/> -->
         </exec>
     </target>
 
@@ -261,7 +259,7 @@
         </copy>
     </target>
 
-    <target name="install-version" depends="git.revision,check.project.version,install-release-version,install-no-release-version">
+    <target name="install-version" depends="git.revision,install-release-version,install-no-release-version">
         <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
     </target>
 
