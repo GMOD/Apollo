@@ -13,10 +13,12 @@ import com.google.gwt.user.client.ui.*;
  */
 public class Annotator implements EntryPoint {
 
-    final HorizontalPanel searchPanel = new HorizontalPanel();
+    final Panel searchPanel = new VerticalPanel();
     final TextBox nameField = new TextBox();
-    final Button searchButton = new Button("Search");
+//    final Button searchButton = new Button("Search");
     final Label searchResult = new HTML("none");
+    final CheckBox cdsCheckBox = new CheckBox();
+    final CheckBox codonCheckBox = new CheckBox();
 
     /**
      * This is the entry point method.
@@ -33,8 +35,20 @@ public class Annotator implements EntryPoint {
         nameField.setWidth("100%");
         nameField.setEnabled(true);
         nameField.setReadOnly(false);
-        searchPanel.add(searchButton);
+//        searchPanel.add(searchButton);
         searchPanel.add(nameField);
+
+        Panel check1Panel = new HorizontalPanel();
+        check1Panel.add(cdsCheckBox);
+        check1Panel.add(new HTML("&nbsp;Check CDS"));
+        searchPanel.add(check1Panel);
+
+        Panel check2Panel = new HorizontalPanel();
+        check2Panel.add(codonCheckBox);
+        check2Panel.add(new HTML("&nbsp;Check Codons"));
+        searchPanel.add(check2Panel);
+
+
 
 //        StackLayoutPanel filterPanel = new StackLayoutPanel(Style.Unit.EM);
 //        filterPanel.add(searchPanel, new HTML("Search"), 4);
@@ -80,16 +94,17 @@ public class Annotator implements EntryPoint {
         RootLayoutPanel rp = RootLayoutPanel.get();
 //        RootPanel rp = RootPanel.get("annotator");
         rp.add(p);
-        rp.setWidgetTopHeight(p, 60, Style.Unit.PX,100, Style.Unit.PCT);
+        rp.setWidgetTopHeight(p, 60, Style.Unit.PX, 100, Style.Unit.PCT);
 
 
         // Focus the cursor on the name field when the app loads
         nameField.setFocus(true);
         nameField.selectAll();
 
-        searchButton.addClickHandler(new ClickHandler() {
+        nameField.addChangeHandler(new ChangeHandler() {
+
             @Override
-            public void onClick(ClickEvent event) {
+            public void onChange(ChangeEvent event) {
                 String url = "http://localhost:8080/apollo/annotator/search";
                 RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
                 JSONObject jsonObject = new JSONObject();
