@@ -12,6 +12,7 @@ class UrlMappings {
         "/"(action: "index",controller: "organism")
 //        "/home"(action: "index", controller: "genome")
         "500"(view: '/error')
+        "/menu"(view: '/menu')
 
         // set this routing here
 //        "/jbrowse"(controller: "jbrowse", action: "index")

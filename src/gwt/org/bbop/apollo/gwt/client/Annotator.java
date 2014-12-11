@@ -95,14 +95,42 @@ public class Annotator implements EntryPoint {
         FeatureDetailPanel featureDetailPanel = new FeatureDetailPanel();
 
 
+//        Frame frame1 = new Frame("");
+        HTML mainMenuPanel = new HTML("<div id=\"apolloLogo\" style=\"padding: 5px;\">\n" +
+                "    <ul class=\"nav nav-pills header1\" >\n" +
+                "        <li role=\"presentation\" class=\"\">\n" +
+                "            <a href=\"http://genomearchitect.org\">\n" +
+                "                <img src=\"/apollo/assets/ApolloLogo_100x36.png\" alt=\"Web Apollo\"/></a>\n" +
+                "        </li>\n" +
+                "\n" +
+                "        <li role=\"presentation\" class=\"menu-item\">\n" +
+                "            <a href=\"/apollo/organism/list\">Organisms</a>\n" +
+                "        </li>\n" +
+                "        <li role=\"presentation\" class=\"active menu-item\">\n" +
+                "            <a href=\"/apollo/sequence/index\">Sequences</a>\n" +
+                "        </li>\n" +
+                "        <li role=\"presentation\" class=\" menu-item\">\n" +
+                "            <a href=\"/apollo/annotator/index\">Annotate</a>\n" +
+                "        </li>\n" +
+                "        <li role=\"presentation\" class=\" menu-item\">\n" +
+                "            <a href=\"/apollo/user/permissions\">Permissions</a>\n" +
+                "        </li>\n" +
+                "    </ul>\n" +
+                "\n" +
+                "</div>\n");
+//        Frame mainMenuPanel = new Frame("http://localhost:8080/apollo/menu");
+        mainMenuPanel.setWidth("100%");
+
         SplitLayoutPanel p = new SplitLayoutPanel();
+        p.addNorth(mainMenuPanel, 55);
         p.addWest(navigationPanel, 300);
-        p.addNorth(frame, 500);
-        p.add(featureDetailPanel);
+        p.addSouth(featureDetailPanel, 200);
+        p.add(frame);
         RootLayoutPanel rp = RootLayoutPanel.get();
 //        RootPanel rp = RootPanel.get("annotator");
+
         rp.add(p);
-        rp.setWidgetTopHeight(p, 60, Style.Unit.PX, 100, Style.Unit.PCT);
+        rp.setWidgetTopHeight(p, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
 
         // Focus the cursor on the name field when the app loads

@@ -4,18 +4,20 @@
 <!-- with a "Quirks Mode" doctype is not supported. -->
 
 <%@ page contentType="text/html;charset=UTF-8" %>
+<!DOCTYPE html>
 <html>
 <head>
+
+  <meta name="layout" content="annotator">
     %{--<meta name="layout" content="main"/>--}%
     <title>Annotator</title>
 
-    <asset:javascript src="annotator/controllers/Annotator.js"/>
-    <asset:stylesheet src="annotator.css"/>
+    %{--<asset:javascript src="annotator/controllers/Annotator.js"/>--}%
+    %{--<asset:stylesheet src="annotator.css"/>--}%
 
   <!--                                           -->
   <!-- Any title is fine                         -->
   <!--                                           -->
-  <title>Web Application Starter Project</title>
 
   <!--                                           -->
   <!-- This script loads your compiled module.   -->
@@ -30,37 +32,37 @@
 <!-- you can leave the body empty if you want  -->
 <!-- to create a completely dynamic UI.        -->
 <!--                                           -->
-<body>
+<body style="background-color: white;">
 
-<div id="apolloLogo" style="width: 100%">
+%{--<div id="apolloLogo" style="width: 100%">--}%
   %{--<a href="http://genomearchitect.org">--}%
   %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
   %{--Genome Annotator--}%
   %{--<nav:primary class="nav primary small-menu"/>--}%
   %{--<nav:primary/>--}%
-  <ul class="nav nav-pills header1" >
-    <li role="presentation" class="">
-      <a href="http://genomearchitect.org">
-        <asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>
-    </li>
+  %{--<ul class="nav nav-pills header1" >--}%
+    %{--<li role="presentation" class="">--}%
+      %{--<a href="http://genomearchitect.org">--}%
+        %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
+    %{--</li>--}%
 
-    <li role="presentation" class="menu-item">
-      <g:link action="list" controller="organism">Organisms</g:link>
-    </li>
-    <li role="presentation" class="active menu-item">
-      <g:link action="index" controller="sequence">Sequences</g:link>
-    </li>
-    <li role="presentation" class=" menu-item">
-      <g:link action="index" controller="annotator">Annotate</g:link>
-    </li>
-    <li role="presentation" class=" menu-item">
-      <g:link action="permissions" controller="user">Permissions</g:link>
-    </li>
-  </ul>
+    %{--<li role="presentation" class="menu-item">--}%
+      %{--<g:link action="list" controller="organism">Organisms</g:link>--}%
+    %{--</li>--}%
+    %{--<li role="presentation" class="active menu-item">--}%
+      %{--<g:link action="index" controller="sequence">Sequences</g:link>--}%
+    %{--</li>--}%
+    %{--<li role="presentation" class=" menu-item">--}%
+      %{--<g:link action="index" controller="annotator">Annotate</g:link>--}%
+    %{--</li>--}%
+    %{--<li role="presentation" class=" menu-item">--}%
+      %{--<g:link action="permissions" controller="user">Permissions</g:link>--}%
+    %{--</li>--}%
+  %{--</ul>--}%
 
-</div>
+%{--</div>--}%
 
-<div id="annotator"></div>
+<div id="annotator" style="background-color: white;"></div>
 
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
 <noscript>
