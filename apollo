@@ -57,6 +57,10 @@ function check_configs_for_release(){
         echo "You must install 'Make' to do a release of web apollo."
         exit 1 ;
     fi
+    ant_executable=$(which ant)
+    if ! [ -x "$ant_executable" ] ; then
+        echo "You must install 'Ant' to do a release of web apollo."
+    fi
     check_node
     check_perldependencies
 }
@@ -119,8 +123,10 @@ elif [[ $1 == "release" ]];then
    # should call the copy target first
    check_configs
    check_configs_for_release
-    make -f build/Makefile release
-    make -f build/Makefile create-precompiled
+   ant release
+   mvn package
+    # make -f build/Makefile release
+    # make -f build/Makefile create-precompiled
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     mvn compile
