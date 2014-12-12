@@ -25,6 +25,11 @@
   <!-- be added before this line.                -->
   <!--                                           -->
   <script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>
+  <script>
+     var Options = {
+       rootUrl : '${applicationContext.servletContext.getContextPath()}'
+     };
+  </script>
 </head>
 
 <!--                                           -->
