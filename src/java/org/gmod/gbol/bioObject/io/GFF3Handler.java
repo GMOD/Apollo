@@ -137,6 +137,7 @@ public class GFF3Handler {
     }
     
     private void writeGroupDirectives(Feature sourceFeature) {
+        if(sourceFeature.getFeatureLocations().size()==0) return ;
         FeatureLocation loc = sourceFeature.getFeatureLocations().iterator().next();
         out.println(String.format("##sequence-region %s %d %d", sourceFeature.getUniqueName(), loc.getFmin() + 1, loc.getFmax()));
     }
@@ -356,11 +357,11 @@ public class GFF3Handler {
                     else {
                         props.append(",");
                     }
-                    props.append(prop.getValue());
+                    props.append(encodeString(prop.getValue()));
                 }
                 while (propertyIter.hasNext());
                 for (Map.Entry<String, StringBuilder> iter : properties.entrySet()) {
-                    attributes.put(encodeString(iter.getKey()), encodeString(iter.getValue().toString()));
+                    attributes.put(encodeString(iter.getKey()), iter.getValue().toString());
                 }
             }
         }

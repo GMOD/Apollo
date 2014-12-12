@@ -150,7 +150,9 @@ public class ChadoDataAdapter extends DataAdapter {
         }
         catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error with operation to database");
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error with operation to database");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error with operation to database");
         }
     }
     

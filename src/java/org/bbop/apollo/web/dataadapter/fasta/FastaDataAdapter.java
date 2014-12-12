@@ -206,7 +206,9 @@ public class FastaDataAdapter extends DataAdapter {
                 Feature sourceFeature = trackToSourceFeature.get(track);
                 fastaIO.writeFeatures(sourceFeature, seqTypeParameter, featureTypes, metaDataToExport);
             }
-            fastaIO.close();
+            if(fastaIO!=null){
+                fastaIO.close();
+            }
 
             tmpFile.renameTo(doneFile);
             
@@ -240,7 +242,9 @@ public class FastaDataAdapter extends DataAdapter {
             StringWriter buf = new StringWriter();
             e.printStackTrace(new PrintWriter(buf));
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error writing FASTA" + "\n" + buf.toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error writing FASTA" + "\n" + buf.toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error writing FASTA" + "\n" + buf.toString());
         }
     }
 

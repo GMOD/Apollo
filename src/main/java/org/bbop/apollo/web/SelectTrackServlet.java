@@ -86,8 +86,18 @@ public class SelectTrackServlet extends HttpServlet {
             offset = Integer.parseInt(offsetString.toString());
         }
 
-        Integer minLength = (minLengthString != null && minLengthString.toString().trim().length() > 0) ? Integer.parseInt(minLengthString.toString()) : null;
-        Integer maxLength = (maxLengthString != null && maxLengthString.toString().trim().length() > 0) ? Integer.parseInt(maxLengthString.toString()) : null;
+        Integer minLength = 0 ;
+        try {
+            minLength = (minLengthString != null && minLengthString.toString().trim().length() > 0) ? Integer.parseInt(minLengthString.toString()) : null;
+        } catch (NumberFormatException e) {
+            log("Failed to parse min string",e);
+        }
+        Integer maxLength = Integer.MAX_VALUE ;
+        try {
+            maxLength = (maxLengthString != null && maxLengthString.toString().trim().length() > 0) ? Integer.parseInt(maxLengthString.toString()) : null;
+        } catch (NumberFormatException e) {
+            log("Failed to parse max string",e);
+        }
 
 //        Object organism = request.getParameter("organism");
         Object name = request.getParameter("name");
@@ -189,7 +199,7 @@ public class SelectTrackServlet extends HttpServlet {
             }
         }
 
-        request.setAttribute("hasPrevious", offset>0);
+        request.setAttribute("hasPrevious", offset > 0);
         request.setAttribute("hasNext", iterator.hasNext());
 
         request.setAttribute("allTrackIds", allTrackIds);

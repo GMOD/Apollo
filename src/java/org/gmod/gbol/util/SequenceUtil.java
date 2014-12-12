@@ -84,6 +84,7 @@ public class SequenceUtil {
                 }
                 // see bug https://github.com/GMOD/Apollo/issues/87 on why this is here
                 // TODO: not sure why this is written this way . . .clearly a bug
+                //                 // see bug https://github.com/GMOD/Apollo/issues/87 on why this is here
                 else {
                     if (++stopCodonCount > 1) {
                         break;

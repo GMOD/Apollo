@@ -5,6 +5,7 @@ import org.junit.Ignore;
 import org.gmod.gbol.util.GBOLUtilException;
 import org.gmod.gbol.util.SequenceUtil;
 
+@Ignore
 public class SequenceUtilTest extends TestCase {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());

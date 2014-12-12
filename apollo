@@ -1,0 +1,155 @@
+#!/bin/bash
+
+function usage(){
+    echo "";
+    echo "Usage: apollo <command>";
+    echo "";
+    echo "Commands:";
+    echo "";
+    echo "deploy:    Builds Unoptimized war file (no processing of javascript) into the target directory.";
+    echo "run:       Runs from current directory debug mode (non-minimized javascript).";
+    echo "test:      Runs test-suite.";
+    echo "debug:     Runs from current directory in debug mode (non-minimized javascript).";
+    #echo "release:   Builds in release mode (minimized javascript). (advanced)";
+    echo "compile:   Compiled the build.";
+    echo "clean:     Removes class files.";
+    echo "clean-all: Removes class files and jbrowse files.";
+    echo "help:      This message.";
+};
+
+
+
+if [[ $# == 0 || $1 == help || $1 == --help ]]; then
+   usage
+   exit 1;
+fi
+
+function check_node(){
+    node_executable=$(which node)
+    if ! [ -x "$node_executable" ] ; then
+        nodejs_executable=$(which nodejs)
+        if ! [ -x "$nodejs_executable" ] ; then
+            echo "You must install 'Node JS' to do a release of web apollo."
+            exit 1 ;
+        else
+            echo "Creating an alias 'node' for 'nodejs'"
+            alias node="nodejs"
+        fi
+    fi
+}
+
+function check_perldependencies(){
+    perl -e 'use Text::Markdown'
+    if [ $? != 0 ] ; then
+        echo "Perl package 'Text::Markdown' is required in order to do a release of web apollo."
+        exit 1 ;
+    fi
+    perl -e 'use DateTime'
+    if [ $? != 0 ] ; then
+        echo "Perl package 'DateTime' is required in order to do a release of web apollo."
+        exit 1 ;
+    fi
+}
+
+function check_configs_for_release(){
+    make_executable=$(which make)
+    if ! [ -x "$make_executable" ] ; then
+        echo "You must install 'Make' to do a release of web apollo."
+        exit 1 ;
+    fi
+    ant_executable=$(which ant)
+    if ! [ -x "$ant_executable" ] ; then
+        echo "You must install 'Ant' to do a release of web apollo."
+    fi
+    check_node
+    check_perldependencies
+}
+
+function check_configs(){
+
+	grails_executeable=$(which grails)
+	git_executable=$(which git)
+
+	if ! [ -x "$grails_executeable" ] ; then
+	   echo "You must install 'grails' to install web apollo."
+	   exit 1 ;
+	fi
+	if ! [ -x "$git_executable" ] ; then
+	   echo "You must install 'git' to install web apollo."
+	   exit 1 ;
+	fi
+
+#    if [ ! -e "./config.xml" ]; then
+#       echo "No config.xml found, exiting."
+#       echo "You must copy and sample_config.xml to config.xml in order to build."
+#       exit 1;
+#    fi
+
+#    if [ ! -e "./canned_comments.xml" ]; then
+#       echo "No canned_comments.xml found, exiting."
+#       echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
+#       exit 1;
+#    fi
+
+#    if [ ! -e "./config.properties" ]; then
+#       echo "No config.properties found, exiting."
+#       echo "You must copy and sample_config.properties to config.properties in order to build."
+#       exit 1;
+#    fi
+}
+
+
+
+if [[ $1 == "run" ]];then
+    # should call the copy target first
+    check_configs
+	grails -reloading run-app  
+#    mvn tomcat7:run
+elif [[ $1 == "debug" ]];then
+    # TODO: feel like there is a better way to do this
+    OLD_MAVEN_OPTS=$MAVEN_OPTS
+    check_configs
+    export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
+    mvn tomcat7:run
+	grails -reloading debug 
+    export MAVEN_OPTS=$OLD_MAVEN_OPTS
+    unset OLD_MAVEN_OPTS
+elif [[ $1 == "test" ]];then
+    # should call the copy target first
+    grails test-app :unit
+#    mvn test
+elif [[ $1 == "deploy" ]];then
+    # should call the copy target first
+    check_configs
+	grails war 
+#    mvn package
+elif [[ $1 == "release" ]];then
+   # should call the copy target first
+   check_configs
+   check_configs_for_release
+   ant release
+   grails war
+#   mvn package
+    # make -f build/Makefile release
+    # make -f build/Makefile create-precompiled
+elif [[ $1 == "compile" ]];then
+    # should call the copy target first
+#    mvn compile
+    grails compile 
+elif [[ $1 == "clean-all" ]];then
+    # should call the copy target first
+    rm -rf bin
+    rm -rf jbrowse-download
+    rm -rf src/main/webapp/jbrowse
+    rm -f *.zip
+     # remove in webapp, as well? 
+	ant clean-all
+	grails clean 
+#    mvn clean
+elif [[ $1 == "clean" ]];then
+    # should call the copy target first
+    grails clean 
+#    mvn clean
+else
+    usage
+fi

@@ -144,9 +144,272 @@ Test targets suppressed because -junit argument was not specified when running w
   <!--</target>-->
 
   <target name="clean" description="Cleans this project">
+        <delete dir="${apollo.jbrowse.directory}"/>
+        <exec executable="grails" failifexecutionfails="" errorproperty="">
+            <arg value="clean"/>
+        </exec>
+<!--    <delete dir="web-app/WEB-INF/deploy" failonerror="false" />-->
+<!--    <delete dir="web-app/annotator" failonerror="false" />-->
+<!--    <delete dir="target/classes/gwt" failonerror="false" />-->
+  </target>
+
+  <target name="clean-all" depends="clean" description="Cleans this project">
+<!--        <delete dir="${apollo.jbrowse.directory}"/>-->
+<!--        <exec executable="mvn" failifexecutionfails="" errorproperty="">-->
+<!--            <arg value="clean"/>-->
+<!--        </exec>-->
     <delete dir="web-app/WEB-INF/deploy" failonerror="false" />
     <delete dir="web-app/annotator" failonerror="false" />
     <delete dir="target/classes/gwt" failonerror="false" />
   </target>
+
+<!--    <target name="clean" description="">-->
+<!--        <delete dir="${apollo.jbrowse.directory}"/>-->
+<!--        <exec executable="mvn" failifexecutionfails="" errorproperty="">-->
+<!--            <arg value="clean"/>-->
+<!--        </exec>-->
+<!--    </target>-->
+
+    <!--APOLLO_ROOT_DIRECTORY=$(BASEDIR)-->
+    <!--APOLLO_BUILD_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)-->
+    <!--APOLLO_WEBAPP_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/src/main/webapp-->
+    <!--APOLLO_JBROWSE_DIRECTORY=$(APOLLO_WEBAPP_DIRECTORY)/jbrowse-->
+    <!--JBROWSE_GIT_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/jbrowse-github-->
+    <!--JBROWSE_GITHUB=https://github.com/GMOD/jbrowse-->
+    <!--JBROWSE_VERSION=dev-->
+    <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
+    <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
+
+
+    <property name="apollo.webapp.directory" location="src/main/webapp" relative="true" basedir="."/>
+    <property name="apollo.resources.directory" location="src/main/resources" relative="true" basedir="."/>
+
+    <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
+    <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
+    <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
+    <property name="jbrowse.download.directory" location="jbrowse-download"/>
+    <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
+    <property name="webapp.apollo.plugin.test.file" location="${apollo.plugin.directory}/js/main.js"/>
+    <property name="webapp.apollo.plugin.uncompressed.test.file" location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
+    <property name="scripts.directory" location="scripts"/>
+    <property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>
+    <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
+    <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
+    <!--<property name="jbrowse.github"  />-->
+    <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
+    <property name="jbrowse.version" value="dev"/>
+    <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
+
+    <property name="jbrowse.release.version" value="1.11.5-release"/>
+    <property name="jbrowse.download.file.name" value="JBrowse-1.11.5-dev"/>
+
+    <!--<property name="jbrowse.download.url" value="${jbrowse.github}/archive/${jbrowse.release.version}"/>-->
+    <property name="jbrowse.download.url" value="http://jbrowse.org/releases/JBrowse-1.11.5-dev.zip"/>
+    <property name="jbrowse.download.file" value="${basedir}/${jbrowse.release.version}"/>
+    <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
+    <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
+
+
+    <available file=".git" type="dir" property="git.present"/>
+    <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
+    <available file="${jbrowse.webapp.test.file}" type="file" property="jbrowse.webapp.installed"/>
+    <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
+    <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
+    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled" />
+
+    <!--<property name="pom.version" value="${mypom.properties.apollo.version}"/>-->
+
+    <target name="get.project.version" description="Get the project version from Maven">
+        <exec executable="sh" failifexecutionfails="false" outputproperty="project.version">
+            <arg value="-c"/>
+            <arg line="'mvn validate | grep Building | cut -d &quot; &quot; -f 4'"/>
+        </exec>
+    </target>
+
+    <target name="check.project.version" depends="get.project.version">
+        <echo>${project.version}</echo>
+    </target>
+
+    <target name="build.jbrowse" description="Build JBrowse using the build/Makefile">
+        <exec executable="sh" failifexecutionfails="false">
+            <arg value="-c"/>
+            <arg line="'ulimit -n 1000; cd ${jbrowse.download.directory} &amp;&amp; make -f build/Makefile release-notest'"/>
+        </exec>
+    </target>
+
+    <target name="unoptimized" description="unoptimized" depends="git.clone,copy.apollo.plugin.jbrowse,install-version">
+        <copy todir="${apollo.jbrowse.directory}">
+            <fileset dir="${jbrowse.download.directory}"/>
+        </copy>
+        <delete dir="${apollo.jbrowse.directory}/.git"/>
+        <echo>${jbrowse.download.directory}</echo>
+    </target>
+
+    <target name="release" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+        <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
+        <exec executable="unzip" failifexecutionfails="false" errorproperty="">
+            <arg value="JBrowse-${jbrowse.version}.zip"/>
+        </exec>
+        <move todir="${apollo.jbrowse.directory}">
+            <fileset dir="JBrowse-${jbrowse.version}"/>
+        </move>
+        <delete file="JBrowse-${jbrowse.version}.zip"/>
+        <delete file="JBrowse-${jbrowse.version}"/>
+    </target>
+
+    <target name="debug" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+        <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
+        <exec executable="unzip" failifexecutionfails="false" errorproperty="">
+            <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
+        </exec>
+        <move todir="${apollo.jbrowse.directory}">
+            <fileset dir="JBrowse-${jbrowse.version}-dev"/>
+        </move>
+        <delete file="JBrowse-${jbrowse.version}-dev.zip"/>
+        <delete dir="JBrowse-${jbrowse.version}-dev"/>
+    </target>  
+
+
+    <target name="git.clean" description="Remove all unstaged files from ${basedir}">
+        <exec executable="git" failifexecutionfails="false" errorproperty="">
+            <arg value="clean"/>
+            <arg value="-fdx"/>
+        </exec>
+    </target>
+
+    <target name="git.clone" description="Clone git repository." unless="jbrowse.git.present">
+        <exec executable="git" failifexecutionfails="false" errorproperty="">
+            <arg value="clone"/>
+            <arg value="--recursive"/>
+            <arg value="${jbrowse.github}"/>
+            <arg value="${jbrowse.download.directory}"/>
+        </exec>
+        <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
+<!--         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
+            <arg value="checkout"/>
+            <arg value="tags/${jbrowse.release.version}"/>
+        </exec> -->
+    </target>
+
+<!--    NOTE: this does not contain the additional libraries needed.-->
+    <target name="git.download" unless="jbrowse.git.present" description="Downloads static release, but static release does not have other libraries">
+		<delete dir="${jbrowse.download.directory}"/>
+		<delete dir="${jbrowse.download.file.name}"/>
+
+		<get src="${jbrowse.download.url}" dest="${jbrowse.download.file}" />
+		<delete dir="${jbrowse.download.file.name}"/>
+		<unzip src="${jbrowse.download.file}" dest="${basedir}"/>
+		<delete dir="${jbrowse.download.directory}"/>
+		<move todir="${jbrowse.download.directory}">
+			<fileset dir="${jbrowse.download.file.name}"/>
+		</move>
+		<delete dir="${jbrowse.download.file.name}"/>
+    </target>
+
+    <target name="usage">
+        <exec executable="./apollo" failifexecutionfails="false" errorproperty=""/>
+    </target>
+
+    <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present" unless="jbrowse.perl.installed">
+        <!--<exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">-->
+            <!--<arg value="${jbrowse.git.directory}"/>-->
+        <!--</exec>-->
+        <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
+<!--             <arg value="${jbrowse.download.directory}"/>
+            <arg value="${jbrowse.download.directory}"/> -->
+        </exec>
+    </target>
+
+    <target name="git.revision" description="Store git revision in ${repository.version}" if="git.present">
+        <exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+            <arg value="describe"/>
+            <arg value="--tags"/>
+            <arg value="--always"/>
+            <arg value="HEAD"/>
+        </exec>
+        <condition property="repository.version" value="${git.revision}" else="unknown">
+            <and>
+                <isset property="git.revision"/>
+                <length string="${git.revision}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+    </target>
+
+    <!--<property name="release.is.snapshot" value="${project.version}"/>-->
+    <condition property="release.is.snapshot">
+        <contains substring="SNAPSHOT" string="${project.version}" casesensitive="true"/>
+    </condition>
+
+    <target name="install-no-release-version"  if="${release.is.snapshot}">
+        <echo>IS SNAPSHOT ${project.version}</echo>
+        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
+            <filterset>
+                <filter token="POM_VERSION" value="${project.version}"/>
+                <filter token="GITHUB_VERSION" value=""/>
+            </filterset>
+        </copy>
+    </target>
+
+    <target name="install-release-version"  unless="${release.is.snapshot}">
+        <echo>IS RELEASE ${project.version}</echo>
+        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
+            <filterset>
+                <filter token="POM_VERSION" value="${project.version}"/>
+                <filter token="GITHUB_VERSION" value="tag/${project.version}"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <target name="install-version" depends="git.revision,install-release-version,install-no-release-version">
+        <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
+    </target>
+
+    <target name="setup-jbrowse"  unless="jbrowse.webapp.installed">
+
+        <!--<antcall target="git.download"/>-->
+        <antcall target="git.clone"/>
+        <antcall target="copy.apollo.plugin.jbrowse"/>
+
+
+        <echo>Will be setting up jbrowse</echo>
+        <delete dir="${apollo.jbrowse.directory}"/>
+
+        <copy todir="${apollo.jbrowse.directory}">
+            <fileset dir="${jbrowse.download.directory}"/>
+        </copy>
+        <antcall target="install.jbrowse.perl"/>
+
+    </target>
+
+    <target name="copy.apollo.plugin.jbrowse">
+        <echo>copying plugin to jbrowse git ...</echo>
+        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">
+            <fileset dir="${apollo.client.directory}"/>
+        </copy>
+    </target>
+
+    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed" description="Copy client into webapp plugin directory.">
+        <echo>copying plugin to webapp ...</echo>
+        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
+            <fileset dir="${apollo.client.directory}"/>
+        </copy>
+    </target>
+
+    <target name="copy-web-apollo-config">
+        <echo>copying config ...</echo>
+        <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
+        <copy failonerror="false" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
+        <copy failonerror="false" file="canned_comments.xml" tofile="${apollo.webapp.directory}/config/canned_comments.xml" />
+        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" />
+        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
+        <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json" />
+        <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>
+    </target>
+
+
+    <target name="copy-resources" depends="copy-web-apollo-config,copy.apollo.plugin.webapp,install-version,setup-jbrowse"
+            description="This is called externally by shell script.">
+
+    </target>
 
 </project>

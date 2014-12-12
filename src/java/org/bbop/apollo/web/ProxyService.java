@@ -52,7 +52,9 @@ public class ProxyService extends HttpServlet {
     
     private void sendError(HttpServletResponse response, String message) {
         try {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", message).toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", message).toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(new JSONObject().put("error", message).toString());
         }
         catch (JSONException e) {
         }

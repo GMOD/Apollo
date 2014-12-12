@@ -71,25 +71,34 @@ public class UserManagerService extends HttpServlet {
                 deleteUser(json.getJSONObject("user"));
             }
         }
-        catch (UserManagerServiceException e) {
+        catch(Exception e){
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             try {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-            }
-            catch (JSONException e2) {
-            }
-        } catch (JSONException e) {
-            try {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-            }
-            catch (JSONException e2) {
-            }
-        } catch (SQLException e) {
-            try {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-            }
-            catch (JSONException e2) {
+                response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
+            } catch (JSONException e1) {
+                log("Error serializing error "+e.getMessage(),e1);
             }
         }
+//        catch (UserManagerServiceException e) {
+//            try {
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+//            }
+//            catch (JSONException e2) {
+//            }
+//        } catch (JSONException e) {
+//            try {
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+//            }
+//            catch (JSONException e2) {
+//            }
+//        } catch (SQLException e) {
+//            try {
+//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
+//            }
+//            catch (JSONException e2) {
+//            }
+//        }
     }
 
     private void setPermissions(JSONObject permissions) throws JSONException, SQLException {

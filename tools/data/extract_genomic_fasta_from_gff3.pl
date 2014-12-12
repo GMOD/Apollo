@@ -3,6 +3,10 @@
 use strict;
 use warnings;
 
+use FindBin qw($RealBin);
+use lib "$RealBin/../../src/perl5";
+use JBlibs;
+
 use Getopt::Long qw(:config no_ignore_case bundling);
 use IO::File;
 use File::Basename;

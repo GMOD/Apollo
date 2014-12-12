@@ -1,4 +1,4 @@
 AGA	*
 AGG	*
-AUA	M
+ATA	M start
 TGA	W

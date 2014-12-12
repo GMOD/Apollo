@@ -477,7 +477,8 @@ public class HibernateHandler implements SimpleObjectIOInterface {
             return (DBXref)i.next();
         }
         else {
-            throw new SimpleObjectIOException("No dbxref found for " + dbName + ":" + accession);
+//            throw new SimpleObjectIOException("No dbxref found for " + dbName + ":" + accession);
+            return null ;
         }
     }
 
@@ -492,7 +493,8 @@ public class HibernateHandler implements SimpleObjectIOInterface {
             return (DB)i.next();
         }
         else {
-            throw new SimpleObjectIOException("No db found for " + dbName);
+//            throw new SimpleObjectIOException("No db found for " + dbName);
+            return null ;
         }
     }
     

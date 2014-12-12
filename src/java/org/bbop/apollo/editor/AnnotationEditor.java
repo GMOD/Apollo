@@ -652,58 +652,64 @@ public class AnnotationEditor {
             }
         }
 
-        boolean needCdsIndex = transcript.getCDS() == null;
-        CDS cds = transcript.getCDS();
-        if (cds == null) {
-            cds = createCDS(transcript);
-            transcript.setCDS(cds);
-        }
-        if (bestStartIndex >= 0) {
-            int fmin = getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex);
-            int fmax = getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex);
-            if (cds.getStrand().equals(-1)) {
-                int tmp = fmin;
-                fmin = fmax + 1;
-                fmax = tmp + 1;
-            }
-            cds.setFmin(fmin);
-            cds.setFminPartial(false);
-            cds.setFmax(fmax);
-            cds.setFmaxPartial(partialStop);
-        } else {
-            cds.setFmin(transcript.getFmin());
-            cds.setFminPartial(true);
-            String aa = SequenceUtil.translateSequence(mrna, translationTable, true, readThroughStopCodon);
-            if (aa.substring(aa.length() - 1).equals(SequenceUtil.TranslationTable.STOP)) {
-                cds.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3));
-                cds.setFmaxPartial(false);
-            } else {
-                cds.setFmax(transcript.getFmax());
-                cds.setFmaxPartial(true);
-            }
-        }
-        if (readThroughStopCodon) {
-            String aa = SequenceUtil.translateSequence(getSession().getResiduesWithAlterationsAndFrameshifts(cds), translationTable, true, true);
-            int firstStopIndex = aa.indexOf(SequenceUtil.TranslationTable.STOP);
-            if (firstStopIndex < aa.length() - 1) {
-                StopCodonReadThrough stopCodonReadThrough = createStopCodonReadThrough(cds);
-                cds.setStopCodonReadThrough(stopCodonReadThrough);
-                int offset = transcript.getStrand() == -1 ? -2 : 0;
-                stopCodonReadThrough.setFmin(getSession().convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset);
-                stopCodonReadThrough.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset);
-            }
-        } else {
-            cds.deleteStopCodonReadThrough();
-        }
-        setManuallySetTranslationStart(cds, false);
-        setManuallySetTranslationEnd(cds, false);
-
-        if (needCdsIndex) {
-            getSession().indexFeature(cds);
-        }
-
         Date date = new Date();
-        cds.setTimeLastModified(date);
+
+        if (transcript.getType().equals("sequence:mRNA")) {
+
+            boolean needCdsIndex = transcript.getCDS() == null;
+            CDS cds = transcript.getCDS();
+            if (cds == null) {
+                cds = createCDS(transcript);
+                transcript.setCDS(cds);
+            }
+            if (bestStartIndex >= 0) {
+                int fmin = getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex);
+                int fmax = getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex);
+                if (cds.getStrand().equals(-1)) {
+                    int tmp = fmin;
+                    fmin = fmax + 1;
+                    fmax = tmp + 1;
+                }
+                cds.setFmin(fmin);
+                cds.setFminPartial(false);
+                cds.setFmax(fmax);
+                cds.setFmaxPartial(partialStop);
+            } else {
+                cds.setFmin(transcript.getFmin());
+                cds.setFminPartial(true);
+                String aa = SequenceUtil.translateSequence(mrna, translationTable, true, readThroughStopCodon);
+                if (aa.substring(aa.length() - 1).equals(SequenceUtil.TranslationTable.STOP)) {
+                    cds.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3));
+                    cds.setFmaxPartial(false);
+                } else {
+                    cds.setFmax(transcript.getFmax());
+                    cds.setFmaxPartial(true);
+                }
+            }
+            if (readThroughStopCodon) {
+                String aa = SequenceUtil.translateSequence(getSession().getResiduesWithAlterationsAndFrameshifts(cds), translationTable, true, true);
+                int firstStopIndex = aa.indexOf(SequenceUtil.TranslationTable.STOP);
+                if (firstStopIndex < aa.length() - 1) {
+                    StopCodonReadThrough stopCodonReadThrough = createStopCodonReadThrough(cds);
+                    cds.setStopCodonReadThrough(stopCodonReadThrough);
+                    int offset = transcript.getStrand() == -1 ? -2 : 0;
+                    stopCodonReadThrough.setFmin(getSession().convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset);
+                    stopCodonReadThrough.setFmax(getSession().convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset);
+                }
+            } else {
+                cds.deleteStopCodonReadThrough();
+            }
+            setManuallySetTranslationStart(cds, false);
+            setManuallySetTranslationEnd(cds, false);
+
+            if (needCdsIndex) {
+                getSession().indexFeature(cds);
+            }
+            cds.setTimeLastModified(date);
+
+        }
+
+
         transcript.setTimeLastModified(date);
 
         // event fire

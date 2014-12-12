@@ -17,7 +17,7 @@ public class FormatUtilTest extends TestCase {
     public void testConvertFromXMLToJSON() throws ParserConfigurationException, SAXException, IOException, JSONException {
         Document xml = getXMLDocument();
         JSONObject json = FormatUtil.convertFromXMLToJSON(xml);
-        System.out.println(json);
+//        System.out.println(json);
     }
 
     private Document getXMLDocument() throws ParserConfigurationException, SAXException, IOException {

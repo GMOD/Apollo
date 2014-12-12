@@ -10,7 +10,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -88,6 +91,14 @@ public class JBrowseDataServlet extends HttpServlet {
             }
         }
 
+        if(isCacheableFile(filename)){
+            String eTag = createHashFromFile(file);
+            String dateString = formatLastModifiedDate(file);
+
+            response.setHeader("ETag",eTag);
+            response.setHeader("Last-Modified",dateString );
+        }
+
         String range = request.getHeader("range");
 //        logger.debug("range: " + range);
 
@@ -103,6 +114,7 @@ public class JBrowseDataServlet extends HttpServlet {
             if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
                 response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                 response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+//                response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                 return;
             } else {
                 // If any valid If-Range header, then process each part of byte range.
@@ -125,6 +137,7 @@ public class JBrowseDataServlet extends HttpServlet {
                         if (start > end) {
                             response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                             response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+//                            response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                             return;
                         }
 
@@ -178,6 +191,29 @@ public class JBrowseDataServlet extends HttpServlet {
 
 
 
+    }
+
+    private boolean isCacheableFile(String filename) {
+        if(filename.endsWith(".txt")) return true ;
+        if(filename.endsWith(".json")){
+            String[] names = filename.split("\\/");
+            String requestName = names[names.length-1];
+            return requestName.startsWith("lf-");
+        }
+
+        return false ;
+    }
+
+    private String formatLastModifiedDate(File file) {
+        DateFormat simpleDateFormat = SimpleDateFormat.getDateInstance();
+        return simpleDateFormat.format(new Date(file.lastModified()));
+    }
+
+    private String createHashFromFile(File file) {
+        String fileName = file.getName();
+        long length = file.length();
+        long lastModified = file.lastModified();
+        return fileName + "_" + length + "_" + lastModified;
     }
 
     /**

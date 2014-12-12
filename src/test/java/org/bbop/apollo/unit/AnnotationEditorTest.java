@@ -148,12 +148,52 @@ public class AnnotationEditorTest extends TestCase {
         printGene(gene);
     }
 
-    public void testSetLongestORF() throws GBOLUtilException {
+    public void testSetLongestORFNoCDS() throws GBOLUtilException {
         logger.info("== testSetLongestORF() ==");
-        Gene gene = createGene(1);
+        Gene gene = createGeneWithNonCodingTranscript(1);
         Transcript transcript = gene.getTranscripts().iterator().next();
         editor.setLongestORF(transcript, SequenceUtil.getTranslationTableForGeneticCode(1), false);
         printGene(gene);
+        assertNull(transcript.getCDS());
+
+        for (Exon exon : transcript.getExons()) {
+            if (exon.getUniqueName().equals("exon3")) {
+                exon.getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax() - 2);
+            }
+        }
+        transcript.getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax() - 2);
+        editor.setLongestORF(transcript, SequenceUtil.getTranslationTableForGeneticCode(1), false);
+        printGene(gene);
+        assertNull(transcript.getCDS());
+
+        gene.getFeatureLocation().getSourceFeature().setResidues(gene.getFeatureLocation().getSourceFeature().getResidues().replaceAll("ATG", "AGG"));
+        transcript.getFeatureLocation().setIsFmaxPartial(false);
+        editor.setLongestORF(transcript, SequenceUtil.getTranslationTableForGeneticCode(1), false);
+        printGene(gene);
+        assertNull(transcript.getCDS());
+        gene.getFeatureLocation().getSourceFeature().setResidues(gene.getFeatureLocation().getSourceFeature().getResidues().replaceAll("TAA", "CCC"));
+        gene.getFeatureLocation().getSourceFeature().setResidues(gene.getFeatureLocation().getSourceFeature().getResidues().replaceAll("TAG", "CCC"));
+        gene.getFeatureLocation().getSourceFeature().setResidues(gene.getFeatureLocation().getSourceFeature().getResidues().replaceAll("TGA", "CCC"));
+        transcript.getFeatureLocation().setIsFmaxPartial(false);
+        editor.setLongestORF(transcript, SequenceUtil.getTranslationTableForGeneticCode(1), false);
+        printGene(gene);
+        assertNull(transcript.getCDS());
+    }
+
+    /**
+     * For 2.0, calculateCDS should only be called for mRNA types.  Because source and testing mapping.xml and are completely different,
+     * we can not really compare Apples to Apples.
+     * @throws GBOLUtilException
+     */
+    @Ignore
+    public void testSetLongestORF() throws GBOLUtilException {
+        logger.info("== testSetLongestORF() ==");
+        Gene gene = createGeneWithMRNA(1);
+        Transcript transcript = gene.getTranscripts().iterator().next();
+        editor.setLongestORF(transcript, SequenceUtil.getTranslationTableForGeneticCode(1), false);
+        printGene(gene);
+
+        // there is no CDS for these, so not testing the rest
         assertEquals("cds_1 fmin: ", new Integer(638), transcript.getCDS().getFeatureLocation().getFmin());
         assertEquals("cds_1 fmax: ", new Integer(2628), transcript.getCDS().getFeatureLocation().getFmax());
         for (Exon exon : transcript.getExons()) {
@@ -193,6 +233,7 @@ public class AnnotationEditorTest extends TestCase {
         assertEquals("CDS_4 fmax: ", new Integer(2626), transcript.getCDS().getFeatureLocation().getFmax());
         assertTrue("CDS_4 fmax (partial): ", transcript.getCDS().getFeatureLocation().isIsFmaxPartial());
     }
+
 
     public void testAddExon() {
         logger.info("== testAddExon() ==");
@@ -276,7 +317,7 @@ public class AnnotationEditorTest extends TestCase {
 
     public void testAddSequenceAlteration() {
         logger.info("== testAddSequenceAlteration() ==");
-        Gene gene = createGene(1);
+        Gene gene = createGeneWithMRNA(1);
         editor.addFeature(gene);
         Transcript transcript = gene.getTranscripts().iterator().next();
         editor.setLongestORF(transcript);
@@ -302,9 +343,35 @@ public class AnnotationEditorTest extends TestCase {
         assertEquals("CDS fmax: ", new Integer(2628), transcript.getCDS().getFeatureLocation().getFmax());
     }
 
+    public void testAddSequenceAlterationNoCDS() {
+        logger.info("== testAddSequenceAlteration() ==");
+        Gene gene = createGeneWithNonCodingTranscript(1);
+        editor.addFeature(gene);
+        Transcript transcript = gene.getTranscripts().iterator().next();
+        editor.setLongestORF(transcript);
+        printGene(gene);
+        assertNull(transcript.getCDS());
+        editor.addSequenceAlteration(createSubstition("substitution 1", 641, "T", 1));
+        assertNull(transcript.getCDS());
+
+        editor.addSequenceAlteration(createSubstition("substitution 2", 700, "T", 1));
+        assertNull(transcript.getCDS());
+
+        editor.addSequenceAlteration(createInsertion("insertion 1", 644, "ATT", 1));
+        assertNull(transcript.getCDS());
+        editor.addSequenceAlteration(createInsertion("insertion 2", 2300, "CCC", 1));
+        assertNull(transcript.getCDS());
+        editor.addSequenceAlteration(createDeletion("deletion 1", 641, 644, "TAT", 1));
+        assertNull(transcript.getCDS());
+        editor.addSequenceAlteration(createSubstition("substitution 3", 638, "C", 1));
+        assertNull(transcript.getCDS());
+        editor.setLongestORF(transcript);
+        assertNull(transcript.getCDS());
+    }
+
     public void testSplitTranscript() {
         logger.info("== testSplitTranscript() ==");
-        Gene gene = createGene(1);
+        Gene gene = createGeneWithNonCodingTranscript(1);
         assertEquals("Number of transcripts before split: ", new Integer(1), new Integer(gene.getTranscripts().size()));
         Transcript transcript = gene.getTranscripts().iterator().next();
         List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons());
@@ -332,7 +399,7 @@ public class AnnotationEditorTest extends TestCase {
 
     public void testFlipStrand() {
         logger.info("== testFlipStrand() ==");
-        Gene gene = createGene(1);
+        Gene gene = createGeneWithNonCodingTranscript(1);
         List<AbstractSingleLocationBioFeature> features = new ArrayList<AbstractSingleLocationBioFeature>();
         features.add(gene);
         while (features.size() > 0) {
@@ -356,7 +423,7 @@ public class AnnotationEditorTest extends TestCase {
 //    public void testFindNonCanonicalAcceptorDonorSpliceSites() {
     public void doNotTestFindNonCanonicalAcceptorDonorSpliceSites() {
         logger.info("== testFindNonCanonicalAcceptorDonorSpliceSites() ==");
-        Gene gene = createGene(1);
+        Gene gene = createGeneWithNonCodingTranscript(1);
         for (Transcript transcript : gene.getTranscripts()) {
             editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             assertEquals("Number of non canonical 5' splice sites (plus strand - before modification): ", new Integer(0),
@@ -393,7 +460,7 @@ public class AnnotationEditorTest extends TestCase {
             assertEquals("Number of non canonical 3' splice sites (plus strand - after 3rd modification): ", new Integer(1),
                     new Integer(transcript.getNonCanonicalThreePrimeSpliceSites().size()));
         }
-        gene = createGene(-1);
+        gene = createGeneWithNonCodingTranscript(-1);
         for (Transcript transcript : gene.getTranscripts()) {
             editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             assertEquals("Number of non canonical 5' splice sites (minus strand - before modification): ", new Integer(0),
@@ -485,7 +552,7 @@ public class AnnotationEditorTest extends TestCase {
         return chromosome;
     }
 
-    private Gene createGene(int strand) {
+    private Gene createGeneWithNonCodingTranscript(int strand) {
         Chromosome chromosome = createChromosome(strand);
         chromosome.setFeatureLocation(0, 2735, 1, null);
         Gene gene = new Gene(organism, "gene", false, false, new Timestamp(0), conf);
@@ -498,8 +565,33 @@ public class AnnotationEditorTest extends TestCase {
         return gene;
     }
 
+    private Gene createGeneWithMRNA(int strand) {
+        Chromosome chromosome = createChromosome(strand);
+        chromosome.setFeatureLocation(0, 2735, 1, null);
+        Gene gene = new Gene(organism, "gene", false, false, new Timestamp(0), conf);
+        gene.setFeatureLocation(0, 2735, strand, chromosome);
+        MRNA transcript = createMRNA(638, 2628, strand, "transcript", chromosome);
+        gene.addTranscript(transcript);
+        transcript.addExon(createExon(638, 693, strand, "exon1", chromosome));
+        transcript.addExon(createExon(849, 2223, strand, "exon2", chromosome));
+        transcript.addExon(createExon(2392, 2628, strand, "exon3", chromosome));
+        return gene;
+    }
+
+
     private Transcript createTranscript(int fmin, int fmax, int strand, String name, Chromosome src) {
         Transcript transcript = new Transcript(organism, name, false, false, new Timestamp(0), conf);
+        if (strand == -1) {
+            int tmp = fmax;
+            fmax = src.getLength() - fmin;
+            fmin = src.getLength() - tmp;
+        }
+        transcript.setFeatureLocation(fmin, fmax, strand, src);
+        return transcript;
+    }
+
+    private MRNA createMRNA(int fmin, int fmax, int strand, String name, Chromosome src) {
+        MRNA transcript = new MRNA(organism, name, false, false, new Timestamp(0), conf);
         if (strand == -1) {
             int tmp = fmax;
             fmax = src.getLength() - fmin;

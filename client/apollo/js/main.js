@@ -12,9 +12,11 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
            'dijit/CheckedMenuItem',
+           'dijit/PopupMenuItem',
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
            'dijit/form/Button',
@@ -26,10 +28,11 @@ define(
            './View/TrackList/Hierarchical',
            './View/TrackList/Faceted',
            './InformationEditor',
-           'JBrowse/View/FileDialog/TrackList/GFF3Driver'
+           'JBrowse/View/FileDialog/TrackList/GFF3Driver',
+           'lazyload/lazyload'
        ],
-    function( declare, dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver ) {
+    function( declare, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
 {
@@ -39,6 +42,7 @@ return declare( JBPlugin,
         var thisB = this;
         this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
+        this.showTrackLabel = true ;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -51,6 +55,16 @@ return declare( JBPlugin,
           script.async = false;
           document.head.appendChild(script);
         });
+
+        // Checking for cookie for determining the color scheme of WebApollo
+        if (document.cookie.indexOf("Scheme=Dark") === -1) {
+            this.changeCssScheme = false;
+        }
+        else {
+            this.changeCssScheme = true;
+            LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
+        }
+
 
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
@@ -96,22 +110,63 @@ return declare( JBPlugin,
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
 
+        //Adding a global menu option for changing CSS color scheme
+        var box_check;
+        if (this.changeCssScheme) {
+            box_check = true;
+        }
+        else {
+            box_check = false;
+        }
+
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Light";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Dark";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
+
         this.addStrandFilterOptions();
 
 
         if (browser.config.show_nav) {
-            var helpUrl = browser.config.helpUrl;
+            //var helpUrl = browser.config.helpUrl;
 //            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
 //            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
             var jbrowseUrl = "http://jbrowse.org";
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_quickstart',
-                                            label: 'General',
-                                            onClick: function()  { window.open(helpUrl,'help_window').focus(); }
-                                        })
-                                  );
+            //browser.addGlobalMenuItem( 'help',
+            //                        new dijitMenuItem(
+            //                            {
+            //                                id: 'menubar_apollo_quickstart',
+            //                                label: 'General',
+            //                                onClick: function()  { window.open(helpUrl,'help_window').focus(); }
+            //                            })
+            //                      );
            /*
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
@@ -225,7 +280,7 @@ return declare( JBPlugin,
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
-                browser.poweredByLink.href = 'http://www.gmod.org/wiki/WebApollo';
+                browser.poweredByLink.href = 'http://genomearchitect.org/';
                 browser.poweredByLink.target = "_blank";
             }
 
@@ -416,16 +471,26 @@ return declare( JBPlugin,
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: true,
+                checked: this.showTrackLabel,
                 onClick: function(event) {
                     if(hide_track_label_toggle.checked){
                         $('.track-label').show();
+                        this.showTrackLabel = true ;
                     }
                     else{
                         $('.track-label').hide();
+                        this.showTrackLabel = false ;
                     }
                 }
             });
+
+        if(this.showTrackLabel){
+            $('.track-label').show();
+        }
+        else{
+            $('.track-label').hide();
+        }
+
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },

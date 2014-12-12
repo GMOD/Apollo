@@ -127,13 +127,17 @@ public class IOService extends HttpServlet {
             }
         }
         catch (ServletException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(e.getMessage());
         }
         catch (Exception e) {
             StringWriter buf = new StringWriter();
             e.printStackTrace(new PrintWriter(buf));
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing " + request.getParameter("track") + buf.toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing " + request.getParameter("track") + buf.toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error processing " + request.getParameter("track") + buf.toString());
         }
     }
 
@@ -193,13 +197,17 @@ public class IOService extends HttpServlet {
             }
         }
         catch (ServletException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(e.getMessage());
         }
         catch (Exception e) {
             StringWriter buf = new StringWriter();
             e.printStackTrace(new PrintWriter(buf));
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing " + request.getParameter("track") + buf.toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing " + request.getParameter("track") + buf.toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Error processing " + request.getParameter("track") + buf.toString());
         }
     }
     

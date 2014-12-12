@@ -17,6 +17,7 @@ src/main/webapp/jbrowse/
 out
 web-app/jbrowse
 jbrowse-github
+jbrowse-download
 log4j2.json
 log4j2-test.json
 tmp
@@ -27,3 +28,8 @@ apollo-config.groovy
 gwt-unitCache/**
 web-app/WEB-INF/deploy/**
 web-app/annotator/**
+/extlib/
+setup.log
+/src/perl5/
+/bin/
+/site/

@@ -4,6 +4,13 @@
 	font-size:10px;
 }
 
+.gff3_area{
+	width: 50em;
+	height: 20em;
+	font-family: 'courier';
+	font-size: 1.0em;
+}
+
 .sequence_area {
 	width: 60em;
 	height: 20em;

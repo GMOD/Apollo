@@ -30,6 +30,7 @@ import org.bbop.apollo.web.user.UserManager;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.gmod.gbol.bioObject.*;
 import org.gmod.gbol.bioObject.conf.BioObjectConfiguration;
+import org.gmod.gbol.bioObject.io.GFF3Handler;
 import org.gmod.gbol.bioObject.util.BioObjectUtil;
 import org.gmod.gbol.simpleObject.*;
 import org.gmod.gbol.util.SequenceUtil;
@@ -46,6 +47,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.*;
@@ -600,6 +604,11 @@ public class AnnotationEditorService extends HttpServlet {
                         }
 
                         // get_sequence
+                        else if (operation.equals("get_gff3")) {
+                            getGff3(editor, json.getJSONArray("features"), out);
+                        }
+
+                        // get_sequence
                         else if (operation.equals("get_sequence")) {
                             getSequence(editor, json.getJSONArray("features"), json.getString("type"), json.has("flank") ? json.getInt("flank") : 0, out);
                         }
@@ -865,6 +874,52 @@ public class AnnotationEditorService extends HttpServlet {
             } catch (JSONException e2) {
             }
         }
+    }
+
+    private void getGff3(AnnotationEditor editor, JSONArray features, BufferedWriter out)  throws JSONException, IOException {
+//        JSONObject featureContainer = createJSONFeatureContainer();
+        File tempFile = File.createTempFile("feature",".gff3");
+
+        // TODO: use specified metadata?
+        Set<String> metaDataToExport = new HashSet<>();
+        metaDataToExport.add("name");
+        metaDataToExport.add("symbol");
+        metaDataToExport.add("description");
+        metaDataToExport.add("status");
+        metaDataToExport.add("dbxrefs");
+        metaDataToExport.add("attributes");
+        metaDataToExport.add("pubmed_ids");
+        metaDataToExport.add("go_ids");
+        metaDataToExport.add("comments");
+
+        List<AbstractSingleLocationBioFeature> featuresToWrite = new ArrayList<>();
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            String uniqueName = jsonFeature.getString("uniquename");
+            AbstractSingleLocationBioFeature gbolFeature = editor.getSession().getFeatureByUniqueName(uniqueName);
+            while(gbolFeature.getParents().size()>0){
+                gbolFeature = gbolFeature.getParents().iterator().next() ;
+            }
+            featuresToWrite.add(gbolFeature);
+        }
+
+        GFF3Handler gff3Handler = new GFF3Handler(tempFile.getAbsolutePath(),GFF3Handler.Mode.WRITE, GFF3Handler.Format.TEXT,metaDataToExport);
+        String inputString = ".";
+//        Node sourceNode = doc.getElementsByTagName("source").item(0);
+//        source = sourceNode != null ? source = sourceNode.getTextContent() : ".";
+        gff3Handler.writeFeatures(featuresToWrite,inputString);
+        gff3Handler.close();
+        Charset encoding = Charset.defaultCharset();
+//        List<String> lines = Files.readAllLines(Paths.get(tempFile.getAbsolutePath()), encoding);
+
+        byte[] encoded = Files.readAllBytes(Paths.get(tempFile.getAbsolutePath()));
+        String gff3String = new String(encoded, encoding);
+
+        assert tempFile.delete();
+
+        out.write(gff3String);
+
+//        out.write(featureContainer.toString());
     }
 
     private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
@@ -4069,7 +4124,9 @@ public class AnnotationEditorService extends HttpServlet {
 
     private void sendConfirm(HttpServletResponse response, String message) {
         try {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("confirm", message).toString());
+//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("confirm", message).toString());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write(new JSONObject().put("confirm", message).toString());
         } catch (Exception e) {
         }
     }

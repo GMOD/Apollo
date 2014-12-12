@@ -1046,13 +1046,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             else {
                 var children = dragfeat.get("subfeatures");
-                    if(!children) {
-                        alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
-                        return;
-                    }
+				if(!children) {
+                    alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
+                    return;
+                }
                 for (var j = 0; j < children.length; ++j) {
                     subfeatures.push(children[j]);
-                }
+                 }
                 if (!parentFeature) {
                     parentFeature = dragfeat;
                 }
@@ -1991,7 +1991,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         dojo.place(annotContent, content);
         ++numItems;
         dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-        track.openDialog("Information Editor", content);
+        track.openDialog("Information Editor (option-click)", content);
         AnnotTrack.popupDialog.resize();
         AnnotTrack.popupDialog._position();
     },
@@ -3238,6 +3238,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             else {
                 alert("Invalid ID " + goId + " - Must be formatted as 'GO:#######' - Removing entry");
                 goIdTable.store.deleteItem(goIdTable.getItem(row));
+                goIdTable.close();
             }
         };
 
@@ -3265,6 +3266,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 alert("Invalid ID " + newGoId + " - Undoing update");
 // goIdTable.store.setValue(goIdTable.getItem(row), "go_id", oldGoId);
                 goIdTable.store.setValue(item, "go_id", oldGoId);
+                goIdTable.close();
             }
         };
         
@@ -3684,6 +3686,69 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     return response;
                 }
             });
+    },
+
+    getGff3: function()  {
+        var selected = this.selectionManager.getSelection();
+        this.getGff3ForSelectedFeatures(selected);
+    },
+
+    getGff3ForSelectedFeatures: function(records) {
+        var track = this;
+
+        var content = dojo.create("div", { className: "get_gff3" });
+        var textArea = dojo.create("textarea", { className: "gff3_area", readonly: true }, content);
+
+        var fetchGff3 = function() {
+            var features = '"features": [';
+            for (var i = 0; i < records.length; ++i)  {
+                var record = records[i];
+                var annot = record.feature;
+                var seltrack = record.track;
+                var uniqueName = annot.getUniqueName();
+                // just checking to ensure that all features in selection are
+                // from this track
+                if (seltrack === track)  {
+                    var trackdiv = track.div;
+                    var trackName = track.getUniqueTrackName();
+
+                    if (i > 0) {
+                        features += ',';
+                    }
+                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                }
+            }
+            features += ']';
+            var operation = "get_gff3";
+            var trackName = track.getUniqueTrackName();
+            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+            postData += ' }';
+            dojo.xhrPost( {
+                postData: postData,
+                url: context_path + "/AnnotationEditorService",
+                handleAs: "text",
+                timeout: 5000 * 1000, // Time in milliseconds
+                load: function(response, ioArgs) {
+                    var textAreaContent = response;
+                    dojo.attr(textArea, "innerHTML", textAreaContent);
+                },
+                // The ERROR function will be called in an error case.
+                error: function(response, ioArgs) {
+                    track.handleError(response);
+                    console.log(response);
+                    console.log("Annotation server error--maybe you forgot to login to the server?");
+                    console.error("HTTP status code: ", ioArgs.xhr.status);
+                    //
+                    // dojo.byId("replace").innerHTML = 'Loading the
+                    // resourcgetFeaturee from the server did not work';
+                    return response;
+                }
+
+            });
+        };
+        fetchGff3(records);
+
+        this.openDialog("GFF3", content);
     },
 
     getSequence: function()  {
@@ -4293,6 +4358,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         contextMenuItems["get_sequence"] = index++;
 
         annot_context_menu.addChild(new dijit.MenuItem( {
+            label: "Get gff3",
+            onClick: function(event) {
+                thisObj.getGff3();
+            }
+        } ));
+        contextMenuItems["get_gff3"] = index++;
+
+        annot_context_menu.addChild(new dijit.MenuItem( {
             label: "Zoom to base level",
             onClick: function(event) {
                 if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
@@ -4308,7 +4381,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information Editor",
+                label: "Information Editor (option-click)",
                 onClick: function(event) {
                     thisObj.getAnnotationInfoEditor();
                 }
@@ -4328,6 +4401,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          */
 
         if (permission & Permission.WRITE) {
+            //annot_context_menu.addChild(new dijit.MenuSeparator());
+            //index++;
+            annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Edit Annotation (option-click)",
+                onClick: function(event) {
+                    thisObj.getAnnotationInfoEditor();
+                }
+            } ));
+            contextMenuItems["annotation_info_editor"] = index++;
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
@@ -4378,7 +4460,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["make_intron"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Flip strand",
+                label: "Move to opposte strand",
                 onClick: function(event) {
                     thisObj.flipStrand();
                 }
@@ -4481,15 +4563,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             thisObj.setToUpstreamAcceptor();
                     }
             }));
-            annot_context_menu.addChild(new dijit.MenuSeparator());
-            index++;
-            annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information Editor",
-                onClick: function(event) {
-                    thisObj.getAnnotationInfoEditor();
-                }
-            } ));
-            contextMenuItems["annotation_info_editor"] = index++;
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
