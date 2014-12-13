@@ -178,17 +178,32 @@ return declare( JBPlugin,
 
     plusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == 1 || strand == '+')  { return true; }
-        else  { return false; }
+        return strand == 1 || strand == '+';
     },
 
     minusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == -1 || strand == '-')  { return true; }
-        else  { return false; }
+        return strand == -1 || strand == '-';
     },
     passAllFilter: function(feature)  {  return true; },
     passNoneFilter: function(feature)  { return false; },
+    processFilters: function(plus,minus) {
+        var plus = plus_strand_toggle.checked;
+        var minus = minus_strand_toggle.checked;
+        if (plus && minus)  {
+            browser.setFeatureFilter(thisB.passAllFilter);
+        }
+        else if (plus)  {
+            browser.setFeatureFilter(thisB.plusStrandFilter);
+        }
+        else if (minus)  {
+            browser.setFeatureFilter(thisB.minusStrandFilter);
+        }
+        else  {
+            browser.setFeatureFilter(thisB.passNoneFilter);
+        }
+        browser.view.redrawTracks();
+    },
 
     addStrandFilterOptions: function()  {
         var thisB = this;
@@ -198,22 +213,7 @@ return declare( JBPlugin,
                     label: "Show plus strand",
                     checked: true,
                     onClick: function(event) {
-                        var plus = plus_strand_toggle.checked;
-                        var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
-                        if (plus && minus)  {
-                            browser.setFeatureFilter(thisB.passAllFilter);
-                        }
-                        else if (plus)  {
-                            browser.setFeatureFilter(thisB.plusStrandFilter);
-                        }
-                        else if (minus)  {
-                            browser.setFeatureFilter(thisB.minusStrandFilter);
-                        }
-                        else  {
-                            browser.setFeatureFilter(thisB.passNoneFilter);
-                        }
-                        browser.view.redrawTracks();
+                        processFilter(plus_strand_toggle.checked,minus_strand_toggle.checked);
                     }
                 });
         browser.addGlobalMenuItem( 'view', plus_strand_toggle );
@@ -222,23 +222,8 @@ return declare( JBPlugin,
                     label: "Show minus strand",
                     checked: true,
                     onClick: function(event) {
-                        var plus = plus_strand_toggle.checked;
-                        var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
-                        if (plus && minus)  {
-                            browser.setFeatureFilter(thisB.passAllFilter);
-                        }
-                        else if (plus)  {
-                            browser.setFeatureFilter(thisB.plusStrandFilter);
-                        }
-                        else if (minus)  {
-                            browser.setFeatureFilter(thisB.minusStrandFilter);
-                        }
-                        else  {
-                            browser.setFeatureFilter(thisB.passNoneFilter);
-                        }
-                        browser.view.redrawTracks();
-                        }
+                        processFilter(plus_strand_toggle.checked,minus_strand_toggle.checked);
+                    }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
         var hide_track_label_toggle = new dijitCheckedMenuItem(
@@ -294,24 +279,19 @@ return declare( JBPlugin,
      *    with a "Search Sequence" dropdown
      */
     initSearchMenu: function()  {
-        if (! this.searchMenuInitialized) {
-            var webapollo = this;
-            this.browser.addGlobalMenuItem( 'tools',
-                                            new dijitMenuItem(
-                                                {
-                                                    id: 'menubar_apollo_seqsearch',
-                                                    label: "Search sequence",
-                                                    onClick: function() {
-                                                        webapollo.getAnnotTrack().searchSequence();
-                                                    }
-                                                }) );
-            this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+        var thisB = this;
+        this.browser.addGlobalMenuItem( 'tools',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_seqsearch',
+                    label: "Search sequence",
+                    onClick: function() {
+                        thisB.getAnnotTrack().searchSequence();
+                    }
+                })
+        );
+        this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
 
-
-        }
-
-        // move Tool menu in front of Help menu (Help should always be last menu?)
-        // Dojo weirdness: actual menu pulldown get assigned "widgetid" equal to "id" passed when creating dijit DropDownButton
         var toolsMenu = dojo.query('.menu[widgetid="dropdownbutton_tools"]')[0];
         var helpMenu = dojo.query('.menu[widgetid="dropdownbutton_help"]')[0];
         domConstruct.place(toolsMenu,helpMenu,'before');
@@ -480,14 +460,14 @@ return declare( JBPlugin,
         var jbrowseUrl = "http://jbrowse.org";
 
         browser.addGlobalMenuItem( 'help',
-                                new dijitMenuItem(
-                                    {
-                                        id: 'menubar_powered_by_jbrowse',
-                                        label: 'Powered by JBrowse',
-                                        // iconClass: 'jbrowseIconHelp', 
-                                        onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                    })
-                              );
+            new dijitMenuItem(
+                {
+                    id: 'menubar_powered_by_jbrowse',
+                    label: 'Powered by JBrowse',
+                    // iconClass: 'jbrowseIconHelp', 
+                    onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                })
+        );
         browser.addGlobalMenuItem( 'help',
             new dijitMenuItem(
                 {
