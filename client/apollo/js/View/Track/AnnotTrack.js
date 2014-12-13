@@ -162,19 +162,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         thisConfig.style.centerChildrenVertically = false;
         thisConfig.pinned = true;
         return thisConfig;
-        /*
-         * start of alternative to nulling out JBrowse feature contextual menu,
-         * instead attempt to merge in AnnotTrack-specific menu items var
-         * superConfig = this.inherited(arguments); var track = this; var
-         * superMenuTemplate = superConfig.menuTemplate; var thisConfig =
-         * Util.deepUpdate( // dojo.clone( this.inherited(arguments) ), dojo.clone(
-         * superConfig ), { menuTemplate: [ { label: "Delete", action: function() {
-         * track.deleteSelectedFeatures(); } } ] } ); var thisMenuTemplate =
-         * thisConfig.menuTemplate; for (var i=0; i<superMenuTemplate.length; i++) {
-         * thisMenuTemplate.push(superMenuTemplate[i]); }
-         * console.log(thisMenuTemplate);
-         */
-
     },
 
     /**
@@ -195,38 +182,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                    
         this.inherited( arguments );
         var track = this;
+        //login with ajax
+        this.getPermission( ).then(function() {
+            var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
+            document.body.appendChild(standby.domNode);
+            standby.startup();
+            standby.show();
 
-        // this.getPermission( dojo.hitch(this, initAnnotContextMenu) ); // calling back
-        // to initAnnotContextMenu() once permissions are returned by server
-        var success = this.getPermission( function()  { 
-                                              track.initAnnotContextMenu(); 
-                                          } );  // calling back to
-                                                // initAnnotContextMenu() once
-                                                // permissions are returned by
-                                                // server
-        
-        /*
-         * getPermission call is synchronous, so login initialization etc. can
-         * be called anytime after getPermission call
-         */
-        // track.initLoginMenu();
+            track.initAnnotContextMenu();
 
-        var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
-        document.body.appendChild(standby.domNode);
-        standby.startup();
-        standby.show();
+            track.initSaveMenu();
+            track.initPopupDialog();
 
-
-        if (!this.webapollo.loginMenuInitialized) {
-            this.webapollo.initLoginMenu(this.username);
-        }
-        if (! this.webapollo.searchMenuInitialized && this.permission)  {
-            this.webapollo.initSearchMenu();
-        }
-        this.initSaveMenu();
-        this.initPopupDialog();
-
-        if (success) {
             track.createAnnotationChangeListener();
             xhr(context_path + "/AnnotationEditorService", {
                 handleAs: "json",
@@ -257,22 +224,24 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 track.handleError({ responseText: response.response.text } );
                 return response; //
             });
-        }
 
-        if (success) {
-            this.makeTrackDroppable();
-            this.hide();
-            this.show();
-        }
-        else {
-            if (this.config.disableJBrowseMode) {
-                this.login();
-            }
-            else {
-                this.hide();
-            }
-        }
+            track.makeTrackDroppable();
+            track.hide();
+            track.show();
+        },
+        function() {
+            "disableJBrowseMode" in track.config && track.config.disableJBrowseMode?track.login():track.hide();
+            console.log("Error");
+        });
 
+
+        // initialize menus regardless
+        if (!this.webapollo.loginMenuInitialized) {
+            this.webapollo.initLoginMenu(this.username);
+        }
+        if (! this.webapollo.searchMenuInitialized && this.permission)  {
+            this.webapollo.initSearchMenu();
+        }
     }, 
 
     createAnnotationChangeListener: function(retryNumber) {
@@ -286,11 +255,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             window.location.reload();
             return;
         }
-        // if (listeners[track.getUniqueTrackName()]) {
-        // if (listeners[track.getUniqueTrackName()].fired == -1) {
-        // listeners[track.getUniqueTrackName()].cancel();
-        // }
-        // }
 
         this.listener = dojo.xhrGet( {
             url: context_path + "/AnnotationChangeNotificationService",
@@ -307,7 +271,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * xhr.load, with each loop just receiving cached response without ever
              * going back out to server after first response.
              */
-            preventCache: true, 
+            preventCache: true,
             // timeout: 1000 * 1000, // Time in milliseconds
             timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no
                                         // timeout set
@@ -325,7 +289,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         var changeData = response[i];
                         if (track.verbose_server_notification) {
                             console.log(changeData.operation + " command from server: ");
-                            console.log(changeData);                                        
+                            console.log(changeData);
                         }
                         if (changeData.operation == "ADD") {
                             if (changeData.sequenceAlterationEvent) {
@@ -3386,7 +3350,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 div.style.top = null;
             }
             if (div.style.visibility)  { div.style.visibility = null; }
-// annot_context_menu.unBindDomNode(div);
+            // annot_context_menu.unBindDomNode(div);
             $(div).unbind();
             for (var i = 0; i < div.childNodes.length; ++i) {
                 cleanupDiv(div.childNodes[i]);
@@ -3400,7 +3364,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var fmin = afeature.location.fmin;
             var fmax = afeature.location.fmax;
             var maxLength = maxFmax - minFmin;
-// track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
+            // track.featureStore._add_getters(track.attrs.accessors().get, jfeature);
             historyPreviewDiv.featureLayout = new Layout(fmin, fmax);
             historyPreviewDiv.featureNodes = new Array();
             historyPreviewDiv.startBase = minFmin - (maxLength * 0.1);
@@ -4620,30 +4584,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
     }, 
 
-    getPermission: function( callback ) {
+    getPermission: function( ) {
         var thisObj = this;
-        var loadCallback = callback;
-        var success = true;
-        dojo.xhrPost( {
-            sync: true,
-            postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
-            url: context_path + "/AnnotationEditorService",
+        return xhr.post(context_path + "/AnnotationEditorService", {
+            data: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
             handleAs: "json",
             timeout: 5 * 1000, // Time in milliseconds
+        }).then(function(response) {
             // The LOAD function will be called on a successful response.
-            load: function(response, ioArgs) { //
-                var permission = response.permission;
-                thisObj.permission = permission;
-                var username = response.username;
-                thisObj.username = username;
-                if (loadCallback)  { loadCallback(permission); };
-            },
-            error: function(response, ioArgs) { //
-    // thisObj.handleError(response);
-                success = false;
-            }
+            var permission = response.permission;
+            thisObj.permission = permission;
+            var username = response.username;
+            thisObj.username = username;
         });
-        return success;
     },
 
     initPopupDialog: function() {
