@@ -47,8 +47,6 @@ define( [
           DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
           SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
-// var listeners = [];
-// var listener;
 
 /**
  * WARNING Requires server support for Servlet 3.0 comet-style long-polling,
@@ -262,28 +260,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 track: track.getUniqueTrackName()
             },
             handleAs: "json",
-            /*
-             * WARNING: MUST set preventCache to true, at least with Dojo 1.? (7?)
-             * otherwise with AnnotationChangeNotificationService dojo.xhrGet, dojo
-             * will cache the response till page reload (seems to do this regardless
-             * of whether web browser caching is enabled or not) result is infinite
-             * loop due to recursive createAnnotationChangeListener() call in
-             * xhr.load, with each loop just receiving cached response without ever
-             * going back out to server after first response.
-             */
             preventCache: true,
-            // timeout: 1000 * 1000, // Time in milliseconds
-            timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no
-                                        // timeout set
-            // The LOAD function will be called on a successful response.
+            timeout: 5 * 60 * 1000,
             load: function(response, ioArgs) {
                 if (response == null) {
-                        track.createAnnotationChangeListener();
+                    track.createAnnotationChangeListener();
                 }
-                // else if (response.error) {
-                // track.handleError({ responseText:
-                // JSON.stringify(response) });
-                // }
                 else {
                     for (var i in response) {
                         var changeData = response[i];
@@ -323,13 +305,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             // unknown command from server, null-op?
                         }
                     }
-                    // track.hideAll(); shouldn't need to call hideAll()
-                    // before changed() anymore
                     track.changed();
                     track.createAnnotationChangeListener();
                 }
             },
-            // The ERROR function will be called in an error case.
             error: function(response, ioArgs) { //
                 // client cancel
                 if (response.dojoType == "cancel") {
@@ -394,8 +373,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             },
             failOk: true
         });
-    // listeners[track.getUniqueTrackName()] = listener;
-
     },
 
     /**
@@ -588,30 +565,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     onFeatureMouseDown: function(event) {
 
-        // _not_ calling DraggableFeatureTrack.prototyp.onFeatureMouseDown --
-        // don't want to allow dragging (at least not yet)
-        // event.stopPropagation();
         this.last_mousedown_event = event;
         var ftrack = this;
         if (ftrack.verbose_selection || ftrack.verbose_drag)  {
             console.log("AnnotTrack.onFeatureMouseDown called, genome coord: " + this.getGenomeCoord(event));
         }
 
-        // checking for whether this is part of drag setup retrigger of
-        // mousedown --
-        // if so then don't do selection or re-setup draggability)
-        // this keeps selection from getting confused,
-        // and keeps trigger(event) in draggable setup from causing infinite
-        // recursion
-        // in event handling calls to featMouseDown
-    /*
-     * if (ftrack.drag_create) { if (ftrack.verbose_selection ||
-     * ftrack.verbose_drag) { console.log("DFT.featMouseDown re-triggered event
-     * for drag initiation, drag_create: " + ftrack.drag_create);
-     * console.log(ftrack); } ftrack.drag_create = null; } else {
-     * this.handleFeatureSelection(event); //
-     * this.handleFeatureDragSetup(event); }
-     */
         this.handleFeatureSelection(event);
     },
 
@@ -973,30 +932,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             featureToAdd.set( "start", fmin );
             featureToAdd.set( "end",   fmax );
             var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA", true );
-            featuresToAdd.push(afeat);  
-            
-            /*
-             * for (var i in parentFeatures) { var featArray =
-             * parentFeatures[i]; if (featArray.isSubfeature) { var
-             * parentFeature = featArray[0].parent(); var fmin = undefined;
-             * var fmax = undefined; // var featureToAdd = $.extend({},
-             * parentFeature); var featureToAdd =
-             * JSONUtils.makeSimpleFeature(parentFeature);
-             * featureToAdd.set('subfeatures', new Array()); for (var k = 0;
-             * k < featArray.length; ++k) { // var dragfeat = featArray[k];
-             * var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]); var
-             * childFmin = dragfeat.get('start'); var childFmax =
-             * dragfeat.get('end'); if (fmin === undefined || childFmin <
-             * fmin) { fmin = childFmin; } if (fmax === undefined ||
-             * childFmax > fmax) { fmax = childFmax; }
-             * featureToAdd.get("subfeatures").push( dragfeat ); }
-             * featureToAdd.set( "start", fmin ); featureToAdd.set( "end",
-             * fmax ); var afeat = JSONUtils.createApolloFeature(
-             * featureToAdd, "mRNA" ); featuresToAdd.push(afeat); } else {
-             * for (var k = 0; k < featArray.length; ++k) { var dragfeat =
-             * featArray[k]; var afeat = JSONUtils.createApolloFeature(
-             * dragfeat, "mRNA", true); featuresToAdd.push(afeat); } } }
-             */
+            featuresToAdd.push(afeat);
+
             var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
             target_track.executeUpdateOperation(postData);
 
