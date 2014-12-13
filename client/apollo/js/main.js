@@ -458,6 +458,7 @@ return declare( JBPlugin,
     createMenuBar: function() {
         var browser=this.browser;
         var jbrowseUrl = "http://jbrowse.org";
+        var thisB = this;
 
         browser.addGlobalMenuItem( 'help',
             new dijitMenuItem(

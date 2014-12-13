@@ -252,68 +252,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                 };
                 func();
-                
-                /*
-                 * // console.log("AnnotTrack get_features XHR returned, trying
-                 * to find sequence track: ", strack); var strack =
-                 * track.getSequenceTrack(); // setAnnotTrack() triggers loading
-                 * of sequence alterations if (strack && (! strack.annotTrack)) {
-                 * strack.setAnnotTrack(track); }
-                 */
-                
-                /*
-                 * for (var i = 0; i < responseFeatures.length; i++) { var jfeat =
-                 * JSONUtils.createJBrowseFeature( responseFeatures[i] );
-                 * track.store.insert(jfeat); }
-                 */
-                // track.hideAll(); shouldn't need to call hideAll() before
-                // changed() anymore
-                /*
-                 * track.changed();
-                 *  // console.log("AnnotTrack get_features XHR returned, trying
-                 * to find sequence track: ", strack); var strack =
-                 * track.getSequenceTrack(); // setAnnotTrack() triggers loading
-                 * of sequence alterations if (strack && (! strack.annotTrack)) {
-                 * strack.setAnnotTrack(track); }
-                 * 
-                 * standby.hide();
-                 */
             }, function(response, ioArgs) { //
                 console.log("Annotation server error--maybe you forgot to login to the server?");
-                // console.error("HTTP status code: ", ioArgs.xhr.status); //
                 track.handleError({ responseText: response.response.text } );
-                // dojo.byId("replace").innerHTML = 'Loading the resource from
-                // the server did not work'; //
-                // track.remote_edit_working = false;
                 return response; //
             });
-            
-            /*
-             * dojo.xhrPost( { postData: '{ "track": "' +
-             * track.getUniqueTrackName() + '", "operation": "get_features" }',
-             * url: context_path + "/AnnotationEditorService", handleAs: "json",
-             * timeout: 5 * 60 * 1000, // Time in milliseconds // The LOAD
-             * function will be called on a successful response. load:
-             * function(response, ioArgs) { // var responseFeatures =
-             * response.features; for (var i = 0; i < responseFeatures.length;
-             * i++) { var jfeat = JSONUtils.createJBrowseFeature(
-             * responseFeatures[i] ); track.store.insert(jfeat); } //
-             * track.hideAll(); shouldn't need to call hideAll() before
-             * changed() anymore track.changed();
-             *  // console.log("AnnotTrack get_features XHR returned, trying to
-             * find sequence track: ", strack); var strack =
-             * track.getSequenceTrack(); // setAnnotTrack() triggers loading of
-             * sequence alterations if (strack && (! strack.annotTrack)) {
-             * strack.setAnnotTrack(track); } }, // The ERROR function will be
-             * called in an error case. error: function(response, ioArgs) { //
-             * console.log("Annotation server error--maybe you forgot to login
-             * to the server?"); console.error("HTTP status code: ",
-             * ioArgs.xhr.status); // track.handleError(response);
-             * //dojo.byId("replace").innerHTML = 'Loading the resource from the
-             * server did not work'; // // track.remote_edit_working = false;
-             * return response; // } });
-             */
-
         }
 
         if (success) {
@@ -559,7 +502,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var clsName;
         var type = feature.afeature.type;
         if (!this.isProteinCoding(feature)) {
-            var topLevelAnnotation = AnnotTrack.getTopLevelAnnotation(feature);
+            var topLevelAnnotation = this.getTopLevelAnnotation(feature);
             var parentType = feature.afeature.parent_type ? feature.afeature.parent_type.name : null;
             var cfg = this.config.style.alternateClasses[feature.get("type")] || this.config.style.alternateClasses[parentType];
             if (cfg) {
@@ -719,8 +662,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if (verbose_resize || track.verbose_mousedown)  { console.log("AnnotTrack.onAnnotMouseDown called"); }
         event = event || window.event;
         var elem = (event.currentTarget || event.srcElement);
-        // need to redo getLowestFeatureDiv
-        // var featdiv = DraggableFeatureTrack.prototype.getLowestFeatureDiv(elem);
         var featdiv = track.getLowestFeatureDiv(elem);
 
         this.currentResizableFeature = featdiv.subfeature;
@@ -1637,7 +1578,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var record = records[i];
         var selfeat = record.feature;
         var seltrack = record.track;
-            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var topfeat = this.getTopLevelAnnotation(selfeat);
             var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from
             // this track
@@ -1674,7 +1615,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var features = '"features": [';
         for (var i in selection)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
+            var annot = this.getTopLevelAnnotation(selection[i].feature);
         var atrack = selection[i].track;
             var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from
@@ -1706,7 +1647,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var features = '"features": [';
         for (var i in selection)  {
-            var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
+            var annot = this.getTopLevelAnnotation(selection[i].feature);
             var atrack = selection[i].track;
             var uniqueName = annot.id();
             // just checking to ensure that all features in selection are from
@@ -1891,7 +1832,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     lockAnnotationForSelectedFeatures: function(selectedAnnots) {
         var track = this;
-        var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
+        var annot = this.getTopLevelAnnotation(selectedAnnots[0].feature);
         var uniqueName = annot.id();
         var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
         var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
@@ -1908,7 +1849,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     getAnnotationInfoEditorForSelectedFeatures: function(records) {
         var track = this;
         var record = records[0];
-        var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+        var annot = this.getTopLevelAnnotation(record.feature);
         var seltrack = record.track;
         // just checking to ensure that all features in selection are from this
         // track
@@ -3312,7 +3253,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var record = records[i];
             var selfeat = record.feature;
             var seltrack = record.track;
-            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var topfeat = this.getTopLevelAnnotation(selfeat);
             var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from
             // this track
@@ -3363,7 +3304,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var record = records[i];
             var selfeat = record.feature;
             var seltrack = record.track;
-            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var topfeat = this.getTopLevelAnnotation(selfeat);
             var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from
             // this track
@@ -3544,7 +3485,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var features = '"features": [';
             for (var i in selected)  {
                 var record = selected[i];
-                var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
+                var annot = this.getTopLevelAnnotation(record.feature);
                 var uniqueName = annot.id();
                 // just checking to ensure that all features in selection are
                 // from this track
@@ -3605,7 +3546,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var record = records[i];
         var selfeat = record.feature;
         var seltrack = record.track;
-            var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+            var topfeat = this.getTopLevelAnnotation(selfeat);
             var uniqueName = topfeat.id();
             // just checking to ensure that all features in selection are from
             // this annotation track
@@ -4090,7 +4031,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             features.push(this.store.features[i]);
         }
         this.sortAnnotationsByLocation(features);
-        var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+        var idx = this.binarySearch(features, this.getTopLevelAnnotation(selected[0].feature));
         if (idx < 0 || idx >= features.length - 1) {
             return;
         }
@@ -4109,7 +4050,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             features.push(this.store.features[i]);
         }
         this.sortAnnotationsByLocation(features);
-        var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+        var idx = this.binarySearch(features, this.getTopLevelAnnotation(selected[0].feature));
         if (idx <= 0 || idx > features.length - 1) {
             return;
         }
@@ -5021,9 +4962,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     updateAnnotationInfoEditorMenuItem: function() {
         var menuItem = this.getMenuItem("annotation_info_editor");
         var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
+        var parent = this.getTopLevelAnnotation(selected[0].feature);
         for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
+            if (this.getTopLevelAnnotation(selected[i].feature) != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -5083,9 +5024,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     updateDuplicateMenuItem: function() {
         var menuItem = this.getMenuItem("duplicate");
         var selected = this.selectionManager.getSelection();
-        var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
+        var parent = this.getTopLevelAnnotation(selected[0].feature);
         for (var i = 1; i < selected.length; ++i) {
-            if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
+            if (this.getTopLevelAnnotation(selected[i].feature) != parent) {
                 menuItem.set("disabled", true);
                 return;
             }
@@ -5353,7 +5294,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             menuItem.set("disabled", true);
             return;
         }
-        var feature = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
+        var feature = this.getTopLevelAnnotation(selectedAnnots[0].feature);
         if (feature.get("locked")) {
             menuItem.set("label", "Unlock annotation");
         }
@@ -5395,43 +5336,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                            });
     },
 
-    showRange: function(first, last, startBase, bpPerBlock, scale,
-                        containerStart, containerEnd) {
-        // console.log("called AnnotTrack.showRange()");
-        this.inherited( arguments );
-
-        // console.log("after calling annot track.showRange(), block range: " +
-        // this.firstAttached + "--" + this.lastAttached + ", " +
-        // (this.lastAttached - this.firstAttached));
-
-        // handle showing base residues for selected here?
-        // selected feats
-        // ==> selected feat divs
-        // ==> selected "rows"
-        // ==> (A) float SequenceTrack-like residues layer (with blocks) on each
-        // selected row?
-        // OR (B) just get all residues needed and float simple div (no blocks)
-        // but set up so that callback for actual render happens once all needed
-        // residues
-        // are available
-        // can do this way while still using SequenceTrack.getRange function
-        //                   
-        // update:
-        // OR (C), hybrid of A and B, block-based AND leveraging
-        // SequenceTrack.getRange()
-        // originally tried (B), but after struggling a bit with
-        // SequenceTrack.getRange() etc., now leaning
-        // trying (C)
-        /*
-         * var track = this; if (scale === track.browserParams.charWidth) { // need
-         * to float sequence residues over selected row(s) var seqTrack =
-         * this.getSequenceTrack(); seqTrack.getRange(containerStart, containerEnd, //
-         * see // callback, gets called for every block that overlaps with
-         * containerStart->containerEnd range // start = genome coord of first bp of
-         * block // end = genome coord of function(start, end, seq) {
-         *  } ); }
-         */
-    },
 
 
     /**
@@ -5465,7 +5369,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // want to get child of block, since want position relative to block
         // so get top-level feature div (assumes top level feature is always
         // rendered...)
-        var topfeat = AnnotTrack.getTopLevelAnnotation(feat);
+        var topfeat = this.getTopLevelAnnotation(feat);
         var featdiv = track.getFeatDiv(topfeat);
         if (featdiv)  {
             if (this.currentResizableFeature && feat.id() == this.currentResizableFeature.id()) {
@@ -5479,25 +5383,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
                     var blk = this.blocks[bindex];
-                    // seqTrack.getRange(block.startBase, block.endBase,
-                    // seqTrack.sequenceStore.getRange(this.refSeq,
-                    // block.startBase, block.endBase,
-                    // seqTrack.sequenceStore.getFeatures({ ref: this.refSeq.name, start:
-                    // block.startBase, end: block.endBase },
-                    // function(feat) {
                     seqTrack.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: blk.startBase, end: blk.endBase },
                     function( block ) {
                         return function(seq) {
-                            // var start = feat.get('start');
-                            // var end = feat.get('end');
-                            // var seq = feat.get('seq');
                             var start = block.startBase;
                             var end = block.endBase;
 
-                            // var ypos = $(topfeat).position().top;
-                            // +2 hardwired adjustment to center (should be
-                            // calc'd based on feature div dims?
                             var ypos = selectionYPosition + 2;
                             // checking to see if residues for this "row" of the
                             // block are already present
@@ -5583,11 +5475,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
     },
 
-    // ,
-    // endZoom: function(destScale, destBlockBases) {
-    // DraggableFeatureTrack.prototype.endZoom.call(this, destScale,
-    // destBlockBases);
-    // };
 
     executeUpdateOperation: function(postData, loadCallback) {
         var track = this;
@@ -5595,15 +5482,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             this.handleError({responseText: '{ error: "Server connection error - try reloading the page" }'});
             return;
         }
-        /*
-         * dojo.xhrPost( { postData: postData, url: context_path +
-         * "/AnnotationEditorService", handleAs: "json", timeout: 1000 * 1000, //
-         * Time in milliseconds load: function(response, ioArgs) { // if
-         * (loadCallback) { loadCallback(response); } if (response &&
-         * response.alert) { alert(response.alert); } }, error:
-         * function(response, ioArgs) { // track.handleError(response); return
-         * response; } });
-         */
         xhr(context_path + "/AnnotationEditorService", {
             handleAs: "json",
             data: postData,
@@ -5621,7 +5499,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
     
     isProteinCoding: function(feature) {
-        var topLevelFeature = AnnotTrack.getTopLevelAnnotation(feature);
+        var topLevelFeature = this.getTopLevelAnnotation(feature);
         if (topLevelFeature.afeature.parent_type && topLevelFeature.afeature.parent_type.name == "gene" && (topLevelFeature.get("type") == "transcript" || topLevelFeature.get("type") == "mRNA")) {
             return true;
         }
@@ -5642,7 +5520,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     canEdit: function(feature) {
         if (feature) {
-            feature = AnnotTrack.getTopLevelAnnotation(feature);
+            feature = this.getTopLevelAnnotation(feature);
         }
         return this.hasWritePermission() && (feature ? !feature.get("locked") : true);
     },
@@ -5661,19 +5539,20 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             case "UPDATE":
                 topLevelFeatures[feature.uniquename] = feature;
                 break;
-        }
+            }
         }
 
-    } 
+    },
+
+    getTopLevelAnnotation: function(annotation) {
+        while( annotation.parent() ) {
+            annotation = annotation.parent();
+        }
+        return annotation;
+    }
 
 });
 
-AnnotTrack.getTopLevelAnnotation = function(annotation) {
-    while( annotation.parent() ) {
-        annotation = annotation.parent();
-    }
-    return annotation;
-};
 
 return AnnotTrack;
 });
