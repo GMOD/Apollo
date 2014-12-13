@@ -106,28 +106,6 @@ return declare( JBPlugin,
             box_check = false;
         }
 
-        var css_frame_menu = new dijitMenu();
-
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Light",
-                    onClick: function (event) {
-                        document.cookie = "Scheme=Light";
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Dark",
-                    onClick: function (event) {
-                        document.cookie = "Scheme=Dark";
-                        window.location.reload();
-                    }
-                }
-            )
-        );
 
         this.addStrandFilterOptions();
 
@@ -189,13 +167,37 @@ return declare( JBPlugin,
                     })
              );
 
-        var css_frame_toggle = new dijitPopupMenuItem(
-            {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
-            });
 
-        browser.addGlobalMenuItem('view', css_frame_toggle);
+            // add light/dark choice
+            var css_frame_menu = new dijitMenu();
+
+            css_frame_menu.addChild(
+                new dijitMenuItem({
+                        label: "Light",
+                        onClick: function (event) {
+                            document.cookie = "Scheme=Light";
+                            window.location.reload();
+                        }
+                    }
+                )
+            );
+            css_frame_menu.addChild(
+                new dijitMenuItem({
+                        label: "Dark",
+                        onClick: function (event) {
+                            document.cookie = "Scheme=Dark";
+                            window.location.reload();
+                        }
+                    }
+                )
+            );
+            browser.addGlobalMenuItem('view', 
+                new dijitPopupMenuItem(
+                {
+                    label: "Color Scheme"
+                    ,popup: css_frame_menu
+                })
+            );
 
 
         }
@@ -227,11 +229,7 @@ return declare( JBPlugin,
         // transform track configs from vanilla JBrowse to WebApollo:
         // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
         //
-        var track_configs = browser.config.tracks;
-        for (var i=0; i<track_configs.length; i++)  {
-            var track_config = track_configs[i];
-            this.trackTransformer.transform(track_config);
-        }
+        browser.config.tracks.forEach(function(track) { this.trackTransformer.transform(track) });
 
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
