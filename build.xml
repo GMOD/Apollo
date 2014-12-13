@@ -181,8 +181,8 @@ Test targets suppressed because -junit argument was not specified when running w
     <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
 
 
-    <property name="apollo.webapp.directory" location="src/main/webapp" relative="true" basedir="."/>
-    <property name="apollo.resources.directory" location="src/main/resources" relative="true" basedir="."/>
+    <property name="apollo.webapp.directory" location="web-app" relative="true" basedir="."/>
+    <property name="apollo.resources.directory" location="web-app" relative="true" basedir="."/>
 
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
@@ -290,7 +290,6 @@ Test targets suppressed because -junit argument was not specified when running w
             <arg value="tags/${jbrowse.release.version}"/>
         </exec> -->
     </target>
-
 <!--    NOTE: this does not contain the additional libraries needed.-->
     <target name="git.download" unless="jbrowse.git.present" description="Downloads static release, but static release does not have other libraries">
 		<delete dir="${jbrowse.download.directory}"/>
