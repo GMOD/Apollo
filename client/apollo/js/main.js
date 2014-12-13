@@ -97,20 +97,11 @@ return declare( JBPlugin,
 
         this.addNavigationOptions();
 
-        //Adding a global menu option for changing CSS color scheme
-        var box_check;
-        if (this.changeCssScheme) {
-            box_check = true;
-        }
-        else {
-            box_check = false;
-        }
-
-
         this.addStrandFilterOptions();
 
 
         if (browser.config.show_nav) {
+            createMenuBar();
         }
 
         // register the WebApollo track types with the browser, so
@@ -343,21 +334,22 @@ return declare( JBPlugin,
         var loginButton;
         if (username)  {   // permission only set if permission request succeeded
             this.browser.addGlobalMenuItem( 'user',
-                            new dijitMenuItem(
-                                            {
-                                                    label: 'Logout',
-                                                    onClick: function()  {
-                                                            webapollo.getAnnotTrack().logout();
-                                                    }
-                                            })
+                new dijitMenuItem(
+                    {
+                        label: 'Logout',
+                        onClick: function()  {
+                            webapollo.getAnnotTrack().logout();
+                        }
+                    })
             );
             var userMenu = this.browser.makeGlobalMenu('user');
             loginButton = new dijitDropDownButton(
-                            { className: 'user',
-                                    innerHTML: '<span class="usericon"></span>' + username,
-                                    title: 'user logged in: UserName',
-                                    dropDown: userMenu
-                            });
+                { 
+                        className: 'user',
+                        innerHTML: '<span class="usericon"></span>' + username,
+                        title: 'user logged in: UserName',
+                        dropDown: userMenu
+                });
             // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left'
             //     styling in CSS rule for 'menu' class
             // dojo.addClass( loginButton.domNode, 'menu' );
