@@ -140,8 +140,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.topLevelParents = {};
     },
 
-    renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax,
-        displayStart, displayEnd, priorCdsLength, reverse)  {
+    renderExonSegments: function( subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse)  {
         var utrClass;
         var parentType = subfeature.parent().afeature.parent_type;
         if (!this.isProteinCoding(subfeature.parent())) {
@@ -151,7 +150,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var cfg = this.config.style.alternateClasses[clsName];
             utrClass = cfg.className;
         }
-        return DraggableFeatureTrack.prototype.renderExonSegments.call(this, subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass);
+        return this.inherited(arguments,[subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass]);
     },
 
     _defaultConfig: function() {
@@ -570,7 +569,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }
-        var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, rclass, clsName);
+        var featDiv = this.inherited(arguments,[feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, rclass, clsName]);
 
         if (featDiv && featDiv != null && !history)  {
             annot_context_menu.bindDomNode(featDiv);
