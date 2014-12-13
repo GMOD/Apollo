@@ -505,6 +505,22 @@ return declare( JBPlugin,
                 }
             });
         browser.addGlobalMenuItem( 'view', select_Tracks );
+        var select_Organisms= new dijitMenuItem(
+            {
+                label: "Organisms",
+                onClick: function(event) {
+                    window.open('../organism', '_blank');
+                }
+            });
+        browser.addGlobalMenuItem( 'view', select_Organisms );
+        var select_Permissions = new dijitMenuItem(
+            {
+                label: "Permissions",
+                onClick: function(event) {
+                    window.open('../permissions', '_blank');
+                }
+            });
+        browser.addGlobalMenuItem( 'view', select_Permissions);
         var recent_Changes = new dijitMenuItem(
             {
                 label: "Changes",
