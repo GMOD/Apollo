@@ -4191,13 +4191,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         console.log("ERROR: ");
         console.log(response);  // in Firebug, allows retrieval of stack trace,
                                 // jump to code, etc.
-    console.log(response.stack);
-        var error = eval('(' + response.responseText + ')');
-        // var error = response.error ? response : eval('(' +
-        // response.responseText + ')');
-        if (error && error.error) {
-            alert(error.error);
-        return false;
+        console.log(response.stack);
+        //avoid eval of html content
+        if(response.responseText.match("^<")!="<") {
+            var error = eval('(' + response.responseText + ')');
+            if (error && error.error) {
+                alert(error.error);
+            }
+            return false;
         }
     },
 
