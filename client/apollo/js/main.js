@@ -111,95 +111,6 @@ return declare( JBPlugin,
 
 
         if (browser.config.show_nav) {
-            var jbrowseUrl = "http://jbrowse.org";
-
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_powered_by_jbrowse',
-                                            label: 'Powered by JBrowse',
-                                            // iconClass: 'jbrowseIconHelp', 
-                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_web_service_api',
-                        label: 'Web Service API',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_users_guide',
-                        label: 'Apollo User\'s Guide',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
-                        }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_version',
-                        label: 'Get Version',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("../version.jsp",'help_window').focus();
-                        }
-                    })
-            );
-            // add a global menu option for setting CDS color
-            browser.addGlobalMenuItem( 'view',
-                new dijitCheckedMenuItem(
-                    {
-                        label: "Color by CDS frame",
-                        checked: false,
-                        onChange: function(checked) {
-                            console.log(checked);
-                            thisB.colorCdsByFrame = checked;
-                            browser.view.redrawTracks();
-                        }
-                    })
-             );
-
-
-            // add light/dark choice
-            var css_frame_menu = new dijitMenu();
-
-            css_frame_menu.addChild(
-                new dijitMenuItem({
-                        label: "Light",
-                        onClick: function (event) {
-                            document.cookie = "Scheme=Light";
-                            window.location.reload();
-                        }
-                    }
-                )
-            );
-            css_frame_menu.addChild(
-                new dijitMenuItem({
-                        label: "Dark",
-                        onClick: function (event) {
-                            document.cookie = "Scheme=Dark";
-                            window.location.reload();
-                        }
-                    }
-                )
-            );
-            browser.addGlobalMenuItem('view', 
-                new dijitPopupMenuItem(
-                {
-                    label: "Color Scheme"
-                    ,popup: css_frame_menu
-                })
-            );
-
-
         }
 
         // register the WebApollo track types with the browser, so
@@ -229,7 +140,7 @@ return declare( JBPlugin,
         // transform track configs from vanilla JBrowse to WebApollo:
         // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
         //
-        browser.config.tracks.forEach(function(track) { this.trackTransformer.transform(track) });
+        browser.config.tracks.forEach(function(track) { thisB.trackTransformer.transform(track) });
 
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
@@ -579,7 +490,99 @@ return declare( JBPlugin,
 
         $head.prepend(favicon1);
         $head.prepend(favicon2);
-    }
+    },
+
+
+    createMenuBar: function() {
+        var browser=this.browser;
+        var jbrowseUrl = "http://jbrowse.org";
+
+        browser.addGlobalMenuItem( 'help',
+                                new dijitMenuItem(
+                                    {
+                                        id: 'menubar_powered_by_jbrowse',
+                                        label: 'Powered by JBrowse',
+                                        // iconClass: 'jbrowseIconHelp', 
+                                        onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                    })
+                              );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_web_service_api',
+                    label: 'Web Service API',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
+                })
+        );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_users_guide',
+                    label: 'Apollo User\'s Guide',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  {
+                        window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
+                    }
+                })
+        );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_version',
+                    label: 'Get Version',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  {
+                        window.open("../version.jsp",'help_window').focus();
+                    }
+                })
+        );
+        // add a global menu option for setting CDS color
+        browser.addGlobalMenuItem( 'view',
+            new dijitCheckedMenuItem(
+                {
+                    label: "Color by CDS frame",
+                    checked: false,
+                    onChange: function(checked) {
+                        console.log(checked);
+                        thisB.colorCdsByFrame = checked;
+                        browser.view.redrawTracks();
+                    }
+                })
+         );
+
+
+        // add light/dark choice
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Light";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        document.cookie = "Scheme=Dark";
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+        browser.addGlobalMenuItem('view',
+            new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            })
+        );
+   }
 
 
 });
