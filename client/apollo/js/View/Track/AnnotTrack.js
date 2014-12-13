@@ -68,19 +68,7 @@ var non_annot_context_menu;
 var AnnotTrack = declare( DraggableFeatureTrack,
 {
     constructor: function( args ) {
-                // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
         this.isWebApolloAnnotTrack = true;
-        // trackMeta: object with:
-        // key: display text track name
-        // label: internal track name (no spaces, odd characters)
-        // sourceUrl: replaces previous url arg to FetureTrack constructors
-        // refSeq: object with:
-        // start: refseq start
-        // end: refseq end
-        // browserParams: object with:
-        // changeCallback: function to call once JSON is loaded
-        // trackPadding: distance in px between tracks
-        // baseUrl: base URL for the URL in trackMeta
         this.has_custom_context_menu = true;
         this.exportAdapters = [];
 
@@ -131,31 +119,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         var track = this;
 
-        dojo.addOnUnload(this, function() {
-            /*
-             * var track = this; if( listeners[track.getUniqueTrackName()] ) {
-             * if( listeners[track.getUniqueTrackName()].fired == -1 ) {
-             * console.log("calling listener.cancel(), via addOnUnload setup");
-             * listeners[track.getUniqueTrackName()].cancel(); } }
-             */
-        });
     
         this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
             if (currRegion.ref != this.refSeq.name) {
                 if (this.listener && this.listener.fired == -1 ) {
                     this.listener.cancel();
                 }
-                
-                /*
-                 * loginButton.destroyRecursive();
-                 * 
-                 * var userMenu = this.browser._globalMenuItems["user"]; if
-                 * (userMenu) { for (var i = 0; i < userMenu.length; ++i) {
-                 * userMenu[i].destroyRecursive(); } delete
-                 * this.browser._globalMenuItems["user"]; }
-                 */
             }
-            
         }));
         
         this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function(names) {
