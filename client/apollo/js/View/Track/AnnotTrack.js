@@ -83,25 +83,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.useResiduesOverlay = 'pointerEvents' in document.body.style;
         this.FADEIN_RESIDUES = false;
 
-        /**
-         * map keeping track of set of y positions for top-level feature divs of
-         * selected features (for better residue-overlay to be implemented TBD)
-         */
-        // this.selectionYPosition = null;
-
         var thisObj = this;
-        /*
-         * this.subfeatureCallback = function(i, val, param) {
-         * thisObj.renderSubfeature(param.feature, param.featDiv, val); };
-         */
-        // define fields meta data
-        // this.fields = AnnotTrack.fields;
         this.comet_working = true;
-        // this.remote_edit_working = false;
 
-        this.annotMouseDown = function(event)  {
-            thisObj.onAnnotMouseDown(event);
-        };
 
         this.verbose_create = false;
         this.verbose_add = false;
@@ -117,7 +101,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         var track = this;
 
-    
+
         this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
             if (currRegion.ref != this.refSeq.name) {
                 if (this.listener && this.listener.fired == -1 ) {
@@ -125,7 +109,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }));
-        
+
         this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function(names) {
         }));
         
@@ -167,12 +151,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      * "Delete track" menuitem, so can't be deleted (very hacky since depends on
      * label property of menuitem config)
      */
-   _trackMenuOptions: function() {
-       var options = this.inherited( arguments );
-       options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-       options = this.webapollo.removeItemWithLabel(options, "Delete track");
-       return options;
-   }, 
+    _trackMenuOptions: function() {
+        var options = this.inherited( arguments );
+        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+        options = this.webapollo.removeItemWithLabel(options, "Delete track");
+        return options;
+    }, 
     
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
@@ -180,7 +164,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                    
         this.inherited( arguments );
         var track = this;
-        //login with ajax
         this.getPermission( ).then(function() {
             var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
             document.body.appendChild(standby.domNode);
@@ -531,7 +514,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * subfeature is not selectable, do not bind mouse down
              */
             if (subdiv && subdiv != null && (! this.selectionManager.unselectableTypes[subfeature.get('type')]) )  {
-                $(subdiv).bind("mousedown", this.annotMouseDown);
+                console.log("onAnnotMouseDown");
+                $(subdiv).bind("mousedown", this.onAnnotMouseDown);
             }
         }
         
@@ -650,16 +634,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
                         var fmin = subfeat.get('start') + leftDeltaBases;
                         var fmax = subfeat.get('end') + rightDeltaBases;
-                        // var fmin = subfeat[track.subFields["start"]] +
-                        // leftDeltaBases;
-                        // var fmax = subfeat[track.subFields["end"]] +
-                        // rightDeltaBases;
                         var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
                         var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
                         track.executeUpdateOperation(postData);
-                        // console.log(subfeat);
-                        // track.hideAll(); shouldn't need to call hideAll()
-                        // before changed() anymore
                         track.changed();
                     }
                 } );
@@ -713,20 +690,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             else  {  // top-level feature
                 var source_track = feature_record.track;
                 var subs = feat.get('subfeatures');
-                if ( subs && subs.length > 0 ) {  // top-level
-                                                    // feature with
-                                                    // subfeatures
-                        for (var i = 0; i < subs.length; ++i) {
-                            var subfeat = subs[i];
-                            var featStrand = subfeat.get('strand');
-                            var featToAdd = subfeat;
-                            if (featStrand != annotStrand) {
-                                allSameStrand = 0;
-                                featToAdd.set('strand', annotStrand);
-                            }
-                            subfeats.push(featToAdd);
+                if ( subs && subs.length > 0 ) {
+                    for (var i = 0; i < subs.length; ++i) {
+                        var subfeat = subs[i];
+                        var featStrand = subfeat.get('strand');
+                        var featToAdd = subfeat;
+                        if (featStrand != annotStrand) {
+                            allSameStrand = 0;
+                            featToAdd.set('strand', annotStrand);
                         }
-        // $.merge(subfeats, subs);
+                        subfeats.push(featToAdd);
+                    }
                 }
                 else  {  // top-level feature without subfeatures
                     // make exon feature
@@ -743,7 +717,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
 
         if (!allSameStrand && !confirm("Adding features of opposite strand.  Continue?")) {
-                return;
+            return;
         }
 
         var featuresString = "";
@@ -757,9 +731,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 featuresString += ", " + JSON.stringify( jsonFeature );
             }
         }
-        // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
-        // target_track.subfields);
-        // parent.uniquename = annot[target_track.fields["name"]];
         var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
         target_track.executeUpdateOperation(postData);
     },
@@ -775,28 +746,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         $(target_trackdiv).droppable(  {
             // only accept draggables that are selected feature divs
             accept: ".selected-feature",   
-            // switched to using deactivate() rather than drop() for drop
-            // handling
-            // this fixes bug where drop targets within track (feature divs)
-            // were lighting up as drop target,
-            // but dropping didn't actually call track.droppable.drop()
-            // (see explanation in feature droppable for why we catch drop at
-            // track div rather than feature div child)
-            // cause is possible bug in JQuery droppable where droppable over(),
-            // drop() and hoverclass
-            // collision calcs may be off (at least when tolerance=pointer)?
-            //
-            // Update 3/2012
-            // deactivate behavior changed? Now getting called every time
-            // dragged features are release,
-            // regardless of whether they are over this track or not
-            // so added another hack to get around drop problem
-            // combination of deactivate and keeping track via over()/out() of
-            // whether drag is above this track when released
-            // really need to look into actual drop calc fix -- maybe fixed in
-            // new JQuery releases?
-            //
-            // drop: function(event, ui) {
+            
             over: function(event, ui) {
                 target_track.track_under_mouse_drag = true;
                 if (target_track.verbose_drop) { console.log("droppable entered AnnotTrack") };
@@ -3322,7 +3272,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.attr(historyRows.childNodes.item(index), "class", "history_row history_row_selected");
             selectedIndex = index;
         };
-    
+
         var displayHistory = function() {
             for (var i = 0; i < history.length; ++i) {
                 var historyItem = history[i];
@@ -3410,9 +3360,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 timeout: 5000 * 1000, // Time in milliseconds
                 load: function(response, ioArgs) {
                     var features = response.features;
-// for (var i = 0; i < features.length; ++i) {
-// displayHistory(features[i].history);
-// }
                     history = features[i].history;
                     displayHistory();
                 },
@@ -4519,7 +4466,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     popup: dataAdaptersMenu });
             this.trackMenu.addChild(savePopup, mindex);
         }
-    }, 
+    },
 
     getPermission: function( ) {
         var thisObj = this;
@@ -4571,8 +4518,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.style(dojo.body(), 'overflow', 'hidden'); 
             document.body.scroll = 'no'; // needed for ie6/7
         });
-        
-        
+
         AnnotTrack.popupDialog.startup();
 
     },
@@ -4587,7 +4533,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
         AnnotTrack.popupDialog.show();
     },
-    
+
     closeDialog: function() {
         AnnotTrack.popupDialog.hide();
     },
@@ -4617,7 +4563,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.updateSetPreviousAcceptorMenuItem();
 //        this.updateLockAnnotationMenuItem();
     },
-    
+
     updateDeleteMenuItem: function() {
         var menuItem = this.getMenuItem("delete");
         var selected = this.selectionManager.getSelection();
@@ -4977,7 +4923,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         menuItem.set("disabled", false);
     },
-    
+
     updateSetBothEndsMenuItem: function() {
         var menuItem = this.getMenuItem("set_both_ends");
         var selectedAnnots = this.selectionManager.getSelection();
@@ -5344,18 +5290,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     }, 
 
     startZoom: function(destScale, destStart, destEnd) {
-        // would prefer to only try and hide dna residues on zoom if previous
-        // scale was at base pair resolution
-        // (otherwise there are no residues to hide), but by time startZoom is
-        // called, pxPerBp is already set to destScale,
-        // so would require keeping prevScale var around, or passing in
-        // prevScale as additional parameter to startZoom()
-        // so for now just always trying to hide residues on a zoom, whether
-        // they're present or not
-
         this.inherited( arguments );
 
-        // console.log("AnnotTrack.startZoom() called");
         var selected = this.selectionManager.getSelection();
         if( selected.length > 0 ) {
             // if selected annotations, then hide residues overlay
@@ -5387,7 +5323,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.handleError({responseText: response.response.text });
         });
     },
-    
+
     isProteinCoding: function(feature) {
         var topLevelFeature = this.getTopLevelAnnotation(feature);
         if (topLevelFeature.afeature.parent_type && topLevelFeature.afeature.parent_type.name == "gene" && (topLevelFeature.get("type") == "transcript" || topLevelFeature.get("type") == "mRNA")) {
@@ -5395,11 +5331,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         return false;
     },
-    
+
     isLoggedIn: function() {
         return this.username != undefined;
     },
-    
+
     hasWritePermission: function() {
         return this.permission & Permission.WRITE;
     },
@@ -5414,7 +5350,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         return this.hasWritePermission() && (feature ? !feature.get("locked") : true);
     },
-    
+
     processParent: function(feature, operation) {
         var parentId = feature.parent_id;
         if (parentId) {
