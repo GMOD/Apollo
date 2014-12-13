@@ -1,0 +1,42 @@
+@CHARSET "UTF-8";
+
+.permission_checkbox {
+	display: block;
+	margin-left : auto;
+	margin-right: auto;
+}
+
+#add_user_button_group {
+	text-align: center;
+	padding-top: 1em;
+}
+
+#update_button_group {
+	text-align: center;
+}
+
+/*
+button {
+	white-space: nowrap;
+}
+*/
+
+#users_div {
+	font-size: 14px;
+}
+
+#users {
+}
+
+#spacer_div {
+	height: 1em;
+}
+
+#users_checkbox_menu_div {
+	width: 8%;
+	padding-bottom: 10px;
+}
+
+table.dataTable .user_cell {
+	min-width: 30em;
+}

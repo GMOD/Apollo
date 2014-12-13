@@ -1,49 +1,34 @@
-/* Styles go here */
-/**
-*= require ui-layout.css
-*= require bootstrap
-*/
-/**= // require themes/ui-lightness/jquery-ui-1.10.3.custom*/
+/** Add css rules here for your application. */
 
 
-.html-back{
-    background : #eee url("http://placehold.it/400x300/eee/666&text=HTML") no-repeat center;
-
-}
-.css-back{
-    background : #eee url("http://placehold.it/400x300/eee/666&text=CSS") no-repeat center;
-
-}
-.js-back{
-    background : #eee url("http://placehold.it/400x300/eee/666&text=JS") no-repeat center;
-}
-.left-cell{
-    /*padding-top: 10px;*/
-    margin-top: 20px;
+/** Example rules used by the template application (remove for your app) */
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  color: #777777;
+  margin: 40px 0px 70px;
+  text-align: center;
 }
 
-.wrap {
-    width: 100%;
-    height: 100%;
-    border: 1px brown solid;
-    font-size: 0;
+.sendButton {
+  display: block;
+  font-size: 16pt;
 }
-.resizable {
-    width: 50%;
-    height: 100%;
-    /*height: 120px;*/
-    padding: 0.5em;
-    /*background-color: coral;*/
-    display: inline-block;
+
+/** Most GWT widgets already have a style name defined */
+.gwt-DialogBox {
+  width: 400px;
 }
-.resizable2 {
-    background-color: lightblue;
+
+.dialogVPanel {
+  margin: 5px;
 }
-.ui-resizable-e {
-    cursor: e-resize;
-    width: 16px;
-    right: -5px;
-    top: 0;
-    bottom: 0;
-    background-color: gray;
+
+.serverResponseLabelError {
+  color: red;
+}
+
+/** Set ids using widget.getElement().setId("idOfElement") */
+#closeButton {
+  margin: 15px 6px 6px;
 }
