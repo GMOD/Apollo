@@ -129,15 +129,6 @@ return declare( JBPlugin,
             )
         );
 
-
-        var css_frame_toggle = new dijitPopupMenuItem(
-            {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
-            });
-
-        browser.addGlobalMenuItem('view', css_frame_toggle);
-
         this.addStrandFilterOptions();
 
 
@@ -190,13 +181,23 @@ return declare( JBPlugin,
                     {
                         label: "Color by CDS frame",
                         checked: false,
-                        onClick: function(event) {
-                            console.log(event);
-                            //thisB.colorCdsByFrame = cds_frame_toggle.checked;
+                        onChange: function(checked) {
+                            console.log(checked);
+                            thisB.colorCdsByFrame = checked;
                             browser.view.redrawTracks();
                         }
                     })
              );
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
+
+
         }
 
         // register the WebApollo track types with the browser, so
