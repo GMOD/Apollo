@@ -1,6 +1,6 @@
 @CHARSET "UTF-8";
 
-@import "../../src/main/webapp/jslib/DataTables/css/demo_table.css";
+/*@import "../../src/main/webapp/jslib/DataTables/css/demo_table.css";*/
 
 #tracks {
 	width: 100%

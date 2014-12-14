@@ -19,9 +19,18 @@ class SequenceController {
 
     }
 
+    def index3(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(),username:'demo@demo.gov',isAdmin:'true']
+    }
+
+    def index2(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(),username:'demo@demo.gov',isAdmin:'true']
+    }
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
+        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(),username:'demo@demo.gov',isAdmin:'true']
     }
 
     def websocketTest(Integer max) {
