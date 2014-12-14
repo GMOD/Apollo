@@ -33,6 +33,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+    <meta name="layout" content="oldlook">
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
@@ -44,8 +45,8 @@
     <link rel="shortcut icon" type="image/x-icon" href="../images/webapollo_favicon.ico">
 
     <link rel="stylesheet" type="text/css" href="../css/selectTrack.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/search_sequence.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/userPermissions.css"/>
+    %{--<link rel="stylesheet" type="text/css" href="../css/search_sequence.css"/>--}%
+    %{--<link rel="stylesheet" type="text/css" href="../css/userPermissions.css"/>--}%
     <link rel="stylesheet" type="text/css" href="../js/jquery-ui-menubar/jquery.ui.all.css"/>
     %{--<link rel="stylesheet" type="text/css" href="../js/DataTables/css/demo_table.css"/>--}%
 
@@ -57,93 +58,16 @@
     <script src="../js/jquery-ui-menubar/jquery.ui.menu.js"></script>
     <script src="../js/jquery-ui-menubar/jquery.ui.menubar.js"></script>
     <script src="../js/jquery-ui-menubar/jquery.ui.dialog.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    %{--<script type="text/javascript" src="https://www.google.com/jsapi"></script>--}%
 
 
     <script type="text/javascript" src="../js/DataTables/js/jquery.dataTables.js"></script>
     <script type="text/javascript" src="../js/DataTables-plugins/dataTablesPlugins.js"></script>
 
-    <script type="text/javascript" src="../js/SequenceSearch.js"></script>
+    %{--<script type="text/javascript" src="../js/SequenceSearch.js"></script>--}%
 
     <script type="text/javascript">
 
-        %{--<%--}%
-        %{--BufferedReader in = new BufferedReader(new InputStreamReader(application.getResourceAsStream(serverConfig.getTrackNameComparator())));--}%
-        %{--String line;--}%
-        %{--while ((line = in.readLine()) != null) {--}%
-        %{--out.println(line);    --}%
-        %{--}--}%
-        %{--%>--}%
-
-        jQuery.fn.dataTableExt.oSort['track-name-asc'] = function (a, b) {
-            /*
-             var tmp1 = $(a).text();
-             var tmp2 = $(b).text();
-             return track_name_comparator(tmp1, tmp2);
-             */
-            var regex = />(.*)</;
-            var match1 = regex.exec(a);
-            var match2 = regex.exec(b);
-            return track_name_comparator(match1[1], match2[1]);
-        };
-
-        jQuery.fn.dataTableExt.oSort['track-name-desc'] = function (a, b) {
-            /*
-             var tmp1 = $(a).text();
-             var tmp2 = $(b).text();
-             return track_name_comparator(tmp2, tmp1);
-             */
-            var regex = />(.*)</;
-            var match1 = regex.exec(a);
-            var match2 = regex.exec(b);
-            return track_name_comparator(match2[1], match1[1]);
-        };
-
-        var tracks = new Array();
-        %{--<%--}%
-        /*
-         TrackNameComparator trackNameComparator = (TrackNameComparator)Class.forName(serverConfig.getTrackNameComparatorClass()).newInstance();
-         List<ServerConfiguration.TrackConfiguration> tracks = new ArrayList<ServerConfiguration.TrackConfiguration>(serverConfig.getTracks().values());
-         Collections.sort(tracks, trackNameComparator);
-         */
-        %{--Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();--}%
-        %{--boolean isAdmin = false;--}%
-        %{--if (username != null) {--}%
-        %{--for (ServerConfiguration.TrackConfiguration track : tracks) {--}%
-        %{--Integer permission = permissions.get(track.getName());--}%
-        %{--if (permission == null) {--}%
-        %{--permission = 0;--}%
-        %{--}--}%
-        %{--if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {--}%
-        %{--isAdmin = true;--}%
-        %{--}--}%
-        %{--if ((permission & Permission.READ) == Permission.READ) {--}%
-        %{--out.println("var track = new Array();");--}%
-        %{--out.println("tracks.push(track);");--}%
-        %{--out.println(String.format("track.push('<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>');", track.getName()));--}%
-        %{--out.println(String.format("track.push('%s');", track.getOrganism()));--}%
-        %{--out.println(String.format("track.push('<a target=\"_blank\" href=\"jbrowse/?loc=%s\">%s</a>');", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getUniqueName()));--}%
-        %{--out.println(String.format("track.push(%d);", track.getSourceFeature().getSequenceLength()));--}%
-        %{--/*--}%
-        %{--String dataAdapters = "<select><option value='none'>Select adapter</option>";--}%
-        %{--String button = "";--}%
-        %{--for (DataAdapterConfiguration conf : serverConfig.getDataAdapters()) {--}%
-        %{--if ((Permission.getValueForPermission(conf.getPermission()) & permission) != 0) {--}%
-        %{--String options = conf.getOptions() != null ? conf.getOptions() : "";--}%
-        %{--dataAdapters += String.format("<option value='%s'>%s</option>", conf.getKey(), conf.getKey());--}%
-        %{--button = String.format("<button class='adapter_button' onclick=\\\"write_data('%s', )\\\"></button>", track.getName());--}%
-        %{--}--}%
-        %{--}--}%
-        %{--dataAdapters += "</select>";--}%
-        %{--out.println(String.format("track.push(\"%s%s\");", dataAdapters, button));--}%
-        %{--*/--}%
-        %{--}--}%
-        %{--}--}%
-        %{--}--}%
-        %{--%>--}%
-        if (!!google) {
-            google.load("dojo", "1.5");
-        }
         var table;
         $(function () {
             $("#login_dialog").dialog({
@@ -168,19 +92,19 @@
                 closeOnEscape: false,
                 width: "auto"
             });
-            table = $("#tracks").dataTable({
-                aaSorting: [[2, "asc"]],
-                aaData: tracks,
-                oLanguage: {
-                    sSearch: "Filter: "
-                },
-                aoColumns: [
-                    {bSortable: false, bSearchable: false},
-                    {sTitle: "Organism", bSortable: false},
-                    {sTitle: "Name", sType: "track-name"},
-                    {sTitle: "Length"}
-                ]
-            });
+//            table = $("#tracks").dataTable({
+//                aaSorting: [[2, "asc"]],
+//                aaData: tracks,
+//                oLanguage: {
+//                    sSearch: "Filter: "
+//                },
+//                aoColumns: [
+//                    {bSortable: false, bSearchable: false},
+//                    {sTitle: "Organism", bSortable: false},
+//                    {sTitle: "Name", sType: "track-name"},
+//                    {sTitle: "Length"}
+//                ]
+//            });
             $(".adapter_button").button({icons: {primary: "ui-icon-folder-collapsed"}});
             $("#checkbox_menu").menu({});
             $("#menu").menubar({
@@ -215,24 +139,16 @@
                 });
                 $("#checkbox_option").prop("checked", allChecked);
             });
-            %{--<%--}%
-    %{--if (params.username == null) {--}%
-        %{--out.println("login();");--}%
-    %{--}--}%
-    %{--else {--}%
-        %{--out.println("createListener();");--}%
-    %{--}--}%
-%{--%>--}%
             $("#logout_item").click(function () {
                 logout();
             });
             $(".data_adapter").click(function () {
                 var tracks = new Array();
-                table.$(".track_select").each(function () {
-                    if ($(this).prop("checked")) {
-                        tracks.push($(this).attr("id"));
-                    }
-                });
+//                table.$(".track_select").each(function () {
+//                    if ($(this).prop("checked")) {
+//                        tracks.push($(this).attr("id"));
+//                    }
+//                });
                 write_data($(this).text(), tracks, $(this).attr("_options"));
             });
             $("#search_sequence_item").click(function () {
@@ -256,12 +172,10 @@
         function cleanup_logo() {
             $("#logo").parent().css("padding", "0 0 0 0");
         }
-        ;
 
         function cleanup_user_item() {
             $("#user_item").parent().attr("id", "user_item_menu");
         }
-        ;
 
         function createListener() {
             $.ajax({
@@ -345,26 +259,8 @@
         ;
 
         function open_search_dialog() {
-            %{--<%--}%
-            %{--for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {--}%
-            %{--Integer permission = permissions.get(track.getName());--}%
-            %{--if (permission == null) {--}%
-            %{--permission = 0;--}%
-            %{--}--}%
-            %{--if ((permission & Permission.READ) == Permission.READ) {--}%
-            %{--out.println("var trackName = '" + track.getName() + "'");--}%
-            %{--break;--}%
-            %{--}--}%
-
-            %{--}--}%
-            %{--%>--}%
             var search = new SequenceSearch(".");
             var starts = new Object();
-            %{--<%--}%
-            %{--for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {--}%
-            %{--out.println(String.format("starts['%s'] = %d;", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getStart()));--}%
-            %{--}--}%
-            %{--%>--}%
             search.setRedirectCallback(function (id, fmin, fmax) {
                 var flank = Math.round((fmax - fmin) * 0.2);
                 var url = 'jbrowse/?loc=' + id + ":" + (fmin - flank) + ".." + (fmax + flank) + "&highlight=" + id + ":" + (fmin + 1) + ".." + fmax;
@@ -407,7 +303,7 @@
                 type: "post",
                 url: "Login?operation=logout",
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
+                    "Content-Type": "application/x-www-form-urlencoded"
                 },
                 success: function (data, textStatus, jqXHR) {
                 },
@@ -430,9 +326,9 @@
                 },
                 width: "70%"
             });
-            $userManager.load("userPermissions.jsp", null, function () {
-                $userManager.dialog('option', 'position', 'center');
-            });
+//            $userManager.load("userPermissions.jsp", null, function () {
+//                $userManager.dialog('option', 'position', 'center');
+//            });
             //$userManager.dialog("open");
         }
 
@@ -527,5 +423,48 @@
 <div id="tracks_div">
     <table id="tracks"></table>
 </div>
+
+
+<div id="list-track" class="content scaffold-list" role="main">
+    <h1><g:message code="default.list.label" args="[entityName]"/></h1>
+    <g:select name="organism" from="${org.bbop.apollo.Organism.list()}"
+              optionValue="commonName"/>
+    <br/>
+    <br/>
+    <g:if test="${flash.message}">
+        <div class="message" role="status">${flash.message}</div>
+    </g:if>
+    <table>
+        <thead>
+        <tr>
+
+            %{--<th><g:message code="track.organism.label" default="Organism" /></th>--}%
+
+            <g:sortableColumn property="name" title="${message(code: 'track.name.label', default: 'Name')}"/>
+            <g:sortableColumn property="organism.name"
+                              title="${message(code: 'track.name.label', default: 'Organism')}"/>
+
+        </tr>
+        </thead>
+        <tbody>
+        <g:each in="${sequenceInstanceList}" status="i" var="sequenceInstance">
+            <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
+
+                <td><g:link action="show"
+                            id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
+                <td>${sequenceInstance.organism.commonName}
+                <g:link uri="">Browse</g:link>
+                </td>
+
+            </tr>
+        </g:each>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <g:paginate total="${trackInstanceCount ?: 0}"/>
+    </div>
+</div>
+
 </body>
 </html>
