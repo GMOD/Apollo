@@ -178,7 +178,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.createAnnotationChangeListener();
             xhr(context_path + "/AnnotationEditorService", {
                 handleAs: "json",
-                data: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
+                data: JSON.stringify({ "track": track.getUniqueTrackName(), "operation": "get_features" }),
                 method: "post"
             }).then(function(response, ioArgs) {
                 var responseFeatures = response.features;
@@ -1686,7 +1686,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var postData = { "track": trackName, "operation": operation };
         dojo.xhrPost( {
             sync: true,
-            postData: postData,
+            postData: JSON.stringify(postData),
             url: context_path + "/AnnotationEditorService",
             handleAs: "json",
             timeout: 5000 * 1000, // Time in milliseconds
@@ -1755,7 +1755,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var postData = { "track": trackName, "features": features, "operation": operation };
             dojo.xhrPost( {
                 sync: true,
-                postData: postData,
+                postData: JSON.stringify(postData),
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "json",
                 timeout: 5000 * 1000, // Time in milliseconds
@@ -1985,7 +1985,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var postData = { "track": trackName, "features": features, "operation": operation };
             dojo.xhrPost( {
                 sync: true,
-                postData: postData,
+                postData: JSON.stringify(postData),
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "json",
                 timeout: 5000 * 1000, // Time in milliseconds
@@ -2991,7 +2991,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "get_canned_comments";
             var postData = { "track": trackName, "features": features, "operation": operation };
             dojo.xhrPost( {
-                postData: postData,
+                postData: JSON.stringify(postData),
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "json",
                 sync: true,
@@ -3263,7 +3263,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var operation = "get_history_for_features";
             var trackName = track.getUniqueTrackName();
             dojo.xhrPost( {
-                postData: { "track": trackName, "features": features, "operation": operation },
+                postData: JSON.stringify( { "track": trackName, "features": features, "operation": operation }),
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "json",
                 timeout: 5000 * 1000, // Time in milliseconds
@@ -3317,7 +3317,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var trackName = track.getUniqueTrackName();
         var information = "";
         dojo.xhrPost( {
-            postData: { "track": trackName, "features": features, "operation": operation },
+            postData: JSON.stringify( { "track": trackName, "features": features, "operation": operation }),
             url: context_path + "/AnnotationEditorService",
             handleAs: "json",
             timeout: 5000 * 1000, // Time in milliseconds
@@ -3380,7 +3380,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var trackName = track.getUniqueTrackName();
             var postData = { "track": trackName, "features": features, "operation": operation };
             dojo.xhrPost( {
-                postData: postData,
+                postData: JSON.stringify(postData),
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "text",
                 timeout: 5000 * 1000, // Time in milliseconds
@@ -3463,7 +3463,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
             postData.type=type;
             dojo.xhrPost( {
-                postData: postData,
+                postData: JSON.stringify(postData),
                 url: context_path + "/AnnotationEditorService",
                 handleAs: "json",
                 timeout: 5000 * 1000, // Time in milliseconds
@@ -4274,7 +4274,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         dojo.xhrPost( {
             sync: true,
-            postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
+            postData: JSON.stringify({ "track": track.getUniqueTrackName(), "operation": "get_data_adapters" }),
             url: context_path + "/AnnotationEditorService",
             handleAs: "json",
             timeout: 5 * 1000, // Time in milliseconds
@@ -4355,7 +4355,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     getPermission: function( ) {
         var thisObj = this;
         return xhr.post(context_path + "/AnnotationEditorService", {
-            data: { "track": thisObj.getUniqueTrackName(), "operation": "get_user_permission" },
+            data: JSON.stringify({ "track": thisObj.getUniqueTrackName(), "operation": "get_user_permission" }),
             handleAs: "json",
             timeout: 5 * 1000, // Time in milliseconds
         }).then(function(response) {
@@ -5194,7 +5194,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         xhr(context_path + "/AnnotationEditorService", {
             handleAs: "json",
-            data: postData,
+            data: JSON.stringify(postData),
             method: "post"
         }).then(function(response, ioArgs) {
             if (loadCallback) {
