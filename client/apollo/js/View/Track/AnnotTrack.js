@@ -302,34 +302,29 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
                 // client timeout
                 if (response.dojoType == "timeout") {
-                    track.createAnnotationChangeListener();
+                    setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
                     return;
                 }
                 if (ioArgs.xhr.status == 0) {
-                    setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
                     return;
                 }
                 // bad gateway
                 else if (ioArgs.xhr.status == 502) {
-                    track.createAnnotationChangeListener();
+                    console.log("502 received");
+                    setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
                     return;
                 }
                 // server killed
                 else if (ioArgs.xhr.status == 503) {
-                    track.handleError({responseText: '{ error: "Server connection error" }'});
+                    console.log("503 received");
                     window.location.reload();
                     return;
                 }
                 
                 // server timeout
                 else if (ioArgs.xhr.status == 504){
-                    console.log("received server timeoout");
-                    track.createAnnotationChangeListener();
-                    console.log("created new AnnotationChangeListener");
-                    // fiddling with supressing dojo.xhrGet internal Deferred stuff
-                    // firing errors
-                    // setting error.log = false may override...
-                    response.log = false;
+                    console.log("504 received");
+                    setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
                     return;
                 }
                 // forbidden
@@ -344,7 +339,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (response.responseText) {
                     track.handleError(response);
                     track.comet_working = false;
-                    console.error("HTTP status code: ", ioArgs.xhr.status); //
+                    console.error("HTTP status code: ", ioArgs.xhr.status);
                     return response;
                 }
                 // everything else
@@ -391,9 +386,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      * followed by ADD command
      */
     annotationsUpdatedNotification: function(responseFeatures)  {
-    // this.annotationsDeletedNotification(annots);
-    // this.annotationsAddedNotification(annots);
-    var selfeats = this.selectionManager.getSelectedFeatures();
+        var selfeats = this.selectionManager.getSelectedFeatures();
     
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id = responseFeatures[i].uniquename;
@@ -416,11 +409,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      */
     renderFeature:  function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                               containerStart, containerEnd, history ) {
-        // if (uniqueId.length > 20) {
-        // feature.short_id = uniqueId;
-        // }
         var track = this;
-        // var featDiv = this.inherited( arguments );
 
         var rclass;
         var clsName;
@@ -452,24 +441,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     track.annot_under_mouse = null;
                 },
                 drop: function(event, ui)  {
-                    // ideally in the drop() on annot div is where would handle
-                    // adding feature(s) to annot,
-                    // but JQueryUI droppable doesn't actually call drop unless
-                    // draggable helper div is actually
-                    // over the droppable -- even if tolerance is set to pointer
-                    // tolerance=pointer will trigger hover styling when over
-                    // droppable,
-                    // as well as call to over method (and out when leave
-                    // droppable)
-                    // BUT location of pointer still does not influence actual
-                    // dropping and drop() call
-                    // therefore getting around this by handling hover styling
-                    // here based on pointer over annot,
-                    // but drop-to-add part is handled by whole-track droppable,
-                    // and uses annot_under_mouse
-                    // tracking variable to determine if drop was actually on
-                    // top of an annot instead of
-                    // track whitespace
+                    
                     if (track.verbose_drop)  {
                         console.log("dropped feature on annot:");
                         console.log(featDiv);
@@ -1041,7 +1013,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     if (fmax === undefined || childFmax > fmax) {
                         fmax = childFmax;
                     }
-                    // featureToAdd.get("subfeatures").push( dragfeat );
                 }
                 featureToAdd.set( "start", fmin );
                 featureToAdd.set( "end",   fmax );
@@ -1049,14 +1020,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     featureToAdd.set( "strand", 0 );
                 }
                 var afeat = JSONUtils.createApolloFeature( featureToAdd, type, true );
-                /*
-                 * if (topLevelType) { var topLevel = new Object();
-                 * topLevel.location = dojo.clone(afeat.location);
-                 * topLevel.type = dojo.clone(afeat.type);
-                 * topLevel.type.name = topLevelType; topLevel.children =
-                 * new Array(); topLevel.children.push(afeat); afeat =
-                 * topLevel; }
-                 */
                 featuresToAdd.push(afeat);
             }
             else {
@@ -1070,15 +1033,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     dragfeat.set("name", featArray[k].get("name"));
                     var afeat = JSONUtils.createApolloFeature( dragfeat, type, true);
-                    /*
-                     * if (topLevelType) { var topLevel = new
-                     * Object(); topLevel.location =
-                     * dojo.clone(afeat.location); topLevel.type =
-                     * dojo.clone(afeat.type); topLevel.type.name =
-                     * topLevelType; topLevel.children = new
-                     * Array(); topLevel.children.push(afeat); afeat =
-                     * topLevel; }
-                     */
                     featuresToAdd.push(afeat);
                 }
             }
@@ -1107,10 +1061,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                                     // defined and
                                                     // non-null
             if (is_subfeature) {
-                    subfeaturesToAdd.push(feat);
+                subfeaturesToAdd.push(feat);
             }
             else {
-                // featuresToAdd.push( JSONUtils.createApolloFeature( feat, "transcript") );
                 featuresToAdd.push(feat);
             }
         }
@@ -1139,14 +1092,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             feature.set('strand', strand );
             feature.set('type', subfeaturesToAdd[0].parent().get('type'));
             feature.afeature = subfeaturesToAdd[0].parent().afeature;
-            // featuresToAdd.push( JSONUtils.createApolloFeature( feature, "transcript") );
             featuresToAdd.push(feature);
         }
         for (var i = 0; i < featuresToAdd.length; ++i) {
             var feature = featuresToAdd[i];
             if (this.isProteinCoding(feature)) {
                 var feats = [JSONUtils.createApolloFeature( feature, "mRNA")];
-                var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" }';
+                var postData = { "track":  track.getUniqueTrackName(), "features": feats, "operation": "add_transcript" };
                 track.executeUpdateOperation(postData);
             }
             else if (feature.afeature.parent_id) {
@@ -1176,8 +1128,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     deleteAnnotations: function(records) {
         var track = this;
-        var features = '"features": [';
-        var uniqueNames = [];
+        var features = [];
         var parents = {};
         var toBeDeleted = [];
         for (var i in records)  {
@@ -1230,21 +1181,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         }
         for (var i = 0; i < toBeDeleted.length; ++i) {
-            if (i > 0) {
-                features += ',';
-            }
-            features += ' { "uniquename": "' + toBeDeleted[i] + '" } ';
+            features.push(  { "uniquename": toBeDeleted[i] });
             uniqueNames.push(toBeDeleted[i]);
         }
-        features += ']';
-        if (uniqueNames.length == 0) {
+        if (features.length == 0) {
             return;
         }
         if (this.verbose_delete)  {
             console.log("annotations to delete:");
             console.log(features);
         }
-        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
+        var postData = { "track": trackName, "features": features, "operation": "delete_feature" };
         track.executeUpdateOperation(postData);
     }, 
 
@@ -1266,16 +1213,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var rightAnnot = sortedAnnots[sortedAnnots.length - 1];
         var trackName = this.getUniqueTrackName();
 
-        /*
-         * for (var i in annots) { var annot = annots[i]; // just checking to
-         * ensure that all features in selection are from this track -- // if
-         * not, then don't try and delete them if (annot.track === track) { var
-         * trackName = track.getUniqueTrackName(); if (leftAnnot == null ||
-         * annot[track.fields["start"]] < leftAnnot[track.fields["start"]]) {
-         * leftAnnot = annot; } if (rightAnnot == null ||
-         * annot[track.fields["end"]] > rightAnnot[track.fields["end"]]) {
-         * rightAnnot = annot; } } }
-         */
 
         var features;
         var operation;
@@ -1296,8 +1233,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     splitSelectedFeatures: function(event)  {
-        // var selected = this.selectionManager.getSelection();
-    var selected = this.selectionManager.getSelectedFeatures();
+        var selected = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
         this.splitAnnotations(selected, event);
     },
@@ -1313,16 +1249,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var rightAnnot = sortedAnnots[sortedAnnots.length - 1];
         var trackName = track.getUniqueTrackName();
 
-        /*
-         * for (var i in annots) { var annot = annots[i]; // just checking to
-         * ensure that all features in selection are from this track -- // if
-         * not, then don't try and delete them if (annot.track === track) { var
-         * trackName = track.getUniqueTrackName(); if (leftAnnot == null ||
-         * annot[track.fields["start"]] < leftAnnot[track.fields["start"]]) {
-         * leftAnnot = annot; } if (rightAnnot == null ||
-         * annot[track.fields["end"]] > rightAnnot[track.fields["end"]]) {
-         * rightAnnot = annot; } } }
-         */
         var features;
         var operation;
         // split exon
@@ -1376,8 +1302,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var track = this;
         var annot = annots[0];
-        // var coordinate = this.gview.getGenomeCoord(event);
-// var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
         var coordinate = this.getGenomeCoord(event);
         console.log("called setTranslationStartInCDS to: " + coordinate);
 
@@ -1391,7 +1315,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     setTranslationEnd: function(event)  {
-        // var selected = this.selectionManager.getSelection();
         var selfeats = this.selectionManager.getSelectedFeatures();
         this.selectionManager.clearSelection();
         this.setTranslationEndInCDS(selfeats, event);
@@ -1403,8 +1326,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var track = this;
         var annot = annots[0];
-        // var coordinate = this.gview.getGenomeCoord(event);
-// var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
         var coordinate = this.getGenomeCoord(event);
         console.log("called setTranslationEndInCDS to: " + coordinate);
 
@@ -1496,7 +1417,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     setReadthroughStopCodonForSelectedFeatures: function(selection) {
         var track = this;
-        var features = '"features": [';
+        var features = [];
         for (var i in selection)  {
             var annot = this.getTopLevelAnnotation(selection[i].feature);
             var atrack = selection[i].track;
@@ -1507,16 +1428,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
 
-                if (i > 0) {
-                    features += ',';
-                }
-                features += ' { "uniquename": "' + uniqueName + '", "readthrough_stop_codon": ' + !annot.data.readThroughStopCodon + '} ';
+                features.push({ "uniquename": uniqueName, "readthrough_stop_codon": !annot.data.readThroughStopCodon });
             }
         }
-        features += ']';
         var operation = "set_readthrough_stop_codon";
         var trackName = track.getUniqueTrackName();
-        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+        var postData = { "track": trackName, "features": features, "operation": operation};
         track.executeUpdateOperation(postData);
     },
     
