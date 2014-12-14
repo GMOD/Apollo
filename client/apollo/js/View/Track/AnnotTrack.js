@@ -394,14 +394,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id = responseFeatures[i].uniquename;
-            /*
-             * if update deleted a selected child, select the parent?? var oldfeat =
-             * this.store.getFeatureById(id); var children_selected; if (oldfeat) { var
-             * childfeats = oldfeat.children(); if (childfeats) { for (var k=0; k<childfeats.length;
-             * k++) { var child = childfeats[k]; if (this.selectionManager.isSelected( {
-             * feature: child, track: this })) { if (! children_selected) {
-             * children_selected = []; } children_selected .push(child); } } } }
-             */
             var feat = JSONUtils.createJBrowseFeature( responseFeatures[i] );
             this.store.replace(feat);
             this.processParent(responseFeatures[i], "UPDATE");
@@ -480,8 +472,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         return featDiv;
     },
 
-    renderSubfeature: function( feature, featDiv, subfeature,
-                                displayStart, displayEnd, block) {
+    renderSubfeature: function( feature, featDiv, subfeature, displayStart, displayEnd, block) {
         var subdiv = this.inherited( arguments );
 
         if (this.canEdit(feature)) {
@@ -505,16 +496,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      */
     getSequenceTrack: function()  {
         if (this.seqTrack)  {
-             return this.seqTrack;
+            return this.seqTrack;
         }
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-                // if (tracks[i] instanceof SequenceTrack) {
-                // if (tracks[i].config.type == "WebApollo/View/Track/AnnotSequenceTrack") {
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
-                   // tracks[i].setAnnotTrack(this);
                     break;
                 }
             }
@@ -743,10 +731,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (target_track.verbose_drop) { console.log("droppable exited AnnotTrack") };
             },
             deactivate: function(event, ui)  {
-                // console.log("trackdiv droppable detected: draggable
-                // deactivated");
-                // "this" is the div being dropped on, so same as
-                // target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
 
                 var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
@@ -792,12 +776,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var parent = is_subfeature ? dragfeat.parent() : dragfeat;
             var parentId = parent.id();
             parentFeatures[parentId] = parent;
-            /*
-             * if (parentFeatures[parentId] === undefined) {
-             * parentFeatures[parentId] = new Array();
-             * parentFeatures[parentId].isSubfeature = is_subfeature; }
-             * parentFeatures[parentId].push(dragfeat);
-             */
             
             if (strand == undefined) {
                 strand = dragfeat.get("strand");
@@ -844,8 +822,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 featureToAdd.set('name',featureToAdd.get('id'));
             }
             featureToAdd.set("strand", strand);
-            // var featureToAdd = new SimpleFeature(data);
-            // //JSONUtils.makeSimpleFeature(parentFeature);
             var fmin = undefined;
             var fmax = undefined;
             featureToAdd.set('subfeatures', new Array());
@@ -1428,8 +1404,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var annot = this.getTopLevelAnnotation(selection[i].feature);
             var atrack = selection[i].track;
             var uniqueName = annot.id();
-            // just checking to ensure that all features in selection are from
-            // this track
             if (atrack === track)  {
                 var trackdiv = track.div;
                 var trackName = track.getUniqueTrackName();
