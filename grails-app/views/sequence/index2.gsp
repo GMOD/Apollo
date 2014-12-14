@@ -37,9 +37,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
-    <title>Select track</title>
+    <title>Select sequence </title>
 
-    <asset:javascript src="jquery.js"/>
+    %{--<asset:javascript src="jquery.js"/>--}%
 
     <link rel="icon" type="image/x-icon" href="../images/webapollo_favicon.ico">
     <link rel="shortcut icon" type="image/x-icon" href="../images/webapollo_favicon.ico">
@@ -70,13 +70,13 @@
 
         var table;
         $(function () {
-            $("#login_dialog").dialog({
-                draggable: false,
-                modal: true,
-                autoOpen: false,
-                resizable: false,
-                closeOnEscape: false
-            });
+//            $("#login_dialog").dialog({
+//                draggable: false,
+//                modal: true,
+//                autoOpen: false,
+//                resizable: false,
+//                closeOnEscape: false
+//            });
             $("#data_adapter_dialog").dialog({
                 draggable: false,
                 modal: true,
@@ -117,38 +117,10 @@
                         }
                     }
             );
-            $("#checkbox_option").change(function () {
-                update_checked(this.checked);
-            });
-            $("#check_all").click(function () {
-                update_checked(true);
-            });
-            $("#check_none").click(function () {
-                update_checked(false);
-            });
-            $("#check_displayed").click(function () {
-                $(".track_select").prop("checked", true);
-            });
-            $(".track_select").click(function () {
-                var allChecked = true;
-                table.$(".track_select").each(function () {
-                    if (!$(this).prop("checked")) {
-                        allChecked = false;
-                        return false;
-                    }
-                });
-                $("#checkbox_option").prop("checked", allChecked);
-            });
             $("#logout_item").click(function () {
                 logout();
             });
             $(".data_adapter").click(function () {
-                var tracks = new Array();
-//                table.$(".track_select").each(function () {
-//                    if ($(this).prop("checked")) {
-//                        tracks.push($(this).attr("id"));
-//                    }
-//                });
                 write_data($(this).text(), tracks, $(this).attr("_options"));
             });
             $("#search_sequence_item").click(function () {
@@ -156,6 +128,9 @@
             });
             $("#recent_changes").click(function () {
                 window.location = "changes";
+            });
+            $("#organisms").click(function () {
+                window.location = '<g:createLinkTo controller="organism" action="list"/>';
             });
             $("#user_manager_item").click(function () {
                 open_user_manager_dialog();
@@ -336,6 +311,7 @@
 </head>
 
 <body>
+
 <div id="header">
     <ul id="menu">
         <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo"
@@ -353,7 +329,9 @@
         <li><a id="view_item">View</a>
             <ul id="view_menu">
                 <li><a id="recent_changes">Changes</a></li>
+                <li><a id="organisms">Organisms</a></li>
             </ul>
+
         </li>
 
         <li><a id="tools_item">Tools</a>
@@ -392,17 +370,17 @@
     </ul>
 </div>
 
-<div id="checkbox_menu_div">
-    <ul id="checkbox_menu">
-        <li><a><input type="checkbox" id="checkbox_option"/>Select</a>
-            <ul>
-                <li><a id="check_all">All</a></li>
-                <li><a id="check_displayed">Displayed</a>
-                <li><a id="check_none">None</a></li>
-            </ul>
-        </li>
-    </ul>
-</div>
+%{--<div id="checkbox_menu_div">--}%
+    %{--<ul id="checkbox_menu">--}%
+        %{--<li><a><input type="checkbox" id="checkbox_option"/>Select</a>--}%
+            %{--<ul>--}%
+                %{--<li><a id="check_all">All</a></li>--}%
+                %{--<li><a id="check_displayed">Displayed</a>--}%
+                %{--<li><a id="check_none">None</a></li>--}%
+            %{--</ul>--}%
+        %{--</li>--}%
+    %{--</ul>--}%
+%{--</div>--}%
 
 <div id="search_sequences_dialog" title="Search sequences" style="display:none"></div>
 <!--
@@ -415,18 +393,18 @@
 </div>
 
 
-<a href="sequences" class="col-offset-4 btn-mini btn-default btn-link">Default Track Select</a>
+%{--<a href="sequences" class="col-offset-4 btn-mini btn-default btn-link">Default Track Select</a>--}%
 
 <div id="login_dialog" title="Login">
 </div>
 
-<div id="tracks_div">
-    <table id="tracks"></table>
-</div>
+%{--<div id="tracks_div">--}%
+    %{--<table id="tracks"></table>--}%
+%{--</div>--}%
 
 
 <div id="list-track" class="content scaffold-list" role="main">
-    <h1><g:message code="default.list.label" args="[entityName]"/></h1>
+    <h1>Sequences</h1>
     <g:select name="organism" from="${org.bbop.apollo.Organism.list()}"
               optionValue="commonName"/>
     <br/>
@@ -453,7 +431,7 @@
                 <td><g:link action="show"
                             id="${sequenceInstance.id}">${fieldValue(bean: sequenceInstance, field: "name")}</g:link></td>
                 <td>${sequenceInstance.organism.commonName}
-                <g:link uri="">Browse</g:link>
+                <g:link uri="/jbrowse?loc=1">Browse</g:link>
                 </td>
 
             </tr>
