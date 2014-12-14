@@ -1,0 +1,171 @@
+/*
+* This is a manifest file that'll be compiled into application.css, which will include all the files
+* listed below.
+*
+* Any CSS file within this directory can be referenced here using a relative path.
+*
+* You're free to add application-wide styles to this file and they'll appear at the top of the
+* compiled file, but it's generally better to create a new file per style scope.
+*
+*= require_self
+*= require bootstrap
+*/
+
+.same-header {
+    background-color: #396494;
+    height: 31px;
+}
+
+.header-item {
+    background-color: #396494;
+    text-decoration-color: #ffffff;
+}
+
+.header-header {
+    color: #ffffff !important;
+}
+
+/*.navbar-custom {*/
+/*background-color: #396494;*/
+/*text-decoration-color: #ffffff;*/
+/*color: #ffffff;*/
+/*height: 25px;*/
+/*}*/
+
+/*.navbar-custom .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {*/
+    /*height: 31px;*/
+    /*background-color: #396494;*/
+    /*text-decoration-color: #ffffff;*/
+    /*color: #ffffff;*/
+/*}*/
+
+.navbar-custom {
+    background-color: #396494;
+    text-decoration-color: #ffffff;
+    color: #ffffff;
+    height: 25px;
+}
+
+table {
+    border-top: 1px solid #DFDFDF;
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+tr {
+    border: 0;
+}
+
+tr > td:first-child, tr > th:first-child {
+    padding-left: 1.25em;
+}
+
+tr > td:last-child, tr > th:last-child {
+    padding-right: 1.25em;
+}
+
+td, th {
+    line-height: 1.5em;
+    padding: 0.5em 0.6em;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background-color: #efefef;
+    background-image: -moz-linear-gradient(top, #ffffff, #eaeaea);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ffffff), color-stop(1, #eaeaea));
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#ffffff', EndColorStr='#eaeaea');
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#ffffff', EndColorStr='#eaeaea')";
+    color: #666666;
+    font-weight: bold;
+    line-height: 1.7em;
+    padding: 0.2em 0.6em;
+}
+
+thead th {
+    white-space: nowrap;
+}
+
+th a {
+    display: block;
+    text-decoration: none;
+}
+
+th a:link, th a:visited {
+    color: #666666;
+}
+
+th a:hover, th a:focus {
+    color: #333333;
+}
+
+th.sortable a {
+    background-position: right;
+    background-repeat: no-repeat;
+    padding-right: 1.1em;
+}
+
+th.asc a {
+    background-image: url(../images/skin/sorted_asc.gif);
+}
+
+th.desc a {
+    background-image: url(../images/skin/sorted_desc.gif);
+}
+
+.odd {
+    background: #f7f7f7;
+}
+
+.even {
+    background: #ffffff;
+}
+
+/*.navbar-nav > li > a{ padding: 0px 15px }*/
+/*.navbar-brand{ padding-top: 10px; }*/
+
+
+
+/*.navbar-fixed-top {*/
+/*min-height: 80px;*/
+/*}*/
+
+/*.navbar-nav > li > a {*/
+/*padding-top: 0px;*/
+/*padding-bottom: 0px;*/
+/*line-height: 80px;*/
+/*}*/
+
+/*@media (max-width: 767px) {*/
+/*.navbar-nav > li > a {*/
+/*line-height: 20px;*/
+/*padding-top: 10px;*/
+/*padding-bottom: 10px;}*/
+/*}*/
+
+/*.tnav .navbar .container { height: 28px; }*/
+
+/*.navbar-primary .navbar { background:#9f58b5; border-bottom:none; }*/
+/*.navbar-primary .navbar .nav > li > a {color: #501762;}*/
+/*.navbar-primary .navbar .nav > li > a:hover {color: #fff; background-color: #8e49a3;}*/
+/*.navbar-primary .navbar .nav .active > a,.navbar .nav .active > a:hover {color: #fff; background-color: #501762;}*/
+/*.navbar-primary .navbar .nav li > a .caret, .tnav .navbar .nav li > a:hover .caret {border-top-color: #fff;border-bottom-color: #fff;}*/
+/*.navbar-primary .navbar .nav > li.dropdown.open.active > a:hover {}*/
+/*.navbar-primary .navbar .nav > li.dropdown.open > a {color: #fff;background-color: #9f58b5;border-color: #fff;}*/
+/*.navbar-primary .navbar .nav > li.dropdown.open.active > a:hover .caret, .tnav .navbar .nav > li.dropdown.open > a .caret {border-top-color: #fff;}*/
+/*.navbar-primary .navbar .navbar-brand {color:#fff;}*/
+/*.navbar-primary .navbar .nav.pull-right {margin-left: 10px; margin-right: 0;}*/
+/*.navbar-xs .navbar-primary .navbar { min-height:28px; height: 28px; }*/
+/*.navbar-xs .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 28px; }*/
+/*.navbar-xs .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 28px; }*/
+/*.navbar-sm .navbar-primary .navbar { min-height:40px; height: 40px; }*/
+/*.navbar-sm .navbar-primary .navbar .navbar-brand{ padding: 0px 12px;font-size: 16px;line-height: 40px; }*/
+/*.navbar-sm .navbar-primary .navbar .navbar-nav > li > a {  padding-top: 0px; padding-bottom: 0px; line-height: 40px; }*/
+
+/*.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {*/
+/*color: #000;  *//*Sets the text hover color on navbar*/
+/*height: 31px;*/
+/*}*/
+
