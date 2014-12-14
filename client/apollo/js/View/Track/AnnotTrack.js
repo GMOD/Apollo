@@ -209,20 +209,24 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.makeTrackDroppable();
             track.hide();
             track.show();
+
+            // initialize menus regardless
+            if (!track.webapollo.loginMenuInitialized) {
+                track.webapollo.initLoginMenu(track.username);
+            }
+            if (! track.webapollo.searchMenuInitialized && track.permission)  {
+                track.webapollo.initSearchMenu();
+            }
         },
         function() {
             "disableJBrowseMode" in track.config && track.config.disableJBrowseMode?track.login():track.hide();
+            if (!track.webapollo.loginMenuInitialized) {
+                track.webapollo.initLoginMenu(track.username);
+            }
             console.log("Error");
         });
 
 
-        // initialize menus regardless
-        if (!this.webapollo.loginMenuInitialized) {
-            this.webapollo.initLoginMenu(this.username);
-        }
-        if (! this.webapollo.searchMenuInitialized && this.permission)  {
-            this.webapollo.initSearchMenu();
-        }
     }, 
 
     createAnnotationChangeListener: function(retryNumber) {
@@ -486,7 +490,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * subfeature is not selectable, do not bind mouse down
              */
             if (subdiv && subdiv != null && (! this.selectionManager.unselectableTypes[subfeature.get('type')]) )  {
-                console.log("onAnnotMouseDown");
                 $(subdiv).bind("mousedown", this.onAnnotMouseDown);
             }
         }
@@ -1235,7 +1238,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             features.push({ "uniquename": rightTranscriptId });
             operation = "merge_transcripts";
         }
-        var postData = { "track": trackName, features, "operation": operation };
+        var postData = { "track": trackName, "features": features, "operation": operation };
         track.executeUpdateOperation(postData);
     },
 
@@ -2890,7 +2893,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         "new_dbxrefs": [ { "db": pubmedIdDb, "accession": newPubmedId } ]
                     } ];
                     var operation = "update_non_primary_dbxrefs";
-                    var postData = { "track": trackName, features, "operation": operation };
+                    var postData = { "track": trackName, "features": features, "operation": operation };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 }
