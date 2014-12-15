@@ -31,6 +31,8 @@ public class AnnotatorWidget2 {
     final SplitLayoutPanel navigationPanel = new SplitLayoutPanel();
     final Button dockOpenClose = new Button("&raquo;");
 
+    final TabPanel detailsPanel = new TabPanel();
+
     /**
      * This is the entry point method.
      */
@@ -87,15 +89,14 @@ public class AnnotatorWidget2 {
 
         northPanel.add(titlePanel);
 
-        TabPanel filterPanel = new TabPanel();
-        filterPanel.setWidth("100%");
-        filterPanel.add(searchPanel, "Organism");
-        filterPanel.add(new HTML("Browse Form"), "Sequence");
-        filterPanel.add(new HTML("Flag"), "Features");
-        filterPanel.add(new HTML("Flag"), "Users");
-        filterPanel.selectTab(0);
+        detailsPanel.setWidth("100%");
+        detailsPanel.add(searchPanel, "Organism");
+        detailsPanel.add(new HTML("Browse Form"), "Sequence");
+        detailsPanel.add(new HTML("Flag"), "Features");
+        detailsPanel.add(new HTML("Flag"), "Users");
+        detailsPanel.selectTab(0);
 
-        northPanel.add(filterPanel);
+        northPanel.add(detailsPanel);
 
 
         Tree tree = new Tree();
@@ -145,7 +146,7 @@ public class AnnotatorWidget2 {
 
 
         p.addEast(navigationPanel, 500);
-//        p.addSouth(featureDetailPanel, 200);
+//        mainLayoutPanel.addSouth(featureDetailPanel, 200);
         p.add(frame);
         RootLayoutPanel rp = RootLayoutPanel.get();
 

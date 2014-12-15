@@ -19,8 +19,8 @@ public class Annotator implements EntryPoint {
      */
     public void onModuleLoad() {
 
+        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
 
-        AnnotatorWidget2 annotatorWidget2 = new AnnotatorWidget2();
     }
 
 

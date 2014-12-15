@@ -43,7 +43,8 @@ h1 {
 .details-button{
   /*width: 10px;*/
   display: inline-table;
-  border-top: 0;
+  cursor: pointer;
+  /*border-top: 0;*/
 }
 
 .details-header-title{

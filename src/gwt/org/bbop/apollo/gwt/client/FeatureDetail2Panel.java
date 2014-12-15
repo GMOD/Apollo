@@ -88,7 +88,7 @@ public class FeatureDetail2Panel extends HorizontalPanel{
         detailsTable.setWidget(2,1,new HTML("2014-10-09"));
 
 
-//        tabPanel.setHeight("100%");
+//        tabLayoutPanel.setHeight("100%");
 //        detailsTable.setHeight("100%");
 
 //        geneTable.setHeight("100%");
