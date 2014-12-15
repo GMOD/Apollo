@@ -7,12 +7,12 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 /**
  * Created by ndunn on 12/15/14.
  */
-public class UserPanel extends SplitLayoutPanel{
+public class SequenceBrowserPanel extends SplitLayoutPanel{
 
-    final HTML label = new HTML("User Panel");
+    final HTML label = new HTML("Sequence Panel");
 
 
-    public UserPanel(){
+    public SequenceBrowserPanel(){
         add(label);
     }
 

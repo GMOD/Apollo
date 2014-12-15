@@ -57,12 +57,15 @@ public class AnnotatorWidget3 {
 
 
 
-        SequencePanel sequencePanel = new SequencePanel();
+        SequenceBrowserPanel sequenceBrowserPanel = new SequenceBrowserPanel();
+        FeaturePanel featurePanel = new FeaturePanel();
+        OrganismPanel organismPanel = new OrganismPanel();
+        UserPanel userPanel = new UserPanel();
 //        tabLayoutPanel.add(new HTML("this"),"[this]");
-        tabLayoutPanel.add(sequencePanel, "Sequence");
-        tabLayoutPanel.add(new HTML("Browse Form"), "Feature");
-        tabLayoutPanel.add(new HTML("Flag"), "Organism");
-        tabLayoutPanel.add(new HTML("Flag"), "Users");
+        tabLayoutPanel.add(featurePanel, "Feature");
+        tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
+        tabLayoutPanel.add(organismPanel, "Organism");
+        tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.selectTab(0);
 
 
