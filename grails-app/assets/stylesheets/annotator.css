@@ -1,5 +1,8 @@
 /** Add css rules here for your application. */
-
+/**
+*= require_self
+*= require bootstrap
+*/
 
 /** Example rules used by the template application (remove for your app) */
 h1 {

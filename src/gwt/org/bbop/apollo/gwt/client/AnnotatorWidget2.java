@@ -146,7 +146,7 @@ public class AnnotatorWidget2 {
 
 
         p.addEast(navigationPanel, 500);
-//        mainLayoutPanel.addSouth(sequenceDetailPanel, 200);
+//        mainLayoutPanel.addSouth(groupDetailPanel, 200);
         p.add(frame);
         RootLayoutPanel rp = RootLayoutPanel.get();
 

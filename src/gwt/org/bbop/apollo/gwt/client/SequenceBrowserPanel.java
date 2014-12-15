@@ -79,7 +79,7 @@ public class SequenceBrowserPanel extends SplitLayoutPanel {
 //        codonCheckBox.addClickHandler(new ClickHandler() {
 //            @Override
 //            public void onClick(ClickEvent event) {
-//                setWidgetSize(sequenceDetailPanel, 0);
+//                setWidgetSize(groupDetailPanel, 0);
 //                animate(400);
 //            }
 //        });

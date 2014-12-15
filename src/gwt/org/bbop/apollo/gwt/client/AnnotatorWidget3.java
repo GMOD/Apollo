@@ -11,12 +11,6 @@ import com.google.gwt.user.client.ui.*;
  */
 public class AnnotatorWidget3 {
 
-//    final Panel searchPanel = new VerticalPanel();
-//    final TextBox nameField = new TextBox();
-//    final Label searchResult = new HTML("none");
-//    final CheckBox cdsCheckBox = new CheckBox();
-//    final CheckBox codonCheckBox = new CheckBox();
-
     boolean toggleOpen = true ;
 
     final SplitLayoutPanel mainLayoutPanel = new SplitLayoutPanel();
@@ -68,7 +62,7 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(organismPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.add(groupPanel, "Groups");
-        tabLayoutPanel.selectTab(2);
+        tabLayoutPanel.selectTab(0);
 
 
 
