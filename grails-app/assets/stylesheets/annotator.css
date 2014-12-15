@@ -32,3 +32,29 @@ h1 {
 #closeButton {
   margin: 15px 6px 6px;
 }
+
+.details-header{
+  background-color: #cccccc;
+  width: 100%;
+  border-top: 0;
+  /*display: inline-block;*/
+}
+
+.details-button{
+  /*width: 10px;*/
+  display: inline-table;
+  border-top: 0;
+}
+
+.details-header-title{
+  /*background-color: #808080;*/
+  font-size: larger;
+  width: 20%;
+  /*margin-top: 5px;*/
+  margin-left: 10px;
+  text-align: left;
+  font-weight: 200;
+  /*width: 100%;*/
+  /*border: solid;*/
+  display: inline-table;
+}
