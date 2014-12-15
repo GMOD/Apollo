@@ -93,10 +93,10 @@ public class SequenceBrowserPanel extends SplitLayoutPanel {
         sequenceTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
         sequenceTable.setHTML(i, 2, Math.rint(Math.random() * 100) + "");
         Button button = new Button("Annotate");
-        Button button2 = new Button("Details");
+//        Button button2 = new Button("Details");
         HorizontalPanel actionPanel = new HorizontalPanel();
         actionPanel.add(button);
-        actionPanel.add(button2);
+//        actionPanel.add(button2);
         sequenceTable.setWidget(i, 3, actionPanel);
     }
 

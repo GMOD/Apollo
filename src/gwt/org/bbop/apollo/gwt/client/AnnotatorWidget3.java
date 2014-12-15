@@ -61,12 +61,14 @@ public class AnnotatorWidget3 {
         FeaturePanel featurePanel = new FeaturePanel();
         OrganismPanel organismPanel = new OrganismPanel();
         UserPanel userPanel = new UserPanel();
+        GroupPanel groupPanel = new GroupPanel();
 //        tabLayoutPanel.add(new HTML("this"),"[this]");
         tabLayoutPanel.add(featurePanel, "Feature");
         tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
         tabLayoutPanel.add(organismPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
-        tabLayoutPanel.selectTab(1);
+        tabLayoutPanel.add(groupPanel, "Groups");
+        tabLayoutPanel.selectTab(2);
 
 
 
