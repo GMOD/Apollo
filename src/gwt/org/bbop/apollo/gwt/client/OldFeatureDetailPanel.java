@@ -4,8 +4,9 @@ import com.google.gwt.user.client.ui.*;
 
 /**
  * Created by ndunn on 12/10/14.
+ * @deprecated
  */
-public class FeatureDetailPanel extends HorizontalPanel{
+public class OldFeatureDetailPanel extends HorizontalPanel{
 
     final FlexTable geneTable = new FlexTable();
 //    final HTML geneHTML = new HTML("Gene");
@@ -21,7 +22,7 @@ public class FeatureDetailPanel extends HorizontalPanel{
     final FlexTable goTable = new FlexTable();
     final FlexTable commentTable = new FlexTable();
 
-    public FeatureDetailPanel(){
+    public OldFeatureDetailPanel(){
 
         geneTable.setHTML(0,0,"Name&nbsp;");
         geneTable.setWidget(0, 1, new HTML("paired box 6a"));

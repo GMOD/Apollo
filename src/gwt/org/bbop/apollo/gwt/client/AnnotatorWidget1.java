@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -102,7 +101,7 @@ public class AnnotatorWidget1 {
 //        detailPanel.add(new HTML("12 Genes, 8 Transcripts"));
 //        detailPanel.add(searchResult);
 
-        FeatureDetailPanel featureDetailPanel = new FeatureDetailPanel();
+        OldFeatureDetailPanel featureDetailPanel = new OldFeatureDetailPanel();
 
 
 //        Frame frame1 = new Frame("");

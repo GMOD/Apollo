@@ -497,39 +497,39 @@ return declare( JBPlugin,
     addNavigationOptions: function()  {
         var thisB = this;
         var browser = this.browser;
-        var select_Tracks = new dijitMenuItem(
-            {
-                label: "Sequences",
-                onClick: function(event) {
-                    window.open('../sequence', '_blank');
-                }
-            });
-        browser.addGlobalMenuItem( 'view', select_Tracks );
-        var select_Organisms= new dijitMenuItem(
-            {
-                label: "Organisms",
-                onClick: function(event) {
-                    window.open('../organism', '_blank');
-                }
-            });
-        browser.addGlobalMenuItem( 'view', select_Organisms );
-        var select_Permissions = new dijitMenuItem(
-            {
-                label: "Permissions",
-                onClick: function(event) {
-                    window.open('../permissions', '_blank');
-                }
-            });
-        browser.addGlobalMenuItem( 'view', select_Permissions);
-        var recent_Changes = new dijitMenuItem(
-            {
-                label: "Changes",
-                onClick: function(event) {
-                    window.open('../changes', '_blank');
-                }
-            });
-        browser.addGlobalMenuItem( 'view', recent_Changes );
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+        //var select_Tracks = new dijitMenuItem(
+        //    {
+        //        label: "Sequences",
+        //        onClick: function(event) {
+        //            window.open('../sequence', '_blank');
+        //        }
+        //    });
+        //browser.addGlobalMenuItem( 'view', select_Tracks );
+        //var select_Organisms= new dijitMenuItem(
+        //    {
+        //        label: "Organisms",
+        //        onClick: function(event) {
+        //            window.open('../organism', '_blank');
+        //        }
+        //    });
+        //browser.addGlobalMenuItem( 'view', select_Organisms );
+        //var select_Permissions = new dijitMenuItem(
+        //    {
+        //        label: "Permissions",
+        //        onClick: function(event) {
+        //            window.open('../permissions', '_blank');
+        //        }
+        //    });
+        //browser.addGlobalMenuItem( 'view', select_Permissions);
+        //var recent_Changes = new dijitMenuItem(
+        //    {
+        //        label: "Changes",
+        //        onClick: function(event) {
+        //            window.open('../changes', '_blank');
+        //        }
+        //    });
+        //browser.addGlobalMenuItem( 'view', recent_Changes );
+        //browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
 
     /**

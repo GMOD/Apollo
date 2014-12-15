@@ -66,7 +66,7 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
         tabLayoutPanel.add(organismPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
-        tabLayoutPanel.selectTab(0);
+        tabLayoutPanel.selectTab(1);
 
 
 

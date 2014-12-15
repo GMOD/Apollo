@@ -11,17 +11,12 @@ import com.google.gwt.user.client.ui.*;
 /**
  * Created by ndunn on 12/15/14.
  */
-public class FeaturePanel extends SplitLayoutPanel{
-
-//    final HTML label = new HTML("Organism Panel");
+public class FeaturePanel extends SplitLayoutPanel {
 
     final Panel searchPanel = new VerticalPanel();
     final TextBox nameField = new TextBox();
-//    final Label searchResult = new HTML("none");
     final CheckBox cdsCheckBox = new CheckBox();
     final CheckBox codonCheckBox = new CheckBox();
-//    final VerticalPanel navigationPanelWrapper = new VerticalPanel();
-//    final SplitLayoutPanel navigationPanel = new SplitLayoutPanel();
     final FeatureDetail2Panel featureDetailPanel = new FeatureDetail2Panel();
     final VerticalScrollPanel scrollPanel = new VerticalScrollPanel();
 
@@ -30,13 +25,10 @@ public class FeaturePanel extends SplitLayoutPanel{
     final Tree tree = new Tree();
 
 
-    public FeaturePanel(){
-//        super(Style.Unit.PX);
-//        add(label);
+    public FeaturePanel() {
         nameField.setWidth("100%");
         nameField.setEnabled(true);
         nameField.setReadOnly(false);
-//        searchPanel.add(searchButton);
         searchPanel.add(nameField);
 
         Panel check1Panel = new HorizontalPanel();
@@ -52,23 +44,21 @@ public class FeaturePanel extends SplitLayoutPanel{
         searchPanel.add(check2Panel);
 
 
-
         tree.addItem(generateTreeItem("abc"));
         tree.addItem(generateTreeItem("def"));
         tree.addItem(generateTreeItem("ghu"));
         tree.addItem(generateTreeItem("lmn"));
         tree.addItem(generateTreeItem("lmn"));
         tree.addItem(generateTreeItem("lmn"));
-//        scrollPanel.setAlwaysShowScrollBars(true);
         scrollPanel.setAlwaysShowVerticalScrollBar(true);
         scrollPanel.add(tree);
 
 
-        addSouth(featureDetailPanel,200);
+        addSouth(featureDetailPanel, 200);
         addNorth(searchPanel, 200);
         add(scrollPanel);
 
-        setSize("100%","100%");
+        setSize("100%", "100%");
 
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
             @Override
@@ -96,7 +86,7 @@ public class FeaturePanel extends SplitLayoutPanel{
         sox9b.addTextItem(geneName + "-002");
         sox9b.addTextItem(geneName + "-003");
         sox9b.addTextItem(geneName + "-004");
-        sox9b.addTextItem(geneName+"-005");
+        sox9b.addTextItem(geneName + "-005");
         sox9b.setState(true);
         return sox9b;
     }
