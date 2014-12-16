@@ -36,7 +36,7 @@ public class OrganismPanel extends SplitLayoutPanel {
 
     private void generateRow(FlexTable sequenceTable, int i) {
 
-        Anchor link = new Anchor("Group1."+i);
+        Anchor link = new Anchor("Danio Rerio"+i);
         sequenceTable.setWidget(i, 0, link);
         sequenceTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
         Button button = new Button("Set");
