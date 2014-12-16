@@ -11,7 +11,7 @@ public class UserDetailPanel extends TabLayoutPanel{
 //    final VerticalPanel namePanel = new VerticalPanel();
 
     final FlexTable detailsTable = new FlexTable();
-    final FlexTable permissionsTable = new FlexTable();
+//    final FlexTable permissionsTable = new FlexTable();
     final FlexTable sequenceTable = new FlexTable();
     final ScrollPanel scrollPanel = new ScrollPanel();
 //    final FlexTable organismTable = new FlexTable();
@@ -53,8 +53,19 @@ public class UserDetailPanel extends TabLayoutPanel{
 
         selectTab(0);
 
-        detailsTable.setWidget(0,0,new HTML("Name"));
-        detailsTable.setWidget(0,1,new HTML("Group1.3"));
+        detailsTable.setWidget(0,0,new HTML("Groups"));
+
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+
+        for(int j =0 ; j < Math.rint(Math.random() * 10); j++){
+            if(j< 10){
+                horizontalPanel.add(new HTML("<div class='label label-danger'>Group"+j+"</div>"));
+            }
+
+        }
+
+//        detailsTable.setWidget(0,1,new HTML("Group1.3"));
+        detailsTable.setWidget(0,1,horizontalPanel);
         detailsTable.setWidget(1,0,new HTML("Refseq file"));
         detailsTable.setWidget(1,1,new HTML("/tmp"));
         detailsTable.setWidget(2,0,new HTML("Start/Stop"));
@@ -70,9 +81,9 @@ public class UserDetailPanel extends TabLayoutPanel{
 
         Anchor link = new Anchor("Group1."+i);
         sequenceTable.setWidget(i, 0, link);
-        sequenceTable.setHTML(i, 1, Math.random()>0.5 ? "X":"");
-        sequenceTable.setHTML(i, 2, Math.random()>0.5 ? "X":"");
-        sequenceTable.setHTML(i, 3, Math.random()>0.5 ? "X":"");
-        sequenceTable.setHTML(i, 4, Math.random()>0.5 ? "X":"");
+        sequenceTable.setHTML(i, 1, Math.random() > 0.5 ? "X" : "");
+        sequenceTable.setHTML(i, 2, Math.random() > 0.5 ? "X" : "");
+        sequenceTable.setHTML(i, 3, Math.random() > 0.5 ? "X" : "");
+        sequenceTable.setHTML(i, 4, Math.random() > 0.5 ? "X" : "");
     }
 }

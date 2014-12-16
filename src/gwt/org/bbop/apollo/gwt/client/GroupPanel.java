@@ -13,9 +13,6 @@ public class GroupPanel extends SplitLayoutPanel{
 //    final HTML label = new HTML("User Panel");
     final Panel searchPanel = new VerticalPanel();
     final TextBox nameField = new TextBox();
-    final ListBox organismListBox = new ListBox();
-    final TextBox minFeatureBox = new TextBox();
-    final TextBox maxFeatureBox = new TextBox();
     final GroupDetailPanel groupDetailPanel = new GroupDetailPanel();
     final VerticalScrollPanel scrollPanel = new VerticalScrollPanel();
     final FlexTable userTable = new FlexTable();
@@ -29,20 +26,6 @@ public class GroupPanel extends SplitLayoutPanel{
         namePanel.add(new HTML("Name"));
         namePanel.add(nameField);
         searchPanel.add(namePanel);
-
-        Panel check1Panel = new HorizontalPanel();
-        check1Panel.add(new HTML("Organism"));
-        check1Panel.add(organismListBox);
-        searchPanel.add(check1Panel);
-
-        Panel check2Panel = new HorizontalPanel();
-        check2Panel.add(new HTML("# Features"));
-        check2Panel.add(minFeatureBox);
-        check2Panel.add(new HTML(" - "));
-        check2Panel.add(maxFeatureBox);
-        searchPanel.add(check2Panel);
-
-
 
 
         addSouth(groupDetailPanel, 200);
@@ -77,26 +60,10 @@ public class GroupPanel extends SplitLayoutPanel{
 
     private void generateRow(FlexTable sequenceTable, int i) {
 
-        Anchor link = new Anchor("Group"+i);
+        Anchor link = new Anchor("UserGroup"+i);
         sequenceTable.setWidget(i, 0, link);
         sequenceTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
         sequenceTable.setHTML(i, 2, Math.rint(Math.random() * 100) + "");
-//        Button button = new Button("Annotate");
-//        Button button2 = new Button("Details");
-//        HorizontalPanel actionPanel = new HorizontalPanel();
-//
-//
-//
-//        for(int j =0 ; j < Math.rint(Math.random() * 10); j++){
-//            if(j< 10){
-//                actionPanel.add(new HTML("<div class='label label-danger'>Group"+j+"</div>"));
-//            }
-//
-//        }
 
-
-//        actionPanel.add(button);
-//        actionPanel.add(button2);
-//        sequenceTable.setWidget(i, 3, actionPanel);
     }
 }

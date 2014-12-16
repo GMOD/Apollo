@@ -29,7 +29,7 @@ public class AnnotatorWidget3 {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         String rootUrl = dictionary.get("rootUrl");
 
-//        frame.setUrl(rootUrl+"/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+        frame.setUrl(rootUrl+"/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
         frame.setHeight("100%");
         frame.setWidth("100%");
 
@@ -61,7 +61,7 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
         tabLayoutPanel.add(organismPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
-        tabLayoutPanel.add(groupPanel, "Groups");
+        tabLayoutPanel.add(groupPanel, "UserGroups");
         tabLayoutPanel.selectTab(0);
 
 

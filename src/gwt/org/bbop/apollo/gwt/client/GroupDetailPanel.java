@@ -59,7 +59,7 @@ public class GroupDetailPanel extends TabLayoutPanel{
         selectTab(0);
 
         detailsTable.setWidget(0,0,new HTML("Name"));
-        detailsTable.setWidget(0,1,new HTML("Group1.3"));
+        detailsTable.setWidget(0,1,new HTML("UserGroup1.3"));
         detailsTable.setWidget(1,0,new HTML("Refseq file"));
         detailsTable.setWidget(1,1,new HTML("/tmp"));
         detailsTable.setWidget(2,0,new HTML("Start/Stop"));
@@ -73,7 +73,7 @@ public class GroupDetailPanel extends TabLayoutPanel{
 
     private void generateSequenceRow(FlexTable sequenceTable, int i) {
 
-        Anchor link = new Anchor("Group1."+i);
+        Anchor link = new Anchor("UserGroup1."+i);
         sequenceTable.setWidget(i, 0, link);
         sequenceTable.setHTML(i, 1, Math.random() > 0.5 ? "X" : "");
         sequenceTable.setHTML(i, 2, Math.random() > 0.5 ? "X" : "");
