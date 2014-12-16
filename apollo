@@ -10,7 +10,7 @@ function usage(){
     echo "run:       Runs from current directory debug mode (non-minimized javascript).";
     echo "test:      Runs test-suite.";
     echo "debug:     Runs from current directory in debug mode (non-minimized javascript).";
-    #echo "release:   Builds in release mode (minimized javascript). (advanced)";
+    echo "release:   Builds in release mode (minimized javascript). (advanced)";
     echo "compile:   Compiled the build.";
     echo "clean:     Removes class files.";
     echo "clean-all: Removes class files and jbrowse files.";
