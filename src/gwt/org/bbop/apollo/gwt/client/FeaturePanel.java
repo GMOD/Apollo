@@ -5,7 +5,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 /**
@@ -19,6 +18,7 @@ public class FeaturePanel extends SplitLayoutPanel {
     final CheckBox codonCheckBox = new CheckBox();
     final FeatureDetail2Panel featureDetailPanel = new FeatureDetail2Panel();
     final VerticalScrollPanel scrollPanel = new VerticalScrollPanel();
+    final ListBox sequenceListBox = new ListBox();
 
 
     // make a table
@@ -30,6 +30,11 @@ public class FeaturePanel extends SplitLayoutPanel {
         nameField.setEnabled(true);
         nameField.setReadOnly(false);
         searchPanel.add(nameField);
+
+        HorizontalPanel sequencePanel = new HorizontalPanel();
+        sequencePanel.add(new HTML("Sequence"));
+        sequencePanel.add(sequenceListBox);
+        searchPanel.add(sequencePanel);
 
         Panel check1Panel = new HorizontalPanel();
         check1Panel.add(cdsCheckBox);

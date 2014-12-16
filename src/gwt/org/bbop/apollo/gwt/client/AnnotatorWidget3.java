@@ -57,7 +57,7 @@ public class AnnotatorWidget3 {
         UserPanel userPanel = new UserPanel();
         GroupPanel groupPanel = new GroupPanel();
 //        tabLayoutPanel.add(new HTML("this"),"[this]");
-        tabLayoutPanel.add(featurePanel, "Feature");
+        tabLayoutPanel.add(featurePanel, "Annotations");
         tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
         tabLayoutPanel.add(organismPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");

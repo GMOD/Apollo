@@ -57,9 +57,9 @@ public class SequenceBrowserPanel extends SplitLayoutPanel {
         sequenceTable.setWidth("100%");
 
         sequenceTable.setHTML(0,0,"<b>Name</b>");
-        sequenceTable.setHTML(0,1,"<b># Features</b>");
-        sequenceTable.setHTML(0,2,"<b># Genes</b>");
-        sequenceTable.setHTML(0,3,"<b>Action</b>");
+        sequenceTable.setHTML(0,1,"<b>Length</b>");
+//        sequenceTable.setHTML(0,2,"<b># Genes</b>");
+        sequenceTable.setHTML(0,2,"<b>Action</b>");
 
         for(int i = 1; i < 22 ; i++){
             generateRow(sequenceTable,i);
@@ -91,13 +91,13 @@ public class SequenceBrowserPanel extends SplitLayoutPanel {
         Anchor link = new Anchor("Group1."+i);
         sequenceTable.setWidget(i, 0, link);
         sequenceTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
-        sequenceTable.setHTML(i, 2, Math.rint(Math.random() * 100) + "");
+//        sequenceTable.setHTML(i, 2, Math.rint(Math.random() * 100) + "");
         Button button = new Button("Annotate");
 //        Button button2 = new Button("Details");
         HorizontalPanel actionPanel = new HorizontalPanel();
         actionPanel.add(button);
 //        actionPanel.add(button2);
-        sequenceTable.setWidget(i, 3, actionPanel);
+        sequenceTable.setWidget(i, 2, actionPanel);
     }
 
 
