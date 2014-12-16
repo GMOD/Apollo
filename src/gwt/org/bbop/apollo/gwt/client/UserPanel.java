@@ -14,9 +14,6 @@ public class UserPanel extends SplitLayoutPanel{
 
     final Panel searchPanel = new VerticalPanel();
     final TextBox nameField = new TextBox();
-    final ListBox organismListBox = new ListBox();
-    final TextBox minFeatureBox = new TextBox();
-    final TextBox maxFeatureBox = new TextBox();
     final UserDetailPanel sequenceDetailPanel = new UserDetailPanel();
     final VerticalScrollPanel scrollPanel = new VerticalScrollPanel();
     final FlexTable userTable = new FlexTable();
@@ -32,20 +29,6 @@ public class UserPanel extends SplitLayoutPanel{
         namePanel.add(new HTML("Name"));
         namePanel.add(nameField);
         searchPanel.add(namePanel);
-
-        Panel check1Panel = new HorizontalPanel();
-        check1Panel.add(new HTML("Organism"));
-        check1Panel.add(organismListBox);
-        searchPanel.add(check1Panel);
-
-        Panel check2Panel = new HorizontalPanel();
-        check2Panel.add(new HTML("# Features"));
-        check2Panel.add(minFeatureBox);
-        check2Panel.add(new HTML(" - "));
-        check2Panel.add(maxFeatureBox);
-        searchPanel.add(check2Panel);
-
-
 
 
         addSouth(sequenceDetailPanel, 200);
