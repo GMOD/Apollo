@@ -84,14 +84,22 @@ public class FeaturePanel extends SplitLayoutPanel {
 
     }
 
+    HTML createHTML(String geneName,int index){
+        HTML html = new HTML(geneName + "-00"+index+ " <div class='pull-right badge'>12</div>");
+
+        return html;
+    }
+
     private TreeItem generateTreeItem(String geneName) {
         TreeItem sox9b = new TreeItem();
-        sox9b.setText(geneName);
-        sox9b.addTextItem(geneName + "-001");
-        sox9b.addTextItem(geneName + "-002");
-        sox9b.addTextItem(geneName + "-003");
-        sox9b.addTextItem(geneName + "-004");
-        sox9b.addTextItem(geneName + "-005");
+        int i =0  ;
+//        sox9b.setText(geneName);
+        sox9b.addItem(new HTML(geneName+"<div class='pull-right label label-warning'>32</div>"));
+        sox9b.addItem(createHTML(geneName,i++));
+        sox9b.addItem(createHTML(geneName,i++));
+        sox9b.addItem(createHTML(geneName,i++));
+        sox9b.addItem(createHTML(geneName,i++));
+        sox9b.addItem(createHTML(geneName,i++));
         sox9b.setState(true);
         return sox9b;
     }
