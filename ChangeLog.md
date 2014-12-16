@@ -1,3 +1,11 @@
+## 1.0.3 release
+
+Bugfixes
+
++ Fixed issue where HTTP header size could become large when exporting all tracks (issue #101)
++ Fix some cases where error reporting was broken on login pages (issue #111)
++ Fix Chado export case where DBXref or DB were not pre-existing (issue #103)
+
 ## 1.0.2 release 
 
 Features: 
