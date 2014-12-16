@@ -16,7 +16,7 @@ public class GroupDetailPanel extends TabLayoutPanel{
     final ScrollPanel scrollPanel = new ScrollPanel();
     final ScrollPanel scrollPanel2 = new ScrollPanel();
 //    final FlexTable organismTable = new FlexTable();
-//    final Tree tree = new Tree();
+//    final Tree trackTable = new Tree();
 
 //    final FlexTable attributesTable = new FlexTable();
 //    final FlexTable goTable = new FlexTable();

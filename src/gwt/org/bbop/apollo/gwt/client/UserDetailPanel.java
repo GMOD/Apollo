@@ -15,7 +15,7 @@ public class UserDetailPanel extends TabLayoutPanel{
     final FlexTable sequenceTable = new FlexTable();
     final ScrollPanel scrollPanel = new ScrollPanel();
 //    final FlexTable organismTable = new FlexTable();
-//    final Tree tree = new Tree();
+//    final Tree trackTable = new Tree();
 
 //    final FlexTable attributesTable = new FlexTable();
 //    final FlexTable goTable = new FlexTable();
@@ -24,12 +24,12 @@ public class UserDetailPanel extends TabLayoutPanel{
     public UserDetailPanel(){
         super(30,Style.Unit.PX);
 
-//        tree.addItem(generateTreeItem("abc"));
-//        tree.addItem(generateTreeItem("def"));
-//        tree.addItem(generateTreeItem("ghu"));
-//        tree.addItem(generateTreeItem("lmn"));
-//        tree.addItem(generateTreeItem("lmn"));
-//        tree.addItem(generateTreeItem("lmn"));
+//        trackTable.addItem(generateTreeItem("abc"));
+//        trackTable.addItem(generateTreeItem("def"));
+//        trackTable.addItem(generateTreeItem("ghu"));
+//        trackTable.addItem(generateTreeItem("lmn"));
+//        trackTable.addItem(generateTreeItem("lmn"));
+//        trackTable.addItem(generateTreeItem("lmn"));
 
         sequenceTable.setHTML(0,0,"Name");;
         sequenceTable.setHTML(0,1,"Admin");;
@@ -59,7 +59,7 @@ public class UserDetailPanel extends TabLayoutPanel{
 
         for(int j =0 ; j < Math.rint(Math.random() * 10); j++){
             if(j< 10){
-                horizontalPanel.add(new HTML("<div class='label label-danger'>Group"+j+"</div>"));
+                horizontalPanel.add(new HTML("<div class='label label-danger'>Group" + j + "</div>"));
             }
 
         }
