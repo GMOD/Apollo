@@ -53,7 +53,7 @@ public class UserDetailPanel extends TabLayoutPanel{
 
         selectTab(0);
 
-        detailsTable.setWidget(0,0,new HTML("Groups"));
+        detailsTable.setWidget(0,0,new HTML("UserGroups"));
 
         HorizontalPanel horizontalPanel = new HorizontalPanel();
 
