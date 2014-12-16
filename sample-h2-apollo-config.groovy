@@ -5,6 +5,6 @@ grails {
 //    dataSource.url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 
 	apollo.datastore.directory = "/opt/apollo/annotations"
-	apollo.jbrowse.data.directory="/opt/jbrowse/data"
+	apollo.jbrowse.data.directory="/opt/apollo/jbrowse/data"
 
 }

@@ -12,9 +12,10 @@
 // }
 
 grails.config.locations = [
-        "file:./${appName}-config.groovy",
-//        "file:/opt/apollo/${appName}-config.groovy",
-"classpath:${appName}-config.groovy"
+        "file:./${appName}-config.groovy"
+//        "file:/tmp/${appName}-config.groovy",
+        ,"classpath:${appName}-config.groovy"
+        ,"classpath:${appName}-config.properties"
 ]
 
 //grails.assetsminifyJs = true
@@ -164,6 +165,7 @@ log4j.main = {
 
 apollo.datastore.directory = "/opt/apollo/data"
 apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
+
 apollo.default_minimum_intron_size = 1
 apollo.history_size = 0
 apollo.overlapper_class = "org.bbop.apollo.web.overlap.OrfOverlapper"
