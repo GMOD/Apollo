@@ -27,38 +27,13 @@
     <script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js"></script>
     <script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
-
     <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
     <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
+
 
     <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
     <script type="text/javascript">
-
-        jQuery.fn.dataTableExt.oSort['track-name-asc'] = function (a, b) {
-            /*
-             var tmp1 = $(a).text();
-             var tmp2 = $(b).text();
-             return track_name_comparator(tmp1, tmp2);
-             */
-            var regex = />(.*)</;
-            var match1 = regex.exec(a);
-            var match2 = regex.exec(b);
-            return track_name_comparator(match1[1], match2[1]);
-        };
-
-        jQuery.fn.dataTableExt.oSort['track-name-desc'] = function (a, b) {
-            /*
-             var tmp1 = $(a).text();
-             var tmp2 = $(b).text();
-             return track_name_comparator(tmp2, tmp1);
-             */
-            var regex = />(.*)</;
-            var match1 = regex.exec(a);
-            var match2 = regex.exec(b);
-            return track_name_comparator(match2[1], match1[1]);
-        };
 
         var tracks = new Array();
         if (!!google) {
@@ -88,31 +63,18 @@
                 closeOnEscape: false,
                 width: "auto"
             });
-            table = $("#tracks").dataTable({
-                aaSorting: [[2, "asc"]],
-                aaData: tracks,
-                oLanguage: {
-                    sSearch: "Filter: "
-                },
-                aoColumns: [
-                    {bSortable: false, bSearchable: false},
-                    {sTitle: "Organism", bSortable: false},
-                    {sTitle: "Name", sType: "track-name"},
-                    {sTitle: "Length"}
-                ]
-            });
+            
             $(".adapter_button").button({icons: {primary: "ui-icon-folder-collapsed"}});
             $("#checkbox_menu").menu({});
             $("#menu").menubar({
-                        autoExpand: false,
-                        select: function (event, ui) {
-                            $(".ui-state-focus").removeClass("ui-state-focus");
-                        },
-                        position: {
-                            within: $('#frame').add(window).first()
-                        }
-                    }
-            );
+                autoExpand: false,
+                select: function (event, ui) {
+                    $(".ui-state-focus").removeClass("ui-state-focus");
+                },
+                position: {
+                    within: $('#frame').add(window).first()
+                }
+            });
             $("#checkbox_option").change(function () {
                 update_checked(this.checked);
             });
@@ -150,9 +112,7 @@
             $(".data_adapter").click(function () {
                 var tracks = new Array();
                 if ($('#all_selected').is(":visible")) {
-                    <c:forEach var="thisTrack" items="${allTrackIds}">
-                    tracks.push('${thisTrack}');
-                    </c:forEach>
+                    tracks.push('all_tracks');
                 }
                 else {
                     $(".track_select").each(function () {
@@ -190,11 +150,9 @@
             });
             $("#next-page").click(function () {
                 var offset = parseInt($("#offset").val());
-//        if(offset!='0'){
                 offset = offset + ${maximum};
                 $("#offset").val(offset);
                 $('.search-button').click();
-//        }
             });
             $("#apollo_users_guide").click(function () {
                 window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
@@ -256,7 +214,35 @@
                 $(".ui-dialog-titlebar-close", this.parentNode).show();
             };
             var message = "Writing " + adapter;
-            if (tracks.length > 0) {
+            if(tracks[0]=="all_tracks") {
+                var postData = {
+                    operation: "write",
+                    adapter: adapter,
+                    options: options,
+                    tracks: "all_tracks"
+                };
+                url = $.param(postData);
+                console.log(url);
+                $.ajax({
+                    type: "get",
+                    url: "IOService?"+url,
+                    beforeSend: function () {
+                        $("#data_adapter_loading").show();
+                    },
+                    success: function (data, textStatus, jqXHR) {
+                        var msg = successMessage ? successMessage : data;
+                        $("#data_adapter_loading").hide();
+                        $("#data_adapter_message").html(msg);
+                        enableClose();
+                    },
+                    error: function (qXHR, textStatus, errorThrown) {
+                        $("#data_adapter_message").text("Error writing " + adapter);
+                        ok = false;
+                        enableClose();
+                    }
+                });
+            }
+            else if (tracks.length > 0) {
                 var postData = {
                     operation: "write",
                     adapter: adapter,
@@ -297,19 +283,6 @@
             <c:forEach var="track" items="${tracks}">
             var trackName = "${track.getName()}";
             </c:forEach>
-            <%--<%--%>
-            <%--for (ServerConfiguration.TrackConfiguration track : serverConfig.getTracks().values()) {--%>
-            <%--Integer permission = permissions.get(track.getName());--%>
-            <%--if (permission == null) {--%>
-            <%--permission = 0;--%>
-            <%--}--%>
-            <%--if ((permission & Permission.READ) == Permission.READ) {--%>
-            <%--out.println("var trackName = '" + track.getName() + "'");--%>
-            <%--break;--%>
-            <%--}--%>
-
-            <%--}--%>
-            <%--%>--%>
             var search = new SequenceSearch(".");
             var starts = new Object();
             <c:forEach var="track" items="${tracks}">
@@ -467,18 +440,12 @@
 </div>
 <div id="all_selected" style="display: none;" class="label-info label">All Selected</div>
 <div id="search_sequences_dialog" title="Search sequences" style="display:none"></div>
-<!--
-<div id="user_manager_dialog" title="Manage users" style="display:none"></div>
--->
 <div id="data_adapter_dialog" title="Data adapter">
     <div id="data_adapter_loading"><img src="images/loading.gif"/></div>
     <div id="data_adapter_message"></div>
 </div>
 <div id="login_dialog" title="Login">
 </div>
-<%--<div id="tracks_div">--%>
-<%--<table id="tracks"></table>--%>
-<%--</div>--%>
 <form action="sequences" method="get">
     <div class="row">
         <div class="col-2">&nbsp;&nbsp;Showing&nbsp;${trackViews.size()} of ${trackCount}<br/><em>
@@ -513,7 +480,6 @@
         </tr>
         <tr>
             <th></th>
-            <%--<th>Organism</th>--%>
             <th>Name</th>
             <th>Length</th>
         </tr>
@@ -521,12 +487,9 @@
         <tbody>
         <c:forEach var="track" items="${trackViews}" varStatus="iter">
             <tr>
-                    <%--<c:set var="trackString" value="${track.replaceAll('\\\\[','')}"/>--%>
-                    <%--<c:forTokens var="col" items="${trackString}" delims=",">--%>
                 <c:forEach var="col" items="${track}" varStatus="innerIter">
                     <td>
-                            <%--<c:if test="${innerIter.first}">${iter.count + offset}</c:if>--%>
-                            ${col}
+                        ${col}
                     </td>
                 </c:forEach>
             </tr>
