@@ -155,5 +155,5 @@ Note: if you already have a tomcat instance running, you may have to shut it dow
 
 #### Congratulations
 
-If everything works, then you can continue to the [build guide](Build.md) for more instructions on packaging the build, and to the [deployment guide](Deploy.md) for information about deploying to a production server.
+If everything works, then you can continue to the [build guide](Build.md) for more instructions on packaging the build, and to the [deployment guide](Deploy.md) for information about deploying to a production server. Additionally, information about configuration and adding Chado export can be found in the [configuration guide](Configure.md). More information about loading additional tracks is available in the [data loading](Data_loading.md) section.
 

@@ -904,9 +904,17 @@ Note that the generated files will reside in that directory indefinitely to allo
 
 `$ tools/cleanup/remove_temporary_files.sh -d TOMCAT_WEBAPPS_DIR/WebApollo/tmp -m 60`
 
-#### Chado configuration
+#### Chado setup
 
-The Chado data adapter will allow writing the current annotations to a Chado database. For more information about Chado, see  can get more information about the Chado at [GMOD Chado page](http://gmod.org/wiki/Chado). The configuration is stored in `src/main/webapp/config/chado_config.xml`. Let’s take a look at the configuration file:
+The Chado data adapter will allow writing the current annotations to a Chado database.
+
+##### Chado installation
+
+User's wanting to use this will have to setup Chado themselves. The installation instructions can be found at the [GMOD wiki](http://gmod.org/wiki/Chado). Alternatively, instead of using the standard setup, pre-compiled Chado schemas pre-loaded with ontologies that are available from the Center for Phage Technology [here](https://cpt.tamu.edu/computer-resources/chado-prebuilt-schema/). This can be used to speed up the Chado setup substantially.
+
+##### Chado configuration
+
+The configuration for Chado is stored in `src/main/webapp/config/chado_config.xml` and is currently very minimal. Let’s take a look at the configuration file:
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
