@@ -13,7 +13,7 @@
 
 grails.config.locations = [
         "file:./${appName}-config.groovy"
-//        "file:/tmp/${appName}-config.groovy",
+        ,"file:/tmp/${appName}-config.groovy"
         ,"classpath:${appName}-config.groovy"
         ,"classpath:${appName}-config.properties"
 ]
