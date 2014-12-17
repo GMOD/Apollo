@@ -70,3 +70,13 @@ h1 {
   /*font-style: oblique;*/
 }
 
+
+.selectedTreeItem{
+  background-color: darkgray;
+  color: #808080;
+}
+
+/*.tableCheckBox{*/
+  /*padding: 0;*/
+  /*margin: 0;*/
+/*}*/

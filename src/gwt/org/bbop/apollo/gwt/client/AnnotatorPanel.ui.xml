@@ -1,6 +1,207 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <g:HTMLPanel>
+             xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+        >
+    <ui:style>
+        .northPanel {
+            padding: 0px;
+            margin: 10px;
+        }
 
-    </g:HTMLPanel>
+        .widgetPanel {
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .trackTable {
+            margin-left: 10px;
+            margin-top: 10px;
+            vertical-align: middle;
+        }
+
+        /*.headerTable {*/
+        /*font-weight: bolder;*/
+        /*}*/
+
+        .tableKeyName {
+            font-weight: bolder;
+        }
+
+        .tableValue {
+            /*font-weight: bolder;*/
+        }
+
+        .labelText {
+            white-space: nowrap;
+            /*font-weight: normal;*/
+        }
+
+        .selectedTreeItem {
+            background-color: darkgray;
+        }
+
+        .annotation-name {
+            font-size: larger;
+            font-weight: bolder;
+            background-color: inherit;
+            padding-left: 10px;
+        }
+
+        .internalHeader {
+            /*background-color: lightblue;*/
+            width: 100%;
+            font-weight: bolder;
+            font-size: large;
+            color: darkcyan;
+            padding-top: 10px;
+            /*margin: 10px;*/
+        }
+    </ui:style>
+    <gwt:SplitLayoutPanel>
+        <gwt:north size="180">
+            <!--<gwt:HTML text="filterPanel"/>-->
+            <b:Container fluid="true" styleName="{style.northPanel}">
+                <b:Row>
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_2">
+                        <gwt:HTML>
+                            <h5>Sequence</h5>
+                        </gwt:HTML>
+                    </b:Column>
+                    <b:Column size="MD_2">
+                        <b:ListBox ui:field="sequenceList" width="200px"/>
+                    </b:Column>
+                </b:Row>
+                <!--<gwt:HTML>-->
+                    <!--<hr/>-->
+                <!--</gwt:HTML>-->
+                <b:Row>
+                    <b:Column size="MD_4">
+                        <gwt:HTML styleName="{style.internalHeader}">
+                            Checks
+                        </gwt:HTML>
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_2">
+                        <b:InputGroup>
+                            <b:CheckBox text="CDS/3" ui:field="cdsFilter"/>
+                        </b:InputGroup>
+                    </b:Column>
+                    <b:Column size="MD_2">
+                        <b:InputGroup>
+                            <b:CheckBox text="Stop Codons" ui:field="stopCodonFilter"
+                                        addStyleNames="{style.labelText}"/>
+                        </b:InputGroup>
+                    </b:Column>
+                </b:Row>
+
+            </b:Container>
+        </gwt:north>
+        <gwt:center>
+            <!--<gwt:HTML text="centerPanel "/>-->
+            <gwt:ScrollPanel>
+                <gwt:Tree ui:field="features" styleName="{style.widgetPanel}"/>
+            </gwt:ScrollPanel>
+        </gwt:center>
+        <gwt:south size="180">
+            <!--<gwt:VerticalPanel width="100%">-->
+            <!--<gwt:HTML ui:field="annotationName" styleName="{style.annotation-name}"/>-->
+            <gwt:TabLayoutPanel barHeight="35">
+                <gwt:tab>
+                    <gwt:header>Details</gwt:header>
+                    <b:Container fluid="true" width="100%">
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Name
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <gwt:HTML ui:field="annotationName" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Description
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_8">
+                                <gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Created
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <gwt:HTML text="2004-04-01"/>
+                                <!--<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>-->
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Description
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <!--<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>-->
+                                <gwt:HTML text="2004-08-01"/>
+                            </b:Column>
+                        </b:Row>
+                    </b:Container>
+                </gwt:tab>
+
+                <gwt:tab>
+                    <gwt:header>DbXref</gwt:header>
+                    <gwt:HTML text="dbxref"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>PubMed</gwt:header>
+                    <gwt:HTML text="pubmed stuf"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Attributes</gwt:header>
+                    <gwt:HTML text="attributes"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>GO Evidence</gwt:header>
+                    <gwt:HTML text="go evidence"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Comments</gwt:header>
+                    <gwt:HTML text="comments"/>
+                </gwt:tab>
+                <!--<gwt:tab>-->
+                <!--<gwt:header>Details2</gwt:header>-->
+                <!--&lt;!&ndash;<gwt:HTML text="asdf"/>&ndash;&gt;-->
+                <!--<b:Container fluid="true" width="100%">-->
+                <!--<b:Row>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                <!--Description-->
+                <!--</gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_2">-->
+                <!--&lt;!&ndash;<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>&ndash;&gt;-->
+                <!--</b:Column>-->
+                <!--</b:Row>-->
+                <!--</b:Container>-->
+                <!--</gwt:tab>-->
+
+            </gwt:TabLayoutPanel>
+            <!--</gwt:VerticalPanel>-->
+        </gwt:south>
+    </gwt:SplitLayoutPanel>
+    <!--<gwt:HTMLPanel>-->
+
+    <!--</gwt:HTMLPanel>-->
 </ui:UiBinder>

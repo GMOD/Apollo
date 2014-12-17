@@ -19,8 +19,8 @@
             vertical-align: middle;
         }
 
-        /*.headerTable {*/
-            /*font-weight: bolder;*/
+        /*.trackTable tr:hover{*/
+            /*background-color: #d3d3d3;*/
         /*}*/
 
         .tableKeyName{
@@ -30,6 +30,7 @@
         .tableValue{
             /*font-weight: bolder;*/
         }
+
 
     </ui:style>
     <gwt:SplitLayoutPanel>

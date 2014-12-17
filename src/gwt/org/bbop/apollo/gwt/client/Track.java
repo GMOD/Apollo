@@ -48,12 +48,14 @@ public class Track extends Composite{
 
         configurationTable.setWidth("100%");
 
-        trackTable.setText(0, 0, "Show");
-        trackTable.setHTML(0,1,"Name");
-        trackTable.setHTML(0, 2, "Type");
+//        trackTable.setHTML(0, 0, "Show");
+//        trackTable.setHTML(0,1,"Name");
+//        trackTable.setHTML(0, 2, "Type");
 
-        for(int i = 1 ; i < 20 ; i++){
-            trackTable.setWidget(i,0, new CheckBox());
+        for(int i = 0 ; i < 20 ; i++){
+            CheckBox checkBox = new CheckBox();
+//            checkBox.addStyleName("tableCheckBox");
+            trackTable.setWidget(i,0, checkBox);
             Hyperlink html = new Hyperlink();
             html.setText("Track"+i);
             trackTable.setWidget(i,1, html);
@@ -61,6 +63,10 @@ public class Track extends Composite{
             trackTable.setWidget(i,2, typeHTML);
         }
 
+        trackTable.getColumnFormatter().setWidth(0,"30px");
+        trackTable.getColumnFormatter().setWidth(1,"50%");
+        trackTable.setWidth("100%");
+//        trackTable.setStyleName("trackTable");
 
 
         DataGenerator.populateOrganismList(organismList);

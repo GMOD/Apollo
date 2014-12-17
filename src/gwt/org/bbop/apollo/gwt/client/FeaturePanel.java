@@ -92,6 +92,7 @@ public class FeaturePanel extends SplitLayoutPanel {
 
     private TreeItem generateTreeItem(String geneName) {
         TreeItem sox9b = new TreeItem();
+        sox9b.setText(geneName);
         int i =0  ;
 //        sox9b.setText(geneName);
         sox9b.addItem(new HTML(geneName+"<div class='pull-right label label-warning'>32</div>"));
