@@ -24,12 +24,12 @@ fi;
 ( set -x;
   cd src/main/webapp/jbrowse;
   chmod +x bin/cpanm
-  bin/cpanm -v --notest -l ../../../../extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON < /dev/null;
-  bin/cpanm -v --notest -l ../../../../extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON < /dev/null;
+  bin/cpanm -v --notest -l ../../../../extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON Mozilla::CA < /dev/null;
+  bin/cpanm -v --notest -l ../../../../extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON Mozilla::CA < /dev/null;
   bin/cpanm -v --notest -l ../../../../extlib/ --installdeps .< /dev/null;
   bin/cpanm -v --notest -l ../../../../extlib/ --installdeps .< /dev/null;
   set -e;
-  bin/cpanm -v --notest -l ../../../../extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON < /dev/null;
+  bin/cpanm -v --notest -l ../../../../extlib DBI DBD::Pg Crypt::PBKDF2 LWP::UserAgent JSON Mozilla::CA < /dev/null;
   bin/cpanm -v --notest -l ../../../../extlib/ --installdeps .< /dev/null;
   cd -;
   cp -r src/main/webapp/jbrowse/bin/ bin;

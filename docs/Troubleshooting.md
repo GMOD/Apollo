@@ -33,16 +33,6 @@ This problem often indicates that credentials for the LocalDbUserAuthentication 
 This often indicates that the add-webapollo-plugin.pl script wasn't run properly, which will update JBrowse's configuration and load the Web Apollo plugin. See the [data generation](Data_loading.md) for details on this step.
 
 
-### No error message from failed Web Apollo login
-
-Web Apollo uses a custom error reporting valve. To setup, add `errorReportValveClass="org.bbop.apollo.web.ErrorReportValve"` as an attribute to the existing <Host> element in tomcat's server.xml (e.g. /var/lib/tomcat7/conf/server.xml)
-
-    <Host name="localhost" appBase="webapps" 
-      unpackWARs="true" autoDeploy="true" 
-      errorReportValveClass="org.bbop.apollo.web.ErrorReportValve">
-    </Host>
-
-
 ### Errors running JBrowse scripts
 
 ##### e.g. "Can't locate Hash/Merge.pm in @INC" or "Can't locate JBlibs.pm in @INC"
