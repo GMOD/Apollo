@@ -17,6 +17,13 @@
     <inherits name="com.google.gwt.json.JSON"/>
     <!--<inherits name="org.fusesource.restygwt.RestyGWT"/>-->
 
+    <inherits name="org.gwtbootstrap3.GwtBootstrap3"/>
+
+    <!--IE8 support-->
+    <inherits name="org.gwtbootstrap3.extras.respond.Respond"/>
+
+
+
 
     <!--<inherits name="org.gwtbootstrap3.GwtBootstrap3"/>-->
     <!--<inherits name="org.gwtbootstrap3.extras.respond.Respond"/>-->

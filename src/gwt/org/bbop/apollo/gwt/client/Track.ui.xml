@@ -1,0 +1,65 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+        >
+    <ui:style>
+        .northPanel {
+            padding: 0px;
+            margin: 10px;
+        }
+        .widgetPanel{
+            padding: 5px;
+            margin: 5px;
+        }
+        .trackTable{
+            margin-left: 10px;
+        }
+    </ui:style>
+    <gwt:SplitLayoutPanel>
+        <gwt:north size="120">
+            <b:Container fluid="true" styleName="{style.northPanel}">
+                <b:Row>
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_2">
+                        <!--Organism-->
+                        <!--<gwt:Label text="Organism"/>-->
+                        <!--<b:Label text="Organism"/>-->
+                        <gwt:HTML>
+                            <h5> Organism </h5>
+                        </gwt:HTML>
+                    </b:Column>
+                    <b:Column size="MD_2">
+                        <b:ListBox ui:field="organismList" width="200px"/>
+                    </b:Column>
+                </b:Row>
+
+            </b:Container>
+        </gwt:north>
+        <gwt:center>
+            <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
+            <gwt:ScrollPanel>
+
+                <gwt:FlexTable ui:field="trackTable" styleName="{style.trackTable}"/>
+                <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
+
+            </gwt:ScrollPanel>
+        </gwt:center>
+        <gwt:south size="200">
+            <gwt:TabLayoutPanel barHeight="35">
+                <gwt:tab>
+                    <gwt:header>Details</gwt:header>
+                    <gwt:FlexTable ui:field="trackDetailTable"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Configuration</gwt:header>
+                    <gwt:FlexTable ui:field="configurationTable"/>
+                </gwt:tab>
+            </gwt:TabLayoutPanel>
+        </gwt:south>
+
+    </gwt:SplitLayoutPanel>
+</ui:UiBinder>

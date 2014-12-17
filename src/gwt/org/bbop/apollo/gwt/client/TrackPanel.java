@@ -36,8 +36,6 @@ public class TrackPanel extends SplitLayoutPanel {
 
         for(int i = 0 ; i < 20 ; i++){
             trackTable.setWidget(i,0,generateCheckBox(i));
-//            trackTable.setWidget(i,0,new CheckBox());
-//            trackTable.setWidget(i,1,new HTML("Track"+i));
         }
 
         trackTable.setWidth("100%");

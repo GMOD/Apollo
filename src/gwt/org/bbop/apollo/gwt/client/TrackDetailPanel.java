@@ -37,7 +37,6 @@ public class TrackDetailPanel extends TabLayoutPanel{
         selectTab(0);
 
         detailsTable.setWidget(0,0,new HTML("Name"));
-
 //        detailsTable.setWidget(0,1,new HTML("Group1.3"));
         detailsTable.setWidget(0,1,new HTML("Track3"));
         detailsTable.setWidget(1,0,new HTML("Track type"));
@@ -55,7 +54,6 @@ public class TrackDetailPanel extends TabLayoutPanel{
     }
 
     private void generateRow(FlexTable sequenceTable, int i) {
-
         Anchor link = new Anchor("Group1."+i);
         sequenceTable.setWidget(i, 0, link);
         sequenceTable.setHTML(i, 1, Math.random() > 0.5 ? "X" : "");
