@@ -54,11 +54,14 @@ public class Track extends Composite{
 
         for(int i = 1 ; i < 20 ; i++){
             trackTable.setWidget(i,0, new CheckBox());
-            HTML html = new HTML("Track"+i);
+            Hyperlink html = new Hyperlink();
+            html.setText("Track"+i);
             trackTable.setWidget(i,1, html);
             HTML typeHTML = new HTML("CanvasFeature");
             trackTable.setWidget(i,2, typeHTML);
         }
+
+
 
         DataGenerator.populateOrganismList(organismList);
 

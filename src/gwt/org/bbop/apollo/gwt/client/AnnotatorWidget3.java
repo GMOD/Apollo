@@ -71,7 +71,7 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(organismPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.add(groupPanel, "UserGroups");
-        tabLayoutPanel.selectTab(0);
+        tabLayoutPanel.selectTab(1);
 
 
 
@@ -146,12 +146,10 @@ public class AnnotatorWidget3 {
         if(toggleOpen){
             mainLayoutPanel.setWidgetSize(dockLayoutPanel,20);
             dockOpenClose.setIcon(IconType.CARET_LEFT);
-//            dockOpenClose.setText("&laquo;");
         }
         else{
             mainLayoutPanel.setWidgetSize(dockLayoutPanel,500);
             dockOpenClose.setIcon(IconType.CARET_RIGHT);
-//            dockOpenClose.setText("&raquo;");
         }
 
         mainLayoutPanel.animate(400);
