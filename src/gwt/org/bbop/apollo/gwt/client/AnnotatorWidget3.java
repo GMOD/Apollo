@@ -5,6 +5,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.gwt.FlowPanel;
+//import com.google.gwt.user.client.ui.*;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -15,7 +19,7 @@ public class AnnotatorWidget3 {
 
     final SplitLayoutPanel mainLayoutPanel = new SplitLayoutPanel();
 
-    final Button dockOpenClose = new Button("&raquo;");
+    final Button dockOpenClose = new Button();
     final TabLayoutPanel tabLayoutPanel = new TabLayoutPanel(30,Style.Unit.PX);
     final DockLayoutPanel dockLayoutPanel = new DockLayoutPanel(Style.Unit.PX);
     final Frame frame = new Frame();
@@ -34,6 +38,7 @@ public class AnnotatorWidget3 {
         frame.setWidth("100%");
 
 
+        dockOpenClose.setIcon(IconType.CARET_RIGHT);
 
         titlePanel.add(dockOpenClose);
         HTML detailsTitle = new HTML("<div>Details<div>");
@@ -140,11 +145,13 @@ public class AnnotatorWidget3 {
 
         if(toggleOpen){
             mainLayoutPanel.setWidgetSize(dockLayoutPanel,20);
-            dockOpenClose.setHTML("&laquo;");
+            dockOpenClose.setIcon(IconType.CARET_LEFT);
+//            dockOpenClose.setText("&laquo;");
         }
         else{
             mainLayoutPanel.setWidgetSize(dockLayoutPanel,500);
-            dockOpenClose.setHTML("&raquo;");
+            dockOpenClose.setIcon(IconType.CARET_RIGHT);
+//            dockOpenClose.setText("&raquo;");
         }
 
         mainLayoutPanel.animate(400);
