@@ -21,32 +21,21 @@ public class Track extends Composite{
     interface TrackUiBinder extends UiBinder<Widget, Track> {
     }
 
-//    @UiTemplate("Track.ui.xml")
     private static TrackUiBinder ourUiBinder = GWT.create(TrackUiBinder.class);
 
-    @UiField FlexTable trackDetailTable;
     @UiField FlexTable configurationTable;
     @UiField FlexTable trackTable;
     @UiField ListBox organismList;
     @UiField TextBox nameSearchBox;
+    @UiField HTML trackName;
+    @UiField HTML trackType;
+    @UiField HTML trackCount;
+    @UiField HTML trackDensity;
 
     public Track() {
-//        DivElement rootElement = ourUiBinder.createAndBindUi(this);
-//        setElement(rootElement);
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
-
-        trackDetailTable.setWidget(0,0,new HTML("Name"));
-//        trackDetailTable.setWidget(0,1,new HTML("Group1.3"));
-        trackDetailTable.setWidget(0,1,new HTML("Track3"));
-        trackDetailTable.setWidget(1,0,new HTML("Track type"));
-        trackDetailTable.setWidget(1,1,new HTML("HTMLFeature"));
-        trackDetailTable.setWidget(2,0,new HTML("Feature Count"));
-        trackDetailTable.setWidget(2, 1, new HTML("33"));
-        trackDetailTable.setWidget(3, 0, new HTML("Feature Density"));
-        trackDetailTable.setWidget(3, 1, new HTML("0.0101"));
-        trackDetailTable.setWidth("100%");
 
         configurationTable.setHTML(0, 0, "maxHeight");;
         configurationTable.setHTML(0, 1, "1000");;
@@ -59,14 +48,24 @@ public class Track extends Composite{
 
         configurationTable.setWidth("100%");
 
-        for(int i = 0 ; i < 20 ; i++){
+        trackTable.setText(0, 0, "Show");
+        trackTable.setHTML(0,1,"Name");
+        trackTable.setHTML(0, 2, "Type");
+
+        for(int i = 1 ; i < 20 ; i++){
             trackTable.setWidget(i,0, new CheckBox());
             HTML html = new HTML("Track"+i);
             trackTable.setWidget(i,1, html);
+            HTML typeHTML = new HTML("CanvasFeature");
+            trackTable.setWidget(i,2, typeHTML);
         }
 
         DataGenerator.populateOrganismList(organismList);
 
+        trackName.setHTML("Track3");
+        trackType.setHTML("CanvasFeature");
+        trackCount.setHTML("34");
+        trackDensity.setHTML("0.000123");
 
     }
 

@@ -7,13 +7,30 @@
             padding: 0px;
             margin: 10px;
         }
-        .widgetPanel{
+
+        .widgetPanel {
             padding: 5px;
             margin: 5px;
         }
-        .trackTable{
+
+        .trackTable {
             margin-left: 10px;
+            margin-top: 10px;
+            vertical-align: middle;
         }
+
+        /*.headerTable {*/
+            /*font-weight: bolder;*/
+        /*}*/
+
+        .tableKeyName{
+            font-weight: bolder;
+        }
+
+        .tableValue{
+            /*font-weight: bolder;*/
+        }
+
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="120">
@@ -25,11 +42,8 @@
                 </b:Row>
                 <b:Row>
                     <b:Column size="MD_2">
-                        <!--Organism-->
-                        <!--<gwt:Label text="Organism"/>-->
-                        <!--<b:Label text="Organism"/>-->
                         <gwt:HTML>
-                            <h5> Organism </h5>
+                            <h5>Organism</h5>
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_2">
@@ -43,7 +57,7 @@
             <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
             <gwt:ScrollPanel>
 
-                <gwt:FlexTable ui:field="trackTable" styleName="{style.trackTable}"/>
+                <gwt:FlexTable ui:field="trackTable" styleName="{style.trackTable}" width="100%"/>
                 <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
 
             </gwt:ScrollPanel>
@@ -52,7 +66,48 @@
             <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
-                    <gwt:FlexTable ui:field="trackDetailTable"/>
+                    <b:Container fluid="true" width="100%">
+                        <b:Row>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Name
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML ui:field="trackName" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Type
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML ui:field="trackType" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Count
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML ui:field="trackCount" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Density
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_2" >
+                                <gwt:HTML ui:field="trackDensity" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                    </b:Container>
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Configuration</gwt:header>
