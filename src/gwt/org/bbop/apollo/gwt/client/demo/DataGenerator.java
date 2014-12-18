@@ -14,6 +14,7 @@ import org.gwtbootstrap3.client.ui.Button;
 //import org.gwtbootstrap3.client.ui.ListBox;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,19 +25,95 @@ public class DataGenerator {
     public final static String SEQUENCE_PREFIX = "LG";
 
     public static String[] organisms = {
-            "Zebrafish",
-            "Alligator Pipefish",
-            "Bloody Stickleback",
-            "Brook Stickleback",
-            "Three-spined Stickleback",
-            "Amur Stickleback",
-            "Spinach Stickleback"
+            "Zebrafish"
+            ,"Alligator Pipefish"
+            ,"Bloody Stickleback"
+            ,"Brook Stickleback"
+            ,"Three-spined Stickleback"
+            ,"Amur Stickleback"
+            ,"Spinach Stickleback"
+            ,"Bean weevil"
+            ,"Flour mite"
+            ,"May conehead"
+            ,"Wheat curl mite"
+            ,"Sea spiders"
+            ,"Lesser wax moth"
+            ,"Acacia psyllid"
+            ,"Panamanian leafcutter ant"
+            ,"Bluegreen aphid"
+            ,"Pea aphid"
+            ,"Pale spruce gall adelgid"
+            ,"Balsam woolly adelgid"
+            ,"Hemlock woolly adelgid"
+            ,"Yellow fever mosquito"
+            ,"Asian tiger mosquito"
+            ,"Eastern salt marsh mosquito"
+            ,"Floodwater mosquito"
+            ,"Small tortoiseshell"
+            ,"Emerald ash borer"
+            ,"Catalan furry blue"
+            ,"Black cutworm"
+            ,"Turnip moth"
+            ,"Citrus spiny whitefly"
+            ,"Brown legged grain mite"
+            ,"Striped ground cricket"
+            ,"Southern ground cricket"
+            ,"Lesser mealworm"
+            ,"Lone star tick"
+            ,"Cayenne tick"
+            ,"Bont tick"
+            ,"The Gulf-Coast Tick"
+            ,"Red-banded sand wasp"
+            ,"Large raspberry aphid"
+            ,"Emerald cockroach wasp"
+            ,"Mediterranean flour moth"
+            ,"Squash bug"
+            ,"South American fruit fly"
+            ,"Mexican fruit fly"
+            ,"West Indian fruit fly"
+            ,"Guava fruitfly"
+            ,"Caribbean fruitfly"
+            ,"Sri Lankan relict ant"
+            ,"Seashore earwig"
+            ,"Maritime earwig"
+            ,"Two striped walking stick"
+            ,"African malaria mosquito"
+            ,"African malaria mosquito"
+            ,"Common malaria mosquito"
+            ,"Asian malaria mosquito"
+            ,"Asian longhorned beetle"
+            ,"Indian muga silkmoth"
+            ,"Tussore silk moth"
+            ,"Chinese oak silkmoth"
+            ,"Japanese oak silkmoth"
+            ,"Boll weevil"
+            ,"Webspinner"
+            ,"Soybean aphid"
+            ,"Cotton aphid"
+            ,"Small raspberry aphid"
+            ,"Giant honeybee"
+            ,"Red dwarf honey bee"
+            ,"Honey bee"
+            ,"East Asian elm sawfly"
+            ,"European garden spider"
+            ,"African giant black millipede"
+            ,"Orb-weaving spider"
+            ,"Brine shrimp"
+            ,"Waterlouse"
+            ,"Turnip sawfly"
+            ,"Sydney funnel spider"
+            ,"Leafcutter ant"
+            ,"Leafcutter ant"
+            ,"Texas leafcutter ant"
+            ,"Silver Y moth"
     };
 
     public static List<String> getOrganisms() {
-        List<String> organisms = new ArrayList<>();
-
-        return organisms;
+        List<String> arrayList = new ArrayList<>();
+        for(String o : organisms){
+            arrayList.add(o);
+        }
+        return arrayList;
     }
 
 

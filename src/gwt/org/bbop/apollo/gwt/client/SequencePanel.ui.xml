@@ -87,9 +87,7 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Name
-                                </gwt:HTML>
+                                <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML ui:field="sequenceName" styleName="{style.tableValue}"/>

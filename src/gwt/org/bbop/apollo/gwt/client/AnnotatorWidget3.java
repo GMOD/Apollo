@@ -72,7 +72,7 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(organismBrowserPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.add(groupPanel, "UserGroups");
-        tabLayoutPanel.selectTab(2);
+        tabLayoutPanel.selectTab(3);
 
         // need to do this to force them to refresh themselves
         tabLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -81,6 +81,7 @@ public class AnnotatorWidget3 {
                 switch (event.getSelectedItem()){
                     case 0: track.dataGrid.redraw(); break ;
                     case 2: sequencePanel.dataGrid.redraw(); break ;
+                    case 3: organismBrowserPanel.organismTable.redraw(); break ;
                     default: break ;
                 }
 
