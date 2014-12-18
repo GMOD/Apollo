@@ -1,6 +1,6 @@
 # Web Apollo Testing Script
 
-111914
+121814
 
 M. Munoz-Torres
 
@@ -37,6 +37,8 @@ Login|Password : demo|demo
 3) Check all filters, pagination, and number of results shown.
 
 4) Clicking on group name link should take you to the corresponding group track in the main window.
+
+5) Test top level menus.
 
 5.1) Test that you are able to Log out from the upper-right corner, top-level menu.
 
