@@ -38,7 +38,7 @@ Login|Password : demo|demo
 
 4) Clicking on group name link should take you to the corresponding group track in the main window.
 
-5) Test top level menus.
+5) Test top-level menus.
 
 5.1) Test that you are able to Log out from the upper-right corner, top-level menu.
 
