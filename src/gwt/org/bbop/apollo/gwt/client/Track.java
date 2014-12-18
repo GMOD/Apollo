@@ -48,7 +48,7 @@ public class Track extends Composite {
     @UiField
     HTML trackDensity;
     @UiField(provided = false)
-    CellTable<TrackInfo> dataGrid;
+    DataGrid<TrackInfo> dataGrid;
 
 
 
@@ -124,8 +124,8 @@ public class Track extends Composite {
 
         List<TrackInfo> trackInfoList = dataProvider.getList();
 
-        for(int i = 0 ; i < 30 ; i++){
-            trackInfoList.add(new TrackInfo("Track"+i));
+        for(int i = 0 ; i < 50 ; i++){
+            trackInfoList.add(new TrackInfo("Track" + i));
         }
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(trackInfoList);
