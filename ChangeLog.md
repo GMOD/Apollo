@@ -2,7 +2,7 @@
 
 Features 
 
-+ Added functionality for newly created combination tracks, inluding ability to view the formula used to create the track, change the formula that combines both tracks, and options to display as XY plot or denisity heat map.
++ Added ability to view GFF3 for individual annotations
 
 Bugfixes
 
