@@ -31,6 +31,8 @@ public class AnnotatorWidget3 {
     final AnnotatorPanel annotatorPanel = new AnnotatorPanel();
     final SequencePanel sequencePanel = new SequencePanel();
     final OrganismBrowserPanel organismBrowserPanel = new OrganismBrowserPanel();
+    final UserBrowserPanel userBrowserPanel = new UserBrowserPanel();
+    final UserGroupBrowserPanel userGroupBrowserPanel = new UserGroupBrowserPanel();
 
 
     /**
@@ -70,9 +72,9 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(annotatorPanel, "Annotations");
         tabLayoutPanel.add(sequencePanel, "Sequence");
         tabLayoutPanel.add(organismBrowserPanel, "Organism");
-        tabLayoutPanel.add(userPanel, "Users");
-        tabLayoutPanel.add(groupPanel, "UserGroups");
-        tabLayoutPanel.selectTab(3);
+        tabLayoutPanel.add(userBrowserPanel, "Users");
+        tabLayoutPanel.add(userGroupBrowserPanel, "UserGroups");
+        tabLayoutPanel.selectTab(4);
 
         // need to do this to force them to refresh themselves
         tabLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {

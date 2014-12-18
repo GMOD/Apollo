@@ -134,6 +134,47 @@ public class DataGenerator {
 
     public static List<String> getUsers() {
         List<String> users = new ArrayList<>();
+        users.add("Yvone Patague");
+        users.add("Darcel Ostendorf");
+        users.add("Yolande Boisvert");
+        users.add("Fawn Pettyjohn");
+        users.add("Shantel Bufford");
+        users.add("Edwina Haag");
+        users.add("Glady Larimer");
+        users.add("Marylynn Marez");
+        users.add("Cherly Hanshaw");
+        users.add("Margeret Vasta");
+        users.add("Vickey Wolfrum");
+        users.add("Cindy Kirshner");
+        users.add("Duncan Hallberg");
+        users.add("Art Villagomez");
+        users.add("Ryann Noakes");
+        users.add("Branda Clower");
+        users.add("Nora Siemers");
+        users.add("Marita Dagostino");
+        users.add("Anastacia Hevey");
+        users.add("Luann Celaya");
+        users.add("Yvone Patague");
+        users.add("Darcel Ostendorf");
+        users.add("Yolande Boisvert");
+        users.add("Fawn Pettyjohn");
+        users.add("Shantel Bufford");
+        users.add("Edwina Haag");
+        users.add("Glady Larimer");
+        users.add("Marylynn Marez");
+        users.add("Cherly Hanshaw");
+        users.add("Margeret Vasta");
+        users.add("Vickey Wolfrum");
+        users.add("Cindy Kirshner");
+        users.add("Duncan Hallberg");
+        users.add("Art Villagomez");
+        users.add("Ryann Noakes");
+        users.add("Branda Clower");
+        users.add("Nora Siemers");
+        users.add("Marita Dagostino");
+        users.add("Anastacia Hevey");
+        users.add("Luann Celaya");
+
 
         return users;
     }
