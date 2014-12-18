@@ -84,6 +84,8 @@ public class AnnotatorWidget3 {
                     case 0: track.dataGrid.redraw(); break ;
                     case 2: sequencePanel.dataGrid.redraw(); break ;
                     case 3: organismBrowserPanel.organismTable.redraw(); break ;
+                    case 4: userBrowserPanel.dataGrid.redraw(); break ;
+                    case 5: userGroupBrowserPanel.dataGrid.redraw(); break ;
                     default: break ;
                 }
 

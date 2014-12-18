@@ -179,11 +179,6 @@ public class DataGenerator {
         return users;
     }
 
-    public static List<String> getGroups() {
-        List<String> groups = new ArrayList<>();
-
-        return groups;
-    }
 
 
     public static void populateOrganismList(ListBox organismList) {
@@ -290,5 +285,77 @@ public class DataGenerator {
             sequenceList.addItem(seq);
         }
 
+    }
+
+    public static List<String> getGroups() {
+        List<String> groups = new ArrayList<>();
+        groups.add("Augmented Integration Tactical");
+        groups.add("Australian Training Wholesale");
+        groups.add("Automotive Sports");
+        groups.add("Bailey Financial Future Equipment");
+        groups.add("British Speciality Research");
+        groups.add("Casey Holding Containers");
+        groups.add("Chemical Apex Realizations");
+        groups.add("Diaz Fabrication Development");
+        groups.add("Digital Logistics");
+        groups.add("Dynamics Of Moscow");
+        groups.add("Fuentes Healthy Pharmecutical Integration");
+        groups.add("Fuller Technology Networks");
+        groups.add("Genetic Physiotronics");
+        groups.add("Hawkins Equity Solutions");
+        groups.add("Hill Unlimited Medical");
+        groups.add("Hurley Soft");
+        groups.add("Marquez Photologistics");
+        groups.add("Marsh Motors");
+        groups.add("Mcneil Chemical Instruments");
+        groups.add("Norris Semiconductor Of Kiev");
+        groups.add("Progressive Manufacturing Leasing");
+        groups.add("Russian Technology Horizons");
+        groups.add("Spanish Housing");
+        groups.add("Strategic Training Corporation");
+        groups.add("Waters Financial Metals");
+        groups.add("Archon Rose Five");
+        groups.add("Baron Wraith Guild");
+        groups.add("Coffin Mind Legion");
+        groups.add("Crimson Werewolf Guild");
+        groups.add("Dog Altar Seven");
+        groups.add("Drake Soul Hundred");
+        groups.add("Enchanted Fortress School");
+        groups.add("Gold Demon Guild");
+        groups.add("Master Phoenix Guild");
+        groups.add("Mystic Cheetah Alliance");
+        groups.add("Mystic Chime Guild");
+        groups.add("Phantom Hawk Guild");
+        groups.add("Randy Hippocampus Band");
+        groups.add("Recognized Totem Family");
+        groups.add("The Basilisk Confederation");
+        groups.add("The Phylactery College");
+        groups.add("The Serpent Thousand");
+        groups.add("Totem Soul Posse");
+        groups.add("Warrior Coffin Guild");
+        groups.add("Wraith Ambassador Conspiracy");
+        groups.add("Collective of Worlds");
+        groups.add("Constellation's Republic");
+        groups.add("Federated Directorate of Constellations");
+        groups.add("Federated Directorate of Galaxies");
+        groups.add("Federation of Planets");
+        groups.add("Galaxies' Oligarcy");
+        groups.add("Galaxy's Confederacy");
+        groups.add("Grand Collective of Constellations");
+        groups.add("Heavenly Federation of Worlds");
+        groups.add("Mercantile Coalition of Constellations");
+        groups.add("Nation of Spheres");
+        groups.add("Perfected Plutocracy");
+        groups.add("Perfected Technocracy");
+        groups.add("Planets' Electorate");
+        groups.add("Solidarity of Stars");
+        groups.add("System's Union");
+        groups.add("Theocratic Constellations");
+        groups.add("Tyranical Government of Constellations");
+        groups.add("Unified Empire");
+        groups.add("Worlds' Solidarity");
+
+
+        return groups;
     }
 }

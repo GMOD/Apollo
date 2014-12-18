@@ -5,13 +5,23 @@ package org.bbop.apollo.gwt.client;
  */
 public class UserGroupInfo {
     String name ;
+    Integer numberOfUsers;
     Integer numberOrganisms;
     Integer numberSequences;
 
     public UserGroupInfo(String name){
         this.name = name ;
+        this.numberOfUsers = (int) Math.round(Math.random()*100);
         this.numberOrganisms = (int) Math.round(Math.random()*100);
         this.numberSequences = (int) Math.round(Math.random()*100);
+    }
+
+    public Integer getNumberOfUsers() {
+        return numberOfUsers;
+    }
+
+    public void setNumberOfUsers(Integer numberOfUsers) {
+        this.numberOfUsers = numberOfUsers;
     }
 
     public String getName() {

@@ -84,7 +84,6 @@ public class UserBrowserPanel extends Composite {
 
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(thirdNameColumn, "Email");
-//        dataGrid.addColumn(thirdNameColumn,"Action");
 
 
         ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
