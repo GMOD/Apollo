@@ -51,12 +51,6 @@ public class SequencePanel extends Composite {
     public SequencePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-//        for(int i = 1; i < 22 ; i++){
-//            DataGenerator.generateSequenceRow(dataGrid, i);
-//        }
-
-
-
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
 
