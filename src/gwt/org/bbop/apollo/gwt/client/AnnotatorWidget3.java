@@ -56,9 +56,9 @@ public class AnnotatorWidget3 {
 
 
 
-        SequenceBrowserPanel sequenceBrowserPanel = new SequenceBrowserPanel();
+//        SequenceBrowserPanel sequenceBrowserPanel = new SequenceBrowserPanel();
 //        FeaturePanel featurePanel = new FeaturePanel();
-        OrganismPanel organismPanel = new OrganismPanel();
+//        OrganismPanel organismPanel = new OrganismPanel();
         UserPanel userPanel = new UserPanel();
         GroupPanel groupPanel = new GroupPanel();
 //        TrackPanel trackPanel = new TrackPanel();
@@ -68,11 +68,13 @@ public class AnnotatorWidget3 {
 
 //        tabLayoutPanel.add(featurePanel, "Annotations");
         tabLayoutPanel.add(new AnnotatorPanel(), "Annotations");
-        tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
-        tabLayoutPanel.add(organismPanel, "Organism");
+//        tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
+        tabLayoutPanel.add(new SequencePanel(), "Sequence");
+//        tabLayoutPanel.add(organismPanel, "Organism");
+        tabLayoutPanel.add(new OrganismBrowserPanel(), "Organism");
         tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.add(groupPanel, "UserGroups");
-        tabLayoutPanel.selectTab(1);
+        tabLayoutPanel.selectTab(2);
 
 
 

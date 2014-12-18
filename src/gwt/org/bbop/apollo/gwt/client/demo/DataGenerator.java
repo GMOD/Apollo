@@ -2,6 +2,14 @@ package org.bbop.apollo.gwt.client.demo;
 
 import com.google.gwt.user.client.ui.*;
 
+//import com.google.gwt.user.client.ui.FlexTable;
+//import com.google.gwt.user.client.ui.HTML;
+//import com.google.gwt.user.client.ui.HorizontalPanel;
+//import com.google.gwt.user.client.ui.TreeItem;
+//import org.gwtbootstrap3.client.ui.Anchor;
+import org.gwtbootstrap3.client.ui.Button;
+//import org.gwtbootstrap3.client.ui.ListBox;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -110,6 +118,39 @@ public class DataGenerator {
         Integer randomLength = (int) Math.round(Math.random()*500.0);
         Integer randomFinish = randomStart + randomLength;
         return new HTML(geneName + "-00-"+index+ " <div class='label label-info' style='display:inline;'>Exon</div><div class='badge pull-right' style='display:inline;'>"+randomStart + "-"+randomFinish+"</div>");
+    }
+
+    public static void generateSequenceRow(FlexTable sequenceTable, int i) {
+            Anchor link = new Anchor("Group1."+i);
+            sequenceTable.setWidget(i, 0, link);
+            sequenceTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
+//        configurationTable.setHTML(i, 2, Math.rint(Math.random() * 100) + "");
+            Button button = new Button("Annotate");
+//        Button button2 = new Button("Details");
+            HorizontalPanel actionPanel = new HorizontalPanel();
+            actionPanel.add(button);
+//        actionPanel.add(button2);
+            sequenceTable.setWidget(i, 2, actionPanel);
+
+    }
+
+    public static void populateOrganismTable(FlexTable organismTable) {
+        int i = 0 ;
+        for(String organism : organisms){
+
+            Anchor link = new Anchor(organism);
+            organismTable.setWidget(i, 0, link);
+            organismTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
+            Button button = new Button("Set");
+//        Button button2 = new Button("Details");
+            HorizontalPanel actionPanel = new HorizontalPanel();
+            actionPanel.add(button);
+//        actionPanel.add(button2);
+            organismTable.setWidget(i, 2, actionPanel);
+
+//            organismTable.createOrganismRow(organism,i++);
+            ++i ;
+        }
     }
 
 }
