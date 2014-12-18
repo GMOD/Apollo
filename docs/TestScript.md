@@ -66,7 +66,7 @@ Login|Password : demo|demo
 
 -- Tools (see 8.2)
 
--- View: check options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, and color by CDS (also tested in 10).
+-- View: check options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
 
 -- Help: All links go to a new screen.
 
