@@ -126,8 +126,12 @@
                     </b:Container>
                 </gwt:tab>
                 <gwt:tab>
-                    <gwt:header>Permissions</gwt:header>
-                    <gwt:HTML text="permissions"/>
+                    <gwt:header>Users</gwt:header>
+                    <gwt:HTML text="user persmissions"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>UserGroups</gwt:header>
+                    <gwt:HTML text="usergroup persmissions"/>
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Annotations</gwt:header>

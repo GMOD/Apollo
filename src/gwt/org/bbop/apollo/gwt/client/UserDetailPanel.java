@@ -48,6 +48,7 @@ public class UserDetailPanel extends TabLayoutPanel{
 //        add(permissionsTable, "Groups");
         scrollPanel.add(sequenceTable);
         add(scrollPanel, "Sequences");
+        add(new HTML("organisms"),"Organisms");
 
 
 

@@ -3,7 +3,10 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -63,7 +66,7 @@ public class AnnotatorWidget3 {
         GroupPanel groupPanel = new GroupPanel();
 //        TrackPanel trackPanel = new TrackPanel();
 //        tabLayoutPanel.add(trackPanel, "Tracks");
-        Track track = new Track();
+        final Track track = new Track();
         tabLayoutPanel.add(track, "Tracks");
 
 //        tabLayoutPanel.add(featurePanel, "Annotations");
@@ -74,8 +77,17 @@ public class AnnotatorWidget3 {
         tabLayoutPanel.add(new OrganismBrowserPanel(), "Organism");
         tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.add(groupPanel, "UserGroups");
-        tabLayoutPanel.selectTab(0);
+        tabLayoutPanel.selectTab(1);
 
+        // need to do this to force them to refresh themselves
+        tabLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                if(event.getSelectedItem()==0){
+                    track.dataGrid.redraw();
+                }
+            }
+        });
 
 
         dockLayoutPanel.addNorth(titlePanel,30);

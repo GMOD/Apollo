@@ -50,7 +50,7 @@ public class GroupDetailPanel extends TabLayoutPanel{
         scrollPanel.add(sequenceTable);
         add(scrollPanel, "Sequences");
         scrollPanel2.add(userTable);
-        add(scrollPanel2, "Users");
+        add(scrollPanel2, "Organisms");
 
 
         sequenceTable.setWidth("100%");
@@ -60,10 +60,8 @@ public class GroupDetailPanel extends TabLayoutPanel{
 
         detailsTable.setWidget(0,0,new HTML("Name"));
         detailsTable.setWidget(0,1,new HTML("UserGroup1.3"));
-        detailsTable.setWidget(1,0,new HTML("Refseq file"));
-        detailsTable.setWidget(1,1,new HTML("/tmp"));
-        detailsTable.setWidget(2,0,new HTML("Start/Stop"));
-        detailsTable.setWidget(2,1,new HTML("3/123"));
+        detailsTable.setWidget(1,0,new HTML("Users"));
+        detailsTable.setWidget(1,1,new HTML("bob@jones.gov1,bob@jones.gov2"));
 
 
         setWidth("100%");

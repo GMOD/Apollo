@@ -7,6 +7,9 @@ import com.google.gwt.user.client.ui.*;
 //import com.google.gwt.user.client.ui.HorizontalPanel;
 //import com.google.gwt.user.client.ui.TreeItem;
 //import org.gwtbootstrap3.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.ListBox;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 //import org.gwtbootstrap3.client.ui.ListBox;
 
@@ -17,6 +20,8 @@ import java.util.List;
  * Created by ndunn on 12/17/14.
  */
 public class DataGenerator {
+
+    final static String SEQUENCE_PREFIX = "LG";
 
     public static String[] organisms = {
             "Zebrafish",
@@ -35,8 +40,11 @@ public class DataGenerator {
     }
 
 
-    public static List<String> getSequences() {
+    public static List<String> getSequences(int numberToGet) {
         List<String> sequences = new ArrayList<>();
+        for(int i = 1 ; i < numberToGet+1 ;i++){
+            sequences.add(SEQUENCE_PREFIX+i);
+        }
 
         return sequences;
     }
@@ -98,6 +106,10 @@ public class DataGenerator {
         else{
             transcriptHTML  = new HTML(geneName + "-00"+index+ " <div class='label label-warning' style='display:inline;'>Transcript</div><div class='badge pull-right' style='display:inline;'>"+randomLength+"</div>");
         }
+        if(Math.random()>0.7){
+            transcriptHTML.setHTML(transcriptHTML.getHTML()+"<div class='label label-danger' style='display:inline;'>Stop Codon</div>");
+        }
+
         treeItem.setWidget(transcriptHTML);
         int j = 0 ;
         treeItem.addItem(createExon(geneName + "-00"+index,j++));
@@ -121,7 +133,7 @@ public class DataGenerator {
     }
 
     public static void generateSequenceRow(FlexTable sequenceTable, int i) {
-            Anchor link = new Anchor("Group1."+i);
+            Anchor link = new Anchor(SEQUENCE_PREFIX+i);
             sequenceTable.setWidget(i, 0, link);
             sequenceTable.setHTML(i, 1, Math.rint(Math.random() * 100) + "");
 //        configurationTable.setHTML(i, 2, Math.rint(Math.random() * 100) + "");
@@ -153,4 +165,12 @@ public class DataGenerator {
         }
     }
 
+    public static void populateSequenceList(ListBox sequenceList) {
+
+        List<String> sequences = getSequences(40);
+        for(String seq : sequences){
+            sequenceList.addItem(seq);
+        }
+
+    }
 }

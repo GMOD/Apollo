@@ -70,9 +70,7 @@
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Annotations
-                                </gwt:HTML>
+                                <gwt:HTML text="Annotations" styleName="{style.tableKeyName}"/>
                             </b:Column>
                             <b:Column size="MD_6">
                                 <gwt:HTML ui:field="annotationCount" styleName="{style.tableValue}"/>
@@ -80,15 +78,18 @@
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <!--<gwt:tab>-->
-                    <!--<gwt:header>Permissions</gwt:header>-->
-                    <!--<gwt:HTML text="permissions"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                    <!--<gwt:header>Annotations</gwt:header>-->
-                    <!--<gwt:HTML text="annotations"/>-->
-                    <!--&lt;!&ndash;<gwt:FlexTable ui:field="configurationTable"/>&ndash;&gt;-->
-                <!--</gwt:tab>-->
+                <gwt:tab>
+                    <gwt:header>Sequences</gwt:header>
+                    <gwt:HTML text="sequence table"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Users</gwt:header>
+                    <gwt:HTML text="user persmissions"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>UserGroups</gwt:header>
+                    <gwt:HTML text="usergroup persmissions"/>
+                </gwt:tab>
             </gwt:TabLayoutPanel>
         </gwt:south>
 

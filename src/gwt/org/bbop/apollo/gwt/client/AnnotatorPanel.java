@@ -59,5 +59,7 @@ public class AnnotatorPanel extends Composite {
         });
         annotationName.setText("sox9a");
         annotationDescription.setText("SRY (sex determining region Y)-box 9a");
+
+        DataGenerator.populateSequenceList(sequenceList);
     }
 }

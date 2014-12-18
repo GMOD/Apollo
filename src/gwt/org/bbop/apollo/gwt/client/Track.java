@@ -9,6 +9,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 //import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Label;
@@ -59,6 +60,7 @@ public class Track extends Composite {
 //    org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
 
 //    private ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<TrackInfo>();
+
 
 
     public Track() {
@@ -144,6 +146,9 @@ public class Track extends Composite {
             }
         });
 
+        dataProvider.refresh();
+
+        dataGrid.redraw();
 //
 //        dataGrid.setRowCount(data.size(),true);
 //        dataGrid.setRowData(0,data);
