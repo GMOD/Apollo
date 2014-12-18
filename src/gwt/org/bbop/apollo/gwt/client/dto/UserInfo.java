@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client;
+package org.bbop.apollo.gwt.client.dto;
 
 import java.util.List;
 

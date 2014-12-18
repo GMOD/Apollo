@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client;
+package org.bbop.apollo.gwt.client.dto;
 
 /**
  * Created by ndunn on 12/18/14.

@@ -64,9 +64,6 @@ public class AnnotatorWidget3 {
 
 
 
-
-        UserPanel userPanel = new UserPanel();
-        GroupPanel groupPanel = new GroupPanel();
         tabLayoutPanel.add(track, "Tracks");
 
         tabLayoutPanel.add(annotatorPanel, "Annotations");
