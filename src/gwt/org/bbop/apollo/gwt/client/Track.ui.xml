@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+             xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
         >
     <ui:style>
         .northPanel {
@@ -30,6 +31,11 @@
         .tableValue{
             /*font-weight: bolder;*/
         }
+        .cellTable {
+            border-bottom: 1px solid #ccc;
+            text-align: left;
+            margin-bottom: 4px;
+        }
 
 
     </ui:style>
@@ -55,11 +61,9 @@
             </b:Container>
         </gwt:north>
         <gwt:center>
-            <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
             <gwt:ScrollPanel>
-
-                <gwt:FlexTable ui:field="trackTable" styleName="{style.trackTable}" width="100%"/>
-                <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
+                <!--<cellview:DataGrid ui:field="dataGrid"/>-->
+                <cellview:CellTable ui:field="dataGrid" styleName="{style.cellTable}"/>
 
             </gwt:ScrollPanel>
         </gwt:center>
@@ -70,9 +74,7 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <b:Column size="MD_2" >
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Name
-                                </gwt:HTML>
+                                <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
                             </b:Column>
                             <b:Column size="MD_2" >
                                 <gwt:HTML ui:field="trackName" styleName="{style.tableValue}"/>
