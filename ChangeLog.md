@@ -2,9 +2,16 @@
 
 Bugfixes
 
-+ Fixed issue where HTTP header size could become large when exporting all tracks (issue #101)
-+ Fix some cases where error reporting was broken on login pages (issue #111)
-+ Fix Chado export case where DBXref or DB were not pre-existing (issue #103)
++ Speed up set\_track\_permissions.pl (#118)
++ Fix some cases where error reporting was broken on login pages (#111)
++ Fix Chado export case where DBXref or DB were not pre-existing (#103)
++ Fixed issue where HTTP header size could become large when exporting all tracks (#101)
++ Fixed issue when jbrowse "bin" directory not created properly during deployment (#97)
++ Added apollo "release" target to build a precompiled target (#96)
++ Provided support to visualize GFF3 files on a per-feature basis (#89)
++ Fixed URL encoding of multiple attributes with the same key in GFF3 export (#82)
++ Fixed GFF3 and FASTA export where no annotations existed (#62)
++ Fixed where genome insertion trigers recalculate CDS on non-coding features (#30)
 
 ## 1.0.2 release 
 
