@@ -101,6 +101,7 @@ END
 sub set_permissions {
     my $user_id = get_user_id();
     my $existing_permissions = get_existing_permissions($user_id);
+    my $track_hash = get_track_ids();
     my $insert_sql = "INSERT INTO $PERMISSIONS_TABLE VALUES(?, ?, ?)";
     my $insert_sth = $dbh->prepare($insert_sql);
     my $update_sql = "UPDATE $PERMISSIONS_TABLE SET permission=? " .
@@ -108,7 +109,7 @@ sub set_permissions {
     my $update_sth = $dbh->prepare($update_sql);
     while (my $track = $tracks->getline()) {
         chomp $track;
-        my $track_id = get_track_id($track);
+        my $track_id = $track_hash->{$track} || die "Track does not exist in database yet. Please recheck seqids";
         print "Processing $track\n";
         if (exists $existing_permissions->{$track}) {
             $update_sth->bind_param(1, $permission);
@@ -149,14 +150,15 @@ sub get_user_id {
     return $rows->[0]->[0];
 }
 
-sub get_track_id {
-    my $track = shift;
-    my $sql = "SELECT track_id FROM $TRACKS_TABLE " .
-          "WHERE track_name='$track'";
-    my $rows = $dbh->selectall_arrayref($sql);
-    die "Track '$track' does not exist in database\n"
-        if !scalar(@{$rows});
-    return $rows->[0]->[0];
+sub get_track_ids {
+    my %track_hash = ();
+    my $sql = "SELECT track_id,track_name FROM $TRACKS_TABLE";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute();
+    while (my $row = $sth->fetchrow_arrayref()) {
+        $track_hash{$row->[1]} = $row->[0];
+    }
+    return \%track_hash;
 }
 
 sub cleanup {
