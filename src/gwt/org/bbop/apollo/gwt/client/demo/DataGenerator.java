@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class DataGenerator {
 
-    final static String SEQUENCE_PREFIX = "LG";
+    public final static String SEQUENCE_PREFIX = "LG";
 
     public static String[] organisms = {
             "Zebrafish",

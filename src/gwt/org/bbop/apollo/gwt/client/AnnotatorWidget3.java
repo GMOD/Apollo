@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -28,6 +27,11 @@ public class AnnotatorWidget3 {
     final Frame frame = new Frame();
     final FlowPanel titlePanel = new FlowPanel();
 
+    final Track track = new Track();
+    final AnnotatorPanel annotatorPanel = new AnnotatorPanel();
+    final SequencePanel sequencePanel = new SequencePanel();
+    final OrganismBrowserPanel organismBrowserPanel = new OrganismBrowserPanel();
+
 
     /**
      * This is the entry point method.
@@ -36,7 +40,7 @@ public class AnnotatorWidget3 {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         String rootUrl = dictionary.get("rootUrl");
 
-        frame.setUrl(rootUrl+"/jbrowse/?loc=Group1.3%3A14865..15198&tracklist=0&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+//        frame.setUrl(rootUrl+"/jbrowse/?loc=Group1.3%3A14865..15198&tracklist=0&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
         frame.setHeight("100%");
         frame.setWidth("100%");
 
@@ -59,33 +63,27 @@ public class AnnotatorWidget3 {
 
 
 
-//        SequenceBrowserPanel sequenceBrowserPanel = new SequenceBrowserPanel();
-//        FeaturePanel featurePanel = new FeaturePanel();
-//        OrganismPanel organismPanel = new OrganismPanel();
         UserPanel userPanel = new UserPanel();
         GroupPanel groupPanel = new GroupPanel();
-//        TrackPanel trackPanel = new TrackPanel();
-//        tabLayoutPanel.add(trackPanel, "Tracks");
-        final Track track = new Track();
         tabLayoutPanel.add(track, "Tracks");
 
-//        tabLayoutPanel.add(featurePanel, "Annotations");
-        tabLayoutPanel.add(new AnnotatorPanel(), "Annotations");
-//        tabLayoutPanel.add(sequenceBrowserPanel, "Sequence");
-        tabLayoutPanel.add(new SequencePanel(), "Sequence");
-//        tabLayoutPanel.add(organismPanel, "Organism");
-        tabLayoutPanel.add(new OrganismBrowserPanel(), "Organism");
+        tabLayoutPanel.add(annotatorPanel, "Annotations");
+        tabLayoutPanel.add(sequencePanel, "Sequence");
+        tabLayoutPanel.add(organismBrowserPanel, "Organism");
         tabLayoutPanel.add(userPanel, "Users");
         tabLayoutPanel.add(groupPanel, "UserGroups");
-        tabLayoutPanel.selectTab(1);
+        tabLayoutPanel.selectTab(2);
 
         // need to do this to force them to refresh themselves
         tabLayoutPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                if(event.getSelectedItem()==0){
-                    track.dataGrid.redraw();
+                switch (event.getSelectedItem()){
+                    case 0: track.dataGrid.redraw(); break ;
+                    case 2: sequencePanel.dataGrid.redraw(); break ;
+                    default: break ;
                 }
+
             }
         });
 

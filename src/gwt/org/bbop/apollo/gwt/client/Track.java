@@ -83,7 +83,7 @@ public class Track extends Composite {
 
 //        dataGrid = new CellTable<>();
         dataGrid.setWidth("100%");
-        dataGrid.setAutoHeaderRefreshDisabled(true);
+//        dataGrid.setAutoHeaderRefreshDisabled(true);
 
         // Set the message to display when the table is empty.
         dataGrid.setEmptyTableWidget(new Label("Loading"));
@@ -94,7 +94,6 @@ public class Track extends Composite {
                 return employee.getVisible();
             }
         };
-
         firstNameColumn.setSortable(false);
 
         TextColumn<TrackInfo> secondNameColumn = new TextColumn<TrackInfo>() {
@@ -103,7 +102,6 @@ public class Track extends Composite {
                 return employee.getName();
             }
         };
-
         secondNameColumn.setSortable(true);
 
 
@@ -146,32 +144,6 @@ public class Track extends Composite {
             }
         });
 
-        dataProvider.refresh();
-
-        dataGrid.redraw();
-//
-//        dataGrid.setRowCount(data.size(),true);
-//        dataGrid.setRowData(0,data);
-
-//        trackTable.setHTML(0, 0, "Show");
-//        trackTable.setHTML(0,1,"Name");
-//        trackTable.setHTML(0, 2, "Type");
-
-//        for(int i = 0 ; i < 20 ; i++){
-//            CheckBox checkBox = new CheckBox();
-//            trackTable.setWidget(i,0, checkBox);
-//            Hyperlink html = new Hyperlink();
-//            html.setText("Track"+i);
-//            trackTable.setWidget(i,1, html);
-//            HTML typeHTML = new HTML("CanvasFeature");
-//            trackTable.setWidget(i,2, typeHTML);
-//        }
-//
-//        trackTable.getColumnFormatter().setWidth(0,"30px");
-//        trackTable.getColumnFormatter().setWidth(1,"50%");
-//        trackTable.setWidth("100%");
-//        trackTable.setStyleName("trackTable");
-
 
         DataGenerator.populateOrganismList(organismList);
 
@@ -182,13 +154,5 @@ public class Track extends Composite {
 
     }
 
-    private IsWidget generateCheckBox(int i) {
-        HorizontalPanel panel = new HorizontalPanel();
-        CheckBox checkBox = new CheckBox();
-        HTML html = new HTML("Track" + i);
-        panel.add(checkBox);
-        panel.add(html);
-        return panel;
-    }
 
 }
