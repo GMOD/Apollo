@@ -95,7 +95,7 @@
                         <b:Row>
                             <b:Column size="MD_2" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
-                                    Count
+                                    Feature Count
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_2" >
@@ -105,7 +105,7 @@
                         <b:Row>
                             <b:Column size="MD_2" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
-                                    Density
+                                    Feature Density
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_2" >

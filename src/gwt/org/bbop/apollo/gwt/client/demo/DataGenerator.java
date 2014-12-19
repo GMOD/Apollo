@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.*;
 //import org.gwtbootstrap3.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 //import org.gwtbootstrap3.client.ui.ListBox;
@@ -357,5 +358,18 @@ public class DataGenerator {
 
 
         return groups;
+    }
+
+    public static void populateTrackList(List<TrackInfo> trackInfoList) {
+
+        trackInfoList.add(new TrackInfo("Official Gene Set v3.2","HTMLFeature",true));
+        trackInfoList.add(new TrackInfo("GeneID","HTMLFeature",true));
+        trackInfoList.add(new TrackInfo("Fgenesh","HTMLFeature",false));
+        trackInfoList.add(new TrackInfo("Cflo_OGSv3.3","HTMLFeature",true));
+        trackInfoList.add(new TrackInfo("NCBI ESTs","HTMLFeature",true));
+        for(int i = 0 ; i < 40 ; i++){
+            trackInfoList.add(new TrackInfo("Track" + i));
+        }
+
     }
 }

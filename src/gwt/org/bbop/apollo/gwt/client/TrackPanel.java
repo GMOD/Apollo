@@ -88,7 +88,7 @@ public class TrackPanel extends Composite {
                 return employee.getVisible();
             }
         };
-        firstNameColumn.setSortable(false);
+        firstNameColumn.setSortable(true);
 
         TextColumn<TrackInfo> secondNameColumn = new TextColumn<TrackInfo>() {
             @Override
@@ -117,13 +117,22 @@ public class TrackPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
 
         List<TrackInfo> trackInfoList = dataProvider.getList();
+        DataGenerator.populateTrackList(trackInfoList);
 
-        for(int i = 0 ; i < 50 ; i++){
-            trackInfoList.add(new TrackInfo("Track" + i));
-        }
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(trackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
+        sortHandler.setComparator(firstNameColumn, new Comparator<TrackInfo>() {
+            @Override
+            public int compare(TrackInfo o1, TrackInfo o2) {
+                if (o1.getVisible() == o2.getVisible()) return 0;
+                if (o1.getVisible() && !o2.getVisible()) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }
+        });
         sortHandler.setComparator(secondNameColumn, new Comparator<TrackInfo>() {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
@@ -141,8 +150,8 @@ public class TrackPanel extends Composite {
 
         DataGenerator.populateOrganismList(organismList);
 
-        trackName.setHTML("Track3");
-        trackType.setHTML("CanvasFeature");
+        trackName.setHTML("GeneID");
+        trackType.setHTML("HTMLFeature");
         trackCount.setHTML("34");
         trackDensity.setHTML("0.000123");
 
