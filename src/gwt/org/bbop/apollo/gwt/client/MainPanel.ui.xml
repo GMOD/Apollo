@@ -37,7 +37,13 @@
         }
 
         .details-list-title {
+            display: inline-table;
+            margin-left: 10px;
+            margin-right: 5px;
+        }
 
+        .details-list {
+            font-size: smaller;
         }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
@@ -49,11 +55,11 @@
                 <gwt:north size="30">
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
-                        <gwt:HTML text="Details" styleName="{style.details-header-title}"/>
-                        <!--<gwt:HTML text="Organism" styleName="{style.details-list-title}"/>-->
-                        <gwt:ListBox ui:field="organismList"/>
-                        <!--<gwt:HTML text="Sequence" styleName="{style.details-list-title}"/>-->
-                        <gwt:ListBox ui:field="sequenceList"/>
+                        <!--<gwt:HTML text="Details" styleName="{style.details-header-title}"/>-->
+                        <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
+                        <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
+                        <gwt:HTML text="Sequence" styleName="{style.details-list-title}"/>
+                        <gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:center>
