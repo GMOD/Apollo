@@ -74,8 +74,10 @@ public class SequencePanel extends Composite {
             @Override
             public SafeHtml render(String object) {
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.appendHtmlConstant("(<a href=\"javascript:;\">").appendEscaped(object)
-                        .appendHtmlConstant("</a>)");
+                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
+                        .appendHtmlConstant("</a> | ");
+                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped("Export")
+                        .appendHtmlConstant("</a>");
                 return sb.toSafeHtml();
             }
         };
@@ -92,7 +94,7 @@ public class SequencePanel extends Composite {
 
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(secondNameColumn, "Length");
-        dataGrid.addColumn(thirdNameColumn, "Type");
+        dataGrid.addColumn(thirdNameColumn, "Action");
 
 
         ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
