@@ -1,7 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.ClickableTextCell;
-import com.google.gwt.cell.client.NumberCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -14,10 +13,15 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.gwt.*;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -75,8 +79,23 @@ public class OrganismPanel extends Composite {
             @Override
             public SafeHtml render(String object) {
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.appendHtmlConstant("(<a href=\"javascript:;\">").appendEscaped(object)
-                        .appendHtmlConstant("</a>)");
+                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
+                        .appendHtmlConstant("</a>");
+
+
+
+//                sb.appendHtmlConstant("<div class='btn-group'>" +
+//                        "  <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-expanded='false'>" +
+//                        "    Action <span class='caret'></span>" +
+//                        "  </button>" +
+//                        "  <ul class='dropdown-menu' role='menu'>" +
+//                        "    <li><a href='#'>Action</a></li>" +
+//                        "    <li><a href='#'>Another action</a></li>" +
+//                        "    <li><a href='#'>Something else here</a></li>" +
+//                        "    <li class='divider'></li>" +
+//                        "    <li><a href='#'>Separated link</a></li>" +
+//                        "  </ul>" +
+//                        "</div>");
                 return sb.toSafeHtml();
             }
         };
@@ -88,10 +107,21 @@ public class OrganismPanel extends Composite {
             }
         };
 
+//        Column<OrganismInfo, org.gwtbootstrap3.client.ui.ButtonGroup> actionColumn =new Column<OrganismInfo, ButtonGroup>(new AbstractSafeHtmlCell(anchorRenderer)) {
+//            @Override
+//            public ButtonGroup getValue(OrganismInfo object) {
+//                ButtonGroup buttonGroup = new ButtonGroup();
+//                org.gwtbootstrap3.client.ui.Button actionButton = new Button();
+//                actionButton.setText("Action");
+//                return buttonGroup;
+//            }
+//        };
+
+
         organismTable.addColumn(organismNameColumn, "Name");
         organismTable.addColumn(annotationsNameColumn, "Annotations");
-        organismTable.addColumn(sequenceColumn, "Sequences");
         organismTable.addColumn(tracksColumn, "Tracks");
+        organismTable.addColumn(sequenceColumn, "Sequences");
         organismTable.addColumn(actionColumn,"Action");
 
 

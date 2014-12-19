@@ -90,12 +90,12 @@
                     </b:Container>
                 </gwt:tab>
                 <gwt:tab>
-                    <gwt:header>Tracks</gwt:header>
-                    <gwt:HTML text="tracks I've annotated"/>
-                </gwt:tab>
-                <gwt:tab>
                     <gwt:header>Annotations</gwt:header>
                     <gwt:HTML text="annotation I've annotated"/>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Tracks</gwt:header>
+                    <gwt:HTML text="tracks I've annotated"/>
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Sequences</gwt:header>
