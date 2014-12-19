@@ -60,7 +60,7 @@ public class MainPanel extends Composite {
 //        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
-        frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracklist=0&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+        frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
 
         DataGenerator.populateOrganismList(organismList);
         DataGenerator.populateSequenceList(sequenceList);

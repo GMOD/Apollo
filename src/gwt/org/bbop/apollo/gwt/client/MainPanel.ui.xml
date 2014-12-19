@@ -40,9 +40,14 @@
             display: inline-table;
             margin-left: 10px;
             margin-right: 5px;
+            font-size: smaller;
         }
 
         .details-list {
+            font-size: smaller;
+        }
+
+        .title-tab-headers {
             font-size: smaller;
         }
     </ui:style>
@@ -52,7 +57,7 @@
         </gwt:center>
         <gwt:east size="500">
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
-                <gwt:north size="30">
+                <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
                         <!--<gwt:HTML text="Details" styleName="{style.details-header-title}"/>-->
@@ -63,7 +68,7 @@
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:center>
-                    <gwt:TabLayoutPanel barHeight="30" ui:field="detailTabs">
+                    <gwt:TabLayoutPanel barHeight="30" ui:field="detailTabs" addStyleNames="{style.title-tab-headers}">
                         <gwt:tab>
                             <gwt:header>Tracks</gwt:header>
                             <apollo:TrackPanel ui:field="trackPanel"/>
