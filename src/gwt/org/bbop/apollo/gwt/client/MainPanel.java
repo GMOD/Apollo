@@ -8,6 +8,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
+import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -47,6 +48,10 @@ public class MainPanel extends Composite {
     SplitLayoutPanel mainSplitPanel;
     @UiField
     TabLayoutPanel detailTabs;
+    @UiField
+    ListBox organismList;
+    @UiField
+    ListBox sequenceList;
 
     public MainPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -56,6 +61,9 @@ public class MainPanel extends Composite {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
         frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracklist=0&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+
+        DataGenerator.populateOrganismList(organismList);
+        DataGenerator.populateSequenceList(sequenceList);
     }
 
 

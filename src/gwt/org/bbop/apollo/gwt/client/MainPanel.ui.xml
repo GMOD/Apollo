@@ -36,6 +36,9 @@
             /*border-top: 0;*/
         }
 
+        .details-list-title {
+
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -47,6 +50,10 @@
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
                         <gwt:HTML text="Details" styleName="{style.details-header-title}"/>
+                        <!--<gwt:HTML text="Organism" styleName="{style.details-list-title}"/>-->
+                        <gwt:ListBox ui:field="organismList"/>
+                        <!--<gwt:HTML text="Sequence" styleName="{style.details-list-title}"/>-->
+                        <gwt:ListBox ui:field="sequenceList"/>
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:center>
