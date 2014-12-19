@@ -32,7 +32,9 @@
             /*font-weight: bolder;*/
         }
 
-
+        .center-table {
+            margin: 10px;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="80">
@@ -70,6 +72,11 @@
                             </b:Column>
                         </b:Row>
                     </b:Container>
+                </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Tracks</gwt:header>
+                    <!--<gwt:HTML text="track permissions"/>-->
+                    <gwt:FlexTable ui:field="trackPermissions" width="90%" styleName="{style.center-table}"/>
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Sequences</gwt:header>

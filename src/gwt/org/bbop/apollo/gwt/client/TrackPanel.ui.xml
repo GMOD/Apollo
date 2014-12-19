@@ -36,7 +36,12 @@
             border-bottom: 1px solid #ccc;
             text-align: left;
             margin-bottom: 4px;
+            outline: none;
         }
+        .dataGridCell2{
+            color: green;
+        }
+
 
 
     </ui:style>
@@ -75,40 +80,40 @@
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
                         <b:Row>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_3" >
                                 <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
                             </b:Column>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_4" >
                                 <gwt:HTML ui:field="trackName" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_3" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
                                     Type
                                 </gwt:HTML>
                             </b:Column>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_4" >
                                 <gwt:HTML ui:field="trackType" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_3" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
                                     Feature Count
                                 </gwt:HTML>
                             </b:Column>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_4" >
                                 <gwt:HTML ui:field="trackCount" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_3" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
                                     Feature Density
                                 </gwt:HTML>
                             </b:Column>
-                            <b:Column size="MD_2" >
+                            <b:Column size="MD_4" >
                                 <gwt:HTML ui:field="trackDensity" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>

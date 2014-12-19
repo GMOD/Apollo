@@ -80,6 +80,7 @@ public class TrackPanel extends Composite {
 //        dataGrid.setAutoHeaderRefreshDisabled(true);
 
         // Set the message to display when the table is empty.
+        // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("Loading"));
 
         Column<TrackInfo,Boolean> firstNameColumn = new Column<TrackInfo,Boolean>(new CheckboxCell(true,false)) {
@@ -93,6 +94,7 @@ public class TrackPanel extends Composite {
         TextColumn<TrackInfo> secondNameColumn = new TextColumn<TrackInfo>() {
             @Override
             public String getValue(TrackInfo employee) {
+//                this.setCellStyleNames("dataGridCell2");
                 return employee.getName();
             }
         };
@@ -122,6 +124,7 @@ public class TrackPanel extends Composite {
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(trackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
+
         sortHandler.setComparator(firstNameColumn, new Comparator<TrackInfo>() {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {

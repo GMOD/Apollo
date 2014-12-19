@@ -290,6 +290,7 @@ public class DataGenerator {
 
     public static List<String> getGroups() {
         List<String> groups = new ArrayList<>();
+        groups.add("USDA i5K");
         groups.add("Augmented Integration Tactical");
         groups.add("Australian Training Wholesale");
         groups.add("Automotive Sports");

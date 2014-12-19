@@ -70,12 +70,56 @@ h1 {
   /*font-style: oblique;*/
 }
 
+.detail-table-header1 {
+  /*font-size: large;*/
+  font-weight: bolder;
+  /*color: slategray;*/
+  /*font-size: large;*/
+  /*background-color: #808080;*/
+  /*font-style: oblique;*/
+}
+
+.detail-table-cell{
+  /*font-size: large;*/
+  align-content: center;
+  text-align: center;
+  /*background-color: #808080;*/
+  /*color: blue;*/
+  /*font-style: oblique;*/
+}
+
 
 .selectedTreeItem{
   background-color: darkgray;
   color: #808080;
 }
 
+.red{
+  color: red;
+}
+
+.green{
+  color: green;
+}
+
+/*.dataGridCell2{*/
+  /*outline: none; !important;*/
+/*}*/
+
+/*.cellTableSelectedRowCell {*/
+  /*border: selectionBorderWidth solid #628cd5;*/
+/*}*/
+
+/***/
+ /** The keyboard selected cell is visible over selection.*/
+ /**/
+/*.cellTableKeyboardSelectedCell {*/
+  /*border: selectionBorderWidth solid #d7dde8;*/
+/*}*/
+
+/*.dataGridSelectedRowCell {*/
+
+/*}*/
 /*.tableCheckBox{*/
   /*padding: 0;*/
   /*margin: 0;*/

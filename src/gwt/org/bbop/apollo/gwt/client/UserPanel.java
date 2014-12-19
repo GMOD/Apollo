@@ -42,9 +42,9 @@ public class UserPanel extends Composite {
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        name.setHTML("Bob Jones");
-        email.setHTML("bob@jones.gov");
-        userGroupHTML.setHTML("<div class='label label-default'>UserGroup1.3</div>");
+        name.setHTML("Yvone Patague");
+        email.setHTML("yvon_patague@place.gov");
+        userGroupHTML.setHTML("<div class='label label-default'>USDA i5K</div>");
 
 
         TextColumn<UserInfo> firstNameColumn = new TextColumn<UserInfo>() {
