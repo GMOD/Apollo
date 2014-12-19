@@ -9,10 +9,10 @@
             <http-method>POST</http-method>
             <http-method>GET</http-method>
         </web-resource-collection>
-        <!--<auth-constraint>-->
-            <!--<description>No direct browser access to include files.</description>-->
-            <!--<role-name>NobodyHasThisRole</role-name>-->
-        <!--</auth-constraint>-->
+        <auth-constraint>
+            <description>No direct browser access to include files.</description>
+            <role-name>NobodyHasThisRole</role-name>
+        </auth-constraint>
     </security-constraint>
 
     <listener>
