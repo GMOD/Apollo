@@ -78,6 +78,8 @@ public class MainPanel extends Composite {
             case 0:
                 trackPanel.dataGrid.redraw();
                 break;
+            case 1:
+                trackPanel.dataGrid.redraw();
             case 2:
                 sequencePanel.dataGrid.redraw();
                 break;

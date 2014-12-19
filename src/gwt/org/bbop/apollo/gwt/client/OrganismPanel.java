@@ -41,21 +41,35 @@ public class OrganismPanel extends Composite {
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        TextColumn<OrganismInfo> firstNameColumn = new TextColumn<OrganismInfo>() {
+        TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
             public String getValue(OrganismInfo employee) {
                 return employee.getName();
             }
         };
-        firstNameColumn.setSortable(true);
+        organismNameColumn.setSortable(true);
 
-        Column<OrganismInfo,Number> secondNameColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
+        Column<OrganismInfo,Number> annotationsNameColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumFeatures();
             }
         };
-        secondNameColumn.setSortable(true);
+        annotationsNameColumn.setSortable(true);
+        Column<OrganismInfo,Number> sequenceColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(OrganismInfo object) {
+                return object.getNumSequences();
+            }
+        };
+        sequenceColumn.setSortable(true);
+        Column<OrganismInfo,Number> tracksColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(OrganismInfo object) {
+                return object.getNumTracks();
+            }
+        };
+        tracksColumn.setSortable(true);
 
         SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
             @Override
@@ -67,16 +81,18 @@ public class OrganismPanel extends Composite {
             }
         };
 
-        Column<OrganismInfo,String> thirdNameColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
+        Column<OrganismInfo,String> actionColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
             @Override
             public String getValue(OrganismInfo employee) {
                 return "Select";
             }
         };
 
-        organismTable.addColumn(firstNameColumn, "Name");
-        organismTable.addColumn(secondNameColumn, "Length");
-        organismTable.addColumn(thirdNameColumn,"Action");
+        organismTable.addColumn(organismNameColumn, "Name");
+        organismTable.addColumn(annotationsNameColumn, "Annotations");
+        organismTable.addColumn(sequenceColumn, "Sequences");
+        organismTable.addColumn(tracksColumn, "Tracks");
+        organismTable.addColumn(actionColumn,"Action");
 
 
         ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
@@ -90,16 +106,28 @@ public class OrganismPanel extends Composite {
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
         organismTable.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(firstNameColumn, new Comparator<OrganismInfo>() {
+        sortHandler.setComparator(organismNameColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        sortHandler.setComparator(secondNameColumn, new Comparator<OrganismInfo>() {
+        sortHandler.setComparator(annotationsNameColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
                 return o1.getNumFeatures()-o2.getNumFeatures();
+            }
+        });
+        sortHandler.setComparator(sequenceColumn, new Comparator<OrganismInfo>() {
+            @Override
+            public int compare(OrganismInfo o1, OrganismInfo o2) {
+                return o1.getNumSequences()-o2.getNumSequences();
+            }
+        });
+        sortHandler.setComparator(tracksColumn, new Comparator<OrganismInfo>() {
+            @Override
+            public int compare(OrganismInfo o1, OrganismInfo o2) {
+                return o1.getNumTracks()-o2.getNumTracks();
             }
         });
 
