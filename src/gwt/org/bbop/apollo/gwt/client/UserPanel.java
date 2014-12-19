@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * Created by ndunn on 12/17/14.
  */
-public class UserBrowserPanel extends Composite {
-    interface UserBrowserPanelUiBinder extends UiBinder<Widget, UserBrowserPanel> {
+public class UserPanel extends Composite {
+    interface UserBrowserPanelUiBinder extends UiBinder<Widget, UserPanel> {
     }
 
     private static UserBrowserPanelUiBinder ourUiBinder = GWT.create(UserBrowserPanelUiBinder.class);
@@ -39,7 +39,7 @@ public class UserBrowserPanel extends Composite {
     @UiField
     DataGrid<UserInfo> dataGrid;
 
-    public UserBrowserPanel() {
+    public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         name.setHTML("Bob Jones");

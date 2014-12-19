@@ -7,7 +7,6 @@ import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -33,15 +32,15 @@ public class MainPanel extends Composite {
     @UiField
     AnnotatorPanel annotatorPanel;
     @UiField
-    Track trackPanel;
+    TrackPanel trackPanel;
     @UiField
     SequencePanel sequencePanel;
     @UiField
-    OrganismBrowserPanel organismPanel;
+    OrganismPanel organismPanel;
     @UiField
-    UserBrowserPanel userPanel;
+    UserPanel userPanel;
     @UiField
-    UserGroupBrowserPanel userGroupPanel;
+    UserGroupPanel userGroupPanel;
     @UiField
     DockLayoutPanel eastDockPanel;
     @UiField
@@ -55,7 +54,7 @@ public class MainPanel extends Composite {
 //        frame.setUrl();
 //        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
         Dictionary dictionary = Dictionary.getDictionary("Options");
-        String rootUrl = dictionary.get("rootUrl");
+        rootUrl = dictionary.get("rootUrl");
         frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracklist=0&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
     }
 

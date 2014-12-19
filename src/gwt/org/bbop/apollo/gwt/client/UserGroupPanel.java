@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * Created by ndunn on 12/17/14.
  */
-public class UserGroupBrowserPanel extends Composite {
-    interface UserGroupBrowserPanelUiBinder extends UiBinder<Widget, UserGroupBrowserPanel> {
+public class UserGroupPanel extends Composite {
+    interface UserGroupBrowserPanelUiBinder extends UiBinder<Widget, UserGroupPanel> {
     }
 
     private static UserGroupBrowserPanelUiBinder ourUiBinder = GWT.create(UserGroupBrowserPanelUiBinder.class);
@@ -31,7 +31,7 @@ public class UserGroupBrowserPanel extends Composite {
     @UiField
     DataGrid dataGrid;
 
-    public UserGroupBrowserPanel() {
+    public UserGroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         name.setHTML("USDA #1");

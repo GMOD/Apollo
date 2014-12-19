@@ -35,6 +35,7 @@
             cursor: pointer;
             /*border-top: 0;*/
         }
+
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -52,7 +53,7 @@
                     <gwt:TabLayoutPanel barHeight="30" ui:field="detailTabs">
                         <gwt:tab>
                             <gwt:header>Tracks</gwt:header>
-                            <apollo:Track ui:field="trackPanel"/>
+                            <apollo:TrackPanel ui:field="trackPanel"/>
                         </gwt:tab>
 
                         <gwt:tab>
@@ -65,15 +66,15 @@
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Organism</gwt:header>
-                            <apollo:OrganismBrowserPanel ui:field="organismPanel"/>
+                            <apollo:OrganismPanel ui:field="organismPanel"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Users</gwt:header>
-                            <apollo:UserBrowserPanel ui:field="userPanel"/>
+                            <apollo:UserPanel ui:field="userPanel"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>User Groups</gwt:header>
-                            <apollo:UserGroupBrowserPanel ui:field="userGroupPanel"/>
+                            <apollo:UserGroupPanel ui:field="userGroupPanel"/>
                         </gwt:tab>
 
                     </gwt:TabLayoutPanel>

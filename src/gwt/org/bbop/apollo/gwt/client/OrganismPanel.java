@@ -24,8 +24,8 @@ import java.util.List;
 /**
  * Created by ndunn on 12/17/14.
  */
-public class OrganismBrowserPanel extends Composite {
-    interface OrganismBrowserPanelUiBinder extends UiBinder<Widget, OrganismBrowserPanel> {
+public class OrganismPanel extends Composite {
+    interface OrganismBrowserPanelUiBinder extends UiBinder<Widget, OrganismPanel> {
     }
 
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
@@ -38,7 +38,7 @@ public class OrganismBrowserPanel extends Composite {
     @UiField
     DataGrid<OrganismInfo> organismTable;
 
-    public OrganismBrowserPanel() {
+    public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         TextColumn<OrganismInfo> firstNameColumn = new TextColumn<OrganismInfo>() {

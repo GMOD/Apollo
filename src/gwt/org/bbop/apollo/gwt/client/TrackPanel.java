@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * Created by ndunn on 12/16/14.
  */
-public class Track extends Composite {
-    interface TrackUiBinder extends UiBinder<Widget, Track> {
+public class TrackPanel extends Composite {
+    interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
     }
 
     private static TrackUiBinder ourUiBinder = GWT.create(TrackUiBinder.class);
@@ -57,7 +57,7 @@ public class Track extends Composite {
 
 
 
-    public Track() {
+    public TrackPanel() {
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
