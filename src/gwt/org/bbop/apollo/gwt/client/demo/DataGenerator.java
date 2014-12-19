@@ -373,4 +373,26 @@ public class DataGenerator {
         }
 
     }
+
+    public static String[] sequenceTypes = {
+            "All"
+            ,"Gene"
+            ,"Pseudogene"
+            ,"mRNA"
+            ,"miRNA"
+            ,"tRNA"
+            ,"rRNA"
+            ,"ncRNA"
+            ,"snRNA"
+            ,"snoRNA"
+            ,"repeat region"
+            ,"transposable element"
+    };
+
+    public static void populateTypeList(ListBox typeList) {
+
+            for(String seq : sequenceTypes){
+                typeList.addItem(seq);
+            }
+    }
 }

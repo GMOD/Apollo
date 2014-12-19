@@ -34,6 +34,8 @@ public class AnnotatorPanel extends Composite {
 
     @UiField HTML annotationName;
     @UiField HTML annotationDescription;
+    @UiField
+    ListBox typeList;
 
     TreeItem selectedItem ;
 
@@ -61,5 +63,6 @@ public class AnnotatorPanel extends Composite {
         annotationDescription.setText("SRY (sex determining region Y)-box 9a");
 
         DataGenerator.populateSequenceList(sequenceList);
+        DataGenerator.populateTypeList(typeList);
     }
 }

@@ -69,12 +69,21 @@
                 <b:Row>
                     <b:Column size="MD_2">
                         <gwt:HTML>
-                            <h5>Sequence</h5>
+                            <h6>Sequence</h6>
                         </gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_2">
-                        <b:ListBox ui:field="sequenceList" width="200px"/>
+                    <b:Column size="MD_3">
+                        <b:ListBox ui:field="sequenceList" width="100px"/>
                     </b:Column>
+                    <b:Column size="MD_2">
+                        <gwt:HTML>
+                            <h6>Type</h6>
+                        </gwt:HTML>
+                    </b:Column>
+                    <b:Column size="MD_3">
+                        <b:ListBox ui:field="typeList" width="150px"/>
+                    </b:Column>
+
                 </b:Row>
                 <!--<gwt:HTML>-->
                     <!--<hr/>-->
