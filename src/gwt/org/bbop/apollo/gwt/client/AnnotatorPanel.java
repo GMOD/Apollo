@@ -21,6 +21,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
+
     @UiField
     TextBox nameSearchBox;
     @UiField
@@ -29,15 +30,19 @@ public class AnnotatorPanel extends Composite {
     CheckBox cdsFilter;
     @UiField
     CheckBox stopCodonFilter;
-    @UiField
-    Tree features;
+
+
+    Tree.Resources tablecss = GWT.create(Tree.Resources.class);
+//    @UiField(provided=true) DataGrid<> dataGrid = new DataGrid<SequenceInfo>( 10, tablecss );
+    @UiField(provided = true)
+    Tree features = new Tree(tablecss);
 
     @UiField HTML annotationName;
     @UiField HTML annotationDescription;
     @UiField
     ListBox typeList;
 
-    TreeItem selectedItem ;
+//    TreeItem selectedItem ;
 
     public AnnotatorPanel() {
 //        initWidget(ourUiBinder.createAndBindUi(this));
@@ -46,17 +51,22 @@ public class AnnotatorPanel extends Composite {
 
         stopCodonFilter.setValue(true);
 
+
         features.addItem(DataGenerator.generateTreeItem("sox9a"));
         features.addItem(DataGenerator.generateTreeItem("sox9b"));
         features.addItem(DataGenerator.generateTreeItem("pax6a"));
         features.addItem(DataGenerator.generateTreeItem("pax6b"));
 
+        features.setAnimationEnabled(true);
+
+
         features.addSelectionHandler(new SelectionHandler<TreeItem>() {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
-                selectedItem.removeStyleName("selectedTreeItem");
-                selectedItem = event.getSelectedItem();
-                selectedItem.addStyleName("selectedTreeItem");
+                GWT.log("selected a tree item "+event.getSelectedItem().getText());
+//                selectedItem.removeStyleName("selectedTreeItem");
+//                selectedItem = event.getSelectedItem();
+//                selectedItem.addStyleName("selectedTreeItem");
             }
         });
         annotationName.setText("sox9a");

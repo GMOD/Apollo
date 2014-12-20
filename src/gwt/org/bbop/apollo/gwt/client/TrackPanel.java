@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 

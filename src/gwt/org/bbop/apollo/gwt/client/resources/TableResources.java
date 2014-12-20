@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client;
+package org.bbop.apollo.gwt.client.resources;
 
 import com.google.gwt.resources.client.ClientBundle;
 import org.gwtbootstrap3.client.ui.gwt.DataGrid;

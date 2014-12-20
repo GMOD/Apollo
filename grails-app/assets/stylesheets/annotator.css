@@ -124,3 +124,54 @@ h1 {
   /*padding: 0;*/
   /*margin: 0;*/
 /*}*/
+
+
+.gwt-Tree {
+
+}
+/*.gwt-TreeItem {*/
+
+/*}*/
+
+/**
+ * Applied to the Tree.
+ */
+/*.gwt-Tree {*/
+  /*background: white;*/
+/*}*/
+
+/*.gwt-TreeItem-wrapper {*/
+  /*margin: 0px 0px 0px 20px;  // Indentation*/
+/*}*/
+
+.gwt-TreeItem {
+  /*padding: 0px;*/
+  /*margin: 0px;*/
+  /*border: 1px solid white;*/
+  /*white-space: nowrap;*/
+  cursor: hand;
+  cursor: pointer;
+}
+
+/*.gwt-TreeItem-hovering {*/
+  /*color: blue;*/
+/*}*/
+
+
+.gwt-TreeItem-selected {
+  color: darkkhaki;
+  font-size: 120%;
+  background-color: darkgray; !important;
+  /*color: darkkhaki;*/
+}
+
+/*.gwt-TreeItem-selected {*/
+  /*background-color: darkkhaki;*/
+  /*background: #93c2f1 url(images/bg_listgradient.gif) repeat-x;*/
+  /*border: 1px dotted #888;*/
+/*}*/
+
+
+
+
+

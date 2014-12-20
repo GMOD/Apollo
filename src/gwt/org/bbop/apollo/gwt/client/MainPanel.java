@@ -73,7 +73,7 @@ public class MainPanel extends Composite {
         DataGenerator.populateOrganismList(organismList);
         DataGenerator.populateSequenceList(sequenceList);
 
-        detailTabs.selectTab(1);
+//        detailTabs.selectTab(1);
 
 //        Canvas canvas = Canvas.createIfSupported();
 ////        canvas.setHeight("300px");

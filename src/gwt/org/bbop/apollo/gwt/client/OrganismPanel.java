@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.resources.TableResources;
 
 import java.util.Comparator;
 import java.util.List;
