@@ -17,11 +17,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
-import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.gwt.*;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -39,8 +35,9 @@ public class OrganismPanel extends Composite {
     HTML trackCount;
     @UiField
     HTML annotationCount;
-    @UiField
-    DataGrid<OrganismInfo> organismTable;
+
+    DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    @UiField(provided=true) DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>( 10, tablecss );
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -79,8 +76,8 @@ public class OrganismPanel extends Composite {
             @Override
             public SafeHtml render(String object) {
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
-                        .appendHtmlConstant("</a>");
+                sb.appendHtmlConstant("<a href=\"javascript:;\">Select</a>");
+//                sb.appendHtmlConstant("&nbsp;|&nbsp;<a href=\"javascript:;\">Export</a>");
 
 
 
@@ -118,15 +115,15 @@ public class OrganismPanel extends Composite {
 //        };
 
 
-        organismTable.addColumn(organismNameColumn, "Name");
-        organismTable.addColumn(annotationsNameColumn, "Annotations");
-        organismTable.addColumn(tracksColumn, "Tracks");
-        organismTable.addColumn(sequenceColumn, "Sequences");
-        organismTable.addColumn(actionColumn,"Action");
+        dataGrid.addColumn(organismNameColumn, "Name");
+        dataGrid.addColumn(annotationsNameColumn, "Annotations");
+        dataGrid.addColumn(tracksColumn, "Tracks");
+        dataGrid.addColumn(sequenceColumn, "Sequences");
+        dataGrid.addColumn(actionColumn, "Action");
 
 
         ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
-        dataProvider.addDataDisplay(organismTable);
+        dataProvider.addDataDisplay(dataGrid);
 
         List<OrganismInfo> trackInfoList = dataProvider.getList();
 
@@ -135,7 +132,7 @@ public class OrganismPanel extends Composite {
         }
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
-        organismTable.addColumnSortHandler(sortHandler);
+        dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(organismNameColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
@@ -165,7 +162,7 @@ public class OrganismPanel extends Composite {
         trackCount.setHTML("30");
         annotationCount.setHTML("1223");
 
-//        DataGenerator.populateOrganismTable(organismTable);
+//        DataGenerator.populateOrganismTable(dataGrid);
 
     }
 }

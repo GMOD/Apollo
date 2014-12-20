@@ -29,8 +29,10 @@ public class UserGroupPanel extends Composite {
     private static UserGroupBrowserPanelUiBinder ourUiBinder = GWT.create(UserGroupBrowserPanelUiBinder.class);
     @UiField
     HTML name;
-    @UiField
-    DataGrid<UserGroupInfo> dataGrid;
+
+    DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    @UiField(provided=true) DataGrid<UserGroupInfo> dataGrid = new DataGrid<UserGroupInfo>( 10, tablecss );
+
     @UiField
     FlexTable trackPermissions;
 

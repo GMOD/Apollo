@@ -1,7 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.canvas.client.Canvas;
-import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -27,6 +25,9 @@ public class MainPanel extends Composite {
 
     private boolean toggleOpen = true;
     private String rootUrl;
+
+    // debug
+    private Boolean showFrame ;
 
     @UiField
     Button dockOpenClose;
@@ -64,12 +65,15 @@ public class MainPanel extends Composite {
 //        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
+        showFrame = !dictionary.get("showFrame").contains("false");
         frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
 
 //        westPanel.setVisible(true);
 
         DataGenerator.populateOrganismList(organismList);
         DataGenerator.populateSequenceList(sequenceList);
+
+        detailTabs.selectTab(1);
 
 //        Canvas canvas = Canvas.createIfSupported();
 ////        canvas.setHeight("300px");
@@ -104,7 +108,7 @@ public class MainPanel extends Composite {
                 sequencePanel.dataGrid.redraw();
                 break;
             case 3:
-                organismPanel.organismTable.redraw();
+                organismPanel.dataGrid.redraw();
                 break;
             case 4:
                 userPanel.dataGrid.redraw();

@@ -4,7 +4,8 @@ import grails.converters.JSON
 
 class AnnotatorController {
 
-    def index() {}
+    def index() {
+    }
 
     def what(String data){
         println params

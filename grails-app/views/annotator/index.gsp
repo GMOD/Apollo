@@ -16,6 +16,7 @@
   <script>
      var Options = {
        rootUrl : '${applicationContext.servletContext.getContextPath()}'
+      , showFrame: '${params.showFrame  && params.showFrame == 'false'? 'false' : 'true' }'
      };
   </script>
 </head>

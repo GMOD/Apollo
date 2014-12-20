@@ -39,8 +39,8 @@
             <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
             <!--<gwt:ScrollPanel>-->
 
-                <!--<gwt:FlexTable ui:field="organismTable" styleName="{style.trackTable}" width="100%"/>-->
-                <cellview:DataGrid ui:field="organismTable" styleName="{style.trackTable}" />
+                <!--<gwt:FlexTable ui:field="dataGrid" styleName="{style.trackTable}" width="100%"/>-->
+                <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}" />
                 <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
 
             <!--</gwt:ScrollPanel>-->

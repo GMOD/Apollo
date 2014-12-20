@@ -36,8 +36,9 @@ public class UserPanel extends Composite {
     HTML name;
     @UiField
     HTML email;
-    @UiField
-    DataGrid<UserInfo> dataGrid;
+
+    DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    @UiField(provided=true) DataGrid<UserInfo> dataGrid = new DataGrid<UserInfo>( 10, tablecss );
 
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));

@@ -35,10 +35,11 @@ public class SequencePanel extends Composite {
     TextBox minFeatureLength;
     @UiField
     TextBox maxFeatureLength;
-    @UiField
-    ListBox organismList;
-    @UiField
-    DataGrid<SequenceInfo> dataGrid;
+    @UiField ListBox organismList;
+
+    DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    @UiField(provided=true) DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>( 10, tablecss );
+
     @UiField
     HTML sequenceName;
     @UiField
