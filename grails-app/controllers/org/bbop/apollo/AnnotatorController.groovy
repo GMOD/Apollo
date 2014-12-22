@@ -7,6 +7,9 @@ class AnnotatorController {
     def index() {
     }
 
+    def demo() {
+    }
+
     def what(String data){
         println params
         println data

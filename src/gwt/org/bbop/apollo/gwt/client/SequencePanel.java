@@ -15,6 +15,8 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionModel;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -44,8 +46,6 @@ public class SequencePanel extends Composite {
     @UiField
     HTML sequenceName;
     @UiField
-    HTML sequenceFile;
-    @UiField
     HTML sequenceStart;
     @UiField
     HTML sequenceStop;
@@ -55,6 +55,8 @@ public class SequencePanel extends Composite {
 
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
+
+        final SelectionModel<SequenceInfo> selectionModel = new SingleSelectionModel<SequenceInfo>();
 
         TextColumn<SequenceInfo> firstNameColumn = new TextColumn<SequenceInfo>() {
             @Override
@@ -76,10 +78,16 @@ public class SequencePanel extends Composite {
             @Override
             public SafeHtml render(String object) {
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
-                        .appendHtmlConstant("</a> | ");
-                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped("Export")
-                        .appendHtmlConstant("</a>");
+                sb.appendHtmlConstant("<div class=\"btn-group\" role=\"group\">");
+                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>");
+                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"  data-toggle=\"dropdown\" aria-expanded=\"true\">" +
+                        "    <span class=\"glyphicon glyphicon-export\" aria-hidden=\"true\">" +
+                        "    <span class=\"caret\"></span></button>");
+                sb.appendHtmlConstant("</div>");
+//                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
+//                        .appendHtmlConstant("</a> | ");
+//                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped("Export")
+//                        .appendHtmlConstant("</a>");
                 return sb.toSafeHtml();
             }
         };
@@ -104,7 +112,7 @@ public class SequencePanel extends Composite {
 
         List<SequenceInfo> trackInfoList = dataProvider.getList();
 
-        for(int i = 0 ; i < 50 ; i++){
+        for(int i = 1 ; i < 20 ; i++){
             trackInfoList.add(new SequenceInfo(DataGenerator.SEQUENCE_PREFIX + i));
         }
 
@@ -123,7 +131,6 @@ public class SequencePanel extends Composite {
             }
         });
 
-
 //        sortHandler.setComparator(thirdNameColumn, new Comparator<SequenceInfo>() {
 //            @Override
 //            public int compare(SequenceInfo o1, SequenceInfo o2) {
@@ -131,14 +138,16 @@ public class SequencePanel extends Composite {
 //            }
 //        });
 
-        sequenceName.setHTML("Group1.1");
-        sequenceFile.setHTML("/data/apollo/annotations1/");
+        sequenceName.setHTML("LG1");
         sequenceStart.setHTML("100");
         sequenceStop.setHTML("4234");
 
 
+
+
         DataGenerator.populateOrganismList(organismList);
 
-
     }
+
+
 }

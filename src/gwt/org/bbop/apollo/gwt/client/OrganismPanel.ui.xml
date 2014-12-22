@@ -63,6 +63,16 @@
                         <b:Row>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}">
+                                   Directory
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_2">
+                                <gwt:HTML ui:field="sequenceFile" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}">
                                     Sequences
                                 </gwt:HTML>
                             </b:Column>

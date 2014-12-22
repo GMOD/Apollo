@@ -36,6 +36,8 @@ public class OrganismPanel extends Composite {
     HTML trackCount;
     @UiField
     HTML annotationCount;
+    @UiField
+    HTML sequenceFile;
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided=true) DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>( 10, tablecss );
@@ -159,9 +161,10 @@ public class OrganismPanel extends Composite {
             }
         });
 
-        organismName.setHTML("Danio rerio");
+        organismName.setHTML("Zebrafish (Danio rerio)");
         trackCount.setHTML("30");
         annotationCount.setHTML("1223");
+        sequenceFile.setHTML("/data/apollo/Zebrafish/jbrowse/data");
 
 //        DataGenerator.populateOrganismTable(dataGrid);
 

@@ -52,19 +52,19 @@
                         <b:ListBox ui:field="organismList" width="200px"/>
                     </b:Column>
                 </b:Row>
-                <b:Row>
+                <b:Row paddingTop="4">
                     <b:Column size="MD_2">
                         <gwt:HTML>
-                            <h5>Feature</h5>
+                            <h5>Length</h5>
                         </gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_3">
                         <b:TextBox ui:field="minFeatureLength" />
                     </b:Column>
                     <!--<b:Column size="MD_1">-->
                         <!--<gwt:HTML text="-"/>-->
                     <!--</b:Column>-->
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_3">
                         <b:TextBox ui:field="maxFeatureLength"/>
                     </b:Column>
                 </b:Row>
@@ -91,16 +91,6 @@
                             </b:Column>
                             <b:Column size="MD_2">
                                 <gwt:HTML ui:field="sequenceName" styleName="{style.tableValue}"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    File
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_2">
-                                <gwt:HTML ui:field="sequenceFile" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
