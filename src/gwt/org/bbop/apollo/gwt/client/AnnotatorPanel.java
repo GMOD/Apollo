@@ -37,8 +37,10 @@ public class AnnotatorPanel extends Composite {
     @UiField(provided = true)
     Tree features = new Tree(tablecss);
 
-    @UiField HTML annotationName;
-    @UiField HTML annotationDescription;
+//    @UiField HTML annotationName;
+    @UiField TextBox annotationName;
+//    @UiField HTML annotationDescription;
+    @UiField TextBox annotationDescription;
     @UiField
     ListBox typeList;
 
@@ -69,8 +71,8 @@ public class AnnotatorPanel extends Composite {
 //                selectedItem.addStyleName("selectedTreeItem");
             }
         });
-        annotationName.setText("sox9a");
-        annotationDescription.setText("SRY (sex determining region Y)-box 9a");
+        annotationName.setText("sox9a-000-00-0");
+//        annotationDescription.setText("SRY (sex determining region Y)-box 9a");
 
         DataGenerator.populateSequenceList(sequenceList);
         DataGenerator.populateTypeList(typeList);

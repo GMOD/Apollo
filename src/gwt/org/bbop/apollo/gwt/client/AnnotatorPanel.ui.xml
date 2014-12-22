@@ -25,6 +25,9 @@
 
         .tableKeyName {
             font-weight: bolder;
+            margin-top: 10px;
+            padding-bottom: 15px;
+            /*text-align: right;*/
         }
 
         .tableValue {
@@ -56,6 +59,7 @@
             padding-top: 10px;
             /*margin: 10px;*/
         }
+
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="180">
@@ -86,7 +90,7 @@
 
                 </b:Row>
                 <!--<gwt:HTML>-->
-                    <!--<hr/>-->
+                <!--<hr/>-->
                 <!--</gwt:HTML>-->
                 <b:Row>
                     <b:Column size="MD_4">
@@ -121,49 +125,103 @@
             <!--<gwt:VerticalPanel width="100%">-->
             <!--<gwt:HTML ui:field="annotationName" styleName="{style.annotation-name}"/>-->
             <gwt:TabLayoutPanel barHeight="35">
+                <!--<gwt:tab>-->
+                <!--<gwt:header>Details</gwt:header>-->
+                <!--<b:Container fluid="true" width="100%">-->
+                <!--<b:Row>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                <!--Name-->
+                <!--</gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_4">-->
+                <!--<gwt:HTML ui:field="annotationName" styleName="{style.tableValue}"/>-->
+                <!--</b:Column>-->
+                <!--</b:Row>-->
+                <!--<b:Row>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                <!--Description-->
+                <!--</gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_8">-->
+                <!--<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>-->
+                <!--</b:Column>-->
+                <!--</b:Row>-->
+                <!--<b:Row>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                <!--Created-->
+                <!--</gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_4">-->
+                <!--<gwt:HTML text="2004-04-01"/>-->
+                <!--&lt;!&ndash;<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>&ndash;&gt;-->
+                <!--</b:Column>-->
+                <!--</b:Row>-->
+                <!--<b:Row>-->
+                <!--<b:Column size="MD_2">-->
+                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                <!--Description-->
+                <!--</gwt:HTML>-->
+                <!--</b:Column>-->
+                <!--<b:Column size="MD_4">-->
+                <!--&lt;!&ndash;<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>&ndash;&gt;-->
+                <!--<gwt:HTML text="2004-08-01"/>-->
+                <!--</b:Column>-->
+                <!--</b:Row>-->
+                <!--</b:Container>-->
+                <!--</gwt:tab>-->
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%">
+                    <b:Container fluid="true" width="100%" >
                         <b:Row>
                             <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
+                                <gwt:HTML  styleName="{style.tableKeyName}">
                                     Name
                                 </gwt:HTML>
                             </b:Column>
-                            <b:Column size="MD_4">
-                                <gwt:HTML ui:field="annotationName" styleName="{style.tableValue}"/>
+                            <b:Column size="MD_6">
+                                <!--<gwt:HTML ui:field="annotationName" styleName="{style.tableValue}"/>-->
+                                <b:TextBox text="sox9a-000-00-0" ui:field="annotationName"/>
+                            </b:Column>
+                            <!--<b:Column size="MD_2">-->
+                                <!--<b:Button text="Save"/>-->
+                            <!--</b:Column>-->
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                   Note
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_6">
+                                <!--<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>-->
+                                <b:TextBox ui:field="annotationDescription" />
                             </b:Column>
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}">
-                                    Description
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_8">
-                                <gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Created
+                                    Start
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:HTML text="2004-04-01"/>
+                                <b:TextBox text="1410"/>
+                                <!--<gwt:HTML text="2004-04-01"/>-->
                                 <!--<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>-->
                             </b:Column>
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}">
-                                    Description
+                                    Stop
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_4">
                                 <!--<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>-->
-                                <gwt:HTML text="2004-08-01"/>
+                                <!--<gwt:HTML text="2004-08-01"/>-->
+                                <b:TextBox text="1494"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>
