@@ -29,6 +29,9 @@ import java.util.List;
  * Created by ndunn on 12/17/14.
  */
 public class OrganismPanel extends Composite {
+
+
+
     interface OrganismBrowserPanelUiBinder extends UiBinder<Widget, OrganismPanel> {
     }
 
@@ -45,6 +48,9 @@ public class OrganismPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
+
+
+    private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -128,17 +134,9 @@ public class OrganismPanel extends Composite {
         dataGrid.addColumn(actionColumn, "Action");
 
 
-        ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(dataGrid);
 
-        List<OrganismInfo> trackInfoList = dataProvider.getList();
-
-        loadOrganisms(trackInfoList);
-
-
-//        for(String organism : DataGenerator.getOrganisms()){
-//            trackInfoList.add(new OrganismInfo(organism));
-//        }
+        List<OrganismInfo> trackInfoList = reloadOrganism();
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -176,12 +174,9 @@ public class OrganismPanel extends Composite {
 
     }
 
-    private void loadOrganisms(final List<OrganismInfo> trackInfoList) {
+    public void loadOrganisms(final List<OrganismInfo> trackInfoList) {
         String url = "/apollo/organism/findAllOrganisms";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        JSONObject jsonObject = new JSONObject();
-//                jsonObject.put("query", new JSONString("pax6a"));
-//                builder.setRequestData("data=" + jsonObject.toString());
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -192,15 +187,18 @@ public class OrganismPanel extends Composite {
 
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
                     OrganismInfo organismInfo = new OrganismInfo();
-                    organismInfo.setId(object.get("id").isString().stringValue());
+                    organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
                     organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setNumFeatures(0);
+                    organismInfo.setNumTracks(0);
                     GWT.log(object.toString());
 //                    object.isObject().get("")
 //                    organismInfo.setName();
 
-                    Window.alert(object.toString());
+//                    Window.alert(object.toString());
                     trackInfoList.add(organismInfo);
                 }
 
@@ -227,6 +225,19 @@ public class OrganismPanel extends Composite {
             // Couldn't connect to server
             Window.alert(e.getMessage());
         }
+
+    }
+
+    public List<OrganismInfo> reloadOrganism() {
+        List<OrganismInfo> trackInfoList = dataProvider.getList();
+        trackInfoList.clear();
+        loadOrganisms(trackInfoList);
+
+        return trackInfoList;
+
+//        for(String organism : DataGenerator.getOrganisms()){
+//            trackInfoList.add(new OrganismInfo(organism));
+//        }
 
     }
 }

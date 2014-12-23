@@ -101,6 +101,7 @@ class OrganismController {
     }
 
     def findAllOrganisms(){
+        println "finding all organisms: ${Organism.count}"
         render Organism.all as JSON
     }
 

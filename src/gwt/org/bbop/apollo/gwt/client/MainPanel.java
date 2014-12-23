@@ -96,6 +96,7 @@ public class MainPanel extends Composite {
         toggleOpen();
     }
 
+
     @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
         switch (event.getSelectedItem()) {
@@ -108,7 +109,7 @@ public class MainPanel extends Composite {
                 sequencePanel.dataGrid.redraw();
                 break;
             case 3:
-                organismPanel.dataGrid.redraw();
+                organismPanel.reloadOrganism();
                 break;
             case 4:
                 userPanel.dataGrid.redraw();
