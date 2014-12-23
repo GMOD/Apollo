@@ -101,7 +101,7 @@ public class MainPanel extends Composite {
     public void onSelection(SelectionEvent<Integer> event) {
         switch (event.getSelectedItem()) {
             case 0:
-                trackPanel.dataGrid.redraw();
+                annotatorPanel.loadAnnotations();
                 break;
             case 1:
                 trackPanel.dataGrid.redraw();

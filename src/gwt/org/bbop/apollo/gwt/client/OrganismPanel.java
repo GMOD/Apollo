@@ -136,7 +136,8 @@ public class OrganismPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
-        List<OrganismInfo> trackInfoList = reloadOrganism();
+//        List<OrganismInfo> trackInfoList = reloadOrganism();
+        List<OrganismInfo> trackInfoList = dataProvider.getList();
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -194,28 +195,14 @@ public class OrganismPanel extends Composite {
                     organismInfo.setNumSequences(object.get("sequences").isArray().size());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
-                    GWT.log(object.toString());
-//                    object.isObject().get("")
-//                    organismInfo.setName();
-
-//                    Window.alert(object.toString());
+//                    GWT.log(object.toString());
                     trackInfoList.add(organismInfo);
                 }
-
-//                JSONObject jsonObject = returnValue.isObject();
-//                Window.alert(response.getText());
-//                        String queryString = jsonObject.get("query").isString().stringValue();
-
-                // TODO: use proper array parsing
-//                String resultString = jsonObject.get("result").isString().stringValue();
-//                resultString = resultString.replace("[", "");
-//                resultString = resultString.replace("]", "");
-//                        searchResult.setText(" asdflkj asdflkjdas fsearch for " + queryString + " yields [" + resultString + "]");
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("ow");
+                Window.alert("Error loading organisms");
             }
         };
         try {
