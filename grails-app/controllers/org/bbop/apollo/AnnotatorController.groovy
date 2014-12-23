@@ -1,9 +1,13 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.web.JSONBuilder
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONException
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 class AnnotatorController {
+
+    def featureService
 
     def index() {
         Organism.all.each {
@@ -14,58 +18,38 @@ class AnnotatorController {
     def demo() {
     }
 
+    private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
+        JSONObject jsonFeatureContainer = new JSONObject();
+        JSONArray jsonFeatures = new JSONArray();
+        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
+        for (JSONObject feature : features) {
+            jsonFeatures.put(feature);
+        }
+        return jsonFeatureContainer;
+    }
+
     def findAnnotationsForSequence() {
 
+        JSONObject returnObject = createJSONFeatureContainer()
         // execute a single query to minimize IO
-        List<Feature,FeatureRelationship,FeatureRelationship> allFeatures = Feature.executeQuery("select f,p,c from Feature f left join f.parentFeatureRelationships p left join f.childFeatureRelationships c")
-        println "printing first 1 ${allFeatures.get(0) as JSON}"
-        println "printing second 1 ${allFeatures.get(1) as JSON}"
-        println "printing third 1 ${allFeatures.get(2) as JSON}"
-//        def allFeatures = Feature.list(fetch:[parentFeatureRelationships.childFeature: 'join'])
-//        println "other features: ${allFeatures.size()}"
-//        println "other features data : ${allFeatures as JSON}"
-
-//        def allFeatureRelationships = FeatureRelationship.executeQuery("select p from FeatureRelationship fr left join fr.parentFeature p left join fr.childFeature c")
-//        println "all feature releatinship ${allFeatureRelationships as JSON}"
-
-        def builder = new JSONBuilder()
+        // necessary to do all 3?
+        // TODO: should just be a simple call?
+        List<Feature> allFeatures = Feature.executeQuery("select f from Feature f ")
 
         // just the genes
-        def topLevelFeatureSet = allFeatures.findAll(){
-            it[0] instanceof Feature && it[0]?.childFeatureRelationships?.size()==0
+        def topLevelFeatureList = allFeatures.findAll(){
+            it?.childFeatureRelationships?.size()==0
         }
 
-        // we only want the feature here
-       def topLevelFeatures = topLevelFeatureSet.collect(){
-           it[0]
-       }
 
-        println "GEne data : ${topLevelFeatures as JSON}"
 
-        def result = builder.build {
-            topLevelFeatures
-//            categories = ['a', 'b', 'c']
-//            title = "Hello JSON"
-//            information = {
-//                pages = 10
-//            }
+        for(Feature feature in topLevelFeatureList){
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false));
         }
-        // 1 - put top level data into
-
-
-
-//        def topLevelFeatures = allFeatures.findAll() {
-////            it?.childFeatureRelationships?.size() == 0
-//            true
-//        }
-
-//        render(contentType: "application/json") {
-//            topLevelFeatures
-//        }
 
         for(int i =0 ;  i < 20 ; i++) println "HERE"
-        println result
-        render result
+        render returnObject
+
     }
 
     def what(String data) {

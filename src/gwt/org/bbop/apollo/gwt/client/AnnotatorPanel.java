@@ -92,8 +92,9 @@ public class AnnotatorPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
 //                GWT.log("success returned");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                GWT.log("JOSN value: "+returnValue.toString());
-                JSONArray array = returnValue.isArray();
+                GWT.log("JOSN value: "+returnValue.toString());
+                JSONArray array = returnValue.isObject().get("features").isArray();
+//                JSONArray array = returnValue.isArray();
                 GWT.log("#  of genes: " + array.size());
 
 //                Window.alert("array size: "+array.size());
@@ -101,9 +102,6 @@ public class AnnotatorPanel extends Composite {
                 for (int i = 0; i < array.size(); i++) {
 
                     JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
-//                    GWT.log(object.toString());
-//                    features.add(organismInfo);
 
                     TreeItem treeItem = processFeatureEntry(object);
                     features.addItem(treeItem);
@@ -138,21 +136,23 @@ public class AnnotatorPanel extends Composite {
         GWT.log("getting object: " + object);
 
         String featureName = object.get("name").isString().stringValue();
-        String featureType = object.get("class").isString().stringValue();
+        String featureType = object.get("type").isObject().get("name").isString().stringValue();
         int lastFeature = featureType.lastIndexOf(".");
         featureType = featureType.substring(lastFeature + 1);
         HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
 //                    TreeItem treeItem = new TreeItem();
         treeItem.setHTML(html.getHTML());
 
-        JSONArray parentArray = object.get("parentFeatureRelationships").isArray();
-        for (int i = 0; i < parentArray.size(); i++) {
-            JSONObject relationshipObject = parentArray.get(i).isObject();
-            GWT.log(relationshipObject.toString());
-            if (relationshipObject.get("childFeature") != null) {
-                JSONObject childObject = relationshipObject.get("childFeature").isObject();
+        if(object.get("children")!=null){
+            JSONArray childArray = object.get("children").isArray();
+            for (int i = 0; childArray!=null && i < childArray.size(); i++) {
+                JSONObject childObject = childArray.get(i).isObject();
                 GWT.log(childObject.toString());
                 treeItem.addItem(processFeatureEntry(childObject));
+//            GWT.log(relationshipObject.toString());
+//            if (relationshipObject.get("childFeature") != null) {
+//                JSONObject childObject = relationshipObject.get("childFeature").isObject();
+//            }
             }
         }
 
