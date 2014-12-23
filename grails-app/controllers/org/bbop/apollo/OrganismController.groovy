@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-
+import grails.converters.JSON
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -98,6 +98,10 @@ class OrganismController {
             }
             '*'{ render status: NO_CONTENT }
         }
+    }
+
+    def findAllOrganisms(){
+        render Organism.all as JSON
     }
 
     protected void notFound() {

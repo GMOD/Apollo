@@ -2,6 +2,8 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -12,6 +14,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -40,7 +43,8 @@ public class OrganismPanel extends Composite {
     HTML sequenceFile;
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-    @UiField(provided=true) DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>( 10, tablecss );
+    @UiField(provided = true)
+    DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -53,21 +57,21 @@ public class OrganismPanel extends Composite {
         };
         organismNameColumn.setSortable(true);
 
-        Column<OrganismInfo,Number> annotationsNameColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
+        Column<OrganismInfo, Number> annotationsNameColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumFeatures();
             }
         };
         annotationsNameColumn.setSortable(true);
-        Column<OrganismInfo,Number> sequenceColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
+        Column<OrganismInfo, Number> sequenceColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumSequences();
             }
         };
         sequenceColumn.setSortable(true);
-        Column<OrganismInfo,Number> tracksColumn = new Column<OrganismInfo,Number>(new NumberCell()) {
+        Column<OrganismInfo, Number> tracksColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumTracks();
@@ -81,7 +85,6 @@ public class OrganismPanel extends Composite {
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
                 sb.appendHtmlConstant("<a href=\"javascript:;\">Select</a>");
 //                sb.appendHtmlConstant("&nbsp;|&nbsp;<a href=\"javascript:;\">Export</a>");
-
 
 
 //                sb.appendHtmlConstant("<div class='btn-group'>" +
@@ -100,7 +103,7 @@ public class OrganismPanel extends Composite {
             }
         };
 
-        Column<OrganismInfo,String> actionColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
+        Column<OrganismInfo, String> actionColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
             @Override
             public String getValue(OrganismInfo employee) {
                 return "Select";
@@ -130,9 +133,12 @@ public class OrganismPanel extends Composite {
 
         List<OrganismInfo> trackInfoList = dataProvider.getList();
 
-        for(String organism : DataGenerator.getOrganisms()){
-            trackInfoList.add(new OrganismInfo(organism));
-        }
+        loadOrganisms(trackInfoList);
+
+
+//        for(String organism : DataGenerator.getOrganisms()){
+//            trackInfoList.add(new OrganismInfo(organism));
+//        }
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -145,19 +151,19 @@ public class OrganismPanel extends Composite {
         sortHandler.setComparator(annotationsNameColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
-                return o1.getNumFeatures()-o2.getNumFeatures();
+                return o1.getNumFeatures() - o2.getNumFeatures();
             }
         });
         sortHandler.setComparator(sequenceColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
-                return o1.getNumSequences()-o2.getNumSequences();
+                return o1.getNumSequences() - o2.getNumSequences();
             }
         });
         sortHandler.setComparator(tracksColumn, new Comparator<OrganismInfo>() {
             @Override
             public int compare(OrganismInfo o1, OrganismInfo o2) {
-                return o1.getNumTracks()-o2.getNumTracks();
+                return o1.getNumTracks() - o2.getNumTracks();
             }
         });
 
@@ -167,6 +173,60 @@ public class OrganismPanel extends Composite {
         sequenceFile.setHTML("/data/apollo/Zebrafish/jbrowse/data");
 
 //        DataGenerator.populateOrganismTable(dataGrid);
+
+    }
+
+    private void loadOrganisms(final List<OrganismInfo> trackInfoList) {
+        String url = "/apollo/organism/findAllOrganisms";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        JSONObject jsonObject = new JSONObject();
+//                jsonObject.put("query", new JSONString("pax6a"));
+//                builder.setRequestData("data=" + jsonObject.toString());
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+//                Window.alert("array size: "+array.size());
+
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+                    OrganismInfo organismInfo = new OrganismInfo();
+                    organismInfo.setId(object.get("id").isString().stringValue());
+                    organismInfo.setName(object.get("commonName").isString().stringValue());
+                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    GWT.log(object.toString());
+//                    object.isObject().get("")
+//                    organismInfo.setName();
+
+                    Window.alert(object.toString());
+                    trackInfoList.add(organismInfo);
+                }
+
+//                JSONObject jsonObject = returnValue.isObject();
+//                Window.alert(response.getText());
+//                        String queryString = jsonObject.get("query").isString().stringValue();
+
+                // TODO: use proper array parsing
+//                String resultString = jsonObject.get("result").isString().stringValue();
+//                resultString = resultString.replace("[", "");
+//                resultString = resultString.replace("]", "");
+//                        searchResult.setText(" asdflkj asdflkjdas fsearch for " + queryString + " yields [" + resultString + "]");
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("ow");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
 
     }
 }

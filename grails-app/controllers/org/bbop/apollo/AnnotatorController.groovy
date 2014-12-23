@@ -5,6 +5,9 @@ import grails.converters.JSON
 class AnnotatorController {
 
     def index() {
+        Organism.all.each {
+            println it.commonName
+        }
     }
 
     def demo() {

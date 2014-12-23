@@ -5,16 +5,29 @@ package org.bbop.apollo.gwt.client.dto;
  */
 public class OrganismInfo {
 
+    private String id;
     private String name ;
     private Integer numFeatures ;
     private Integer numSequences;
     private Integer numTracks;
+
+    public OrganismInfo(){
+
+    }
 
     public OrganismInfo(String name) {
         this.name = name;
         this.numFeatures = (int) Math.round(Math.random()*200) ;
         this.numSequences = (int) Math.round(Math.random()*200) ;
         this.numTracks = (int) Math.round(Math.random()*200) ;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
