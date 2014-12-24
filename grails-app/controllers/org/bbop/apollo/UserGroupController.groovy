@@ -8,8 +8,6 @@ import grails.transaction.Transactional
 @Transactional(readOnly = true)
 class UserGroupController {
 
-    static navigationScope = 'admin'
-
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def permissions(){

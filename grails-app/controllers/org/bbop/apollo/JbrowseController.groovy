@@ -4,8 +4,6 @@ import javax.servlet.http.HttpServletResponse
 //@CompileStatic
 class JbrowseController {
 
-    static navigationScope = 'service'
-
     def configWrapperService
 
 //    def index() {

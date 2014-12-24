@@ -2,6 +2,7 @@ package org.bbop.apollo.event
 
 import grails.validation.Validateable
 import org.bbop.apollo.Sequence
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
  * Created by ndunn on 10/29/14.
@@ -9,13 +10,14 @@ import org.bbop.apollo.Sequence
 @Validateable
 class AnnotationEvent {
 
-    Operation operation
+    JSONObject features
     Sequence sequence
-    Object source
+    Operation operation
+    boolean sequenceAlterationEvent
     // toplevel feature?
 
-//    public AnnotationEvent(Object source,Sequence sequence,Operation operation){
-////        super(source)
+//    public AnnotationEvent(Object features,Sequence sequence,Operation operation){
+////        super(features)
 //        this.sequence = sequence
 //        this.operation = operation
 //    }

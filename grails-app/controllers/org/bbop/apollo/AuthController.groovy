@@ -8,8 +8,6 @@ import org.apache.shiro.web.util.WebUtils
 
 class AuthController {
 
-    static navigationScope = 'auth'
-
 
     def shiroSecurityManager
 

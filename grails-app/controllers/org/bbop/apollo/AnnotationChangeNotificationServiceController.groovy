@@ -1,27 +1,36 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.event.AnnotationListener
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import grails.compiler.GrailsCompileStatic
 
 import javax.servlet.AsyncContext
 import javax.servlet.AsyncEvent
 import javax.servlet.AsyncListener
+import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
 
-@GrailsCompileStatic
-class AnnotationChangeNotificationServiceController {
+/**
+ * Based on AnnotationChangeNotificationService
+ */
+//@GrailsCompileStatic
+class AnnotationChangeNotificationServiceController implements AnnotationListener {
 
-    static navigationScope = 'admin'
-
-    private static Map<String, Queue<AsyncContext>> queue = new ConcurrentHashMap<String, Queue<AsyncContext>>();
-    private static Map<String, Queue<AsyncContext>> sessionToAsyncContext = new ConcurrentHashMap<String, Queue<AsyncContext>>();
+    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
+    Map<String, Queue<AsyncContext>> queue = new ConcurrentHashMap<String, Queue<AsyncContext>>();
+    Map<String, Queue<AsyncContext>> sessionToAsyncContext = new ConcurrentHashMap<String, Queue<AsyncContext>>();
 
 
     def index(String track) {
+
         println "AnnotationChangeNotificationService track: ${track}"
+        dataListenerHandler.addDataStoreChangeListener(this)
+        println "num of listeners: ${dataListenerHandler.getListeners().size()}"
         response.setContentType("application/json");
 
         final HttpSession session = request.getSession(false);
@@ -38,7 +47,7 @@ class AnnotationChangeNotificationServiceController {
 
             @Override
             public void onTimeout(AsyncEvent event) throws IOException {
-                sendError((HttpServletResponse)event.getAsyncContext().getResponse(), "Connection timed out", HttpServletResponse.SC_GATEWAY_TIMEOUT);
+                sendError((HttpServletResponse) event.getAsyncContext().getResponse(), "Connection timed out", HttpServletResponse.SC_GATEWAY_TIMEOUT);
                 event.getAsyncContext().complete();
             }
 
@@ -49,7 +58,7 @@ class AnnotationChangeNotificationServiceController {
 
             @Override
             public void onError(AsyncEvent event) throws IOException {
-                sendError((HttpServletResponse)event.getAsyncContext().getResponse(), "Connection error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                sendError((HttpServletResponse) event.getAsyncContext().getResponse(), "Connection error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 event.getAsyncContext().complete();
             }
 
@@ -90,7 +99,45 @@ class AnnotationChangeNotificationServiceController {
             response.sendError(errorCode, new JSONObject().put("error", message).toString());
         }
         catch (Exception e) {
-            System.err.println("error handled: "+e)
+            System.err.println("error handled: " + e)
         }
+    }
+
+    synchronized void handleChangeEvent(AnnotationEvent... events) {
+        if (events.length == 0) {
+            return;
+        }
+        // TODO: this is more than a bit of a hack
+        String sequenceName = "Annotations-${events[0].sequence.name}"
+        Queue<AsyncContext> contexts = queue.get(sequenceName);
+//        Queue<AsyncContext> contexts = queue.get(events[0].getSequence());
+        if (contexts == null) {
+            return;
+        }
+        JSONArray operations = new JSONArray();
+        for (AnnotationEvent event : events) {
+            JSONObject features = event.getFeatures();
+            try {
+                features.put("operation", event.getOperation().name());
+                features.put("sequenceAlterationEvent", event.isSequenceAlterationEvent());
+                operations.put(features);
+            }
+            catch (JSONException e) {
+                log.error("error handling change event ${event}: ${e}")
+            }
+        }
+//        ??
+        for (AsyncContext asyncContext : contexts) {
+            ServletResponse response = asyncContext.getResponse();
+            try {
+                response.getWriter().write(operations.toString());
+                response.flushBuffer();
+            }
+            catch (IOException e) {
+                log.error(e)
+            }
+//            asyncContext.complete();
+        }
+
     }
 }

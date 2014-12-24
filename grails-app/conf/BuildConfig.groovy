@@ -66,10 +66,10 @@ grails.project.dependency.resolution = {
 //        compile 'org.spiffyui:spiffyui:1.5'
 
 //        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
-        compile 'asm:asm:3.1'
+//        compile 'asm:asm:3.1'
 
 
-        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+//        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 
 //        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
 //        compile 'org.biojava:biojava3-core:3.1.0'

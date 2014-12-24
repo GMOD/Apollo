@@ -92,10 +92,10 @@ public class AnnotatorPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
 //                GWT.log("success returned");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                GWT.log("JOSN value: "+returnValue.toString());
+//                GWT.log("JOSN value: "+returnValue.toString());
                 JSONArray array = returnValue.isObject().get("features").isArray();
 //                JSONArray array = returnValue.isArray();
-                GWT.log("#  of genes: " + array.size());
+//                GWT.log("#  of genes: " + array.size());
 
 //                Window.alert("array size: "+array.size());
 
@@ -133,7 +133,7 @@ public class AnnotatorPanel extends Composite {
     private TreeItem processFeatureEntry(JSONObject object) {
         TreeItem treeItem = new TreeItem();
 
-        GWT.log("getting object: " + object);
+//        GWT.log("getting object: " + object);
 
         String featureName = object.get("name").isString().stringValue();
         String featureType = object.get("type").isObject().get("name").isString().stringValue();
@@ -147,7 +147,7 @@ public class AnnotatorPanel extends Composite {
             JSONArray childArray = object.get("children").isArray();
             for (int i = 0; childArray!=null && i < childArray.size(); i++) {
                 JSONObject childObject = childArray.get(i).isObject();
-                GWT.log(childObject.toString());
+//                GWT.log(childObject.toString());
                 treeItem.addItem(processFeatureEntry(childObject));
 //            GWT.log(relationshipObject.toString());
 //            if (relationshipObject.get("childFeature") != null) {

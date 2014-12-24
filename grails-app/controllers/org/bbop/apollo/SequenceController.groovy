@@ -8,8 +8,6 @@ import grails.transaction.Transactional
 class SequenceController {
 
 
-    static navigationScope = 'app'
-
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def sequenceService

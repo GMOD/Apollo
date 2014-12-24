@@ -6,8 +6,6 @@ package org.bbop.apollo
  */
 class FeatureLocation {
 
-    static navigationScope = 'feature'
-
     static constraints = {
         feature nullable: false
         fmin nullable: false

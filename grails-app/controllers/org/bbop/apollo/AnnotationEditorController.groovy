@@ -18,8 +18,6 @@ import org.springframework.messaging.handler.annotation.SendTo
 class AnnotationEditorController {
 
 
-    static navigationScope = 'service'
-
     def featureService
     def transcriptService
     def configWrapperService
@@ -27,6 +25,8 @@ class AnnotationEditorController {
     def featureRelationshipService
     def nameService
     def featurePropertyService
+
+    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
     String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
@@ -309,7 +309,7 @@ class AnnotationEditorController {
 //        println "VS - ${featuresArray}"
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
-                source: returnObject
+                features: returnObject
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.ADD
         )
@@ -399,7 +399,7 @@ class AnnotationEditorController {
 //        }
 
         fireAnnotationEvent(new AnnotationEvent(
-                source: returnObject
+                features: returnObject
                 , operation: AnnotationEvent.Operation.ADD
                 , sequence: sequence
         ))
@@ -695,9 +695,10 @@ class AnnotationEditorController {
     }
 
     def fireAnnotationEvent(AnnotationEvent annotationEvent) {
-        listenerList.each {
-            it.handleEvent(annotationEvent)
-        }
+        dataListenerHandler.fireDataStoreChange(annotationEvent)
+//        listenerList.each {
+//            it.handleEvent(annotationEvent)
+//        }
     }
 
     @MessageMapping("/hello")

@@ -5,5 +5,5 @@ package org.bbop.apollo.event
  */
 interface AnnotationListener extends EventListener{
 
-    public void handleChangeEvent(AnnotationEvent event);
+    public void handleChangeEvent(AnnotationEvent... event);
 }
