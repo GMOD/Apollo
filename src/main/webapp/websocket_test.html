@@ -1,0 +1,28 @@
+<html>
+<head>
+	<script src="jslib/jquery-ui-menubar/jquery-1.8.2.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			var ws = new WebSocket("ws://" + window.location.host + "/WebApollo/AnnotationEditor");
+			ws.onopen = function() {
+				$("#messages").text($("#messages").text() + "Connected\n");
+			};
+			ws.onclose = function(event) {
+				$("#messages").text($("#messages").text() + event.reason + "\n");
+				$("#messages").text($("#messages").text() + "Closed\n");
+			}
+			ws.onerror = function() {
+				$("#messages").text($("#messages").text() + "Error\n");
+			}
+			ws.onmessage = function(msg) {
+				$("#messages").text($("#messages").text() + msg.data + "\n");
+			}
+		});
+	</script>
+</head>
+<body>
+	<div>
+		<textarea rows="10" cols="50" id="messages"></textarea>
+	</div>
+</body>
+</html>
