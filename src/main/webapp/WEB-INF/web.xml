@@ -15,8 +15,12 @@
         <!--</auth-constraint>-->
     </security-constraint>
 
+    <!--<listener>-->
+        <!--<listener-class>org.bbop.apollo.web.AnnotationChangeNotificationService</listener-class>-->
+    <!--</listener>-->
+
     <listener>
-        <listener-class>org.bbop.apollo.web.AnnotationChangeNotificationService</listener-class>
+    <listener-class>org.bbop.apollo.web.sockets.AnnotationNotificationEndpoint</listener-class>
     </listener>
 
     <filter>

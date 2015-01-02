@@ -15,40 +15,41 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.bbop.apollo.web.AnnotationEditorServiceManager;
+//import org.bbop.apollo.web.AnnotationEditorServiceManager;
 import org.json.JSONObject;
 
 @ServerEndpoint(
-		value = "/AnnotationEditor/{refSeq}",
-		configurator = AnnotationEditorConfigurator.class
+		value = "/AnnotationNotification/{refSeq}",
+		configurator = AnnotationNotificationConfigurator.class
 )
-public class AnnotationEditorEndpoint {
+public class AnnotationNotificationEndpoint {
 
 	private HttpSession httpSession;
-	
+
+
 	@OnOpen
 	public void onOpen(Session session, EndpointConfig config, @PathParam("refSeq") String refSeq) throws IOException {
-        System.out.println("opening session");
+        System.out.println("starting session");
 		httpSession = (HttpSession)session.getUserProperties().get("http_session");
 		if (httpSession == null || httpSession.getAttribute("username") == null) {
 			String reason = "You must first login before editing";
 			throw new AnnotationEditorEndpointException(reason);
 		}
 		session.getUserProperties().put("refSeq", refSeq);
-		AnnotationEditorSessionManager.getInstance().addSession(session);
+//		AnnotationEditorSessionManager.getInstance().addSession(session);
 	}
 	
 	@OnClose
 	public void onClose(Session session, CloseReason reason, @PathParam("refSeq") String refSeq) throws IOException {
-        System.out.println("CLOSING SESSION");
+        System.out.println("closing session");
 		if (httpSession != null) {
-			AnnotationEditorSessionManager.getInstance().removeSession(session);
+//			AnnotationEditorSessionManager.getInstance().removeSession(session);
 		}
 	}
 	
 	@OnError
 	public void onError(Session session, Throwable t) throws IOException {
-        System.out.println("ERROR . . . . . webscokets");
+        System.out.println("session error");
 		if (session.isOpen() && t instanceof AnnotationEditorEndpointException) {
 			session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, t.getMessage()));
 		}
@@ -56,11 +57,15 @@ public class AnnotationEditorEndpoint {
 	
 	@OnMessage
 	public void onMessage(Session session, String msg) throws Exception {
-        System.out.println("MESSAGE incomding: "+msg);
+        System.out.println("incoming message: "+msg);
 		try {
 			StringWriter out = new StringWriter();
 			JSONObject inJson = new JSONObject(msg);
-			AnnotationEditorServiceManager.getInstance().processRequest(inJson, new BufferedWriter(out), httpSession);
+
+            // send to server via rabbitMQ or another websocket?
+            System.out.println("proeccing request "+inJson);
+
+//			AnnotationEditorServiceManager.getInstance().processRequest(inJson, new BufferedWriter(out), httpSession);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

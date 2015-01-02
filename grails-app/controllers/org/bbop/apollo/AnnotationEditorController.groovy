@@ -701,17 +701,17 @@ class AnnotationEditorController {
 //        }
     }
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/hello")
-    protected String hello(String world) {
-        log.debug "got here! . . . "
-        return "hello from controller, ${world}!"
-    }
-
-    @MessageMapping("/AnnotationEditorService")
-    @SendTo("/topic/AnnotationEditorService")
-    protected String annotationEditor(String inputString) {
-        log.debug " annotation editor service ${inputString}"
-        return "annotationEditor ${inputString}!"
-    }
+//    @MessageMapping("/hello")
+//    @SendTo("/topic/hello")
+//    protected String hello(String world) {
+//        log.debug "got here! . . . "
+//        return "hello from controller, ${world}!"
+//    }
+//
+//    @MessageMapping("/AnnotationEditorService")
+//    @SendTo("/topic/AnnotationEditorService")
+//    protected String annotationEditor(String inputString) {
+//        log.debug " annotation editor service ${inputString}"
+//        return "annotationEditor ${inputString}!"
+//    }
 }

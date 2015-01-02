@@ -31,8 +31,9 @@ import org.json.JSONObject;
 
 /**
  * Servlet implementation class AnnotationChangeNotificationService
+ * @deprecated
  */
-@WebServlet(name="/AnnotationChangeNotificationService", urlPatterns = {"/AnnotationChangeNotificationService"}, asyncSupported=true)
+//@WebServlet(name="/AnnotationChangeNotificationService", urlPatterns = {"/AnnotationChangeNotificationService"}, asyncSupported=true)
 public class AnnotationChangeNotificationService extends HttpServlet implements DataStoreChangeListener, HttpSessionListener, ServletContextListener {
     private static final long serialVersionUID = 1L;
  

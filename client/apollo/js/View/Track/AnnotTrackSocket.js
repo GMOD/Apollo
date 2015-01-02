@@ -50,24 +50,25 @@ define( [
 		    	this.socket.send(updateData);
 		    }
 		    else {
-		        if (!this.socket || this.socket.isResolved() ) {
-		        	track.handleError({responseText: '{ "error": "Server connection error - try reloading the page" }'});
-		        	return;
-		        }
-		        xhr(socket.contextPath + "/AnnotationEditorService", {
-		        	method: "post",
-		        	data: updateData,
-		        	handleAs: "json"
-		        }).then(function(response) {
-		        	if (loadCallback) {
-		        		loadCallback(response);
-		        	}
-		        	if (response && response.alert) {
-		        		alert(response.alert);
-		        	}
-		        }, function(response) {
-		        	track.handleError(response);
-		        });
+                alert('Web sockets are not support by this browser');
+		        //if (!this.socket || this.socket.isResolved() ) {
+		        //	track.handleError({responseText: '{ "error": "Server connection error - try reloading the page" }'});
+		        //	return;
+		        //}
+		        //xhr(socket.contextPath + "/AnnotationEditorService", {
+		        //	method: "post",
+		        //	data: updateData,
+		        //	handleAs: "json"
+		        //}).then(function(response) {
+		        //	if (loadCallback) {
+		        //		loadCallback(response);
+		        //	}
+		        //	if (response && response.alert) {
+		        //		alert(response.alert);
+		        //	}
+		        //}, function(response) {
+		        //	track.handleError(response);
+		        //});
 		
 		    }
 		},
@@ -78,7 +79,8 @@ define( [
 	
 		_initWebSocket: function() {
 			var track = this.track;
-		    this.socket = new Socket(this.contextPath + "/AnnotationEditor/" + track.getUniqueTrackName());
+		    //this.socket = new Socket(this.contextPath + "/AnnotationEditor/" + track.getUniqueTrackName());
+            this.socket = new Socket(this.contextPath + "/AnnotationNotification/incoming");
 		    var socket = this;
 		    this.socket.on("message", function(event) {
 		    	socket.tryNum = 0;
