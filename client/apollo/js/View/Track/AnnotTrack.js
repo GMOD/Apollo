@@ -29,7 +29,6 @@ define( [
             'WebApollo/SequenceSearch', 
             'WebApollo/EUtils',
             'WebApollo/SequenceOntologyUtils',
-            'WebApollo/View/Track/AnnotTrackSocket',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Util', 
             'JBrowse/View/GranularRectLayout',
@@ -45,7 +44,7 @@ define( [
           dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
           dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
           dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
-          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils, Socket,
+          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
           SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
 // var listeners = [];
@@ -529,7 +528,22 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     //
     //},
     createAnnotationChangeListener: function(numTry) {
-        this.listener = new Socket(context_path, this);
+        //this.listener = new SockJS(context_path, this);
+        console.log('on listening: '+numTry);
+        // TODO: we can not use "/apollo" . . . should be context of
+        this.listener = new SockJS("/apollo/stomp");
+        console.log('my_socket listening');
+        var client = Stomp.over(this.listener);
+        console.log('client established');
+        client.connect({}, function(){
+            client.subscribe("/topic/hello", function(message) {
+                console.log('recieved: '+ JSON.parse(message.body));
+            });
+            console.log('connected . .. trying to send');
+            client.send("/app/hello", {}, JSON.stringify("world"));
+            console.log('sent mesage ');
+        });
+        console.log('stuff sent established');
     },
 
     /**

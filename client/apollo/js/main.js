@@ -48,7 +48,8 @@ return declare( JBPlugin,
           'plugins/WebApollo/jslib/bbop/bbop.js',
           'plugins/WebApollo/jslib/bbop/golr.js',
           'plugins/WebApollo/jslib/bbop/jquery.js',
-          'plugins/WebApollo/jslib/bbop/search_box.js'
+          'plugins/WebApollo/jslib/bbop/search_box.js',
+          'plugins/WebApollo/jslib/websocket/spring-websocket.js'
         ].forEach(function(src) {
           var script = document.createElement('script');
           script.src = src;
