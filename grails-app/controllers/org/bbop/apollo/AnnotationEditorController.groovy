@@ -1,19 +1,27 @@
 package org.bbop.apollo
 
+import grails.async.Promise
+import static grails.async.Promises.*
+
+
 //import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
 //import org.bbop.apollo.editor.AnnotationEditor
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.gmod.gbol.util.SequenceUtil
+import org.springframework.messaging.handler.annotation.MessageMapping
+import org.springframework.messaging.handler.annotation.SendTo
 
 /**
  * From the AnnotationEditorService
  */
 //@GrailsCompileStatic
-class AnnotationEditorController {
+class AnnotationEditorController implements AnnotationListener {
 
 
     def featureService
@@ -26,7 +34,7 @@ class AnnotationEditorController {
 
     DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
-    String REST_OPERATION = "operation"
+    public static String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
     public static String REST_FEATURES = "features"
 
@@ -39,7 +47,10 @@ class AnnotationEditorController {
     String REST_TRANSLATION_TABLE = "translation_table"
 
 
-    List<AnnotationEventListener> listenerList = new ArrayList<>()
+//    List<AnnotationEventListener> listenerList = new ArrayList<>()
+    public AnnotationEditorController(){
+        dataListenerHandler.addDataStoreChangeListener(this);
+    }
 
     def index() {
         log.debug "bang "
@@ -694,22 +705,98 @@ class AnnotationEditorController {
 
     def fireAnnotationEvent(AnnotationEvent annotationEvent) {
         dataListenerHandler.fireDataStoreChange(annotationEvent)
-//        listenerList.each {
-//            it.handleEvent(annotationEvent)
-//        }
     }
 
-//    @MessageMapping("/hello")
-//    @SendTo("/topic/hello")
-//    protected String hello(String world) {
-//        log.debug "got here! . . . "
-//        return "hello from controller, ${world}!"
-//    }
-//
-//    @MessageMapping("/AnnotationEditorService")
-//    @SendTo("/topic/AnnotationEditorService")
-//    protected String annotationEditor(String inputString) {
-//        log.debug " annotation editor service ${inputString}"
-//        return "annotationEditor ${inputString}!"
-//    }
+    @MessageMapping("/hello")
+    @SendTo("/topic/hello")
+    protected String hello(String world) {
+        println "got here! . . . "
+        return "hello from controller . . . whadup?, ${world}!"
+    }
+
+    @MessageMapping("/AnnotationNotification")
+    @SendTo("/topic/AnnotationNotification")
+    protected String annotationEditor(String inputString) {
+        println "Input String:  annotation editor service ${inputString}"
+        JSONObject rootElement = (JSONObject) JSON.parse(inputString)
+
+        println "root element: ${rootElement}"
+        String track = ((JSONObject) rootElement).get(REST_TRACK)
+        String operation = ((JSONObject) rootElement).get(REST_OPERATION)
+        def params = []
+//        for(String key in rootElement.keySet()) {
+//            if(key!=REST_TRACK && key!=REST_OPERATION){
+//                params[key] = rootElement.get(key)
+//            }
+//        }
+
+        String operationName = underscoreToCamelCase(operation)
+//        handleOperation(track,operation)
+        def p = task{
+//            5
+            addTranscript()
+        }
+        def results = p.get()
+        println "completling result ${results}"
+        return "returning annotationEditor ${inputString}!"
+
+//        p.onComplete([p]){ List results ->
+//            println "completling result ${results}"
+//            return "returning annotationEditor ${inputString}!"
+//        }
+//        p.onError([p]){ List results ->
+//            println "error ${results}"
+//            return "ERROR returning annotationEditor ${inputString}!"
+//        }
+
+    }
+
+
+    @SendTo("/topic/AnnotationNotification")
+    protected String sendAnnotationEvent(String returnString){
+        println "return operations sent . . ${returnString}"
+        return returnString
+    }
+
+    synchronized void handleChangeEvent(AnnotationEvent... events) {
+        println "handingling event ${events.length}"
+        if (events.length == 0) {
+            return;
+        }
+//        sendAnnotationEvent(events)
+        // TODO: this is more than a bit of a hack
+//        String sequenceName = "Annotations-${events[0].sequence.name}"
+//        Queue<AsyncContext> contexts = queue.get(sequenceName);
+//        Queue<AsyncContext> contexts = queue.get(events[0].getSequence());
+//        if (contexts == null) {
+//            return;
+//        }
+        JSONArray operations = new JSONArray();
+        for (AnnotationEvent event : events) {
+            JSONObject features = event.getFeatures();
+            try {
+                features.put("operation", event.getOperation().name());
+                features.put("sequenceAlterationEvent", event.isSequenceAlterationEvent());
+                operations.put(features);
+            }
+            catch (JSONException e) {
+                log.error("error handling change event ${event}: ${e}")
+            }
+        }
+
+        sendAnnotationEvent(operations.toString())
+//        ??
+//        for (AsyncContext asyncContext : contexts) {
+//            ServletResponse response = asyncContext.getResponse();
+//            try {
+//                response.getWriter().write(operations.toString());
+//                response.flushBuffer();
+//            }
+//            catch (IOException e) {
+//                log.error(e)
+//            }
+////            asyncContext.complete();
+//        }
+
+    }
 }

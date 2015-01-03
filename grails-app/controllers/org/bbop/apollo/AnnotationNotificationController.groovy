@@ -21,26 +21,26 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Based on AnnotationChangeNotificationService
  */
 //@GrailsCompileStatic
-class AnnotationNotificationController implements AnnotationListener {
+class AnnotationNotificationController {
 
     DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
     Map<String, Queue<AsyncContext>> queue = new ConcurrentHashMap<String, Queue<AsyncContext>>();
 //    Map<String, Queue<AsyncContext>> sessionToAsyncContext = new ConcurrentHashMap<String, Queue<AsyncContext>>();
 
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/hello")
-    protected String hello(String world) {
-        println "got here! . . . "
-        return "hello from controller . . . whadup?, ${world}!"
-    }
-
-    @MessageMapping("/AnnotationNotification")
-    @SendTo("/topic/AnnotationNotification")
-    protected String annotationEditor(String inputString) {
-        println " annotation editor service ${inputString}"
-        return "returning annotationEditor ${inputString}!"
-    }
+//    @MessageMapping("/hello")
+//    @SendTo("/topic/hello")
+//    protected String hello(String world) {
+//        println "got here! . . . "
+//        return "hello from controller . . . whadup?, ${world}!"
+//    }
+//
+//    @MessageMapping("/AnnotationNotification")
+//    @SendTo("/topic/AnnotationNotification")
+//    protected String annotationEditor(String inputString) {
+//        println " annotation editor service ${inputString}"
+//        return "returning annotationEditor ${inputString}!"
+//    }
 
 
 //    def index(String track) {
