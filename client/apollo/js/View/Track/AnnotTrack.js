@@ -7,8 +7,8 @@ define( [
             'jqueryui/autocomplete',
             'jqueryui/dialog',
             'dijit/Menu',
-            'dijit/MenuItem', 
-            'dijit/MenuSeparator', 
+            'dijit/MenuItem',
+            'dijit/MenuSeparator',
             'dijit/PopupMenuItem',
             'dijit/form/Button',
             'dijit/form/DropDownButton',
@@ -25,12 +25,12 @@ define( [
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
             'WebApollo/BioFeatureUtils',
-            'WebApollo/Permission', 
-            'WebApollo/SequenceSearch', 
+            'WebApollo/Permission',
+            'WebApollo/SequenceSearch',
             'WebApollo/EUtils',
             'WebApollo/SequenceOntologyUtils',
             'JBrowse/Model/SimpleFeature',
-            'JBrowse/Util', 
+            'JBrowse/Util',
             'JBrowse/View/GranularRectLayout',
             'dojo/request/xhr',
             'dojox/widget/Standby',
@@ -43,12 +43,13 @@ define( [
         function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
           dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
           dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-          dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
+          dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore,
           DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
           SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
 // var listeners = [];
-// var listener;
+var listener;
+var client;
 
 /**
  * WARNING Requires server support for Servlet 3.0 comet-style long-polling,
@@ -139,7 +140,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * listeners[track.getUniqueTrackName()].cancel(); } }
              */
         });
-    
+
         this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
             if (currRegion.ref != this.refSeq.name) {
 
@@ -151,28 +152,28 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 //if (this.listener && this.listener.fired == -1 ) {
                 //    this.listener.cancel();
                 //}
-                
+
                 /*
                  * loginButton.destroyRecursive();
-                 * 
+                 *
                  * var userMenu = this.browser._globalMenuItems["user"]; if
                  * (userMenu) { for (var i = 0; i < userMenu.length; ++i) {
                  * userMenu[i].destroyRecursive(); } delete
                  * this.browser._globalMenuItems["user"]; }
                  */
             }
-            
+
         }));
-        
+
         this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function(names) {
         }));
-        
+
         this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
         this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
-        
+
         this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
         this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
-        
+
         this.topLevelParents = {};
     },
 
@@ -224,24 +225,24 @@ var AnnotTrack = declare( DraggableFeatureTrack,
        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
        options = this.webapollo.removeItemWithLabel(options, "Delete track");
        return options;
-   }, 
-    
+   },
+
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
                            widthPct, widthPx, scale ) {
-                   
+
         this.inherited( arguments );
         var track = this;
 
         // this.getPermission( dojo.hitch(this, initAnnotContextMenu) ); // calling back
         // to initAnnotContextMenu() once permissions are returned by server
-        var success = this.getPermission( function()  { 
-                                              track.initAnnotContextMenu(); 
+        var success = this.getPermission( function()  {
+                                              track.initAnnotContextMenu();
                                           } );  // calling back to
                                                 // initAnnotContextMenu() once
                                                 // permissions are returned by
                                                 // server
-        
+
         /*
          * getPermission call is synchronous, so login initialization etc. can
          * be called anytime after getPermission call
@@ -289,7 +290,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                 };
                 func();
-                
+
                 /*
                  * // console.log("AnnotTrack get_features XHR returned, trying
                  * to find sequence track: ", strack); var strack =
@@ -297,7 +298,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                  * of sequence alterations if (strack && (! strack.annotTrack)) {
                  * strack.setAnnotTrack(track); }
                  */
-                
+
                 /*
                  * for (var i = 0; i < responseFeatures.length; i++) { var jfeat =
                  * JSONUtils.createJBrowseFeature( responseFeatures[i] );
@@ -312,7 +313,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                  * track.getSequenceTrack(); // setAnnotTrack() triggers loading
                  * of sequence alterations if (strack && (! strack.annotTrack)) {
                  * strack.setAnnotTrack(track); }
-                 * 
+                 *
                  * standby.hide();
                  */
             }, function(response, ioArgs) { //
@@ -324,7 +325,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // track.remote_edit_working = false;
                 return response; //
             });
-            
+
             /*
              * dojo.xhrPost( { postData: '{ "track": "' +
              * track.getUniqueTrackName() + '", "operation": "get_features" }',
@@ -367,7 +368,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         }
 
-    }, 
+    },
 
     //createAnnotationChangeListener: function(retryNumber) {
     //    var track = this;
@@ -533,11 +534,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // https://github.com/zyro23/grails-spring-websocket
         this.listener = new SockJS("/apollo/stomp");
         console.log('my_socket listening');
-        var client = Stomp.over(this.listener);
+        this.client = Stomp.over(this.listener);
+        var client = this.client ;
         console.log('client established');
         client.connect({}, function(){
             client.subscribe("/topic/hello", function(message) {
                 console.log('recieved: '+ JSON.parse(message.body));
+            });
+            client.subscribe("/topic/AnnotationNotification", function(message) {
+                console.log('recieved annotation info: '+ JSON.parse(message.body));
             });
             console.log('connected . .. trying to send');
             client.send("/app/hello", {}, JSON.stringify("world"));
@@ -582,7 +587,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     // this.annotationsDeletedNotification(annots);
     // this.annotationsAddedNotification(annots);
     var selfeats = this.selectionManager.getSelectedFeatures();
-    
+
         for (var i = 0; i < responseFeatures.length; ++i) {
             var id = responseFeatures[i].uniquename;
             /*
@@ -602,7 +607,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     /**
      * overriding renderFeature to add event handling right-click context menu
      */
-    renderFeature:  function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
+    renderFeature:  function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                               containerStart, containerEnd, history ) {
         // if (uniqueId.length > 20) {
         // feature.short_id = uniqueId;
@@ -671,7 +676,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 })
             ;
         }
-        
+
         if (!history) {
             var label = "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
             if (feature.get("locked")) {
@@ -684,11 +689,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 showDelay: 600
             });
         }
-        
+
         if (feature.get("locked")) {
             dojo.addClass(featDiv, "locked-annotation");
         }
-        
+
         return featDiv;
     },
 
@@ -705,7 +710,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 $(subdiv).bind("mousedown", this.annotMouseDown);
             }
         }
-        
+
         return subdiv;
     },
 
@@ -732,7 +737,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         }
         return this.seqTrack;
-    }, 
+    },
 
     onFeatureMouseDown: function(event) {
 
@@ -799,7 +804,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     console.log(featdiv);
                 }
                 var scale = track.gview.bpToPx(1);
-                
+
                 // if zoomed int to showing sequence residues, then make
                 // edge-dragging snap to interbase pixels
                 var gridvals;
@@ -857,7 +862,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         }
     },
-    
+
     /**
      * feature click no-op (to override FeatureTrack.onFeatureClick, which
      * conflicts with mouse-down selection
@@ -881,7 +886,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         var subfeats = [];
         var allSameStrand = 1;
-        for (var i = 0; i < feature_records.length; ++i)  { 
+        for (var i = 0; i < feature_records.length; ++i)  {
             var feature_record = feature_records[i];
             var original_feat = feature_record.feature;
             var feat = JSONUtils.makeSimpleFeature( original_feat );
@@ -941,7 +946,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         for (var i = 0; i < subfeats.length; ++i) {
             var subfeat = subfeats[i];
             // if (subfeat[target_track.subFields["type"]] !=
-            // "wholeCDS") 
+            // "wholeCDS")
             var source_track = subfeat.track;
             if ( subfeat.get('type') != "wholeCDS") {
                 var jsonFeature = JSONUtils.createApolloFeature( subfeats[i], "exon");
@@ -965,7 +970,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         $(target_trackdiv).droppable(  {
             // only accept draggables that are selected feature divs
-            accept: ".selected-feature",   
+            accept: ".selected-feature",
             // switched to using deactivate() rather than drop() for drop
             // handling
             // this fixes bug where drop targets within track (feature divs)
@@ -1029,6 +1034,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     createAnnotations: function(selection_records)  {
+        console.log('should be creating an annotation . .. ');
         var target_track = this;
         var featuresToAdd = new Array();
         var parentFeatures = new Object();
@@ -1036,13 +1042,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var strand;
         var parentFeature;
         for (var i in selection_records)  {
+            console.log('selection '+i);
             var dragfeat = selection_records[i].feature;
             var is_subfeature = !! dragfeat.parent();  // !! is shorthand
                                                         // for returning
                                                         // true if value is
                                                         // defined and
                                                         // non-null
-            
+
             var parent = is_subfeature ? dragfeat.parent() : dragfeat;
             var parentId = parent.id();
             parentFeatures[parentId] = parent;
@@ -1052,7 +1059,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * parentFeatures[parentId].isSubfeature = is_subfeature; }
              * parentFeatures[parentId].push(dragfeat);
              */
-            
+
             if (strand == undefined) {
                 strand = dragfeat.get("strand");
             }
@@ -1061,7 +1068,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // alert("Cannot create annotation with children with opposite strands");
                 // return;
             }
-            
+
             if (is_subfeature) {
                 subfeatures.push(dragfeat);
                 if (!parentFeature) {
@@ -1082,13 +1089,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }
-        
+
         function process() {
             var keys = Object.keys(parentFeatures);
             var singleParent = keys.length == 1;
             var featureToAdd;
             if (singleParent) {
-                
+
                 featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
             }
             else {
@@ -1103,6 +1110,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var fmin = undefined;
             var fmax = undefined;
             featureToAdd.set('subfeatures', new Array());
+            console.log('# of subfeatures: '+subfeatures.length);
             for (var i = 0; i < subfeatures.length; ++i) {
                 var subfeature = subfeatures[i];
                 if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
@@ -1123,8 +1131,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             featureToAdd.set( "start", fmin );
             featureToAdd.set( "end",   fmax );
             var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA", true );
-            featuresToAdd.push(afeat);  
-            
+            featuresToAdd.push(afeat);
+
+            console.log('almost adding features?: '+ featureToAdd);
+
             /*
              * for (var i in parentFeatures) { var featArray =
              * parentFeatures[i]; if (featArray.isSubfeature) { var
@@ -1148,10 +1158,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * dragfeat, "mRNA", true); featuresToAdd.push(afeat); } } }
              */
             var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
+            console.log('target track? : '+ target_track);
+            console.log('posting: '+postData);
             target_track.executeUpdateOperation(postData);
+            console.log('POSTED: '+postData);
 
         };
-        
+
+        console.log('process: '+strand);
         if (strand == -2) {
             var content = dojo.create("div");
             var message = dojo.create("div", { className: "confirm_message", innerHTML: "Creating annotation with subfeatures in opposing strands.  Choose strand:" }, content);
@@ -1184,7 +1198,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
 
     },
-    
+
     createGenericAnnotations: function(feats, type, subfeatType, topLevelType) {
         var target_track = this;
         var featuresToAdd = new Array();
@@ -1262,7 +1276,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
         target_track.executeUpdateOperation(postData);
     },
-    
+
     createGenericOneLevelAnnotations: function(feats, type, strandless) {
         var target_track = this;
         var featuresToAdd = new Array();
@@ -1509,7 +1523,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
         track.executeUpdateOperation(postData);
-    }, 
+    },
 
     mergeSelectedFeatures: function()  {
         var selected = this.selectionManager.getSelection();
@@ -1519,9 +1533,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     mergeAnnotations: function(selection) {
         var track = this;
-        var annots = []; 
-        for (var i=0; i<selection.length; i++)  { 
-            annots[i] = selection[i].feature; 
+        var annots = [];
+        for (var i=0; i<selection.length; i++)  {
+            annots[i] = selection[i].feature;
         }
 
         var sortedAnnots = track.sortAnnotationsByLocation(annots);
@@ -1782,7 +1796,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
         track.executeUpdateOperation(postData);
     },
-    
+
     setAsFivePrimeEnd: function() {
         var selectedAnnots = this.selectionManager.getSelection();
         var selectedEvidence = this.webapollo.featSelectionManager.getSelection();
@@ -1840,7 +1854,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
         track.executeUpdateOperation(postData);
     },
-    
+
     setBothEnds: function() {
         var selectedAnnots = this.selectionManager.getSelection();
         var selectedEvidence = this.webapollo.featSelectionManager.getSelection();
@@ -1869,7 +1883,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
         track.executeUpdateOperation(postData);
     },
-    
+
     setToDownstreamDonor: function() {
         var selectedAnnots = this.selectionManager.getSelection();
         this.selectionManager.clearAllSelection();
@@ -1943,7 +1957,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.selectionManager.clearAllSelection();
         this.lockAnnotationForSelectedFeatures(selectedAnnots);
     },
-    
+
     lockAnnotationForSelectedFeatures: function(selectedAnnots) {
         var track = this;
         var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
@@ -2019,7 +2033,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         AnnotTrack.popupDialog.resize();
         AnnotTrack.popupDialog._position();
     },
-    
+
     getAnnotationInfoEditorConfigs: function(trackName) {
         var track = this;
         if (track.annotationInfoEditorConfigs) {
@@ -2044,8 +2058,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         });
     },
-    
-    
+
+
     createAnnotationInfoEditorPanelForFeatureSideBar: function(uniqueName, trackName, selector, reload) {
         console.log("createAnnotationInfoEditorPanelForFeatureSideBar");
         var track = this;
@@ -2058,17 +2072,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var nameLabel = dojo.create("label", { innerHTML: "Name", 'class': "annotation_info_editor_label" }, nameDiv);
         var nameField = new dijitTextBox({ 'class': "annotation_editor_field"});
         dojo.place(nameField.domNode, nameDiv);
-        
+
         var symbolDiv = dojo.create("div", { 'class': "annotation_info_editor_field_section" }, content);
         var symbolLabel = dojo.create("label", { innerHTML: "Symbol", 'class': "annotation_info_editor_label" }, symbolDiv);
         var symbolField = new dijitTextBox({ 'class': "annotation_editor_field"});
         dojo.place(symbolField.domNode, symbolDiv);
-        
+
         var descriptionDiv = dojo.create("div", { 'class': "annotation_info_editor_field_section" }, content);
         var descriptionLabel = dojo.create("label", { innerHTML: "Description", 'class': "annotation_info_editor_label" }, descriptionDiv);
         var descriptionField = new dijitTextBox({ 'class': "annotation_editor_field"});
         dojo.place(descriptionField.domNode, descriptionDiv);
-        
+
         var dateCreationDiv = dojo.create("div", { 'class': "annotation_info_editor_field_section" }, content);
         var dateCreationLabel = dojo.create("label", { innerHTML: "Created", 'class': "annotation_info_editor_label" }, dateCreationDiv);
         var dateCreationField = new dijitTextBox({ 'class': "annotation_editor_field", readonly: true });
@@ -2078,7 +2092,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var dateLastModifiedLabel = dojo.create("label", { innerHTML: "Last modified", 'class': "annotation_info_editor_label" }, dateLastModifiedDiv);
         var dateLastModifiedField = new dijitTextBox({ 'class': "annotation_editor_field", readonly: true });
         dojo.place(dateLastModifiedField.domNode, dateLastModifiedDiv);
-        
+
         var statusDiv = dojo.create("div", { 'class': "annotation_info_editor_section" }, content);
         var statusLabel = dojo.create("div", { 'class': "annotation_info_editor_section_header", innerHTML: "Status" }, statusDiv);
         var statusFlags = dojo.create("div", { 'class': "status" }, statusDiv);
@@ -2088,11 +2102,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             nameField.set("disabled", true);
         }
         var timeout = 100;
-        
+
         var escapeString = function(str) {
             return str.replace(/(["'])/g, "\\$1");
         };
-        
+
         function init() {
             var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
             var operation = "get_annotation_info_editor_data";
@@ -2134,7 +2148,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         var initSymbol = function(feature) {
             if (feature.symbol) {
                 symbolField.set("value", feature.symbol);
@@ -2150,7 +2164,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         var initDescription = function(feature) {
             if (feature.description) {
                 descriptionField.set("value", feature.description);
@@ -2174,7 +2188,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
             }
         };
-        
+
         var initStatus = function(feature, config) {
             var maxLength = 0;
             var status = config.status;
@@ -2222,7 +2236,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 //      var hasWritePermission = this.hasWritePermission();
         var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
         var content = dojo.create("span");
-        
+
         var header = dojo.create("div", { className: "annotation_info_editor_header" }, content);
 
         var nameDiv = dojo.create("div", { 'class': "annotation_info_editor_field_section" }, content);
@@ -2235,7 +2249,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var symbolLabel = dojo.create("label", { innerHTML: "Symbol", 'class': "annotation_info_editor_label" }, symbolDiv);
         var symbolField = new dijitTextBox({ 'class': "annotation_editor_field"});
         dojo.place(symbolField.domNode, symbolDiv);
-        
+
         var descriptionDiv = dojo.create("div", { 'class': "annotation_info_editor_field_section" }, content);
         var descriptionLabel = dojo.create("label", { innerHTML: "Description", 'class': "annotation_info_editor_label" }, descriptionDiv);
         var descriptionField = new dijitTextBox({ 'class': "annotation_editor_field"});
@@ -2250,7 +2264,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var dateLastModifiedLabel = dojo.create("label", { innerHTML: "Last modified", 'class': "annotation_info_editor_label" }, dateLastModifiedDiv);
         var dateLastModifiedField = new dijitTextBox({ 'class': "annotation_editor_field", readonly: true });
         dojo.place(dateLastModifiedField.domNode, dateLastModifiedDiv);
-        
+
         var statusDiv = dojo.create("div", { 'class': "annotation_info_editor_section" }, content);
         var statusLabel = dojo.create("div", { 'class': "annotation_info_editor_section_header", innerHTML: "Status" }, statusDiv);
         var statusFlags = dojo.create("div", { 'class': "status" }, statusDiv);
@@ -2279,7 +2293,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var pubmedIdButtons = dojo.create("div", { 'class': "annotation_info_editor_button_group" }, pubmedIdButtonsContainer);
         var addPubmedIdButton = dojo.create("button", { innerHTML: "Add", 'class': "annotation_info_editor_button" }, pubmedIdButtons);
         var deletePubmedIdButton = dojo.create("button", { innerHTML: "Delete", 'class': "annotation_info_editor_button" }, pubmedIdButtons);
-        
+
         var goIdsDiv = dojo.create("div", { 'class': "annotation_info_editor_section" }, content);
         var goIdsLabel = dojo.create("div", { 'class': "annotation_info_editor_section_header", innerHTML: "Gene Ontology IDs" }, goIdsDiv);
         var goIdsTable = dojo.create("div", { 'class': "go_ids", id: "go_ids_" + (selector ? "child" : "parent")  }, goIdsDiv);
@@ -2295,7 +2309,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var commentButtons = dojo.create("div", { 'class': "annotation_info_editor_button_group" }, commentButtonsContainer);
         var addCommentButton = dojo.create("button", { innerHTML: "Add", 'class': "annotation_info_editor_button" }, commentButtons);
         var deleteCommentButton = dojo.create("button", { innerHTML: "Delete", 'class': "annotation_info_editor_button" }, commentButtons);
-        
+
         if (!hasWritePermission) {
             nameField.set("disabled", true);
             symbolField.set("disabled", true);
@@ -2313,16 +2327,16 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.attr(addCommentButton, "disabled", true);
             dojo.attr(deleteCommentButton, "disabled", true);
         }
-        
+
         var pubmedIdDb = "PMID";
         var goIdDb = "GO";
-        
+
         var timeout = 100;
-        
+
         var escapeString = function(str) {
             return str.replace(/(["'])/g, "\\$1");
         };
-        
+
         function init() {
             var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
             var operation = "get_annotation_info_editor_data";
@@ -2350,7 +2364,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         function initTable(domNode, tableNode, table, timeout) {
             var id = dojo.attr(tableNode, "id");
             var node = dojo.byId(id);
@@ -2364,11 +2378,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.place(domNode, tableNode, "first");
             table.startup();
         }
-        
+
         var initType = function(feature) {
             header.innerHTML = feature.type.name;
         };
-        
+
         var initName = function(feature) {
             if (feature.name) {
                 nameField.set("value", feature.name);
@@ -2389,7 +2403,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         var initSymbol = function(feature) {
             if (feature.symbol) {
                 symbolField.set("value", feature.symbol);
@@ -2405,7 +2419,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         var initDescription = function(feature) {
             if (feature.description) {
                 descriptionField.set("value", feature.description);
@@ -2421,7 +2435,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         var initDates = function(feature) {
             if (feature.date_creation) {
                 dateCreationField.set("value", FormatUtils.formatDate(feature.date_creation));
@@ -2430,7 +2444,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
             }
         };
-        
+
         var initStatus = function(feature, config) {
             var maxLength = 0;
             var status = config.status;
@@ -2470,7 +2484,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.style(statusDiv, "display", "none");
             }
         };
-        
+
         var initDbxrefs = function(feature, config) {
             if (config.hasDbxrefs) {
                 var oldDb;
@@ -2521,7 +2535,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     updateDelay: 0,
                     structure: dbxrefTableLayout
                 });
-                
+
                 var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                     initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable);
                     dojo.disconnect(handle);
@@ -2529,8 +2543,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (reload) {
                     initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable, timeout);
                 }
-                
-                
+
+
                 var dirty = false;
                 dojo.connect(dbxrefTable, "onStartEdit", function(inCell, inRowIndex) {
                     if (!dirty) {
@@ -2539,13 +2553,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         dirty = true;
                     }
                 });
-                
+
                 dojo.connect(dbxrefTable, "onCancelEdit", function(inRowIndex) {
                     dbxrefTable.store.setValue(dbxrefTable.getItem(inRowIndex), "db", oldDb);
                     dbxrefTable.store.setValue(dbxrefTable.getItem(inRowIndex), "accession", oldAccession);
                     dirty = false;
                 });
-                
+
                 dojo.connect(dbxrefTable, "onApplyEdit", function(inRowIndex) {
                     var newDb = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "db");
                     var newAccession = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "accession");
@@ -2561,12 +2575,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     dirty = false;
                 });
-                
+
                 dojo.connect(addDbxrefButton, "onclick", function() {
                     dbxrefTable.store.newItem({ db: "", accession: "" });
                     dbxrefTable.scrollToRow(dbxrefTable.rowCount);
                 });
-                
+
                 dojo.connect(deleteDbxrefButton, "onclick", function() {
                     var toBeDeleted = new Array();
                     var selected = dbxrefTable.selection.getSelected();
@@ -2584,7 +2598,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.style(dbxrefsDiv, "display", "none");
             }
         };
-        
+
         var initAttributes = function(feature, config) {
             if (config.hasAttributes) {
                 var oldTag;
@@ -2633,7 +2647,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     updateDelay: 0,
                     structure: attributeTableLayout
                 });
-                
+
                 var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                     initTable(attributeTable.domNode, attributesTable, attributeTable);
                     dojo.disconnect(handle);
@@ -2641,7 +2655,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (reload) {
                     initTable(attributeTable.domNode, attributesTable, attributeTable, timeout);
                 }
-                
+
                 var dirty = false;
 
                 dojo.connect(attributeTable, "onStartEdit", function(inCell, inRowIndex) {
@@ -2651,13 +2665,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         dirty = true;
                     }
                 });
-                
+
                 dojo.connect(attributeTable, "onCancelEdit", function(inRowIndex) {
                     attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "tag", oldTag);
                     attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "value", oldValue);
                     dirty = false;
                 });
-                
+
                 dojo.connect(attributeTable, "onApplyEdit", function(inRowIndex) {
                     var newTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
                     var newValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
@@ -2673,12 +2687,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     dirty = false;
                 });
-                
+
                 dojo.connect(addAttributeButton, "onclick", function() {
                     attributeTable.store.newItem({ tag: "", value: "" });
                     attributeTable.scrollToRow(attributeTable.rowCount);
                 });
-                
+
                 dojo.connect(deleteAttributeButton, "onclick", function() {
                     var toBeDeleted = new Array();
                     var selected = attributeTable.selection.getSelected();
@@ -2696,7 +2710,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
 
         };
-        
+
         var initPubmedIds = function(feature, config) {
             if (config.hasPubmedIds) {
                 var oldPubmedId;
@@ -2734,7 +2748,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     updateDelay: 0,
                     structure: pubmedIdTableLayout
                 });
-                
+
                 var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                     initTable(pubmedIdTable.domNode, pubmedIdsTable, pubmedIdTable);
                     dojo.disconnect(handle);
@@ -2746,7 +2760,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.connect(pubmedIdTable, "onStartEdit", function(inCell, inRowIndex) {
                     oldPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
                 });
-                
+
                 dojo.connect(pubmedIdTable, "onApplyEdit", function(inRowIndex) {
                     var newPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
                     if (!newPubmedId) {
@@ -2765,7 +2779,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     pubmedIdTable.store.newItem({ pubmed_id: "" });
                     pubmedIdTable.scrollToRow(pubmedIdTable.rowCount);
                 });
-                
+
                 dojo.connect(deletePubmedIdButton, "onclick", function() {
                     var toBeDeleted = new Array();
                     var selected = pubmedIdTable.selection.getSelected();
@@ -2782,7 +2796,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.style(pubmedIdsDiv, "display", "none");
             }
         };
-        
+
         var initGoIds = function(feature, config) {
             if (config.hasGoIds) {
                 var oldGoId;
@@ -2854,7 +2868,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     updateDelay: 0,
                     structure: goIdTableLayout
                 });
-                
+
                 var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                     initTable(goIdTable.domNode, goIdsTable, goIdTable);
                     dojo.disconnect(handle);
@@ -2862,13 +2876,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (reload) {
                     initTable(goIdTable.domNode, goIdsTable, goIdTable, timeout);
                 }
-                
+
                 dojo.connect(goIdTable, "onStartEdit", function(inCell, inRowIndex) {
                     editingRow = inRowIndex;
                     oldGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex), "go_id");
                     dirty = true;
                 });
-                
+
                 // dojo.connect(goIdTable, "onApplyCellEdit", function(inValue, inRowIndex, inCellIndex) {
                 dojo.connect(goIdTable.store, "onSet", function(item, attribute, oldValue, newValue) {
                     if (dirty) {
@@ -2890,12 +2904,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     goIdTable.render();
                 });
-                                    
+
                 dojo.connect(addGoIdButton, "onclick", function() {
                     goIdTable.store.newItem({ go_id: "" });
                     goIdTable.scrollToRow(goIdTable.rowCount);
                 });
-                
+
                 dojo.connect(deleteGoIdButton, "onclick", function() {
                     var toBeDeleted = new Array();
                     var selected = goIdTable.selection.getSelected();
@@ -2906,13 +2920,13 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                     goIdTable.removeSelectedRows();
                     deleteGoIds(toBeDeleted);
-                });             
+                });
             }
             else {
                 dojo.style(goIdsDiv, "display", "none");
             }
         };
-        
+
         var initComments = function(feature, config) {
             if (config.hasComments) {
                 var cannedComments = feature.canned_comments;
@@ -2932,7 +2946,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                 name: 'Comment',
                                 field: 'comment',
                                 editable: hasWritePermission,
-                                type: dojox.grid.cells.ComboBox, 
+                                type: dojox.grid.cells.ComboBox,
                                 options: cannedComments,
                                 formatter: function(comment) {
                                     if (!comment) {
@@ -2950,7 +2964,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     structure: commentTableLayout,
                     updateDelay: 0
                 });
-                
+
                 var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
                     initTable(commentTable.domNode, commentsTable, commentTable);
                     dojo.disconnect(handle);
@@ -2962,7 +2976,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.connect(commentTable, "onStartEdit", function(inCell, inRowIndex) {
                     oldComment = commentTable.store.getValue(commentTable.getItem(inRowIndex), "comment");
                 });
-                
+
                 dojo.connect(commentTable, "onApplyCellEdit", function(inValue, inRowIndex, inFieldIndex) {
                     var newComment = inValue;
                     if (!newComment) {
@@ -2977,12 +2991,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         }
                     }
                 });
-                
+
                 dojo.connect(addCommentButton, "onclick", function() {
                     commentTable.store.newItem({ comment: undefined });
                     commentTable.scrollToRow(commentTable.rowCount);
                 });
-                
+
                 dojo.connect(deleteCommentButton, "onclick", function() {
                     var toBeDeleted = new Array();
                     var selected = commentTable.selection.getSelected();
@@ -2998,7 +3012,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 dojo.style(commentsDiv, "display", "none");
             }
         };
-        
+
         var processOtherMetadata = function() {
             var config = track.annotationInfoEditorConfigs[featureType] || track.annotationInfoEditorConfigs["default"];
             var status = config.status;
@@ -3052,12 +3066,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
 
         };
-        
+
         function updateTimeLastUpdated() {
             var date = new Date();
             dateLastModifiedField.set("value", FormatUtils.formatDate(date.getTime()));
         };
-        
+
         var updateName = function(name) {
             name = escapeString(name);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
@@ -3075,7 +3089,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.executeUpdateOperation(postData);
             updateTimeLastUpdated();
         };
-        
+
         var updateDescription = function(description) {
             description = escapeString(description);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
@@ -3084,7 +3098,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.executeUpdateOperation(postData);
             updateTimeLastUpdated();
         };
-        
+
         var deleteStatus = function() {
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
             var operation = "delete_status";
@@ -3092,7 +3106,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.executeUpdateOperation(postData);
             updateTimeLastUpdated();
         };
-        
+
         var updateStatus = function(status) {
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
             var operation = "set_status";
@@ -3100,7 +3114,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.executeUpdateOperation(postData);
             updateTimeLastUpdated();
         };
-    
+
         var addDbxref = function(db, accession) {
             db = escapeString(db);
             accession = escapeString(accession);
@@ -3243,12 +3257,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 pubmedIdTable.store.setValue(pubmedIdTable.getItem(row), "pubmed_id", oldPubmedId);
             }
         };
-        
+
         var validateGoId = function(goId) {
             var regex = new RegExp("^" + goIdDb + ":(\\d{7})$");
             return regex.exec(goId);
         };
-        
+
         var addGoId = function(goIdTable, row, goId, valid) {
         // if (match = validateGoId(goId)) {
             if (valid) {
@@ -3293,7 +3307,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 goIdTable.close();
             }
         };
-        
+
         var addComment = function(comment) {
             comment = escapeString(comment);
             var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
@@ -3349,11 +3363,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         init();
         return content;
     },
-    
+
     undo: function()  {
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
@@ -3403,7 +3417,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         });
     },
-    
+
     redo: function()  {
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
@@ -3428,7 +3442,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         this.redoFeaturesByUniqueName(uniqueNames, 1);
     },
-    
+
     redoFeaturesByUniqueName: function(uniqueNames, count) {
         var features = '"features": [';
         for (var i = 0; i < uniqueNames.length; ++i) {
@@ -3449,7 +3463,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
         this.getHistoryForSelectedFeatures(selected);
-    }, 
+    },
 
     getHistoryForSelectedFeatures: function(selected) {
         var track = this;
@@ -3483,7 +3497,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.attr(historyRows.childNodes.item(current), "class", "history_row");
             current = selectedIndex;
         };
-        
+
         function initMenu() {
             historyMenu = new dijitMenu({ });
             historyMenu.addChild(new dijitMenuItem({
@@ -3494,7 +3508,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }));
             historyMenu.startup();
         }
-        
+
         var cleanupDiv = function(div) {
             if (div.style.top) {
                 div.style.top = null;
@@ -3524,9 +3538,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // so neither should get triggered
             var featDiv = track.renderFeature(jfeature, jfeature.uid, historyPreviewDiv, coords.w / (maxLength), 100, 100, minFmin, maxFmax, true);
             cleanupDiv(featDiv);
-            
+
             historyMenu.bindDomNode(featDiv);
-            
+
             while (historyPreviewDiv.hasChildNodes()) {
                 historyPreviewDiv.removeChild(historyPreviewDiv.lastChild);
             }
@@ -3535,7 +3549,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             dojo.attr(historyRows.childNodes.item(index), "class", "history_row history_row_selected");
             selectedIndex = index;
         };
-    
+
         var displayHistory = function() {
             for (var i = 0; i < history.length; ++i) {
                 var historyItem = history[i];
@@ -3570,7 +3584,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (maxFmax == undefined || fmax > maxFmax) {
                     maxFmax = fmax;
                 }
-                
+
                 if (historyItem.current) {
                     current = i;
                 }
@@ -3594,7 +3608,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var coords = dojo.position(row);
             historyRows.scrollTop = selectedIndex * coords.h;
         };
-    
+
         var fetchHistory = function() {
             var features = '"features": [';
             for (var i in selected)  {
@@ -3630,9 +3644,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     displayHistory();
                 },
                 // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { // 
+                error: function(response, ioArgs) { //
                     track.handleError(response);
-                    return response; // 
+                    return response; //
                 }
 
             });
@@ -3645,7 +3659,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         AnnotTrack.popupDialog._position();
 // this.popupDialog.hide();
 // this.openDialog("History", content);
-    }, 
+    },
 
     getAnnotationInformation: function()  {
         var selected = this.selectionManager.getSelection();
@@ -3920,8 +3934,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         search.setRedirectCallback(function(id, fmin, fmax) {
             var loc = id + ":" + fmin + "-" + fmax;
             var locobj = {
-                    ref: id, 
-                    start: fmin, 
+                    ref: id,
+                    start: fmin,
                     end: fmax
             };
             if (id == track.refSeq.name) {
@@ -3950,7 +3964,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if (content) {
             this.openDialog("Search sequence", content);
         }
-    }, 
+    },
 
     exportData: function(key, options) {
         var track = this;
@@ -3975,7 +3989,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                  * iframeDoc.open(); iframeDoc.write(response); iframeDoc.close();
                  */
                 responseDiv.innerHTML = response;
-            }, 
+            },
             // The ERROR function will be called in an error case.
             error: function(response, ioArgs) {
                 dojo.style(waitingDiv, { display: "none" } );
@@ -3984,14 +3998,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         });
         track.openDialog("Export " + key, content);
-    }, 
+    },
 
     zoomToBaseLevel: function(event) {
         var coordinate = this.getGenomeCoord(event);
         this.gview.zoomToBaseLevel(event, coordinate);
     },
 
- 
+
 
     scrollToNextEdge: function(event)  {
         // var coordinate = this.getGenomeCoord(event);
@@ -4000,7 +4014,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var coordinate = (vregion.start + vregion.end)/2;
         var selected = this.selectionManager.getSelection();
         if (selected && (selected.length > 0)) {
-            
+
             function centerAtBase(position) {
                 track.gview.centerAtBase(position, false);
                 track.selectionManager.removeFromSelection(selected[0]);
@@ -4019,7 +4033,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                 }
             };
-            
+
             var selfeat = selected[0].feature;
             // find current center genome coord, compare to subfeatures,
             // figure out nearest subfeature right of center of view
@@ -4041,7 +4055,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 centerAtBase(pmin);
             }
             else  {
-                var childfeats = selfeat.children();                
+                var childfeats = selfeat.children();
                 for (var i=0; i<childfeats.length; i++)  {
                     var cfeat = childfeats[i];
                     var cmin = cfeat.get('start');
@@ -4062,7 +4076,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }
-    }, 
+    },
 
    scrollToPreviousEdge: function(event) {
         // var coordinate = this.getGenomeCoord(event);
@@ -4071,7 +4085,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var coordinate = (vregion.start + vregion.end)/2;
         var selected = this.selectionManager.getSelection();
         if (selected && (selected.length > 0)) {
-            
+
             function centerAtBase(position) {
                 track.gview.centerAtBase(position, false);
                 track.selectionManager.removeFromSelection(selected[0]);
@@ -4090,7 +4104,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                     }
                 }
             };
-            
+
             var selfeat = selected[0].feature;
             // find current center genome coord, compare to subfeatures,
             // figure out nearest subfeature right of center of view
@@ -4112,7 +4126,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 centerAtBase(pmax);
             }
             else  {
-                var childfeats = selfeat.children();                
+                var childfeats = selfeat.children();
                 for (var i=0; i<childfeats.length; i++)  {
                     var cfeat = childfeats[i];
                     var cmin = cfeat.get('start');
@@ -4133,7 +4147,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             }
         }
-    }, 
+    },
 
     scrollToNextTopLevelFeature: function() {
         var selected = this.selectionManager.getSelection();
@@ -4172,7 +4186,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.selectionManager.removeFromSelection({ feature: selected[0].feature, track: this });
         this.selectionManager.addToSelection({ feature: features[idx - 1], track: this });
     },
-    
+
     binarySearch: function(features, feature) {
         var from = 0;
         var to = features.length - 1;
@@ -4206,7 +4220,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         return -1;
     },
-    
+
     zoomBackOut: function(event) {
         this.gview.zoomBackOut(event);
     },
@@ -4225,9 +4239,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     handleConfirm: function(response) {
-            return confirm(response); 
+            return confirm(response);
     },
-    
+
     logout: function() {
         dojo.xhrPost( {
             url: context_path + "/Login?operation=logout",
@@ -4241,7 +4255,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         });
     },
-    
+
     login: function() {
         var track = this;
         dojo.xhrGet( {
@@ -4265,7 +4279,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         });
     },
-    
+
     initLoginMenu: function() {
         var track = this;
         var browser = this.gview.browser;
@@ -4274,7 +4288,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             browser.addGlobalMenuItem( 'user',
                 new dijitMenuItem({
                     label: 'Logout',
-                    onClick: function()  { 
+                    onClick: function()  {
                         console.log("clicked stub for logging out");
                         // attempted to do
                         // client-side session
@@ -4318,7 +4332,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // styling in CSS rule for 'menu' class
             // dojo.addClass( loginButton.domNode, 'menu' );
         }
-        else  { 
+        else  {
             loginButton = new dijitButton(
                 { className: 'login',
                   innerHTML: "Login",
@@ -4338,7 +4352,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                          * "/Login?operation=login", executeScripts: true,
                          * title: "Login", id: "login_dialog" }); dialog.show();
                          */
-                      
+
                       /*
                          * var $login = $("<div id='login' title='Login'></div>");
                          * $login.dialog( { draggable: false, modal: true,
@@ -4347,7 +4361,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                          * "/Login", null, function() { });
                          * $login.dialog("open");
                          */
-                      
+
                       // console.log("clicked on login") ;
                   }
                 });
@@ -4359,8 +4373,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             // browser.initView called after menubar exists
             browser.menuBar.appendChild( loginButton.domNode );
         });
-    }, 
-    
+    },
+
     initAnnotContextMenu: function() {
         var thisObj = this;
         contextMenuItems = new Array();
@@ -4416,7 +4430,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          * edge", onClick: function(event) {
          * thisObj.scrollToNextEdge(thisObj.annot_context_mousedown); } } ));
          * contextMenuItems["next_subfeature_edge"] = index++;
-         * 
+         *
          * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on previous
          * edge", onClick: function(event) {
          * thisObj.scrollToPreviousEdge(thisObj.annot_context_mousedown); } } ));
@@ -4534,7 +4548,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             contextMenuItems["set_readthrough_stop_codon"] = index++;
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
-            
+
             annot_context_menu.addChild(new dijit.MenuItem( {
                 label: "Set as 5' end",
                 onClick: function(event) {
@@ -4640,9 +4654,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
             });
         };
-        
+
         annot_context_menu.startup();
-    }, 
+    },
 
 
     /**
@@ -4675,7 +4689,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 // track.handleError(response);
             }
         });
-    }, 
+    },
 
     makeTrackMenu: function()  {
         this.inherited( arguments );
@@ -4723,14 +4737,14 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             for (var mindex=0; mindex < mitems.length; mindex++) {
                 if (mitems[mindex].type == "dijit/MenuSeparator")  { break; }
             }
-             
+
             var savePopup = new dijit.PopupMenuItem({
                     label: "Save track data",
                     iconClass: 'dijitIconSave',
                     popup: dataAdaptersMenu });
             this.trackMenu.addChild(savePopup, mindex);
         }
-    }, 
+    },
 
     getPermission: function( callback ) {
         var thisObj = this;
@@ -4782,19 +4796,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             if (track.getSequenceTrack())  {
                 track.getSequenceTrack().clearHighlightedBases();
             }
-            
-            dojo.style(dojo.body(), 'overflow', 'auto'); 
+
+            dojo.style(dojo.body(), 'overflow', 'auto');
             document.body.scroll = ''; // needed for ie6/7
 
-            
+
         });
 
-        dojo.connect(AnnotTrack.popupDialog, 'onShow', function() { 
-            dojo.style(dojo.body(), 'overflow', 'hidden'); 
+        dojo.connect(AnnotTrack.popupDialog, 'onShow', function() {
+            dojo.style(dojo.body(), 'overflow', 'hidden');
             document.body.scroll = 'no'; // needed for ie6/7
         });
-        
-        
+
+
         AnnotTrack.popupDialog.startup();
 
     },
@@ -4809,7 +4823,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
         AnnotTrack.popupDialog.show();
     },
-    
+
     closeDialog: function() {
         AnnotTrack.popupDialog.hide();
     },
@@ -4839,7 +4853,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.updateSetPreviousAcceptorMenuItem();
 //        this.updateLockAnnotationMenuItem();
     },
-    
+
     updateDeleteMenuItem: function() {
         var menuItem = this.getMenuItem("delete");
         var selected = this.selectionManager.getSelection();
@@ -5121,7 +5135,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             return;
         }
         menuItem.set("disabled", false);
-    }, 
+    },
 
     updateZoomToBaseLevelMenuItem: function() {
         var menuItem = this.getMenuItem("zoom_to_base_level");
@@ -5199,7 +5213,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         menuItem.set("disabled", false);
     },
-    
+
     updateSetBothEndsMenuItem: function() {
         var menuItem = this.getMenuItem("set_both_ends");
         var selectedAnnots = this.selectionManager.getSelection();
@@ -5398,7 +5412,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         menuItem.set("disabled", false);
     },
-    
+
     updateLockAnnotationMenuItem: function() {
         var menuItem = this.getMenuItem("lock_annotation");
         var selectedAnnots = this.selectionManager.getSelection();
@@ -5468,7 +5482,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // residues
         // are available
         // can do this way while still using SequenceTrack.getRange function
-        //                   
+        //
         // update:
         // OR (C), hybrid of A and B, block-based AND leveraging
         // SequenceTrack.getRange()
@@ -5612,7 +5626,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             delete this.currentResizableFeature;
             $(featdiv).resizable("destroy");
         }
-    }, 
+    },
 
     startZoom: function(destScale, destStart, destEnd) {
         // would prefer to only try and hide dna residues on zoom if previous
@@ -5650,7 +5664,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             return;
         }
         */
-        this.listener.send(postData, loadCallback);
+        //this.listener.send(postData, loadCallback);
+
+        //var client = Stomp.over(this.listener);
+        console.log('client established 1 2 3 ');
+        //client.connect({}, function() {
+        //    console.log('trying to subscribe 1 2 3');
+        //    client.subscribe("/topic/AnnotationNotification", function (message) {
+        //        console.log('recieved annotation notification 1 2 3: ' + JSON.parse(message.body));
+                //loadCallback(message.body);
+            //});
+            console.log('connected . .. trying to send 1 2 3');
+            this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
+            console.log('sent mesage  1 2 3');
+            //client.send("/app/AnnotationNotification", {}, JSON.stringify("world"));
+        //});
 
         /*
          * dojo.xhrPost( { postData: postData, url: context_path +
@@ -5678,7 +5706,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         });
         */
     },
-    
+
     isProteinCoding: function(feature) {
         var topLevelFeature = AnnotTrack.getTopLevelAnnotation(feature);
         if (topLevelFeature.afeature.parent_type && topLevelFeature.afeature.parent_type.name == "gene" && (topLevelFeature.get("type") == "transcript" || topLevelFeature.get("type") == "mRNA")) {
@@ -5686,26 +5714,26 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         return false;
     },
-    
+
     isLoggedIn: function() {
         return this.username != undefined;
     },
-    
+
     hasWritePermission: function() {
         return this.permission & Permission.WRITE;
     },
-    
+
     isAdmin: function() {
         return this.permission & Permission.ADMIN;
     },
-    
+
     canEdit: function(feature) {
         if (feature) {
             feature = AnnotTrack.getTopLevelAnnotation(feature);
         }
         return this.hasWritePermission() && (feature ? !feature.get("locked") : true);
     },
-    
+
     processParent: function(feature, operation) {
         var parentId = feature.parent_id;
         if (parentId) {
@@ -5723,7 +5751,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
         }
 
-    } 
+    }
 
 });
 

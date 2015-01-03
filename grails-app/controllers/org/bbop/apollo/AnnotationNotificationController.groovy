@@ -35,11 +35,11 @@ class AnnotationNotificationController implements AnnotationListener {
         return "hello from controller . . . whadup?, ${world}!"
     }
 
-    @MessageMapping("/AnnotationNotification/incoming")
-    @SendTo("/AnnotationNotification/outgoing")
+    @MessageMapping("/AnnotationNotification")
+    @SendTo("/topic/AnnotationNotification")
     protected String annotationEditor(String inputString) {
         println " annotation editor service ${inputString}"
-        return "annotationEditor ${inputString}!"
+        return "returning annotationEditor ${inputString}!"
     }
 
 
