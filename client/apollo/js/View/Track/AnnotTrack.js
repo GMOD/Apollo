@@ -531,7 +531,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         //this.listener = new SockJS(context_path, this);
         console.log('on listening: '+numTry);
         // https://github.com/zyro23/grails-spring-websocket
-        this.listener = new SockJS("../stomp");
+        this.listener = new SockJS("/apollo/stomp");
         console.log('my_socket listening');
         var client = Stomp.over(this.listener);
         console.log('client established');

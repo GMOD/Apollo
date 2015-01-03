@@ -227,7 +227,7 @@ class AnnotationEditorController {
                         }
                     }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-                    transcript.name = nameService.generateUniqueName()
+                    transcript.name = nameService.generateUniqueName(transcript)
                     transcript.uniqueName = transcript.name
 
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));

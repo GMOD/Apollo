@@ -201,7 +201,7 @@ class FeatureService {
 
             addTranscriptToGene(gene, transcript);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-            transcript.name = nameService.generateUniqueName()
+            transcript.name = nameService.generateUniqueName(transcript)
 //            transcriptService.updateTranscriptAttributes(transcript);
         } else {
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), featureLazyResidues)
@@ -222,7 +222,7 @@ class FeatureService {
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
-                    tmpTranscript.name = nameService.generateUniqueName()
+                    tmpTranscript.name = nameService.generateUniqueName(transcript)
 //                    updateTranscriptAttributes(tmpTranscript);
                     if (overlaps(tmpTranscript, tmpGene)) {
                         transcript = tmpTranscript;
@@ -267,7 +267,7 @@ class FeatureService {
             }
             // I don't thikn that this does anything
             addFeature(gene);
-            transcript.name = nameService.generateUniqueName()
+            transcript.name = nameService.generateUniqueName(gene)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
@@ -1064,7 +1064,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
             } else {
-                gsolFeature.setUniqueName(nameService.generateUniqueName());
+                gsolFeature.setUniqueName(nameService.generateUniqueName(gsolFeature));
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
