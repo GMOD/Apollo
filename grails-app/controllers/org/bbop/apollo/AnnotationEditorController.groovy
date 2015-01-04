@@ -734,7 +734,8 @@ class AnnotationEditorController implements AnnotationListener {
 //        handleOperation(track,operation)
         def p = task{
 //            5
-            addTranscript()
+//            addTranscript()
+            nameService.generateUniqueName()
         }
         def results = p.get()
         println "completling result ${results}"
