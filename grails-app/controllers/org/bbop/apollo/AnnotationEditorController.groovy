@@ -31,6 +31,7 @@ class AnnotationEditorController implements AnnotationListener {
     def featureRelationshipService
     def nameService
     def featurePropertyService
+    def requestHandlingService
 
     DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
@@ -271,59 +272,61 @@ class AnnotationEditorController implements AnnotationListener {
     def addTranscript() {
         println "adding transcript ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject returnObject = requestHandlingService.addTranscript(inputObject)
 
-        JSONObject returnObject = createJSONFeatureContainer()
+//        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-        println "adding transcript return object ${inputObject}"
-        String trackName = fixTrackHeader(inputObject.track)
-        println "PRE featuresArray ${featuresArray}"
-        if (featuresArray.size() == 1) {
-            JSONObject object = featuresArray.getJSONObject(0)
-            println "object ${object}"
-        } else {
-            println "what is going on?"
-        }
-        println "POST featuresArray ${featuresArray}"
-        Sequence sequence = Sequence.findByName(trackName)
-        println "trackName ${trackName}"
-        println "sequence ${sequence}"
-        println "features Array size ${featuresArray.size()}"
-        println "features Array ${featuresArray}"
-
-        List<Transcript> transcriptList = new ArrayList<>()
-        for (int i = 0; i < featuresArray.size(); i++) {
-            JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-            println "${i} jsonTranscript ${jsonTranscript}"
-            println "featureService ${featureService} ${trackName}"
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
-
-            // should automatically write to history
-            transcript.save(insert: true, flush: true)
-//            sequence.addFeatureLotranscript)
-            transcriptList.add(transcript)
-
-
-        }
-
-        sequence.save(flush: true)
-        // do I need to put it back in?
-//        returnObject.putJSONArray("features",featuresArray)
-        transcriptList.each { transcript ->
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
-//            featuresArray.put(featureService.convertFeatureToJSON(transcript,false))
-        }
-
-        println "return addTranscript featuer ${returnObject}"
-//        println "VS - ${featuresArray}"
-
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                features: returnObject
-                , sequence: sequence
-                , operation: AnnotationEvent.Operation.ADD
-        )
-
-        fireAnnotationEvent(annotationEvent)
+//        JSONObject returnObject = createJSONFeatureContainer()
+//
+//        println "adding transcript return object ${inputObject}"
+//        String trackName = fixTrackHeader(inputObject.track)
+//        println "PRE featuresArray ${featuresArray}"
+//        if (featuresArray.size() == 1) {
+//            JSONObject object = featuresArray.getJSONObject(0)
+//            println "object ${object}"
+//        } else {
+//            println "what is going on?"
+//        }
+//        println "POST featuresArray ${featuresArray}"
+//        Sequence sequence = Sequence.findByName(trackName)
+//        println "trackName ${trackName}"
+//        println "sequence ${sequence}"
+//        println "features Array size ${featuresArray.size()}"
+//        println "features Array ${featuresArray}"
+//
+//        List<Transcript> transcriptList = new ArrayList<>()
+//        for (int i = 0; i < featuresArray.size(); i++) {
+//            JSONObject jsonTranscript = featuresArray.getJSONObject(i)
+//            println "${i} jsonTranscript ${jsonTranscript}"
+//            println "featureService ${featureService} ${trackName}"
+//            Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
+//
+//            // should automatically write to history
+//            transcript.save(insert: true, flush: true)
+////            sequence.addFeatureLotranscript)
+//            transcriptList.add(transcript)
+//
+//
+//        }
+//
+//        sequence.save(flush: true)
+//        // do I need to put it back in?
+////        returnObject.putJSONArray("features",featuresArray)
+//        transcriptList.each { transcript ->
+//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+////            featuresArray.put(featureService.convertFeatureToJSON(transcript,false))
+//        }
+//
+//        println "return addTranscript featuer ${returnObject}"
+////        println "VS - ${featuresArray}"
+//
+//        AnnotationEvent annotationEvent = new AnnotationEvent(
+//                features: returnObject
+//                , sequence: sequence
+//                , operation: AnnotationEvent.Operation.ADD
+//        )
+//
+//        fireAnnotationEvent(annotationEvent)
 
         render returnObject
     }
@@ -733,13 +736,20 @@ class AnnotationEditorController implements AnnotationListener {
         String operationName = underscoreToCamelCase(operation)
 //        handleOperation(track,operation)
         def p = task{
+            switch (operationName){
+                case "addTranscript":  requestHandlingService.addTranscript(rootElement)
+                break
+                default: nameService.generateUniqueName()
+            }
 //            5
 //            addTranscript()
-            nameService.generateUniqueName()
+//            nameService.generateUniqueName()
+            requestHandlingService.addTranscript(rootElement)
         }
         def results = p.get()
         println "completling result ${results}"
-        return "returning annotationEditor ${inputString}!"
+//        return "returning annotationEditor ${inputString}!"
+        return results
 
 //        p.onComplete([p]){ List results ->
 //            println "completling result ${results}"
