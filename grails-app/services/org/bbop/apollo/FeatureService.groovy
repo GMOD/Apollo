@@ -1056,6 +1056,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
+            println "JSON FEATURE ${jsonFeature.toString()}"
             println "type ${type}"
             String ontologyId = convertJSONToOntologyId(type)
             println "ontology Id ${ontologyId}"
@@ -1077,7 +1078,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 println "HAS name ${jsonFeature.getString(FeatureStringEnum.NAME.value)}"
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
-                println "NO name using unique name ${jsonFeature.getString(FeatureStringEnum.NAME.value)}"
+                println "NO name using unique name"
                 gsolFeature.name = gsolFeature.uniqueName
             }
             if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
