@@ -182,6 +182,7 @@ class FeatureService {
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
         println "featureLazyResidues ${featureLazyResidues}"
         if (gene != null) {
+            println "has a gene! ${gene}"
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues, sequence);
 //            transcript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
@@ -204,6 +205,7 @@ class FeatureService {
             transcript.name = nameService.generateUniqueName(transcript)
 //            transcriptService.updateTranscriptAttributes(transcript);
         } else {
+            println "there IS no gene! ${gene}"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), featureLazyResidues)
             println "has a feature location ${featureLocation}"
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
@@ -218,11 +220,13 @@ class FeatureService {
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
 //                    String username = SecurityUtils?.subject?.principal
-                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
+//                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
+                    featurePropertyService.setOwner(tmpTranscript, (String) SecurityUtils?.subject?.principal);
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
-                    tmpTranscript.name = nameService.generateUniqueName(transcript)
+//                    tmpTranscript.name = nameService.generateUniqueName(transcript)
+                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript)
 //                    updateTranscriptAttributes(tmpTranscript);
                     if (overlaps(tmpTranscript, tmpGene)) {
                         transcript = tmpTranscript;
@@ -232,9 +236,11 @@ class FeatureService {
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                         break;
                     } else {
+                        println "there is no overlap .  . we are going to return a NULL gene and a NULL transcript "
 //                        editor.getSession().endTransactionForFeature(feature);
                     }
                 } else {
+                    println "!!!feature is not an instance of a gene or is a pseudogene or there is no adequate overlapper specified"
 //                    editor.getSession().endTransactionForFeature(feature);
                 }
             }
@@ -1055,6 +1061,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             println "ontology Id ${ontologyId}"
             gsolFeature = generateFeatureForType(ontologyId)
             println "Created feature: ${gsolFeature}"
+            println "source feature: ${sourceFeature}"
 //            Sequence sequence = Sequence.findByName(jsonFeature.get(AnnotationEditorController.REST_TRACK).toString())
             println "found sequnce: ${sequence}"
 //            gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
@@ -1067,8 +1074,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setUniqueName(nameService.generateUniqueName(gsolFeature));
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                println "HAS name ${jsonFeature.getString(FeatureStringEnum.NAME.value)}"
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
+                println "NO name using unique name ${jsonFeature.getString(FeatureStringEnum.NAME.value)}"
                 gsolFeature.name = gsolFeature.uniqueName
             }
             if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {

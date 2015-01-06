@@ -6,6 +6,7 @@ import static grails.async.Promises.*
 
 //import grails.compiler.GrailsCompileStatic
 import grails.converters.JSON
+
 //import org.bbop.apollo.editor.AnnotationEditor
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
@@ -47,9 +48,8 @@ class AnnotationEditorController implements AnnotationListener {
     String REST_OPTIONS = "options"
     String REST_TRANSLATION_TABLE = "translation_table"
 
-
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
-    public AnnotationEditorController(){
+    public AnnotationEditorController() {
         dataListenerHandler.addDataStoreChangeListener(this);
     }
 
@@ -171,7 +171,7 @@ class AnnotationEditorController implements AnnotationListener {
      *  From AnnotationEditorService .. . deleteFeature 1 and 2
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
-    def deleteFeature(){
+    def deleteFeature() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
@@ -186,14 +186,14 @@ class AnnotationEditorController implements AnnotationListener {
                 // is this a bug?
                 isUpdateOperation = isUpdateOperation || featureService.deleteFeature(feature);
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
-                if(modifiedFeaturesList==null){
+                if (modifiedFeaturesList == null) {
                     modifiedFeaturesList = new ArrayList<>()
                 }
                 modifiedFeaturesList.add(feature)
             }
         }
 
-        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames,isUpdateOperation)
+        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
 
 
 
@@ -253,7 +253,7 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
 
-    def addExon(){
+    def addExon() {
         println "adding exon ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -477,42 +477,42 @@ class AnnotationEditorController implements AnnotationListener {
      * TODO: link to the database for real config values
      * @return
      */
-    def getAnnotationInfoEditorConfiguration(){
+    def getAnnotationInfoEditorConfiguration() {
         println "getting the config "
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
 //        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : annotationInfoEditorConfigurations.values()) {
-            JSONObject annotationInfoEditorConfig = new JSONObject();
-            annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
-            if (configWrapperService.hasStatus()) {
-                JSONArray statusArray = new JSONArray()
-                annotationInfoEditorConfig.put(FeatureStringEnum.STATUS.value,statusArray);
-                Status.all.each { status ->
-                    statusArray.add(status.value)
-                }
+        JSONObject annotationInfoEditorConfig = new JSONObject();
+        annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
+        if (configWrapperService.hasStatus()) {
+            JSONArray statusArray = new JSONArray()
+            annotationInfoEditorConfig.put(FeatureStringEnum.STATUS.value, statusArray);
+            Status.all.each { status ->
+                statusArray.add(status.value)
+            }
 //                for (String status : annotationInfoEditorConfiguration.getStatus()) {
 //                    annotationInfoEditorConfig.append("status", status);
 //                }
-            }
+        }
 //            if (annotationInfoEditorConfiguration.hasDbxrefs()) {
-                annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasAttributes()) {
-                annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, true);
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasPubmedIds()) {
-                annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, true);
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasGoIds()) {
-                annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, true);
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, true);
 //            }
 //            if (annotationInfoEditorConfiguration.hasComments()) {
-                annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
+        annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
 //            }
-            JSONArray supportedTypes = new JSONArray();
-            supportedTypes.add(FeatureStringEnum.DEFAULT.value)
-            annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
+        JSONArray supportedTypes = new JSONArray();
+        supportedTypes.add(FeatureStringEnum.DEFAULT.value)
+        annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
 //            for (String supportedType : annotationInfoEditorConfiguration.getSupportedFeatureTypes()) {
 //                supportedTypes.put(supportedType);
 //            }
@@ -523,7 +523,7 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
 
-    def setName(){
+    def setName() {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -541,7 +541,7 @@ class AnnotationEditorController implements AnnotationListener {
         render updateFeatureContainer
     }
 
-    def setDescription(){
+    def setDescription() {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -574,7 +574,7 @@ class AnnotationEditorController implements AnnotationListener {
         render updateFeatureContainer
     }
 
-    def setSymbol(){
+    def setSymbol() {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -582,26 +582,25 @@ class AnnotationEditorController implements AnnotationListener {
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName =jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
 
 
 
             Symbol symbol = feature.symbol
-            if(!symbol) {
+            if (!symbol) {
                 symbol = new Symbol(
                         value: symbolString
                         , feature: feature
                 ).save()
-            }
-            else{
+            } else {
                 symbol.value = symbolString
                 symbol.save()
             }
 
             feature.symbol = symbol
-            feature.save(flush: true,failOnError: true)
+            feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
@@ -610,7 +609,7 @@ class AnnotationEditorController implements AnnotationListener {
         render updateFeatureContainer
     }
 
-    def getAnnotationInfoEditorData(){
+    def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         String trackName = fixTrackHeader(inputObject.track)
@@ -629,7 +628,7 @@ class AnnotationEditorController implements AnnotationListener {
             Feature feature = Feature.findByUniqueName(uniqueName)
             println "feature converted? ${feature}"
             println "retrieved feature ${feature.name} ${feature.uniqueName}"
-            JSONObject newFeature = featureService.convertFeatureToJSON(feature,false)
+            JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
 //            jsonFeature.put("type", JSONUtil.convertCVTermToJSON(feature.getType()));
 //            jsonFeature.put("name", feature.getName());
 //            if (feature.getSymbol() != null) {
@@ -639,19 +638,17 @@ class AnnotationEditorController implements AnnotationListener {
 //                jsonFeature.put("description", feature.getDescription().getDescription());
 //            }
 
-            if(feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value,feature.symbol.value)
-            if(feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value,feature.description.value)
-
+            if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol.value)
+            if (feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description.value)
 
 //            println "feature ${feature as JSON}"
 //            println "symbol ${jsonFeature}"
 
-
 //            if (feature.getTimeAccessioned() != null) {
-                jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
+            jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
 //            }
 //            if (feature.getTimeLastModified() != null) {
-                jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
+            jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
 //            }
 
             // TODO: add the rest of the attributes
@@ -735,16 +732,13 @@ class AnnotationEditorController implements AnnotationListener {
 
         String operationName = underscoreToCamelCase(operation)
 //        handleOperation(track,operation)
-        def p = task{
-            switch (operationName){
-                case "addTranscript":  requestHandlingService.addTranscript(rootElement)
-                break
+        def p = task {
+            switch (operationName) {
+                case "addTranscript": requestHandlingService.addTranscript(rootElement)
+                    break
                 default: nameService.generateUniqueName()
+                    break
             }
-//            5
-//            addTranscript()
-//            nameService.generateUniqueName()
-            requestHandlingService.addTranscript(rootElement)
         }
         def results = p.get()
         println "completling result ${results}"
@@ -764,7 +758,7 @@ class AnnotationEditorController implements AnnotationListener {
 
 
     @SendTo("/topic/AnnotationNotification")
-    protected String sendAnnotationEvent(String returnString){
+    protected String sendAnnotationEvent(String returnString) {
         println "return operations sent . . ${returnString}"
         return returnString
     }
