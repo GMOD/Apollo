@@ -2,8 +2,6 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 
-import java.text.NumberFormat
-
 @Transactional
 class NameService {
 
@@ -17,6 +15,7 @@ class NameService {
     String generateUniqueName(Feature thisFeature) {
         if(thisFeature.name) {
             if (thisFeature instanceof Transcript) {
+                println "instance of transcript"
                 Gene gene = transcriptService.getGene((Transcript) thisFeature)
                 String geneName = gene.name
 
@@ -32,6 +31,7 @@ class NameService {
                 return transcriptName
             } else
             if (thisFeature instanceof Gene) {
+                println "instance of Gene"
                 String geneName = ((Gene) thisFeature).name
                 char transcriptLetter = 'a'
                 String newGeneName = geneName + transcriptLetter
@@ -44,6 +44,7 @@ class NameService {
                 return newGeneName
             }
             else{
+                println "using source string"
                 String sourceString = thisFeature.name.replaceAll("[_\\.0-9]","")
                 println "source string ${sourceString}"
                 UUID.fromString(sourceString).toString()

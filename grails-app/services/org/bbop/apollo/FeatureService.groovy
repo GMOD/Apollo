@@ -256,6 +256,7 @@ class FeatureService {
 //            CVTerm cvTerm = new CVTerm()
 //            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
+            jsonGene.put(FeatureStringEnum.NAME.value,jsonTranscript.getString(FeatureStringEnum.NAME.value))
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, featureLazyResidues, sequence);
@@ -272,8 +273,8 @@ class FeatureService {
                 calculateCDS(transcript);
             }
             // I don't thikn that this does anything
-            addFeature(gene);
-            transcript.name = nameService.generateUniqueName(gene)
+            addFeature(gene)
+            transcript.name = nameService.generateUniqueName(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
@@ -1072,7 +1073,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
             } else {
-                gsolFeature.setUniqueName(nameService.generateUniqueName(gsolFeature));
+                gsolFeature.setUniqueName(nameService.generateUniqueName());
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 println "HAS name ${jsonFeature.getString(FeatureStringEnum.NAME.value)}"
