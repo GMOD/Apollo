@@ -34,7 +34,7 @@ class AnnotationEditorController implements AnnotationListener {
     def featurePropertyService
     def requestHandlingService
 
-    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
+//    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
     public static String REST_OPERATION = "operation"
     public static String REST_TRACK = "track"
@@ -50,7 +50,7 @@ class AnnotationEditorController implements AnnotationListener {
 
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
     public AnnotationEditorController() {
-        dataListenerHandler.addDataStoreChangeListener(this);
+//        dataListenerHandler.addDataStoreChangeListener(this);
     }
 
     def index() {
@@ -209,7 +209,7 @@ class AnnotationEditorController implements AnnotationListener {
 
         JSONObject returnObject = createJSONFeatureContainer()
 
-        println "adding transcript return object ${returnObject}"
+        println "AEC::adding feature return object ${returnObject?.size()}"
         String trackName = fixTrackHeader(inputObject.track)
         println "PRE featuresArray ${featuresArray}"
         Sequence sequence = Sequence.findByName(trackName)
@@ -344,80 +344,7 @@ class AnnotationEditorController implements AnnotationListener {
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-
-//        String trackName = returnObject.get(REST_TRACK)
-        String trackName = fixTrackHeader(returnObject.track)
-        println "sequenceName: ${trackName}"
-        println "Sequence count:${Sequence.count}"
-//        println "sequecne all ${Sequence.all.get(0).name}"
-        Sequence sequence = Sequence.findByName(trackName)
-        println "sequence found for name ${sequence}"
-//        Set<FeatureLocation> featureLocations = sequence.featureLocations
-
-        Set<Feature> featureSet = new HashSet<>()
-
-//        println "# of features locations for sequence ${sequence?.featureLocations?.size()}"
-//        println "# of features for sequence ${sequence?.featureLocations*.feature?.size()}"
-
-//        List<Feature> topLevelFeatures = sequence?.featureLocations*.feature
-
-        /**
-         * TODO: this should be one single query
-         */
-        // 1. - handle genes
-        List<Gene> topLevelGenes = Gene.executeQuery("select f from Gene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-        for (Gene gene : topLevelGenes) {
-            for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                println " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-//                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
-                featureSet.add(transcript)
-//                    jsonFeatures.put(transcript as JSON);
-            }
-        }
-
-        // 1b. - handle psuedogenes
-        List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-        for (Gene gene : listOfPseudogenes) {
-            for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                println " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-//                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
-                featureSet.add(transcript)
-//                    jsonFeatures.put(transcript as JSON);
-            }
-        }
-
-        // 2. - handle transcripts
-        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-        println "# of top level features ${topLevelTranscripts.size()}"
-        for (Transcript transcript1 in topLevelTranscripts) {
-            featureSet.add(transcript1)
-        }
-
-        println "feature set size: ${featureSet.size()}"
-
-        JSONArray jsonFeatures = new JSONArray()
-        featureSet.each { feature ->
-            JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
-            jsonFeatures.put(jsonObject)
-        }
-
-        returnObject.put(REST_FEATURES, jsonFeatures)
-
-
-        println "final return objecct ${returnObject}"
-
-//        if (fireUpdateChange) {
-//            fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.ADD);
-//        }
-
-        fireAnnotationEvent(new AnnotationEvent(
-                features: returnObject
-                , operation: AnnotationEvent.Operation.ADD
-                , sequence: sequence
-        ))
-
-
-        render returnObject as JSON
+        render requestHandlingService.getFeatures(returnObject)
     }
 
 //    private void fireDataStoreChange(DataStoreChangeEvent... events) {
@@ -703,16 +630,16 @@ class AnnotationEditorController implements AnnotationListener {
         render returnObject
     }
 
-    def fireAnnotationEvent(AnnotationEvent annotationEvent) {
-        dataListenerHandler.fireDataStoreChange(annotationEvent)
-    }
+//    def fireAnnotationEvent(AnnotationEvent annotationEvent) {
+//        dataListenerHandler.fireDataStoreChange(annotationEvent)
+//    }
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/hello")
-    protected String hello(String world) {
-        println "got here! . . . "
-        return "hello from controller . . . whadup?, ${world}!"
-    }
+//    @MessageMapping("/hello")
+//    @SendTo("/topic/hello")
+//    protected String hello(String world) {
+//        println "got here! . . . "
+//        return "hello from controller . . . whadup?, ${world}!"
+//    }
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
@@ -759,7 +686,7 @@ class AnnotationEditorController implements AnnotationListener {
 
     @SendTo("/topic/AnnotationNotification")
     protected String sendAnnotationEvent(String returnString) {
-        println "return operations sent . . ${returnString}"
+        println "AEC::return operations sent . . ${returnString?.size()}"
         return returnString
     }
 

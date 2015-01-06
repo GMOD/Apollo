@@ -20,12 +20,12 @@ class NameService {
                 String geneName = gene.name
 
                 Integer transcriptNumber = 1
-                String transcriptName = geneName + "-" + transcriptNumber.toString().padLeft(5)
+                String transcriptName = geneName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
                 Transcript transcript = Transcript.findByName(transcriptName)
 
                 while (transcript != null) {
                     ++transcriptNumber
-                    transcriptName = geneName + "-" + transcriptNumber.toString().padLeft(5)
+                    transcriptName = geneName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
                     transcript = Transcript.findByName(transcriptName)
                 }
                 return transcriptName
@@ -34,11 +34,11 @@ class NameService {
                 println "instance of Gene"
                 String geneName = ((Gene) thisFeature).name
                 char transcriptLetter = 'a'
-                String newGeneName = geneName + transcriptLetter
+                String newGeneName = geneName.trim() + transcriptLetter
                 Gene gene = Gene.findByName(newGeneName)
                 while (gene != null) {
                     ++transcriptLetter
-                    newGeneName = geneName + transcriptLetter
+                    newGeneName = geneName.trim() + transcriptLetter
                     gene = Gene.findByName(newGeneName)
                 }
                 return newGeneName

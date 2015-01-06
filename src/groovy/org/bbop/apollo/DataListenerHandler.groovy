@@ -16,7 +16,7 @@ class DataListenerHandler {
     private static DataListenerHandler instance  = null
 
 //    private Map<String, AbstractDataStore> trackToStore;
-    List<AnnotationListener> listeners = new ArrayList<>()
+    Map<String,AnnotationListener> listeners = new HashMap<>()
 
     static DataListenerHandler getInstance() {
         if(!instance){
@@ -37,15 +37,16 @@ class DataListenerHandler {
 //    }
 
     public void addDataStoreChangeListener(AnnotationListener listener) {
-        listeners.add(listener);
+        listeners.put(listener.class,listener);
     }
 
     public void removeDataStoreChangeListener(AnnotationListener listener) {
-        listeners.remove(listener);
+        listeners.remove(listener.class);
     }
 
     public void fireDataStoreChange(AnnotationEvent ... events) {
-        for (AnnotationListener listener : listeners) {
+        println "# of listeners ${listeners.size()}"
+        for (AnnotationListener listener : listeners.values()) {
             listener.handleChangeEvent(events);
         }
     }

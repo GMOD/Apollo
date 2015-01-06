@@ -128,7 +128,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.verbose_mouseenter = false;
         this.verbose_mouseleave = false;
         this.verbose_render = false;
-        this.verbose_server_notification = false;
+        this.verbose_server_notification = true;
 
         var track = this;
 
@@ -536,17 +536,62 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         console.log('my_socket listening');
         this.client = Stomp.over(this.listener);
         var client = this.client ;
+        var track = this;
         console.log('client established');
         client.connect({}, function(){
-            client.subscribe("/topic/hello", function(message) {
-                console.log('recieved: '+ JSON.parse(message.body));
-            });
+            //client.subscribe("/topic/hello", function(message) {
+            //    console.log('recieved: '+ JSON.parse(message.body));
+            //});
             client.subscribe("/topic/AnnotationNotification", function(message) {
-                console.log('recieved annotation info: '+ JSON.parse(message.body));
+
+
+                //{"operation":"ADD","sequenceAlterationEvent":false,"features":[{"date_creation":1420583816824,"location":{"fmin":15280,"strand":-1,"fmax":15655},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_208-    1","children":[{"date_creation":1420583816818,"location":{"fmin":15280,"strand":-1,"fmax":15655},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"name":"f8997b07-fb4b-40c1-87b1-e558eeabd00a","uniquename":"f8997b07-fb4b-40c1-87b1-e558eeabd00a","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1420583816848,"parent_id":"fcc391c1-f03f-4e2c-903b-78c1e13b1d9e"}],"uniquename":"fcc391c1-f03f-4e2c-903b-78c1e13b1d9e","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1420583816880,"parent_id":"2b53b810-a099-4ef9-bbba-d424409f88bf"}]}
+
+                // for some reason have to parse this twice
+                var changeData = JSON.parse(JSON.parse(message.body)) ;
+
+                if (track.verbose_server_notification) {
+                    console.log(changeData.operation + " command from server: ");
+                    console.log(changeData);
+                }
+
+                if (changeData.operation == "ADD") {
+                    if (changeData.sequenceAlterationEvent) {
+                        track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                    }
+                    else {
+                        track.annotationsAddedNotification(changeData.features);
+                    }
+                }
+                else if (changeData.operation == "DELETE") {
+                    if (changeData.sequenceAlterationEvent) {
+                        track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                    }
+                    else {
+                        track.annotationsDeletedNotification(changeData.features);
+                    }
+                }
+                else if (changeData.operation == "UPDATE") {
+                    if (changeData.sequenceAlterationEvent) {
+                        track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
+                        // track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                        // track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                    }
+                    else {
+                        track.annotationsUpdatedNotification(changeData.features);
+                        // track.annotationsDeletedNotification(changeData.features);
+                        // track.annotationsAddedNotification(changeData.features);
+                    }
+                }
+                else {
+                    // unknown command from server, null-op?
+                }
+
+                track.changed();
             });
-            console.log('connected . .. trying to send');
-            client.send("/app/hello", {}, JSON.stringify("world"));
-            console.log('sent mesage ');
+            //console.log('connected . .. trying to send');
+            //client.send("/app/hello", {}, JSON.stringify("world"));
+            //console.log('sent mesage ');
         });
         console.log('stuff sent established');
     },
