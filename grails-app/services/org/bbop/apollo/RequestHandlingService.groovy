@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-import grails.compiler.GrailsCompileStatic
+//import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
@@ -15,7 +15,7 @@ import org.springframework.messaging.handler.annotation.SendTo
  *
  * Its goal is to replace a a lot of the layers in AnnotationEditorController
  */
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class RequestHandlingService implements  AnnotationListener{
 
