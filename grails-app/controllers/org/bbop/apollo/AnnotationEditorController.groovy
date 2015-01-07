@@ -270,65 +270,9 @@ class AnnotationEditorController implements AnnotationListener {
      *{"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
      */
     def addTranscript() {
-        println "adding transcript ${params}"
+        println "AEC::adding transcript ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONObject returnObject = requestHandlingService.addTranscript(inputObject)
-
-//        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-//        JSONObject returnObject = createJSONFeatureContainer()
-//
-//        println "adding transcript return object ${inputObject}"
-//        String trackName = fixTrackHeader(inputObject.track)
-//        println "PRE featuresArray ${featuresArray}"
-//        if (featuresArray.size() == 1) {
-//            JSONObject object = featuresArray.getJSONObject(0)
-//            println "object ${object}"
-//        } else {
-//            println "what is going on?"
-//        }
-//        println "POST featuresArray ${featuresArray}"
-//        Sequence sequence = Sequence.findByName(trackName)
-//        println "trackName ${trackName}"
-//        println "sequence ${sequence}"
-//        println "features Array size ${featuresArray.size()}"
-//        println "features Array ${featuresArray}"
-//
-//        List<Transcript> transcriptList = new ArrayList<>()
-//        for (int i = 0; i < featuresArray.size(); i++) {
-//            JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-//            println "${i} jsonTranscript ${jsonTranscript}"
-//            println "featureService ${featureService} ${trackName}"
-//            Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
-//
-//            // should automatically write to history
-//            transcript.save(insert: true, flush: true)
-////            sequence.addFeatureLotranscript)
-//            transcriptList.add(transcript)
-//
-//
-//        }
-//
-//        sequence.save(flush: true)
-//        // do I need to put it back in?
-////        returnObject.putJSONArray("features",featuresArray)
-//        transcriptList.each { transcript ->
-//            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
-////            featuresArray.put(featureService.convertFeatureToJSON(transcript,false))
-//        }
-//
-//        println "return addTranscript featuer ${returnObject}"
-////        println "VS - ${featuresArray}"
-//
-//        AnnotationEvent annotationEvent = new AnnotationEvent(
-//                features: returnObject
-//                , sequence: sequence
-//                , operation: AnnotationEvent.Operation.ADD
-//        )
-//
-//        fireAnnotationEvent(annotationEvent)
-
-        render returnObject
+        render requestHandlingService.addTranscript(inputObject)
     }
 /**
  *
@@ -449,24 +393,6 @@ class AnnotationEditorController implements AnnotationListener {
         render annotationInfoEditorConfigContainer
     }
 
-
-    def setName() {
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-        for (int i = 0; i < featuresArray.length(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
-
-            feature.save(flush: true, failOnError: true)
-
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
-        }
-        render updateFeatureContainer
-    }
 
     def setDescription() {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();

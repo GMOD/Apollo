@@ -22,6 +22,8 @@ import org.springframework.messaging.handler.annotation.SendTo
 @Transactional
 class RequestHandlingService implements  AnnotationListener{
 
+    public static String REST_SEQUENCE_ALTERNATION_EVENT = "sequenceAlterationEvent"
+
     def featureService
     def transcriptService
     def nameService
@@ -62,42 +64,42 @@ class RequestHandlingService implements  AnnotationListener{
             switch (operationName) {
                 case "addTranscript": addTranscript(rootElement)
                     break
-                default: nameService.generateUniqueName()
+                case "setName": updateName(rootElement)
+                    break
+                default: "Undefined function"
                     break
             }
         }
         def results = p.get()
         println "completling result ${results}"
-//        return "returning annotationEditor ${inputString}!"
         return results
-
-//        p.onComplete([p]){ List results ->
-//            println "completling result ${results}"
-//            return "returning annotationEditor ${inputString}!"
-//        }
-//        p.onError([p]){ List results ->
-//            println "error ${results}"
-//            return "ERROR returning annotationEditor ${inputString}!"
-//        }
-
     }
 
+    JSONObject updateName(JSONObject inputObject) {
+        println "setting name "
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+//        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
+
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
+        return updateFeatureContainer
+    }
+
+
     JSONObject getFeatures(JSONObject returnObject){
-//        String trackName = returnObject.get(REST_TRACK)
         String trackName = fixTrackHeader(returnObject.track)
-        println "sequenceName: ${trackName}"
-        println "Sequence count:${Sequence.count}"
-//        println "sequecne all ${Sequence.all.get(0).name}"
         Sequence sequence = Sequence.findByName(trackName)
-        println "sequence found for name ${sequence}"
-//        Set<FeatureLocation> featureLocations = sequence.featureLocations
 
         Set<Feature> featureSet = new HashSet<>()
-
-//        println "# of features locations for sequence ${sequence?.featureLocations?.size()}"
-//        println "# of features for sequence ${sequence?.featureLocations*.feature?.size()}"
-
-//        List<Feature> topLevelFeatures = sequence?.featureLocations*.feature
 
         /**
          * TODO: this should be one single query
@@ -173,12 +175,7 @@ class RequestHandlingService implements  AnnotationListener{
         } else {
             println "what is going on?"
         }
-        println "POST featuresArray ${featuresArray}"
         Sequence sequence = Sequence.findByName(trackName)
-        println "trackName ${trackName}"
-        println "sequence ${sequence}"
-        println "features Array size ${featuresArray.size()}"
-        println "features Array ${featuresArray}"
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
@@ -202,9 +199,6 @@ class RequestHandlingService implements  AnnotationListener{
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
 //            featuresArray.put(featureService.convertFeatureToJSON(transcript,false))
         }
-
-        println "return addTranscript featuer ${returnObject}"
-//        println "VS - ${featuresArray}"
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
@@ -233,20 +227,12 @@ class RequestHandlingService implements  AnnotationListener{
         if (events.length == 0) {
             return;
         }
-//        sendAnnotationEvent(events)
-        // TODO: this is more than a bit of a hack
-//        String sequenceName = "Annotations-${events[0].sequence.name}"
-//        Queue<AsyncContext> contexts = queue.get(sequenceName);
-//        Queue<AsyncContext> contexts = queue.get(events[0].getSequence());
-//        if (contexts == null) {
-//            return;
-//        }
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();
             try {
-                features.put("operation", event.getOperation().name());
-                features.put("sequenceAlterationEvent", event.isSequenceAlterationEvent());
+                features.put(AnnotationEditorController.REST_OPERATION, event.getOperation().name());
+                features.put(REST_SEQUENCE_ALTERNATION_EVENT, event.isSequenceAlterationEvent());
                 operations.put(features);
             }
             catch (JSONException e) {
@@ -255,18 +241,6 @@ class RequestHandlingService implements  AnnotationListener{
         }
 
         sendAnnotationEvent(operations.toString())
-//        ??
-//        for (AsyncContext asyncContext : contexts) {
-//            ServletResponse response = asyncContext.getResponse();
-//            try {
-//                response.getWriter().write(operations.toString());
-//                response.flushBuffer();
-//            }
-//            catch (IOException e) {
-//                log.error(e)
-//            }
-////            asyncContext.complete();
-//        }
 
     }
 
