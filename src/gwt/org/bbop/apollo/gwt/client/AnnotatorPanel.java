@@ -60,7 +60,7 @@ public class AnnotatorPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
-        stopCodonFilter.setValue(true);
+//        stopCodonFilter.setValue(true);
 
 
         loadAnnotations();
