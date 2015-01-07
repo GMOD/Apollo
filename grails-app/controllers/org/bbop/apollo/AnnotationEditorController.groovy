@@ -573,10 +573,10 @@ class AnnotationEditorController implements AnnotationListener {
         println "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
 
-        println "root element: ${rootElement}"
-        String track = ((JSONObject) rootElement).get(REST_TRACK)
+        println "AEC::root element: ${rootElement}"
+//        String track = ((JSONObject) rootElement).get(REST_TRACK)
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
-        def params = []
+//        def params = []
 //        for(String key in rootElement.keySet()) {
 //            if(key!=REST_TRACK && key!=REST_OPERATION){
 //                params[key] = rootElement.get(key)
@@ -584,10 +584,13 @@ class AnnotationEditorController implements AnnotationListener {
 //        }
 
         String operationName = underscoreToCamelCase(operation)
+        println "operationName: ${operationName}"
 //        handleOperation(track,operation)
         def p = task {
             switch (operationName) {
                 case "addTranscript": requestHandlingService.addTranscript(rootElement)
+                    break
+                case "setName":  requestHandlingService.updateName(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

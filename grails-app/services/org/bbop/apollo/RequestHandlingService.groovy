@@ -42,38 +42,39 @@ class RequestHandlingService implements  AnnotationListener{
         return underscore.replaceAll(/_\w/) { it[1].toUpperCase() }
     }
 
-    @MessageMapping("/AnnotationNotification")
-    @SendTo("/topic/AnnotationNotification")
-    protected String annotationEditor(String inputString) {
-        println "Input String:  annotation editor service ${inputString}"
-        JSONObject rootElement = (JSONObject) JSON.parse(inputString)
-
-        println "root element: ${rootElement}"
-        String track = ((JSONObject) rootElement).get(AnnotationEditorController.REST_TRACK)
-        String operation = ((JSONObject) rootElement).get(AnnotationEditorController.REST_OPERATION)
-        def params = []
-//        for(String key in rootElement.keySet()) {
-//            if(key!=REST_TRACK && key!=REST_OPERATION){
-//                params[key] = rootElement.get(key)
+//    @MessageMapping("/AnnotationNotification")
+//    @SendTo("/topic/AnnotationNotification")
+//    protected String annotationEditor(String inputString) {
+//        println "Input String:  annotation editor service ${inputString}"
+//        JSONObject rootElement = (JSONObject) JSON.parse(inputString)
+//
+//        println "RHS::root element: ${rootElement}"
+//        String track = ((JSONObject) rootElement).get(AnnotationEditorController.REST_TRACK)
+//        String operation = ((JSONObject) rootElement).get(AnnotationEditorController.REST_OPERATION)
+////        def params = []
+////        for(String key in rootElement.keySet()) {
+////            if(key!=REST_TRACK && key!=REST_OPERATION){
+////                params[key] = rootElement.get(key)
+////            }
+////        }
+//
+//        String operationName = underscoreToCamelCase(operation)
+//        println "operationName: ${operationName}"
+////        handleOperation(track,operation)
+//        def p = task {
+//            switch (operationName) {
+//                case "addTranscript": addTranscript(rootElement)
+//                    break
+//                case "setName":  updateName(rootElement)
+//                    break
+//                default: "Undefined function"
+//                    break
 //            }
 //        }
-
-        String operationName = underscoreToCamelCase(operation)
-//        handleOperation(track,operation)
-        def p = task {
-            switch (operationName) {
-                case "addTranscript": addTranscript(rootElement)
-                    break
-                case "setName": updateName(rootElement)
-                    break
-                default: "Undefined function"
-                    break
-            }
-        }
-        def results = p.get()
-        println "completling result ${results}"
-        return results
-    }
+//        def results = p.get()
+//        println "completling result ${results}"
+//        return results
+//    }
 
     JSONObject updateName(JSONObject inputObject) {
         println "setting name "
@@ -81,16 +82,30 @@ class RequestHandlingService implements  AnnotationListener{
 //        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
+        Sequence sequence = null
+
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
+            if(!sequence) sequence = feature.getFeatureLocation().getSequence()
             feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
 
             feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
+
+        if(sequence){
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence:  sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
