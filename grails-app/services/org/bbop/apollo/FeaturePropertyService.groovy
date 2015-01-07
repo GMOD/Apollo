@@ -154,22 +154,24 @@ class FeaturePropertyService {
 //     *
 //     * @param owner - User of this feature
 //     */
-//    public void setOwner(Feature feature, String owner) {
-//
-//        println "looking for owner ${owner}"
-//        User user = User.findByUsername(owner)
-//        println "owner ${owner} found ${user}"
-//        println "feature ${feature}"
-//
-//        if (user) {
-//            setOwner(feature, user)
-//        } else {
-//            throw new AnnotationException("User ${owner} not found")
-//        }
-////        setOwner(new User(owner));
-//    }
-//
-//    public void setOwner(Feature feature, User user) {
+    public void setOwner(Feature feature, String owner) {
+
+        println "looking for owner ${owner}"
+        User user = User.findByUsername(owner)
+        println "owner ${owner} found ${user}"
+        println "feature ${feature}"
+
+        if (user) {
+            setOwner(feature, user)
+        } else {
+            throw new AnnotationException("User ${owner} not found")
+        }
+//        setOwner(new User(owner));
+    }
+
+    public void setOwner(Feature feature, User user) {
+        FeatureProperty featureProperty = new FeatureProperty(feature:feature,value:user.username).save()
 //        addProperty(feature, user)
-//    }
+        addProperty(feature,featureProperty)
+    }
 }

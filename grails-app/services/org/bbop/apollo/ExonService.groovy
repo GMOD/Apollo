@@ -420,9 +420,10 @@ class ExonService {
 //        }
 //    }
 
-    List<Exon> getSortedExons(Transcript transcript) {
+    List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = false ) {
         List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
-        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(false))
+        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand))
         return sortedExons
     }
+
 }

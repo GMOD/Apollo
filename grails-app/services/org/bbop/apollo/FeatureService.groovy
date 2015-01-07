@@ -48,9 +48,9 @@ class FeatureService {
      * @param location - FeatureLocation that the features overlap
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
-    public Collection<Feature> getOverlappingFeatures(FeatureLocation location) {
-        return getOverlappingFeatures(location, true);
-    }
+//    public Collection<Feature> getOverlappingFeatures(FeatureLocation location) {
+//        return getOverlappingFeatures(location, true);
+//    }
 
     /** Get features that overlap a given location.
      *
@@ -58,7 +58,7 @@ class FeatureService {
      * @param compareStrands - Whether to compare strands in overlap
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
-    public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands) {
+    public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true ) {
 //        LinkedList<Feature> overlappingFeatures = new LinkedList<Feature>();
 
 
@@ -67,7 +67,7 @@ class FeatureService {
 //                eq("strand", location.strand)
 //            }
         def results = FeatureLocation.withCriteria {
-            eq("sourceFeature", location.sourceFeature)
+//            eq("sourceFeature", location.sourceFeature)
             or {
                 and {
                     le("fmin", location.fmin)
@@ -181,6 +181,7 @@ class FeatureService {
 
         FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
         println "featureLazyResidues ${featureLazyResidues}"
+        // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene != null) {
             println "has a gene! ${gene}"
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
@@ -193,8 +194,6 @@ class FeatureService {
 
 //            setOwner(transcript, (String) session.getAttribute("username"));
             featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
-
-
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -209,9 +208,11 @@ class FeatureService {
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), featureLazyResidues)
             println "has a feature location ${featureLocation}"
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
+            println "overlapping features . . . . ${overlappingFeatures.size()}"
             for (Feature feature : overlappingFeatures) {
-                if (feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
+                if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
+                    println "found an overlpaping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, featureLazyResidues, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript, featureLazyResidues);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
@@ -219,21 +220,31 @@ class FeatureService {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-//                    String username = SecurityUtils?.subject?.principal
+                    String username = null
+                    try {
+                        username = SecurityUtils?.subject?.principal
+                    } catch (e ) {
+                        log.error(e)
+                        username = "demo@demo.gov"
+                    }
+                    println "username: ${username}"
 //                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
-                    featurePropertyService.setOwner(tmpTranscript, (String) SecurityUtils?.subject?.principal);
+                    featurePropertyService.setOwner(tmpTranscript, username);
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
 //                    tmpTranscript.name = nameService.generateUniqueName(transcript)
-                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript)
+                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript,tmpGene.name)
 //                    updateTranscriptAttributes(tmpTranscript);
                     if (overlaps(tmpTranscript, tmpGene)) {
+                        println "there is an overlap . . . adding to an existing gene? "
                         transcript = tmpTranscript;
                         gene = tmpGene;
-//                        editor.addTranscript(gene, transcript);
                         addTranscriptToGene(gene, transcript)
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+                        transcript.save()
+                        // was existing
+                        gene.save(insert:false,flush:true)
                         break;
                     } else {
                         println "there is no overlap .  . we are going to return a NULL gene and a NULL transcript "
@@ -245,6 +256,8 @@ class FeatureService {
                 }
             }
         }
+        println "is gene null? ${gene}"
+        println "is transcript null? ${transcript}"
         if (gene == null) {
             JSONObject jsonGene = new JSONObject();
             println "JSON TRANSCRIPT: " + jsonTranscript
@@ -367,9 +380,10 @@ class FeatureService {
 //                type: partOfCvterm.iterator().next()
                 parentFeature: gene
                 , childFeature: transcript
-                , rank: rank
-        ).save()
-        gene.addToChildFeatureRelationships(featureRelationship)
+//                , rank: rank
+        ).save(failOnError: true)
+        gene.addToParentFeatureRelationships(featureRelationship)
+        transcript.addToChildFeatureRelationships(featureRelationship)
 
 
         updateGeneBoundaries(gene);
@@ -437,11 +451,11 @@ class FeatureService {
         return false;
     }
 
-    def overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
+    boolean overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
         return overlaps(leftFeature.featureLocation, rightFeature.featureLocation, compareStrands)
     }
 
-    def overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
+    boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
         if (leftFeatureLocation.getSourceFeature() != rightFeatureLocation.getSourceFeature() &&
                 !leftFeatureLocation.getSourceFeature().equals(rightFeatureLocation.getSourceFeature())) {
             return false;

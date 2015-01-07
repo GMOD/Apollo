@@ -12,12 +12,15 @@ class NameService {
         UUID.randomUUID().toString()
     }
 
-    String generateUniqueName(Feature thisFeature) {
+    String generateUniqueName(Feature thisFeature,String geneName = null ) {
         if(thisFeature.name) {
             if (thisFeature instanceof Transcript) {
                 println "instance of transcript"
-                Gene gene = transcriptService.getGene((Transcript) thisFeature)
-                String geneName = gene.name
+                if(!geneName){
+                    Gene gene = transcriptService.getGene((Transcript) thisFeature)
+                    println "transcript has gene ${gene}"
+                    geneName = gene.name
+                }
 
                 Integer transcriptNumber = 1
                 String transcriptName = geneName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
@@ -32,7 +35,9 @@ class NameService {
             } else
             if (thisFeature instanceof Gene) {
                 println "instance of Gene"
-                String geneName = ((Gene) thisFeature).name
+                if(!geneName){
+                    geneName = ((Gene) thisFeature).name
+                }
                 char transcriptLetter = 'a'
                 String newGeneName = geneName.trim() + transcriptLetter
                 Gene gene = Gene.findByName(newGeneName)

@@ -168,7 +168,7 @@ apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
 
 apollo.default_minimum_intron_size = 1
 apollo.history_size = 0
-apollo.overlapper_class = "org.bbop.apollo.web.overlap.OrfOverlapper"
+apollo.overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
 apollo.track_name_comparator = "/config/track_name_comparator.js"
 apollo.use_cds_for_new_transcripts = true
 apollo.user_pure_memory_store = true

@@ -203,6 +203,8 @@ class RequestHandlingService {
 
         returnObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
+        println "returnObject ${returnObject as JSON}"
+
 
         fireAnnotationEvent(new AnnotationEvent(
                 features: returnObject
@@ -239,7 +241,7 @@ class RequestHandlingService {
             Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
 
             // should automatically write to history
-            transcript.save(insert: true, flush: true)
+            transcript.save(flush: true)
 //            sequence.addFeatureLotranscript)
             transcriptList.add(transcript)
 
