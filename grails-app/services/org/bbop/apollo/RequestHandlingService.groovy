@@ -89,6 +89,36 @@ class RequestHandlingService implements  AnnotationListener{
         fireAnnotationEvent(annotationEventList as AnnotationEvent[])
     }
 
+    JSONObject updateDescription(JSONObject inputObject) {
+        println "update descripton #1"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
+
+            Description description = feature.description
+            if (!description) {
+                description = new Description(
+                        value: descriptionString
+                        , feature: feature
+                ).save()
+            } else {
+                description.value = descriptionString
+                description.save()
+            }
+
+            feature.description = description
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
+        println "update descripton #2"
+        return updateFeatureContainer
+    }
 
     JSONObject updateName(JSONObject inputObject) {
         println "setting name "

@@ -395,36 +395,8 @@ class AnnotationEditorController implements AnnotationListener {
 
 
     def setDescription() {
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
-
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-        for (int i = 0; i < featuresArray.length(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
-
-
-
-            Description description = feature.description
-            if (!description) {
-                description = new Description(
-                        value: descriptionString
-                        , feature: feature
-                ).save()
-            } else {
-                description.value = descriptionString
-                description.save()
-            }
-
-            feature.description = description
-            feature.save(flush: true, failOnError: true)
-
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
-        }
-        render updateFeatureContainer
+        return requestHandlingService.updateDescription(inputObject)
     }
 
     def setSymbol() {
@@ -527,6 +499,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "setName":  requestHandlingService.updateName(rootElement)
                     break
                 case "setSymbol":  requestHandlingService.updateSymbol(rootElement)
+                    break
+                case "setDescription":  requestHandlingService.updateDescription(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break
