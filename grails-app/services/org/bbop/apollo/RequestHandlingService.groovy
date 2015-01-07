@@ -26,7 +26,7 @@ class RequestHandlingService implements  AnnotationListener{
 
     def featureService
     def transcriptService
-    def nameService
+//    def nameService
 
     // TODO: make a grails singleton
     DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
@@ -42,39 +42,53 @@ class RequestHandlingService implements  AnnotationListener{
         return underscore.replaceAll(/_\w/) { it[1].toUpperCase() }
     }
 
-//    @MessageMapping("/AnnotationNotification")
-//    @SendTo("/topic/AnnotationNotification")
-//    protected String annotationEditor(String inputString) {
-//        println "Input String:  annotation editor service ${inputString}"
-//        JSONObject rootElement = (JSONObject) JSON.parse(inputString)
-//
-//        println "RHS::root element: ${rootElement}"
-//        String track = ((JSONObject) rootElement).get(AnnotationEditorController.REST_TRACK)
-//        String operation = ((JSONObject) rootElement).get(AnnotationEditorController.REST_OPERATION)
-////        def params = []
-////        for(String key in rootElement.keySet()) {
-////            if(key!=REST_TRACK && key!=REST_OPERATION){
-////                params[key] = rootElement.get(key)
-////            }
-////        }
-//
-//        String operationName = underscoreToCamelCase(operation)
-//        println "operationName: ${operationName}"
-////        handleOperation(track,operation)
-//        def p = task {
-//            switch (operationName) {
-//                case "addTranscript": addTranscript(rootElement)
-//                    break
-//                case "setName":  updateName(rootElement)
-//                    break
-//                default: "Undefined function"
-//                    break
-//            }
-//        }
-//        def results = p.get()
-//        println "completling result ${results}"
-//        return results
-//    }
+
+
+    JSONObject updateSymbol(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        List<AnnotationEvent> annotationEventList = new ArrayList<>()
+
+        Sequence sequence = null
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+
+
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
+            if(!sequence) sequence = feature.getFeatureLocation().getSequence()
+            Symbol symbol = feature.symbol
+            if (!symbol) {
+                symbol = new Symbol(
+                        value: symbolString
+                        , feature: feature
+                ).save()
+            } else {
+                symbol.value = symbolString
+                symbol.save()
+            }
+
+            feature.symbol = symbol
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
+
+
+        if(sequence){
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence:  sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            annotationEventList.add(annotationEvent)
+        }
+        fireAnnotationEvent(annotationEventList as AnnotationEvent[])
+    }
+
 
     JSONObject updateName(JSONObject inputObject) {
         println "setting name "
@@ -96,15 +110,16 @@ class RequestHandlingService implements  AnnotationListener{
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
 
+        List<AnnotationEvent> annotationEventList = new ArrayList<>()
         if(sequence){
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
                     , sequence:  sequence
                     , operation: AnnotationEvent.Operation.UPDATE
             )
-
-            fireAnnotationEvent(annotationEvent)
+            annotationEventList.add(annotationEvent)
         }
+        fireAnnotationEvent(annotationEventList as AnnotationEvent[])
 
         return updateFeatureContainer
     }
@@ -225,6 +240,12 @@ class RequestHandlingService implements  AnnotationListener{
 
         return returnObject
 
+    }
+
+    def fireAnnotationEvent(AnnotationEvent... annotationEvents) {
+        for(AnnotationEvent annotationEvent in annotationEvents){
+            dataListenerHandler.fireDataStoreChange(annotationEvent)
+        }
     }
 
     def fireAnnotationEvent(AnnotationEvent annotationEvent) {

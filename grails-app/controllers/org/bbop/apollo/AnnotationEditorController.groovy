@@ -428,38 +428,8 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def setSymbol() {
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
-
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-        for (int i = 0; i < featuresArray.length(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
-            String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
-
-
-
-            Symbol symbol = feature.symbol
-            if (!symbol) {
-                symbol = new Symbol(
-                        value: symbolString
-                        , feature: feature
-                ).save()
-            } else {
-                symbol.value = symbolString
-                symbol.save()
-            }
-
-            feature.symbol = symbol
-            feature.save(flush: true, failOnError: true)
-
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
-        }
-
-
-        render updateFeatureContainer
+        render requestHandlingService.updateSymbol(inputObject)
     }
 
     def getAnnotationInfoEditorData() {
@@ -482,20 +452,9 @@ class AnnotationEditorController implements AnnotationListener {
             println "feature converted? ${feature}"
             println "retrieved feature ${feature.name} ${feature.uniqueName}"
             JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
-//            jsonFeature.put("type", JSONUtil.convertCVTermToJSON(feature.getType()));
-//            jsonFeature.put("name", feature.getName());
-//            if (feature.getSymbol() != null) {
-//                jsonFeature.put("symbol", feature.getSymbol().getSymbol());
-//            }
-//            if (feature.getDescription() != null) {
-//                jsonFeature.put("description", feature.getDescription().getDescription());
-//            }
 
             if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol.value)
             if (feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description.value)
-
-//            println "feature ${feature as JSON}"
-//            println "symbol ${jsonFeature}"
 
 //            if (feature.getTimeAccessioned() != null) {
             jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
@@ -506,13 +465,6 @@ class AnnotationEditorController implements AnnotationListener {
 
             // TODO: add the rest of the attributes
 
-//            ServerConfiguration.AnnotationInfoEditorConfiguration conf = annotationInfoEditorConfigurations.get(feature.getType());
-//            if (conf == null) {
-//                conf = annotationInfoEditorConfigurations.get("default");
-//            }
-//            if (configWrapperService.hasStatus() && feature.status) {
-//                jsonFeature.put(FeatureStringEnum.STATUS.value, feature.status.value);
-//            }
             if (configWrapperService.hasAttributes()) {
                 JSONArray properties = new JSONArray();
                 newFeature.put(FeatureStringEnum.NON_RESERVED_PROPERTIES.value, properties);
@@ -556,17 +508,6 @@ class AnnotationEditorController implements AnnotationListener {
         render returnObject
     }
 
-//    def fireAnnotationEvent(AnnotationEvent annotationEvent) {
-//        dataListenerHandler.fireDataStoreChange(annotationEvent)
-//    }
-
-//    @MessageMapping("/hello")
-//    @SendTo("/topic/hello")
-//    protected String hello(String world) {
-//        println "got here! . . . "
-//        return "hello from controller . . . whadup?, ${world}!"
-//    }
-
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
     protected String annotationEditor(String inputString) {
@@ -574,14 +515,7 @@ class AnnotationEditorController implements AnnotationListener {
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
 
         println "AEC::root element: ${rootElement}"
-//        String track = ((JSONObject) rootElement).get(REST_TRACK)
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
-//        def params = []
-//        for(String key in rootElement.keySet()) {
-//            if(key!=REST_TRACK && key!=REST_OPERATION){
-//                params[key] = rootElement.get(key)
-//            }
-//        }
 
         String operationName = underscoreToCamelCase(operation)
         println "operationName: ${operationName}"
@@ -592,13 +526,14 @@ class AnnotationEditorController implements AnnotationListener {
                     break
                 case "setName":  requestHandlingService.updateName(rootElement)
                     break
+                case "setSymbol":  requestHandlingService.updateSymbol(rootElement)
+                    break
                 default: nameService.generateUniqueName()
                     break
             }
         }
         def results = p.get()
         println "completling result ${results}"
-//        return "returning annotationEditor ${inputString}!"
         return results
 
 //        p.onComplete([p]){ List results ->
@@ -627,11 +562,6 @@ class AnnotationEditorController implements AnnotationListener {
 //        sendAnnotationEvent(events)
         // TODO: this is more than a bit of a hack
 //        String sequenceName = "Annotations-${events[0].sequence.name}"
-//        Queue<AsyncContext> contexts = queue.get(sequenceName);
-//        Queue<AsyncContext> contexts = queue.get(events[0].getSequence());
-//        if (contexts == null) {
-//            return;
-//        }
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();
@@ -646,18 +576,6 @@ class AnnotationEditorController implements AnnotationListener {
         }
 
         sendAnnotationEvent(operations.toString())
-//        ??
-//        for (AsyncContext asyncContext : contexts) {
-//            ServletResponse response = asyncContext.getResponse();
-//            try {
-//                response.getWriter().write(operations.toString());
-//                response.flushBuffer();
-//            }
-//            catch (IOException e) {
-//                log.error(e)
-//            }
-////            asyncContext.complete();
-//        }
 
     }
 }
