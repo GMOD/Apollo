@@ -47,7 +47,6 @@ class AnnotatorController {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false));
         }
 
-        for(int i =0 ;  i < 20 ; i++) println "HERE"
         render returnObject
 
     }

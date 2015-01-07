@@ -204,12 +204,6 @@ class RequestHandlingService implements  AnnotationListener{
         returnObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
 
-        println "final return objecct ${returnObject}"
-
-//        if (fireUpdateChange) {
-//            fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.ADD);
-//        }
-
         fireAnnotationEvent(new AnnotationEvent(
                 features: returnObject
                 , operation: AnnotationEvent.Operation.ADD

@@ -3,14 +3,23 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+
+import java.util.List;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -70,7 +79,7 @@ public class MainPanel extends Composite {
 
 //        westPanel.setVisible(true);
 
-        DataGenerator.populateOrganismList(organismList);
+        loadOrganisms(organismList);
         DataGenerator.populateSequenceList(sequenceList);
 
 //        detailTabs.selectTab(1);
@@ -90,6 +99,45 @@ public class MainPanel extends Composite {
 //        context2d.closePath();
     }
 
+    public void loadOrganisms(final ListBox trackInfoList) {
+        String url = "/apollo/organism/findAllOrganisms";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+//                Window.alert("array size: "+array.size());
+
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+                    OrganismInfo organismInfo = new OrganismInfo();
+                    organismInfo.setId(object.get("id").isNumber().toString());
+                    organismInfo.setName(object.get("commonName").isString().stringValue());
+                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setNumFeatures(0);
+                    organismInfo.setNumTracks(0);
+//                    GWT.log(object.toString());
+                    trackInfoList.addItem(organismInfo.getName(),organismInfo.getId());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
+
+    }
 
     @UiHandler("dockOpenClose")
     void handleClick(ClickEvent event) {
