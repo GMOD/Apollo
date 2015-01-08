@@ -22,6 +22,10 @@
     <!--IE8 support-->
     <inherits name="org.gwtbootstrap3.extras.respond.Respond"/>
 
+    <!--from https://github.com/sksamuel/gwt-websockets-->
+    <inherits name="org.realityforge.gwt.websockets.WebSockets"/>
+
+
 
 
 

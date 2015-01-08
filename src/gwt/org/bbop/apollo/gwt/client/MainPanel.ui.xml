@@ -63,6 +63,10 @@
             border-color: darkgray;
             border-width: 1px;
         }
+
+        .inline {
+            display: inline-table;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -79,6 +83,15 @@
                         <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
                         <gwt:HTML text="Sequence" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>
+                        <!--<gwt:HTML styleName="{style.inline}">-->
+                        <!--<div style="display:inline-table;">-->
+                        <!--Drrr . .-->
+                        <!--<script>-->
+                        <!--alert('bob') ;-->
+                        <!--</script>-->
+                        <!--</div>-->
+                        <!--</gwt:HTML>-->
+
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:west size="20">
