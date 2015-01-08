@@ -1115,7 +1115,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
                 println "jsonFeature ${jsonFeature} has ${children?.size()} children"
-//                CVTerm partOfCvTerm = cvTermService.partOf
                 for (int i = 0; i < children.length(); ++i) {
                     JSONObject childObject = children.getJSONObject(i)
                     println "child object ${childObject}"
@@ -1125,10 +1124,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     fr.setParentFeature(gsolFeature);
                     fr.setChildFeature(child);
                     fr.save(failOnError: true)
-//                    fr.setType(configuration.getDefaultCVTermForClass("PartOf"));
-//                    fr.setType(partOfCvTerm);
-//                    child.getParentFeatureRelationships().add(fr);
-//                    gsolFeature.getChildFeatureRelationships().add(fr);
                     child.addToChildFeatureRelationships(fr);
                     gsolFeature.addToParentFeatureRelationships(fr);
                     child.save()
@@ -1158,7 +1153,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
                     gsolProperty.setType(cvTerm);
                     gsolProperty.setValue(property.getString(FeatureStringEnum.VALUE.value));
-                    gsolProperty.addToFeatures(gsolFeature);
+                    gsolProperty.setFeature(gsolFeature);
                     int rank = 0;
                     for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
                         if (fp.getType().equals(gsolProperty.getType())) {
@@ -1182,7 +1177,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     DBXref newDBXref = DBXref.findOrSaveByDbAndAccession(
                             newDB
                             , dbxref.getString(FeatureStringEnum.ACCESSION.value)
-                    )
+                    ).save()
                     gsolFeature.addToFeatureDBXrefs(dbxref)
                     gsolFeature.save()
 //                    gsolFeature.addFeatureDBXref(new DB(db.getString("name")), dbxref.getString(FeatureStringEnum.ACCESSION.value));

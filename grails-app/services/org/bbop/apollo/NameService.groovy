@@ -12,41 +12,56 @@ class NameService {
         UUID.randomUUID().toString()
     }
 
-    String generateUniqueName(Feature thisFeature,String geneName = null ) {
+    String generateUniqueName(Feature thisFeature,String principalName = null ) {
         if(thisFeature.name) {
             if (thisFeature instanceof Transcript) {
                 println "instance of transcript"
-                if(!geneName){
+                if(!principalName){
                     Gene gene = transcriptService.getGene((Transcript) thisFeature)
                     println "transcript has gene ${gene}"
-                    geneName = gene.name
+                    principalName = gene.name
                 }
 
                 Integer transcriptNumber = 1
-                String transcriptName = geneName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
+                String transcriptName = principalName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
                 Transcript transcript = Transcript.findByName(transcriptName)
 
                 while (transcript != null) {
                     ++transcriptNumber
-                    transcriptName = geneName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
+                    transcriptName = principalName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
                     transcript = Transcript.findByName(transcriptName)
                 }
                 return transcriptName
             } else
             if (thisFeature instanceof Gene) {
                 println "instance of Gene"
-                if(!geneName){
-                    geneName = ((Gene) thisFeature).name
+                if(!principalName){
+                    principalName = ((Gene) thisFeature).name
                 }
                 char transcriptLetter = 'a'
-                String newGeneName = geneName.trim() + transcriptLetter
+                String newGeneName = principalName.trim() + transcriptLetter
                 Gene gene = Gene.findByName(newGeneName)
                 while (gene != null) {
                     ++transcriptLetter
-                    newGeneName = geneName.trim() + transcriptLetter
+                    newGeneName = principalName.trim() + transcriptLetter
                     gene = Gene.findByName(newGeneName)
                 }
                 return newGeneName
+            }
+            if (thisFeature instanceof Exon) {
+                println "instance of Exon"
+                if(!principalName){
+                    principalName = ((Exon) thisFeature).name
+                }
+                Integer exonNumber = 1
+                String exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
+                Exon exon = Exon.findByName(exonName)
+                while (exon != null) {
+                    ++exonNumber
+                    exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
+                    exon = Transcript.findByName(exonName)
+                }
+                return exonName
             }
             else{
                 println "using source string"

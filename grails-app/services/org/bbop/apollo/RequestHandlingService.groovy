@@ -203,7 +203,7 @@ class RequestHandlingService {
 
         returnObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
-        println "returnObject ${returnObject as JSON}"
+//        println "returnObject ${returnObject as JSON}"
 
 
         fireAnnotationEvent(new AnnotationEvent(
