@@ -159,9 +159,11 @@ h1 {
 
 
 .gwt-TreeItem-selected {
-  color: darkkhaki;
-  font-size: 120%;
-  background-color: darkgray; !important;
+  /*color: darkkhaki;*/
+    color: black;
+    font-weight: bolder;
+  /*font-size: 120%;*/
+  background-color: darkkhaki; !important;
   /*color: darkkhaki;*/
 }
 
