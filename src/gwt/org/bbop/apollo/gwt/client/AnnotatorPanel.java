@@ -71,10 +71,13 @@ public class AnnotatorPanel extends Composite {
         features.addSelectionHandler(new SelectionHandler<TreeItem>() {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
+                JSONObject internalData = ((AnnotationContainerWidget) event.getSelectedItem().getWidget()).getInternalData();
                 GWT.log("selected a tree item " + event.getSelectedItem().getText());
+                GWT.log("data: "+internalData.toString());
+                annotationName.setText(internalData.get("name").isString().stringValue());
             }
         });
-        annotationName.setText("sox9a-000-00-0");
+//        annotationName.setText("sox9a-000-00-0");
 
         DataGenerator.populateSequenceList(sequenceList);
         DataGenerator.populateTypeList(typeList);
@@ -141,18 +144,15 @@ public class AnnotatorPanel extends Composite {
         featureType = featureType.substring(lastFeature + 1);
         HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
 //                    TreeItem treeItem = new TreeItem();
-        treeItem.setHTML(html.getHTML());
+//        treeItem.setHTML(html.getHTML());
+//        treeItem.setWidget(new AnnotationContainerWidget(html.getHTML()));
+        treeItem.setWidget(new AnnotationContainerWidget(object));
 
         if(object.get("children")!=null){
             JSONArray childArray = object.get("children").isArray();
             for (int i = 0; childArray!=null && i < childArray.size(); i++) {
                 JSONObject childObject = childArray.get(i).isObject();
-//                GWT.log(childObject.toString());
                 treeItem.addItem(processFeatureEntry(childObject));
-//            GWT.log(relationshipObject.toString());
-//            if (relationshipObject.get("childFeature") != null) {
-//                JSONObject childObject = relationshipObject.get("childFeature").isObject();
-//            }
             }
         }
 
