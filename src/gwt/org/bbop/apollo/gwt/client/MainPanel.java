@@ -75,8 +75,14 @@ public class MainPanel extends Composite {
 //        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
-        showFrame = !dictionary.get("showFrame").contains("false");
-        frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+//        showFrame = !dictionary.get("showFrame").contains("false");
+        showFrame = dictionary.get("showFrame").contains("true");
+        if(showFrame){
+            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+        }
+        else{
+            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0");
+        }
 
 //        westPanel.setVisible(true);
 

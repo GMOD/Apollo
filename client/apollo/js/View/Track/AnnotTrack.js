@@ -555,7 +555,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
-                        console.log(changeData);
+                        console.log(JSON.stringify(changeData));
                     }
 
                     if (changeData.operation == "ADD") {

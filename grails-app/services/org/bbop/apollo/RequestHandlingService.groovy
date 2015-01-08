@@ -48,13 +48,10 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        List<AnnotationEvent> annotationEventList = new ArrayList<>()
 
         Sequence sequence = null
 
         for (int i = 0; i < featuresArray.length(); ++i) {
-
-
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
@@ -84,9 +81,8 @@ class RequestHandlingService {
                     , sequence: sequence
                     , operation: AnnotationEvent.Operation.UPDATE
             )
-            annotationEventList.add(annotationEvent)
+            fireAnnotationEvent(annotationEvent)
         }
-        fireAnnotationEvent(annotationEventList as AnnotationEvent[])
     }
 
     JSONObject updateDescription(JSONObject inputObject) {
@@ -123,8 +119,8 @@ class RequestHandlingService {
     JSONObject updateName(JSONObject inputObject) {
         println "setting name "
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
-//        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        println "# of features to addjust ${featuresArray.size()}"
 
         Sequence sequence = null
 
@@ -135,21 +131,20 @@ class RequestHandlingService {
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
             feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
 
+
             feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
 
-        List<AnnotationEvent> annotationEventList = new ArrayList<>()
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
                     , sequence: sequence
                     , operation: AnnotationEvent.Operation.UPDATE
             )
-            annotationEventList.add(annotationEvent)
+            fireAnnotationEvent(annotationEvent)
         }
-        fireAnnotationEvent(annotationEventList as AnnotationEvent[])
 
         return updateFeatureContainer
     }
