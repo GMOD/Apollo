@@ -43,32 +43,33 @@ public class MainPanel extends Composite {
     @UiField
     Frame frame;
     @UiField
-    AnnotatorPanel annotatorPanel;
+    static AnnotatorPanel annotatorPanel;
     @UiField
-    TrackPanel trackPanel;
+    static TrackPanel trackPanel;
     @UiField
-    SequencePanel sequencePanel;
+    static SequencePanel sequencePanel;
     @UiField
-    OrganismPanel organismPanel;
+    static OrganismPanel organismPanel;
     @UiField
-    UserPanel userPanel;
+    static UserPanel userPanel;
     @UiField
-    UserGroupPanel userGroupPanel;
+    static UserGroupPanel userGroupPanel;
     @UiField
-    DockLayoutPanel eastDockPanel;
+    static DockLayoutPanel eastDockPanel;
     @UiField
-    SplitLayoutPanel mainSplitPanel;
+    static SplitLayoutPanel mainSplitPanel;
     @UiField
-    TabLayoutPanel detailTabs;
+    static TabLayoutPanel detailTabs;
     @UiField
-    ListBox organismList;
+    static ListBox organismList;
     @UiField
-    ListBox sequenceList;
+    static ListBox sequenceList;
     @UiField
     FlowPanel westPanel;
 
     public MainPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        exportStaticMethod();
 
 //        frame.setUrl();
 //        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
@@ -120,7 +121,7 @@ public class MainPanel extends Composite {
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
-                    trackInfoList.addItem(organismInfo.getName(),organismInfo.getId());
+                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                 }
             }
 
@@ -207,4 +208,15 @@ public class MainPanel extends Composite {
     public void setRootUrl(String rootUrl) {
         this.rootUrl = rootUrl;
     }
+
+
+    public static void reloadAnnotator(){
+        annotatorPanel.loadAnnotations();
+    }
+
+//    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::loadAnnotations()());
+    public static native void exportStaticMethod() /*-{
+        $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
+    }-*/;
+
 }

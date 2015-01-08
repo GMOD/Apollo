@@ -12,19 +12,43 @@
     %{--<meta name="layout" content="main"/>--}%
     <title>Annotator</title>
 
+    <asset:javascript src="spring-websocket" />
+
   <script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>
   <script>
      var Options = {
        rootUrl : '${applicationContext.servletContext.getContextPath()}'
       , showFrame: '${params.showFrame  && params.showFrame == 'false'? 'false' : 'true' }'
      };
+
+     $(function() {
+         var socket = new SockJS("${createLink(uri: '/stomp')}");
+         var client = Stomp.over(socket);
+
+         client.connect({}, function() {
+//             client.subscribe("/topic/hello", function(message) {
+//                 var returnMessage = JSON.parse(message.body);
+//                 console.log('mesasge come back . .. '+returnMessage);
+////                 $("#helloDiv").append(JSON.parse(message.body));
+//             });
+//             client.send("/app/hello", {}, JSON.stringify("world"));
+             client.subscribe("/topic/AnnotationNotification", function(message) {
+                 var returnMessage = JSON.parse(message.body);
+                 reloadAnnotations();
+//                 console.log('AEC::came back . .. '+returnMessage);
+             });
+         });
+
+//         $("#helloButton").click(function() {
+//             client.send("/app/hello", {}, JSON.stringify("world"));
+//         });
+     });
   </script>
 </head>
 
 <body style="background-color: white;">
 
-
-<div id="annotator" style="background-color: white;"></div>
+%{--<div id="annotator" style="background-color: white;"></div>--}%
 
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
 <noscript>

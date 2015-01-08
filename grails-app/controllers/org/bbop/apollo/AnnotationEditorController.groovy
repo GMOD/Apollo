@@ -480,6 +480,14 @@ class AnnotationEditorController implements AnnotationListener {
         render returnObject
     }
 
+    @MessageMapping("/hello")
+    @SendTo("/topic/hello")
+    protected String hello(String inputString){
+        println "hello in the house! ${inputString}"
+        return "i[${inputString}]"
+    }
+
+
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
     protected String annotationEditor(String inputString) {
