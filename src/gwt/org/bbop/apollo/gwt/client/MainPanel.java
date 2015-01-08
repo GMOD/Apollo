@@ -19,8 +19,6 @@ import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
-import java.util.List;
-
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -157,21 +155,21 @@ public class MainPanel extends Composite {
     public void onSelection(SelectionEvent<Integer> event) {
         switch (event.getSelectedItem()) {
             case 0:
-                annotatorPanel.loadAnnotations();
+                annotatorPanel.reload();
                 break;
             case 1:
-                trackPanel.dataGrid.redraw();
+                trackPanel.reload();
             case 2:
-                sequencePanel.dataGrid.redraw();
+                sequencePanel.reload();
                 break;
             case 3:
-                organismPanel.reloadOrganism();
+                organismPanel.reload();
                 break;
             case 4:
-                userPanel.dataGrid.redraw();
+                userPanel.reload();
                 break;
             case 5:
-                userGroupPanel.dataGrid.redraw();
+                userGroupPanel.reload();
                 break;
             default:
                 break;
@@ -217,13 +215,24 @@ public class MainPanel extends Composite {
     }
 
 
-    public static void reloadAnnotator(){
-        annotatorPanel.loadAnnotations();
-    }
+    public static void reloadAnnotator(){ annotatorPanel.reload(); }
+    public static void reloadTracks(){ trackPanel.reload(); }
+    public static void reloadSequences(){ sequencePanel.reload(); }
+    public static void reloadOrganisms(){ organismPanel.reload(); }
+    public static void reloadUsers(){ userPanel.reload(); }
+    public static void reloadUserGroups(){ userGroupPanel.reload(); }
+//    public static void reloadAnnotator(){ annotatorPanel.reload(); }
+//    public static void reloadAnnotator(){ annotatorPanel.reload(); }
 
-//    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::loadAnnotations()());
+//    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
+        //$wnd.reloadAnnotations = this.@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
+        $wnd.reloadTracks = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadTracks());
+        $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
+        $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
+        $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
+        $wnd.reloadUserGroups= $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
     }-*/;
 
 }

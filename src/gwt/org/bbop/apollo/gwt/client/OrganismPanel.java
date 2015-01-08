@@ -215,7 +215,7 @@ public class OrganismPanel extends Composite {
 
     }
 
-    public List<OrganismInfo> reloadOrganism() {
+    public List<OrganismInfo> reload() {
         List<OrganismInfo> trackInfoList = dataProvider.getList();
         trackInfoList.clear();
         loadOrganisms(trackInfoList);

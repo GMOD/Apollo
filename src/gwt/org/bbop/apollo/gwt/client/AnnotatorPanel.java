@@ -10,12 +10,9 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
-import org.bbop.apollo.gwt.client.dto.OrganismInfo;
-import org.eclipse.jdt.internal.compiler.classfmt.AnnotationInfo;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -63,7 +60,7 @@ public class AnnotatorPanel extends Composite {
 //        stopCodonFilter.setValue(true);
 
 
-        loadAnnotations();
+        reload();
 
         features.setAnimationEnabled(true);
 
@@ -83,7 +80,7 @@ public class AnnotatorPanel extends Composite {
         DataGenerator.populateTypeList(typeList);
     }
 
-    public void loadAnnotations() {
+    public void reload() {
 
         features.clear();
 

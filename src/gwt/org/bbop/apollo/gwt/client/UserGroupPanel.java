@@ -126,4 +126,8 @@ public class UserGroupPanel extends Composite {
             }
         });
     }
+
+    public void reload(){
+        dataGrid.redraw();
+    }
 }

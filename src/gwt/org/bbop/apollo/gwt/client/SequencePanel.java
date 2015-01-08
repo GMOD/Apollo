@@ -149,5 +149,8 @@ public class SequencePanel extends Composite {
 
     }
 
+    public void reload(){
+        dataGrid.redraw();
+    }
 
 }

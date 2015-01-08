@@ -111,4 +111,8 @@ public class UserPanel extends Composite {
             }
         });
     }
+
+    public void reload(){
+        dataGrid.redraw();
+    }
 }

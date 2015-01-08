@@ -164,5 +164,8 @@ public class TrackPanel extends Composite {
 
     }
 
+    public void reload(){
+        dataGrid.redraw();
+    }
 
 }
