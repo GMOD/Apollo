@@ -36,7 +36,7 @@ public class MainPanel extends Composite {
     private String rootUrl;
 
     // debug
-    private Boolean showFrame ;
+    private Boolean showFrame = false ;
 
     @UiField
     Button dockOpenClose;
@@ -76,7 +76,8 @@ public class MainPanel extends Composite {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
 //        showFrame = !dictionary.get("showFrame").contains("false");
-        showFrame = dictionary.get("showFrame").contains("true");
+        String frameVariable = dictionary.get("showFrame");
+        showFrame = dictionary.get("showFrame")!=null && dictionary.get("showFrame").contains("true");
         if(showFrame){
             frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
         }

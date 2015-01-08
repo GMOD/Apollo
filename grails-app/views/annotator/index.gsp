@@ -18,7 +18,7 @@
   <script>
      var Options = {
        rootUrl : '${applicationContext.servletContext.getContextPath()}'
-      , showFrame: '${params.showFrame  && params.showFrame == 'false'? 'false' : 'true' }'
+      , showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
      };
 
      $(function() {
