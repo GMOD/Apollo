@@ -26,16 +26,8 @@ public class GeneDetailPanel extends Composite {
     org.gwtbootstrap3.client.ui.TextBox symbolField;
     @UiField
     org.gwtbootstrap3.client.ui.TextBox descriptionField;
-//    @UiField
-//    InputGroupAddon minLocation;
-//    @UiField
-//    Label maxLocation;
-//    @UiField
-//    org.gwtbootstrap3.client.ui.Label strand;
     @UiField
     InputGroupAddon locationField;
-//    @UiField
-//    CellTable locationGrid;
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -52,22 +44,6 @@ public class GeneDetailPanel extends Composite {
         descriptionField.setText(internalData.get("description").isString().stringValue());
 
         JSONObject locationObject = internalData.get("location").isObject();
-        GWT.log(locationObject.toString());
-
-//        locationGrid.addColumn(new Column() {
-//            @Override
-//            public Object getValue(Object object) {
-//                return null;
-//            }
-//        });
-//        locationGrid.setHTML(0,0,"Min");
-//        locationGrid.setHTML(0,1,"Max");
-//        locationGrid.setHTML(0,2,"Strand");
-//
-//        locationGrid.setHTML(1,0,locationObject.get("fmin").isNumber().toString());
-//        locationGrid.setHTML(1,1,locationObject.get("fmin").isNumber().toString());
-//        locationGrid.setHTML(1,2,locationObject.get("strand").isNumber().toString());
-
         String locationText =  locationObject.get("fmin").isNumber().toString()  ;
         locationText +=  " - ";
         locationText +=  locationObject.get("fmax").isNumber().toString()  ;
@@ -76,10 +52,6 @@ public class GeneDetailPanel extends Composite {
         locationText +=  ")";
 
         locationField.setText(locationText);
-//        strand.setText(locationObject.get("strand").isNumber().doubleValue()>0 ? "+" : "-"  );
-//        minLocation.setText(locationObject.get("fmin").isNumber().toString());
-//        maxLocation.setText(locationObject.get("fmax").isNumber().toString());
-//        strand.setText(locationObject.get("strand").isNumber().toString());
 
         setVisible(true);
     }

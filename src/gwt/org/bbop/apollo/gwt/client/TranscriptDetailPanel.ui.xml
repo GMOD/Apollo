@@ -3,6 +3,9 @@
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:celltable="urn:import:org.gwtbootstrap3.client.ui.gwt"
         >
+    <!--<g:HTMLPanel>-->
+    <!--New Panel-->
+    <!--</g:HTMLPanel>-->
     <ui:style>
 
         .container {
@@ -28,6 +31,21 @@
         }
     </ui:style>
 
+    <!--<g:HTMLPanel>-->
+    <!--<div class="row">-->
+    <!--<div class="span8">-->
+    <!--<form class="form-horizontal">-->
+    <!--<fieldset>-->
+    <!--<div class="controls">-->
+    <!--&lt;!&ndash;<b:TextBox inputSize="Large" b:id="focusedInput">This is focused</b:TextBox>&ndash;&gt;-->
+    <!--<b:TextBox gridSize="Span1" ui:field="nameField"/>-->
+    <!--<b:TextBox ui:field="symbolField"/>-->
+    <!--</div>-->
+    <!--</fieldset>-->
+    <!--</form>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--</g:HTMLPanel>-->
     <b:Container fluid="true" width="100%" styleName="{style.container}">
         <b:Row>
             <b:Column size="6" styleName="{style.widgetPanel}">
@@ -57,13 +75,7 @@
             <b:Column size="6" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Location</b:InputGroupAddon>
-                    <!--<b:Label ui:field="strand"/>-->
-                        <!--<b:Label ui:field="strand"/>-->
                     <b:InputGroupAddon ui:field="locationField"/>
-                    <!--<b:Label ui:field="strand"/>-->
-
-                    <!--<g:Label ui:field="maxLocation"/>-->
-                    <!--<b:Label ui:field="strand"/>-->
                 </b:InputGroup>
             </b:Column>
         </b:Row>

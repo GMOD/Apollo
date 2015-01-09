@@ -55,6 +55,8 @@ public class AnnotatorPanel extends Composite {
     ListBox typeList;
     @UiField
     GeneDetailPanel geneDetailPanel;
+    @UiField
+    TranscriptDetailPanel transcriptDetailPanel;
 //    @UiField
 //    TranscriptDetailPanel transcriptDetailPanel;
 //    @UiField
@@ -67,6 +69,9 @@ public class AnnotatorPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
+        geneDetailPanel.setVisible(false);
+        transcriptDetailPanel.setVisible(false);
+//                exonDetailPanel.setVisible(false);
 //        stopCodonFilter.setValue(true);
 
 
@@ -82,11 +87,19 @@ public class AnnotatorPanel extends Composite {
                 GWT.log("selected a tree item " + event.getSelectedItem().getText());
                 GWT.log("data: "+internalData.toString());
                 String type = getType(internalData) ;
+                geneDetailPanel.setVisible(false);
+                transcriptDetailPanel.setVisible(false);
+//                exonDetailPanel.setVisible(false);
                 switch (type){
-                    case "gene": geneDetailPanel.updateData(internalData);
+                    case "gene":
+                    case "pseduogene": geneDetailPanel.updateData(internalData);
                         break;
-                    default: GWT.log("not sure what to do with "+type);
-                        geneDetailPanel.setVisible(false);
+                    case "mRNA":
+                    case "tRNA":
+                        transcriptDetailPanel.updateData(internalData);
+                        break;
+                    default:
+                        GWT.log("not sure what to do with "+type);
                 }
 //                annotationName.setText(internalData.get("name").isString().stringValue());
             }

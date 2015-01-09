@@ -129,61 +129,10 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <apollo:GeneDetailPanel ui:field="geneDetailPanel"/>
-                            <!--<apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel"/>-->
+                            <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel"/>
                             <!--<apollo:ExonDetailPanel ui:field="exonDetailPanel"/>-->
                         </b:Row>
                     </b:Container>
-                    <!--<b:Container fluid="true" width="100%" >-->
-                    <!--<b:Row>-->
-                    <!--<b:Column size="MD_2">-->
-                    <!--<gwt:HTML  styleName="{style.tableKeyName}">-->
-                    <!--Name-->
-                    <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_6">-->
-                    <!--&lt;!&ndash;<gwt:HTML ui:field="annotationName" styleName="{style.tableValue}"/>&ndash;&gt;-->
-                    <!--<b:TextBox text="sox9a-000-00-0" ui:field="annotationName"/>-->
-                    <!--</b:Column>-->
-                    <!--&lt;!&ndash;<b:Column size="MD_2">&ndash;&gt;-->
-                    <!--&lt;!&ndash;<b:Button text="Save"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</b:Column>&ndash;&gt;-->
-                    <!--</b:Row>-->
-                    <!--<b:Row>-->
-                    <!--<b:Column size="MD_2">-->
-                    <!--<gwt:HTML styleName="{style.tableKeyName}">-->
-                    <!--Note-->
-                    <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_6">-->
-                    <!--&lt;!&ndash;<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>&ndash;&gt;-->
-                    <!--<b:TextBox ui:field="annotationDescription" />-->
-                    <!--</b:Column>-->
-                    <!--</b:Row>-->
-                    <!--<b:Row>-->
-                    <!--<b:Column size="MD_2">-->
-                    <!--<gwt:HTML styleName="{style.tableKeyName}">-->
-                    <!--Start-->
-                    <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_4">-->
-                    <!--<b:TextBox text="1410"/>-->
-                    <!--&lt;!&ndash;<gwt:HTML text="2004-04-01"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>&ndash;&gt;-->
-                    <!--</b:Column>-->
-                    <!--</b:Row>-->
-                    <!--<b:Row>-->
-                    <!--<b:Column size="MD_2">-->
-                    <!--<gwt:HTML styleName="{style.tableKeyName}">-->
-                    <!--Stop-->
-                    <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_4">-->
-                    <!--&lt;!&ndash;<gwt:HTML ui:field="annotationDescription" styleName="{style.tableValue}"/>&ndash;&gt;-->
-                    <!--&lt;!&ndash;<gwt:HTML text="2004-08-01"/>&ndash;&gt;-->
-                    <!--<b:TextBox text="1494"/>-->
-                    <!--</b:Column>-->
-                    <!--</b:Row>-->
-                    <!--</b:Container>-->
                 </gwt:tab>
 
                 <gwt:tab>
