@@ -86,6 +86,7 @@ public class AnnotatorPanel extends Composite {
                     case "gene": geneDetailPanel.updateData(internalData);
                         break;
                     default: GWT.log("not sure what to do with "+type);
+                        geneDetailPanel.setVisible(false);
                 }
 //                annotationName.setText(internalData.get("name").isString().stringValue());
             }

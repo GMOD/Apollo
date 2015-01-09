@@ -4,9 +4,11 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.gwt.CellTable;
 
 /**
@@ -19,12 +21,25 @@ public class GeneDetailPanel extends Composite {
 
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
     @UiField
-    TextBox nameField;
+    org.gwtbootstrap3.client.ui.TextBox nameField;
     @UiField
-    TextBox symbolField;
+    org.gwtbootstrap3.client.ui.TextBox symbolField;
+    @UiField
+    org.gwtbootstrap3.client.ui.TextBox descriptionField;
+//    @UiField
+//    InputGroupAddon minLocation;
+//    @UiField
+//    Label maxLocation;
+//    @UiField
+//    org.gwtbootstrap3.client.ui.Label strand;
+    @UiField
+    InputGroupAddon locationField;
+//    @UiField
+//    CellTable locationGrid;
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+
     }
 
     /**
@@ -34,5 +49,38 @@ public class GeneDetailPanel extends Composite {
     public void updateData(JSONObject internalData) {
         nameField.setText(internalData.get("name").isString().stringValue());
         symbolField.setText(internalData.get("symbol").isString().stringValue());
+        descriptionField.setText(internalData.get("description").isString().stringValue());
+
+        JSONObject locationObject = internalData.get("location").isObject();
+        GWT.log(locationObject.toString());
+
+//        locationGrid.addColumn(new Column() {
+//            @Override
+//            public Object getValue(Object object) {
+//                return null;
+//            }
+//        });
+//        locationGrid.setHTML(0,0,"Min");
+//        locationGrid.setHTML(0,1,"Max");
+//        locationGrid.setHTML(0,2,"Strand");
+//
+//        locationGrid.setHTML(1,0,locationObject.get("fmin").isNumber().toString());
+//        locationGrid.setHTML(1,1,locationObject.get("fmin").isNumber().toString());
+//        locationGrid.setHTML(1,2,locationObject.get("strand").isNumber().toString());
+
+        String locationText =  locationObject.get("fmin").isNumber().toString()  ;
+        locationText +=  " - ";
+        locationText +=  locationObject.get("fmax").isNumber().toString()  ;
+        locationText +=  " strand(";
+        locationText +=  locationObject.get("strand").isNumber().doubleValue()>0 ? "+" : "-"  ;
+        locationText +=  ")";
+
+        locationField.setText(locationText);
+//        strand.setText(locationObject.get("strand").isNumber().doubleValue()>0 ? "+" : "-"  );
+//        minLocation.setText(locationObject.get("fmin").isNumber().toString());
+//        maxLocation.setText(locationObject.get("fmax").isNumber().toString());
+//        strand.setText(locationObject.get("strand").isNumber().toString());
+
+        setVisible(true);
     }
 }
