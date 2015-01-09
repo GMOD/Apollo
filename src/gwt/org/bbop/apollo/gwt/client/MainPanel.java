@@ -66,15 +66,11 @@ public class MainPanel extends Composite {
     FlowPanel westPanel;
 
     public MainPanel() {
-        initWidget(ourUiBinder.createAndBindUi(this));
         exportStaticMethod();
+        initWidget(ourUiBinder.createAndBindUi(this));
 
-//        frame.setUrl();
-//        AnnotatorWidget3 annotatorWidget3 = new AnnotatorWidget3();
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
-//        showFrame = !dictionary.get("showFrame").contains("false");
-        String frameVariable = dictionary.get("showFrame");
         showFrame = dictionary.get("showFrame")!=null && dictionary.get("showFrame").contains("true");
         if(showFrame){
             frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");

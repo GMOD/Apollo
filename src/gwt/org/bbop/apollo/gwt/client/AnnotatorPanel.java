@@ -46,13 +46,19 @@ public class AnnotatorPanel extends Composite {
     Tree features = new Tree(tablecss);
 
     //    @UiField HTML annotationName;
-    @UiField
-    TextBox annotationName;
-    //    @UiField HTML annotationDescription;
-    @UiField
-    TextBox annotationDescription;
+//    @UiField
+//    TextBox annotationName;
+//    //    @UiField HTML annotationDescription;
+//    @UiField
+//    TextBox annotationDescription;
     @UiField
     ListBox typeList;
+    @UiField
+    GeneDetailPanel geneDetailPanel;
+//    @UiField
+//    TranscriptDetailPanel transcriptDetailPanel;
+//    @UiField
+//    ExonDetailPanel exonDetailPanel;
 
 //    TreeItem selectedItem ;
 
@@ -75,13 +81,24 @@ public class AnnotatorPanel extends Composite {
                 JSONObject internalData = ((AnnotationContainerWidget) event.getSelectedItem().getWidget()).getInternalData();
                 GWT.log("selected a tree item " + event.getSelectedItem().getText());
                 GWT.log("data: "+internalData.toString());
-                annotationName.setText(internalData.get("name").isString().stringValue());
+                String type = getType(internalData) ;
+                switch (type){
+                    case "gene": geneDetailPanel.updateData(internalData);
+                        break;
+                    default: GWT.log("not sure what to do with "+type);
+                }
+//                annotationName.setText(internalData.get("name").isString().stringValue());
             }
         });
 //        annotationName.setText("sox9a-000-00-0");
 
         DataGenerator.populateSequenceList(sequenceList);
         DataGenerator.populateTypeList(typeList);
+    }
+
+    private String getType(JSONObject internalData) {
+        String type = internalData.get("type").isObject().get("name").isString().stringValue();
+        return type;
     }
 
     public void reload() {
