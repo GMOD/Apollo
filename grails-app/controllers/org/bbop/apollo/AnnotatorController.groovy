@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.bbop.apollo.event.AnnotationEvent
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -8,6 +9,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class AnnotatorController {
 
     def featureService
+    def requestHandlingService
 
     def index() {
         Organism.all.each {
@@ -16,6 +18,38 @@ class AnnotatorController {
     }
 
     def demo() {
+    }
+
+    /**
+     * updates shallow properties of gene / feature
+     * @return
+     */
+    def updateGene(){
+        println "updating gene ${params.data}"
+        def data = JSON.parse(params.data.toString()) as JSONObject
+        println "uqnieuname 2: ${data.uniquename}"
+        println "rendered data ${data as JSON}"
+        Feature feature = Feature.findByUniqueName(data.uniquename)
+        feature.name = data.name
+        feature.symbol.value = data.symbol
+        feature.description.value = data.description
+        feature.save(flush: true,failOnError: true)
+
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(feature,false)
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+
+        Sequence sequence = feature?.featureLocation?.sequence
+        if(sequence){
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            requestHandlingService.fireAnnotationEvent(annotationEvent)
+        }
+
+        render updateFeatureContainer
     }
 
     private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {

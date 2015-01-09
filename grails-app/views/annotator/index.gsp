@@ -26,22 +26,11 @@
          var client = Stomp.over(socket);
 
          client.connect({}, function() {
-//             client.subscribe("/topic/hello", function(message) {
-//                 var returnMessage = JSON.parse(message.body);
-//                 console.log('mesasge come back . .. '+returnMessage);
-////                 $("#helloDiv").append(JSON.parse(message.body));
-//             });
-//             client.send("/app/hello", {}, JSON.stringify("world"));
              client.subscribe("/topic/AnnotationNotification", function(message) {
                  var returnMessage = JSON.parse(message.body);
-                 reloadAnnotations();
-//                 console.log('AEC::came back . .. '+returnMessage);
+                 window.reloadAnnotations();
              });
          });
-
-//         $("#helloButton").click(function() {
-//             client.send("/app/hello", {}, JSON.stringify("world"));
-//         });
      });
   </script>
 </head>
