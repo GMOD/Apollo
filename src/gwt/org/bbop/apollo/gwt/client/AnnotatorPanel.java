@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -25,6 +26,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
+
+    Dictionary dictionary = Dictionary.getDictionary("Options");
+    String rootUrl = dictionary.get("rootUrl");
 
     @UiField
     TextBox nameSearchBox;
@@ -84,7 +88,8 @@ public class AnnotatorPanel extends Composite {
 
         features.clear();
 
-        String url = "/apollo/annotator/findAnnotationsForSequence";
+
+        String url = rootUrl+"/annotator/findAnnotationsForSequence";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {

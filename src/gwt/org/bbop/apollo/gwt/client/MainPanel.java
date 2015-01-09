@@ -106,7 +106,8 @@ public class MainPanel extends Composite {
     }
 
     public void loadOrganisms(final ListBox trackInfoList) {
-        String url = "/apollo/organism/findAllOrganisms";
+        String url = rootUrl+"/organism/findAllOrganisms";
+//        String url = "/apollo/organism/findAllOrganisms";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {

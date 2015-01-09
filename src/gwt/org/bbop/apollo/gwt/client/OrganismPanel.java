@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -50,10 +51,14 @@ public class OrganismPanel extends Composite {
     DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
 
 
+    private String rootUrl;
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+
+        Dictionary dictionary = Dictionary.getDictionary("Options");
+        rootUrl = dictionary.get("rootUrl");
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -176,7 +181,8 @@ public class OrganismPanel extends Composite {
     }
 
     public void loadOrganisms(final List<OrganismInfo> trackInfoList) {
-        String url = "/apollo/organism/findAllOrganisms";
+//        String url = "/apollo/organism/findAllOrganisms";
+        String url = rootUrl+"/organism/findAllOrganisms";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
