@@ -130,7 +130,7 @@
                         <b:Row>
                             <apollo:GeneDetailPanel ui:field="geneDetailPanel"/>
                             <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel"/>
-                            <!--<apollo:ExonDetailPanel ui:field="exonDetailPanel"/>-->
+                            <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>

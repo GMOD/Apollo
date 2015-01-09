@@ -57,6 +57,8 @@ public class AnnotatorPanel extends Composite {
     GeneDetailPanel geneDetailPanel;
     @UiField
     TranscriptDetailPanel transcriptDetailPanel;
+    @UiField
+    ExonDetailPanel exonDetailPanel;
 //    @UiField
 //    TranscriptDetailPanel transcriptDetailPanel;
 //    @UiField
@@ -71,7 +73,7 @@ public class AnnotatorPanel extends Composite {
 
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
-//                exonDetailPanel.setVisible(false);
+        exonDetailPanel.setVisible(false);
 //        stopCodonFilter.setValue(true);
 
 
@@ -85,21 +87,25 @@ public class AnnotatorPanel extends Composite {
             public void onSelection(SelectionEvent<TreeItem> event) {
                 JSONObject internalData = ((AnnotationContainerWidget) event.getSelectedItem().getWidget()).getInternalData();
                 GWT.log("selected a tree item " + event.getSelectedItem().getText());
-                GWT.log("data: "+internalData.toString());
-                String type = getType(internalData) ;
+                GWT.log("data: " + internalData.toString());
+                String type = getType(internalData);
                 geneDetailPanel.setVisible(false);
                 transcriptDetailPanel.setVisible(false);
-//                exonDetailPanel.setVisible(false);
-                switch (type){
+                exonDetailPanel.setVisible(false);
+                switch (type) {
                     case "gene":
-                    case "pseduogene": geneDetailPanel.updateData(internalData);
+                    case "pseduogene":
+                        geneDetailPanel.updateData(internalData);
                         break;
                     case "mRNA":
                     case "tRNA":
                         transcriptDetailPanel.updateData(internalData);
                         break;
+                    case "exon":
+                        exonDetailPanel.updateData(internalData);
+                        break;
                     default:
-                        GWT.log("not sure what to do with "+type);
+                        GWT.log("not sure what to do with " + type);
                 }
 //                annotationName.setText(internalData.get("name").isString().stringValue());
             }
@@ -120,7 +126,7 @@ public class AnnotatorPanel extends Composite {
         features.clear();
 
 
-        String url = rootUrl+"/annotator/findAnnotationsForSequence";
+        String url = rootUrl + "/annotator/findAnnotationsForSequence";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -181,9 +187,9 @@ public class AnnotatorPanel extends Composite {
 //        treeItem.setWidget(new AnnotationContainerWidget(html.getHTML()));
         treeItem.setWidget(new AnnotationContainerWidget(object));
 
-        if(object.get("children")!=null){
+        if (object.get("children") != null) {
             JSONArray childArray = object.get("children").isArray();
-            for (int i = 0; childArray!=null && i < childArray.size(); i++) {
+            for (int i = 0; childArray != null && i < childArray.size(); i++) {
                 JSONObject childObject = childArray.get(i).isObject();
                 treeItem.addItem(processFeatureEntry(childObject));
             }
