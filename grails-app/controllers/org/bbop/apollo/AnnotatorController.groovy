@@ -53,6 +53,35 @@ class AnnotatorController {
         render updateFeatureContainer
     }
 
+    def updateExon(){
+        println "updating gene ${params.data}"
+        def data = JSON.parse(params.data.toString()) as JSONObject
+        println "uqnieuname 2: ${data.uniquename}"
+        println "rendered data ${data as JSON}"
+        Exon exon= Exon.findByUniqueName(data.uniquename)
+        exon.featureLocation.fmin = data.location.fmin
+        exon.featureLocation.fmax = data.location.fmax
+        exon.featureLocation.strand = data.location.strand
+        exon.save(flush: true,failOnError: true)
+
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(exon,false)
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+
+        Sequence sequence = exon?.featureLocation?.sequence
+        if(sequence){
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+                    , sequenceAlterationEvent: true
+            )
+            requestHandlingService.fireAnnotationEvent(annotationEvent)
+        }
+
+        render updateFeatureContainer
+    }
+
     private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
