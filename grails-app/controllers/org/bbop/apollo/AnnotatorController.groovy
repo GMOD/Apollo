@@ -24,15 +24,15 @@ class AnnotatorController {
      * updates shallow properties of gene / feature
      * @return
      */
-    def updateGene(){
+    def updateFeature(){
         println "updating gene ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
         feature.name = data.name
-        feature.symbol.value = data.symbol
-        feature.description.value = data.description
+        feature.symbol.value = data?.symbol
+        feature.description.value = data?.description
         feature.save(flush: true,failOnError: true)
 
         JSONObject jsonFeature = featureService.convertFeatureToJSON(feature,false)
@@ -45,6 +45,7 @@ class AnnotatorController {
                     features: updateFeatureContainer
                     , sequence: sequence
                     , operation: AnnotationEvent.Operation.UPDATE
+                    , sequenceAlterationEvent: true
             )
             requestHandlingService.fireAnnotationEvent(annotationEvent)
         }

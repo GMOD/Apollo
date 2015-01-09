@@ -75,7 +75,7 @@ public class GeneDetailPanel extends Composite {
 
 
     private void updateGene(JSONObject internalData) {
-        String url = rootUrl + "/annotator/updateGene";
+        String url = rootUrl + "/annotator/updateFeature";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
