@@ -122,7 +122,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
+        GWT.log("!!!RELOADING ANNOTATIONS");
 
+        features.setAnimationEnabled(false);
         features.clear();
 
 
@@ -134,7 +136,7 @@ public class AnnotatorPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
 //                GWT.log("success returned");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                GWT.log("JOSN value: "+returnValue.toString());
+                GWT.log("RETURN JOSN value: "+returnValue.toString());
                 JSONArray array = returnValue.isObject().get("features").isArray();
 //                JSONArray array = returnValue.isArray();
 //                GWT.log("#  of genes: " + array.size());
@@ -149,6 +151,8 @@ public class AnnotatorPanel extends Composite {
                     features.addItem(treeItem);
 
                 }
+
+                features.setAnimationEnabled(true);
             }
 
             @Override

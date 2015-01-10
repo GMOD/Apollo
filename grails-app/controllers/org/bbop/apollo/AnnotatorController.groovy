@@ -31,8 +31,13 @@ class AnnotatorController {
         println "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
         feature.name = data.name
-        feature.symbol.value = data?.symbol
-        feature.description.value = data?.description
+
+        if(feature.symbol) {
+            feature.symbol.value = data?.symbol
+        }
+        if(feature.description){
+            feature.description.value = data?.description
+        }
         feature.save(flush: true, failOnError: true)
 
         JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false)

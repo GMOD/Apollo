@@ -212,7 +212,9 @@ public class MainPanel extends Composite {
     }
 
 
-    public static void reloadAnnotator(){ annotatorPanel.reload(); }
+    public static void reloadAnnotator(){
+        annotatorPanel.reload();
+    }
     public static void reloadTracks(){ trackPanel.reload(); }
     public static void reloadSequences(){ sequencePanel.reload(); }
     public static void reloadOrganisms(){ organismPanel.reload(); }
