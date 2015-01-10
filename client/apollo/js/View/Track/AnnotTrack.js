@@ -585,6 +585,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                         }
                     }
                     else {
+                        console.log('unknown command: '+changeData.operation)
                         // unknown command from server, null-op?
                     }
 

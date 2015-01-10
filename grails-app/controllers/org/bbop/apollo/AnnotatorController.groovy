@@ -40,19 +40,14 @@ class AnnotatorController {
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
         Sequence sequence = feature?.featureLocation?.sequence
-        println "sequence ${sequence}"
-//        if(sequence){
+
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
-//        if (sequence) {
-//            annotationEvent.sequence = sequence
-//        }
         requestHandlingService.fireAnnotationEvent(annotationEvent)
-//    }
 
         render updateFeatureContainer
     }
@@ -68,20 +63,22 @@ class AnnotatorController {
         exon.featureLocation.strand = data.location.strand
         exon.save(flush: true, failOnError: true)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(exon, false)
+
+        // need to grant the parent feature to force a redraw
+        Feature parentFeature = exon.childFeatureRelationships*.parentFeature.first()
+
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
         Sequence sequence = exon?.featureLocation?.sequence
-//        if (sequence) {
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.UPDATE
-                , sequenceAlterationEvent: true
+                , sequenceAlterationEvent: false
         )
         requestHandlingService.fireAnnotationEvent(annotationEvent)
-//        }
 
         render updateFeatureContainer
     }

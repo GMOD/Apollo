@@ -119,7 +119,6 @@ public class ExonDetailPanel extends Composite {
             JSONObject locationObject = this.internalData.get("location").isObject();
             locationObject.put("strand", new JSONNumber(-1));
             updateExon(internalData);
-            updateExon(internalData);
             positiveStrandValue.setActive(false);
             negativeStrandValue.setActive(true);
         }
@@ -132,8 +131,6 @@ public class ExonDetailPanel extends Composite {
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
         sb.append("data=" + internalData.toString());
-//        sb.append("&key2=val2");
-//        sb.append("&key3=val3");
         builder.setRequestData(sb.toString());
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
