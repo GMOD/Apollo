@@ -107,9 +107,9 @@ public class ExonDetailPanel extends Composite {
         if (negativeStrandValue.isActive()) {
             JSONObject locationObject = this.internalData.get("location").isObject();
             locationObject.put("strand", new JSONNumber(1));
-            updateExon(internalData);
             positiveStrandValue.setActive(true);
             negativeStrandValue.setActive(false);
+            updateExon(internalData);
         }
     }
 
@@ -118,9 +118,9 @@ public class ExonDetailPanel extends Composite {
         if (positiveStrandValue.isActive()) {
             JSONObject locationObject = this.internalData.get("location").isObject();
             locationObject.put("strand", new JSONNumber(-1));
-            updateExon(internalData);
             positiveStrandValue.setActive(false);
             negativeStrandValue.setActive(true);
+            updateExon(internalData);
         }
     }
 
