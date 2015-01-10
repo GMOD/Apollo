@@ -25,7 +25,7 @@ class AnnotatorController {
      * @return
      */
     def updateFeature(){
-        println "updating gene ${params.data}"
+        println "updating feature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"
@@ -54,7 +54,7 @@ class AnnotatorController {
     }
 
     def updateExon(){
-        println "updating gene ${params.data}"
+        println "updating exon ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"

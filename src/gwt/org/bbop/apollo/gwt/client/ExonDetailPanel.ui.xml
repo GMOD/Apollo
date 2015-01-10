@@ -68,13 +68,15 @@
                 <b:InputGroup>
                     <b:InputGroupAddon>Strand</b:InputGroupAddon>
 
-                    <b:InputGroupButton>
-                        <!--<b:ButtonGroup dataToggle="BUTTONS" ui:field="strand">-->
-                            <b:RadioButton ui:field="positiveStrandValue" name="strandValue"> +</b:RadioButton>
-                            <b:RadioButton ui:field="negativeStrandValue" name="strandValue"> -</b:RadioButton>
-                        <!--</b:ButtonGroup>-->
+                    <!--<b:InputGroupButton>-->
+                        <b:ButtonGroup dataToggle="BUTTONS" ui:field="strand">
+                            <b:Button ui:field="negativeStrandValue">-</b:Button>
+                            <b:Button ui:field="positiveStrandValue">+</b:Button>
+                            <!--<b:RadioButton ui:field="positiveStrandValue" name="strandValue"> +</b:RadioButton>-->
+                            <!--<b:RadioButton ui:field="negativeStrandValue" name="strandValue"> -</b:RadioButton>-->
+                        </b:ButtonGroup>
                         <!--<g:RadioButton name="strand">+</g:RadioButton>-->
-                    </b:InputGroupButton>
+                    <!--</b:InputGroupButton>-->
                     <!--<b:InputGroupButton>-->
                     <!--<g:RadioButton name="strand">-</g:RadioButton>-->
                     <!--</b:InputGroupButton>-->

@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
@@ -13,6 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 
@@ -21,11 +23,12 @@ import org.gwtbootstrap3.client.ui.TextBox;
  */
 public class ExonDetailPanel extends Composite {
 
-    interface ExonDetailPanelUiBinder extends UiBinder<Widget, ExonDetailPanel> { }
+    interface ExonDetailPanelUiBinder extends UiBinder<Widget, ExonDetailPanel> {
+    }
 
     Dictionary dictionary = Dictionary.getDictionary("Options");
     String rootUrl = dictionary.get("rootUrl");
-    private JSONObject internalData ;
+    private JSONObject internalData;
 
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
     @UiField
@@ -33,11 +36,11 @@ public class ExonDetailPanel extends Composite {
     @UiField
     TextBox minField;
     @UiField
-    org.gwtbootstrap3.client.ui.RadioButton positiveStrandValue;
+    Button positiveStrandValue;
     @UiField
-    org.gwtbootstrap3.client.ui.RadioButton negativeStrandValue;
+    Button negativeStrandValue;
 
-    private void enableFields(boolean enabled){
+    private void enableFields(boolean enabled) {
         minField.setEnabled(enabled);
         maxField.setEnabled(enabled);
         positiveStrandValue.setEnabled(enabled);
@@ -62,24 +65,22 @@ public class ExonDetailPanel extends Composite {
     }
 
     public void updateData(JSONObject internalData) {
-        this.internalData = internalData ;
+        this.internalData = internalData;
         GWT.log("updating transcript detail panel");
         GWT.log(internalData.toString());
 //        nameField.setText(internalData.get("name").isString().stringValue());
 
-        JSONObject locationObject = internalData.get("location").isObject();
+        JSONObject locationObject = this.internalData.get("location").isObject();
         minField.setText(locationObject.get("fmin").isNumber().toString());
         maxField.setText(locationObject.get("fmax").isNumber().toString());
 
-        if(locationObject.get("strand").isNumber().doubleValue() > 0){
+        if (locationObject.get("strand").isNumber().doubleValue() > 0) {
             positiveStrandValue.setActive(true);
             negativeStrandValue.setActive(false);
-        }
-        else{
+        } else {
             positiveStrandValue.setActive(false);
             negativeStrandValue.setActive(true);
         }
-
 
 
         setVisible(true);
@@ -101,28 +102,36 @@ public class ExonDetailPanel extends Composite {
         updateExon(internalData);
     }
 
-//    @UiHandler("negativeStrandValue")
-//    void handleDescriptionChange(ChangeHandler e) {
-////        Window.alert("symbol field changed: "+e);
-//        String updatedName = descriptionField.getText();
-//        internalData.put("description", new JSONString(updatedName));
-//        updateTranscript(internalData);
-//    }
+    @UiHandler("positiveStrandValue")
+    void handlePositiveStrand(ClickEvent e) {
+        if (negativeStrandValue.isActive()) {
+            JSONObject locationObject = this.internalData.get("location").isObject();
+            locationObject.put("strand", new JSONNumber(1));
+            updateExon(internalData);
+            positiveStrandValue.setActive(true);
+            negativeStrandValue.setActive(false);
+        }
+    }
 
-//    @UiHandler("positiveStrandValue")
-//    void handleDescriptionChange(ChangeHandler e) {
-////        Window.alert("symbol field changed: "+e);
-//        String updatedName = descriptionField.getText();
-//        internalData.put("description", new JSONString(updatedName));
-//        updateTranscript(internalData);
-//    }
+    @UiHandler("negativeStrandValue")
+    void handleNegativeStrand(ClickEvent e) {
+        if (positiveStrandValue.isActive()) {
+            JSONObject locationObject = this.internalData.get("location").isObject();
+            locationObject.put("strand", new JSONNumber(-1));
+            updateExon(internalData);
+            updateExon(internalData);
+            positiveStrandValue.setActive(false);
+            negativeStrandValue.setActive(true);
+        }
+    }
+
 
     private void updateExon(JSONObject internalData) {
         String url = rootUrl + "/annotator/updateExon";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
-        sb.append("data="+internalData.toString());
+        sb.append("data=" + internalData.toString());
 //        sb.append("&key2=val2");
 //        sb.append("&key3=val3");
         builder.setRequestData(sb.toString());
