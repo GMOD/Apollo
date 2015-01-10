@@ -24,7 +24,7 @@ class AnnotatorController {
      * updates shallow properties of gene / feature
      * @return
      */
-    def updateFeature(){
+    def updateFeature() {
         println "updating feature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
@@ -33,51 +33,55 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol.value = data?.symbol
         feature.description.value = data?.description
-        feature.save(flush: true,failOnError: true)
+        feature.save(flush: true, failOnError: true)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(feature,false)
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
         Sequence sequence = feature?.featureLocation?.sequence
-        if(sequence){
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-                    , sequenceAlterationEvent: true
-            )
-            requestHandlingService.fireAnnotationEvent(annotationEvent)
-        }
+        println "sequence ${sequence}"
+//        if(sequence){
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+                , sequenceAlterationEvent: false
+        )
+//        if (sequence) {
+//            annotationEvent.sequence = sequence
+//        }
+        requestHandlingService.fireAnnotationEvent(annotationEvent)
+//    }
 
         render updateFeatureContainer
     }
 
-    def updateExon(){
+    def updateExon() {
         println "updating exon ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"
-        Exon exon= Exon.findByUniqueName(data.uniquename)
+        Exon exon = Exon.findByUniqueName(data.uniquename)
         exon.featureLocation.fmin = data.location.fmin
         exon.featureLocation.fmax = data.location.fmax
         exon.featureLocation.strand = data.location.strand
-        exon.save(flush: true,failOnError: true)
+        exon.save(flush: true, failOnError: true)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(exon,false)
+        JSONObject jsonFeature = featureService.convertFeatureToJSON(exon, false)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
 
         Sequence sequence = exon?.featureLocation?.sequence
-        if(sequence){
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
-                    , sequence: sequence
-                    , operation: AnnotationEvent.Operation.UPDATE
-                    , sequenceAlterationEvent: true
-            )
-            requestHandlingService.fireAnnotationEvent(annotationEvent)
-        }
+//        if (sequence) {
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+                , sequenceAlterationEvent: true
+        )
+        requestHandlingService.fireAnnotationEvent(annotationEvent)
+//        }
 
         render updateFeatureContainer
     }
@@ -101,14 +105,14 @@ class AnnotatorController {
         List<Feature> allFeatures = Feature.executeQuery("select f from Feature f ")
 
         // just the genes
-        def topLevelFeatureList = allFeatures.findAll(){
-            it?.childFeatureRelationships?.size()==0
+        def topLevelFeatureList = allFeatures.findAll() {
+            it?.childFeatureRelationships?.size() == 0
         }
 
 
 
-        for(Feature feature in topLevelFeatureList){
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false));
+        for (Feature feature in topLevelFeatureList) {
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
         render returnObject
@@ -141,4 +145,5 @@ class AnnotatorController {
 
         render dataObject as JSON
     }
+
 }

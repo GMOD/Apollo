@@ -544,14 +544,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 //console.log('input message.body: '+message.body);
                 //console.log('input JSON.parse(message.body): '+JSON.parse(message.body));
 
-
-
                 var changeData ;
 
                 try {
+                    console.log('input JSON.pare(JSON.parse(message.body)): '+JSON.parse(JSON.parse(message.body)));
 
                     changeData = JSON.parse(JSON.parse(message.body));
-
 
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");

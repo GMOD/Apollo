@@ -42,6 +42,7 @@ public class TranscriptDetailPanel extends Composite {
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
 //        Window.alert("changed: "+e);
+        GWT.log("changing transcript name");
         String updatedName = nameField.getText();
         internalData.put("name", new JSONString(updatedName));
         updateTranscript(internalData);
@@ -100,8 +101,6 @@ public class TranscriptDetailPanel extends Composite {
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
         sb.append("data="+internalData.toString());
-//        sb.append("&key2=val2");
-//        sb.append("&key3=val3");
         builder.setRequestData(sb.toString());
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {

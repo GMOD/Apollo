@@ -66,7 +66,7 @@ public class ExonDetailPanel extends Composite {
 
     public void updateData(JSONObject internalData) {
         this.internalData = internalData;
-        GWT.log("updating transcript detail panel");
+        GWT.log("updating exon detail panel");
         GWT.log(internalData.toString());
 //        nameField.setText(internalData.get("name").isString().stringValue());
 
@@ -153,10 +153,11 @@ public class ExonDetailPanel extends Composite {
         try {
             builder.setCallback(requestCallback);
             builder.send();
-        } catch (RequestException e) {
             enableFields(true);
+        } catch (RequestException e) {
             // Couldn't connect to server
             Window.alert(e.getMessage());
+            enableFields(true);
         }
 
     }

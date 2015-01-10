@@ -27,6 +27,8 @@ class RequestHandlingService {
 
     def featureService
     def transcriptService
+    def brokerMessagingTemplate
+
 //    def nameService
 
     // TODO: make a grails singleton
@@ -267,10 +269,13 @@ class RequestHandlingService {
         handleChangeEvent(annotationEvents)
     }
 
-    @SendTo("/topic/AnnotationNotification")
-    protected static String sendAnnotationEvent(String returnString) {
+    public void sendAnnotationEvent(String returnString) {
         println "RHS::return operations sent . . ${returnString?.size()}"
-        return returnString
+        println "returnString ${returnString}"
+        if(returnString.startsWith("[")){
+            returnString = returnString.substring(1,returnString.length()-1)
+        }
+        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification",returnString
     }
 
     synchronized void handleChangeEvent(AnnotationEvent... events) {
@@ -278,6 +283,7 @@ class RequestHandlingService {
         if (events.length == 0) {
             return;
         }
+        println "handling first event ${events[0] as JSON}"
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();
