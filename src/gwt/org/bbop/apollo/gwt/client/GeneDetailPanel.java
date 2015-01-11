@@ -8,12 +8,9 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
 import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.gwt.CellTable;
 
 /**
  * Created by ndunn on 1/9/15.
@@ -74,12 +71,12 @@ public class GeneDetailPanel extends Composite {
     }
 
 
-    private void updateGene(JSONObject internalData) {
+    private void updateGene(JSONObject newInternalData) {
         String url = rootUrl + "/annotator/updateFeature";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
-        sb.append("data="+internalData.toString());
+        sb.append("data="+newInternalData.toString());
 //        sb.append("&key2=val2");
 //        sb.append("&key3=val3");
         builder.setRequestData(sb.toString());
@@ -88,7 +85,7 @@ public class GeneDetailPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                Window.alert("successful update: "+returnValue);
+                GWT.log("successful update: "+returnValue);
                 enableFields(true);
             }
 
@@ -115,9 +112,15 @@ public class GeneDetailPanel extends Composite {
      */
     public void updateData(JSONObject internalData) {
         this.internalData = internalData ;
-        nameField.setText(internalData.get("name").isString().stringValue());
-        symbolField.setText(internalData.get("symbol").isString().stringValue());
-        descriptionField.setText(internalData.get("description").isString().stringValue());
+        if(this.internalData.get("name") instanceof JSONString){
+            nameField.setText(internalData.get("name").isString().stringValue());
+        }
+        if(this.internalData.get("symbol") !=null ) {
+            symbolField.setText(internalData.get("symbol").isString().stringValue());
+        }
+        if(this.internalData.get("description") != null ) {
+            descriptionField.setText(internalData.get("description").isString().stringValue());
+        }
 
         JSONObject locationObject = internalData.get("location").isObject();
         String locationText =  locationObject.get("fmin").isNumber().toString()  ;

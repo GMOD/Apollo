@@ -11,6 +11,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
@@ -122,11 +123,8 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
-        GWT.log("!!!RELOADING ANNOTATIONS");
 
         features.setAnimationEnabled(false);
-        features.clear();
-
 
         String url = rootUrl + "/annotator/findAnnotationsForSequence";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
@@ -134,22 +132,15 @@ public class AnnotatorPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                GWT.log("success returned");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                GWT.log("RETURN JOSN value: "+returnValue.toString());
+//                GWT.log("RETURN JOSN value: "+returnValue.toString());
                 JSONArray array = returnValue.isObject().get("features").isArray();
-//                JSONArray array = returnValue.isArray();
-//                GWT.log("#  of genes: " + array.size());
-
-//                Window.alert("array size: "+array.size());
+                features.clear();
 
                 for (int i = 0; i < array.size(); i++) {
-
                     JSONObject object = array.get(i).isObject();
-
                     TreeItem treeItem = processFeatureEntry(object);
                     features.addItem(treeItem);
-
                 }
 
                 features.setAnimationEnabled(true);
