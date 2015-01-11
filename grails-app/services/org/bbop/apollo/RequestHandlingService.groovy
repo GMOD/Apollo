@@ -73,7 +73,8 @@ class RequestHandlingService {
             feature.symbol = symbol
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            updateFeatureContainer = wrapFeature(updateFeatureContainer,feature)
+//            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
 
 
@@ -91,12 +92,14 @@ class RequestHandlingService {
         println "update descripton #1"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = null
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
+            if (!sequence) sequence = feature.getFeatureLocation().getSequence()
 
             Description description = feature.description
             if (!description) {
@@ -112,10 +115,35 @@ class RequestHandlingService {
             feature.description = description
             feature.save(flush: true, failOnError: true)
 
+            // TODO: need to fire
+//            updateFeatureContainer = wrapFeature(updateFeatureContainer,feature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
+//        if (sequence) {
+//            AnnotationEvent annotationEvent = new AnnotationEvent(
+//                    features: updateFeatureContainer
+//                    , sequence: sequence
+//                    , operation: AnnotationEvent.Operation.UPDATE
+//            )
+//            fireAnnotationEvent(annotationEvent)
+//        }
+
+
         println "update descripton #2"
         return updateFeatureContainer
+    }
+
+    private JSONObject wrapFeature(JSONObject jsonObject,Feature feature){
+
+        // only pass in transcript
+        if(feature instanceof Gene){
+            feature.parentFeatureRelationships.childFeature.each { childFeature ->
+                jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(childFeature));
+            }
+        }
+        else{
+            jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
     }
 
     JSONObject updateName(JSONObject inputObject) {
@@ -136,7 +164,7 @@ class RequestHandlingService {
 
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            updateFeatureContainer = wrapFeature(updateFeatureContainer,feature)
         }
 
         if (sequence) {
