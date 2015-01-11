@@ -73,7 +73,7 @@
             <!--<gwt:Frame ui:field="frame" width="100%" height="100%" visible="false"/>-->
             <gwt:Frame ui:field="frame" width="100%" height="100%" visible="true"/>
         </gwt:center>
-        <gwt:east size="500">
+        <gwt:east size="550">
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
@@ -81,7 +81,7 @@
                         <gwt:HTML text="Active" styleName="{style.active-piece}" />
                         <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
-                        <gwt:HTML text="Sequence" styleName="{style.details-list-title}"/>
+                        <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>
                         <!--<gwt:HTML styleName="{style.inline}">-->
                         <!--<div style="display:inline-table;">-->
@@ -111,7 +111,7 @@
                             <apollo:TrackPanel ui:field="trackPanel"/>
                         </gwt:tab>
                         <gwt:tab>
-                            <gwt:header>Sequence</gwt:header>
+                            <gwt:header>Ref Sequence</gwt:header>
                             <apollo:SequencePanel ui:field="sequencePanel"/>
                         </gwt:tab>
                         <gwt:tab>
@@ -126,7 +126,10 @@
                             <gwt:header>User Groups</gwt:header>
                             <apollo:UserGroupPanel ui:field="userGroupPanel"/>
                         </gwt:tab>
-
+                        <gwt:tab>
+                            <gwt:header>Preferences</gwt:header>
+                            <apollo:PreferencePanel ui:field="preferencePanel"/>
+                        </gwt:tab>
                     </gwt:TabLayoutPanel>
                 </gwt:center>
             </gwt:DockLayoutPanel>

@@ -64,6 +64,8 @@ public class MainPanel extends Composite {
     static ListBox sequenceList;
     @UiField
     FlowPanel westPanel;
+    @UiField
+    PreferencePanel preferencePanel;
 
     public MainPanel() {
         exportStaticMethod();
@@ -191,7 +193,7 @@ public class MainPanel extends Composite {
 //            eastDockPanel.forceLayout();
         } else {
             // open
-            mainSplitPanel.setWidgetSize(eastDockPanel, 500);
+            mainSplitPanel.setWidgetSize(eastDockPanel, 550);
             dockOpenClose.setIcon(IconType.CARET_RIGHT);
 //            detailTabs.setVisible(true);
 //            westPanel.setVisible(false);

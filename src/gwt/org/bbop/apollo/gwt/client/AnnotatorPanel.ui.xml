@@ -74,7 +74,7 @@
                 <b:Row>
                     <b:Column size="MD_2">
                         <gwt:HTML>
-                            <h6>Sequence</h6>
+                            <h6>Ref Sequence</h6>
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_3">

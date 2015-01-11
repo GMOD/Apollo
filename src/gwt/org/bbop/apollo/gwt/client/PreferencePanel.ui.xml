@@ -1,0 +1,31 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
+        >
+    <ui:style>
+        .preferenceContainer {
+            padding-left: 20px;
+            margin-left: 20px;
+        }
+
+        .widgetPanel {
+
+        }
+    </ui:style>
+    <!--<b:Container fluid="true" styleName="{style.preferenceContainer}">-->
+        <!--<b:Row>-->
+            <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
+                <b:Form type="INLINE">
+                    <b:FieldSet>
+                        <b:FormGroup>
+                            <b:InlineCheckBox text="Use CDS for New Transcripts"/>
+                            <b:InlineCheckBox text="Partial Translation Allowed"/>
+                        </b:FormGroup>
+                    </b:FieldSet>
+                </b:Form>
+            <!--</b:Column>-->
+        <!--</b:Row>-->
+    <!--</b:Container>-->
+
+</ui:UiBinder>
