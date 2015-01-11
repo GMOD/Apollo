@@ -32,17 +32,25 @@ class AnnotatorController {
         Feature feature = Feature.findByUniqueName(data.uniquename)
         feature.name = data.name
 
-        if(feature.symbol) {
+        if (feature.symbol) {
             feature.symbol.value = data?.symbol
         }
-        if(feature.description){
+        if (feature.description) {
             feature.description.value = data?.description
         }
         feature.save(flush: true, failOnError: true)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
-        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+        if (feature instanceof Gene) {
+            List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
+            for (childFeature in childFeatures) {
+                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false)
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+            }
+        } else {
+            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+        }
 
         Sequence sequence = feature?.featureLocation?.sequence
 
@@ -67,7 +75,6 @@ class AnnotatorController {
         exon.featureLocation.fmax = data.location.fmax
         exon.featureLocation.strand = data.location.strand
         exon.save(flush: true, failOnError: true)
-
 
         // need to grant the parent feature to force a redraw
         Feature parentFeature = exon.childFeatureRelationships*.parentFeature.first()
