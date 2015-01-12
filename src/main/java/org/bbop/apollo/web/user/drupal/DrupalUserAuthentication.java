@@ -110,7 +110,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
      * Overrides the validateUser() function.
      */
     public String validateUser(HttpServletRequest request, HttpServletResponse response) throws UserAuthenticationException {
-        String return_name = null;
+        String returnName = null;
         try {
             // Get the user name and password supplied by the calling script
             JSONObject requestJSON = JSONUtil.convertInputStreamToJSON(request.getInputStream());
@@ -130,7 +130,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
                 // for the Drupal user that is already logged in.
                 String dname = getDrupalSessionUser(request);
                 if (dname != null) {
-                    return_name = dname;
+                    returnName = dname;
                 }
             }
             // Authenticate using user credentials
@@ -139,7 +139,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
                     throw new UserAuthenticationException("Invalid login");
                 }
                 else {
-                  return_name = username;
+                  returnName = username;
                 }
             }
         }
@@ -152,7 +152,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
         catch (IOException e) {
             throw new UserAuthenticationException(e);
         }
-        return return_name;
+        return returnName;
     }
 
 
