@@ -6,20 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.CookieStore;
-import java.net.HttpCookie;
 import java.net.URL;
-import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -48,9 +41,9 @@ public class DrupalUserAuthentication implements UserAuthentication {
     /** 
      * Variables with values derived from the drupal.xml config file
      */
-    private String DrupalUsername = null;
-    private String DrupalPassword = null;
-    private String DrupalURL = null;
+    private String drupalUsername = null;
+    private String drupalPassword = null;
+    private String drupalURL = null;
 
     /**
      * The class constructor.  
@@ -59,8 +52,8 @@ public class DrupalUserAuthentication implements UserAuthentication {
         try {
             // Read in the configuration settings.
             URL resource = getClass().getResource("/");
-            String config_path = resource.getPath() + "/../../config/drupal.xml";
-            FileInputStream fstream = new FileInputStream(config_path);
+            String configPath = resource.getPath() + "/../../config/drupal.xml";
+            FileInputStream fstream = new FileInputStream(configPath);
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(fstream);
@@ -70,14 +63,14 @@ public class DrupalUserAuthentication implements UserAuthentication {
             if (userNode != null) {
                Element databaseNode = (Element)userNode.getElementsByTagName("database").item(0);
                 if (databaseNode != null) {
-                   DrupalURL = databaseNode.getElementsByTagName("url").item(0).getTextContent();
+                   drupalURL = databaseNode.getElementsByTagName("url").item(0).getTextContent();
                     Node userNameNode = databaseNode.getElementsByTagName("username").item(0);
                     if (userNameNode != null) {
-                       DrupalUsername = userNameNode.getTextContent();
+                       drupalUsername = userNameNode.getTextContent();
                     }
                     Node passwordNode = databaseNode.getElementsByTagName("password").item(0);
                     if (passwordNode != null) {
-                       DrupalPassword = passwordNode.getTextContent();
+                       drupalPassword = passwordNode.getTextContent();
                     }
                 }
             }
@@ -199,7 +192,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
                     // Now that we have a session, test to see if this
                     // session exists in the Drupal database. If it does,
                     // then get the user name and return.
-                    Connection drupalConn = DriverManager.getConnection(DrupalURL, DrupalUsername, DrupalPassword);
+                    Connection drupalConn = DriverManager.getConnection(drupalURL, drupalUsername, drupalPassword);
                     String sql = "SELECT name " +
                                  "FROM sessions S " +
                                  "  INNER JOIN users U on U.uid = S.uid " +
@@ -244,7 +237,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
         boolean valid = false;
         
         // Establish the connection with Drupal, and query the database for the given user
-        Connection drupalConn = DriverManager.getConnection(DrupalURL, DrupalUsername, DrupalPassword);
+        Connection drupalConn = DriverManager.getConnection(drupalURL, drupalUsername, drupalPassword);
         String sql = "SELECT name, pass, status FROM users WHERE name = ?";
         PreparedStatement stmt = drupalConn.prepareStatement(sql);
         stmt.setString(1, username);

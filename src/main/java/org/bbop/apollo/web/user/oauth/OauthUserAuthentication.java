@@ -49,34 +49,37 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson.JacksonFactory;
 
+/**
+ * NOTE: not yet working
+ */
 public class OauthUserAuthentication implements UserAuthentication {
 	
 	// These values are set in the Oauth.xml configuration file 
-	private String Provider_Name = null;
-	private String Client_ID = null;
-	private String Client_Secret = null;
-	private String Auth_URL = null;
-	private String Token_URL = null;
-	private String Profile_URL = null;
-	private String Uname_Field = null;
+	private String providerName = null;
+	private String clientID = null;
+	private String clientSecret = null;
+	private String authURL = null;
+	private String tokenURL = null;
+	private String profileUrl = null;
+	private String unameField = null;
 	
 	public OauthUserAuthentication() {
 		try {
 			URL resource = getClass().getResource("/");
-			String config_path = resource.getPath() + "/../../config/oauth.xml";
+			String configPath = resource.getPath() + "/../../config/oauth.xml";
 			
-			FileInputStream fstream = new FileInputStream(config_path);
+			FileInputStream fstream = new FileInputStream(configPath);
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document doc = db.parse(fstream);
 			
-			Provider_Name = doc.getElementsByTagName("provider_name").item(0).getFirstChild().getNodeValue();
-			Client_ID     = doc.getElementsByTagName("client_id").item(0).getFirstChild().getNodeValue();
-			Client_Secret = doc.getElementsByTagName("client_secret").item(0).getFirstChild().getNodeValue();
-			Auth_URL      = doc.getElementsByTagName("auth_url").item(0).getFirstChild().getNodeValue();
-			Token_URL     = doc.getElementsByTagName("token_url").item(0).getFirstChild().getNodeValue();
-			Profile_URL   = doc.getElementsByTagName("profile_url").item(0).getFirstChild().getNodeValue();
-			Uname_Field   = doc.getElementsByTagName("uname_field").item(0).getFirstChild().getNodeValue();
+			providerName = doc.getElementsByTagName("provider_name").item(0).getFirstChild().getNodeValue();
+			clientID = doc.getElementsByTagName("client_id").item(0).getFirstChild().getNodeValue();
+			clientSecret = doc.getElementsByTagName("client_secret").item(0).getFirstChild().getNodeValue();
+			authURL = doc.getElementsByTagName("auth_url").item(0).getFirstChild().getNodeValue();
+			tokenURL = doc.getElementsByTagName("token_url").item(0).getFirstChild().getNodeValue();
+			profileUrl = doc.getElementsByTagName("profile_url").item(0).getFirstChild().getNodeValue();
+			unameField = doc.getElementsByTagName("uname_field").item(0).getFirstChild().getNodeValue();
 			
 		} 
 		catch (FileNotFoundException e) {
@@ -129,7 +132,7 @@ public class OauthUserAuthentication implements UserAuthentication {
 			// provider is constructed in the WebContent/user_interfaces/oauth/login.jsp file
 			
 			// get the authorization code
-			String auth_code = request.getParameter("code");
+			String authCode = request.getParameter("code");
 			String error = request.getParameter("error");
 			String state = request.getParameter("state");
 			
@@ -137,8 +140,8 @@ public class OauthUserAuthentication implements UserAuthentication {
 			// user.  If the provider provides an "error_description" then include
 			// that in the error message
 			if (error != null) {
-				String error_description = request.getParameter("error_description");
-				throw new UserAuthenticationException("OAuth error: " + error + ". " + error_description + ". ");
+				String errorDescription = request.getParameter("error_description");
+				throw new UserAuthenticationException("OAuth error: " + error + ". " + errorDescription + ". ");
 			}
 
 			// ---------------
@@ -148,23 +151,23 @@ public class OauthUserAuthentication implements UserAuthentication {
 			// Implicit Flow, Resource Owner Password Flow, and Client Credentials.
 			// We will use Authentication code Flow. Therefore, we begin by
 			// creating an AuthroizationCodeFlow object
-			JsonFactory json_factory = new JacksonFactory();
+			JsonFactory jsonFactory = new JacksonFactory();
 			AuthorizationCodeFlow.Builder acfb= new AuthorizationCodeFlow.Builder(
 				BearerToken.authorizationHeaderAccessMethod(),
 				new NetHttpTransport(),
-				json_factory,
-				new GenericUrl(Token_URL),
-				new ClientParametersAuthentication(Client_ID, Client_Secret), 
-				Client_ID, 
-				Token_URL
+				jsonFactory,
+				new GenericUrl(tokenURL),
+				new ClientParametersAuthentication(clientID, clientSecret),
+                    clientID,
+                    tokenURL
 			);
-			AuthorizationCodeFlow codeFlow = acfb.setScopes(Arrays.asList(Uname_Field)).build();
+			AuthorizationCodeFlow codeFlow = acfb.setScopes(Arrays.asList(unameField)).build();
 			
 			// Next we need to construct a token request object to request the access token
-			String redirect_uri = "http://localhost:8080/WebApollo/Login?operation=login&forceRedirect=true";
-			AuthorizationCodeTokenRequest actr = codeFlow.newTokenRequest(auth_code);
-			actr.setRedirectUri(redirect_uri);
-			actr.setScopes(Arrays.asList(Uname_Field));
+			String redirectUri = "http://localhost:8080/WebApollo/Login?operation=login&forceRedirect=true";
+			AuthorizationCodeTokenRequest actr = codeFlow.newTokenRequest(authCode);
+			actr.setRedirectUri(redirectUri);
+			actr.setScopes(Arrays.asList(unameField));
 			
 			// The executeUnparsed() function of the token request object causes
 			// WebApollo to request the access token from the oauth provider. 
@@ -172,54 +175,54 @@ public class OauthUserAuthentication implements UserAuthentication {
 			// automatically parse the return JSON array but not all providers
 			// return values in ways that the Google parser likes, so we must
 			// manually parse the response.
-			HttpResponse token_unparsed = actr.executeUnparsed();
-			if (token_unparsed.getContentEncoding() == "gzip") {
+			HttpResponse tokenUnparsed = actr.executeUnparsed();
+			if (tokenUnparsed.getContentEncoding() == "gzip") {
 				
 			}
 
 			// Parse the response into a TokenResponse object.
 			// TokenResponse token_response = token_unparsed.parseAs(TokenResponse.class);
-			token_unparsed.getContent();
-			InputStream token_is = token_unparsed.getContent();
-			JSONObject token_json = JSONUtil.convertInputStreamToJSON(token_is);
-			String access_token = token_json.getString("access_token");
+			tokenUnparsed.getContent();
+			InputStream tokenIs = tokenUnparsed.getContent();
+			JSONObject tokenJson = JSONUtil.convertInputStreamToJSON(tokenIs);
+			String accessToken = tokenJson.getString("access_token");
 			
 			// store the details in a TokenResponse object
-			TokenResponse token_response = new TokenResponse();
-			token_response.setExpiresInSeconds(token_json.getLong("expires_in"));
-			token_response.setScope(token_json.getString("scope"));
-			token_response.setAccessToken(token_json.getString("access_token"));
-			token_response.setTokenType(token_json.getString("token_type"));
-			token_response.setRefreshToken(token_json.getString("refresh_token"));
-			token_response.setFactory(json_factory);
+			TokenResponse tokenResponse = new TokenResponse();
+			tokenResponse.setExpiresInSeconds(tokenJson.getLong("expires_in"));
+			tokenResponse.setScope(tokenJson.getString("scope"));
+			tokenResponse.setAccessToken(tokenJson.getString("access_token"));
+			tokenResponse.setTokenType(tokenJson.getString("token_type"));
+			tokenResponse.setRefreshToken(tokenJson.getString("refresh_token"));
+			tokenResponse.setFactory(jsonFactory);
 			
 			// ---------------
 			// Step 3: now that we have the access token, we can request the profile
 			// information which should include the username
-			HttpClient http_client = new DefaultHttpClient();
-			HttpPost http_post = new HttpPost(Profile_URL);
+			HttpClient httpClient = new DefaultHttpClient();
+			HttpPost httpPost = new HttpPost(profileUrl);
 			
 			List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-			nvps.add(new BasicNameValuePair("access_token", access_token));
-			http_post.setEntity(new UrlEncodedFormEntity(nvps));
-			org.apache.http.HttpResponse post_response = http_client.execute(http_post);
-			String post_json = EntityUtils.toString(post_response.getEntity());
-			JSONObject post_obj = new JSONObject(post_json);
+			nvps.add(new BasicNameValuePair("access_token", accessToken));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			org.apache.http.HttpResponse post_response = httpClient.execute(httpPost);
+			String postJson = EntityUtils.toString(post_response.getEntity());
+			JSONObject postObj = new JSONObject(postJson);
 			
-			if (post_obj.has("error")) {
-				String error_description = "";
-				if (post_obj.has("error_description")) {
-					error_description = post_obj.getString("error_description");
+			if (postObj.has("error")) {
+				String errorDescription = "";
+				if (postObj.has("error_description")) {
+					errorDescription = postObj.getString("error_description");
 				}
-				throw new UserAuthenticationException("OAuth error: " + error + ". " + error_description + ". ");
+				throw new UserAuthenticationException("OAuth error: " + error + ". " + errorDescription + ". ");
 			}
 			
 			//Object obj = token_response.get("id_token");
 			
 			//TokenResponse token_response = actr.execute();
-			IdToken id_token = IdToken.parse(json_factory, token_response.get("id_token").toString());
-			username = id_token.getPayload().get(Uname_Field).toString();
-			System.out.println("Hi");
+			IdToken idToken = IdToken.parse(jsonFactory, tokenResponse.get("id_token").toString());
+			username = idToken.getPayload().get(unameField).toString();
+			System.out.println("Oauth returned");
 		} 
 		catch (java.lang.IllegalArgumentException e){
 			String error = e.getMessage();

@@ -240,6 +240,8 @@
         <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
         <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json" />
         <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>
+        <copy failonerror="false" file="sample_drupal.xml" tofile="${apollo.webapp.directory}/config/drupal.xml"/>
+        <copy failonerror="false" file="sample_oauth.xml.xml" tofile="${apollo.webapp.directory}/config/drupal.xml"/>
     </target>
 
 
