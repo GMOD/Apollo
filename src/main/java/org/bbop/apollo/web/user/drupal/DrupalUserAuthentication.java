@@ -1,11 +1,6 @@
 package org.bbop.apollo.web.user.drupal;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -13,6 +8,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -23,6 +20,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.io.FileUtils;
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
@@ -33,10 +31,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DrupalUserAuthentication implements UserAuthentication {
 
     private static final int DRUPAL_HASH_LENGTH = 55;
+
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     /** 
      * Variables with values derived from the drupal.xml config file
@@ -51,8 +53,27 @@ public class DrupalUserAuthentication implements UserAuthentication {
     public DrupalUserAuthentication() {
         try {
             // Read in the configuration settings.
-            URL resource = getClass().getResource("/");
-            String configPath = resource.getPath() + "/../../config/drupal.xml";
+
+//            URL resource = getClass().getResource("/");
+            File currentDirectory= new File(".");
+            String[] extensions = new String[]{"xml"};
+            Collection<File> files = FileUtils.listFiles(currentDirectory, extensions, true);
+            String configPath = null ;
+            Iterator<File> fileIterator = files.iterator() ;
+            while(fileIterator.hasNext() && configPath ==null ){
+                File file = fileIterator.next();
+                if(file.getName().contains("drupal.xml")){
+                    configPath = file.getAbsolutePath();
+                    logger.info("Found the drupal file: "+configPath);
+                }
+            }
+            if(configPath==null ){
+                logger.error("could not find the drupal.xml file in path") ;
+                return;
+            }
+//            String configPath = resource.getPath() + "/../../config/drupal.xml";
+//            String configPath = resource.getPath() + "/../../config/drupal.xml";
+//            InputStream configuration = servletContext.getResourceAsStream("/config/config.xml");
             FileInputStream fstream = new FileInputStream(configPath);
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
