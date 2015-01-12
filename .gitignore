@@ -7,6 +7,7 @@ config.properties
 src/main/webapp/config.properties
 src/main/webapp/config.xml
 src/main/webapp/canned_comments.xml
+drupal.xml
 config.xml
 blat_config.xml
 src/main/webapp/jbrowse/
