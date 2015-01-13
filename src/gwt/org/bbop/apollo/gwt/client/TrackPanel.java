@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -109,12 +110,52 @@ public class TrackPanel extends Composite {
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("Loading"));
 
+        // TODO: on-click . . . if not Clicked
         Column<TrackInfo,Boolean> firstNameColumn = new Column<TrackInfo,Boolean>(new CheckboxCell(true,false)) {
+
+
             @Override
             public Boolean getValue(TrackInfo employee) {
                 return employee.getVisible();
             }
         };
+
+        firstNameColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
+            /**
+             * TODO: emulate . . underTrackList . . Create an external function n Annotrackto then call from here
+             * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
+             * uses DOJO publish mechanism (http://dojotoolkit.org/reference-guide/1.7/dojo/publish.html)
+
+             *    dojo.connect( this.dataGrid.selection, 'onSelected', this, function(index) {
+             this._ifNotSuppressed( 'selectionEvents', function() {
+             this._suppress( 'gridUpdate', function() {
+             this.browser.publish( '/jbrowse/v1/v/tracks/show', [this.dataGrid.getItem( index ).conf] );
+             });
+             });
+
+             });
+             dojo.connect( this.dataGrid.selection, 'onDeselected', this, function(index) {
+             this._ifNotSuppressed( 'selectionEvents', function() {
+             this._suppress( 'gridUpdate', function() {
+             this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.dataGrid.getItem( index ).conf] );
+             });
+             });
+             });
+
+             * @param index
+             * @param object
+             * @param value
+             */
+            @Override
+            public void update(int index, TrackInfo object, Boolean value) {
+                if(value){
+                    GWT.log("selected . .  do something");
+                }
+                else{
+                    GWT.log("UN selected . .  do something");
+                }
+            }
+        });
         firstNameColumn.setSortable(true);
 
         TextColumn<TrackInfo> secondNameColumn = new TextColumn<TrackInfo>() {
