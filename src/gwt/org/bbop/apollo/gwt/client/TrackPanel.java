@@ -125,6 +125,12 @@ public class TrackPanel extends Composite {
             public void update(int index, TrackInfo trackInfo, Boolean value) {
                 JSONObject jsonObject = trackInfo.getPayload();
                 trackInfo.setVisible(value);
+//                if(jsonObject.get("storeClass")!=null){
+//                    jsonObject.put("store", jsonObject.get("storeClass").isString());
+//                }
+//                else{
+//                    jsonObject.put("store",new JSONObject());
+//                }
                 if(value){
                     jsonObject.put("command",new JSONString("show") );
                     GWT.log("selected . .  do something");
