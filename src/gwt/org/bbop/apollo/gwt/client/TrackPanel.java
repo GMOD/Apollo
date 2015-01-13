@@ -2,13 +2,29 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 //import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.MultiSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -27,6 +43,8 @@ public class TrackPanel extends Composite {
     }
 
     private static TrackUiBinder ourUiBinder = GWT.create(TrackUiBinder.class);
+
+    private String rootUrl;
 
     @UiField
     FlexTable configurationTable;
@@ -49,6 +67,7 @@ public class TrackPanel extends Composite {
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
 
+    private ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
 
 
     //    @UiField(provided = true) org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
@@ -62,6 +81,9 @@ public class TrackPanel extends Composite {
 
 
     public TrackPanel() {
+
+        Dictionary dictionary = Dictionary.getDictionary("Options");
+        rootUrl = dictionary.get("rootUrl");
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
@@ -119,11 +141,11 @@ public class TrackPanel extends Composite {
         dataGrid.addColumn(thirdNameColumn, "Type");
 
 
-        ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(dataGrid);
 
         List<TrackInfo> trackInfoList = dataProvider.getList();
-        DataGenerator.populateTrackList(trackInfoList);
+        loadTracks(trackInfoList);
+//        DataGenerator.populateTrackList(trackInfoList);
 
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(trackInfoList);
@@ -165,7 +187,52 @@ public class TrackPanel extends Composite {
     }
 
     public void reload(){
+        List<TrackInfo> trackInfoList = dataProvider.getList();
+        loadTracks(trackInfoList);
         dataGrid.redraw();
+    }
+
+    public void loadTracks(final List<TrackInfo> trackInfoList) {
+//        String url = "/apollo/organism/findAllTracks";
+        String url = rootUrl+"/jbrowse/data/trackList.json";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                trackInfoList.clear();
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONObject returnValueObject = returnValue.isObject();
+                JSONArray array = returnValueObject.get("tracks").isArray();
+//                Window.alert("array size: "+array.size());
+
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+                    TrackInfo trackInfo = new TrackInfo();
+                    trackInfo.setName(object.get("key").isString().stringValue());
+                    trackInfo.setLabel(object.get("label").isString().stringValue());
+                    trackInfo.setType(object.get("type").isString().stringValue());
+                    trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+                    trackInfo.setVisible(false);
+//                    GWT.log(object.toString());
+                    trackInfoList.add(trackInfo);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
+
     }
 
 }

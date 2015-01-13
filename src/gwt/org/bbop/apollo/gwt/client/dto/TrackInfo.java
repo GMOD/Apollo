@@ -6,8 +6,13 @@ package org.bbop.apollo.gwt.client.dto;
 public class TrackInfo implements Comparable<TrackInfo> {
 
     private String name;
+    private String label;
     private String type;
     private Boolean visible;
+    private String urlTemplate ;
+
+    public TrackInfo(){}
+
 
     public TrackInfo(String name, String type, Boolean visible) {
         this.name = name;
@@ -49,5 +54,21 @@ public class TrackInfo implements Comparable<TrackInfo> {
 
     public void setVisible(Boolean visible) {
         this.visible = visible;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getUrlTemplate() {
+        return urlTemplate;
+    }
+
+    public void setUrlTemplate(String urlTemplate) {
+        this.urlTemplate = urlTemplate;
     }
 }
