@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONObject;
+
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -10,6 +12,8 @@ public class TrackInfo implements Comparable<TrackInfo> {
     private String type;
     private Boolean visible;
     private String urlTemplate ;
+
+    private JSONObject payload ;
 
     public TrackInfo(){}
 
@@ -70,5 +74,13 @@ public class TrackInfo implements Comparable<TrackInfo> {
 
     public void setUrlTemplate(String urlTemplate) {
         this.urlTemplate = urlTemplate;
+    }
+
+    public JSONObject getPayload() {
+        return payload;
+    }
+
+    public void setPayload(JSONObject payload) {
+        this.payload = payload;
     }
 }

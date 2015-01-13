@@ -113,19 +113,6 @@ public class TrackPanel extends Composite {
              * TODO: emulate . . underTrackList . . Create an external function n Annotrackto then call from here
              * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
              * uses DOJO publish mechanism (http://dojotoolkit.org/reference-guide/1.7/dojo/publish.html)
-
-             *    dojo.connect( this.dataGrid.selection, 'onSelected', this, function(index) {
-             this._ifNotSuppressed( 'selectionEvents', function() {
-             this._suppress( 'gridUpdate', function() {
-             this.browser.publish( '/jbrowse/v1/v/tracks/show', [this.dataGrid.getItem( index ).conf] );
-             });
-             });
-
-             });
-             dojo.connect( this.dataGrid.selection, 'onDeselected', this, function(index) {
-             this._ifNotSuppressed( 'selectionEvents', function() {
-             this._suppress( 'gridUpdate', function() {
-             this.browser.publish( '/jbrowse/v1/v/tracks/hide', [this.dataGrid.getItem( index ).conf] );
              });
              });
              });
@@ -136,17 +123,17 @@ public class TrackPanel extends Composite {
              */
             @Override
             public void update(int index, TrackInfo trackInfo, Boolean value) {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("label", new JSONString(trackInfo.getLabel()));
+                JSONObject jsonObject = trackInfo.getPayload();
                 trackInfo.setVisible(value);
                 if(value){
-                    publishUpdate(jsonObject,"show");
+                    jsonObject.put("command",new JSONString("show") );
                     GWT.log("selected . .  do something");
                 }
                 else{
-                    publishUpdate(jsonObject,"hide");
+                    jsonObject.put("command",new JSONString("hide") );
                     GWT.log("UN selected . .  do something");
                 }
+                publishUpdate(jsonObject);
             }
         });
         firstNameColumn.setSortable(true);
@@ -220,8 +207,8 @@ public class TrackPanel extends Composite {
 
     }
 
-    private native void publishUpdate(JSONObject jsonObject, String command) /*-{
-        $wnd.sendTrackUpdate(jsonObject,command);
+    private native void publishUpdate(JSONObject jsonObject) /*-{
+        $wnd.sendTrackUpdate(jsonObject);
     }-*/;
 
     public void reload(){
@@ -251,6 +238,7 @@ public class TrackPanel extends Composite {
                     trackInfo.setName(object.get("key").isString().stringValue());
                     trackInfo.setLabel(object.get("label").isString().stringValue());
                     trackInfo.setType(object.get("type").isString().stringValue());
+                    trackInfo.setPayload(object);
                     if(object.get("urlTemplate")!=null){
                         trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
                     }

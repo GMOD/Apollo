@@ -128,7 +128,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.verbose_mouseenter = false;
         this.verbose_mouseleave = false;
         this.verbose_render = false;
-        this.verbose_server_notification = true;
+        this.verbose_server_notification = false ;
 
         var track = this;
 
@@ -536,8 +536,31 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.client = Stomp.over(this.listener);
         var client = this.client ;
         var track = this;
+        var browser = this.gview.browser;
         client.connect({}, function(){
+            client.subscribe("/topic/TrackList", function(message){
+                var trackConfig = JSON.parse(message.body);
+                console.log(trackConfig);
+                console.log("ON THE TRACK LIST ");
+                var command = trackConfig.command ;
+
+                if(command=="show"){
+                    console.log('trying to show the track: '+trackConfig);
+                    track.gview.browser.publish( '/jbrowse/v1/v/tracks/show', [trackConfig] );
+                }
+                else
+                if(command=="hide"){
+                    console.log('trying to hide the track: '+trackConfig);
+                    track.gview.browser.publish( '/jbrowse/v1/v/tracks/hide', [trackConfig] );
+                }
+                else{
+                    console.log('cont sure what command is supposed to be: '+command);
+                }
+            });
+
+
             client.subscribe("/topic/AnnotationNotification", function(message) {
+                console.log('NOTIFIED of ANNOT CHANGE');
 
                 // for some reason have to parse this twice
                 //console.log('input message: '+message);
