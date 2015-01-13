@@ -728,9 +728,24 @@ return declare( JBPlugin,
         $head.prepend(favicon2);
     }
 
-
 });
 
 });
 
 });
+//var sendTrackUpdate = function(track,command){
+//    console.log('calling function '+command);
+//    if(command=="show"){
+//        console.log('trying to show the track: '+track);
+//        this.browser.publish( '/jbrowse/v1/v/tracks/show', [track] );
+//    }
+//    else
+//    if(command=="hide"){
+//        console.log('trying to hide the track: '+track);
+//        this.browser.publish( '/jbrowse/v1/v/tracks/hide', [track] );
+//    }
+//    else{
+//        console.log('cont sure what command is supposed to be: '+command);
+//    }
+//};
+

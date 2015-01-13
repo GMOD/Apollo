@@ -3,29 +3,17 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 //import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.MultiSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -143,15 +131,20 @@ public class TrackPanel extends Composite {
              });
 
              * @param index
-             * @param object
+             * @param trackInfo
              * @param value
              */
             @Override
-            public void update(int index, TrackInfo object, Boolean value) {
+            public void update(int index, TrackInfo trackInfo, Boolean value) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("label", new JSONString(trackInfo.getLabel()));
+                trackInfo.setVisible(value);
                 if(value){
+                    publishUpdate(jsonObject,"show");
                     GWT.log("selected . .  do something");
                 }
                 else{
+                    publishUpdate(jsonObject,"hide");
                     GWT.log("UN selected . .  do something");
                 }
             }
@@ -227,6 +220,10 @@ public class TrackPanel extends Composite {
 
     }
 
+    private native void publishUpdate(JSONObject jsonObject, String command) /*-{
+        $wnd.sendTrackUpdate(jsonObject,command);
+    }-*/;
+
     public void reload(){
         List<TrackInfo> trackInfoList = dataProvider.getList();
         loadTracks(trackInfoList);
@@ -254,7 +251,9 @@ public class TrackPanel extends Composite {
                     trackInfo.setName(object.get("key").isString().stringValue());
                     trackInfo.setLabel(object.get("label").isString().stringValue());
                     trackInfo.setType(object.get("type").isString().stringValue());
-                    trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+                    if(object.get("urlTemplate")!=null){
+                        trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+                    }
                     trackInfo.setVisible(false);
 //                    GWT.log(object.toString());
                     trackInfoList.add(trackInfo);
