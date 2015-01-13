@@ -13,12 +13,12 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
 {
 
-/**
- * Track to display the underlying reference sequence, when zoomed in
- * far enough.
- * @class
- * @constructor
- */
+    /**
+     * Track to display the underlying reference sequence, when zoomed in
+     * far enough.
+     * @class
+     * @constructor
+     */
     constructor: function( args ) {
         this.isWebApolloSequenceTrack = true;
         var track = this;
@@ -29,7 +29,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
          * initialization
          */
         this.has_custom_context_menu = true;
-        //        this.use_standard_context_menu = false;
         this.show_reverse_strand = true;
         this.show_protein_translation = true;
         this.context_path = "..";
@@ -41,17 +40,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
-
-//        this.charSize = this.webapollo.getSequenceCharacterSize();
-        //        this.charWidth = this.charSize.charWidth;
-        //        this.seqHeight = this.charSize.seqHeight;
-
-        // splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible 
-        //    for DNA residues and protein translation to be different styles
-        //        this.dnaHeight = this.seqHeight;
-        //        this.proteinHeight = this.seqHeight;
-
-        // this.refSeq = refSeq;  already assigned in BlockBased superclass
 
         if (this.store.name == 'refseqs') {
             this.sequenceStore = this.store;
@@ -94,15 +82,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
         this.ALWAYS_SHOW = false;
-        // this.setLoaded();
-        //        this.initContextMenu();
-
-        /*
-        var atrack = this.getAnnotTrack();
-        if (atrack)  { 
-            this.setAnnotTrack(atrack); 
-        }  
-        */
         
         this.translationTable = {};
 
@@ -119,17 +98,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
  
     },
 
-// annotSelectionManager is class variable (shared by all AnnotTrack instances)
-// SequenceTrack.seqSelectionManager = new FeatureSelectionManager();
-
-// setting up selection exclusiveOr --
-//    if selection is made in annot track, any selection in other tracks is deselected, and vice versa,
-//    regardless of multi-select mode etc.
-// SequenceTrack.seqSelectionManager.addMutualExclusion(DraggableFeatureTrack.selectionManager);
-// SequenceTrack.seqSelectionManager.addMutualExclusion(AnnotTrack.annotSelectionManager);
-//DraggableFeatureTrack.selectionManager.addMutualExclusion(SequenceTrack.seqSelectionManager);
-
-//    loadSuccess: function(trackInfo)  { }  // loadSuccess no longer called by track initialization/loading
     _defaultConfig: function() {
         var thisConfig = this.inherited(arguments);
         // nulling out menuTemplate to suppress default JBrowse feature contextual menu
@@ -158,16 +126,14 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     loadTranslationTable: function() {
         var track = this;
         return dojo.xhrPost( {
-            postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_translation_table" }',
+            postData: JSON.stringify({ "track": track.annotTrack.getUniqueTrackName(), "operation": "get_translation_table" }),
             url: track.context_path + "/AnnotationEditorService",
             handleAs: "json",
-            //timeout: 5 * 1000, // Time in milliseconds
             // The LOAD function will be called on a successful response.
-            load: function(response, ioArgs) { //
+            load: function(response) {
                 track.translationTable = {};
                 var ttable = response.translation_table;
                 for (var codon in ttable) {
-                    // looping through codon table, make sure not hitting generic properties...
                     if (ttable.hasOwnProperty(codon)) {
                         var aa = ttable[codon];
                         // console.log("Codon: ", codon, ", aa: ", aa);
@@ -186,7 +152,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                     var n2 = nucs[2][k];
                                     var triplet = n0 + n1 + n2;
                                     track.translationTable[triplet] = aa;
-                                    // console.log("triplet: ", triplet, ", aa: ", aa );
                                 }
                             }
                         }
@@ -194,9 +159,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 }
                 track.changed();
             },
-            // The ERROR function will be called in an error case.
-            error: function(response, ioArgs) { //
-                return response; //
+            error: function(response) {
+                return response;
             }
         });
     },
@@ -206,17 +170,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
      */
     loadSequenceAlterations: function() {
         var track = this;
-
-        /**
-         *    now do XHR to WebApollo AnnotationEditorService for "get_sequence_alterations"
-         */
         return dojo.xhrPost( {
-            postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_sequence_alterations" }',
+            postData: JSON.stringify({ "track": track.annotTrack.getUniqueTrackName(), "operation": "get_sequence_alterations" }),
             url: track.context_path + "/AnnotationEditorService",
             handleAs: "json",
-            //timeout: 5 * 1000, // Time in milliseconds
-            // The LOAD function will be called on a successful response.
-            load: function(response, ioArgs) { //
+            load: function(response) {
                 var responseFeatures = response.features;
                 for (var i = 0; i < responseFeatures.length; i++) {
                     var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
@@ -232,30 +190,20 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                 track.changed();
             },
-            // The ERROR function will be called in an error case.
-            error: function(response, ioArgs) { //
-                return response; //
+            error: function(response) {
+                return response;
             }
         });
     },
 
     startZoom: function(destScale, destStart, destEnd) {
-        // would prefer to only try and hide dna residues on zoom if previous scale was at base pair resolution
-        //   (otherwise there are no residues to hide), but by time startZoom is called, pxPerBp is already set to destScale,
-        //    so would require keeping prevScale var around, or passing in prevScale as additional parameter to startZoom()
-        // so for now just always trying to hide residues on a zoom, whether they're present or not
-
-        // if (prevScale == this.charWidth) {
-
         $(".dna-residues", this.div).css('display', 'none');
         $(".block-seq-container", this.div).css('height', '20px');
-        // }
         this.heightUpdate(20);
         this.gview.trackHeightUpdate(this.name, Math.max(this.labelHeight, 20));
     },
 
     endZoom: function(destScale, destBlockBases) {
-//        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
 
         if( ( destScale == charSize.width ) ||
@@ -266,18 +214,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             this.hide();
         }
         this.clear();
-        //    this.prevScale = destScale;
     },
-
-    /*
-     * SequenceTrack.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
-     containerStart, containerEnd) {
-     console.log("called SequenceTrack.showRange():");
-     console.log({ first: first, last: last, startBase: startBase, bpPerBloc: bpPerBlock, scale: scale,
-     containerStart: containerStart, containerEnd: containerEnd });
-     DraggableFeatureTrack.prototype.showRange.apply(this, arguments);
-     };
-     */
 
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
@@ -285,7 +222,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         this.inherited( arguments );
 
-//        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ( (scale == charSize.width ) ||
             this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
@@ -384,17 +320,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                         //var seq   = feat.get('seq') || feat.get('residues').substring;
                         var start = args.leftBase - 2;
                         var end = args.rightBase + 2;
-
-                        // fill with leading blanks if the
-                        // sequence does not extend all the way
-                        // across our range
-                        /*
-                        for( ; start < 0; start++ ) {
-                                seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
-                        }
-                        */
-
+                        if(seq.trim()=="") { console.log("Here2");return; }
                         if (start < 0) {
+                            console.log("Here");
                             start = 0;
                         }
                         if (args.leftBase == -1) {
@@ -573,11 +501,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                     blockHeight = 20;  // default dna track height if not zoomed to base level
                     seqNode.style.height = "20px";
 
-                    // DraggableFeatureTrack.prototype.fillBlock.apply(track, arguments);
                     track.inherited("fillBlock", arguments);
-                    // this.inherited("fillBlock", arguments);
-
-                    // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
                     track.heightUpdate(blockHeight, blockIndex);
                 }
         } else {
@@ -585,10 +509,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         }
     },
 
-    // heightUpdate: function(height, blockIndex)  {
-    //     // console.log("SequenceTrack.heightUpdate: height = " + height + ", bindex = " + blockIndex);
-    //     DraggableFeatureTrack.prototype.heightUpdate.call(this, height, blockIndex);
-    // };
 
     addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                                  containerStart, containerEnd ) {

@@ -155,36 +155,7 @@ return declare( JBPlugin,
 
 
         if (browser.config.show_nav) {
-            //var helpUrl = browser.config.helpUrl;
-//            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
-//            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
             var jbrowseUrl = "http://jbrowse.org";
-            //browser.addGlobalMenuItem( 'help',
-            //                        new dijitMenuItem(
-            //                            {
-            //                                id: 'menubar_apollo_quickstart',
-            //                                label: 'General',
-            //                                onClick: function()  { window.open(helpUrl,'help_window').focus(); }
-            //                            })
-            //                      );
-           /*
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_userguide',
-                                            label: 'User Guide',
-                                            onClick: function()  { window.open(guideUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_wiki',
-                                            label: 'Wiki',
-                                            onClick: function()  { window.open(wikiUrl,'help_window').focus(); }
-                                        })
-                                  );
-*/
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
@@ -251,9 +222,6 @@ return declare( JBPlugin,
             label: 'WebApollo Sequence'
         });
 
-        // transform track configs from vanilla JBrowse to WebApollo:
-        // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
-        //
         var track_configs = browser.config.tracks;
         for (var i=0; i<track_configs.length; i++)  {
             var track_config = track_configs[i];
@@ -284,123 +252,17 @@ return declare( JBPlugin,
                 browser.poweredByLink.target = "_blank";
             }
 
-            // Initialize information editor with similar style to track selector
-            /*browser.informationEditor=new InformationEditor(
-                dojo.mixin(
-                        dojo.clone( browser.config.bookmarkPanel ) || {},
-                        {
-                            browser: browser,
-                            title: "Info Editor"
-                        }
-                )
-            );
-            browser.tabContainer.addChild(browser.informationEditor);
-            */
-            var view = browser.view;
-            view.oldOnResize = view.onResize;
-
-             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-              *    bug appears in Chrome, not Firefox, unsure of other browsers
-              */
-            view.onResize = function() {
-                // detect if zoomed into base level
-                // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
-                // if showing residues (full zoom), then pxPerBp == maxPxPerBp
-                //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
-                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
-                var oldCharSize = thisB.getSequenceCharacterSize();
-                var newCharSize = thisB.getSequenceCharacterSize(true);
-                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-                var charWidthChanged = (newCharSize.width != oldCharSize.width);
-                var charWidth = newCharSize.width;
-                if (charWidthChanged) {
-                    // if charWidth changed, need to change maxPxPerBp to match
-                    // console.log("residues font size changed, new char width = " + newCharSize.width);
-                    if (! browser.config.view) { browser.config.view = {}; }
-                    browser.config.view.maxPxPerBp = charWidth;
-                    view.maxPxPerBp = charWidth;
-                }
-                if (charWidthChanged && fullZoom) {
-                    // console.log("at full zoom, trying font size fix");
-                    view.pxPerBp = view.maxPxPerBp;
-                    view.oldOnResize();
-                    thisB.browserZoomFix(centerBp);
-                }
-                else  {
-                    view.oldOnResize();
-                }
-            };
-
+            
             var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
                 constructor: function( args ) {
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
                 }
             });
-            // browser.registerExtraFileDriver(customGff3Driver);
             browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
-
-
     },
 
-
-    /**
-     *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-     *    bug appears in Chrome, not Firefox, unsure of other browsers
-     *    based on GenomeView.zoomToBaseLevel(), GenomeView.updateZoom(), then stripping away unneeded
-    */
-    browserZoomFix: function(pos) {
-        var view = this.browser.view;
-        if (view.animation) return;
-        var baseZoomIndex = view.zoomLevels.length - 1;
-        var zoomLoc = 0.5;
-        view.showWait();
-        view.trimVertical();
-        var relativeScale = view.zoomLevels[baseZoomIndex] / view.pxPerBp;
-        var fixedBp = pos;
-        view.curZoom = baseZoomIndex;
-        view.pxPerBp = view.zoomLevels[baseZoomIndex];
-        view.maxLeft = (view.pxPerBp * view.ref.end) - view.getWidth();
-
-        // needed, otherwise Density track can render wrong
-        //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
-        for (var track = 0; track < view.tracks.length; track++)
-            view.tracks[track].startZoom(view.pxPerBp,
-                                         fixedBp - ((zoomLoc * view.getWidth())
-                                                    / view.pxPerBp),
-                                         fixedBp + (((1 - zoomLoc) * view.getWidth())
-                                                    / view.pxPerBp));
-
-        var eWidth = view.elem.clientWidth;
-        var centerPx = view.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
-        // stripeWidth: pixels per block
-        view.stripeWidth = view.stripeWidthForZoom(view.curZoom);
-        view.scrollContainer.style.width =
-            (view.stripeCount * view.stripeWidth) + "px";
-        view.zoomContainer.style.width =
-            (view.stripeCount * view.stripeWidth) + "px";
-        var centerStripe = Math.round(centerPx / view.stripeWidth);
-        var firstStripe = (centerStripe - ((view.stripeCount) / 2)) | 0;
-        view.offset = firstStripe * view.stripeWidth;
-        view.maxOffset = view.bpToPx(view.ref.end+1) - view.stripeCount * view.stripeWidth;
-        view.maxLeft = view.bpToPx(view.ref.end+1) - view.getWidth();
-        view.minLeft = view.bpToPx(view.ref.start);
-        view.zoomContainer.style.left = "0px";
-        view.setX((centerPx - view.offset) - (eWidth / 2));
-        dojo.forEach(view.uiTracks, function(track) { track.clear(); });
-
-        // needed, otherwise Density track can render wrong
-        //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
-        view.trackIterate( function(track) {
-            track.endZoom( view.pxPerBp,Math.round(view.stripeWidth / view.pxPerBp));
-        });
-
-        view.showVisibleBlocks(true);
-        view.showDone();
-        view.showCoarse();
-    },
 
 
     plusStrandFilter: function(feature)  {
@@ -465,7 +327,7 @@ return declare( JBPlugin,
                             browser.setFeatureFilter(thisB.passNoneFilter);
                         }
                         browser.view.redrawTracks();
-                        }
+                    }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
         var hide_track_label_toggle = new dijitCheckedMenuItem(
@@ -533,24 +395,9 @@ return declare( JBPlugin,
                                                     }
                                                 }) );
             this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
-
-
-            //this.browser.addGlobalMenuItem( 'tools',
-            //    new dijitMenuItem(
-            //        {
-            //            id: 'menubar_apollo_seqsearch',
-            //            label: "Search sequence",
-            //            onClick: function() {
-            //                webapollo.getAnnotTrack().searchSequence();
-            //            }
-            //        }) );
-            //this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
 
-        // move Tool menu in front of Help menu (Help should always be last menu?)
-        // Dojo weirdness: actual menu pulldown get assigned "widgetid" equal to "id" passed when creating dijit DropDownButton
         var $toolsMenu = $('.menu[widgetid="dropdownbutton_tools"');
-        //this.$tools_menu = $('#dropdownbutton_tools').parent().parent();   // gives same result...
         var $helpMenu = $('.menu[widgetid="dropdownbutton_help"');
         $toolsMenu.insertBefore($helpMenu);
         this.searchMenuInitialized = true;
@@ -625,7 +472,6 @@ return declare( JBPlugin,
             for (var i = 0; i < tracks.length; i++)  {
                 // should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloSequenceTrack)  {
-                    // console.log("seq track refseq: " + tracks[i].refSeq.name);
                     return tracks[i];
                 }
             }
@@ -643,7 +489,6 @@ return declare( JBPlugin,
             container = this.browser.view.elem;
         }
         if (recalc || (! this._charSize))  {
-            //            this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
             this._charSize = this.calculateSequenceCharacterSize(container);
         }
         return this._charSize;
