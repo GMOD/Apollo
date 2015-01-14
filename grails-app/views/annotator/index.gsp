@@ -34,7 +34,6 @@
         });
 
 
-        //     });
 
         var sendTrackUpdate = function (track) {
             console.log('publishing track update: ' + track);

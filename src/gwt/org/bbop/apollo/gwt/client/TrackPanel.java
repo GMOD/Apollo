@@ -21,6 +21,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 //import org.gwtbootstrap3.client.ui.gwt.DataGrid;
@@ -218,7 +219,7 @@ public class TrackPanel extends Composite {
         $wnd.sendTrackUpdate(jsonObject);
     }-*/;
 
-    private native JavaScriptObject loadTracks() /*-{
+    private static native JavaScriptObject loadTracks() /*-{
         console.log('into loadtracks returned');
         var allTracks = $wnd.getAllTracks();
         console.log('all tracks returned');
@@ -229,13 +230,45 @@ public class TrackPanel extends Composite {
         return allTracks;
     }-*/;
 
+
+    public static native void exportStaticMethod() /*-{
+        $wnd.loadTracks = $entry(@org.bbop.apollo.gwt.client.TrackPanel::updateTracks(Lcom/google/gwt/json/client/JSONObject;Ljava/util/List;));
+    }-*/;
+
     public void reload(){
         List<TrackInfo> trackInfoList = dataProvider.getList();
         loadTracks(trackInfoList);
         dataGrid.redraw();
     }
 
+    public static void updateTracks(JSONObject returnValueObject, List<TrackInfo> trackInfoList){
+        trackInfoList.clear();
+        if(returnValueObject.get("tracks")==null) return ;
+        JSONArray array = returnValueObject.get("tracks").isArray();
+//                Window.alert("array size: "+array.size());
+
+        for(int i = 0 ; i < array.size() ; i++){
+            JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+            TrackInfo trackInfo = new TrackInfo();
+            trackInfo.setName(object.get("key").isString().stringValue());
+            trackInfo.setLabel(object.get("label").isString().stringValue());
+            trackInfo.setType(object.get("type").isString().stringValue());
+            // todo, don't need all of this really, for now . .
+            trackInfo.setPayload(object);
+            if(object.get("urlTemplate")!=null){
+                trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+            }
+            trackInfo.setVisible(false);
+            GWT.log(object.toString());
+            trackInfoList.add(trackInfo);
+        }
+    }
+
     public void loadTracks(final List<TrackInfo> trackInfoList) {
+
+//        List<TrackInfo> testList = new ArrayList<>();
+        JavaScriptObject javaScriptObject = loadTracks();
 //        String url = "/apollo/organism/findAllTracks";
 //        String url = rootUrl+"/jbrowse/data/trackList.json";
 //        JavaScriptObject returnObject = loadTracks();
@@ -251,30 +284,10 @@ public class TrackPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                trackInfoList.clear();
-                GWT.log("response: "+response.getText());
+//                GWT.log("response: "+response.getText());
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONObject returnValueObject = returnValue.isObject();
-                if(returnValueObject.get("tracks")==null) return ;
-                JSONArray array = returnValueObject.get("tracks").isArray();
-//                Window.alert("array size: "+array.size());
-
-                for(int i = 0 ; i < array.size() ; i++){
-                    JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
-                    TrackInfo trackInfo = new TrackInfo();
-                    trackInfo.setName(object.get("key").isString().stringValue());
-                    trackInfo.setLabel(object.get("label").isString().stringValue());
-                    trackInfo.setType(object.get("type").isString().stringValue());
-                    // todo, don't need all of this really, for now . .
-                    trackInfo.setPayload(object);
-                    if(object.get("urlTemplate")!=null){
-                        trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
-                    }
-                    trackInfo.setVisible(false);
-                    GWT.log(object.toString());
-                    trackInfoList.add(trackInfo);
-                }
+                updateTracks(returnValueObject,trackInfoList);
             }
 
             @Override
