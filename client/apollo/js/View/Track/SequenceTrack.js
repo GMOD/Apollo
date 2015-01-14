@@ -97,6 +97,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         initAnnotTrack();
  
     },
+    _exportFormats: function() {
+        return [{name: 'FASTA', label: 'FASTA', fileExt: 'fasta'}];
+    },
 
     _defaultConfig: function() {
         var thisConfig = this.inherited(arguments);
@@ -309,9 +312,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             var proteinHeight = charSize.height;
 
             if ( scale == charSize.width ) {
-            // this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
-            //  this.sequenceStore.getRange( this.refSeq, leftBase, endBase,
-            //    this.store.getFeatures(
                 this.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
                     function( seq ) {
@@ -946,14 +946,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     },
     
     storedFeatureCount: function(start, end)  {
-        // get accurate count of features loaded (should do this within the XHR.load() function
         var track = this;
         if (start == undefined) {
-            //            start = 0;
             start = track.refSeq.start;
         }
         if (end == undefined) {
-            //            end = track.refSeq.length;
             end = track.refSeq.end;
         }
         var count = 0;
@@ -1259,29 +1256,3 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     return SequenceTrack;
 });
 
-/*
- * highlightText is nice,
- * what would be _really_ good is a residue highlighter that works in genome coords, and
- *     does highlights across all blocks that overlap genome coord range
- * NOT YET IMPLEMENTED
- */
- /*SequenceTrack.prototype.highlightResidues = function(genomeStart, genomeEnd) {
-}
-*/
-
-/*
- *  More efficient form
- *  residues_class is CSS class of residues:  forward, reverse, frame0, frame1, frame2, frameMinus1, frameMinus2, frameMinus3
- *  highlight_class is CSS class for the highlighted span
- *  ranges is an ordered array (min to max) of ranges, each range is itself an array of form [start, end] in genome coords
- *  ranges MUST NOT overlap
- *
- * assumes:
- *     ranges do not overlap
- *     any previous highlighting is removed (revert to raw residues before applying new highlighting)
- *
- *
- *  In implementation can insert span elements in reverse order, so that indexing into string is always accurate (not tripped up by span elements inserted farther upstream)
- *     will need to clamp to bounds of each block
- */
-/*SequenceTrack.prototype.highlightResidues = function(highlight_class, residues_class, ranges) */

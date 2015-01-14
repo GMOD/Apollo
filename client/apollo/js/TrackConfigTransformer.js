@@ -11,7 +11,6 @@ constructor: function()  {
     
     this["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures"; 
-        // console.log("in TrackConfigTransformer: track " + trackConfig.label + ", changing type to: " + trackConfig.type);
     };
 
     this["JBrowse/View/Track/Sequence"] = function(trackConfig) {
