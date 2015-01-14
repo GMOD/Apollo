@@ -190,7 +190,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 else {
                     track.hide();
                 }
-                // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                 track.changed();
             },
             error: function(response) {
@@ -268,9 +267,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         var containerEnd = args.containerEnd;
 
         var verbose = false;
-        // test block for diagnostics
-        // var verbose = (leftBase === 245524);
-
         var fillArgs = arguments;
         var track = this;
         
@@ -280,7 +276,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 track.stopStandby();
             };
         
-//        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
                 this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
@@ -292,11 +287,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         var blockHeight = 0;
 
         if (this.shown) {
-            // make a div to contain the sequences
             var seqNode = document.createElement("div");
             seqNode.className = "wa-sequence";
-            // seq_block_container style sets width = 100%, so seqNode fills the block width
-            //    regardless of whether holding residue divs or not
             $(seqNode).addClass("block-seq-container");
             block.domNode.appendChild(seqNode);
 
@@ -315,9 +307,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 this.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
                     function( seq ) {
-                        //var start = feat.get('start');
-                        //var end   = feat.get('end');
-                        //var seq   = feat.get('seq') || feat.get('residues').substring;
                         var start = args.leftBase - 2;
                         var end = args.rightBase + 2;
                         if(seq.trim()=="") { console.log("Here2");return; }
@@ -349,7 +338,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                         if (track.show_protein_translation) {
                             var framedivs = [];
                             for (var i=0; i<3; i++) {
-                                // var tstart = start + i;
                                 var tstart = blockStart + i;
                                 var frame = tstart % 3;
                                 if (verbose) { console.log("  forward translating: offset = " + i + ", frame = " + frame); }
@@ -372,25 +360,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                             }
                         }
 
-                        /*
-                        var dnaContainer = document.createElement("div");
-                        $(dnaContainer).addClass("dna-container");
-                        seqNode.appendChild(dnaContainer);
-                        */
-
                         // add a div for the forward strand
                         var forwardDNA = track.renderResidues( blockResidues );
                         $(forwardDNA).addClass("forward-strand");
                         seqNode.appendChild( forwardDNA );
 
-
-                        /*
-                        could force highlighting on mouseenter in additona to mousemove,
-                         but mousemove seems to always be fired anyway when there's a mouseenter
-                           $(forwardDNA).bind("mouseenter", function(event) {
-                         track.removeTextHighlight(element);
-                         } );
-                         */
 
 
                         // dnaContainer.appendChild(forwardDNA);
@@ -399,12 +373,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                         blockHeight += dnaHeight;
 
                         if (track.show_reverse_strand) {
-                            // and one for the reverse strand
-                            // var reverseDNA = track.renderResidues( start, end, track.complement(seq) );
                             var reverseDNA = track.renderResidues( track.complement(blockResidues) );
                             $(reverseDNA).addClass("reverse-strand");
                             seqNode.appendChild( reverseDNA );
-                            // dnaContainer.appendChild(reverseDNA);
                             track.residues_context_menu.bindDomNode(reverseDNA);
                             $(reverseDNA).bind("mousedown", track.residuesMouseDown);
                             blockHeight += dnaHeight;
@@ -466,9 +437,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                             var framedivs = [];
                             for (var i=0; i<3; i++) {
                                 var tstart = blockStart + i;
-                                // var frame = tstart % 3;
                                 var frame = (track.refSeq.length - blockEnd + i) % 3;
-                                // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
                                 frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
                                 var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
                                 if (track.webapollo.colorCdsByFrame) {
@@ -479,7 +448,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 }
                                 framedivs[frame] = transProtein;
                             }
-                            // for (var i=2; i>=0; i--) {
                             for (var i=0; i<3; i++) {
                                 var transProtein = framedivs[i];
                                 seqNode.appendChild(transProtein);
@@ -487,11 +455,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 blockHeight += proteinHeight;
                             }
                         }
-                        //DraggableFeatureTrack.prototype.fillBlock.apply(track, fillArgs);
-                        //dojo.hitch ???
                         track.inherited("fillBlock", fillArgs);
                         blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
-                        // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
                         track.heightUpdate(blockHeight, blockIndex);
                     },
                     function() {}
@@ -515,13 +480,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         var featDiv =
         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
-
-        // need to decrease the left boundary by 1% to properly overlay
-        //        var left = /-?\d+/.exec($(featDiv).css("left"));
-        //        if (left >= 0) {
-        //                $(featDiv).css("left", (left - 1) + "%");
-        //        }
-        //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
 
         var seqNode = $("div.wa-sequence", block.domNode).get(0);
@@ -573,9 +531,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
      */
     renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                              containerStart, containerEnd ) {
-        // var track = this;
-        // var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
-
         var featDiv = this.inherited( arguments );
 
         if (featDiv && featDiv != null)  {
@@ -606,9 +561,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                      };
                  })(),
 
-    //given the start and end coordinates, and the sequence bases, makes a
-    //div containing the sequence
-    // SequenceTrack.prototype.renderResidues = function ( start, end, seq ) {
     renderResidues: function ( seq ) {
         var container  = document.createElement("div");
         $(container).addClass("dna-residues");
@@ -618,10 +570,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
     /** end is ignored, assume all of seq is translated (except any extra bases at end) */
     renderTranslation: function ( input_seq, offset, blockLength, reverse) {
-            var CodonTable = this.translationTable;
+        var CodonTable = this.translationTable;
         var verbose = false;
-        // sequence of diagnostic block
-        //    var verbose = (input_seq === "GTATATTTTGTACGTTAAAAATAAAAA" || input_seq === "GCGTATATTTTGTACGTTAAAAATAAA" );
         var seq;
         if (reverse) {
             seq = this.reverseComplement(input_seq);
@@ -651,14 +601,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                                 else  { aa = "?"; }
                                             }
                                             return prefix + aa + suffix;
-                                            // return aa;
                                         } );
         var trimmedAaResidues = aaResidues.substring(0, blockLength);
-        if (verbose)  { console.log("AaLength: " + aaResidues.length + ", trimmedAaLength = " + trimmedAaResidues.length); }
         aaResidues = trimmedAaResidues;
         if (reverse) {
             var revAaResidues = this.reverse(aaResidues);
-            if (verbose) { console.log("reversing aa string, input: \"" + aaResidues + "\", output: \"" + revAaResidues + "\""); }
             aaResidues = revAaResidues;
             while (aaResidues.length < blockLength)  {
                 aaResidues = SequenceTrack.nbsp + aaResidues;
@@ -673,9 +620,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     },
 
     onFeatureMouseDown: function(event) {
-        // _not_ calling DraggableFeatureTrack.prototyp.onFeatureMouseDown --
-        //     don't want to allow dragging (at least not yet)
-        // event.stopPropagation();
         this.last_mousedown_event = event;
         var ftrack = this;
         if (ftrack.verbose_selection || ftrack.verbose_drag)  {
@@ -689,7 +633,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         thisObj.contextMenuItems = new Array();
         thisObj.annot_context_menu = new dijit.Menu({});
 
-         var index = 0;
+        var index = 0;
         if (this.annotTrack.permission & Permission.WRITE) {
                 thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
                         label: "Delete",
@@ -708,10 +652,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         thisObj.contextMenuItems["information"] = index++;
 
         thisObj.annot_context_menu.onOpen = function(event) {
-                // keeping track of mousedown event that triggered annot_context_menu popup,
-                //   because need mouse position of that event for some actions
                 thisObj.annot_context_mousedown = thisObj.last_mousedown_event;
-                // if (thisObj.permission & Permission.WRITE) { thisObj.updateMenu(); }
                 dojo.forEach(this.getChildren(), function(item, idx, arr) {
                     if (item._setSelected)  { item._setSelected(false); }  // test for function existence first
                     if (item._onUnhover)  { item._onUnhover(); }  // test for function existence first
@@ -727,27 +668,23 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         thisObj.residuesMenuItems["toggle_reverse_strand"] = index++;
         thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Toggle Reverse Strand",
-                        onClick: function(event) {
-                        thisObj.show_reverse_strand = ! thisObj.show_reverse_strand;
-                        thisObj.clearHighlightedBases();
-                        // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
-                        thisObj.changed();
-                        // thisObj.toggleReverseStrand();
-                        }
-                } ));
+                label: "Toggle Reverse Strand",
+                onClick: function(event) {
+                    thisObj.show_reverse_strand = ! thisObj.show_reverse_strand;
+                    thisObj.clearHighlightedBases();
+                    thisObj.changed();
+                }
+            } ));
 
         thisObj.residuesMenuItems["toggle_protein_translation"] = index++;
         thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Toggle Protein Translation",
-                        onClick: function(event) {
-                        thisObj.show_protein_translation = ! thisObj.show_protein_translation;
-                        thisObj.clearHighlightedBases();
-                        // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
-                        thisObj.changed();
-                        // thisObj.toggleProteinTranslation();
-                        }
-                } ));
+                label: "Toggle Protein Translation",
+                onClick: function(event) {
+                    thisObj.show_protein_translation = ! thisObj.show_protein_translation;
+                    thisObj.clearHighlightedBases();
+                    thisObj.changed();
+                }
+            } ));
 
 
         if (this.annotTrack.permission & Permission.WRITE) {
@@ -779,36 +716,25 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 } ));
                 thisObj.residuesMenuItems["create_substitution"] = index++;
         }
-        /*
-            thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                    label: "..."
+        thisObj.residues_context_menu.onOpen = function(event) {
+            thisObj.residues_context_mousedown = thisObj.last_mousedown_event;
+            dojo.forEach(this.getChildren(), function(item, idx, arr) {
+                 if (item._setSelected) { item._setSelected(false); }
+                 if (item._onUnhover) { item._onUnhover(); }
+            });
+
+            thisObj.freezeHighlightedBases = true;
+        };
+
+        thisObj.residues_context_menu.onBlur = function() {
+            thisObj.freezeHighlightedBases = false;
+        };
+
+        thisObj.residues_context_menu.onClose = function(event) {
+            if (!thisObj.freezeHighlightedBases) {
+                thisObj.clearHighlightedBases();
             }
-            ));
-            */
-
-            thisObj.residues_context_menu.onOpen = function(event) {
-                    // keeping track of mousedown event that triggered residues_context_menu popup,
-                    //   because need mouse position of that event for some actions
-                    thisObj.residues_context_mousedown = thisObj.last_mousedown_event;
-                    // if (thisObj.permission & Permission.WRITE) { thisObj.updateMenu() }
-                    dojo.forEach(this.getChildren(), function(item, idx, arr) {
-                         if (item._setSelected) { item._setSelected(false); }
-                         if (item._onUnhover) { item._onUnhover(); }
-                    });
-
-                    thisObj.freezeHighlightedBases = true;
-
-            };
-
-            thisObj.residues_context_menu.onBlur = function() {
-                    thisObj.freezeHighlightedBases = false;
-            };
-
-            thisObj.residues_context_menu.onClose = function(event) {
-                    if (!thisObj.freezeHighlightedBases) {
-                            thisObj.clearHighlightedBases();
-                    }
-            };
+        };
 
         thisObj.annot_context_menu.startup();
         thisObj.residues_context_menu.startup();
@@ -823,24 +749,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
         this.annotTrack.openDialog("Add Insertion", content);
-
-    /*
-    var track = this;
-    var features = '[ { "uniquename": "insertion-' + gcoord + '","location": { "fmin": ' + gcoord + ', "fmax": ' + gcoord + ', "strand": 1 }, "residues": "A", "type": {"name": "insertion", "cv": { "name":"SO" } } } ]';
-        dojo.xhrPost( {
-                postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000, // Time in milliseconds
-                // The LOAD function will be called on a successful response.
-                load: function(response, ioArgs) {
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { //
-                        return response;
-                }
-        });
-        */
 
     },
 
