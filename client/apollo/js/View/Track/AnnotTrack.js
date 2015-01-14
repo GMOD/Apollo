@@ -538,9 +538,46 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var track = this;
         var browser = this.gview.browser;
         client.connect({}, function(){
+
+            var sendTracks =function(trackList,visibleTrackNames){
+                console.log('3 AnnotTrack::sendTrakcs');
+                //var trackList = browser.trackListView.trackConfigs;
+                //var visibleTrackNames = browser.view.visibleTrackNames();
+                var filteredTrackList = [] ;
+                for(var trackConfigIndex in trackList){
+                    var filteredTrack = {} ;
+                    var trackConfig = trackList[trackConfigIndex];
+                    var index = visibleTrackNames.indexOf(trackConfig.label);
+                    filteredTrack.label = trackConfig.label ;
+                    filteredTrack.key = trackConfig.key ;
+                    filteredTrack.name = trackConfig.name ;
+                    filteredTrack.type = trackConfig.type ;
+                    filteredTrack.urlTemplate = trackConfig.urlTemplate ;
+                    filteredTrack.visible  = index>=0;
+                    filteredTrackList.push(filteredTrack);
+                }
+
+                //console.log(filteredTrackList);
+                //console.log(visibleTrackNames.size());
+                //console.log(trackList);
+                //client.send("/app/TrackList", {}, JSON.stringify(trackList));
+                console.log('AnnotTrack::returning filterted track list: '+filteredTrackList.length);
+                console.log(JSON.stringify(filteredTrackList));
+                client.send("/topic/JBrowseTrackList", {},JSON.stringify(filteredTrackList));
+            };
+
+
+
             client.subscribe("/topic/TrackList", function(message){
-                console.log('WebSocket TrackList consumed');
-                var trackInfo = JSON.parse(message.body);
+                console.log('AnnotTrack:: WebSocket TrackList consumed: '+JSON.stringify(message.body));
+                console.log(message.body);
+                try {
+                    var trackInfo = JSON.parse(message.body);
+                } catch (e) {
+                    console.log('failed to parse: '+e);
+                }
+                console.log('parsed');
+                console.log(trackInfo);
                 var command = trackInfo.command ;
                 console.log(command);
 
@@ -555,34 +592,17 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
                 else
                 if(command=="list"){
-                    console.log('listing all tracks: '+trackInfo);
-                    var trackList = browser.trackListView.trackConfigs;
+                    console.log('AnnotTrack:: calling sending tracks');
+                    var trackList = browser.trackConfigsByName;
                     var visibleTrackNames = browser.view.visibleTrackNames();
-                    for(var trackConfigIndex in trackList){
-                        var trackConfig = trackList[trackConfigIndex];
-                        var index = visibleTrackNames.indexOf(trackConfig.label);
-                        trackConfig.visible  = index>=0
-                    }
-                    var filteredTrackList = trackList.map(function(track){
-                        return {
-                            label: track.label
-                            ,key: track.key
-                            ,name: track.name
-                            ,type: track.type
-                            ,urlTemplate: track.urlTemplate
-                        }
-                    });
-                    //console.log(filteredTrackList);
-                    //console.log(visibleTrackNames.size());
-                    //console.log(trackList);
-                    //client.send("/app/TrackList", {}, JSON.stringify(trackList));
-                    console.log('returning filterted track list: '+filteredTrackList.size);
-                    client.send("/app/TrackListReturn", {}, JSON.stringify(filteredTrackList));
+                    sendTracks(trackList,visibleTrackNames);
                 }
                 else{
                     console.log('cont sure what command is supposed to be: '+command);
                 }
             });
+
+            //sendTracks(browser);
 
 
             client.subscribe("/topic/AnnotationNotification", function(message) {

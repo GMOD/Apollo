@@ -218,7 +218,7 @@ public class MainPanel extends Composite {
         GWT.log("!!! MainPanel::calling annotator relaod ");
         annotatorPanel.reload();
     }
-    public static void reloadTracks(){ trackPanel.reload(); }
+//    public static void loadTracks(JSONObject trackList){ trackPanel.loadTracks(trackList); }
     public static void reloadSequences(){ sequencePanel.reload(); }
     public static void reloadOrganisms(){ organismPanel.reload(); }
     public static void reloadUsers(){ userPanel.reload(); }
@@ -227,7 +227,7 @@ public class MainPanel extends Composite {
 //    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
-        $wnd.reloadTracks = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadTracks());
+        //$wnd.loadTracks = $entry(@org.bbop.apollo.gwt.client.TrackPanel::updateTracks(Lcom/google/gwt/json/client/JSONObject;));
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());

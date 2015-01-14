@@ -23,15 +23,15 @@ class JbrowseController {
 //    }
 
 
-    @MessageMapping("/topic/TrackListReturn")
-    def allTracks(String input) {
-        println "GETTING ALL TRACKS 2 ${input}"
-        JSONObject inputObject = new JSONObject()
-        inputObject.command = "list"
-        println "returnString = ${returnString}"
-        render returnString as JSON
-//            return "i[${inputString}]"
-    }
+//    @MessageMapping("/topic/TrackListReturn")
+//    def allTracks(String input) {
+//        println "GETTING ALL TRACKS 2 ${input}"
+//        JSONObject inputObject = new JSONObject()
+//        inputObject.command = "list"
+//        println "returnString = ${returnString}"
+//        render returnString as JSON
+////            return "i[${inputString}]"
+//    }
 
     // is typically checking for trackData.json
     def tracks(String jsonFile, String trackName, String groupName) {
