@@ -817,7 +817,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         else {
             this.hide();
         }
-        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
         track.changed();
     },
 
@@ -840,7 +839,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         else {
             this.hide();
         }
-        // track.hideAll();   shouldn't need to call hideAll() before changed() anymore
         track.changed();
     },
 
@@ -898,13 +896,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             var plusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, plusDiv);
             var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "sequence_alteration_input_label" }, minusDiv);
             var minusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, minusDiv);
-            // not sure why, but dojo.connect doesn't work well here??  (at least in Chrome)
-            //    dojo.connect(inputField, "keypress", null, function(e) {        
-            // and JQuery keypress almost works, but doesn't register backspace events
-            //    $(inputField).keypress(function(e) {
-            //    apparently keypress in general doesn't report for some non-character keys:
-            //        http://stackoverflow.com/questions/3911589/why-doesnt-keypress-handle-the-delete-key-and-the-backspace-key
-            // but jquery keydown seems to work
             $(plusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
@@ -1026,12 +1017,25 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                     alert("Cannot create overlapping sequence alterations");
                 }
                 else {
-                    var feature = '"location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ', "strand": 1 }, "type": {"name": "' + type + '", "cv": { "name":"sequence" } }';
+                    var feature = { "location": {
+                        "fmin": fmin,
+                        "fmax": fmax,
+                        "strand": 1
+                    },"type": {
+                        "name":type,
+                        "cv": {
+                            "name":"sequence"
+                        }
+                    } };
                     if (type != "deletion") {
-                        feature += ', "residues": "' + input + '"';
+                        feature.residues= input;
                     }
-                    var features = '[ { ' + feature + ' } ]';
-                    var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
+                    var features = [feature];
+                    var postData = {
+                        "track": track.annotTrack.getUniqueTrackName(),
+                        "features": features,
+                        "operation": "add_sequence_alteration"
+                    };
                     track.annotTrack.executeUpdateOperation(postData);
                     track.annotTrack.closeDialog();
                 }
@@ -1039,7 +1043,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         };
         
         dojo.connect(addButton, "onclick", null, function() {
-                addSequenceAlteration();
+            addSequenceAlteration();
         });
 
         return content;
@@ -1058,21 +1062,20 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
     setAnnotTrack: function(annotTrack) {
         this.startStandby();
-        // if (this.annotTrack)  { console.log("WARNING: SequenceTrack.setAnnotTrack called but annoTrack already set"); }
         var track = this;
 
         this.annotTrack = annotTrack;
         this.initContextMenu();
 
         this.loadTranslationTable().then(
-                function() {
-                    track.loadSequenceAlterations().then(function() {
-                        track.stopStandby();
-                    });
-                },
-                function() {
+            function() {
+                track.loadSequenceAlterations().then(function() {
                     track.stopStandby();
                 });
+            },
+            function() {
+                track.stopStandby();
+            });
     },
 
     /*
