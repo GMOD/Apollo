@@ -1,21 +1,33 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Login</title>
-<!--
-<link rel="stylesheet" type="text/css" href="../styles/login.css" />
--->
-<!--
-<script src="jslib/jquery-1.7.1.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
--->
+<style>
+.user_login {
+	/* width:30%; */
+	margin:5px;
+}
+
+.fieldname {
+	margin-right:5px;
+	font-size: 1.3em;
+}
+
+.input_field {
+	width: 10em;
+	float: right;
+}
+
+.button_login {
+	text-align:center;
+	margin-top:10px;
+	width: 100%;
+}
+</style>
 <script>
-	var context;
 	$(document).ready(function() {
 		var pathname = location.pathname;
-		context = /^\/([^\/]+)\//.exec(pathname)[1];
-		$("head").append("<link rel='stylesheet' type='text/css' href='/" + context + "/styles/login.css'/>");
 		$("#login_button").click(function() {
 			login();
 		});
@@ -33,26 +45,28 @@
 	
 	function login() {
 		var username = $("#username").val();
+		var password = $("#password").val();
 		if (!username) {
-			alert("Missing username");
+            $("#message").text("Missing username");
 			return;
 		}
-		var password = $("#password").val();
-		var json = new Object();
-		json.username = username;
-		json.password = password;
     	$.ajax({
     		type: "post",
-    		url: "/" + context + "/Login?operation=login",
-    		processData: false,
+    		url: "Login?operation=login",
     		dataType: "json",
     		contentType: "application/json",
-    		data: JSON.stringify(json),
+    		data: JSON.stringify({
+                "username":username,
+                "password":password
+            }),
     		success: function(data) {
-    			window.location.reload();
+                setTimeout(function() {
+                    window.location.reload();
+                    },3000);
+                setMessage("Success");
     		},
-    		error: function(jqXHR, textStatus, errorThrown) {
-    			var error = $.parseJSON(jqXHR.responseText);
+    		error: function(response) {
+    			var error = JSON.parse(response.responseText);
     			setMessage(error.error);
     		}
     	});

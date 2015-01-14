@@ -14,8 +14,7 @@
 	var context;
 	$(document).ready(function() {
 		var pathname = location.pathname;
-		context = /^\/([^\/]+)\//.exec(pathname)[1];
-		$("head").append("<link rel='stylesheet' type='text/css' href='/" + context + "/styles/login.css'/>");
+		$("head").append("<link rel='stylesheet' type='text/css' href='styles/login.css'/>");
 		$("#login_button").click(function() {
 			login();
 		});
@@ -43,7 +42,7 @@
 		json.password = password;
     	$.ajax({
     		type: "post",
-    		url: "/" + context + "/Login?operation=login",
+    		url: "Login?operation=login",
     		processData: false,
     		dataType: "json",
     		contentType: "application/json",

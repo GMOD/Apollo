@@ -57,34 +57,12 @@ public class Login extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        userAuthentication.generateUserLoginPage(this, request, response);
-//        response.sendRedirect(userAuthentication.getUserLoginPageURL());
-        /*
-        String url = String.format("http://%s:%d%s/%s", request.getServerName(), request.getServerPort(), getServletContext().getContextPath(), userAuthentication.getUserLoginPageURL());
-        HttpURLConnection connection = (HttpURLConnection)new URL(url).openConnection();
-        boolean ok = connection.getResponseCode() == HttpURLConnection.HTTP_OK;
-        if (ok) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.getWriter().println(line);
-            }
-        }
-        */
         if (request.getParameter("operation") != null && request.getParameter("operation").equals("login")) {
             boolean forceRedirect = request.getParameter("forceRedirect") != null ? Boolean.parseBoolean(request.getParameter("forceRedirect")) : false;
             login(request, response, forceRedirect);
         }
         else {
-            String url = request.getRequestURL() + "/../" + userAuthentication.getUserLoginPageURL();
-            URL userLoginUrl = new URL(url);
-            InputStream in = userLoginUrl.openStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.getWriter().println(line);
-            }
-            in.close();
+            userAuthentication.generateUserLoginPage(this, request, response);
         }
     }
 
