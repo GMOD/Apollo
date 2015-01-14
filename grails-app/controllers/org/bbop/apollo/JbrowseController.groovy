@@ -1,10 +1,16 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONObject
+import org.springframework.messaging.handler.annotation.MessageMapping
+
 import javax.servlet.http.HttpServletResponse
+
 //@CompileStatic
 class JbrowseController {
 
     def configWrapperService
+    def brokerMessagingTemplate
 
 //    def index() {
 //
@@ -17,12 +23,22 @@ class JbrowseController {
 //    }
 
 
+    @MessageMapping("/topic/TrackListReturn")
+    def allTracks(String input) {
+        println "GETTING ALL TRACKS 2 ${input}"
+        JSONObject inputObject = new JSONObject()
+        inputObject.command = "list"
+        println "returnString = ${returnString}"
+        render returnString as JSON
+//            return "i[${inputString}]"
+    }
+
     // is typically checking for trackData.json
-    def tracks(String jsonFile,String trackName,String groupName){
+    def tracks(String jsonFile, String trackName, String groupName) {
         String filename = configWrapperService.getJBrowseDirectory()
         filename += "/tracks/${trackName}/${groupName}/${jsonFile}.json"
         File file = new File(filename);
-        if(!file.exists()){
+        if (!file.exists()) {
             log.error("Could not get tracks file " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -33,12 +49,12 @@ class JbrowseController {
     /**
      * For returning seq/refSeqs.json
      */
-    def namesFiles(String directory,String jsonFile){
-        String dataDirectory= grailsApplication.config.apollo.jbrowse.data.directory
-        String absoluteFilePath = dataDirectory+"/names/${directory}/${jsonFile}.json"
+    def namesFiles(String directory, String jsonFile) {
+        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+        String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
         println "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
-        if(!file.exists()){
+        if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -49,13 +65,13 @@ class JbrowseController {
     /**
      * For returning seq/refSeqs.json
      */
-    def names(String fileName){
-        log.debug  "names"
-        String dataDirectory= grailsApplication.config.apollo.jbrowse.data.directory
-        String absoluteFilePath = dataDirectory+"/names/${fileName}.json"
+    def names(String fileName) {
+        log.debug "names"
+        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+        String absoluteFilePath = dataDirectory + "/names/${fileName}.json"
         println "names ${fileName}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
-        if(!file.exists()){
+        if (!file.exists()) {
             log.warn("Could not get ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -81,11 +97,11 @@ class JbrowseController {
     /**
      * For returning seq/refSeqs.json
      */
-    def seq(){
-        log.debug  "seq"
+    def seq() {
+        log.debug "seq"
         String filename = grailsApplication.config.apollo.jbrowse.data.directory
-        File file = new File(filename+"/seq/refSeqs.json");
-        if(!file.exists()){
+        File file = new File(filename + "/seq/refSeqs.json");
+        if (!file.exists()) {
             log.error("Could not get seq file " + filename);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -114,16 +130,16 @@ class JbrowseController {
      *
      */
     def data(String fileName) {
-        log.debug  "data"
+        log.debug "data"
         String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
-        log.debug  "dataDir: ${dataDirectory}"
+        log.debug "dataDir: ${dataDirectory}"
 
 //        log.debug  "filename ${filename}"
-        log.debug  "URI: " + request.getRequestURI()
-        log.debug  "URL: " + request.getRequestURL()
-        log.debug  "pathInfo: " + request.getPathInfo()
-        log.debug  "pathTranslated: " + request.getPathTranslated()
-        log.debug  "params: " + params
+        log.debug "URI: " + request.getRequestURI()
+        log.debug "URL: " + request.getRequestURL()
+        log.debug "pathInfo: " + request.getPathInfo()
+        log.debug "pathTranslated: " + request.getPathTranslated()
+        log.debug "params: " + params
 //
 //        int paramCount = 0
 //        for (p in params) {
@@ -148,14 +164,14 @@ class JbrowseController {
 //            filename += "/root.json"
 //        }
 
-        String dataFileName = dataDirectory+"/"+fileName
+        String dataFileName = dataDirectory + "/" + fileName
 
-        log.debug  "data directory: ${dataFileName}"
+        log.debug "data directory: ${dataFileName}"
 
         File file = new File(dataFileName);
 
 
-        if(!file.exists()){
+        if (!file.exists()) {
             log.error("Could not get data directory: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -170,12 +186,11 @@ class JbrowseController {
 //        }
 
 
-        if(params.format=="json"){
+        if (params.format == "json") {
             // Set content type
 //            response.setContentType("contentType: \"text/xml\"");
             response.setContentType("contentType: \"application/json\"");
         }
-
 
         // Set content size
         response.setContentLength((int) file.length());

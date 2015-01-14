@@ -89,7 +89,7 @@ class RequestHandlingService {
     }
 
     JSONObject updateDescription(JSONObject inputObject) {
-        println "update descripton #1"
+//        println "update descripton #1"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = null
@@ -129,7 +129,7 @@ class RequestHandlingService {
 //        }
 
 
-        println "update descripton #2"
+//        println "update descripton #2"
         return updateFeatureContainer
     }
 
@@ -147,10 +147,10 @@ class RequestHandlingService {
     }
 
     JSONObject updateName(JSONObject inputObject) {
-        println "setting name "
+//        println "setting name "
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        println "# of features to addjust ${featuresArray.size()}"
+//        println "# of features to addjust ${featuresArray.size()}"
 
         Sequence sequence = null
 
@@ -252,7 +252,7 @@ class RequestHandlingService {
         println "RHS::PRE featuresArray ${featuresArray?.size()}"
         if (featuresArray.size() == 1) {
             JSONObject object = featuresArray.getJSONObject(0)
-            println "object ${object}"
+//            println "object ${object}"
         } else {
             println "what is going on?"
         }
@@ -261,8 +261,8 @@ class RequestHandlingService {
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-            println "${i} jsonTranscript ${jsonTranscript}"
-            println "featureService ${featureService} ${trackName}"
+//            println "${i} jsonTranscript ${jsonTranscript}"
+//            println "featureService ${featureService} ${trackName}"
             Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
 
             // should automatically write to history
@@ -299,7 +299,7 @@ class RequestHandlingService {
 
     public void sendAnnotationEvent(String returnString) {
         println "RHS::return operations sent . . ${returnString?.size()}"
-        println "returnString ${returnString}"
+//        println "returnString ${returnString}"
         if(returnString.startsWith("[")){
             returnString = returnString.substring(1,returnString.length()-1)
         }
@@ -307,11 +307,11 @@ class RequestHandlingService {
     }
 
     synchronized void handleChangeEvent(AnnotationEvent... events) {
-        println "handingling event ${events.length}"
+//        println "handingling event ${events.length}"
         if (events.length == 0) {
             return;
         }
-        println "handling first event ${events[0] as JSON}"
+//        println "handling first event ${events[0] as JSON}"
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();

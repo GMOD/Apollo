@@ -37,9 +37,28 @@
         //     });
 
         var sendTrackUpdate = function (track) {
-            console.log('publishing track update: '+track);
-            client.send("/topic/TrackList",{},track);
-            console.log('PUBLSISHED track update: '+track);
+            console.log('publishing track update: ' + track);
+            client.send("/topic/TrackList", {}, track);
+            console.log('PUBLSISHED track update: ' + track);
+//                var returnMessage = JSON.parse(message.body);
+//                window.reloadAnnotations();
+        };
+
+        var getAllTracks = function () {
+//            console.log('getting all tracks: '+track);
+            var commandObject = {};
+            commandObject.command = "list";
+
+            console.log('connecting . . ');
+//                console.log('connectED . . ');
+            console.log('PUBLSISHING track list: ' + commandObject);
+            console.log('PUBLSISHED track list: ' + commandObject);
+            client.subscribe("/topic/TrackListReturn", function (message) {
+                console.log('subscribed . . ' + message);
+//                var returnMessage = JSON.parse(message.body);
+                return message;
+            });
+            client.send("/topic/TrackList", {}, commandObject);
 //                var returnMessage = JSON.parse(message.body);
 //                window.reloadAnnotations();
         };

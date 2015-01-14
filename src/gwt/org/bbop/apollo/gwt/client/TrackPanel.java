@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
@@ -217,6 +218,17 @@ public class TrackPanel extends Composite {
         $wnd.sendTrackUpdate(jsonObject);
     }-*/;
 
+    private native JavaScriptObject loadTracks() /*-{
+        console.log('into loadtracks returned');
+        var allTracks = $wnd.getAllTracks();
+        console.log('all tracks returned');
+        console.log(allTracks);
+        if(allTracks==undefined){
+            return null ;
+        }
+        return allTracks;
+    }-*/;
+
     public void reload(){
         List<TrackInfo> trackInfoList = dataProvider.getList();
         loadTracks(trackInfoList);
@@ -225,6 +237,14 @@ public class TrackPanel extends Composite {
 
     public void loadTracks(final List<TrackInfo> trackInfoList) {
 //        String url = "/apollo/organism/findAllTracks";
+//        String url = rootUrl+"/jbrowse/data/trackList.json";
+//        JavaScriptObject returnObject = loadTracks();
+//        if(returnObject==null) return ;
+//        JSONObject returnValueObject = JSONParser.parseStrict(returnObject.toSource()).isObject();
+//        GWT.log(returnValueObject.toString());
+//        GWT.log("track list "+trackList);
+
+//        String url = rootUrl+"/jbrowse/allTracks";
         String url = rootUrl+"/jbrowse/data/trackList.json";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
@@ -232,8 +252,10 @@ public class TrackPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 trackInfoList.clear();
+                GWT.log("response: "+response.getText());
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONObject returnValueObject = returnValue.isObject();
+                if(returnValueObject.get("tracks")==null) return ;
                 JSONArray array = returnValueObject.get("tracks").isArray();
 //                Window.alert("array size: "+array.size());
 
@@ -244,12 +266,13 @@ public class TrackPanel extends Composite {
                     trackInfo.setName(object.get("key").isString().stringValue());
                     trackInfo.setLabel(object.get("label").isString().stringValue());
                     trackInfo.setType(object.get("type").isString().stringValue());
+                    // todo, don't need all of this really, for now . .
                     trackInfo.setPayload(object);
                     if(object.get("urlTemplate")!=null){
                         trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
                     }
                     trackInfo.setVisible(false);
-//                    GWT.log(object.toString());
+                    GWT.log(object.toString());
                     trackInfoList.add(trackInfo);
                 }
             }

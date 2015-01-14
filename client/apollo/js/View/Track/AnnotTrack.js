@@ -539,19 +539,45 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var browser = this.gview.browser;
         client.connect({}, function(){
             client.subscribe("/topic/TrackList", function(message){
-                var trackConfig = JSON.parse(message.body);
-                console.log(trackConfig);
-                console.log("ON THE TRACK LIST ");
-                var command = trackConfig.command ;
+                console.log('WebSocket TrackList consumed');
+                var trackInfo = JSON.parse(message.body);
+                var command = trackInfo.command ;
+                console.log(command);
 
                 if(command=="show"){
-                    console.log('trying to show the track: '+trackConfig);
-                    track.gview.browser.publish( '/jbrowse/v1/v/tracks/show', [trackConfig] );
+                    console.log('trying to show the track: '+trackInfo);
+                    track.gview.browser.publish( '/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]] );
                 }
                 else
                 if(command=="hide"){
-                    console.log('trying to hide the track: '+trackConfig);
-                    track.gview.browser.publish( '/jbrowse/v1/v/tracks/hide', [trackConfig] );
+                    //console.log('trying to hide the track: '+trackInfo);
+                    track.gview.browser.publish( '/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]] );
+                }
+                else
+                if(command=="list"){
+                    console.log('listing all tracks: '+trackInfo);
+                    var trackList = browser.trackListView.trackConfigs;
+                    var visibleTrackNames = browser.view.visibleTrackNames();
+                    for(var trackConfigIndex in trackList){
+                        var trackConfig = trackList[trackConfigIndex];
+                        var index = visibleTrackNames.indexOf(trackConfig.label);
+                        trackConfig.visible  = index>=0
+                    }
+                    var filteredTrackList = trackList.map(function(track){
+                        return {
+                            label: track.label
+                            ,key: track.key
+                            ,name: track.name
+                            ,type: track.type
+                            ,urlTemplate: track.urlTemplate
+                        }
+                    });
+                    //console.log(filteredTrackList);
+                    //console.log(visibleTrackNames.size());
+                    //console.log(trackList);
+                    //client.send("/app/TrackList", {}, JSON.stringify(trackList));
+                    console.log('returning filterted track list: '+filteredTrackList.size);
+                    client.send("/app/TrackListReturn", {}, JSON.stringify(filteredTrackList));
                 }
                 else{
                     console.log('cont sure what command is supposed to be: '+command);
@@ -570,7 +596,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var changeData ;
 
                 try {
-                    console.log('input JSON.pare(JSON.parse(message.body)): '+JSON.parse(JSON.parse(message.body)));
+                    //console.log('input JSON.pare(JSON.parse(message.body)): '+JSON.parse(JSON.parse(message.body)));
 
                     changeData = JSON.parse(JSON.parse(message.body));
 

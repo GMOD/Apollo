@@ -87,8 +87,8 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
                 JSONObject internalData = ((AnnotationContainerWidget) event.getSelectedItem().getWidget()).getInternalData();
-                GWT.log("selected a tree item " + event.getSelectedItem().getText());
-                GWT.log("data: " + internalData.toString());
+//                GWT.log("selected a tree item " + event.getSelectedItem().getText());
+//                GWT.log("data: " + internalData.toString());
                 String type = getType(internalData);
                 geneDetailPanel.setVisible(false);
                 transcriptDetailPanel.setVisible(false);
