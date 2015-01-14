@@ -158,6 +158,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                    
         this.inherited( arguments );
         var track = this;
+        track.hide();
         this.getPermission( ).then(function() {
             var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
             document.body.appendChild(standby.domNode);
@@ -201,7 +202,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             });
 
             track.makeTrackDroppable();
-            track.hide();
             track.show();
 
             // initialize menus regardless
@@ -213,7 +213,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         },
         function() {
-            "disableJBrowseMode" in track.config && track.config.disableJBrowseMode?track.login():track.hide();
+            track.config.disableJBrowseMode?track.login():track.hide();
             if (!track.webapollo.loginMenuInitialized) {
                 track.webapollo.initLoginMenu(track.username);
             }

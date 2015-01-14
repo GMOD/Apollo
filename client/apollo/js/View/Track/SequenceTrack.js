@@ -1,13 +1,11 @@
 define( [
     'dojo/_base/declare',
-    'JBrowse/Store/Sequence/StaticChunked', 
-    'WebApollo/Store/SeqFeature/ScratchPad', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojox/widget/Standby'
      ],
-function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
+function( declare, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
 
 return declare( DraggableFeatureTrack,
 {
@@ -29,6 +27,8 @@ return declare( DraggableFeatureTrack,
         this.show_protein_translation = true;
         this.context_path = "..";
         this.verbose_server_notification = false;
+        this.store=args.store;
+        console.log(args);
 
         this.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
         this.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
@@ -181,7 +181,8 @@ return declare( DraggableFeatureTrack,
                            trackDiv, labelDiv,
                            widthPct, widthPx, scale ) {
 
-        this.inherited( arguments );
+        console.log(this.store);this.inherited( arguments );
+
 
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ( (scale == charSize.width ) ||
@@ -210,6 +211,7 @@ return declare( DraggableFeatureTrack,
     },
     
     fillBlock: function( args ) {
+        console.log(args);
         var blockIndex = args.blockIndex;
         var block = args.block;
         var leftBase = args.leftBase;
@@ -223,10 +225,10 @@ return declare( DraggableFeatureTrack,
         var track = this;
         
         var finishCallback = args.finishCallback;
-            args.finishCallback = function() {
-                finishCallback();
-                track.stopStandby();
-            };
+        args.finishCallback = function() {
+            finishCallback();
+            track.stopStandby();
+        };
         
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
