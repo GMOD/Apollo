@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client;
+package org.bbop.apollo.gwt.client.rest;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;

@@ -8,6 +8,10 @@ public class SequenceInfo {
     private String name ;
     private Integer length ;
 
+    public SequenceInfo(){
+
+    }
+
     public SequenceInfo(String name){
         this.name = name ;
         this.length = (int) Math.round(Math.random()*1000);

@@ -20,6 +20,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
@@ -110,13 +111,14 @@ public class SequencePanel extends Composite {
         ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(dataGrid);
 
-        List<SequenceInfo> trackInfoList = dataProvider.getList();
+        List<SequenceInfo> sequenceInfoList = dataProvider.getList();
 
-        for(int i = 1 ; i < 20 ; i++){
-            trackInfoList.add(new SequenceInfo(DataGenerator.SEQUENCE_PREFIX + i));
-        }
+        SequenceRestService.loadSequences(sequenceInfoList);
+//        for(int i = 1 ; i < 20 ; i++){
+//            trackInfoList.add(new SequenceInfo(DataGenerator.SEQUENCE_PREFIX + i));
+//        }
 
-        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(trackInfoList);
+        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(sequenceInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(firstNameColumn, new Comparator<SequenceInfo>() {
             @Override
