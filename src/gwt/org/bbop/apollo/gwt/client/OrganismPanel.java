@@ -141,7 +141,6 @@ public class OrganismPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
-//        List<OrganismInfo> trackInfoList = reloadOrganism();
         List<OrganismInfo> trackInfoList = dataProvider.getList();
 
         ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
@@ -180,51 +179,11 @@ public class OrganismPanel extends Composite {
 
     }
 
-    public void loadOrganisms(final List<OrganismInfo> trackInfoList) {
-//        String url = "/apollo/organism/findAllOrganisms";
-        String url = rootUrl+"/organism/findAllOrganisms";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-//                Window.alert("array size: "+array.size());
-
-                for(int i = 0 ; i < array.size() ; i++){
-                    JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
-                    OrganismInfo organismInfo = new OrganismInfo();
-                    organismInfo.setId(object.get("id").isNumber().toString());
-                    organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
-                    organismInfo.setNumFeatures(0);
-                    organismInfo.setNumTracks(0);
-//                    GWT.log(object.toString());
-                    trackInfoList.add(organismInfo);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
-
-    }
 
     public List<OrganismInfo> reload() {
         List<OrganismInfo> trackInfoList = dataProvider.getList();
         trackInfoList.clear();
-        loadOrganisms(trackInfoList);
+        OrganismRestService.loadOrganisms(trackInfoList);
 
         return trackInfoList;
 

@@ -83,6 +83,7 @@ public class MainPanel extends Composite {
 
 //        westPanel.setVisible(true);
 
+        // TODO: use OrganismRestService
         loadOrganisms(organismList);
         DataGenerator.populateSequenceList(sequenceList);
 
@@ -103,6 +104,7 @@ public class MainPanel extends Composite {
 //        context2d.closePath();
     }
 
+    // TODO: use OrganismRestService
     public void loadOrganisms(final ListBox trackInfoList) {
         String url = rootUrl+"/organism/findAllOrganisms";
 //        String url = "/apollo/organism/findAllOrganisms";
