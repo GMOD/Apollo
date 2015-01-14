@@ -9,7 +9,7 @@ define( [
      ],
 function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
 
-return declare( "SequenceTrack", DraggableFeatureTrack,
+return declare( DraggableFeatureTrack,
 {
     /**
      * Track to display the underlying reference sequence, when zoomed in
@@ -268,7 +268,7 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
                         }
                         if (args.leftBase == -1) {
                             var idx = seq.lastIndexOf(" ");
-                            seq = seq.substring(0, idx) + SequenceTrack.nbsp + seq.substring(idx + 1);
+                            seq = seq.substring(0, idx) + this.nbsp + seq.substring(idx + 1);
                         }
 
                         var blockStart = start + 2;
@@ -453,9 +453,6 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
                     container.style.backgroundColor = "#AAFFAA";
                     featDiv.appendChild(container);
                 }
-                else  {
-                    //
-                }
             }
             else if ((ftype == "substitution")) {
                 if ( scale == charSize.width ) {
@@ -468,9 +465,6 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
                     container.style.border = "1px solid black";
                     container.style.backgroundColor = "#FFF506";
                     featDiv.appendChild(container);
-                }
-                else  {
-
                 }
             }
         }
@@ -507,7 +501,7 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
                      // perl -MJSON -E '@l = split "","acgtrymkswhbvdnxACGTRYMKSWHBVDNX"; print to_json({ map { my $in = $_; tr/acgtrymkswhbvdnxACGTRYMKSWHBVDNX/tgcayrkmswdvbhnxTGCAYRKMSWDVBHNX/; $in => $_ } @l})'
                      var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"};
 
-                     var compl_func = function(m) { return compl_tbl[m] || SequenceTrack.nbsp; };
+                     var compl_func = function(m) { return compl_tbl[m] || this.nbsp; };
                      return function( seq ) {
                          return seq.replace( compl_rx, compl_func );
                      };
@@ -538,8 +532,8 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
         $(container).addClass("offset" + offset);
         var prefix = "";
         var suffix = "";
-        for (var i=0; i<offset; i++) { prefix += SequenceTrack.nbsp; }
-        for (var i=0; i<(2-offset); i++) { suffix += SequenceTrack.nbsp; }
+        for (var i=0; i<offset; i++) { prefix += this.nbsp; }
+        for (var i=0; i<(2-offset); i++) { suffix += this.nbsp; }
 
         var extra_bases = (seq.length - offset) % 3;
         var dnaRes = seq.substring(offset, seq.length - extra_bases);
@@ -549,7 +543,7 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
                                             // if no mapping and blank in codon, return blank
                                             // if no mapping and no blank in codon,  return "?"
                                             if (!aa) {
-                                                if (codon.indexOf(SequenceTrack.nbsp) >= 0) { aa = SequenceTrack.nbsp; }
+                                                if (codon.indexOf(this.nbsp) >= 0) { aa = this.nbsp; }
                                                 else  { aa = "?"; }
                                             }
                                             return prefix + aa + suffix;
@@ -560,7 +554,7 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
             var revAaResidues = this.reverse(aaResidues);
             aaResidues = revAaResidues;
             while (aaResidues.length < blockLength)  {
-                aaResidues = SequenceTrack.nbsp + aaResidues;
+                aaResidues = this.nbsp + aaResidues;
             }
         }
         container.appendChild( document.createTextNode( aaResidues ) );
@@ -1054,7 +1048,7 @@ return declare( "SequenceTrack", DraggableFeatureTrack,
             item.data("origHTML", str);
         }
         var highlighted_base=str.substr(start, end - start + 1);
-        if(highlighted_base==SequenceTrack.nbsp) {
+        if(highlighted_base==this.nbsp) {
             return;
         }
         str = str.substr(0, start) +
