@@ -47,14 +47,6 @@ define( [
           DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
           SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
-// var listeners = [];
-// var listener;
-
-/**
- * WARNING Requires server support for Servlet 3.0 comet-style long-polling,
- * AnnotationChangeNotificationService web app properly set up for async
- * Otherwise will cause server-breaking errors
- */
 
 var creation_count = 0;
 
@@ -68,19 +60,7 @@ var non_annot_context_menu;
 var AnnotTrack = declare( DraggableFeatureTrack,
 {
     constructor: function( args ) {
-                // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
         this.isWebApolloAnnotTrack = true;
-        // trackMeta: object with:
-        // key: display text track name
-        // label: internal track name (no spaces, odd characters)
-        // sourceUrl: replaces previous url arg to FetureTrack constructors
-        // refSeq: object with:
-        // start: refseq start
-        // end: refseq end
-        // browserParams: object with:
-        // changeCallback: function to call once JSON is loaded
-        // trackPadding: distance in px between tracks
-        // baseUrl: base URL for the URL in trackMeta
         this.has_custom_context_menu = true;
         this.exportAdapters = [];
 
@@ -89,11 +69,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.selectionClass = "selected-annotation";
         this.annot_under_mouse = null;
 
-        /**
-         * only show residues overlay if "pointer-events" CSS property is
-         * supported (otherwise will interfere with passing of events to
-         * features beneath the overlay)
-         */
         this.useResiduesOverlay = 'pointerEvents' in document.body.style;
         this.FADEIN_RESIDUES = false;
 
@@ -131,15 +106,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
         var track = this;
 
-        dojo.addOnUnload(this, function() {
-            /*
-             * var track = this; if( listeners[track.getUniqueTrackName()] ) {
-             * if( listeners[track.getUniqueTrackName()].fired == -1 ) {
-             * console.log("calling listener.cancel(), via addOnUnload setup");
-             * listeners[track.getUniqueTrackName()].cancel(); } }
-             */
-        });
-    
         this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
             if (currRegion.ref != this.refSeq.name) {
                 if (this.listener && this.listener.fired == -1 ) {
@@ -193,19 +159,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         thisConfig.style.centerChildrenVertically = false;
         thisConfig.pinned = true;
         return thisConfig;
-        /*
-         * start of alternative to nulling out JBrowse feature contextual menu,
-         * instead attempt to merge in AnnotTrack-specific menu items var
-         * superConfig = this.inherited(arguments); var track = this; var
-         * superMenuTemplate = superConfig.menuTemplate; var thisConfig =
-         * Util.deepUpdate( // dojo.clone( this.inherited(arguments) ), dojo.clone(
-         * superConfig ), { menuTemplate: [ { label: "Delete", action: function() {
-         * track.deleteSelectedFeatures(); } } ] } ); var thisMenuTemplate =
-         * thisConfig.menuTemplate; for (var i=0; i<superMenuTemplate.length; i++) {
-         * thisMenuTemplate.push(superMenuTemplate[i]); }
-         * console.log(thisMenuTemplate);
-         */
-
     },
 
     /**
@@ -213,12 +166,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      * "Delete track" menuitem, so can't be deleted (very hacky since depends on
      * label property of menuitem config)
      */
-   _trackMenuOptions: function() {
-       var options = this.inherited( arguments );
-       options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-       options = this.webapollo.removeItemWithLabel(options, "Delete track");
-       return options;
-   }, 
+    _trackMenuOptions: function() {
+        var options = this.inherited( arguments );
+        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+        options = this.webapollo.removeItemWithLabel(options, "Delete track");
+        return options;
+    }, 
     
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
@@ -240,7 +193,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          * getPermission call is synchronous, so login initialization etc. can
          * be called anytime after getPermission call
          */
-        // track.initLoginMenu();
 
         var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
         document.body.appendChild(standby.domNode);
@@ -261,7 +213,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             track.createAnnotationChangeListener();
             xhr(context_path + "/AnnotationEditorService", {
                 handleAs: "json",
-                data: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
+                data: JSON.stringify({ "track": track.getUniqueTrackName(), "operation": "get_features" }),
                 method: "post"
             }).then(function(response, ioArgs) {
                 var responseFeatures = response.features;
@@ -284,67 +236,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 };
                 func();
                 
-                /*
-                 * // console.log("AnnotTrack get_features XHR returned, trying
-                 * to find sequence track: ", strack); var strack =
-                 * track.getSequenceTrack(); // setAnnotTrack() triggers loading
-                 * of sequence alterations if (strack && (! strack.annotTrack)) {
-                 * strack.setAnnotTrack(track); }
-                 */
-                
-                /*
-                 * for (var i = 0; i < responseFeatures.length; i++) { var jfeat =
-                 * JSONUtils.createJBrowseFeature( responseFeatures[i] );
-                 * track.store.insert(jfeat); }
-                 */
-                // track.hideAll(); shouldn't need to call hideAll() before
-                // changed() anymore
-                /*
-                 * track.changed();
-                 *  // console.log("AnnotTrack get_features XHR returned, trying
-                 * to find sequence track: ", strack); var strack =
-                 * track.getSequenceTrack(); // setAnnotTrack() triggers loading
-                 * of sequence alterations if (strack && (! strack.annotTrack)) {
-                 * strack.setAnnotTrack(track); }
-                 * 
-                 * standby.hide();
-                 */
-            }, function(response, ioArgs) { //
+            }, function(response, ioArgs) {
                 console.log("Annotation server error--maybe you forgot to login to the server?");
-                // console.error("HTTP status code: ", ioArgs.xhr.status); //
                 track.handleError({ responseText: response.response.text } );
-                // dojo.byId("replace").innerHTML = 'Loading the resource from
-                // the server did not work'; //
-                // track.remote_edit_working = false;
-                return response; //
+                return response;
             });
-            
-            /*
-             * dojo.xhrPost( { postData: '{ "track": "' +
-             * track.getUniqueTrackName() + '", "operation": "get_features" }',
-             * url: context_path + "/AnnotationEditorService", handleAs: "json",
-             * timeout: 5 * 60 * 1000, // Time in milliseconds // The LOAD
-             * function will be called on a successful response. load:
-             * function(response, ioArgs) { // var responseFeatures =
-             * response.features; for (var i = 0; i < responseFeatures.length;
-             * i++) { var jfeat = JSONUtils.createJBrowseFeature(
-             * responseFeatures[i] ); track.store.insert(jfeat); } //
-             * track.hideAll(); shouldn't need to call hideAll() before
-             * changed() anymore track.changed();
-             *  // console.log("AnnotTrack get_features XHR returned, trying to
-             * find sequence track: ", strack); var strack =
-             * track.getSequenceTrack(); // setAnnotTrack() triggers loading of
-             * sequence alterations if (strack && (! strack.annotTrack)) {
-             * strack.setAnnotTrack(track); } }, // The ERROR function will be
-             * called in an error case. error: function(response, ioArgs) { //
-             * console.log("Annotation server error--maybe you forgot to login
-             * to the server?"); console.error("HTTP status code: ",
-             * ioArgs.xhr.status); // track.handleError(response);
-             * //dojo.byId("replace").innerHTML = 'Loading the resource from the
-             * server did not work'; // // track.remote_edit_working = false;
-             * return response; // } });
-             */
-
         }
 
         if (success) {
@@ -698,11 +594,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-                // if (tracks[i] instanceof SequenceTrack) {
-                // if (tracks[i].config.type == "WebApollo/View/Track/AnnotSequenceTrack") {
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
-                   // tracks[i].setAnnotTrack(this);
                     break;
                 }
             }
@@ -795,17 +688,16 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             console.log("ui:");
                             console.dir(ui);
                         }
-                        var gview = track.gview;
                         var oldPos = ui.originalPosition;
                         var newPos = ui.position;
                         var oldSize = ui.originalSize;
                         var newSize = ui.size;
                         var leftDeltaPixels = newPos.left - oldPos.left;
-                        var leftDeltaBases = Math.round(gview.pxToBp(leftDeltaPixels));
+                        var leftDeltaBases = Math.round(track.gview.pxToBp(leftDeltaPixels));
                         var oldRightEdge = oldPos.left + oldSize.width;
                         var newRightEdge = newPos.left + newSize.width;
                         var rightDeltaPixels = newRightEdge - oldRightEdge;
-                        var rightDeltaBases = Math.round(gview.pxToBp(rightDeltaPixels));
+                        var rightDeltaBases = Math.round(track.gview.pxToBp(rightDeltaPixels));
                         if (verbose_resize)  {
                             console.log("left edge delta pixels: " + leftDeltaPixels);
                             console.log("left edge delta bases: " + leftDeltaBases);
@@ -813,20 +705,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                             console.log("right edge delta bases: " + rightDeltaBases);
                         }
                         var subfeat = ui.originalElement[0].subfeature;
-                        // console.log(subfeat);
-
                         var fmin = subfeat.get('start') + leftDeltaBases;
                         var fmax = subfeat.get('end') + rightDeltaBases;
-                        // var fmin = subfeat[track.subFields["start"]] +
-                        // leftDeltaBases;
-                        // var fmax = subfeat[track.subFields["end"]] +
-                        // rightDeltaBases;
                         var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
-                        track.executeUpdateOperation(postData);
-                        // console.log(subfeat);
-                        // track.hideAll(); shouldn't need to call hideAll()
-                        // before changed() anymore
+                        var postData = { "track": track.getUniqueTrackName(),
+                            "features": [
+                            {
+                                "uniquename": subfeat.getUniqueName(),
+                                "location": { "fmin": fmin, "fmax": fmax }
+                            } ],
+                            "operation": operation }
+                        ;
+                        track.executeUpdateOperation(JSON.stringify(postData));
                         track.changed();
                     }
                 } );
@@ -851,7 +741,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         // event.stopPropagation();
     },
 
-    /* feature_records ==> { feature: the_feature, track: track_feature_is_from } */
     addToAnnotation: function(annot, feature_records)  {
         var target_track = this;
 
@@ -869,31 +758,28 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                                     // and non-null
             var annotStrand = annot.get('strand');
             if (isSubfeature)  {
-                    var featStrand = feat.get('strand');
-                    var featToAdd = feat;
-                    if (featStrand != annotStrand) {
-                            allSameStrand = 0;
-                            featToAdd.set('strand', annotStrand);
-                    }
-                    subfeats.push(featToAdd);
+                var featStrand = feat.get('strand');
+                var featToAdd = feat;
+                if (featStrand != annotStrand) {
+                        allSameStrand = 0;
+                        featToAdd.set('strand', annotStrand);
+                }
+                subfeats.push(featToAdd);
             }
             else  {  // top-level feature
                 var source_track = feature_record.track;
                 var subs = feat.get('subfeatures');
-                if ( subs && subs.length > 0 ) {  // top-level
-                                                    // feature with
-                                                    // subfeatures
-                        for (var i = 0; i < subs.length; ++i) {
-                            var subfeat = subs[i];
-                            var featStrand = subfeat.get('strand');
-                            var featToAdd = subfeat;
-                            if (featStrand != annotStrand) {
-                                allSameStrand = 0;
-                                featToAdd.set('strand', annotStrand);
-                            }
-                            subfeats.push(featToAdd);
+                if ( subs && subs.length > 0 ) {
+                    for (var i = 0; i < subs.length; ++i) {
+                        var subfeat = subs[i];
+                        var featStrand = subfeat.get('strand');
+                        var featToAdd = subfeat;
+                        if (featStrand != annotStrand) {
+                            allSameStrand = 0;
+                            featToAdd.set('strand', annotStrand);
                         }
-        // $.merge(subfeats, subs);
+                        subfeats.push(featToAdd);
+                    }
                 }
                 else  {  // top-level feature without subfeatures
                     // make exon feature
@@ -910,25 +796,24 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         }
 
         if (!allSameStrand && !confirm("Adding features of opposite strand.  Continue?")) {
-                return;
+            return;
         }
 
-        var featuresString = "";
+        var features=[{"uniquename":annot.id()}];
         for (var i = 0; i < subfeats.length; ++i) {
             var subfeat = subfeats[i];
-            // if (subfeat[target_track.subFields["type"]] !=
-            // "wholeCDS") 
             var source_track = subfeat.track;
             if ( subfeat.get('type') != "wholeCDS") {
                 var jsonFeature = JSONUtils.createApolloFeature( subfeats[i], "exon");
-                featuresString += ", " + JSON.stringify( jsonFeature );
+                features.push( jsonFeature );
             }
         }
-        // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
-        // target_track.subfields);
-        // parent.uniquename = annot[target_track.fields["name"]];
-        var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
-        target_track.executeUpdateOperation(postData);
+        var postData = {
+            "track": target_track.getUniqueTrackName(),
+            "features": features,
+            "operation": "add_exon"
+        };
+        target_track.executeUpdateOperation(JSON.stringify(postData));
     },
 
     makeTrackDroppable: function() {
@@ -942,28 +827,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         $(target_trackdiv).droppable(  {
             // only accept draggables that are selected feature divs
             accept: ".selected-feature",   
-            // switched to using deactivate() rather than drop() for drop
-            // handling
-            // this fixes bug where drop targets within track (feature divs)
-            // were lighting up as drop target,
-            // but dropping didn't actually call track.droppable.drop()
-            // (see explanation in feature droppable for why we catch drop at
-            // track div rather than feature div child)
-            // cause is possible bug in JQuery droppable where droppable over(),
-            // drop() and hoverclass
-            // collision calcs may be off (at least when tolerance=pointer)?
-            //
-            // Update 3/2012
-            // deactivate behavior changed? Now getting called every time
-            // dragged features are release,
-            // regardless of whether they are over this track or not
-            // so added another hack to get around drop problem
-            // combination of deactivate and keeping track via over()/out() of
-            // whether drag is above this track when released
-            // really need to look into actual drop calc fix -- maybe fixed in
-            // new JQuery releases?
-            //
-            // drop: function(event, ui) {
             over: function(event, ui) {
                 target_track.track_under_mouse_drag = true;
                 if (target_track.verbose_drop) { console.log("droppable entered AnnotTrack") };
@@ -973,10 +836,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 if (target_track.verbose_drop) { console.log("droppable exited AnnotTrack") };
             },
             deactivate: function(event, ui)  {
-                // console.log("trackdiv droppable detected: draggable
-                // deactivated");
-                // "this" is the div being dropped on, so same as
-                // target_trackdiv
                 if (target_track.verbose_drop)  { console.log("draggable deactivated"); }
 
                 var dropped_feats = target_track.webapollo.featSelectionManager.getSelection();
@@ -1013,21 +872,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var parentFeature;
         for (var i in selection_records)  {
             var dragfeat = selection_records[i].feature;
-            var is_subfeature = !! dragfeat.parent();  // !! is shorthand
-                                                        // for returning
-                                                        // true if value is
-                                                        // defined and
-                                                        // non-null
-            
+            var is_subfeature = !! dragfeat.parent();
             var parent = is_subfeature ? dragfeat.parent() : dragfeat;
             var parentId = parent.id();
             parentFeatures[parentId] = parent;
-            /*
-             * if (parentFeatures[parentId] === undefined) {
-             * parentFeatures[parentId] = new Array();
-             * parentFeatures[parentId].isSubfeature = is_subfeature; }
-             * parentFeatures[parentId].push(dragfeat);
-             */
             
             if (strand == undefined) {
                 strand = dragfeat.get("strand");
@@ -1101,28 +949,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var afeat = JSONUtils.createApolloFeature( featureToAdd, "mRNA", true );
             featuresToAdd.push(afeat);  
             
-            /*
-             * for (var i in parentFeatures) { var featArray =
-             * parentFeatures[i]; if (featArray.isSubfeature) { var
-             * parentFeature = featArray[0].parent(); var fmin = undefined;
-             * var fmax = undefined; // var featureToAdd = $.extend({},
-             * parentFeature); var featureToAdd =
-             * JSONUtils.makeSimpleFeature(parentFeature);
-             * featureToAdd.set('subfeatures', new Array()); for (var k = 0;
-             * k < featArray.length; ++k) { // var dragfeat = featArray[k];
-             * var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]); var
-             * childFmin = dragfeat.get('start'); var childFmax =
-             * dragfeat.get('end'); if (fmin === undefined || childFmin <
-             * fmin) { fmin = childFmin; } if (fmax === undefined ||
-             * childFmax > fmax) { fmax = childFmax; }
-             * featureToAdd.get("subfeatures").push( dragfeat ); }
-             * featureToAdd.set( "start", fmin ); featureToAdd.set( "end",
-             * fmax ); var afeat = JSONUtils.createApolloFeature(
-             * featureToAdd, "mRNA" ); featuresToAdd.push(afeat); } else {
-             * for (var k = 0; k < featArray.length; ++k) { var dragfeat =
-             * featArray[k]; var afeat = JSONUtils.createApolloFeature(
-             * dragfeat, "mRNA", true); featuresToAdd.push(afeat); } } }
-             */
             var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
             target_track.executeUpdateOperation(postData);
 
@@ -3962,12 +3788,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         track.openDialog("Export " + key, content);
     }, 
 
-    zoomToBaseLevel: function(event) {
-        var coordinate = this.getGenomeCoord(event);
-        this.gview.zoomToBaseLevel(event, coordinate);
-    },
-
- 
 
     scrollToNextEdge: function(event)  {
         // var coordinate = this.getGenomeCoord(event);
@@ -4183,10 +4003,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         return -1;
     },
     
-    zoomBackOut: function(event) {
-        this.gview.zoomBackOut(event);
-    },
-
     handleError: function(response) {
         console.log("ERROR: ");
         console.log(response);  // in Firebug, allows retrieval of stack trace,
@@ -4208,26 +4024,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     logout: function() {
         dojo.xhrPost( {
-            url: context_path + "/Login?operation=logout",
+            url: context_path + "../Login?operation=logout",
             handleAs: "json",
             timeout: 5 * 1000, // Time in milliseconds
-            // The LOAD function will be called on a successful response.
-            load: function(response, ioArgs) { //
-            },
-            error: function(response, ioArgs) { //
-// track.handleError(response);
-            }
         });
     },
     
     login: function() {
         var track = this;
         dojo.xhrGet( {
-            url: context_path + "/Login",
+            url: context_path + "../Login",
             handleAs: "text",
             timeout: 5 * 60,
             load: function(response, ioArgs) {
-//                track.openDialog("Login", response);
                 var dialog = new dojoxDialogSimple({
                     preventCache: true,
                     refreshOnShow: true,
@@ -5465,20 +5274,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
 
-    /**
-     * handles adding overlay of sequence residues to "row" of selected feature
-     * (also handled in similar manner in fillBlock()); WARNING: this _requires_
-     * browser support for pointer-events CSS property, (currently supported by
-     * Firefox 3.6+, Chrome 4.0+, Safari 4.0+) (Exploring possible workarounds
-     * for IE, for example see:
-     * http://www.vinylfox.com/forwarding-mouse-events-through-layers/
-     * http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements [
-     * see section on CSS conditional statement workaround for IE ] ) and must
-     * set "pointer-events: none" in CSS rule for div.annot-sequence otherwise,
-     * since sequence overlay is rendered on top of selected features (and is a
-     * sibling of feature divs), events intended for feature divs will get
-     * caught by overlay and not make it to the feature divs
-     */
     selectionAdded: function( rec, smanager)  {
         var feat = rec.feature;
         this.inherited( arguments );
@@ -5510,19 +5305,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 var seqTrack = this.getSequenceTrack();
                 for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
                     var blk = this.blocks[bindex];
-                    // seqTrack.getRange(block.startBase, block.endBase,
-                    // seqTrack.sequenceStore.getRange(this.refSeq,
-                    // block.startBase, block.endBase,
-                    // seqTrack.sequenceStore.getFeatures({ ref: this.refSeq.name, start:
-                    // block.startBase, end: block.endBase },
-                    // function(feat) {
                     seqTrack.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: blk.startBase, end: blk.endBase },
                     function( block ) {
                         return function(seq) {
-                            // var start = feat.get('start');
-                            // var end = feat.get('end');
-                            // var seq = feat.get('seq');
                             var start = block.startBase;
                             var end = block.endBase;
 
