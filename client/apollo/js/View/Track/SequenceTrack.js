@@ -9,15 +9,11 @@ define( [
      ],
 function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
 
-    var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
-
+return declare( "SequenceTrack", DraggableFeatureTrack,
 {
-
     /**
      * Track to display the underlying reference sequence, when zoomed in
      * far enough.
-     * @class
-     * @constructor
      */
     constructor: function( args ) {
         this.isWebApolloSequenceTrack = true;
@@ -41,43 +37,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             track.onResiduesMouseDown(event);
         };
 
-        if (this.store.name == 'refseqs') {
-            this.sequenceStore = this.store;
-            var annotStoreConfig = dojo.clone(this.config);
-            annotStoreConfig.browser = this.browser;
-            annotStoreConfig.refSeq = this.refSeq;
-            var annotStore = new ScratchPad(annotStoreConfig);
-            this.store = annotStore;
-            annotStoreConfig.name = this.store.name;
-            this.browser._storeCache[this.store.name] = {
-                refCount: 1, 
-                store: this.store
-            };
-        }
-        else  {
-            var seqStoreConfig = dojo.clone(this.config);
-            seqStoreConfig.storeClass = "JBrowse/Store/Sequence/StaticChunked";
-            seqStoreConfig.type = "JBrowse/Store/Sequence/StaticChunked";
-            // old style, using residuesUrlTemplate
-            if (this.config.residuesUrlTemplate) {
-                seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;                        
-            }
-
-            var inner_config = dojo.clone(seqStoreConfig);
-            // need a seqStoreConfig.config, 
-            //   since in StaticChunked constructor seqStoreConfig.baseUrl is ignored, 
-            //   and seqStoreConfig.config.baseUrl is used instead (as of JBrowse 1.9.8+)
-            seqStoreConfig.config = inner_config;
-            // must add browser and refseq _after_ cloning, otherwise get Browser errors
-            seqStoreConfig.browser = this.browser;
-            seqStoreConfig.refSeq = this.refSeq;
-
-            this.sequenceStore = new StaticChunked(seqStoreConfig);
-            this.browser._storeCache[ 'refseqs'] = {
-                refCount: 1, 
-                store: this.sequenceStore
-            };
-        }
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
@@ -250,13 +209,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         }
     },
     
-    /**
-     *   GAH
-     *   not entirely sure, but I think this strategy of calling getRange() only works as long as
-     *   seq chunk sizes are a multiple of block sizes
-     *   or in other words for a given block there is only one chunk that overlaps it
-     *      (otherwise in the callback would need to fiddle with horizontal position of seqNode within the block) ???
-     */
     fillBlock: function( args ) {
         var blockIndex = args.blockIndex;
         var block = args.block;
@@ -304,7 +256,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             var proteinHeight = charSize.height;
 
             if ( scale == charSize.width ) {
-                this.sequenceStore.getReferenceSequence(
+                this.store.getReferenceSequence(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
                     function( seq ) {
                         var start = args.leftBase - 2;
@@ -774,16 +726,16 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
     requestDeletion: function(selected)  {
         var track = this;
-        var features = "[ ";
+        var features = [];
         for (var i = 0; i < selected.length; ++i) {
-                var annot = selected[i].feature;
-                if (i > 0) {
-                    features += ", ";
-                }
-                features += '{ "uniquename": "' + annot.id() + '" }';
+            var annot = selected[i].feature;
+            features.push({ "uniquename": annot.id() });
         }
-        features += "]";
-        var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "delete_sequence_alteration" }';
+        var postData = {
+            "track": track.annotTrack.getUniqueTrackName(),
+            "features": features,
+            "operation": "delete_sequence_alteration"
+        };
         track.annotTrack.executeUpdateOperation(postData);
     },
 
@@ -1159,11 +1111,9 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         if (annotTrack && !annotTrack.isLoggedIn()) {
             dojo.style(this.genomeView.pinUnderlay, "display", "none");
         }
-    }
+    },
+    nbsp: String.fromCharCode(160)
 
 });
-
-    SequenceTrack.nbsp = String.fromCharCode(160);
-    return SequenceTrack;
 });
 

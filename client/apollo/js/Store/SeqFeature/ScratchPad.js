@@ -3,10 +3,10 @@ define( ['dojo/_base/declare',
         ],
         function( declare, SeqFeatureStore ) {
 
-// return declare( "testScratchPadClass", SeqFeatureStore,
 return declare( SeqFeatureStore,
 {
     constructor: function( args ) {
+        console.log("SCRATCH");
         this.refSeq = args.refSeq;
         this.features = {};
         this.sorted_feats = [];

@@ -813,7 +813,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             "features": features,
             "operation": "add_exon"
         };
-        target_track.executeUpdateOperation(JSON.stringify(postData));
+        target_track.executeUpdateOperation(postData);
     },
 
     makeTrackDroppable: function() {
@@ -4024,7 +4024,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     
     logout: function() {
         dojo.xhrPost( {
-            url: context_path + "../Login?operation=logout",
+            url: context_path + "/Login?operation=logout",
             handleAs: "json",
             timeout: 5 * 1000, // Time in milliseconds
         });
@@ -4033,7 +4033,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     login: function() {
         var track = this;
         dojo.xhrGet( {
-            url: context_path + "../Login",
+            url: context_path + "/Login",
             handleAs: "text",
             timeout: 5 * 60,
             load: function(response, ioArgs) {
@@ -4118,27 +4118,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                               track.openDialog("Login", response);
                           }
                       });
-                      /*
-                         * if (dijit.byId("login_dialog")) {
-                         * dijit.byId("login_dialog").destroyRecursive(); } var
-                         * dialog = new dojoxDialogSimple({ href: context_path +
-                         * "/Login?operation=login", executeScripts: true,
-                         * title: "Login", id: "login_dialog" }); dialog.show();
-                         */
-                      
-                      /*
-                         * var $login = $("<div id='login' title='Login'></div>");
-                         * $login.dialog( { draggable: false, modal: true,
-                         * autoOpen: false, resizable: false, closeOnEscape:
-                         * true, width: "20%" } ); $login.load(context_path +
-                         * "/Login", null, function() { });
-                         * $login.dialog("open");
-                         */
-                      
-                      // console.log("clicked on login") ;
                   }
                 });
-                // dojo.addClass( loginButton.domNode, 'menu' );
         }
         browser.afterMilestone( 'initView', function() {
             // must append after menubar is created, plugin constructor called
