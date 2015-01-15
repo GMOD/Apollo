@@ -15,6 +15,8 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -113,8 +115,34 @@ public class AnnotatorPanel extends Composite {
         });
 //        annotationName.setText("sox9a-000-00-0");
 
-        DataGenerator.populateSequenceList(sequenceList);
+        loadSequences();
+//        DataGenerator.populateSequenceList(sequenceList);
         DataGenerator.populateTypeList(typeList);
+    }
+
+    private void loadSequences() {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+
+                sequenceList.clear();
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+                    SequenceInfo sequenceInfo = new SequenceInfo();
+                    sequenceInfo.setName(object.get("name").isString().stringValue());
+                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    sequenceList.addItem(sequenceInfo.getName());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        SequenceRestService.loadSequences(requestCallback);
     }
 
     private String getType(JSONObject internalData) {

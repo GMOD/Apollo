@@ -3,6 +3,12 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -13,11 +19,13 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
@@ -51,8 +59,13 @@ public class SequencePanel extends Composite {
     @UiField
     HTML sequenceStop;
 
+    private String rootUrl;
+
     public SequencePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+
+        Dictionary dictionary = Dictionary.getDictionary("Options");
+        rootUrl = dictionary.get("rootUrl");
 
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
@@ -147,7 +160,53 @@ public class SequencePanel extends Composite {
 
 
 
-        DataGenerator.populateOrganismList(organismList);
+//        DataGenerator.populateOrganismList(organismList);
+        loadOrganisms(organismList);
+
+    }
+
+    /**
+     * could use an organism callback . . . however, this element needs to use the callback directly.
+     * @param trackInfoList
+     */
+    public void loadOrganisms(final ListBox trackInfoList) {
+        String url = rootUrl+"/organism/findAllOrganisms";
+//        String url = "/apollo/organism/findAllOrganisms";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+                    OrganismInfo organismInfo = new OrganismInfo();
+                    organismInfo.setId(object.get("id").isNumber().toString());
+                    organismInfo.setName(object.get("commonName").isString().stringValue());
+                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
+                    organismInfo.setNumFeatures(0);
+                    organismInfo.setNumTracks(0);
+//                    GWT.log(object.toString());
+                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
 
     }
 

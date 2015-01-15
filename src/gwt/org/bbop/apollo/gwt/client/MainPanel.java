@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
@@ -18,7 +20,9 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -75,7 +79,6 @@ public class MainPanel extends Composite {
     @UiField
     PreferencePanel preferencePanel;
 
-    private List<OrganismInfo> organismInfoList = new ArrayList<>();
 
     public MainPanel() {
         exportStaticMethod();
@@ -95,14 +98,30 @@ public class MainPanel extends Composite {
         loadReferenceSequences(sequenceList);
     }
 
+    @UiHandler("sequenceList")
+    public void changeSequence(ChangeEvent event){
+        String trackListString = rootUrl + "/jbrowse/?loc=";
+        String selectedSequence = sequenceList.getSelectedValue();
+        GWT.log("get selected sequence: "+selectedSequence);
+        trackListString += selectedSequence;
+
+        trackListString += "&";
+        for(TrackInfo trackInfo : trackPanel.dataProvider.getList()){
+            trackListString += trackInfo.getName();
+            trackListString += "&";
+        }
+        trackListString = trackListString.substring(0,trackListString.length()-1);
+        trackListString += "&highlight=&tracklist=0" ;
+        GWT.log("set string: "+trackListString);
+//        frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0");
+        frame.setUrl(trackListString);
+    }
+
     /**
      * could use an sequence callback . . . however, this element needs to use the callback directly.
      * @param sequenceInfoList
      */
     public void loadReferenceSequences(final ListBox sequenceInfoList) {
-        String url = rootUrl+"/jbrowse/data/seq/refSeqs.json";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -123,12 +142,7 @@ public class MainPanel extends Composite {
                 Window.alert("Error loading organisms");
             }
         };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            Window.alert(e.getMessage());
-        }
+        SequenceRestService.loadSequences(requestCallback);
 
     }
 

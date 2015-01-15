@@ -96,7 +96,6 @@
                 </gwt:north>
                 <gwt:west size="20">
                     <gwt:FlowPanel ui:field="westPanel" styleName="{style.emptyPanel}">
-
                     </gwt:FlowPanel>
                 </gwt:west>
                 <gwt:center>

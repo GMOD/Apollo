@@ -18,6 +18,21 @@ import java.util.List;
  */
 public class SequenceRestService {
 
+    public static void loadSequences(RequestCallback requestCallback){
+        Dictionary dictionary = Dictionary.getDictionary("Options");
+        String rootUrl = dictionary.get("rootUrl");
+        String url = rootUrl+"/jbrowse/data/seq/refSeqs.json";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            Window.alert(e.getMessage());
+        }
+    }
+
     public static void loadSequences(final List<SequenceInfo> sequenceInfoList) {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         String rootUrl = dictionary.get("rootUrl");
