@@ -27,7 +27,6 @@
 
         client.connect({}, function () {
             client.subscribe("/topic/AnnotationNotification", function (message) {
-//                var returnMessage = JSON.parse(message.body);
                 window.reloadAnnotations();
             });
             client.subscribe("/topic/JBrowseTrackList",function(message){
@@ -47,8 +46,6 @@
             console.log('publishing track update: ' + track);
             client.send("/topic/TrackList", {}, track);
             console.log('PUBLSISHED track update: ' + track);
-//                var returnMessage = JSON.parse(message.body);
-//                window.reloadAnnotations();
         };
 
         var requestTracks = function () {
@@ -57,24 +54,17 @@
             commandObject.command = "list";
 
             console.log('connecting . . ');
-//                console.log('connectED . . ');
             console.log('index:PUBLSISHING track list: ' + commandObject);
             console.log('index:PUBLSISHED track list: ' + commandObject);
-//            client.subscribe("/topic/TrackListReturn", function (message) {
-//                console.log('subscribed . . ' + message);
-////                var returnMessage = JSON.parse(message.body);
-//                return message;
-//            });
             client.send("/topic/TrackList", {}, JSON.stringify(commandObject));
             console.log('index:PUBLSISHED track list: ' + commandObject);
-//                var returnMessage = JSON.parse(message.body);
-//                window.reloadAnnotations();
         };
     </script>
 </head>
 
 <body style="background-color: white;">
 
+<div id="someIframe">Test</div>
 %{--<div id="annotator" style="background-color: white;"></div>--}%
 
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->

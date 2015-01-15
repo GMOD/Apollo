@@ -247,34 +247,25 @@ public class TrackPanel extends Composite {
     public static void updateTracks(String jsonString){
         JSONObject returnValueObject = JSONParser.parseStrict(jsonString).isObject();
 
-        GWT.log("TrackPanel:: updateTracks"+ returnValueObject);
         updateTracks(returnValueObject,dataProvider.getList());
 
     }
 
     public static void updateTracks(JSONObject returnValueObject, List<TrackInfo> trackInfoList){
         trackInfoList.clear();
-        GWT.log("TrackPanel::updateTracks / trackList: ");
-        GWT.log(returnValueObject.toString());
         if(returnValueObject.get("tracks")==null) return ;
-        GWT.log("found tracks . .  updating");
         JSONArray array = returnValueObject.get("tracks").isArray();
-//                Window.alert("array size: "+array.size());
 
         for(int i = 0 ; i < array.size() ; i++){
             JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
-            GWT.log(object.toString());
             TrackInfo trackInfo = new TrackInfo();
             trackInfo.setName(object.get("key").isString().stringValue());
             trackInfo.setLabel(object.get("label").isString().stringValue());
             trackInfo.setType(object.get("type").isString().stringValue());
             if(object.get("visible")!=null){
-                GWT.log("visible: "+object.get("visible").toString());
                 trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
             }
             else{
-                GWT.log("no visible!");
                 trackInfo.setVisible(false);
             }
             // todo, don't need all of this really, for now . .

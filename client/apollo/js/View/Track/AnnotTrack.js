@@ -57,6 +57,8 @@ var client;
  * Otherwise will cause server-breaking errors
  */
 
+//alert(dojo.doc.location.search);
+
 var creation_count = 0;
 
 var annot_context_menu;
