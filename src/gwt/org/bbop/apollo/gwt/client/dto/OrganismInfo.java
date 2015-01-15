@@ -10,6 +10,7 @@ public class OrganismInfo {
     private Integer numFeatures ;
     private Integer numSequences;
     private Integer numTracks;
+    private String directory ;
 
     public OrganismInfo(){
 
@@ -61,5 +62,13 @@ public class OrganismInfo {
 
     public void setNumTracks(Integer numTracks) {
         this.numTracks = numTracks;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
     }
 }

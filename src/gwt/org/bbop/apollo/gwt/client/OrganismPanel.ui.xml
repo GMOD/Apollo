@@ -10,8 +10,14 @@
         }
 
         .widgetPanel {
-            padding: 5px;
-            margin: 5px;
+            /*font-size: large;*/
+            /*padding-bottom: 20px;*/
+            /*margin-bottom: 20px;*/
+            margin-bottom: 3px;
+            vertical-align: middle;
+            padding-left: 5px;
+            margin-left: 5px;
+            display: inline-table;
         }
 
         .trackTable {
@@ -32,16 +38,24 @@
             /*font-weight: bolder;*/
         }
 
+        .container {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
 
+        .widgetValue {
+            font-weight: bolder;
+            display: inline-table;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:center>
             <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
             <!--<gwt:ScrollPanel>-->
 
-                <!--<gwt:FlexTable ui:field="dataGrid" styleName="{style.trackTable}" width="100%"/>-->
-                <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}" />
-                <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
+            <!--<gwt:FlexTable ui:field="dataGrid" styleName="{style.trackTable}" width="100%"/>-->
+            <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}"/>
+            <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
 
             <!--</gwt:ScrollPanel>-->
         </gwt:center>
@@ -49,51 +63,45 @@
             <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%">
+                    <b:Container fluid="true" width="100%" styleName="{style.container}">
                         <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Name
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_6">
-                                <gwt:HTML ui:field="organismName" styleName="{style.tableValue}"/>
+                            <b:Column size="6" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
+                                    <b:InputGroupAddon>Name</b:InputGroupAddon>
+                                    <b:TextBox autoComplete="false" ui:field="organismName"/>
+                                </b:InputGroup>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                   Directory
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_2">
-                                <gwt:HTML ui:field="sequenceFile" styleName="{style.tableValue}"/>
+                            <b:Column size="6" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
+                                    <b:InputGroupAddon>Directory</b:InputGroupAddon>
+                                    <b:TextBox autoComplete="false" ui:field="sequenceFile"/>
+                                </b:InputGroup>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Sequences
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_6">
-                                <gwt:HTML ui:field="trackCount" styleName="{style.tableValue}"/>
+                            <b:Column size="6" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
+                                    <b:InputGroupAddon>Tracks</b:InputGroupAddon>
+                                    <b:InputGroupAddon ui:field="trackCount"/>
+                                </b:InputGroup>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML text="Annotations" styleName="{style.tableKeyName}"/>
-                            </b:Column>
-                            <b:Column size="MD_6">
-                                <gwt:HTML ui:field="annotationCount" styleName="{style.tableValue}"/>
+                            <b:Column size="6" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
+                                    <b:InputGroupAddon>Annotations</b:InputGroupAddon>
+                                    <b:InputGroupAddon ui:field="annotationCount" />
+                                </b:InputGroup>
                             </b:Column>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Sequences</gwt:header>
-                    <gwt:HTML text="sequence table"/>
-                </gwt:tab>
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>Sequences</gwt:header>-->
+                    <!--<gwt:HTML text="sequence table"/>-->
+                <!--</gwt:tab>-->
                 <gwt:tab>
                     <gwt:header>Users</gwt:header>
                     <gwt:HTML text="user persmissions"/>

@@ -14,10 +14,12 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -89,12 +91,8 @@ public class MainPanel extends Composite {
             frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0");
         }
 
-//        westPanel.setVisible(true);
-
-//        reloadOrganismList();
         loadOrganisms(organismList);
         loadReferenceSequences(sequenceList);
-//        DataGenerator.populateSequenceList(sequenceList);
     }
 
     /**
@@ -110,11 +108,9 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
-//                Window.alert("array size: "+array.size());
 
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
@@ -131,18 +127,10 @@ public class MainPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            // Couldn't connect to server
             Window.alert(e.getMessage());
         }
 
     }
-//
-//    public void reloadOrganismList(){
-//        organismInfoList.clear();
-//        OrganismRestService.loadOrganisms(organismInfoList);
-//        GWT.log("organism info list: "+organismInfoList.size());
-////        loadOrganisms(organismInfoList);
-//    }
 
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
@@ -158,7 +146,6 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
-//                Window.alert("array size: "+array.size());
 
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
@@ -167,6 +154,7 @@ public class MainPanel extends Composite {
                     organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
                     organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());

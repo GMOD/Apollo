@@ -16,9 +16,13 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
+import org.gwtbootstrap3.client.ui.TextBox;
 
 import java.util.Comparator;
 import java.util.List;
@@ -33,15 +37,17 @@ public class OrganismPanel extends Composite {
     interface OrganismBrowserPanelUiBinder extends UiBinder<Widget, OrganismPanel> {
     }
 
+    private OrganismInfo selectedOrganismInfo  ;
+
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
     @UiField
-    HTML organismName;
+    org.gwtbootstrap3.client.ui.TextBox organismName;
     @UiField
-    HTML trackCount;
+    InputGroupAddon trackCount;
     @UiField
-    HTML annotationCount;
+    InputGroupAddon annotationCount;
     @UiField
-    HTML sequenceFile;
+    org.gwtbootstrap3.client.ui.TextBox sequenceFile;
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -136,6 +142,20 @@ public class OrganismPanel extends Composite {
         dataGrid.addColumn(actionColumn, "Action");
 
 
+        final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
+        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                selectedOrganismInfo = singleSelectionModel.getSelectedObject();
+                organismName.setText(selectedOrganismInfo.getName());
+                sequenceFile.setText(selectedOrganismInfo.getDirectory());
+
+                trackCount.setText(selectedOrganismInfo.getNumTracks().toString());
+                annotationCount.setText(selectedOrganismInfo.getNumFeatures().toString());
+            }
+        });
+        dataGrid.setSelectionModel(singleSelectionModel);
+
         dataProvider.addDataDisplay(dataGrid);
 
         List<OrganismInfo> trackInfoList = dataProvider.getList();
@@ -167,10 +187,8 @@ public class OrganismPanel extends Composite {
             }
         });
 
-        organismName.setHTML("Zebrafish (Danio rerio)");
-        trackCount.setHTML("30");
-        annotationCount.setHTML("1223");
-        sequenceFile.setHTML("/data/apollo/Zebrafish/jbrowse/data");
+//        organismName.setHTML("Zebrafish (Danio rerio)");
+//        sequenceFile.setHTML("/data/apollo/Zebrafish/jbrowse/data");
 
 //        DataGenerator.populateOrganismTable(dataGrid);
 

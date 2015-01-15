@@ -57,13 +57,7 @@
             <b:Column size="6" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Location</b:InputGroupAddon>
-                    <!--<b:Label ui:field="strand"/>-->
-                        <!--<b:Label ui:field="strand"/>-->
                     <b:InputGroupAddon ui:field="locationField"/>
-                    <!--<b:Label ui:field="strand"/>-->
-
-                    <!--<g:Label ui:field="maxLocation"/>-->
-                    <!--<b:Label ui:field="strand"/>-->
                 </b:InputGroup>
             </b:Column>
         </b:Row>

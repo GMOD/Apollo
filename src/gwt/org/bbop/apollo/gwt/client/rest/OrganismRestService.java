@@ -39,6 +39,7 @@ public class OrganismRestService {
                     organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
                     organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
