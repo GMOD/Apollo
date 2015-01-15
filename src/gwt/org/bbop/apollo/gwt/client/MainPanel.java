@@ -16,6 +16,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -92,7 +93,48 @@ public class MainPanel extends Composite {
 
 //        reloadOrganismList();
         loadOrganisms(organismList);
-        DataGenerator.populateSequenceList(sequenceList);
+        loadReferenceSequences(sequenceList);
+//        DataGenerator.populateSequenceList(sequenceList);
+    }
+
+    /**
+     * could use an sequence callback . . . however, this element needs to use the callback directly.
+     * @param sequenceInfoList
+     */
+    public void loadReferenceSequences(final ListBox sequenceInfoList) {
+        String url = rootUrl+"/jbrowse/data/seq/refSeqs.json";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+//                Window.alert("array size: "+array.size());
+
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+                    SequenceInfo sequenceInfo = new SequenceInfo();
+                    sequenceInfo.setName(object.get("name").isString().stringValue());
+                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    sequenceInfoList.addItem(sequenceInfo.getName());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
+
     }
 //
 //    public void reloadOrganismList(){
