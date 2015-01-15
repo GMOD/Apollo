@@ -19,13 +19,15 @@
         var Options = {
             rootUrl: '${applicationContext.servletContext.getContextPath()}'
             , showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
+            ,userId: '${userKey}'
         };
 
         //     $(function() {
         var socket = new SockJS("${createLink(uri: '/stomp')}");
         var client = Stomp.over(socket);
 
-        client.connect({}, function () {
+        %{--client.connect('${userKey}','', function () {--}%
+        client.connect(Options.userId,'guest',function (frame) {
             client.subscribe("/topic/AnnotationNotification", function (message) {
                 window.reloadAnnotations();
             });
@@ -64,7 +66,6 @@
 
 <body style="background-color: white;">
 
-<div id="someIframe">Test</div>
 %{--<div id="annotator" style="background-color: white;"></div>--}%
 
 <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->

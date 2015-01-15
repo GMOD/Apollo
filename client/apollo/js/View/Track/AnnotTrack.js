@@ -57,7 +57,11 @@ var client;
  * Otherwise will cause server-breaking errors
  */
 
-//alert(dojo.doc.location.search);
+alert(dojo.doc.location);
+var location = dojo.doc.location
+var userId = dojo.queryToObject(location).userId;
+
+alert(userId) ;
 
 var creation_count = 0;
 

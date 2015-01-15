@@ -43,6 +43,7 @@ public class MainPanel extends Composite {
 
     private boolean toggleOpen = true;
     private String rootUrl;
+    private String userId;
     private Integer currentOrganismId = 0 ;
 
     // debug
@@ -86,12 +87,13 @@ public class MainPanel extends Composite {
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
+        userId = dictionary.get("userId");
         showFrame = dictionary.get("showFrame")!=null && dictionary.get("showFrame").contains("true");
         if(showFrame){
-            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=");
+            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&userId="+userId);
         }
         else{
-            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0");
+            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0&userId="+userId);
         }
 
         loadOrganisms(organismList);

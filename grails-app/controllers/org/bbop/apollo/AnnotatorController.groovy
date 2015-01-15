@@ -12,9 +12,11 @@ class AnnotatorController {
     def requestHandlingService
 
     def index() {
+        String uuid = UUID.randomUUID().toString()
         Organism.all.each {
             println it.commonName
         }
+        [userKey:uuid]
     }
 
     def demo() {
