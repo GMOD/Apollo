@@ -87,7 +87,7 @@ public class MainPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
 //        frame = new NamedFrame("genomeViewer");
         GWT.log("name: "+ frame.getName());
-//        frame.getElement().setAttribute("id",frame.getName());
+        frame.getElement().setAttribute("id",frame.getName());
 //        DOM.setElementAttribute(frame.getElement(), "id", frame.getName());
         // set ID for Name
 //        DOM.setElementAttribute(frame.getElement(), "id", frame.getName());
@@ -106,14 +106,14 @@ public class MainPanel extends Composite {
         loadOrganisms(organismList);
         loadReferenceSequences(sequenceList);
 
-//        nativeFunct();
+        nativeFunct();
     }
 
-//    public native void nativeFunct() /*-{
-//        console.log($wnd.frames) ;
-//        var f = $wnd.frames["genomeViewer"];
-//        f.contentWindow.doFancy();
-//    }-*/;
+    public native void nativeFunct() /*-{
+        console.log($wnd.frames) ;
+        var f = $wnd.frames["genomeViewer"];
+        //f.contentWindow.doFancy();
+    }-*/;
 
     @UiHandler("sequenceList")
     public void changeSequence(ChangeEvent event){
