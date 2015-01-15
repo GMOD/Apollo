@@ -19,29 +19,18 @@ import java.util.List;
 public class SequenceRestService {
 
     public static void loadSequences(RequestCallback requestCallback){
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        String rootUrl = dictionary.get("rootUrl");
-        String url = rootUrl+"/jbrowse/data/seq/refSeqs.json";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            Window.alert(e.getMessage());
-        }
+        RestService.sendRequest(requestCallback,"/jbrowse/data/seq/refSeqs.json");
     }
 
     public static void loadSequences(final List<SequenceInfo> sequenceInfoList) {
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        String rootUrl = dictionary.get("rootUrl");
-        GWT.log("root URL: " + rootUrl);
-//        String url = "/apollo/organism/findAllOrganisms";
-//        http://localhost:8080/apollo/jbrowse/data/seq/refSeqs.json
-        String url = rootUrl+"/jbrowse/data/seq/refSeqs.json";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+//        Dictionary dictionary = Dictionary.getDictionary("Options");
+//        String rootUrl = dictionary.get("rootUrl");
+//        GWT.log("root URL: " + rootUrl);
+////        String url = "/apollo/organism/findAllOrganisms";
+////        http://localhost:8080/apollo/jbrowse/data/seq/refSeqs.json
+//        String url = rootUrl+"/jbrowse/data/seq/refSeqs.json";
+//        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+//        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -64,13 +53,6 @@ public class SequenceRestService {
                 Window.alert("Error loading organisms");
             }
         };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
-
+        loadSequences(requestCallback);
     }
 }

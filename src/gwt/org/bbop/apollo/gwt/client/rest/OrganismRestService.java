@@ -17,21 +17,17 @@ import java.util.List;
  */
 public class OrganismRestService {
 
+    public static void loadOrganisms(RequestCallback requestCallback){
+        RestService.sendRequest(requestCallback,"/organism/findAllOrganisms");
+    }
+
     public static void loadOrganisms(final List<OrganismInfo> organismInfoList) {
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        String rootUrl = dictionary.get("rootUrl");
-        GWT.log("root URL: " + rootUrl);
-        String url = rootUrl+"/organism/findAllOrganisms";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 organismInfoList.clear();
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
-//                Window.alert("array size: "+array.size());
-
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
 //                    GWT.log(object.toString());
@@ -52,13 +48,7 @@ public class OrganismRestService {
                 Window.alert("Error loading organisms");
             }
         };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
+        loadOrganisms(requestCallback);
 
     }
 }

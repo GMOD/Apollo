@@ -28,6 +28,8 @@ import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -170,10 +172,6 @@ public class SequencePanel extends Composite {
      * @param trackInfoList
      */
     public void loadOrganisms(final ListBox trackInfoList) {
-        String url = rootUrl+"/organism/findAllOrganisms";
-//        String url = "/apollo/organism/findAllOrganisms";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -200,13 +198,8 @@ public class SequencePanel extends Composite {
                 Window.alert("Error loading organisms");
             }
         };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
+
+        OrganismRestService.loadOrganisms(requestCallback);
 
     }
 
