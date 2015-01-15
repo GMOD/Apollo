@@ -16,8 +16,12 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -32,6 +36,7 @@ public class MainPanel extends Composite {
 
     private boolean toggleOpen = true;
     private String rootUrl;
+    private Integer currentOrganismId = 0 ;
 
     // debug
     private Boolean showFrame = false ;
@@ -67,6 +72,8 @@ public class MainPanel extends Composite {
     @UiField
     PreferencePanel preferencePanel;
 
+    private List<OrganismInfo> organismInfoList = new ArrayList<>();
+
     public MainPanel() {
         exportStaticMethod();
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -83,28 +90,22 @@ public class MainPanel extends Composite {
 
 //        westPanel.setVisible(true);
 
-        // TODO: use OrganismRestService
+//        reloadOrganismList();
         loadOrganisms(organismList);
         DataGenerator.populateSequenceList(sequenceList);
-
-//        detailTabs.selectTab(1);
-
-//        Canvas canvas = Canvas.createIfSupported();
-////        canvas.setHeight("300px");
-//        westPanel.add(canvas);
-//        Context2d context2d = canvas.getContext2d();
-//        context2d.beginPath();
-////        context2d.moveTo(20,180);
-////        context2d.rotate(-Math.PI/2.0);
-//
-//        context2d.rotate(-Math.PI / 5.0);
-//        context2d.setTextAlign("right");
-//        context2d.fillRect(40,40, 20, 20);
-//        context2d.fillText("adfas",10,20);
-//        context2d.closePath();
     }
+//
+//    public void reloadOrganismList(){
+//        organismInfoList.clear();
+//        OrganismRestService.loadOrganisms(organismInfoList);
+//        GWT.log("organism info list: "+organismInfoList.size());
+////        loadOrganisms(organismInfoList);
+//    }
 
-    // TODO: use OrganismRestService
+    /**
+     * could use an organism callback . . . however, this element needs to use the callback directly.
+     * @param trackInfoList
+     */
     public void loadOrganisms(final ListBox trackInfoList) {
         String url = rootUrl+"/organism/findAllOrganisms";
 //        String url = "/apollo/organism/findAllOrganisms";

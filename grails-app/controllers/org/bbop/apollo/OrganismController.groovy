@@ -102,7 +102,7 @@ class OrganismController {
 
     def findAllOrganisms(){
         println "finding all organisms: ${Organism.count}"
-        render Organism.all as JSON
+        render Organism.listOrderByCommonName() as JSON
     }
 
     protected void notFound() {

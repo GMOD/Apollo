@@ -17,17 +17,17 @@ import java.util.List;
  */
 public class OrganismRestService {
 
-    public static void loadOrganisms(final List<OrganismInfo> trackInfoList) {
+    public static void loadOrganisms(final List<OrganismInfo> organismInfoList) {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         String rootUrl = dictionary.get("rootUrl");
         GWT.log("root URL: " + rootUrl);
-//        String url = "/apollo/organism/findAllOrganisms";
         String url = rootUrl+"/organism/findAllOrganisms";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                organismInfoList.clear();
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 //                Window.alert("array size: "+array.size());
@@ -42,7 +42,7 @@ public class OrganismRestService {
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
-                    trackInfoList.add(organismInfo);
+                    organismInfoList.add(organismInfo);
                 }
             }
 
