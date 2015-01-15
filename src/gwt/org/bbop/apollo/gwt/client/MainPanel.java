@@ -14,6 +14,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
@@ -51,8 +52,8 @@ public class MainPanel extends Composite {
 
     @UiField
     Button dockOpenClose;
-    @UiField
-    Frame frame;
+    @UiField(provided = false)
+    NamedFrame frame;
     @UiField
     static AnnotatorPanel annotatorPanel;
     @UiField
@@ -84,6 +85,12 @@ public class MainPanel extends Composite {
     public MainPanel() {
         exportStaticMethod();
         initWidget(ourUiBinder.createAndBindUi(this));
+//        frame = new NamedFrame("genomeViewer");
+        GWT.log("name: "+ frame.getName());
+//        frame.getElement().setAttribute("id",frame.getName());
+//        DOM.setElementAttribute(frame.getElement(), "id", frame.getName());
+        // set ID for Name
+//        DOM.setElementAttribute(frame.getElement(), "id", frame.getName());
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
@@ -98,7 +105,15 @@ public class MainPanel extends Composite {
 
         loadOrganisms(organismList);
         loadReferenceSequences(sequenceList);
+
+//        nativeFunct();
     }
+
+//    public native void nativeFunct() /*-{
+//        console.log($wnd.frames) ;
+//        var f = $wnd.frames["genomeViewer"];
+//        f.contentWindow.doFancy();
+//    }-*/;
 
     @UiHandler("sequenceList")
     public void changeSequence(ChangeEvent event){
@@ -272,6 +287,7 @@ public class MainPanel extends Composite {
     public static void reloadOrganisms(){ organismPanel.reload(); }
     public static void reloadUsers(){ userPanel.reload(); }
     public static void reloadUserGroups(){ userGroupPanel.reload(); }
+
 
 //    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
     public static native void exportStaticMethod() /*-{
