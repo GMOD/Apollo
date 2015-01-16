@@ -3,10 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
@@ -18,23 +15,18 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
-import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -51,7 +43,7 @@ public class MainPanel extends Composite {
     private String rootUrl;
     private String userId;
     private Integer currentOrganismId = 0 ;
-    public static List<JavaScriptObject> functionList = new ArrayList<>();
+    public static Map<String,JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // debug
     private Boolean showFrame = false ;
@@ -248,8 +240,6 @@ public class MainPanel extends Composite {
                 annotatorPanel.reload();
                 break;
             case 1:
-                GWT.log(executeFunction(functionList.get(0)));
-                GWT.log(executeFunction(functionList.get(1),"{data:'something'}"));
                 trackPanel.reload();
                 break;
             case 2:
@@ -281,22 +271,10 @@ public class MainPanel extends Composite {
             // close
             mainSplitPanel.setWidgetSize(eastDockPanel, 20);
             dockOpenClose.setIcon(IconType.CARET_LEFT);
-//            detailTabs.setVisible(false);
-//            westPanel.setVisible(true);
-//            westPanel.setWidth("20px");
-//            eastDockPanel.addWest(westPanel,20);
-//            westPanel.setPixelSize(20,1000);
-//            eastDockPanel.forceLayout();
         } else {
             // open
             mainSplitPanel.setWidgetSize(eastDockPanel, 550);
             dockOpenClose.setIcon(IconType.CARET_RIGHT);
-//            detailTabs.setVisible(true);
-//            westPanel.setVisible(false);
-//            westPanel.setPixelSize(0,1000);
-//            eastDockPanel.remove(westPanel);
-//            westPanel.setWidth("1px");
-//            eastDockPanel.forceLayout();
         }
 
         mainSplitPanel.animate(400);
@@ -310,8 +288,8 @@ public class MainPanel extends Composite {
     }
 
 
-    public static void registerFunction(JavaScriptObject javaScriptObject){
-        functionList.add(javaScriptObject);
+    public static void registerFunction(String name,JavaScriptObject javaScriptObject){
+        annotrackFunctionMap.put(name, javaScriptObject);
     }
 
 
@@ -326,17 +304,18 @@ public class MainPanel extends Composite {
         return JsonUtils.unsafeEval(jsonStr);
     }
 
-    public static String executeFunction(JavaScriptObject targetFunction){
-        return executeFunction(targetFunction,JavaScriptObject.createObject());
+    public static String executeFunction(String name){
+        return executeFunction(name,JavaScriptObject.createObject());
     }
 
-    public static String executeFunction(JavaScriptObject targetFunction,String data){
-//        JavaScriptObject dataObject = parseJson(data);
-        String jsonString = "{'data':'asdf'}";
-        JavaScriptObject dataObject = parseJson(jsonString);
-//        JavaScriptObject dataObject = JavaScriptObject.createObject();
+    public static String executeFunction(String name,JavaScriptObject dataObject){
+        JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
+        if(targetFunction==null){
+            return "function " + name + " not found";
+        }
         return executeFunction(targetFunction,dataObject);
     }
+
 
     public static native String executeFunction(JavaScriptObject targetFunction,JavaScriptObject data) /*-{
         return targetFunction(data);
@@ -364,7 +343,10 @@ public class MainPanel extends Composite {
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups= $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
-        $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Lcom/google/gwt/core/client/JavaScriptObject;));
+        $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
+        $wnd.getEmbeddedVersion = $entry(
+            function apolloEmbeddedVersion(){return 'ApolloGwt-1.0';}
+        );
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 

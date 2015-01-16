@@ -3,7 +3,6 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
@@ -21,7 +20,6 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 //import org.gwtbootstrap3.client.ui.gwt.DataGrid;
@@ -135,8 +133,8 @@ public class TrackPanel extends Composite {
                     jsonObject.put("command",new JSONString("hide") );
                     GWT.log("UN selected . .  do something");
                 }
-                MainPanel.executeFunction(MainPanel.functionList.get(2), jsonObject.getJavaScriptObject());
-//                publishUpdate(jsonObject);
+
+                MainPanel.executeFunction("handleTrackVisibility",jsonObject.getJavaScriptObject());
             }
         });
         firstNameColumn.setSortable(true);
@@ -232,14 +230,8 @@ public class TrackPanel extends Composite {
 
     public void reload() {
         JSONObject commandObject = new JSONObject();
-        commandObject.put("command",new JSONString("list"));
-        MainPanel.executeFunction(MainPanel.functionList.get(2),commandObject.getJavaScriptObject());
-//        console.log('calling send tracks');
-//        $wnd.requestTracks();
-//        console.log('called send tracks');
-//        List<TrackInfo> trackInfoList = dataProvider.getList();
-//        loadTracks(trackInfoList);
-//        dataGrid.redraw();
+        commandObject.put("command", new JSONString("list"));
+        MainPanel.executeFunction("handleTrackVisibility",commandObject.getJavaScriptObject());
     }
 
     public static void updateTracks(String jsonString){

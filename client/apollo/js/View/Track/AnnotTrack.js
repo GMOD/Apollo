@@ -384,119 +384,72 @@ define([
                     var track = this;
                     var browser = this.gview.browser;
 
-                    // Can call exposed javscript functions this way
-                    //window.parent.sampleFunction();
+                    if(typeof window.parent.getEmbeddedVersion == 'function') {
+                        if(window.parent.getEmbeddedVersion()=='ApolloGwt-1.0') {
+                            console.log('Registering embedded system with ApolloGwt-1.0.');
+                            var sendTracks = function (trackList, visibleTrackNames) {
+                                var filteredTrackList = [];
+                                for (var trackConfigIndex in trackList) {
+                                    var filteredTrack = {};
+                                    var trackConfig = trackList[trackConfigIndex];
+                                    var index = visibleTrackNames.indexOf(trackConfig.label);
+                                    filteredTrack.label = trackConfig.label;
+                                    filteredTrack.key = trackConfig.key;
+                                    filteredTrack.name = trackConfig.name;
+                                    filteredTrack.type = trackConfig.type;
+                                    filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                                    filteredTrack.visible = index >= 0;
+                                    filteredTrackList.push(filteredTrack);
+                                }
 
-                    var fancyFunction2 = function(){
-                        console.log('2 - fancy times');
-                        return '2 - some fanciness';
-                    };
-                    var fancyFunction3 = function(data){
-                        console.log('3 - fancy times: '+data.data);
-                        return '3 - some fanciness: '+data.data;
-                    };
+                                console.log('AnnotTrack::returning filterted track list: ' + filteredTrackList.length);
+                                window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                            };
 
-                    //window.parent.setFrameHandler(this);
-                    window.parent.registerFunction(fancyFunction2);
-                    window.parent.registerFunction(fancyFunction3);
+                            var handleTrackVisibility = function (trackInfo) {
+                                console.log(trackInfo);
 
-                    var sendTracks = function (trackList, visibleTrackNames) {
-                        console.log('3 AnnotTrack::sendTrakcs');
-                        //var trackList = browser.trackListView.trackConfigs;
-                        //var visibleTrackNames = browser.view.visibleTrackNames();
-                        var filteredTrackList = [];
-                        for (var trackConfigIndex in trackList) {
-                            var filteredTrack = {};
-                            var trackConfig = trackList[trackConfigIndex];
-                            var index = visibleTrackNames.indexOf(trackConfig.label);
-                            filteredTrack.label = trackConfig.label;
-                            filteredTrack.key = trackConfig.key;
-                            filteredTrack.name = trackConfig.name;
-                            filteredTrack.type = trackConfig.type;
-                            filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                            filteredTrack.visible = index >= 0;
-                            filteredTrackList.push(filteredTrack);
+
+                                var command = trackInfo.command;
+                                console.log(command);
+
+                                if (command == "show") {
+                                    console.log('trying to show the track: ' + trackInfo);
+                                    track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                                }
+                                else if (command == "hide") {
+                                    //console.log('trying to hide the track: '+trackInfo);
+                                    track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                                }
+                                else if (command == "list") {
+                                    console.log('AnnotTrack:: calling sending tracks');
+                                    var trackList = browser.trackConfigsByName;
+                                    var visibleTrackNames = browser.view.visibleTrackNames();
+                                    sendTracks(trackList, visibleTrackNames);
+                                }
+                                else {
+                                    console.log('cont sure what command is supposed to be: ' + command);
+                                }
+                            };
+
+                            window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
                         }
-
-                        console.log('AnnotTrack::returning filterted track list: ' + filteredTrackList.length);
-                        window.parent.loadTracks(JSON.stringify(filteredTrackList));
-                    };
-
-                    var handleTrackVisibility = function(trackInfo){
-                        console.log(trackInfo);
-
-
-                        var command = trackInfo.command;
-                        console.log(command);
-
-                        if (command == "show") {
-                            console.log('trying to show the track: ' + trackInfo);
-                            track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                        else{
+                            console.log('Unknown embedded server: ' + window.parent.getEmbeddedVersion()+' ignoring.');
                         }
-                        else if (command == "hide") {
-                            //console.log('trying to hide the track: '+trackInfo);
-                            track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
-                        }
-                        else if (command == "list") {
-                            console.log('AnnotTrack:: calling sending tracks');
-                            var trackList = browser.trackConfigsByName;
-                            var visibleTrackNames = browser.view.visibleTrackNames();
-                            sendTracks(trackList, visibleTrackNames);
-                        }
-                        else {
-                            console.log('cont sure what command is supposed to be: ' + command);
-                        }
-                    };
-
-                    window.parent.registerFunction(handleTrackVisibility);
+                    }
+                    else{
+                        console.log('No embedded server is present.');
+                    }
 
 
                     client.connect({}, function () {
 
-
-
-
+                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                         //var location = dojo.doc.location;
                         //console.log('location: ' + location);
                         //var userId = dojo.queryToObject(location).userId;
                         //console.log('location: ' + location);
-
-
-
-                        client.subscribe("/topic/TrackList", function (message) {
-                            //console.log('AnnotTrack:: WebSocket TrackList consumed: ' + JSON.stringify(message.body));
-                            console.log(message.body);
-                            try {
-                                var trackInfo = JSON.parse(message.body);
-                            } catch (e) {
-                                console.log('failed to parse: ' + e);
-                            }
-                            console.log('parsed');
-                            //console.log(trackInfo);
-                            var command = trackInfo.command;
-                            console.log(command);
-
-                            if (command == "show") {
-                                console.log('trying to show the track: ' + trackInfo);
-                                track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
-                            }
-                            else if (command == "hide") {
-                                //console.log('trying to hide the track: '+trackInfo);
-                                track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
-                            }
-                            else if (command == "list") {
-                                console.log('AnnotTrack:: calling sending tracks');
-                                var trackList = browser.trackConfigsByName;
-                                var visibleTrackNames = browser.view.visibleTrackNames();
-                                sendTracks(trackList, visibleTrackNames);
-                            }
-                            else {
-                                console.log('cont sure what command is supposed to be: ' + command);
-                            }
-                        });
-
-                        //sendTracks(browser);
-
 
                         client.subscribe("/topic/AnnotationNotification", function (message) {
                             console.log('NOTIFIED of ANNOT CHANGE');
