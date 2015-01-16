@@ -21,46 +21,6 @@
             , showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
             ,userId: '${userKey}'
         };
-
-        //     $(function() {
-        var socket = new SockJS("${createLink(uri: '/stomp')}");
-        var client = Stomp.over(socket);
-
-        %{--client.connect('${userKey}','', function () {--}%
-        client.connect(Options.userId,'guest',function (frame) {
-            client.subscribe("/topic/AnnotationNotification", function (message) {
-                window.reloadAnnotations();
-            });
-            client.subscribe("/topic/JBrowseTrackList",function(message){
-                console.log('index2::recieved the track list: '+message.body);
-                var trackList ;
-                trackList = JSON.parse(message.body);
-                console.log('index::the track list!: '+trackList.length);
-                var returnPayload = {tracks:trackList};
-                window.loadTracks(JSON.stringify(returnPayload));
-            })
-
-        });
-
-
-
-        var sendTrackUpdate = function (track) {
-            console.log('publishing track update: ' + track);
-            client.send("/topic/TrackList", {}, track);
-            console.log('PUBLSISHED track update: ' + track);
-        };
-
-        var requestTracks = function () {
-//            console.log('getting all tracks: '+track);
-            var commandObject = {};
-            commandObject.command = "list";
-
-            console.log('connecting . . ');
-            console.log('index:PUBLSISHING track list: ' + commandObject);
-            console.log('index:PUBLSISHED track list: ' + commandObject);
-            client.send("/topic/TrackList", {}, JSON.stringify(commandObject));
-            console.log('index:PUBLSISHED track list: ' + commandObject);
-        };
     </script>
 </head>
 

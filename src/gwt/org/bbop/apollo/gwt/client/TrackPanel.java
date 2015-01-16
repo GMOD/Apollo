@@ -127,12 +127,6 @@ public class TrackPanel extends Composite {
             public void update(int index, TrackInfo trackInfo, Boolean value) {
                 JSONObject jsonObject = trackInfo.getPayload();
                 trackInfo.setVisible(value);
-//                if(jsonObject.get("storeClass")!=null){
-//                    jsonObject.put("store", jsonObject.get("storeClass").isString());
-//                }
-//                else{
-//                    jsonObject.put("store",new JSONObject());
-//                }
                 if(value){
                     jsonObject.put("command",new JSONString("show") );
                     GWT.log("selected . .  do something");
@@ -141,7 +135,8 @@ public class TrackPanel extends Composite {
                     jsonObject.put("command",new JSONString("hide") );
                     GWT.log("UN selected . .  do something");
                 }
-                publishUpdate(jsonObject);
+                MainPanel.executeFunction(MainPanel.functionList.get(2), jsonObject.getJavaScriptObject());
+//                publishUpdate(jsonObject);
             }
         });
         firstNameColumn.setSortable(true);
@@ -215,9 +210,9 @@ public class TrackPanel extends Composite {
 
     }
 
-    private native void publishUpdate(JSONObject jsonObject) /*-{
-        $wnd.sendTrackUpdate(jsonObject);
-    }-*/;
+//    private native void publishUpdate(JSONObject jsonObject) /*-{
+//        $wnd.sendTrackUpdate(jsonObject);
+//    }-*/;
 
 //    private static native JavaScriptObject loadTracks() /*-{
 //        console.log('into loadtracks returned');
@@ -235,26 +230,32 @@ public class TrackPanel extends Composite {
         $wnd.loadTracks = $entry(@org.bbop.apollo.gwt.client.TrackPanel::updateTracks(Ljava/lang/String;));
     }-*/;
 
-    public native void reload() /*-{
-        console.log('calling send tracks');
-        $wnd.requestTracks();
-        console.log('called send tracks');
+    public void reload() {
+        JSONObject commandObject = new JSONObject();
+        commandObject.put("command",new JSONString("list"));
+        MainPanel.executeFunction(MainPanel.functionList.get(2),commandObject.getJavaScriptObject());
+//        console.log('calling send tracks');
+//        $wnd.requestTracks();
+//        console.log('called send tracks');
 //        List<TrackInfo> trackInfoList = dataProvider.getList();
 //        loadTracks(trackInfoList);
 //        dataGrid.redraw();
-    }-*/;
+    }
 
     public static void updateTracks(String jsonString){
-        JSONObject returnValueObject = JSONParser.parseStrict(jsonString).isObject();
+//        Window.alert("updating tracks: "+jsonString);
+        JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
+
 
         updateTracks(returnValueObject,dataProvider.getList());
 
     }
 
-    public static void updateTracks(JSONObject returnValueObject, List<TrackInfo> trackInfoList){
+    public static void updateTracks(JSONArray array, List<TrackInfo> trackInfoList){
         trackInfoList.clear();
-        if(returnValueObject.get("tracks")==null) return ;
-        JSONArray array = returnValueObject.get("tracks").isArray();
+//        JSONArray array = returnValueObject.isArray();
+//        if(returnValueObject.get("tracks")==null) return ;
+//        JSONArray array = returnValueObject.get("tracks").isArray();
 
         for(int i = 0 ; i < array.size() ; i++){
             JSONObject object = array.get(i).isObject();
@@ -299,7 +300,7 @@ public class TrackPanel extends Composite {
 //                GWT.log("response: "+response.getText());
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONObject returnValueObject = returnValue.isObject();
-                updateTracks(returnValueObject,trackInfoList);
+                updateTracks(returnValueObject.get("tracks").isArray(),trackInfoList);
             }
 
             @Override

@@ -374,217 +374,86 @@ define([
 
                 },
 
-                //createAnnotationChangeListener: function(retryNumber) {
-                //    var track = this;
-                //    if (retryNumber === undefined) {
-                //        retryNumber = 0;
-                //    }
-                //    // server error if tried connecting 5 times and failed
-                //    if (retryNumber > 5) {
-                //        track.handleError({responseText: '{ error: "Server connection error" }'});
-                //        window.location.reload();
-                //        return;
-                //    }
-                //    // if (listeners[track.getUniqueTrackName()]) {
-                //    // if (listeners[track.getUniqueTrackName()].fired == -1) {
-                //    // listeners[track.getUniqueTrackName()].cancel();
-                //    // }
-                //    // }
-                //
-                //    this.listener = dojo.xhrGet( {
-                //        url: context_path + "/AnnotationChangeNotificationService",
-                //        content: {
-                //            track: track.getUniqueTrackName()
-                //        },
-                //        handleAs: "json",
-                //        /*
-                //         * WARNING: MUST set preventCache to true, at least with Dojo 1.? (7?)
-                //         * otherwise with AnnotationChangeNotificationService dojo.xhrGet, dojo
-                //         * will cache the response till page reload (seems to do this regardless
-                //         * of whether web browser caching is enabled or not) result is infinite
-                //         * loop due to recursive createAnnotationChangeListener() call in
-                //         * xhr.load, with each loop just receiving cached response without ever
-                //         * going back out to server after first response.
-                //         */
-                //        preventCache: true,
-                //        // timeout: 1000 * 1000, // Time in milliseconds
-                //        timeout: 5 * 60 * 1000,  // setting timeout to 0 indicates no
-                //                                    // timeout set
-                //        // The LOAD function will be called on a successful response.
-                //        load: function(response, ioArgs) {
-                //            if (response == null) {
-                //                    track.createAnnotationChangeListener();
-                //            }
-                //            // else if (response.error) {
-                //            // track.handleError({ responseText:
-                //            // JSON.stringify(response) });
-                //            // }
-                //            else {
-                //                for (var i in response) {
-                //                    var changeData = response[i];
-                //                    if (track.verbose_server_notification) {
-                //                        console.log(changeData.operation + " command from server: ");
-                //                        console.log(changeData);
-                //                    }
-                //                    if (changeData.operation == "ADD") {
-                //                        if (changeData.sequenceAlterationEvent) {
-                //                                track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                //                        }
-                //                        else {
-                //                                track.annotationsAddedNotification(changeData.features);
-                //                        }
-                //                    }
-                //                    else if (changeData.operation == "DELETE") {
-                //                        if (changeData.sequenceAlterationEvent) {
-                //                                track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                //                        }
-                //                        else {
-                //                                track.annotationsDeletedNotification(changeData.features);
-                //                        }
-                //                    }
-                //                    else if (changeData.operation == "UPDATE") {
-                //                        if (changeData.sequenceAlterationEvent) {
-                //                            track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                //                             // track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                //                             // track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                //                        }
-                //                        else {
-                //                            track.annotationsUpdatedNotification(changeData.features);
-                //                            // track.annotationsDeletedNotification(changeData.features);
-                //                            // track.annotationsAddedNotification(changeData.features);
-                //                        }
-                //                    }
-                //                    else  {
-                //                        // unknown command from server, null-op?
-                //                    }
-                //                }
-                //                // track.hideAll(); shouldn't need to call hideAll()
-                //                // before changed() anymore
-                //                track.changed();
-                //                track.createAnnotationChangeListener();
-                //            }
-                //        },
-                //        // The ERROR function will be called in an error case.
-                //        error: function(response, ioArgs) { //
-                //            // client cancel
-                //            if (response.dojoType == "cancel") {
-                //                console.log("AnnotationChangeNotification  XHR returned with error of type CANCEL");
-                //                track.handleError(response);
-                //
-                //                return;
-                //            }
-                //            // client timeout
-                //            if (response.dojoType == "timeout") {
-                //                track.createAnnotationChangeListener();
-                //                return;
-                //            }
-                //            if (ioArgs.xhr.status == 0) {
-                //                setTimeout(function() { track.createAnnotationChangeListener(++retryNumber); }, 300 * retryNumber );
-                //                return;
-                //            }
-                //            // bad gateway
-                //            else if (ioArgs.xhr.status == 502) {
-                //                track.createAnnotationChangeListener();
-                //                return;
-                //            }
-                //            // server killed
-                //            else if (ioArgs.xhr.status == 503) {
-                //                track.handleError({responseText: '{ error: "Server connection error" }'});
-                //                window.location.reload();
-                //                return;
-                //            }
-                //
-                //            // server timeout
-                //            else if (ioArgs.xhr.status == 504){
-                //                console.log("received server timeoout");
-                //                track.createAnnotationChangeListener();
-                //                console.log("created new AnnotationChangeListener");
-                //                // fiddling with supressing dojo.xhrGet internal Deferred stuff
-                //                // firing errors
-                //                // setting error.log = false may override...
-                //                response.log = false;
-                //                return;
-                //            }
-                //            // forbidden
-                //            else if (ioArgs.xhr.status == 403) {
-                //                track.hide();
-                //                track.changed();
-                //                track.handleError({responseText: '{ error: "Logged out" }'});
-                //                window.location.reload();
-                //                return;
-                //            }
-                //            // actual error
-                //            if (response.responseText) {
-                //                track.handleError(response);
-                //                track.comet_working = false;
-                //                console.error("HTTP status code: ", ioArgs.xhr.status); //
-                //                return response;
-                //            }
-                //            // everything else
-                //            else {
-                //                track.handleError({responseText: '{ error: "Server connection error" }'});
-                //                return;
-                //            }
-                //
-                //        },
-                //        failOk: true
-                //    });
-                //// listeners[track.getUniqueTrackName()] = listener;
-                //
-                //},
                 createAnnotationChangeListener: function (numTry) {
                     //this.listener = new SockJS(context_path, this);
-                    console.log('on listening: ' + numTry);
+                    console.log('creating change listener: ' + numTry);
                     // https://github.com/zyro23/grails-spring-websocket
                     this.listener = new SockJS("/apollo/stomp");
                     this.client = Stomp.over(this.listener);
                     var client = this.client;
                     var track = this;
                     var browser = this.gview.browser;
+
+                    // Can call exposed javscript functions this way
+                    //window.parent.sampleFunction();
+
+                    var fancyFunction2 = function(){
+                        console.log('2 - fancy times');
+                        return '2 - some fanciness';
+                    };
+                    var fancyFunction3 = function(data){
+                        console.log('3 - fancy times: '+data.data);
+                        return '3 - some fanciness: '+data.data;
+                    };
+
+                    //window.parent.setFrameHandler(this);
+                    window.parent.registerFunction(fancyFunction2);
+                    window.parent.registerFunction(fancyFunction3);
+
+                    var sendTracks = function (trackList, visibleTrackNames) {
+                        console.log('3 AnnotTrack::sendTrakcs');
+                        //var trackList = browser.trackListView.trackConfigs;
+                        //var visibleTrackNames = browser.view.visibleTrackNames();
+                        var filteredTrackList = [];
+                        for (var trackConfigIndex in trackList) {
+                            var filteredTrack = {};
+                            var trackConfig = trackList[trackConfigIndex];
+                            var index = visibleTrackNames.indexOf(trackConfig.label);
+                            filteredTrack.label = trackConfig.label;
+                            filteredTrack.key = trackConfig.key;
+                            filteredTrack.name = trackConfig.name;
+                            filteredTrack.type = trackConfig.type;
+                            filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                            filteredTrack.visible = index >= 0;
+                            filteredTrackList.push(filteredTrack);
+                        }
+
+                        console.log('AnnotTrack::returning filterted track list: ' + filteredTrackList.length);
+                        window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                    };
+
+                    var handleTrackVisibility = function(trackInfo){
+                        console.log(trackInfo);
+
+
+                        var command = trackInfo.command;
+                        console.log(command);
+
+                        if (command == "show") {
+                            console.log('trying to show the track: ' + trackInfo);
+                            track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                        }
+                        else if (command == "hide") {
+                            //console.log('trying to hide the track: '+trackInfo);
+                            track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                        }
+                        else if (command == "list") {
+                            console.log('AnnotTrack:: calling sending tracks');
+                            var trackList = browser.trackConfigsByName;
+                            var visibleTrackNames = browser.view.visibleTrackNames();
+                            sendTracks(trackList, visibleTrackNames);
+                        }
+                        else {
+                            console.log('cont sure what command is supposed to be: ' + command);
+                        }
+                    };
+
+                    window.parent.registerFunction(handleTrackVisibility);
+
+
                     client.connect({}, function () {
 
-                        var sendTracks = function (trackList, visibleTrackNames) {
-                            console.log('3 AnnotTrack::sendTrakcs');
-                            //var trackList = browser.trackListView.trackConfigs;
-                            //var visibleTrackNames = browser.view.visibleTrackNames();
-                            var filteredTrackList = [];
-                            for (var trackConfigIndex in trackList) {
-                                var filteredTrack = {};
-                                var trackConfig = trackList[trackConfigIndex];
-                                var index = visibleTrackNames.indexOf(trackConfig.label);
-                                filteredTrack.label = trackConfig.label;
-                                filteredTrack.key = trackConfig.key;
-                                filteredTrack.name = trackConfig.name;
-                                filteredTrack.type = trackConfig.type;
-                                filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                                filteredTrack.visible = index >= 0;
-                                filteredTrackList.push(filteredTrack);
-                            }
 
-                            //console.log(filteredTrackList);
-                            //console.log(visibleTrackNames.size());
-                            //console.log(trackList);
-                            //client.send("/app/TrackList", {}, JSON.stringify(trackList));
-                            console.log('AnnotTrack::returning filterted track list: ' + filteredTrackList.length);
-                            //console.log(JSON.stringify(filteredTrackList));
-                            client.send("/topic/JBrowseTrackList", {}, JSON.stringify(filteredTrackList));
-                        };
-
-                        // Can call exposed javscript functions this way
-                        //window.parent.sampleFunction();
-
-                        var fancyFunction2 = function(){
-                            console.log('2 - fancy times');
-                            return '2 - some fanciness';
-                        };
-                        var fancyFunction3 = function(data){
-                            alert('3 - fancy times: '+data.data);
-                            return '3 - some fanciness: '+data.data;
-                        };
-
-                        //window.parent.setFrameHandler(this);
-                        window.parent.registerFunction(fancyFunction2);
-                        window.parent.registerFunction(fancyFunction3);
 
 
                         //var location = dojo.doc.location;

@@ -51,6 +51,7 @@ public class MainPanel extends Composite {
     private String rootUrl;
     private String userId;
     private Integer currentOrganismId = 0 ;
+    public static List<JavaScriptObject> functionList = new ArrayList<>();
 
     // debug
     private Boolean showFrame = false ;
@@ -248,7 +249,7 @@ public class MainPanel extends Composite {
                 break;
             case 1:
                 GWT.log(executeFunction(functionList.get(0)));
-                Window.alert(executeFunction(functionList.get(1),"{data:'something'}"));
+                GWT.log(executeFunction(functionList.get(1),"{data:'something'}"));
                 trackPanel.reload();
                 break;
             case 2:
@@ -308,17 +309,11 @@ public class MainPanel extends Composite {
         this.rootUrl = rootUrl;
     }
 
-    private static JavaScriptObject frameHandler ;
-    private static List<JavaScriptObject> functionList = new ArrayList<>();
 
     public static void registerFunction(JavaScriptObject javaScriptObject){
         functionList.add(javaScriptObject);
     }
 
-
-    public static void setFrameHandler(JavaScriptObject javaScriptObject){
-        frameHandler = javaScriptObject ;
-    }
 
     /*
      * Takes in a JSON String and evals it.
@@ -369,7 +364,6 @@ public class MainPanel extends Composite {
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups= $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
-        $wnd.setFrameHandler = $entry(@org.bbop.apollo.gwt.client.MainPanel::setFrameHandler(Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Lcom/google/gwt/core/client/JavaScriptObject;));
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
