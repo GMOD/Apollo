@@ -42,7 +42,8 @@ public class MainPanel extends Composite {
     private boolean toggleOpen = true;
     private String rootUrl;
     private String userId;
-    private Integer currentOrganismId = 0 ;
+    public static Integer currentOrganismId = 0 ;
+    public static String currentSequenceId ;
     public static Map<String,JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // debug
@@ -83,56 +84,20 @@ public class MainPanel extends Composite {
     public MainPanel() {
         exportStaticMethod();
         initWidget(ourUiBinder.createAndBindUi(this));
-//        frame = new NamedFrame("genomeViewer");
         GWT.log("name: "+ frame.getName());
         frame.getElement().setAttribute("id",frame.getName());
-//        DOM.setElementAttribute(frame.getElement(), "id", frame.getName());
-        // set ID for Name
-//        DOM.setElementAttribute(frame.getElement(), "id", frame.getName());
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
         userId = dictionary.get("userId");
         showFrame = dictionary.get("showFrame")!=null && dictionary.get("showFrame").contains("true");
-        if(showFrame){
-            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&userId="+userId);
-        }
-        else{
-            frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0&userId="+userId);
-        }
 
         loadOrganisms(organismList);
-        loadReferenceSequences(sequenceList);
+        loadReferenceSequences(sequenceList, true);
 
-////        GWT.log("genome1: " + Document.get().getDocumentElement().getE("genomeViewer").getLength());
-//        GWT.log("genome2: " + Document.get().getElementById("genomeViewer"));
-//
-//        Scheduler.get().scheduleDeferred(new Command() {
-//            public void execute() {
-////                dataEntry.setFocus();
-//                execCommand(frame, "whatev", true, "yo");
-//            }
-//        });
     }
 
-//    public static native void execCommand(NamedFrame frame, String
-//            command, boolean ui, String value)/*-{
-//        var frameName =
-//            frame.@com.google.gwt.user.client.ui.NamedFrame::getName()();
-//        var oIframe = $wnd.document.getElementsByName(frameName)[0];
-//        console.log(oIframe.contentWindow.doFancy2());
-//        //var oDoc = oIframe.contentWindow || oIframe.contentDocument;
-//        var oDoc = oIframe.contentWindow || oIframe.contentDocument;
-//        //console.log(oDoc);
-//        //if (oDoc.document) {
-//        //    oDoc = oDoc.document;
-//        //}
-//        //oIframe.contentWindow.doFancy();
-//        //oDoc.doFancy1();
-//        //oDoc.doFancy2();
-//        //oDoc.doFancy3();
-//        //oDoc.execCommand(command, ui, value);
-//    }-*/;
+
 
     @UiHandler("sequenceList")
     public void changeSequence(ChangeEvent event){
@@ -153,16 +118,29 @@ public class MainPanel extends Composite {
         frame.setUrl(trackListString);
     }
 
+    public void loadReferenceSequences(final ListBox sequenceInfoList) {
+        loadReferenceSequences(sequenceInfoList,false);
+    }
+
     /**
      * could use an sequence callback . . . however, this element needs to use the callback directly.
      * @param sequenceInfoList
      */
-    public void loadReferenceSequences(final ListBox sequenceInfoList) {
+    public void loadReferenceSequences(final ListBox sequenceInfoList, final boolean loadFirstSequence) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
+
+                if(loadFirstSequence && array.size()>0){
+                    currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
+                    String url = rootUrl + "/jbrowse/?loc="+currentSequenceId;
+                    if(!showFrame){
+                        url += "&tracklist=0";
+                    }
+                    frame.setUrl(url);
+                }
 
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
@@ -170,6 +148,9 @@ public class MainPanel extends Composite {
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
                     sequenceInfoList.addItem(sequenceInfo.getName());
+                    if(sequenceInfo.getName().equals(currentSequenceId)){
+                        sequenceInfoList.setSelectedIndex(i);
+                    }
                 }
             }
 
@@ -178,6 +159,7 @@ public class MainPanel extends Composite {
                 Window.alert("Error loading organisms");
             }
         };
+        // TODO: move to a javscript function in iFrame?
         SequenceRestService.loadSequences(requestCallback);
 
     }

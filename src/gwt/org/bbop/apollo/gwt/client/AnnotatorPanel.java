@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
@@ -11,6 +13,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -32,6 +35,7 @@ public class AnnotatorPanel extends Composite {
 
     Dictionary dictionary = Dictionary.getDictionary("Options");
     String rootUrl = dictionary.get("rootUrl");
+    private String selectedSequenceName = null  ;
 
     @UiField
     TextBox nameSearchBox;
@@ -44,16 +48,8 @@ public class AnnotatorPanel extends Composite {
 
 
     Tree.Resources tablecss = GWT.create(Tree.Resources.class);
-    //    @UiField(provided=true) DataGrid<> dataGrid = new DataGrid<SequenceInfo>( 10, tablecss );
     @UiField(provided = true)
     Tree features = new Tree(tablecss);
-
-    //    @UiField HTML annotationName;
-//    @UiField
-//    TextBox annotationName;
-//    //    @UiField HTML annotationDescription;
-//    @UiField
-//    TextBox annotationDescription;
     @UiField
     ListBox typeList;
     @UiField
@@ -62,35 +58,22 @@ public class AnnotatorPanel extends Composite {
     TranscriptDetailPanel transcriptDetailPanel;
     @UiField
     ExonDetailPanel exonDetailPanel;
-//    @UiField
-//    TranscriptDetailPanel transcriptDetailPanel;
-//    @UiField
-//    ExonDetailPanel exonDetailPanel;
-
-//    TreeItem selectedItem ;
 
     public AnnotatorPanel() {
-//        initWidget(ourUiBinder.createAndBindUi(this));
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         exonDetailPanel.setVisible(false);
-//        stopCodonFilter.setValue(true);
-
-
-        reload();
+        stopCodonFilter.setValue(false);
 
         features.setAnimationEnabled(true);
-
 
         features.addSelectionHandler(new SelectionHandler<TreeItem>() {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
                 JSONObject internalData = ((AnnotationContainerWidget) event.getSelectedItem().getWidget()).getInternalData();
-//                GWT.log("selected a tree item " + event.getSelectedItem().getText());
-//                GWT.log("data: " + internalData.toString());
                 String type = getType(internalData);
                 geneDetailPanel.setVisible(false);
                 transcriptDetailPanel.setVisible(false);
@@ -127,6 +110,9 @@ public class AnnotatorPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
+                if(selectedSequenceName==null && array.size()>0){
+                    selectedSequenceName = array.get(0).isObject().get("name").isString().stringValue();
+                }
                 sequenceList.clear();
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
@@ -135,6 +121,8 @@ public class AnnotatorPanel extends Composite {
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
                     sequenceList.addItem(sequenceInfo.getName());
                 }
+
+                reload();
             }
 
             @Override
@@ -146,22 +134,20 @@ public class AnnotatorPanel extends Composite {
     }
 
     private String getType(JSONObject internalData) {
-        String type = internalData.get("type").isObject().get("name").isString().stringValue();
-        return type;
+        return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
     public void reload() {
-
+        if(selectedSequenceName==null) return;
         features.setAnimationEnabled(false);
 
-        String url = rootUrl + "/annotator/findAnnotationsForSequence";
+        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName="+selectedSequenceName;
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                GWT.log("RETURN JOSN value: "+returnValue.toString());
                 JSONArray array = returnValue.isObject().get("features").isArray();
                 features.clear();
 
@@ -186,28 +172,22 @@ public class AnnotatorPanel extends Composite {
             // Couldn't connect to server
             Window.alert(e.getMessage());
         }
+    }
 
-
-//        features.addItem(DataGenerator.generateTreeItem("sox9a"));
-//        features.addItem(DataGenerator.generateTreeItem("sox9b"));
-//        features.addItem(DataGenerator.generateTreeItem("pax6a"));
-//        features.addItem(DataGenerator.generateTreeItem("pax6b"));
-
+    @UiHandler("sequenceList")
+    public void changeRefSequence(ChangeEvent changeEvent){
+        selectedSequenceName = sequenceList.getSelectedValue();
+        reload();
     }
 
     private TreeItem processFeatureEntry(JSONObject object) {
         TreeItem treeItem = new TreeItem();
 
-//        GWT.log("getting object: " + object);
-
         String featureName = object.get("name").isString().stringValue();
         String featureType = object.get("type").isObject().get("name").isString().stringValue();
         int lastFeature = featureType.lastIndexOf(".");
         featureType = featureType.substring(lastFeature + 1);
-        HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
-//                    TreeItem treeItem = new TreeItem();
-//        treeItem.setHTML(html.getHTML());
-//        treeItem.setWidget(new AnnotationContainerWidget(html.getHTML()));
+//        HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
         treeItem.setWidget(new AnnotationContainerWidget(object));
 
         if (object.get("children") != null) {

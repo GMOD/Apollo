@@ -422,7 +422,7 @@ define([
                                     track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
                                 }
                                 else if (command == "list") {
-                                    console.log('AnnotTrack:: calling sending tracks');
+                                    //console.log('AnnotTrack:: calling sending tracks');
                                     var trackList = browser.trackConfigsByName;
                                     var visibleTrackNames = browser.view.visibleTrackNames();
                                     sendTracks(trackList, visibleTrackNames);
@@ -452,7 +452,7 @@ define([
                         //console.log('location: ' + location);
 
                         client.subscribe("/topic/AnnotationNotification", function (message) {
-                            console.log('NOTIFIED of ANNOT CHANGE');
+                            //console.log('NOTIFIED of ANNOT CHANGE');
 
                             // for some reason have to parse this twice
                             //console.log('input message: '+message);

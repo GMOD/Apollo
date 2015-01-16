@@ -107,20 +107,15 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    def findAnnotationsForSequence() {
-
+    def findAnnotationsForSequence(String sequenceName) {
         JSONObject returnObject = createJSONFeatureContainer()
-        // execute a single query to minimize IO
-        // necessary to do all 3?
-        // TODO: should just be a simple call?
-        List<Feature> allFeatures = Feature.executeQuery("select f from Feature f ")
+
+        List<Feature> allFeatures = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s.name = :sequenceName",[sequenceName: sequenceName])
 
         // just the genes
         def topLevelFeatureList = allFeatures.findAll() {
             it?.childFeatureRelationships?.size() == 0
         }
-
-
 
         for (Feature feature in topLevelFeatureList) {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
