@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -245,7 +247,10 @@ public class MainPanel extends Composite {
                 annotatorPanel.reload();
                 break;
             case 1:
+                GWT.log(executeFunction(functionList.get(0)));
+                Window.alert(executeFunction(functionList.get(1),"{data:'something'}"));
                 trackPanel.reload();
+                break;
             case 2:
                 sequencePanel.reload();
                 break;
@@ -263,6 +268,8 @@ public class MainPanel extends Composite {
         }
 
     }
+
+
 
     private void toggleOpen() {
         if (mainSplitPanel.getWidgetSize(eastDockPanel) < 100) {
@@ -301,6 +308,46 @@ public class MainPanel extends Composite {
         this.rootUrl = rootUrl;
     }
 
+    private static JavaScriptObject frameHandler ;
+    private static List<JavaScriptObject> functionList = new ArrayList<>();
+
+    public static void registerFunction(JavaScriptObject javaScriptObject){
+        functionList.add(javaScriptObject);
+    }
+
+
+    public static void setFrameHandler(JavaScriptObject javaScriptObject){
+        frameHandler = javaScriptObject ;
+    }
+
+    /*
+     * Takes in a JSON String and evals it.
+     * @param JSON String that you trust
+     * @return JavaScriptObject that you can cast to an Overlay Type
+     */
+    public static <T extends JavaScriptObject> T parseJson(String jsonStr)
+    {
+//        return JsonUtils.safeEval(jsonStr);
+        return JsonUtils.unsafeEval(jsonStr);
+    }
+
+    public static String executeFunction(JavaScriptObject targetFunction){
+        return executeFunction(targetFunction,JavaScriptObject.createObject());
+    }
+
+    public static String executeFunction(JavaScriptObject targetFunction,String data){
+//        JavaScriptObject dataObject = parseJson(data);
+        String jsonString = "{'data':'asdf'}";
+        JavaScriptObject dataObject = parseJson(jsonString);
+//        JavaScriptObject dataObject = JavaScriptObject.createObject();
+        return executeFunction(targetFunction,dataObject);
+    }
+
+    public static native String executeFunction(JavaScriptObject targetFunction,JavaScriptObject data) /*-{
+        return targetFunction(data);
+        //return 'executed';
+    }-*/;
+
 
     public static void reloadAnnotator(){
         GWT.log("!!! MainPanel::calling annotator relaod ");
@@ -322,6 +369,8 @@ public class MainPanel extends Composite {
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups= $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
+        $wnd.setFrameHandler = $entry(@org.bbop.apollo.gwt.client.MainPanel::setFrameHandler(Lcom/google/gwt/core/client/JavaScriptObject;));
+        $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Lcom/google/gwt/core/client/JavaScriptObject;));
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 

@@ -57,14 +57,6 @@ define([
          * Otherwise will cause server-breaking errors
          */
 
-            // Can call exposed javscript functions this way
-        //window.parent.sampleFunction();
-
-        //var location = dojo.doc.location;
-        //console.log('location: ' + location);
-        //var userId = dojo.queryToObject(location).userId;
-        //console.log('location: ' + location);
-
         var creation_count = 0;
 
         var annot_context_menu;
@@ -574,13 +566,36 @@ define([
                             //console.log(trackList);
                             //client.send("/app/TrackList", {}, JSON.stringify(trackList));
                             console.log('AnnotTrack::returning filterted track list: ' + filteredTrackList.length);
-                            console.log(JSON.stringify(filteredTrackList));
+                            //console.log(JSON.stringify(filteredTrackList));
                             client.send("/topic/JBrowseTrackList", {}, JSON.stringify(filteredTrackList));
                         };
 
+                        // Can call exposed javscript functions this way
+                        //window.parent.sampleFunction();
+
+                        var fancyFunction2 = function(){
+                            console.log('2 - fancy times');
+                            return '2 - some fanciness';
+                        };
+                        var fancyFunction3 = function(data){
+                            alert('3 - fancy times: '+data.data);
+                            return '3 - some fanciness: '+data.data;
+                        };
+
+                        //window.parent.setFrameHandler(this);
+                        window.parent.registerFunction(fancyFunction2);
+                        window.parent.registerFunction(fancyFunction3);
+
+
+                        //var location = dojo.doc.location;
+                        //console.log('location: ' + location);
+                        //var userId = dojo.queryToObject(location).userId;
+                        //console.log('location: ' + location);
+
+
 
                         client.subscribe("/topic/TrackList", function (message) {
-                            console.log('AnnotTrack:: WebSocket TrackList consumed: ' + JSON.stringify(message.body));
+                            //console.log('AnnotTrack:: WebSocket TrackList consumed: ' + JSON.stringify(message.body));
                             console.log(message.body);
                             try {
                                 var trackInfo = JSON.parse(message.body);
@@ -588,7 +603,7 @@ define([
                                 console.log('failed to parse: ' + e);
                             }
                             console.log('parsed');
-                            console.log(trackInfo);
+                            //console.log(trackInfo);
                             var command = trackInfo.command;
                             console.log(command);
 
