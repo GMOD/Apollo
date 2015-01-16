@@ -56,9 +56,9 @@ define([
          * AnnotationChangeNotificationService web app properly set up for async
          * Otherwise will cause server-breaking errors
          */
-        function doFancy(){
-            alert('doing the fancy');
-        }
+
+            // Can call exposed javscript functions this way
+        //window.parent.sampleFunction();
 
         //var location = dojo.doc.location;
         //console.log('location: ' + location);

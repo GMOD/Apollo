@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -14,6 +16,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -106,14 +109,35 @@ public class MainPanel extends Composite {
         loadOrganisms(organismList);
         loadReferenceSequences(sequenceList);
 
-        nativeFunct();
+////        GWT.log("genome1: " + Document.get().getDocumentElement().getE("genomeViewer").getLength());
+//        GWT.log("genome2: " + Document.get().getElementById("genomeViewer"));
+//
+//        Scheduler.get().scheduleDeferred(new Command() {
+//            public void execute() {
+////                dataEntry.setFocus();
+//                execCommand(frame, "whatev", true, "yo");
+//            }
+//        });
     }
 
-    public native void nativeFunct() /*-{
-        console.log($wnd.frames) ;
-        var f = $wnd.frames["genomeViewer"];
-        //f.contentWindow.doFancy();
-    }-*/;
+//    public static native void execCommand(NamedFrame frame, String
+//            command, boolean ui, String value)/*-{
+//        var frameName =
+//            frame.@com.google.gwt.user.client.ui.NamedFrame::getName()();
+//        var oIframe = $wnd.document.getElementsByName(frameName)[0];
+//        console.log(oIframe.contentWindow.doFancy2());
+//        //var oDoc = oIframe.contentWindow || oIframe.contentDocument;
+//        var oDoc = oIframe.contentWindow || oIframe.contentDocument;
+//        //console.log(oDoc);
+//        //if (oDoc.document) {
+//        //    oDoc = oDoc.document;
+//        //}
+//        //oIframe.contentWindow.doFancy();
+//        //oDoc.doFancy1();
+//        //oDoc.doFancy2();
+//        //oDoc.doFancy3();
+//        //oDoc.execCommand(command, ui, value);
+//    }-*/;
 
     @UiHandler("sequenceList")
     public void changeSequence(ChangeEvent event){
@@ -287,6 +311,7 @@ public class MainPanel extends Composite {
     public static void reloadOrganisms(){ organismPanel.reload(); }
     public static void reloadUsers(){ userPanel.reload(); }
     public static void reloadUserGroups(){ userGroupPanel.reload(); }
+//    public static void sampleFunction(){ Window.alert("sample function"); }
 
 
 //    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
@@ -297,6 +322,7 @@ public class MainPanel extends Composite {
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups= $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
+        //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 
 }
