@@ -92,3 +92,9 @@ You must install chado to use the Chado export feature, and you must also set it
         at org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter.write(ChadoDataAdapter.java:68)
 
 Then you must also make sure to import your genome into Chado. Refer to the configuration guide for this note on [Chado export](Configure.md#important-note-for-chado-export).
+
+
+### Differences between JBrowse and WebApollo
+
+
+The "linkTemplate" track configuration parameter in JBrowse is overridden by WebApollo's feature edge matcher and drag and drop functions. It is recommended to use menuTemplate instead.
