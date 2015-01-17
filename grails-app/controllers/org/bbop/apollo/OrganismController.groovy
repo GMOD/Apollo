@@ -59,6 +59,13 @@ class OrganismController {
     }
 
     @Transactional
+    def updateOrganism() {
+        println "updating organism "
+        println params.data
+        render {text:'updated'} as JSON
+    }
+
+    @Transactional
     def update(Organism organismInstance) {
         if (organismInstance == null) {
             notFound()

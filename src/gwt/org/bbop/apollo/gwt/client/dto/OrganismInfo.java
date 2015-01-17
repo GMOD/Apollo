@@ -1,16 +1,24 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+
 /**
  * Created by ndunn on 12/18/14.
  */
 public class OrganismInfo {
 
+    // permanent key
     private String id;
+
+    // writeable fields
     private String name ;
+    private String directory ;
+
     private Integer numFeatures ;
     private Integer numSequences;
     private Integer numTracks;
-    private String directory ;
 
     public OrganismInfo(){
 
@@ -70,5 +78,15 @@ public class OrganismInfo {
 
     public void setDirectory(String directory) {
         this.directory = directory;
+    }
+
+    public String toJSON() {
+        JSONObject payload = new JSONObject();
+        payload.put("id",new JSONString(id));
+        payload.put("name",new JSONString(name));
+        payload.put("directory",new JSONString(directory));
+
+//        AutoBean<OrganismInfo> organismInfoAutoBean = AutoBeanUtils.getAutoBean():
+        return payload.toString();
     }
 }

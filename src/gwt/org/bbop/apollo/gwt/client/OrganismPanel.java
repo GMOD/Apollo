@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -9,6 +10,7 @@ import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -21,6 +23,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.bbop.apollo.gwt.client.rest.RestService;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 
@@ -98,21 +101,6 @@ public class OrganismPanel extends Composite {
             public SafeHtml render(String object) {
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
                 sb.appendHtmlConstant("<a href=\"javascript:;\">Select</a>");
-//                sb.appendHtmlConstant("&nbsp;|&nbsp;<a href=\"javascript:;\">Export</a>");
-
-
-//                sb.appendHtmlConstant("<div class='btn-group'>" +
-//                        "  <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-expanded='false'>" +
-//                        "    Action <span class='caret'></span>" +
-//                        "  </button>" +
-//                        "  <ul class='dropdown-menu' role='menu'>" +
-//                        "    <li><a href='#'>Action</a></li>" +
-//                        "    <li><a href='#'>Another action</a></li>" +
-//                        "    <li><a href='#'>Something else here</a></li>" +
-//                        "    <li class='divider'></li>" +
-//                        "    <li><a href='#'>Separated link</a></li>" +
-//                        "  </ul>" +
-//                        "</div>");
                 return sb.toSafeHtml();
             }
         };
@@ -123,16 +111,6 @@ public class OrganismPanel extends Composite {
                 return "Select";
             }
         };
-
-//        Column<OrganismInfo, org.gwtbootstrap3.client.ui.ButtonGroup> actionColumn =new Column<OrganismInfo, ButtonGroup>(new AbstractSafeHtmlCell(anchorRenderer)) {
-//            @Override
-//            public ButtonGroup getValue(OrganismInfo object) {
-//                ButtonGroup buttonGroup = new ButtonGroup();
-//                org.gwtbootstrap3.client.ui.Button actionButton = new Button();
-//                actionButton.setText("Action");
-//                return buttonGroup;
-//            }
-//        };
 
 
         dataGrid.addColumn(organismNameColumn, "Name");
@@ -187,11 +165,22 @@ public class OrganismPanel extends Composite {
             }
         });
 
-//        organismName.setHTML("Zebrafish (Danio rerio)");
-//        sequenceFile.setHTML("/data/apollo/Zebrafish/jbrowse/data");
+    }
 
-//        DataGenerator.populateOrganismTable(dataGrid);
+    @UiHandler("organismName")
+    public void handleOrganismNameChange(ChangeEvent changeEvent){
+         selectedOrganismInfo.setName(organismName.getText());
+        updateOrganismInfo();
+    }
 
+    @UiHandler("sequenceFile")
+    public void handleOrganismDirectory(ChangeEvent changeEvent){
+        selectedOrganismInfo.setDirectory(sequenceFile.getText());
+    }
+
+
+    private void updateOrganismInfo() {
+        OrganismRestService.updateOrganism(selectedOrganismInfo);
     }
 
 

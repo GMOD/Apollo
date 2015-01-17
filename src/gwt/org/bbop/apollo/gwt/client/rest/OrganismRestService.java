@@ -49,6 +49,9 @@ public class OrganismRestService {
             }
         };
         loadOrganisms(requestCallback);
+    }
 
+    public static void updateOrganism(final OrganismInfo organismInfo) {
+        RestService.sendRequest("/organism/updateOrganism",organismInfo.toJSON());
     }
 }

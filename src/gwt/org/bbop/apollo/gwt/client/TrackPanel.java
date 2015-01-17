@@ -38,8 +38,8 @@ public class TrackPanel extends Composite {
     @UiField
     FlexTable configurationTable;
 //    @UiField FlexTable trackTable;
-    @UiField
-    ListBox organismList;
+//    @UiField
+//    ListBox organismList;
     @UiField
     TextBox nameSearchBox;
     @UiField
@@ -199,7 +199,7 @@ public class TrackPanel extends Composite {
         });
 
 
-        DataGenerator.populateOrganismList(organismList);
+//        DataGenerator.populateOrganismList(organismList);
 
         trackName.setHTML("GeneID");
         trackType.setHTML("HTMLFeature");

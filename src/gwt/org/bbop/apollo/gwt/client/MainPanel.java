@@ -98,6 +98,10 @@ public class MainPanel extends Composite {
     }
 
 
+    @UiHandler("organismList")
+    public void changeOrganism(ChangeEvent event){
+
+    }
 
     @UiHandler("sequenceList")
     public void changeSequence(ChangeEvent event){
