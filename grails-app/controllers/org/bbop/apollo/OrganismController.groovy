@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -59,10 +60,32 @@ class OrganismController {
     }
 
     @Transactional
-    def updateOrganism() {
+    def updateOrganismInfo() {
         println "updating organism "
         println params.data
         render {text:'updated'} as JSON
+    }
+
+    @Transactional
+    def changeOrganism(String id) {
+        println "changing organism ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+        String organismId = dataObject.organismId
+        println "organismId ${organismId}"
+        Organism organism = Organism.findById(organismId as Long)
+        if(organism){
+            println "found the organism ${organism}"
+            // make not a magic string
+            request.session.setAttribute("organismJBrowseDirectory",organism.directory)
+//            request.session.setAttribute("organismJBrowseDirectory",organism.directory)
+        }
+        else{
+            println "not found organism "
+        }
+
+        println "updating organism "
+        println params.data
+        render {text:'changed'} as JSON
     }
 
     @Transactional

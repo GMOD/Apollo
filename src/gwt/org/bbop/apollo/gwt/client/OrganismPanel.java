@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -23,9 +24,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.bbop.apollo.gwt.client.rest.RestService;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
-import org.gwtbootstrap3.client.ui.TextBox;
 
 import java.util.Comparator;
 import java.util.List;
@@ -176,11 +175,12 @@ public class OrganismPanel extends Composite {
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent){
         selectedOrganismInfo.setDirectory(sequenceFile.getText());
+        updateOrganismInfo();
     }
 
 
     private void updateOrganismInfo() {
-        OrganismRestService.updateOrganism(selectedOrganismInfo);
+        OrganismRestService.updateOrganismInfo(selectedOrganismInfo);
     }
 
 

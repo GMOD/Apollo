@@ -1,10 +1,12 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.apache.catalina.Session
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.messaging.handler.annotation.MessageMapping
 
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpSession
 
 //@CompileStatic
 class JbrowseController {
@@ -35,7 +37,8 @@ class JbrowseController {
 
     // is typically checking for trackData.json
     def tracks(String jsonFile, String trackName, String groupName) {
-        String filename = configWrapperService.getJBrowseDirectory()
+        String filename = getJBrowseDirectoryForSession()
+//        String filename = configWrapperService.getJBrowseDirectory()
         filename += "/tracks/${trackName}/${groupName}/${jsonFile}.json"
         File file = new File(filename);
         if (!file.exists()) {
@@ -46,11 +49,27 @@ class JbrowseController {
         render file.text
     }
 
-    /**
+    private String getJBrowseDirectoryForSession() {
+        // TODO: move to shiro
+        HttpSession session = request.session
+        String organismJBrowseDirectory = session.getAttribute("organismJBrowseDirectory")
+        if(!organismJBrowseDirectory ){
+            // TODO: lookup based on user name
+            Organism organism = Organism.first()
+            Sequence sequence = organism.sequences.first()
+            organismJBrowseDirectory = organism.directory
+            session.setAttribute("organismJBrowseDirectory",organismJBrowseDirectory)
+            session.setAttribute("sequenceName",sequence.name)
+        }
+
+        return organismJBrowseDirectory
+    }
+/**
      * For returning seq/refSeqs.json
      */
     def namesFiles(String directory, String jsonFile) {
-        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+//        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+        String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
         println "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
@@ -67,7 +86,8 @@ class JbrowseController {
      */
     def names(String fileName) {
         log.debug "names"
-        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+//        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+        String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${fileName}.json"
         println "names ${fileName}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
@@ -99,7 +119,8 @@ class JbrowseController {
      */
     def seq() {
         log.debug "seq"
-        String filename = grailsApplication.config.apollo.jbrowse.data.directory
+//        String filename = grailsApplication.config.apollo.jbrowse.data.directory
+        String filename = getJBrowseDirectoryForSession()
         File file = new File(filename + "/seq/refSeqs.json");
         if (!file.exists()) {
             log.error("Could not get seq file " + filename);
@@ -131,7 +152,8 @@ class JbrowseController {
      */
     def data(String fileName) {
         log.debug "data"
-        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+//        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
+        String dataDirectory = getJBrowseDirectoryForSession()
         log.debug "dataDir: ${dataDirectory}"
 
 //        log.debug  "filename ${filename}"

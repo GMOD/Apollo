@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -100,11 +101,16 @@ public class MainPanel extends Composite {
 
     @UiHandler("organismList")
     public void changeOrganism(ChangeEvent event){
-
+        String selectedValue = organismList.getSelectedValue();
+        OrganismRestService.changeOrganism(this,selectedValue);
     }
 
     @UiHandler("sequenceList")
     public void changeSequence(ChangeEvent event){
+        updateGenomicViewer();
+    }
+
+    public void updateGenomicViewer() {
         String trackListString = rootUrl + "/jbrowse/?loc=";
         String selectedSequence = sequenceList.getSelectedValue();
         GWT.log("get selected sequence: "+selectedSequence);
