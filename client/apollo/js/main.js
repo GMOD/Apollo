@@ -13,6 +13,7 @@ define(
        [
            'dojo/_base/declare',
            'dojo/dom-construct',
+           'dojo/request/xhr',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -32,7 +33,7 @@ define(
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, domConstruct, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+    function( declare, domConstruct, xhr, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
@@ -58,7 +59,7 @@ return declare( JBPlugin,
         });
 
         // Checking for cookie for determining the color scheme of WebApollo
-        if (document.cookie.indexOf("Scheme=Dark") === -1) {
+        if (browser.cookie.indexOf("Scheme=Dark") === -1) {
             this.changeCssScheme = false;
         }
         else {
@@ -72,8 +73,8 @@ return declare( JBPlugin,
         }
 
         args.cssLoaded.then( function() {
-            if (! browser.config.view) { browser.config.view = {}; }
-            browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;
+            if (! browser.config.view) { console.log("View not loaded"); }
+            browser.config.view.maxPxPerBp = 30;
         } );
 
         if (! browser.config.helpUrl)  {
@@ -150,9 +151,7 @@ return declare( JBPlugin,
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-            // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
-                dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
                 browser.poweredByLink.href = 'http://genomearchitect.org/';
                 browser.poweredByLink.target = "_blank";
@@ -373,41 +372,6 @@ return declare( JBPlugin,
     },
 
 
-    /** ported from berkeleybop/jbrowse GenomeView.js
-      * returns char height/width on GenomeView
-      */
-    getSequenceCharacterSize: function(recalc)  {
-        var container = this.browser.container;
-        if (this.browser.view && this.browser.view.elem)  {
-            container = this.browser.view.elem;
-        }
-        if (recalc || (! this._charSize))  {
-            this._charSize = this.calculateSequenceCharacterSize(container);
-        }
-        return this._charSize;
-    },
-
-    /**
-     * ported from berkeleybop/jbrowse GenomeView.js
-     * Conducts a test with DOM elements to measure sequence text width
-     * and height.
-     */
-    calculateSequenceCharacterSize: function( containerElement ) {
-        var widthTest = document.createElement("div");
-        widthTest.className = "wa-sequence";
-        widthTest.style.visibility = "hidden";
-        var widthText = "12345678901234567890123456789012345678901234567890";
-        widthTest.appendChild(document.createTextNode(widthText));
-        containerElement.appendChild(widthTest);
-
-        var result = {
-            width:  widthTest.clientWidth / widthText.length,
-            height: widthTest.clientHeight
-        };
-
-        containerElement.removeChild(widthTest);
-        return result;
-    },
 
     /** utility function, given an array with objects that have label props,
      *        return array with all objects that don't have label
@@ -458,15 +422,6 @@ return declare( JBPlugin,
         browser.addGlobalMenuItem( 'help',
             new dijitMenuItem(
                 {
-                    id: 'menubar_powered_by_jbrowse',
-                    label: 'Powered by JBrowse',
-                    // iconClass: 'jbrowseIconHelp', 
-                    onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                })
-        );
-        browser.addGlobalMenuItem( 'help',
-            new dijitMenuItem(
-                {
                     id: 'menubar_web_service_api',
                     label: 'Web Service API',
                     // iconClass: 'jbrowseIconHelp',
@@ -484,17 +439,14 @@ return declare( JBPlugin,
                     }
                 })
         );
-        browser.addGlobalMenuItem( 'help',
-            new dijitMenuItem(
-                {
-                    id: 'menubar_apollo_version',
-                    label: 'Get Version',
-                    // iconClass: 'jbrowseIconHelp',
-                    onClick: function()  {
-                        window.open("../version.jsp",'help_window').focus();
-                    }
-                })
-        );
+        xhr("../version.jsp",function(content) {
+            console.log("Loading version");
+            thisB.browser.version=function() {
+                return content;
+            };
+        });
+        
+        
         // add a global menu option for setting CDS color
         browser.addGlobalMenuItem( 'view',
             new dijitCheckedMenuItem(
@@ -517,7 +469,7 @@ return declare( JBPlugin,
             new dijitMenuItem({
                     label: "Light",
                     onClick: function (event) {
-                        document.cookie = "Scheme=Light";
+                        browser.cookie = "Scheme=Light";
                         window.location.reload();
                     }
                 }
@@ -527,7 +479,7 @@ return declare( JBPlugin,
             new dijitMenuItem({
                     label: "Dark",
                     onClick: function (event) {
-                        document.cookie = "Scheme=Dark";
+                        browser.cookie = "Scheme=Dark";
                         window.location.reload();
                     }
                 }
