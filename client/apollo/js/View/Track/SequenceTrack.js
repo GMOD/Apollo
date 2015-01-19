@@ -1,12 +1,13 @@
 define( [
     'dojo/_base/declare',
     'JBrowse/View/Track/Sequence',
-    'JBrowse/View/CodonTable',
+    'JBrowse/CodonTable',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
+    'dojo/request/xhr',
     'dojox/widget/Standby'
      ],
-function( declare, Sequence, JSONUtils, Permission, Standby ) {
+function( declare, Sequence, CodonTable, JSONUtils, Permission, xhr, Standby ) {
 
 return declare( Sequence,
 {
@@ -37,10 +38,11 @@ return declare( Sequence,
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
+        this.loadTranslationTable();
 
 
         this.trackPadding = 10;
-        this.track.changed();
+        track.changed();
     },
 
     /*
@@ -249,51 +251,25 @@ return declare( Sequence,
 
         return content;
     },
-
-    
-
-    setAnnotTrack: function(annotTrack) {
+    loadTranslationTable: function() {
         var track = this;
-
-        this.annotTrack = annotTrack;
-        this.initContextMenu();
-
-        this.loadTranslationTable().then(
-            function() {
-                console.log("Loaded translation table");
-                track.loadSequenceAlterations().then(function() {
-                    console.log("Loaded sequence alterations");
-                });
-            });
+        console.log(this.refSeq.name);
+        return xhr.post( track.context_path + "/AnnotationEditorService",
+        {
+            data: JSON.stringify({ "track": this.refSeq.name, "operation": "get_translation_table" }),
+            handleAs: "json"
+        }).then(function(response) {
+            console.log('Loaded translation table');
+            track._codonTable=CodonTable.updateCodonTable(response.translation_table);
+            console.log(track._codonTable);
+            track.changed();
+            track.redraw();
+        },
+        function(response) {
+            console.log('Failed to load translation table. Setting default');
+            return response;
+        });
     },
-
-     
-
-    getAnnotTrack: function()  {
-        if (this.annotTrack)  {
-            return this.annotTrack;
-        }
-        else  {
-            var tracks = this.browser.view.tracks;
-            for (var i = 0; i < tracks.length; i++)  {
-                // should be doing instanceof here, but class setup is not being cooperative
-                if (tracks[i].isWebApolloAnnotTrack)  {
-                    this.annotTrack = tracks[i];
-                    this.annotTrack.seqTrack = this;
-                    break;
-                }
-            }
-        }
-        return this.annotTrack;
-    },
-    
-    hide: function() {
-        this.inherited(arguments);
-        var annotTrack = this.getAnnotTrack();
-        if (annotTrack && !annotTrack.isLoggedIn()) {
-            dojo.style(this.genomeView.pinUnderlay, "display", "none");
-        }
-    }
 
 });
 });
