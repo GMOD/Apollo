@@ -31,6 +31,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -103,7 +104,12 @@ public class MainPanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                loadOrganisms(organismList);
+                List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
+                organismList.clear();
+                for(OrganismInfo organismInfo : organismInfoList){
+                    organismList.addItem(organismInfo.getName(),organismInfo.getId());
+                }
+//                loadOrganisms(organismList);
             }
         });
 

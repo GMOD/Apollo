@@ -10,9 +10,12 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,28 +27,30 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback, "/organism/findAllOrganisms");
     }
 
+    public static List<OrganismInfo> convertJSONStringToOrganismInfoList(String jsonString){
+        JSONValue returnValue = JSONParser.parseStrict(jsonString);
+        List<OrganismInfo> organismInfoList = new ArrayList<>();
+        JSONArray array = returnValue.isArray();
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject object = array.get(i).isObject();
+            GWT.log(object.toString());
+            OrganismInfo organismInfo = new OrganismInfo();
+            organismInfo.setId(object.get("id").isNumber().toString());
+            organismInfo.setName(object.get("commonName").isString().stringValue());
+            organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
+            organismInfo.setNumFeatures((int) Math.round(object.get("annotationCount").isNumber().doubleValue()));
+            organismInfo.setDirectory(object.get("directory").isString().stringValue());
+            organismInfoList.add(organismInfo);
+        }
+        return organismInfoList ;
+    }
+
     public static void loadOrganisms(final List<OrganismInfo> organismInfoList) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 organismInfoList.clear();
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    GWT.log(object.toString());
-//                    GWT.log(object.toString());
-                    OrganismInfo organismInfo = new OrganismInfo();
-                    organismInfo.setId(object.get("id").isNumber().toString());
-                    organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
-                    organismInfo.setNumFeatures((int) Math.round(object.get("annotationCount").isNumber().doubleValue()));
-                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
-//                    organismInfo.setNumFeatures(0);
-//                    organismInfo.setNumTracks(0);
-//                    GWT.log(object.toString());
-                    organismInfoList.add(organismInfo);
-                }
+                organismInfoList.addAll(convertJSONStringToOrganismInfoList(response.getText()));
             }
 
             @Override
@@ -58,10 +63,19 @@ public class OrganismRestService {
 
     public static void updateOrganismInfo(final OrganismInfo organismInfo) {
         JSONObject organismInfoObject = JSONParser.parseStrict(organismInfo.toJSON()).isObject();
-//        JSONObject payload = new JSONObject();
-//        payload.put("data",organismInfoObject);
-        RestService.sendRequest("/organism/updateOrganismInfo", "data="+organismInfoObject.toString());
-//        RestService.sendRequest("/organism/updateOrganismInfo", organismInfoObject.toString());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                List<OrganismInfo> organismInfoList  = convertJSONStringToOrganismInfoList(response.getText());
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(organismInfoList));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("error updating organism inof: "+exception);
+            }
+        };
+        RestService.sendRequest(requestCallback,"/organism/updateOrganismInfo", "data="+organismInfoObject.toString());
     }
 
     public static void changeOrganism(final MainPanel mainPanel, String newOrganismId) {

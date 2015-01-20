@@ -21,6 +21,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
@@ -81,6 +83,14 @@ public class OrganismPanel extends Composite {
             }
         };
         sequenceColumn.setSortable(true);
+
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+                dataProvider.setList(organismChangeEvent.organismInfoList);
+            }
+        });
+
 //        Column<OrganismInfo, Number> tracksColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
 //            @Override
 //            public Integer getValue(OrganismInfo object) {
@@ -181,7 +191,6 @@ public class OrganismPanel extends Composite {
 
     public List<OrganismInfo> reload() {
         List<OrganismInfo> trackInfoList = dataProvider.getList();
-        trackInfoList.clear();
         OrganismRestService.loadOrganisms(trackInfoList);
 
         return trackInfoList;

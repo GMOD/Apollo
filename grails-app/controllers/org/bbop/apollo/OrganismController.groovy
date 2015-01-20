@@ -74,7 +74,8 @@ class OrganismController {
             organism.commonName = organismJson.name
             organism.directory = organismJson.directory
             organism.save(flush: true, insert: false, failOnError: true)
-            render { text: 'updated' } as JSON
+            render findAllOrganisms()
+//            render { text: 'updated' } as JSON
         } else {
             println "organism not found ${organismJson}"
             render { text: 'NOT updated' } as JSON
