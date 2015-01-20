@@ -55,7 +55,11 @@ public class OrganismRestService {
     }
 
     public static void updateOrganismInfo(final OrganismInfo organismInfo) {
-        RestService.sendRequest("/organism/updateOrganismInfo", organismInfo.toJSON());
+        JSONObject organismInfoObject = JSONParser.parseStrict(organismInfo.toJSON()).isObject();
+//        JSONObject payload = new JSONObject();
+//        payload.put("data",organismInfoObject);
+        RestService.sendRequest("/organism/updateOrganismInfo", "data="+organismInfoObject.toString());
+//        RestService.sendRequest("/organism/updateOrganismInfo", organismInfoObject.toString());
     }
 
     public static void changeOrganism(final MainPanel mainPanel, String newOrganismId) {

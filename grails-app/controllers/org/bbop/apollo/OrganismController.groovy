@@ -13,14 +13,14 @@ class OrganismController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond Organism.list(params), model:[organismInstanceCount: Organism.count()]
+        respond Organism.list(params), model: [organismInstanceCount: Organism.count()]
     }
 
     def list(Integer max) {
         forward action: "index"
     }
 
-    def featureCountForOrganism(Organism organism){
+    def featureCountForOrganism(Organism organism) {
 
     }
 
@@ -40,11 +40,11 @@ class OrganismController {
         }
 
         if (organismInstance.hasErrors()) {
-            respond organismInstance.errors, view:'create'
+            respond organismInstance.errors, view: 'create'
             return
         }
 
-        organismInstance.save flush:true,failOnError: true
+        organismInstance.save flush: true, failOnError: true
 
         request.withFormat {
             form multipartForm {
@@ -61,9 +61,22 @@ class OrganismController {
 
     @Transactional
     def updateOrganismInfo() {
-        println "updating organism "
-        println params.data
-        render {text:'updated'} as JSON
+        println "updating organism info ${params}"
+        println "updating feature ${params.data}"
+//                        {"data":{"id":"14", "name":"Honey Bee7", "directory":"/opt/another.apollo/jbrowse/data"}}
+        def organismJson = JSON.parse(params.data.toString()) as JSONObject
+        println "jsonObject ${organismJson}"
+        Organism organism = Organism.findById(organismJson.id)
+        println "found an orgnaism ${organism}"
+        if (organism) {
+            organism.commonName = organismJson.name
+            organism.directory = organismJson.directory
+            organism.save(flush: true, insert: false, failOnError: true)
+            render { text: 'updated' } as JSON
+        } else {
+            println "organism not found ${organismJson}"
+            render { text: 'NOT updated' } as JSON
+        }
     }
 
     @Transactional
@@ -73,19 +86,18 @@ class OrganismController {
         String organismId = dataObject.organismId
         println "organismId ${organismId}"
         Organism organism = Organism.findById(organismId as Long)
-        if(organism){
+        if (organism) {
             println "found the organism ${organism}"
             // make not a magic string
-            request.session.setAttribute("organismJBrowseDirectory",organism.directory)
+            request.session.setAttribute("organismJBrowseDirectory", organism.directory)
 //            request.session.setAttribute("organismJBrowseDirectory",organism.directory)
-        }
-        else{
+        } else {
             println "not found organism "
         }
 
         println "updating organism "
         println params.data
-        render {text:'changed'} as JSON
+        render { text: 'changed' } as JSON
     }
 
     @Transactional
@@ -96,18 +108,18 @@ class OrganismController {
         }
 
         if (organismInstance.hasErrors()) {
-            respond organismInstance.errors, view:'edit'
+            respond organismInstance.errors, view: 'edit'
             return
         }
 
-        organismInstance.save flush:true
+        organismInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'Organism.label', default: 'Organism'), organismInstance.id])
                 redirect organismInstance
             }
-            '*'{ respond organismInstance, [status: OK] }
+            '*' { respond organismInstance, [status: OK] }
         }
     }
 
@@ -119,18 +131,18 @@ class OrganismController {
             return
         }
 
-        organismInstance.delete flush:true
+        organismInstance.delete flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'Organism.label', default: 'Organism'), organismInstance.id])
-                redirect action:"index", method:"GET"
+                redirect action: "index", method: "GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
-    def findAllOrganisms(){
+    def findAllOrganisms() {
         println "finding all organisms: ${Organism.count}"
         render Organism.listOrderByCommonName() as JSON
     }
@@ -141,7 +153,8 @@ class OrganismController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'organism.label', default: 'Organism'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
+
 }
