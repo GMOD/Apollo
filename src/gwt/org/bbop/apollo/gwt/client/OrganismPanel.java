@@ -35,11 +35,10 @@ import java.util.List;
 public class OrganismPanel extends Composite {
 
 
-
     interface OrganismBrowserPanelUiBinder extends UiBinder<Widget, OrganismPanel> {
     }
 
-    private OrganismInfo selectedOrganismInfo  ;
+    private OrganismInfo selectedOrganismInfo;
 
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
     @UiField
@@ -56,14 +55,10 @@ public class OrganismPanel extends Composite {
     DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
 
 
-    private String rootUrl;
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        rootUrl = dictionary.get("rootUrl");
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -167,13 +162,13 @@ public class OrganismPanel extends Composite {
     }
 
     @UiHandler("organismName")
-    public void handleOrganismNameChange(ChangeEvent changeEvent){
-         selectedOrganismInfo.setName(organismName.getText());
+    public void handleOrganismNameChange(ChangeEvent changeEvent) {
+        selectedOrganismInfo.setName(organismName.getText());
         updateOrganismInfo();
     }
 
     @UiHandler("sequenceFile")
-    public void handleOrganismDirectory(ChangeEvent changeEvent){
+    public void handleOrganismDirectory(ChangeEvent changeEvent) {
         selectedOrganismInfo.setDirectory(sequenceFile.getText());
         updateOrganismInfo();
     }

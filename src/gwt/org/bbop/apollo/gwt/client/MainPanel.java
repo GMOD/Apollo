@@ -6,6 +6,8 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
@@ -21,6 +23,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.Button;
@@ -38,17 +42,20 @@ public class MainPanel extends Composite {
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
+
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
+
+    public static EventBus eventBus = GWT.create(SimpleEventBus.class);
 
     private boolean toggleOpen = true;
     private String rootUrl;
     private String userId;
-    public static Integer currentOrganismId = 0 ;
-    public static String currentSequenceId ;
-    public static Map<String,JavaScriptObject> annotrackFunctionMap = new HashMap<>();
+    public static Integer currentOrganismId = 0;
+    public static String currentSequenceId;
+    public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // debug
-    private Boolean showFrame = false ;
+    private Boolean showFrame = false;
 
     @UiField
     Button dockOpenClose;
@@ -85,55 +92,62 @@ public class MainPanel extends Composite {
     public MainPanel() {
         exportStaticMethod();
         initWidget(ourUiBinder.createAndBindUi(this));
-        GWT.log("name: "+ frame.getName());
-        frame.getElement().setAttribute("id",frame.getName());
+        GWT.log("name: " + frame.getName());
+        frame.getElement().setAttribute("id", frame.getName());
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
         userId = dictionary.get("userId");
-        showFrame = dictionary.get("showFrame")!=null && dictionary.get("showFrame").contains("true");
+        showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
         loadOrganisms(organismList);
         loadReferenceSequences(sequenceList, true);
 
+        eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+                loadOrganisms(organismList);
+            }
+        });
     }
 
 
     @UiHandler("organismList")
-    public void changeOrganism(ChangeEvent event){
+    public void changeOrganism(ChangeEvent event) {
         String selectedValue = organismList.getSelectedValue();
-        OrganismRestService.changeOrganism(this,selectedValue);
+        OrganismRestService.changeOrganism(this, selectedValue);
     }
 
     @UiHandler("sequenceList")
-    public void changeSequence(ChangeEvent event){
+    public void changeSequence(ChangeEvent event) {
         updateGenomicViewer();
     }
 
     public void updateGenomicViewer() {
         String trackListString = rootUrl + "/jbrowse/?loc=";
         String selectedSequence = sequenceList.getSelectedValue();
-        GWT.log("get selected sequence: "+selectedSequence);
+        GWT.log("get selected sequence: " + selectedSequence);
         trackListString += selectedSequence;
 
         trackListString += "&";
-        for(TrackInfo trackInfo : trackPanel.dataProvider.getList()){
+        for (TrackInfo trackInfo : trackPanel.dataProvider.getList()) {
             trackListString += trackInfo.getName();
             trackListString += "&";
         }
-        trackListString = trackListString.substring(0,trackListString.length()-1);
-        trackListString += "&highlight=&tracklist=0" ;
-        GWT.log("set string: "+trackListString);
+        trackListString = trackListString.substring(0, trackListString.length() - 1);
+        trackListString += "&highlight=&tracklist=0";
+        GWT.log("set string: " + trackListString);
 //        frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0");
         frame.setUrl(trackListString);
     }
 
     public void loadReferenceSequences(final ListBox sequenceInfoList) {
-        loadReferenceSequences(sequenceInfoList,false);
+        loadReferenceSequences(sequenceInfoList, false);
     }
 
     /**
      * could use an sequence callback . . . however, this element needs to use the callback directly.
+     *
      * @param sequenceInfoList
      */
     public void loadReferenceSequences(final ListBox sequenceInfoList, final boolean loadFirstSequence) {
@@ -143,22 +157,22 @@ public class MainPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                if(loadFirstSequence && array.size()>0){
+                if (loadFirstSequence && array.size() > 0) {
                     currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
-                    String url = rootUrl + "/jbrowse/?loc="+currentSequenceId;
-                    if(!showFrame){
+                    String url = rootUrl + "/jbrowse/?loc=" + currentSequenceId;
+                    if (!showFrame) {
                         url += "&tracklist=0";
                     }
                     frame.setUrl(url);
                 }
 
-                for(int i = 0 ; i < array.size() ; i++){
+                for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
                     sequenceInfoList.addItem(sequenceInfo.getName());
-                    if(sequenceInfo.getName().equals(currentSequenceId)){
+                    if (sequenceInfo.getName().equals(currentSequenceId)) {
                         sequenceInfoList.setSelectedIndex(i);
                     }
                 }
@@ -176,11 +190,11 @@ public class MainPanel extends Composite {
 
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
+     *
      * @param trackInfoList
      */
     public void loadOrganisms(final ListBox trackInfoList) {
-        String url = rootUrl+"/organism/findAllOrganisms";
-//        String url = "/apollo/organism/findAllOrganisms";
+        String url = rootUrl + "/organism/findAllOrganisms";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -189,7 +203,7 @@ public class MainPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                for(int i = 0 ; i < array.size() ; i++){
+                for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
 //                    GWT.log(object.toString());
                     OrganismInfo organismInfo = new OrganismInfo();
@@ -201,6 +215,13 @@ public class MainPanel extends Composite {
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+                    if (currentOrganismId != null) {
+                        if (Integer.parseInt(organismInfo.getId())==currentOrganismId) {
+                            trackInfoList.setSelectedIndex(i);
+                        }
+                    } else if (i == 0) {
+                        currentOrganismId = Integer.parseInt(organismInfo.getId());
+                    }
                 }
             }
 
@@ -253,7 +274,6 @@ public class MainPanel extends Composite {
     }
 
 
-
     private void toggleOpen() {
         if (mainSplitPanel.getWidgetSize(eastDockPanel) < 100) {
             toggleOpen = false;
@@ -280,7 +300,7 @@ public class MainPanel extends Composite {
     }
 
 
-    public static void registerFunction(String name,JavaScriptObject javaScriptObject){
+    public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
     }
 
@@ -290,54 +310,67 @@ public class MainPanel extends Composite {
      * @param JSON String that you trust
      * @return JavaScriptObject that you can cast to an Overlay Type
      */
-    public static <T extends JavaScriptObject> T parseJson(String jsonStr)
-    {
+    public static <T extends JavaScriptObject> T parseJson(String jsonStr) {
 //        return JsonUtils.safeEval(jsonStr);
         return JsonUtils.unsafeEval(jsonStr);
     }
 
-    public static String executeFunction(String name){
-        return executeFunction(name,JavaScriptObject.createObject());
+    public static String executeFunction(String name) {
+        return executeFunction(name, JavaScriptObject.createObject());
     }
 
-    public static String executeFunction(String name,JavaScriptObject dataObject){
+    public static String executeFunction(String name, JavaScriptObject dataObject) {
         JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
-        if(targetFunction==null){
+        if (targetFunction == null) {
             return "function " + name + " not found";
         }
-        return executeFunction(targetFunction,dataObject);
+        return executeFunction(targetFunction, dataObject);
     }
 
 
-    public static native String executeFunction(JavaScriptObject targetFunction,JavaScriptObject data) /*-{
+    public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
         return targetFunction(data);
         //return 'executed';
     }-*/;
 
 
-    public static void reloadAnnotator(){
+    public static void reloadAnnotator() {
         GWT.log("!!! MainPanel::calling annotator relaod ");
         annotatorPanel.reload();
     }
-//    public static void loadTracks(JSONObject trackList){ trackPanel.loadTracks(trackList); }
-    public static void reloadSequences(){ sequencePanel.reload(); }
-    public static void reloadOrganisms(){ organismPanel.reload(); }
-    public static void reloadUsers(){ userPanel.reload(); }
-    public static void reloadUserGroups(){ userGroupPanel.reload(); }
+
+    //    public static void loadTracks(JSONObject trackList){ trackPanel.loadTracks(trackList); }
+    public static void reloadSequences() {
+        sequencePanel.reload();
+    }
+
+    public static void reloadOrganisms() {
+        organismPanel.reload();
+    }
+
+    public static void reloadUsers() {
+        userPanel.reload();
+    }
+
+    public static void reloadUserGroups() {
+        userGroupPanel.reload();
+    }
 //    public static void sampleFunction(){ Window.alert("sample function"); }
 
 
-//    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
+    //    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
         //$wnd.loadTracks = $entry(@org.bbop.apollo.gwt.client.TrackPanel::updateTracks(Lcom/google/gwt/json/client/JSONObject;));
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
-        $wnd.reloadUserGroups= $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
+        $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
         $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.getEmbeddedVersion = $entry(
-            function apolloEmbeddedVersion(){return 'ApolloGwt-1.0';}
+            function apolloEmbeddedVersion() {
+                return 'ApolloGwt-1.0';
+            }
         );
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
