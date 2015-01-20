@@ -2,7 +2,13 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -18,6 +24,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -25,7 +32,8 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.gwtbootstrap3.client.ui.InputGroupAddon;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 
 import java.util.Comparator;
 import java.util.List;
@@ -54,9 +62,20 @@ public class OrganismPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
+    @UiField
+    Button newButton;
+    @UiField
+    Button createButton;
+    @UiField
+    Button cancelButton;
+    @UiField
+    Button deleteButton;
+
+
 
 
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
+    private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -124,16 +143,12 @@ public class OrganismPanel extends Composite {
 //        dataGrid.addColumn(actionColumn, "Action");
 
 
-        final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedOrganismInfo = singleSelectionModel.getSelectedObject();
-                organismName.setText(selectedOrganismInfo.getName());
-                sequenceFile.setText(selectedOrganismInfo.getDirectory());
-
-//                trackCount.setText(selectedOrganismInfo.getNumTracks().toString());
-                annotationCount.setText(selectedOrganismInfo.getNumFeatures().toString());
+                setSelectedInfo(selectedOrganismInfo);
+                deleteButton.setVisible(true);
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
@@ -170,6 +185,71 @@ public class OrganismPanel extends Composite {
 //        });
 
     }
+
+    public void setSelectedInfo(OrganismInfo organismInfo){
+        if(organismInfo==null) return ;
+        organismName.setText(organismInfo.getName());
+        sequenceFile.setText(organismInfo.getDirectory());
+        annotationCount.setText(organismInfo.getNumFeatures().toString());
+    }
+
+    @UiHandler("newButton")
+    public void handleAddNewOrganism(ClickEvent clickEvent) {
+        selectedOrganismInfo = null ;
+        organismName.setText("");
+        sequenceFile.setText("");
+        dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
+        newButton.setEnabled(false);
+        createButton.setVisible(true);
+        cancelButton.setVisible(true);
+//        selectedOrganismInfo.setName(organismName.getText());
+//        updateOrganismInfo();
+    }
+
+    private class UpdateInfoListCallback implements  RequestCallback{
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
+            OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
+            dataGrid.setSelectionModel(singleSelectionModel);
+            Annotator.eventBus.fireEvent(organismChangeEvent);
+        }
+
+        @Override
+        public void onError(Request request, Throwable exception) {
+            Window.alert("problem handling organism: "+exception);
+        }
+    }
+
+    @UiHandler("createButton")
+    public void handleSaveNewOrganism(ClickEvent clickEvent) {
+        OrganismInfo organismInfo = new OrganismInfo();
+        organismInfo.setName(organismName.getText());
+        organismInfo.setDirectory(sequenceFile.getText());
+        OrganismRestService.createOrganism(new UpdateInfoListCallback(),organismInfo);
+    }
+
+    @UiHandler("cancelButton")
+    public void handleCancelNewOrganism(ClickEvent clickEvent) {
+        organismName.setText("");
+        sequenceFile.setText("");
+        dataGrid.setSelectionModel(singleSelectionModel);
+        setSelectedInfo(selectedOrganismInfo);
+        cancelButton.setVisible(false);
+        createButton.setVisible(false);
+        newButton.setEnabled(true);
+    }
+
+    @UiHandler("deleteButton")
+    public void handleDeleteOrganism(ClickEvent clickEvent) {
+        if(selectedOrganismInfo==null) return ;
+
+        if(Window.confirm("Delete organism: "+selectedOrganismInfo.getName())){
+            Window.alert("deleting . .. ");
+            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(),selectedOrganismInfo);
+        }
+    }
+
 
     @UiHandler("organismName")
     public void handleOrganismNameChange(ChangeEvent changeEvent) {

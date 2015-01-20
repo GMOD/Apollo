@@ -5,8 +5,10 @@ class Organism {
     static auditable = true
 
     static constraints = {
-        directory nullable: true
         comment nullable: true
+        abbreviation nullable: true
+        species nullable: true
+        genus nullable: true
 
     }
 

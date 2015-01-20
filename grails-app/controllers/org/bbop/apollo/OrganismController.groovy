@@ -35,6 +35,22 @@ class OrganismController {
     }
 
     @Transactional
+    def saveOrganism(){
+        println "savingparams: ${params.data}"
+        def organismJson = JSON.parse(params.data.toString()) as JSONObject
+        println "organismJSON ${organismJson}"
+        println "id: ${organismJson.id}"
+        Organism organism = new Organism(
+                commonName: organismJson.commonName
+                ,directory: organismJson.directory
+        )
+        println "organism ${organism as JSON}"
+
+        organism.save(failOnError: true,flush: true,insert:true)
+        render findAllOrganisms()
+    }
+
+    @Transactional
     def save(Organism organismInstance) {
         if (organismInstance == null) {
             notFound()
@@ -157,7 +173,7 @@ class OrganismController {
             jsonObject.put("commonName",organism.commonName)
             jsonObject.put("directory",organism.directory)
             jsonObject.put("annotationCount",geneCount)
-            jsonObject.put("sequences",organism.sequences.size())
+            jsonObject.put("sequences",organism.sequences?.size())
             jsonArray.add(jsonObject)
         }
 //        def organsimJSON = organismList as JSON

@@ -24,6 +24,7 @@ class BootStrap {
 //        sequenceService.parseAllRefSeqs()
         try {
             Organism.findAllBySequencesIsEmpty(){ organism ->
+                println "processing organism ${organism}"
                 File testFile = new File(organism.getRefSeqFile())
                 if(testFile.exists() && testFile.isFile()){
                     println "trying to load refseq file: ${testFile.absolutePath}"
