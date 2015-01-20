@@ -105,7 +105,14 @@ but uses a lot less memory - great for annotation rich genomes -->
 Defines whether the internal data store is purely a memory one or a hybrid memory/disk store. The memory store provides faster performance at the cost of more memory. The hybrid store provides a little slower performance but uses a lot less memory, so it's a good option for annotation rich genomes. Set to `true` to use the memory store and `false` to use the hybrid one.
 
 
+### Logging configuration
 
+Log4j2 can be configured to one of the pre-configured sample files, or configured to a custom setting, or can be left untouched.
+The Log4j2 presets include:
+
+- sample_log4j2.json - outputs to ~/logs/webapollo.log
+- sample_log4j2_catalina.json - outputs to $CATALINA_HOME/logs/webapollo.log
+- sample_log4j2-test.json - outputs to the console
 
 ### Database configuration
 
