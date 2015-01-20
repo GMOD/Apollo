@@ -184,7 +184,7 @@ public class SequencePanel extends Composite {
                     OrganismInfo organismInfo = new OrganismInfo();
                     organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
                     organismInfo.setDirectory(object.get("directory").isString().stringValue());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);

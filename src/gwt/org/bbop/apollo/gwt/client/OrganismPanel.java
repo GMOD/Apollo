@@ -3,7 +3,6 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -43,8 +42,8 @@ public class OrganismPanel extends Composite {
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox organismName;
-    @UiField
-    InputGroupAddon trackCount;
+//    @UiField
+//    InputGroupAddon trackCount;
     @UiField
     InputGroupAddon annotationCount;
     @UiField
@@ -82,36 +81,37 @@ public class OrganismPanel extends Composite {
             }
         };
         sequenceColumn.setSortable(true);
-        Column<OrganismInfo, Number> tracksColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
-            @Override
-            public Integer getValue(OrganismInfo object) {
-                return object.getNumTracks();
-            }
-        };
-        tracksColumn.setSortable(true);
+//        Column<OrganismInfo, Number> tracksColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
+//            @Override
+//            public Integer getValue(OrganismInfo object) {
+//                return object.getNumTracks();
+//            }
+//        };
+//        tracksColumn.setSortable(true);
 
-        SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
-            @Override
-            public SafeHtml render(String object) {
-                SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.appendHtmlConstant("<a href=\"javascript:;\">Select</a>");
-                return sb.toSafeHtml();
-            }
-        };
+//        SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
+//            @Override
+//            public SafeHtml render(String object) {
+//                SafeHtmlBuilder sb = new SafeHtmlBuilder();
+//                sb.appendHtmlConstant("<a href=\"javascript:;\">Select</a>");
+//                return sb.toSafeHtml();
+//            }
+//        };
 
-        Column<OrganismInfo, String> actionColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
-            @Override
-            public String getValue(OrganismInfo employee) {
-                return "Select";
-            }
-        };
+//        Column<OrganismInfo, String> actionColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
+//            @Override
+//            public String getValue(OrganismInfo employee) {
+//                return "Select";
+//            }
+//        };
 
+        dataGrid.setLoadingIndicator(new HTML("Calculating Annotations ... "));
 
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
-        dataGrid.addColumn(tracksColumn, "Tracks");
+//        dataGrid.addColumn(tracksColumn, "Tracks");
         dataGrid.addColumn(sequenceColumn, "Sequences");
-        dataGrid.addColumn(actionColumn, "Action");
+//        dataGrid.addColumn(actionColumn, "Action");
 
 
         final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
@@ -122,7 +122,7 @@ public class OrganismPanel extends Composite {
                 organismName.setText(selectedOrganismInfo.getName());
                 sequenceFile.setText(selectedOrganismInfo.getDirectory());
 
-                trackCount.setText(selectedOrganismInfo.getNumTracks().toString());
+//                trackCount.setText(selectedOrganismInfo.getNumTracks().toString());
                 annotationCount.setText(selectedOrganismInfo.getNumFeatures().toString());
             }
         });
@@ -152,12 +152,12 @@ public class OrganismPanel extends Composite {
                 return o1.getNumSequences() - o2.getNumSequences();
             }
         });
-        sortHandler.setComparator(tracksColumn, new Comparator<OrganismInfo>() {
-            @Override
-            public int compare(OrganismInfo o1, OrganismInfo o2) {
-                return o1.getNumTracks() - o2.getNumTracks();
-            }
-        });
+//        sortHandler.setComparator(tracksColumn, new Comparator<OrganismInfo>() {
+//            @Override
+//            public int compare(OrganismInfo o1, OrganismInfo o2) {
+//                return o1.getNumTracks() - o2.getNumTracks();
+//            }
+//        });
 
     }
 

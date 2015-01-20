@@ -65,10 +65,10 @@
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%" styleName="{style.container}">
                         <b:Row>
-                            <b:Column size="6" styleName="{style.widgetPanel}">
-                                <b:InputGroup>
+                            <b:Column size="MD_12" styleName="{style.widgetPanel}">
+                                <b:InputGroup width="100%">
                                     <b:InputGroupAddon>Name</b:InputGroupAddon>
-                                    <b:TextBox autoComplete="false" ui:field="organismName"/>
+                                    <b:TextBox autoComplete="false" ui:field="organismName" width="320px"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
@@ -76,18 +76,18 @@
                             <b:Column size="6" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Directory</b:InputGroupAddon>
-                                    <b:TextBox autoComplete="false" ui:field="sequenceFile"/>
+                                    <b:TextBox autoComplete="false" ui:field="sequenceFile" width="300px"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="6" styleName="{style.widgetPanel}">
-                                <b:InputGroup>
-                                    <b:InputGroupAddon>Tracks</b:InputGroupAddon>
-                                    <b:InputGroupAddon ui:field="trackCount"/>
-                                </b:InputGroup>
-                            </b:Column>
-                        </b:Row>
+                        <!--<b:Row>-->
+                            <!--<b:Column size="6" styleName="{style.widgetPanel}">-->
+                                <!--<b:InputGroup>-->
+                                    <!--<b:InputGroupAddon>Tracks</b:InputGroupAddon>-->
+                                    <!--<b:InputGroupAddon ui:field="trackCount"/>-->
+                                <!--</b:InputGroup>-->
+                            <!--</b:Column>-->
+                        <!--</b:Row>-->
                         <b:Row>
                             <b:Column size="6" styleName="{style.widgetPanel}">
                                 <b:InputGroup>

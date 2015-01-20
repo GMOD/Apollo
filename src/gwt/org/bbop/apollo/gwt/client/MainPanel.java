@@ -45,7 +45,6 @@ public class MainPanel extends Composite {
 
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
-    public static EventBus eventBus = GWT.create(SimpleEventBus.class);
 
     private boolean toggleOpen = true;
     private String rootUrl;
@@ -103,12 +102,15 @@ public class MainPanel extends Composite {
         loadOrganisms(organismList);
         loadReferenceSequences(sequenceList, true);
 
-        eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 loadOrganisms(organismList);
             }
         });
+
+        detailTabs.selectTab(3);
+
     }
 
 
@@ -209,7 +211,7 @@ public class MainPanel extends Composite {
                     OrganismInfo organismInfo = new OrganismInfo();
                     organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
                     organismInfo.setDirectory(object.get("directory").isString().stringValue());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);

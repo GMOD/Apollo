@@ -33,14 +33,16 @@ public class OrganismRestService {
                 JSONArray array = returnValue.isArray();
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
+                    GWT.log(object.toString());
 //                    GWT.log(object.toString());
                     OrganismInfo organismInfo = new OrganismInfo();
                     organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences(object.get("sequences").isArray().size());
+                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
+                    organismInfo.setNumFeatures((int) Math.round(object.get("annotationCount").isNumber().doubleValue()));
                     organismInfo.setDirectory(object.get("directory").isString().stringValue());
-                    organismInfo.setNumFeatures(0);
-                    organismInfo.setNumTracks(0);
+//                    organismInfo.setNumFeatures(0);
+//                    organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
                     organismInfoList.add(organismInfo);
                 }

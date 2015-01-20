@@ -1,7 +1,10 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 //import org.realityforge.gwt.websockets.client.WebSocket;
@@ -14,6 +17,7 @@ import javax.annotation.Nonnull;
  */
 public class Annotator implements EntryPoint {
 
+    public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     /**
      * This is the entry point method.
      */

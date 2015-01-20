@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.json.parser.JSONParser
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -144,7 +146,35 @@ class OrganismController {
 
     def findAllOrganisms() {
         println "finding all organisms: ${Organism.count}"
-        render Organism.listOrderByCommonName() as JSON
+        def organismList = Organism.listOrderByCommonName()
+//        Organism.metaClass.annotationCount = 0
+        JSONArray jsonArray = new JSONArray()
+        for(def organism in organismList){
+            Integer geneCount = 0
+            Integer pseudogeneCount = 0
+            println "organism ${organism}"
+            organism.sequences.featureLocations.feature.each { featureSet ->
+                featureSet.each { it ->
+                    if(it.ontologyId==Gene.ontologyId) ++geneCount
+                    if(it.ontologyId==Pseudogene.ontologyId) ++pseudogeneCount
+                }
+            }
+            println "converting object ${organism}"
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put("id",organism.id)
+            jsonObject.put("commonName",organism.commonName)
+            jsonObject.put("directory",organism.directory)
+            jsonObject.put("annotationCount",geneCount+pseudogeneCount)
+            jsonObject.put("sequences",organism.sequences.size())
+
+            println "adding ${jsonObject}"
+
+            jsonArray.add(jsonObject)
+        }
+//        def organsimJSON = organismList as JSON
+//        println "json product: ${organsimJSON}"
+        render jsonArray as JSON
+
     }
 
     protected void notFound() {
