@@ -8,6 +8,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 
@@ -19,7 +20,11 @@ import java.util.List;
 public class SequenceRestService {
 
     public static void loadSequences(RequestCallback requestCallback){
-        RestService.sendRequest(requestCallback,"/jbrowse/data/seq/refSeqs.json");
+        if(MainPanel.currentOrganismId==null){
+            GWT.log("organism not set . . returrning ");
+            return ;
+        }
+        RestService.sendRequest(requestCallback,"/sequence/loadSequences/"+ MainPanel.currentOrganismId);
     }
 
     public static void loadSequences(final List<SequenceInfo> sequenceInfoList) {
@@ -45,6 +50,11 @@ public class SequenceRestService {
                 Window.alert("Error loading organisms");
             }
         };
+        if(MainPanel.currentOrganismId==null){
+            GWT.log("organism not set . . returrning ");
+            sequenceInfoList.clear();
+            return ;
+        }
         loadSequences(requestCallback);
     }
 }

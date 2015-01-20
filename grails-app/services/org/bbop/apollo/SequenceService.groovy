@@ -43,10 +43,10 @@ class SequenceService {
         return new JSONArray(buffer.toString());
     }
 
-    def loadRefSeqs(Organism organism ,String refSeqsFileName) {
-        println "loading refseq ${refSeqsFileName}"
+    def loadRefSeqs(Organism organism ) {
+        println "loading refseq ${organism.refseqFile}"
 
-        File refSeqsFile = new File(refSeqsFileName);
+        File refSeqsFile = new File(organism.refseqFile);
         println " file exists ${refSeqsFile.exists()}"
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(refSeqsFile));
         JSONArray refSeqs = convertJBrowseJSON(bufferedInputStream);
@@ -77,7 +77,7 @@ class SequenceService {
             Sequence sequence = new Sequence(
                    organism: organism
                    ,length: length
-                    ,refSeqFile: refSeqsFileName
+                    ,refSeqFile: organism.refseqFile
                     ,seqChunkPrefix: seqChunkPrefix
                     ,seqChunkSize: seqChunkSize
                     ,start: start

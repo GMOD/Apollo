@@ -13,6 +13,7 @@ class JbrowseController {
 
     def configWrapperService
     def brokerMessagingTemplate
+    def sequenceService
 
 //    def index() {
 //
@@ -55,11 +56,20 @@ class JbrowseController {
         String organismJBrowseDirectory = session.getAttribute("organismJBrowseDirectory")
         if(!organismJBrowseDirectory ){
             // TODO: lookup based on user name
-            Organism organism = Organism.first()
-            Sequence sequence = organism.sequences.first()
-            organismJBrowseDirectory = organism.directory
-            session.setAttribute("organismJBrowseDirectory",organismJBrowseDirectory)
-            session.setAttribute("sequenceName",sequence.name)
+            for(Organism organism in Organism.all){
+                // load if not
+                if(!organism.sequences){
+                    sequenceService.loadRefSeqs(organism)
+                }
+
+                if(organism.sequences){
+                    Sequence sequence = organism?.sequences?.first()
+                    organismJBrowseDirectory = organism.directory
+                    session.setAttribute("organismJBrowseDirectory",organismJBrowseDirectory)
+                    session.setAttribute("sequenceName",sequence.name)
+                    return organismJBrowseDirectory
+                }
+            }
         }
 
         return organismJBrowseDirectory

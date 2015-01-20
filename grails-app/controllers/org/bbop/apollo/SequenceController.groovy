@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -49,9 +52,26 @@ class SequenceController {
         respond new Sequence(params)
     }
 
-    def loadSequence() {
-        sequenceService.loadRefSeqs(Organism.first(), configWrapperService.refSeqDirectory)
-        respond new Sequence(params)
+    def retrieveSequences(Organism organism){
+    }
+
+    @Transactional
+    def loadSequences(Organism organism) {
+        println "loading sequences for organism ${organism}"
+        if(!organism.sequences){
+            sequenceService.loadRefSeqs(organism)
+        }
+        JSONArray sequenceArray = new JSONArray()
+        for(Sequence sequence in organism.sequences){
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put("name",sequence.name)
+            jsonObject.put("length",sequence.length)
+//            jsonObject.put("name",sequence.name)
+
+            sequenceArray.put(jsonObject)
+        }
+
+        render sequenceArray as JSON
     }
 
     @Transactional

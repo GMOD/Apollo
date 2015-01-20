@@ -24,4 +24,13 @@ class Organism {
             ,organismDBXrefs: OrganismDBXref
             ,sequences: Sequence
     ]
+
+    public String getRefseqFile(){
+        if(!directory){
+          return null
+        }
+        else{
+            return directory + "/seq/refSeqs.json"
+        }
+    }
 }

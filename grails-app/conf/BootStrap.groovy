@@ -23,13 +23,14 @@ class BootStrap {
 //        sequenceService.parseRefSeqs()
 //        sequenceService.parseAllRefSeqs()
         try {
-            if(Sequence.count==0){
-                File testFile = new File(configWrapperService.refSeqDirectory)
+            Organism.findAllBySequencesIsEmpty(){ organism ->
+                File testFile = new File(organism.getRefSeqFile())
                 if(testFile.exists() && testFile.isFile()){
-                    sequenceService.loadRefSeqs(Organism.first(),configWrapperService.refSeqDirectory)
+                    println "trying to load refseq file: ${testFile.absolutePath}"
+                    sequenceService.loadRefSeqs(organism)
                 }
                 else{
-                    log.error "file not found: "+configWrapperService.refSeqDirectory
+                    log.error "file not found: "+testFile.absolutePath
                 }
             }
         } catch (e) {

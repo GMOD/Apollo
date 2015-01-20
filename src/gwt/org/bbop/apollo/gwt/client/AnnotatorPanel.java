@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -14,6 +15,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -98,9 +100,7 @@ public class AnnotatorPanel extends Composite {
         });
 //        annotationName.setText("sox9a-000-00-0");
 
-        loadSequences();
-//        DataGenerator.populateSequenceList(sequenceList);
-        DataGenerator.populateTypeList(typeList);
+
     }
 
     private void loadSequences() {
@@ -120,9 +120,12 @@ public class AnnotatorPanel extends Composite {
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
                     sequenceList.addItem(sequenceInfo.getName());
+                    if(selectedSequenceName.equals(sequenceInfo.getName())){
+                        sequenceList.setSelectedIndex(i);
+                    }
                 }
 
-                reload();
+//                reload();
             }
 
             @Override
@@ -138,7 +141,10 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
-        if(selectedSequenceName==null) return;
+        if(selectedSequenceName==null) {
+            selectedSequenceName = MainPanel.currentSequenceId;
+            loadSequences();
+        }
         features.setAnimationEnabled(false);
 
         String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName="+selectedSequenceName;

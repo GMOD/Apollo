@@ -20,7 +20,6 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
-import org.bbop.apollo.Gene;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -49,9 +48,8 @@ public class MainPanel extends Composite {
 
     private boolean toggleOpen = true;
     private String rootUrl;
-    private String userId;
-    public static Integer currentOrganismId = 0;
-    public static String currentSequenceId;
+    public static Long currentOrganismId = null;
+    public static String currentSequenceId = null ;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // debug
@@ -97,11 +95,10 @@ public class MainPanel extends Composite {
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
-        userId = dictionary.get("userId");
+//        userId = dictionary.get("userId");
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
         loadOrganisms(organismList);
-        loadReferenceSequences(sequenceList, true);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -118,6 +115,7 @@ public class MainPanel extends Composite {
     @UiHandler("organismList")
     public void changeOrganism(ChangeEvent event) {
         String selectedValue = organismList.getSelectedValue();
+        currentOrganismId = Long.parseLong(selectedValue);
         OrganismRestService.changeOrganism(this, selectedValue);
     }
 
@@ -219,13 +217,15 @@ public class MainPanel extends Composite {
 //                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (currentOrganismId != null) {
-                        if (Integer.parseInt(organismInfo.getId())==currentOrganismId) {
+                        if (Long.parseLong(organismInfo.getId())==currentOrganismId) {
                             trackInfoList.setSelectedIndex(i);
                         }
                     } else if (i == 0) {
-                        currentOrganismId = Integer.parseInt(organismInfo.getId());
+                        currentOrganismId = Long.parseLong(organismInfo.getId());
                     }
                 }
+
+                loadReferenceSequences(sequenceList, true);
             }
 
             @Override

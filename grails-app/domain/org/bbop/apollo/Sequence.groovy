@@ -40,6 +40,7 @@ class Sequence {
     String name
     Organism organism
 
+    // TODO: remove these as they should be redundant with organism
     String refSeqFile
     String dataDirectory
 //    String sequenceType
@@ -47,6 +48,7 @@ class Sequence {
 //    String organismName
 
 
+    // TODO: remove these as they should be redundant with organism
     String translationTableLocation
     String spliceDonorSite = "GT"
     String spliceAcceptor = "AG"
@@ -58,6 +60,7 @@ class Sequence {
     String seqChunkPrefix
     Integer start
     Integer end
+    // TODO: remove these as they should be redundant with organism
     String sequenceDirectory
 
 }
