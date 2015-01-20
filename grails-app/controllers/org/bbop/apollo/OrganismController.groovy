@@ -150,25 +150,13 @@ class OrganismController {
 //        Organism.metaClass.annotationCount = 0
         JSONArray jsonArray = new JSONArray()
         for(def organism in organismList){
-            Integer geneCount = 0
-            Integer pseudogeneCount = 0
-            println "organism ${organism}"
-            organism.sequences.featureLocations.feature.each { featureSet ->
-                featureSet.each { it ->
-                    if(it.ontologyId==Gene.ontologyId) ++geneCount
-                    if(it.ontologyId==Pseudogene.ontologyId) ++pseudogeneCount
-                }
-            }
-            println "converting object ${organism}"
+            Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId",["organismId":organism.id])[0]
             JSONObject jsonObject = new JSONObject()
             jsonObject.put("id",organism.id)
             jsonObject.put("commonName",organism.commonName)
             jsonObject.put("directory",organism.directory)
-            jsonObject.put("annotationCount",geneCount+pseudogeneCount)
+            jsonObject.put("annotationCount",geneCount)
             jsonObject.put("sequences",organism.sequences.size())
-
-            println "adding ${jsonObject}"
-
             jsonArray.add(jsonObject)
         }
 //        def organsimJSON = organismList as JSON
