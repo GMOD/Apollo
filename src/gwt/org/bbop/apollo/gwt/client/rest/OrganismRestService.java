@@ -51,8 +51,18 @@ public class OrganismRestService {
             OrganismInfo organismInfo = new OrganismInfo();
             organismInfo.setId(object.get("id").isNumber().toString());
             organismInfo.setName(object.get("commonName").isString().stringValue());
-            organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
-            organismInfo.setNumFeatures((int) Math.round(object.get("annotationCount").isNumber().doubleValue()));
+            if(object.get("sequences")!=null){
+                organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
+            }
+            else{
+                organismInfo.setNumSequences(0);
+            }
+            if(object.get("annotationCount")!=null){
+                organismInfo.setNumFeatures((int) Math.round(object.get("annotationCount").isNumber().doubleValue()));
+            }
+            else{
+                organismInfo.setNumFeatures(0);
+            }
             organismInfo.setDirectory(object.get("directory").isString().stringValue());
             organismInfoList.add(organismInfo);
         }

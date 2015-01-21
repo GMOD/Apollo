@@ -193,25 +193,20 @@ public class OrganismPanel extends Composite {
         annotationCount.setText(organismInfo.getNumFeatures().toString());
     }
 
-    @UiHandler("newButton")
-    public void handleAddNewOrganism(ClickEvent clickEvent) {
-        selectedOrganismInfo = null ;
-        organismName.setText("");
-        sequenceFile.setText("");
-        dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
-        newButton.setEnabled(false);
-        createButton.setVisible(true);
-        cancelButton.setVisible(true);
-//        selectedOrganismInfo.setName(organismName.getText());
-//        updateOrganismInfo();
-    }
 
     private class UpdateInfoListCallback implements  RequestCallback{
         @Override
         public void onResponseReceived(Request request, Response response) {
+            GWT.log("recived response: "+response.getText());
             List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
-            OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
+            GWT.log("converted responsde : "+organismInfoList.size());
             dataGrid.setSelectionModel(singleSelectionModel);
+            cancelButton.setVisible(false);
+            cancelButton.setEnabled(true);
+            createButton.setVisible(false);
+            createButton.setEnabled(true);
+            newButton.setEnabled(true);
+            OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             Annotator.eventBus.fireEvent(organismChangeEvent);
         }
 
@@ -221,8 +216,24 @@ public class OrganismPanel extends Composite {
         }
     }
 
+    @UiHandler("newButton")
+    public void handleAddNewOrganism(ClickEvent clickEvent) {
+        selectedOrganismInfo = null ;
+        organismName.setText("");
+        sequenceFile.setText("");
+        dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
+        newButton.setEnabled(false);
+        createButton.setVisible(true);
+        cancelButton.setVisible(true);
+        deleteButton.setVisible(false);
+//        selectedOrganismInfo.setName(organismName.getText());
+//        updateOrganismInfo();
+    }
+
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
+        createButton.setEnabled(false);
+        cancelButton.setEnabled(false);
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -238,6 +249,7 @@ public class OrganismPanel extends Composite {
         cancelButton.setVisible(false);
         createButton.setVisible(false);
         newButton.setEnabled(true);
+        deleteButton.setVisible(true);
     }
 
     @UiHandler("deleteButton")
