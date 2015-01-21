@@ -59,11 +59,7 @@ return declare( JBPlugin,
         });
 
         // Checking for cookie for determining the color scheme of WebApollo
-        if (browser.cookie.indexOf("Scheme=Dark") === -1) {
-            this.changeCssScheme = false;
-        }
-        else {
-            this.changeCssScheme = true;
+        if (browser.cookie("Scheme")=="Dark") {
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
@@ -73,7 +69,7 @@ return declare( JBPlugin,
         }
 
         args.cssLoaded.then( function() {
-            if (! browser.config.view) { console.log("View not loaded"); }
+            if (! browser.config.view) { browser.config.view={}; }
             browser.config.view.maxPxPerBp = 30;
         } );
 
@@ -469,7 +465,7 @@ return declare( JBPlugin,
             new dijitMenuItem({
                     label: "Light",
                     onClick: function (event) {
-                        browser.cookie = "Scheme=Light";
+                        browser.cookie("Scheme","Light");
                         window.location.reload();
                     }
                 }
@@ -479,7 +475,7 @@ return declare( JBPlugin,
             new dijitMenuItem({
                     label: "Dark",
                     onClick: function (event) {
-                        browser.cookie = "Scheme=Dark";
+                        browser.cookie("Scheme","Dark");
                         window.location.reload();
                     }
                 }
