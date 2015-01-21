@@ -22,13 +22,13 @@ define(
            'dijit/DropDownMenu',
            'dijit/form/Button',
            'JBrowse/Plugin',
-           './FeatureEdgeMatchManager',
-           './FeatureSelectionManager',
-           './TrackConfigTransformer',
-           './View/Track/AnnotTrack',
-           './View/TrackList/Hierarchical',
-           './View/TrackList/Faceted',
-           './InformationEditor',
+           'WebApollo/FeatureEdgeMatchManager',
+           'WebApollo/FeatureSelectionManager',
+           'WebApollo/TrackConfigTransformer',
+           'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/TrackList/Hierarchical',
+           'WebApollo/View/TrackList/Faceted',
+           'WebApollo/InformationEditor',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
@@ -143,36 +143,7 @@ return declare( JBPlugin,
 
 
         if (browser.config.show_nav) {
-            //var helpUrl = browser.config.helpUrl;
-//            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
-//            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
             var jbrowseUrl = "http://jbrowse.org";
-            //browser.addGlobalMenuItem( 'help',
-            //                        new dijitMenuItem(
-            //                            {
-            //                                id: 'menubar_apollo_quickstart',
-            //                                label: 'General',
-            //                                onClick: function()  { window.open(helpUrl,'help_window').focus(); }
-            //                            })
-            //                      );
-           /*
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_userguide',
-                                            label: 'User Guide',
-                                            onClick: function()  { window.open(guideUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_wiki',
-                                            label: 'Wiki',
-                                            onClick: function()  { window.open(wikiUrl,'help_window').focus(); }
-                                        })
-                                  );
-*/
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
@@ -273,17 +244,6 @@ return declare( JBPlugin,
             }
 
             // Initialize information editor with similar style to track selector
-            /*browser.informationEditor=new InformationEditor(
-                dojo.mixin(
-                        dojo.clone( browser.config.bookmarkPanel ) || {},
-                        {
-                            browser: browser,
-                            title: "Info Editor"
-                        }
-                )
-            );
-            browser.tabContainer.addChild(browser.informationEditor);
-            */
             var view = browser.view;
             view.oldOnResize = view.onResize;
 
@@ -291,10 +251,6 @@ return declare( JBPlugin,
               *    bug appears in Chrome, not Firefox, unsure of other browsers
               */
             view.onResize = function() {
-                // detect if zoomed into base level
-                // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
-                // if showing residues (full zoom), then pxPerBp == maxPxPerBp
-                //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
                 var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
                 var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
                 var oldCharSize = thisB.getSequenceCharacterSize();
@@ -303,14 +259,11 @@ return declare( JBPlugin,
                 var charWidthChanged = (newCharSize.width != oldCharSize.width);
                 var charWidth = newCharSize.width;
                 if (charWidthChanged) {
-                    // if charWidth changed, need to change maxPxPerBp to match
-                    // console.log("residues font size changed, new char width = " + newCharSize.width);
                     if (! browser.config.view) { browser.config.view = {}; }
                     browser.config.view.maxPxPerBp = charWidth;
                     view.maxPxPerBp = charWidth;
                 }
                 if (charWidthChanged && fullZoom) {
-                    // console.log("at full zoom, trying font size fix");
                     view.pxPerBp = view.maxPxPerBp;
                     view.oldOnResize();
                     thisB.browserZoomFix(centerBp);
@@ -325,14 +278,12 @@ return declare( JBPlugin,
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
                 }
             });
-            // browser.registerExtraFileDriver(customGff3Driver);
             browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
 
 
     },
-
 
     /**
      *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
@@ -552,9 +503,6 @@ return declare( JBPlugin,
                                     title: 'user logged in: UserName',
                                     dropDown: userMenu
                             });
-            // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left'
-            //     styling in CSS rule for 'menu' class
-            // dojo.addClass( loginButton.domNode, 'menu' );
         }
         else  {
             loginButton = new dijitButton(
