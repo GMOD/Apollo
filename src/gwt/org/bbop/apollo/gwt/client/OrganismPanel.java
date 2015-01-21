@@ -22,6 +22,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.NoSelectionModel;
@@ -71,6 +72,7 @@ public class OrganismPanel extends Composite {
     @UiField
     Button deleteButton;
 
+    private PopupPanel popupPanel ;
 
 
 
@@ -79,6 +81,8 @@ public class OrganismPanel extends Composite {
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+
+
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -148,7 +152,7 @@ public class OrganismPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedOrganismInfo = singleSelectionModel.getSelectedObject();
                 setSelectedInfo(selectedOrganismInfo);
-                deleteButton.setVisible(true);
+                setDefaultButtonState();
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
@@ -195,17 +199,29 @@ public class OrganismPanel extends Composite {
 
 
     private class UpdateInfoListCallback implements  RequestCallback{
+
+        private boolean clearSelections = false ;
+
+        public UpdateInfoListCallback(){
+            this(false);
+        }
+
+        public UpdateInfoListCallback(boolean clearSelections){
+            this.clearSelections = clearSelections ;
+        }
+
         @Override
         public void onResponseReceived(Request request, Response response) {
             GWT.log("recived response: "+response.getText());
             List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
-            GWT.log("converted responsde : "+organismInfoList.size());
+            GWT.log("converted responsde : " + organismInfoList.size());
             dataGrid.setSelectionModel(singleSelectionModel);
-            cancelButton.setVisible(false);
-            cancelButton.setEnabled(true);
-            createButton.setVisible(false);
-            createButton.setEnabled(true);
-            newButton.setEnabled(true);
+            if(clearSelections){
+                singleSelectionModel.clear();
+                organismName.setText("");
+                sequenceFile.setText("");
+            }
+            setDefaultButtonState();
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             Annotator.eventBus.fireEvent(organismChangeEvent);
         }
@@ -222,22 +238,18 @@ public class OrganismPanel extends Composite {
         organismName.setText("");
         sequenceFile.setText("");
         dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
-        newButton.setEnabled(false);
-        createButton.setVisible(true);
-        cancelButton.setVisible(true);
-        deleteButton.setVisible(false);
+        setNewOrganismButtonState();
 //        selectedOrganismInfo.setName(organismName.getText());
 //        updateOrganismInfo();
     }
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
-        createButton.setEnabled(false);
-        cancelButton.setEnabled(false);
+        setDefaultButtonState();
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
-        OrganismRestService.createOrganism(new UpdateInfoListCallback(),organismInfo);
+        OrganismRestService.createOrganism(new UpdateInfoListCallback(true), organismInfo);
     }
 
     @UiHandler("cancelButton")
@@ -246,10 +258,8 @@ public class OrganismPanel extends Composite {
         sequenceFile.setText("");
         dataGrid.setSelectionModel(singleSelectionModel);
         setSelectedInfo(selectedOrganismInfo);
-        cancelButton.setVisible(false);
-        createButton.setVisible(false);
-        newButton.setEnabled(true);
-        deleteButton.setVisible(true);
+
+        setDefaultButtonState();
     }
 
     @UiHandler("deleteButton")
@@ -257,8 +267,7 @@ public class OrganismPanel extends Composite {
         if(selectedOrganismInfo==null) return ;
 
         if(Window.confirm("Delete organism: "+selectedOrganismInfo.getName())){
-            Window.alert("deleting . .. ");
-            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(),selectedOrganismInfo);
+            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),selectedOrganismInfo);
         }
     }
 
@@ -286,10 +295,38 @@ public class OrganismPanel extends Composite {
         OrganismRestService.loadOrganisms(trackInfoList);
 
         return trackInfoList;
+    }
 
-//        for(String organism : DataGenerator.getOrganisms()){
-//            trackInfoList.add(new OrganismInfo(organism));
-//        }
+    public void setDefaultButtonState(){
+        if(singleSelectionModel.getSelectedSet().size()>0){
+            newButton.setEnabled(true);
+            newButton.setVisible(true);
+            createButton.setVisible(false);
+            cancelButton.setVisible(false);
+            deleteButton.setVisible(true);
+        }
+        else{
+            newButton.setEnabled(true);
+            newButton.setVisible(true);
+            createButton.setVisible(false);
+            cancelButton.setVisible(false);
+            deleteButton.setVisible(false);
+        }
+    }
 
+    public void setNewOrganismButtonState(){
+        newButton.setEnabled(false);
+        newButton.setVisible(true);
+        createButton.setVisible(true);
+        createButton.setEnabled(true);
+        cancelButton.setVisible(false);
+        cancelButton.setEnabled(true);
+        deleteButton.setVisible(false);
+    }
+
+    public void setThinkingInterface(){
+    }
+
+    public void unsetThinkingInterface(){
     }
 }
