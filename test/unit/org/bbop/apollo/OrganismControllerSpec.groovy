@@ -16,6 +16,7 @@ class OrganismControllerSpec extends Specification {
         params["genus"] = 'Danio'
         params["species"] = 'rerio'
         params["commonName"] = 'Zebrafish'
+        params["directory"] = '/opt/apollo/organism1/jbrowse/data'
     }
 
     void "Test the index action returns the correct model"() {
