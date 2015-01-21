@@ -35,6 +35,19 @@ class OrganismController {
     }
 
     @Transactional
+    def deleteOrganism(){
+        println "savingparams: ${params.data}"
+        def organismJson = JSON.parse(params.data.toString()) as JSONObject
+        println "organismJSON ${organismJson}"
+        println "id: ${organismJson.id}"
+        Organism organism = Organism.findById(organismJson.id as Long)
+        if(organism){
+            organism.delete()
+        }
+        render findAllOrganisms()
+    }
+
+    @Transactional
     def saveOrganism(){
         println "savingparams: ${params.data}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
