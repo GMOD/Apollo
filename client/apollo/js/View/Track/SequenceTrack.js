@@ -1,5 +1,10 @@
 define( [
     'dojo/_base/declare',
+    'dojo/mouse',
+    'dojo/query',
+    'dojo/dom-style',
+    'dojo/dom-class',
+    'dojo/on',
     'JBrowse/View/Track/Sequence',
     'JBrowse/CodonTable',
     'WebApollo/JSONUtils',
@@ -7,7 +12,7 @@ define( [
     'dojo/request/xhr',
     'dojox/widget/Standby'
      ],
-function( declare, Sequence, CodonTable, JSONUtils, Permission, xhr, Standby ) {
+function( declare, mouse, query, domStyle, on, domClass, Sequence, CodonTable, JSONUtils, Permission, xhr, Standby ) {
 
 return declare( Sequence,
 {
@@ -22,27 +27,10 @@ return declare( Sequence,
             this.webapollo = p;
         }));
 
-        /**
-         * DraggableFeatureTrack now has its own context menu for divs,
-         * and adding this flag provides a quick way to short-circuit it's
-         * initialization
-         */
-        this.show_reverse_strand = true;
-        this.show_protein_translation = true;
         this.context_path = "..";
         this.store=args.store;
-
-        this.residues_context_menu = new dijit.Menu({});  // placeholder till setAnnotTrack() triggers real menu init
-        this.annot_context_menu = new dijit.Menu({});     // placeholder till setAnnotTrack() triggers real menu init
-
-        this.residuesMouseDown = function(event) {
-            track.onResiduesMouseDown(event);
-        };
         this.loadTranslationTable();
-
-
         this.trackPadding = 10;
-        track.changed();
     },
 
     /*
@@ -67,6 +55,29 @@ return declare( Sequence,
         
         return count;
     }, 
+    fillBlock: function(args) {
+        var supermethod = this.getInherited(arguments);
+        var finishCallback=args.finishCallback;
+        args.finishCallback=function() {
+            finishCallback();
+            //query('.base',args.block.domNode).addClass('testing');
+            query('.base',args.block.domNode).on(mouse.enter,function(evt) {
+                console.log("Mouse enter",evt);
+                domStyle.set(evt.toElement,"backgroundColor","orange");
+            });
+            query('.base',args.block.domNode).on(mouse.leave,function(evt) {
+                console.log("Mouse leave",evt);
+                domStyle.set(evt.fromElement,"backgroundColor","#E0E0E0");
+            });
+            query('.base',args.block.domNode).on("click",function(evt) {
+                console.log("Mouse click");
+                if(mouse.isRight(evt)) {
+                    console.log("Mouse right click",evt);
+                }
+            });
+        };
+        supermethod.call(this,args);
+    },
 
     createAddSequenceAlterationPanel: function(type, gcoord) {
         var track = this;
