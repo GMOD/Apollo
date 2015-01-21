@@ -104,7 +104,6 @@ public class AnnotationEditorService extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-//            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
             ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
 
             InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
@@ -257,8 +256,6 @@ public class AnnotationEditorService extends HttpServlet {
             String operation = json.getString("operation");
             String track = json.getString("track");
 
-            SessionData sessionData = getSessionData(track);
-            AnnotationEditor editor = sessionData.getEditor();
 
             response.setContentType("application/json");
             /*
@@ -274,6 +271,7 @@ public class AnnotationEditorService extends HttpServlet {
                 out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream()));
             }
             */
+
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream()));
 
             if (!operationsNotRequiringLogin.contains(operation)) {
@@ -299,6 +297,8 @@ public class AnnotationEditorService extends HttpServlet {
                 if (json.has("update_datastore") && !json.getBoolean("update_datastore")) {
                     updateDataStore = false;
                 }
+                SessionData sessionData = getSessionData(track);
+                AnnotationEditor editor = sessionData.getEditor();
                 AbstractDataStore dataStore = updateDataStore ? sessionData.getDataStore() : null;
                 AbstractHistoryStore historyStore = updateDataStore ? sessionData.getHistoryStore() : null;
 
@@ -823,12 +823,11 @@ public class AnnotationEditorService extends HttpServlet {
 
                 //get_translation_table
                 if (operation.equals("get_translation_table")) {
-                    getTranslationTable(editor, track, out);
+                    getTranslationTable(track, out);
                 }
 
             }
             // end of operations not needing login
-
             /*
             if (compress) {
                 response.addHeader("Content-encoding", "gzip");
@@ -838,6 +837,7 @@ public class AnnotationEditorService extends HttpServlet {
                 out.flush();
             }
             */
+
             out.flush();
 
         } catch (JSONException e) {
@@ -878,7 +878,6 @@ public class AnnotationEditorService extends HttpServlet {
     }
 
     private void getGff3(AnnotationEditor editor, JSONArray features, BufferedWriter out)  throws JSONException, IOException {
-//        JSONObject featureContainer = createJSONFeatureContainer();
         File tempFile = File.createTempFile("feature",".gff3");
 
         // TODO: use specified metadata?
@@ -2033,8 +2032,9 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(annotationInfoEditorConfigContainer.toString());
     }
 
-    private void getTranslationTable(AnnotationEditor editor, String track, BufferedWriter out) throws JSONException, IOException {
-        SequenceUtil.TranslationTable translationTable = editor.getConfiguration().getTranslationTable();
+    private void getTranslationTable(String track, BufferedWriter out) throws JSONException, IOException {
+        SequenceUtil.TranslationTable translationTable = trackToTranslationTable.get(track);
+        if(translationTable==null) throw new IOException("Error");
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue());
