@@ -40,6 +40,7 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
+
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
@@ -117,6 +118,10 @@ public class MainPanel extends Composite {
 
     }
 
+    public void handleOrganismChange() {
+        updateGenomicViewer();
+        loadReferenceSequences(sequenceList);
+    }
 
     @UiHandler("organismList")
     public void changeOrganism(ChangeEvent event) {
@@ -161,6 +166,7 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                sequenceInfoList.clear();
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 

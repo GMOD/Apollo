@@ -109,7 +109,7 @@ public class OrganismRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                mainPanel.updateGenomicViewer();
+                mainPanel.handleOrganismChange();
             }
 
             @Override
