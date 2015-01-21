@@ -1,11 +1,17 @@
 ## 1.0.4 release
 
+
+Features
+
++ Added Drupal and OAuth authentication
+
+
 Bugfixes
 
 
 + Fixed an issue where the API could be used to create random berkeley DBs.
 + Fixed the sample log4j2 implementation and added extra notes on it to the documentation.
-
++ Fixed an issue where the config files where readable by the outside world.
 
 
 ## 1.0.3 release
