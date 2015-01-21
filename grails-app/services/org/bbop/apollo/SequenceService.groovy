@@ -45,6 +45,8 @@ class SequenceService {
 
     def loadRefSeqs(Organism organism ) {
         println "loading refseq ${organism.refseqFile}"
+        organism.valid = false ;
+        organism.save(flush: true, failOnError: true,insert:false)
 
         File refSeqsFile = new File(organism.refseqFile);
         println " file exists ${refSeqsFile.exists()}"
@@ -94,6 +96,10 @@ class SequenceService {
 //            tracks.put(name, c);
 //            tracks.put(name, new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature));
         }
+
+        organism.valid = true
+        organism.save(flush: true,insert:false,failOnError: true)
+
         bufferedInputStream.close();
     }
 }

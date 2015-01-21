@@ -35,6 +35,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.Comparator;
 import java.util.List;
@@ -71,18 +72,14 @@ public class OrganismPanel extends Composite {
     Button cancelButton;
     @UiField
     Button deleteButton;
-
-    private PopupPanel popupPanel ;
-
-
+    @UiField
+    InputGroupAddon validDirectory;
 
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
-
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -114,37 +111,11 @@ public class OrganismPanel extends Composite {
             }
         });
 
-//        Column<OrganismInfo, Number> tracksColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
-//            @Override
-//            public Integer getValue(OrganismInfo object) {
-//                return object.getNumTracks();
-//            }
-//        };
-//        tracksColumn.setSortable(true);
-
-//        SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
-//            @Override
-//            public SafeHtml render(String object) {
-//                SafeHtmlBuilder sb = new SafeHtmlBuilder();
-//                sb.appendHtmlConstant("<a href=\"javascript:;\">Select</a>");
-//                return sb.toSafeHtml();
-//            }
-//        };
-
-//        Column<OrganismInfo, String> actionColumn = new Column<OrganismInfo, String>(new ClickableTextCell(anchorRenderer)) {
-//            @Override
-//            public String getValue(OrganismInfo employee) {
-//                return "Select";
-//            }
-//        };
-
         dataGrid.setLoadingIndicator(new HTML("Calculating Annotations ... "));
 
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
-//        dataGrid.addColumn(tracksColumn, "Tracks");
         dataGrid.addColumn(sequenceColumn, "Sequences");
-//        dataGrid.addColumn(actionColumn, "Action");
 
 
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -152,7 +123,8 @@ public class OrganismPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedOrganismInfo = singleSelectionModel.getSelectedObject();
                 setSelectedInfo(selectedOrganismInfo);
-                setDefaultButtonState();
+                cancelButton.setVisible(false);
+                createButton.setVisible(false);
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
@@ -181,20 +153,45 @@ public class OrganismPanel extends Composite {
                 return o1.getNumSequences() - o2.getNumSequences();
             }
         });
-//        sortHandler.setComparator(tracksColumn, new Comparator<OrganismInfo>() {
-//            @Override
-//            public int compare(OrganismInfo o1, OrganismInfo o2) {
-//                return o1.getNumTracks() - o2.getNumTracks();
-//            }
-//        });
 
     }
 
     public void setSelectedInfo(OrganismInfo organismInfo){
-        if(organismInfo==null) return ;
+        if(organismInfo==null) {
+           setNoSelection()   ;
+            return;
+        }
         organismName.setText(organismInfo.getName());
+        organismName.setEnabled(true);
         sequenceFile.setText(organismInfo.getDirectory());
+        sequenceFile.setEnabled(true);
         annotationCount.setText(organismInfo.getNumFeatures().toString());
+        deleteButton.setVisible(true);
+        deleteButton.setEnabled(true);
+        if(organismInfo.getValid()==null){
+            validDirectory.setIcon(IconType.QUESTION);
+            validDirectory.setColor("Red");
+        }
+        else
+        if(organismInfo.getValid()){
+            validDirectory.setIcon(IconType.CHECK);
+            validDirectory.setColor("Green");
+        }
+        else{
+            validDirectory.setIcon(IconType.XING);
+            validDirectory.setColor("Red");
+        }
+        validDirectory.setVisible(true);
+    }
+
+    private void setNoSelection() {
+        organismName.setText("");
+        organismName.setEnabled(false);
+        sequenceFile.setText("");
+        sequenceFile.setEnabled(false);
+        annotationCount.setText("");
+        validDirectory.setVisible(false);
+        deleteButton.setVisible(false);
     }
 
 
@@ -216,10 +213,9 @@ public class OrganismPanel extends Composite {
             List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
             GWT.log("converted responsde : " + organismInfoList.size());
             dataGrid.setSelectionModel(singleSelectionModel);
+            GWT.log("clearing selection") ;
             if(clearSelections){
-                singleSelectionModel.clear();
-                organismName.setText("");
-                sequenceFile.setText("");
+                clearSelections();
             }
             setDefaultButtonState();
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
@@ -232,12 +228,19 @@ public class OrganismPanel extends Composite {
         }
     }
 
-    @UiHandler("newButton")
-    public void handleAddNewOrganism(ClickEvent clickEvent) {
+    public void clearSelections(){
         selectedOrganismInfo = null ;
+        singleSelectionModel.clear();
         organismName.setText("");
         sequenceFile.setText("");
-        dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
+        validDirectory.setVisible(false);
+        newButton.setEnabled(false);
+    }
+
+    @UiHandler("newButton")
+    public void handleAddNewOrganism(ClickEvent clickEvent) {
+//        clearSelections();
+//        dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
         setNewOrganismButtonState();
 //        selectedOrganismInfo.setName(organismName.getText());
 //        updateOrganismInfo();
@@ -249,6 +252,8 @@ public class OrganismPanel extends Composite {
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
+        createButton.setEnabled(false);
+        createButton.setText("Processing");
         OrganismRestService.createOrganism(new UpdateInfoListCallback(true), organismInfo);
     }
 
@@ -257,8 +262,8 @@ public class OrganismPanel extends Composite {
         organismName.setText("");
         sequenceFile.setText("");
         dataGrid.setSelectionModel(singleSelectionModel);
+        newButton.setEnabled(true);
         setSelectedInfo(selectedOrganismInfo);
-
         setDefaultButtonState();
     }
 
@@ -267,6 +272,7 @@ public class OrganismPanel extends Composite {
         if(selectedOrganismInfo==null) return ;
 
         if(Window.confirm("Delete organism: "+selectedOrganismInfo.getName())){
+            deleteButton.setEnabled(false);
             OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),selectedOrganismInfo);
         }
     }
@@ -274,12 +280,14 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("organismName")
     public void handleOrganismNameChange(ChangeEvent changeEvent) {
+        if(selectedOrganismInfo==null) return ;
         selectedOrganismInfo.setName(organismName.getText());
         updateOrganismInfo();
     }
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
+        if(selectedOrganismInfo==null) return ;
         selectedOrganismInfo.setDirectory(sequenceFile.getText());
         updateOrganismInfo();
     }
@@ -315,13 +323,20 @@ public class OrganismPanel extends Composite {
     }
 
     public void setNewOrganismButtonState(){
+        createButton.setText("Create Organism");
         newButton.setEnabled(false);
         newButton.setVisible(true);
         createButton.setVisible(true);
         createButton.setEnabled(true);
-        cancelButton.setVisible(false);
+        cancelButton.setVisible(true);
         cancelButton.setEnabled(true);
         deleteButton.setVisible(false);
+
+        organismName.setText("");
+        sequenceFile.setText("");
+        validDirectory.setVisible(false);
+        organismName.setEnabled(true);
+        sequenceFile.setEnabled(true);
     }
 
     public void setThinkingInterface(){

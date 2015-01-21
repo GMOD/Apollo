@@ -9,7 +9,7 @@ class Organism {
         abbreviation nullable: true
         species nullable: true
         genus nullable: true
-
+        valid nullable: true
     }
 
 //     Integer organismId;
@@ -18,6 +18,7 @@ class Organism {
      String species;
      String commonName;
      String comment;
+     Boolean valid
 
     String directory
 
@@ -26,6 +27,15 @@ class Organism {
             ,organismDBXrefs: OrganismDBXref
             ,sequences: Sequence
     ]
+
+    public String getTrackList(){
+        if(!directory){
+            return null
+        }
+        else{
+            return directory + "/trackList.json"
+        }
+    }
 
     public String getRefseqFile(){
         if(!directory){

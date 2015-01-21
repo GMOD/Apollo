@@ -47,7 +47,6 @@ public class OrganismRestService {
         JSONArray array = returnValue.isArray();
         for (int i = 0; i < array.size(); i++) {
             JSONObject object = array.get(i).isObject();
-            GWT.log(object.toString());
             OrganismInfo organismInfo = new OrganismInfo();
             organismInfo.setId(object.get("id").isNumber().toString());
             organismInfo.setName(object.get("commonName").isString().stringValue());
@@ -64,6 +63,9 @@ public class OrganismRestService {
                 organismInfo.setNumFeatures(0);
             }
             organismInfo.setDirectory(object.get("directory").isString().stringValue());
+            if(object.get("valid")!=null){
+                organismInfo.setValid(object.get("valid").isBoolean().booleanValue());
+            }
             organismInfoList.add(organismInfo);
         }
         return organismInfoList ;
@@ -87,6 +89,7 @@ public class OrganismRestService {
 
     public static void updateOrganismInfo(final OrganismInfo organismInfo) {
         JSONObject organismInfoObject = JSONParser.parseStrict(organismInfo.toJSON()).isObject();
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -106,8 +109,6 @@ public class OrganismRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                GWT.log("returned: " + returnValue);
                 mainPanel.updateGenomicViewer();
             }
 

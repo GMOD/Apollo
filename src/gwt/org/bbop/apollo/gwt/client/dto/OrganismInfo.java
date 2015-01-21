@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -19,6 +20,7 @@ public class OrganismInfo {
     private Integer numFeatures ;
     private Integer numSequences;
     private Integer numTracks;
+    private Boolean valid ;
 
     public OrganismInfo(){
 
@@ -80,13 +82,23 @@ public class OrganismInfo {
         this.directory = directory;
     }
 
+    public Boolean getValid() {
+        return valid;
+    }
+
+    public void setValid(Boolean valid) {
+        this.valid = valid;
+    }
+
     public String toJSON() {
         JSONObject payload = new JSONObject();
         payload.put("id",new JSONString(id));
         payload.put("name",new JSONString(name));
         payload.put("directory",new JSONString(directory));
+        if(valid!=null){
+            payload.put("valid",JSONBoolean.getInstance(valid));
+        }
 
-//        AutoBean<OrganismInfo> organismInfoAutoBean = AutoBeanUtils.getAutoBean():
         return payload.toString();
     }
 }
