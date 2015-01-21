@@ -41,7 +41,6 @@ return declare( JBPlugin,
     constructor: function( args ) {
         console.log("loaded WebApollo plugin");
         var thisB = this;
-        this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
         this.showTrackLabel = true ;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
@@ -99,9 +98,9 @@ return declare( JBPlugin,
         var cds_frame_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Color by CDS frame",
-                    checked: false,
+                    checked: browser.cookie("colorCdsByFrame")=="true"?true:false,
                     onClick: function(event) {
-                        thisB.colorCdsByFrame = cds_frame_toggle.checked;
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
                         browser.view.redrawTracks();
                     }
                 });

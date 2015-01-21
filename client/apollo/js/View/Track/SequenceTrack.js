@@ -341,7 +341,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 track.stopStandby();
             };
         
-//        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
                 this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
@@ -428,7 +427,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
                                 // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
                                 //    otherwise use more muted "frame" styling
-                                if (track.webapollo.colorCdsByFrame) {
+                                if (track.browser.cookie("colorCdsByFrame")=="true") {
                                     $(transProtein).addClass("cds-frame" + frame);
                                 }
                                 else  {
@@ -543,7 +542,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
                                 frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
                                 var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                if (track.webapollo.colorCdsByFrame) {
+                                if (track.browser.cookie("colorCdsByFrame")=="true") {
                                     $(transProtein).addClass("cds-frame" + frame);
                                 }
                                 else  {
