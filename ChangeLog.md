@@ -4,6 +4,7 @@
 Features
 
 + Added Drupal and OAuth authentication
++ Made "Show track labels" and "Color by CDS" more persistent
 
 
 Bugfixes

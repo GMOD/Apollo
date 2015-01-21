@@ -42,7 +42,6 @@ return declare( JBPlugin,
         console.log("loaded WebApollo plugin");
         var thisB = this;
         this.searchMenuInitialized = false;
-        this.showTrackLabel = true ;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -60,6 +59,12 @@ return declare( JBPlugin,
         if (browser.cookie("Scheme")=="Dark") {
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
+
+        if(browser.cookie("showTrackLabel")&&browser.cookie("showTrackLabel")=="false") {
+            browser.config.tracks.forEach(function(trackConf) { trackConf.label=false; });
+        }
+
+
 
 
         if (browser.config.favicon) {
@@ -212,11 +217,7 @@ return declare( JBPlugin,
         // transform track configs from vanilla JBrowse to WebApollo:
         // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
         //
-        var track_configs = browser.config.tracks;
-        for (var i=0; i<track_configs.length; i++)  {
-            var track_config = track_configs[i];
-            this.trackTransformer.transform(track_config);
-        }
+        browser.config.tracks.forEach(this.trackTransformer.transform);
 
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
@@ -409,26 +410,13 @@ return declare( JBPlugin,
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: this.showTrackLabel,
+                checked: browser.cookie("showTrackLabel"),
                 onClick: function(event) {
-                    if(hide_track_label_toggle.checked){
-                        $('.track-label').show();
-                        this.showTrackLabel = true ;
-                    }
-                    else{
-                        $('.track-label').hide();
-                        this.showTrackLabel = false ;
-                    }
+                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                    browser.config.tracks.forEach(function(trackConf) { trackConf.label=this.get("checked"); });
+                    browser.view.redrawTracks();
                 }
             });
-
-        if(this.showTrackLabel){
-            $('.track-label').show();
-        }
-        else{
-            $('.track-label').hide();
-        }
-
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
