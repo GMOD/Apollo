@@ -58,11 +58,7 @@ return declare( JBPlugin,
         });
 
         // Checking for cookie for determining the color scheme of WebApollo
-        if (document.cookie.indexOf("Scheme=Dark") === -1) {
-            this.changeCssScheme = false;
-        }
-        else {
-            this.changeCssScheme = true;
+        if (browser.cookie("Scheme")=="Dark") {
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
@@ -111,22 +107,13 @@ return declare( JBPlugin,
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
 
-        //Adding a global menu option for changing CSS color scheme
-        var box_check;
-        if (this.changeCssScheme) {
-            box_check = true;
-        }
-        else {
-            box_check = false;
-        }
-
         var css_frame_menu = new dijitMenu();
 
         css_frame_menu.addChild(
             new dijitMenuItem({
                     label: "Light",
                     onClick: function (event) {
-                        document.cookie = "Scheme=Light";
+                        browser.cookie("Scheme","Light");
                         window.location.reload();
                     }
                 }
@@ -136,7 +123,7 @@ return declare( JBPlugin,
             new dijitMenuItem({
                     label: "Dark",
                     onClick: function (event) {
-                        document.cookie = "Scheme=Dark";
+                        browser.cookie("Scheme","Dark");
                         window.location.reload();
                     }
                 }
