@@ -4,8 +4,10 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.http.client.*;
@@ -40,7 +42,6 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
@@ -51,7 +52,7 @@ public class MainPanel extends Composite {
     private boolean toggleOpen = true;
     private String rootUrl;
     public static Long currentOrganismId = null;
-    public static String currentSequenceId = null ;
+    public static String currentSequenceId = null;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // debug
@@ -81,16 +82,18 @@ public class MainPanel extends Composite {
     static TabLayoutPanel detailTabs;
     @UiField
     static ListBox organismList;
-    @UiField
-    static ListBox sequenceList;
+    @UiField(provided = true)
+    static SuggestBox sequenceList ;
     @UiField
     FlowPanel westPanel;
     @UiField
     PreferencePanel preferencePanel;
 
+    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
     public MainPanel() {
         exportStaticMethod();
+        sequenceList = new SuggestBox(sequenceOracle);
         initWidget(ourUiBinder.createAndBindUi(this));
         GWT.log("name: " + frame.getName());
         frame.getElement().setAttribute("id", frame.getName());
@@ -107,8 +110,8 @@ public class MainPanel extends Composite {
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
                 organismList.clear();
-                for(OrganismInfo organismInfo : organismInfoList){
-                    organismList.addItem(organismInfo.getName(),organismInfo.getId());
+                for (OrganismInfo organismInfo : organismInfoList) {
+                    organismList.addItem(organismInfo.getName(), organismInfo.getId());
                 }
 //                loadOrganisms(organismList);
             }
@@ -120,24 +123,26 @@ public class MainPanel extends Composite {
 
     public void handleOrganismChange() {
         updateGenomicViewer();
-        loadReferenceSequences(sequenceList);
+        loadReferenceSequences(true);
     }
 
     @UiHandler("organismList")
     public void changeOrganism(ChangeEvent event) {
         String selectedValue = organismList.getSelectedValue();
         currentOrganismId = Long.parseLong(selectedValue);
+        sequenceList.setText("");
+        sequenceOracle.clear();
         OrganismRestService.changeOrganism(this, selectedValue);
     }
 
     @UiHandler("sequenceList")
-    public void changeSequence(ChangeEvent event) {
+    public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
         updateGenomicViewer();
     }
 
     public void updateGenomicViewer() {
         String trackListString = rootUrl + "/jbrowse/?loc=";
-        String selectedSequence = sequenceList.getSelectedValue();
+        String selectedSequence = sequenceList.getText();
         GWT.log("get selected sequence: " + selectedSequence);
         trackListString += selectedSequence;
 
@@ -153,20 +158,19 @@ public class MainPanel extends Composite {
         frame.setUrl(trackListString);
     }
 
-    public void loadReferenceSequences(final ListBox sequenceInfoList) {
-        loadReferenceSequences(sequenceInfoList, false);
+    public void loadReferenceSequences() {
+        loadReferenceSequences(false);
     }
 
     /**
      * could use an sequence callback . . . however, this element needs to use the callback directly.
      *
-     * @param sequenceInfoList
      */
-    public void loadReferenceSequences(final ListBox sequenceInfoList, final boolean loadFirstSequence) {
+    public void loadReferenceSequences(final boolean loadFirstSequence) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                sequenceInfoList.clear();
+                sequenceOracle.clear();
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
@@ -184,9 +188,9 @@ public class MainPanel extends Composite {
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-                    sequenceInfoList.addItem(sequenceInfo.getName());
+                    sequenceOracle.add(sequenceInfo.getName());
                     if (sequenceInfo.getName().equals(currentSequenceId)) {
-                        sequenceInfoList.setSelectedIndex(i);
+                        sequenceList.setText(sequenceInfo.getName());
                     }
                 }
             }
@@ -229,7 +233,7 @@ public class MainPanel extends Composite {
 //                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (currentOrganismId != null) {
-                        if (Long.parseLong(organismInfo.getId())==currentOrganismId) {
+                        if (Long.parseLong(organismInfo.getId()) == currentOrganismId) {
                             trackInfoList.setSelectedIndex(i);
                         }
                     } else if (i == 0) {
@@ -237,7 +241,7 @@ public class MainPanel extends Composite {
                     }
                 }
 
-                loadReferenceSequences(sequenceList, true);
+                loadReferenceSequences(true);
             }
 
             @Override

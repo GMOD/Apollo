@@ -82,7 +82,8 @@
                         <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
                         <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
-                        <gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>
+                        <!--<gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>-->
+                        <gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>
                         <!--<gwt:HTML styleName="{style.inline}">-->
                         <!--<div style="display:inline-table;">-->
                         <!--Drrr . .-->
