@@ -12,6 +12,7 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dojo/dom-construct',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -31,7 +32,7 @@ define(
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+    function( declare, domConstruct, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
@@ -534,25 +535,12 @@ return declare( JBPlugin,
                                                 }) );
             this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
 
-
-            //this.browser.addGlobalMenuItem( 'tools',
-            //    new dijitMenuItem(
-            //        {
-            //            id: 'menubar_apollo_seqsearch',
-            //            label: "Search sequence",
-            //            onClick: function() {
-            //                webapollo.getAnnotTrack().searchSequence();
-            //            }
-            //        }) );
-            //this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
 
-        // move Tool menu in front of Help menu (Help should always be last menu?)
-        // Dojo weirdness: actual menu pulldown get assigned "widgetid" equal to "id" passed when creating dijit DropDownButton
-        var $toolsMenu = $('.menu[widgetid="dropdownbutton_tools"');
-        //this.$tools_menu = $('#dropdownbutton_tools').parent().parent();   // gives same result...
-        var $helpMenu = $('.menu[widgetid="dropdownbutton_help"');
-        $toolsMenu.insertBefore($helpMenu);
+        // move Tool menu in front of Help menu
+        var toolsMenu = dojo.query('.menu[widgetid="dropdownbutton_tools"]')[0];
+        var helpMenu = dojo.query('.menu[widgetid="dropdownbutton_help"]')[0];
+        domConstruct.place(toolsMenu,helpMenu,'before');
         this.searchMenuInitialized = true;
     },
 
