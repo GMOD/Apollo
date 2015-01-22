@@ -110,7 +110,7 @@ public class TrackPanel extends Composite {
         dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
         // TODO: on-click . . . if not Clicked
-        Column<TrackInfo,Boolean> firstNameColumn = new Column<TrackInfo,Boolean>(new CheckboxCell(true,false)) {
+        Column<TrackInfo,Boolean> showColumn = new Column<TrackInfo,Boolean>(new CheckboxCell(true,false)) {
 
 
             @Override
@@ -119,7 +119,7 @@ public class TrackPanel extends Composite {
             }
         };
 
-        firstNameColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
+        showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
             /**
              * TODO: emulate . . underTrackList . . Create an external function n Annotrackto then call from here
              * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
@@ -147,12 +147,11 @@ public class TrackPanel extends Composite {
                 MainPanel.executeFunction("handleTrackVisibility", jsonObject.getJavaScriptObject());
             }
         });
-        firstNameColumn.setSortable(true);
+        showColumn.setSortable(true);
 
         TextColumn<TrackInfo> secondNameColumn = new TextColumn<TrackInfo>() {
             @Override
             public String getValue(TrackInfo employee) {
-//                this.setCellStyleNames("dataGridCell2");
                 return employee.getName();
             }
         };
@@ -168,7 +167,9 @@ public class TrackPanel extends Composite {
         };
         thirdNameColumn.setSortable(true);
 
-        dataGrid.addColumn(firstNameColumn, "Show");
+
+
+        dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(secondNameColumn, "Name");
         dataGrid.addColumn(thirdNameColumn, "Type");
         dataGrid.setColumnWidth(0,"10%");
@@ -183,7 +184,7 @@ public class TrackPanel extends Composite {
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(trackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
 
-        sortHandler.setComparator(firstNameColumn, new Comparator<TrackInfo>() {
+        sortHandler.setComparator(showColumn, new Comparator<TrackInfo>() {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
                 if (o1.getVisible() == o2.getVisible()) return 0;
@@ -248,10 +249,18 @@ public class TrackPanel extends Composite {
         String text = nameSearchBox.getText();
         filteredTrackInfoList.clear();
         for(TrackInfo trackInfo : trackInfoList ){
-            if(trackInfo.getName().toLowerCase().contains(text)){
+            if(trackInfo.getName().toLowerCase().contains(text) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)){
                 filteredTrackInfoList.add(trackInfo);
             }
         }
+    }
+
+    private static boolean isAnnotationTrack(TrackInfo trackInfo) {
+        return trackInfo.getName().equalsIgnoreCase("User-created Annotations");
+    }
+
+    private static boolean isReferenceSequence(TrackInfo trackInfo) {
+        return trackInfo.getName().equalsIgnoreCase("Reference sequence");
     }
 
     public static native void exportStaticMethod() /*-{
