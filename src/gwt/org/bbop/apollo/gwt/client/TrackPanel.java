@@ -16,6 +16,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
+import org.bbop.apollo.gwt.client.event.ContextSwitchEventHandler;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -57,6 +61,7 @@ public class TrackPanel extends Composite {
 //    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
     @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 100, tablecss );
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
+    private static List<TrackInfo> trackInfoList = dataProvider.getList();
 
 
     //    @UiField(provided = true) org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
@@ -165,7 +170,6 @@ public class TrackPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
-        List<TrackInfo> trackInfoList = dataProvider.getList();
         loadTracks(trackInfoList);
 //        DataGenerator.populateTrackList(trackInfoList);
 
@@ -199,7 +203,13 @@ public class TrackPanel extends Composite {
         });
 
 
-//        DataGenerator.populateOrganismList(organismList);
+        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
+            @Override
+            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
+                loadTracks(trackInfoList);
+            }
+
+        });
 
         trackName.setHTML("GeneID");
         trackType.setHTML("HTMLFeature");
@@ -229,9 +239,10 @@ public class TrackPanel extends Composite {
     }-*/;
 
     public void reload() {
-        JSONObject commandObject = new JSONObject();
-        commandObject.put("command", new JSONString("list"));
-        MainPanel.executeFunction("handleTrackVisibility",commandObject.getJavaScriptObject());
+//        JSONObject commandObject = new JSONObject();
+//        commandObject.put("command", new JSONString("list"));
+//        MainPanel.executeFunction("handleTrackVisibility", commandObject.getJavaScriptObject());
+        loadTracks(trackInfoList);
     }
 
     public static void updateTracks(String jsonString){
@@ -245,9 +256,6 @@ public class TrackPanel extends Composite {
 
     public static void updateTracks(JSONArray array, List<TrackInfo> trackInfoList){
         trackInfoList.clear();
-//        JSONArray array = returnValueObject.isArray();
-//        if(returnValueObject.get("tracks")==null) return ;
-//        JSONArray array = returnValueObject.get("tracks").isArray();
 
         for(int i = 0 ; i < array.size() ; i++){
             JSONObject object = array.get(i).isObject();
@@ -271,16 +279,6 @@ public class TrackPanel extends Composite {
     }
 
     public void loadTracks(final List<TrackInfo> trackInfoList) {
-
-//        List<TrackInfo> testList = new ArrayList<>();
-//        JavaScriptObject javaScriptObject = loadTracks();
-//        String url = "/apollo/organism/findAllTracks";
-//        String url = rootUrl+"/jbrowse/data/trackList.json";
-//        JavaScriptObject returnObject = loadTracks();
-//        if(returnObject==null) return ;
-//        JSONObject returnValueObject = JSONParser.parseStrict(returnObject.toSource()).isObject();
-//        GWT.log(returnValueObject.toString());
-//        GWT.log("track list "+trackList);
 
 //        String url = rootUrl+"/jbrowse/allTracks";
         String url = rootUrl+"/jbrowse/data/trackList.json";

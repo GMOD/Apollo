@@ -21,6 +21,7 @@ public class OrganismInfo {
     private Integer numSequences;
     private Integer numTracks;
     private Boolean valid ;
+    private boolean current;
 
     public OrganismInfo(){
 
@@ -90,15 +91,25 @@ public class OrganismInfo {
         this.valid = valid;
     }
 
+    public void setCurrent(boolean current) {
+        this.current = current;
+    }
+
+    public boolean isCurrent() {
+        return current;
+    }
+
     public String toJSON() {
         JSONObject payload = new JSONObject();
         payload.put("id",new JSONString(id));
         payload.put("name",new JSONString(name));
         payload.put("directory",new JSONString(directory));
+        payload.put("current",JSONBoolean.getInstance(current));
         if(valid!=null){
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
 
         return payload.toString();
     }
+
 }

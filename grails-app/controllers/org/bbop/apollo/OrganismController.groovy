@@ -236,6 +236,8 @@ class OrganismController {
             if (organism.valid) {
                 jsonObject.put("valid", organism.valid)
             }
+            jsonObject.put("currentOrganism",request.session.getAttribute("organismJBrowseDirectory")==organism.directory)
+
             jsonArray.add(jsonObject)
         }
 //        def organsimJSON = organismList as JSON

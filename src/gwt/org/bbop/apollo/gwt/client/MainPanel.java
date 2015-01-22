@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -127,6 +128,8 @@ public class MainPanel extends Composite {
     public void handleOrganismChange() {
         updateGenomicViewer();
         loadReferenceSequences(true);
+
+
     }
 
     @UiHandler("organismList")
@@ -196,6 +199,9 @@ public class MainPanel extends Composite {
                         sequenceList.setText(sequenceInfo.getName());
                     }
                 }
+
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(),organismList.getSelectedValue());
+                Annotator.eventBus.fireEvent(contextSwitchEvent);
             }
 
             @Override
@@ -231,17 +237,22 @@ public class MainPanel extends Composite {
                     organismInfo.setName(object.get("commonName").isString().stringValue());
                     organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
                     organismInfo.setDirectory(object.get("directory").isString().stringValue());
+                    organismInfo.setCurrent(object.get("currentOrganism").isBoolean().booleanValue());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    if (currentOrganismId != null) {
-                        if (Long.parseLong(organismInfo.getId()) == currentOrganismId) {
-                            trackInfoList.setSelectedIndex(i);
-                        }
-                    } else if (i == 0) {
+                    if(organismInfo.isCurrent()){
                         currentOrganismId = Long.parseLong(organismInfo.getId());
+                        trackInfoList.setSelectedIndex(i);
                     }
+//                    if (currentOrganismId != null) {
+//                        if (Long.parseLong(organismInfo.getId()) == currentOrganismId) {
+//                            trackInfoList.setSelectedIndex(i);
+//                        }
+//                    } else if (i == 0) {
+//                        currentOrganismId = Long.parseLong(organismInfo.getId());
+//                    }
                 }
 
                 loadReferenceSequences(true);
