@@ -44,8 +44,8 @@ public class TrackPanel extends Composite {
 
     private String rootUrl;
 
-//    @UiField
-//    FlexTable configurationTable;
+    @UiField
+    FlexTable configurationTable;
 //    @UiField FlexTable trackTable;
 //    @UiField
 //    ListBox organismList;
@@ -88,16 +88,16 @@ public class TrackPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
-//        configurationTable.setHTML(0, 0, "maxHeight"); ;
-//        configurationTable.setHTML(0, 1, "1000");
-//        configurationTable.setHTML(1, 0, "maxFeatureScreenDensity");
-//        configurationTable.setHTML(1, 1, "0.5");
-//        configurationTable.setHTML(2, 0, "maxDescriptionLength");
-//        configurationTable.setHTML(2, 1, "70");
-//        configurationTable.setHTML(3, 0, "label");
-//        configurationTable.setHTML(3, 1, "Cflo_OGSv3.3");
-//
-//        configurationTable.setWidth("100%");
+        configurationTable.setHTML(0, 0, "maxHeight"); ;
+        configurationTable.setHTML(0, 1, "1000");
+        configurationTable.setHTML(1, 0, "maxFeatureScreenDensity");
+        configurationTable.setHTML(1, 1, "0.5");
+        configurationTable.setHTML(2, 0, "maxDescriptionLength");
+        configurationTable.setHTML(2, 1, "70");
+        configurationTable.setHTML(3, 0, "label");
+        configurationTable.setHTML(3, 1, "Cflo_OGSv3.3");
+
+        configurationTable.setWidth("100%");
 
 
 
@@ -149,29 +149,29 @@ public class TrackPanel extends Composite {
         });
         showColumn.setSortable(true);
 
-        TextColumn<TrackInfo> secondNameColumn = new TextColumn<TrackInfo>() {
+        TextColumn<TrackInfo> nameColumn = new TextColumn<TrackInfo>() {
             @Override
             public String getValue(TrackInfo employee) {
                 return employee.getName();
             }
         };
-        secondNameColumn.setSortable(true);
+        nameColumn.setSortable(true);
 
 
 
-        TextColumn<TrackInfo> thirdNameColumn = new TextColumn<TrackInfo>() {
+        TextColumn<TrackInfo> typeColumn = new TextColumn<TrackInfo>() {
             @Override
             public String getValue(TrackInfo employee) {
                 return employee.getType();
             }
         };
-        thirdNameColumn.setSortable(true);
+        typeColumn.setSortable(true);
 
 
 
         dataGrid.addColumn(showColumn, "Show");
-        dataGrid.addColumn(secondNameColumn, "Name");
-        dataGrid.addColumn(thirdNameColumn, "Type");
+        dataGrid.addColumn(nameColumn, "Name");
+        dataGrid.addColumn(typeColumn, "Type");
         dataGrid.setColumnWidth(0,"10%");
 
 
@@ -181,7 +181,7 @@ public class TrackPanel extends Composite {
 //        DataGenerator.populateTrackList(trackInfoList);
 
 
-        ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(trackInfoList);
+        ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
 
         sortHandler.setComparator(showColumn, new Comparator<TrackInfo>() {
@@ -195,14 +195,14 @@ public class TrackPanel extends Composite {
                 }
             }
         });
-        sortHandler.setComparator(secondNameColumn, new Comparator<TrackInfo>() {
+        sortHandler.setComparator(nameColumn, new Comparator<TrackInfo>() {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
 
-        sortHandler.setComparator(thirdNameColumn, new Comparator<TrackInfo>() {
+        sortHandler.setComparator(typeColumn, new Comparator<TrackInfo>() {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
                 return o1.getType().compareTo(o2.getType());
@@ -249,7 +249,7 @@ public class TrackPanel extends Composite {
         String text = nameSearchBox.getText();
         filteredTrackInfoList.clear();
         for(TrackInfo trackInfo : trackInfoList ){
-            if(trackInfo.getName().toLowerCase().contains(text) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)){
+            if(trackInfo.getName().toLowerCase().contains(text.toLowerCase()) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)){
                 filteredTrackInfoList.add(trackInfo);
             }
         }

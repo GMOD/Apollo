@@ -119,10 +119,10 @@
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <!--<gwt:tab>-->
-                    <!--<gwt:header>Configuration</gwt:header>-->
-                    <!--<gwt:FlexTable ui:field="configurationTable"/>-->
-                <!--</gwt:tab>-->
+                <gwt:tab>
+                    <gwt:header>Configuration</gwt:header>
+                    <gwt:FlexTable ui:field="configurationTable"/>
+                </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Users</gwt:header>
                     <gwt:HTML text="user permissions on table"/>
