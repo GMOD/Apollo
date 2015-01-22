@@ -3,11 +3,15 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -24,6 +28,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 //import org.gwtbootstrap3.client.ui.gwt.DataGrid;
@@ -45,7 +50,7 @@ public class TrackPanel extends Composite {
 //    @UiField
 //    ListBox organismList;
     @UiField
-    TextBox nameSearchBox;
+    static TextBox nameSearchBox;
     @UiField
     HTML trackName;
     @UiField
@@ -61,7 +66,8 @@ public class TrackPanel extends Composite {
 //    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
     @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 100, tablecss );
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
-    private static List<TrackInfo> trackInfoList = dataProvider.getList();
+    private static List<TrackInfo> trackInfoList = new ArrayList<>();
+    private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
 
 
     //    @UiField(provided = true) org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
@@ -130,16 +136,15 @@ public class TrackPanel extends Composite {
             public void update(int index, TrackInfo trackInfo, Boolean value) {
                 JSONObject jsonObject = trackInfo.getPayload();
                 trackInfo.setVisible(value);
-                if(value){
-                    jsonObject.put("command",new JSONString("show") );
+                if (value) {
+                    jsonObject.put("command", new JSONString("show"));
                     GWT.log("selected . .  do something");
-                }
-                else{
-                    jsonObject.put("command",new JSONString("hide") );
+                } else {
+                    jsonObject.put("command", new JSONString("hide"));
                     GWT.log("UN selected . .  do something");
                 }
 
-                MainPanel.executeFunction("handleTrackVisibility",jsonObject.getJavaScriptObject());
+                MainPanel.executeFunction("handleTrackVisibility", jsonObject.getJavaScriptObject());
             }
         });
         firstNameColumn.setSortable(true);
@@ -234,6 +239,20 @@ public class TrackPanel extends Composite {
 //        return allTracks;
 //    }-*/;
 
+    @UiHandler("nameSearchBox")
+    public void doSearch(KeyUpEvent keyUpEvent){
+        filterList(trackInfoList);
+    }
+
+    static void filterList(List<TrackInfo> trackInfoList) {
+        String text = nameSearchBox.getText();
+        filteredTrackInfoList.clear();
+        for(TrackInfo trackInfo : trackInfoList ){
+            if(trackInfo.getName().toLowerCase().contains(text)){
+                filteredTrackInfoList.add(trackInfo);
+            }
+        }
+    }
 
     public static native void exportStaticMethod() /*-{
         $wnd.loadTracks = $entry(@org.bbop.apollo.gwt.client.TrackPanel::updateTracks(Ljava/lang/String;));
@@ -277,7 +296,9 @@ public class TrackPanel extends Composite {
             }
             trackInfoList.add(trackInfo);
         }
+        filterList(trackInfoList);
     }
+
 
     public void loadTracks(final List<TrackInfo> trackInfoList) {
 
