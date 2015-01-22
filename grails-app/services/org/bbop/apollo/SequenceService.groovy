@@ -53,6 +53,8 @@ class SequenceService {
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(refSeqsFile));
         JSONArray refSeqs = convertJBrowseJSON(bufferedInputStream);
         println "freseq length ${refSeqs.size()}"
+        // delete all sequence for the organism
+        Sequence.deleteAll(Sequence.findAllByOrganism(organism))
         for (int i = 0; i < refSeqs.length(); ++i) {
             JSONObject refSeq = refSeqs.getJSONObject(i);
             int length = refSeq.getInt("length");
