@@ -101,7 +101,7 @@ public class TrackPanel extends Composite {
 
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
-        dataGrid.setEmptyTableWidget(new Label("Loading"));
+        dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
         // TODO: on-click . . . if not Clicked
         Column<TrackInfo,Boolean> firstNameColumn = new Column<TrackInfo,Boolean>(new CheckboxCell(true,false)) {
@@ -163,9 +163,10 @@ public class TrackPanel extends Composite {
         };
         thirdNameColumn.setSortable(true);
 
-        dataGrid.addColumn(firstNameColumn, "Visible");
+        dataGrid.addColumn(firstNameColumn, "Show");
         dataGrid.addColumn(secondNameColumn, "Name");
         dataGrid.addColumn(thirdNameColumn, "Type");
+        dataGrid.setColumnWidth(0,"10%");
 
 
         dataProvider.addDataDisplay(dataGrid);
