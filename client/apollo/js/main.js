@@ -13,6 +13,7 @@ define(
        [
            'dojo/_base/declare',
            'dojo/dom-construct',
+           'dojo/_base/array',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -32,7 +33,7 @@ define(
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, domConstruct, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+    function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
@@ -43,12 +44,13 @@ return declare( JBPlugin,
         var thisB = this;
         this.searchMenuInitialized = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
-        [
+        var externals=[
           'plugins/WebApollo/jslib/bbop/bbop.js',
           'plugins/WebApollo/jslib/bbop/golr.js',
           'plugins/WebApollo/jslib/bbop/jquery.js',
           'plugins/WebApollo/jslib/bbop/search_box.js'
-        ].forEach(function(src) {
+        ];
+        array.forEach(externals,function(src) {
           var script = document.createElement('script');
           script.src = src;
           script.async = false;
@@ -60,9 +62,7 @@ return declare( JBPlugin,
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
-        if(browser.cookie("showTrackLabel")&&browser.cookie("showTrackLabel")=="false") {
-            browser.config.tracks.forEach(function(trackConf) { trackConf.label=false; });
-        }
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', updateLabels);
 
 
 
@@ -217,7 +217,7 @@ return declare( JBPlugin,
         // transform track configs from vanilla JBrowse to WebApollo:
         // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
         //
-        browser.config.tracks.forEach(this.trackTransformer.transform);
+        array.forEach(browser.config.tracks,function(e) { thisB.trackTransformer.transform(e); });
 
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
@@ -283,6 +283,14 @@ return declare( JBPlugin,
         });
 
 
+    },
+    updateLabels: function() { 
+        if(browser.cookie("showTrackLabel")=="false") {
+            $('.track-label').hide();
+        }
+        else {
+            $('.track-label').show();
+        }
     },
 
     /**
@@ -413,8 +421,8 @@ return declare( JBPlugin,
                 checked: browser.cookie("showTrackLabel"),
                 onClick: function(event) {
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                    browser.config.tracks.forEach(function(trackConf) { trackConf.label=this.get("checked"); });
-                    browser.view.redrawTracks();
+                    thisB.updateLabels()
+                    
                 }
             });
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
