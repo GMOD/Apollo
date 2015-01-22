@@ -61,13 +61,11 @@ public class SequencePanel extends Composite {
     @UiField
     HTML sequenceStop;
 
-    private String rootUrl;
+    private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
+    private List<SequenceInfo> sequenceInfoList = dataProvider.getList();
 
     public SequencePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        rootUrl = dictionary.get("rootUrl");
 
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
@@ -123,10 +121,8 @@ public class SequencePanel extends Composite {
         dataGrid.addColumn(thirdNameColumn, "Action");
 
 
-        ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(dataGrid);
 
-        List<SequenceInfo> sequenceInfoList = dataProvider.getList();
 
         SequenceRestService.loadSequences(sequenceInfoList);
 //        for(int i = 1 ; i < 20 ; i++){
@@ -204,6 +200,7 @@ public class SequencePanel extends Composite {
     }
 
     public void reload(){
+        SequenceRestService.loadSequences(dataProvider.getList());
         dataGrid.redraw();
     }
 

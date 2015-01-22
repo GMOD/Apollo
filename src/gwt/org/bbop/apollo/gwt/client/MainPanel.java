@@ -94,8 +94,10 @@ public class MainPanel extends Composite {
     public MainPanel() {
         exportStaticMethod();
         sequenceList = new SuggestBox(sequenceOracle);
-        
+
         initWidget(ourUiBinder.createAndBindUi(this));
+
+
         GWT.log("name: " + frame.getName());
         frame.getElement().setAttribute("id", frame.getName());
 

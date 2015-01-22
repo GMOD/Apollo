@@ -289,8 +289,8 @@ public class TrackPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                GWT.log("response: "+response.getText());
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                GWT.log("response: "+response.getText());
+                JSONValue returnValue = JSONParser.parseLenient(response.getText());
                 JSONObject returnValueObject = returnValue.isObject();
                 updateTracks(returnValueObject.get("tracks").isArray(),trackInfoList);
             }
