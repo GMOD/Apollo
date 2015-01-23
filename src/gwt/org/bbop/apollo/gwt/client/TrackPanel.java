@@ -18,6 +18,8 @@ import com.google.gwt.user.client.ui.*;
 //import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
@@ -65,9 +67,16 @@ public class TrackPanel extends Composite {
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 //    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
     @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 100, tablecss );
+    @UiField SplitLayoutPanel layoutPanel;
+
+
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
+
+    private SingleSelectionModel<TrackInfo> singleSelectionModel = new SingleSelectionModel<TrackInfo>();
+
+    private TrackInfo selectedTrackInfo = null;
 
 
     //    @UiField(provided = true) org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
@@ -173,6 +182,13 @@ public class TrackPanel extends Composite {
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.setColumnWidth(0,"10%");
+        dataGrid.setSelectionModel(singleSelectionModel);
+        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                setTrackInfo(singleSelectionModel.getSelectedObject());
+            }
+        });
 
 
         dataProvider.addDataDisplay(dataGrid);
@@ -218,11 +234,27 @@ public class TrackPanel extends Composite {
 
         });
 
-        trackName.setHTML("GeneID");
-        trackType.setHTML("HTMLFeature");
-        trackCount.setHTML("34");
-        trackDensity.setHTML("0.000123");
+//        trackName.setHTML("GeneID");
+//        trackType.setHTML("HTMLFeature");
+//        trackCount.setHTML("34");
+//        trackDensity.setHTML("0.000123");
 
+    }
+
+    private void setTrackInfo(TrackInfo selectedObject) {
+        selectedTrackInfo = selectedObject ;
+        if(selectedTrackInfo==null){
+            trackName.setText("");
+            trackType.setText("");
+//            trackCount.setText("");
+//            trackDensity.setText("");
+        }
+        else{
+            trackName.setText(selectedTrackInfo.getName());
+            trackType.setText(selectedTrackInfo.getType());
+//            trackCount.setText(selectedTrackInfo.get);
+//            trackDensity.setText("");
+        }
     }
 
 //    private native void publishUpdate(JSONObject jsonObject) /*-{

@@ -121,7 +121,8 @@ public class MainPanel extends Composite {
             }
         });
 
-        detailTabs.selectTab(3);
+//        detailTabs.selectTab(3);
+        detailTabs.selectTab(1);
 
     }
 

@@ -45,7 +45,7 @@
 
 
     </ui:style>
-    <gwt:SplitLayoutPanel>
+    <gwt:SplitLayoutPanel ui:field="layoutPanel">
         <gwt:north size="60">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
@@ -97,7 +97,7 @@
                                 <gwt:HTML ui:field="trackType" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
+                        <b:Row visible="false">
                             <b:Column size="MD_3" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
                                     Feature Count
@@ -107,7 +107,7 @@
                                 <gwt:HTML ui:field="trackCount" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
+                        <b:Row visible="false">
                             <b:Column size="MD_3" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
                                     Feature Density
