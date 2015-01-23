@@ -47,8 +47,8 @@ public class TrackPanel extends Composite {
 
     private String rootUrl;
 
-    @UiField
-    FlexTable configurationTable;
+//    @UiField
+//    FlexTable configurationTable;
 //    @UiField FlexTable trackTable;
 //    @UiField
 //    ListBox organismList;
@@ -100,16 +100,16 @@ public class TrackPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
-        configurationTable.setHTML(0, 0, "maxHeight"); ;
-        configurationTable.setHTML(0, 1, "1000");
-        configurationTable.setHTML(1, 0, "maxFeatureScreenDensity");
-        configurationTable.setHTML(1, 1, "0.5");
-        configurationTable.setHTML(2, 0, "maxDescriptionLength");
-        configurationTable.setHTML(2, 1, "70");
-        configurationTable.setHTML(3, 0, "label");
-        configurationTable.setHTML(3, 1, "Cflo_OGSv3.3");
-
-        configurationTable.setWidth("100%");
+//        configurationTable.setHTML(0, 0, "maxHeight"); ;
+//        configurationTable.setHTML(0, 1, "1000");
+//        configurationTable.setHTML(1, 0, "maxFeatureScreenDensity");
+//        configurationTable.setHTML(1, 1, "0.5");
+//        configurationTable.setHTML(2, 0, "maxDescriptionLength");
+//        configurationTable.setHTML(2, 1, "70");
+//        configurationTable.setHTML(3, 0, "label");
+//        configurationTable.setHTML(3, 1, "Cflo_OGSv3.3");
+//
+//        configurationTable.setWidth("100%");
 
 
 
