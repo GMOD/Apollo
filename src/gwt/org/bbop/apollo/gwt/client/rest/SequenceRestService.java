@@ -33,6 +33,7 @@ public class SequenceRestService {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
+                sequenceInfoList.clear();
 //                Window.alert("array size: "+array.size());
 
                 for(int i = 0 ; i < array.size() ; i++){

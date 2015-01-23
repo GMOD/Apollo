@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
@@ -14,6 +15,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 //import com.google.gwt.user.client.ui.ListBox;
@@ -47,7 +49,7 @@ public class TrackPanel extends Composite {
 
     private String rootUrl;
 
-//    @UiField
+    //    @UiField
 //    FlexTable configurationTable;
 //    @UiField FlexTable trackTable;
 //    @UiField
@@ -66,9 +68,11 @@ public class TrackPanel extends Composite {
 //    DataGrid<TrackInfo> dataGrid;
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-//    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
-    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 100, tablecss );
-    @UiField SplitLayoutPanel layoutPanel;
+    //    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
+    @UiField(provided = true)
+    DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(100, tablecss);
+    @UiField
+    SplitLayoutPanel layoutPanel;
     @UiField
     Tree optionTree;
 
@@ -91,7 +95,6 @@ public class TrackPanel extends Composite {
 //    private ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<TrackInfo>();
 
 
-
     public TrackPanel() {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
@@ -112,7 +115,6 @@ public class TrackPanel extends Composite {
 //        configurationTable.setWidth("100%");
 
 
-
 //        dataGrid = new CellTable<>();
         dataGrid.setWidth("100%");
 //        dataGrid.setAutoHeaderRefreshDisabled(true);
@@ -122,7 +124,7 @@ public class TrackPanel extends Composite {
         dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
         // TODO: on-click . . . if not Clicked
-        Column<TrackInfo,Boolean> showColumn = new Column<TrackInfo,Boolean>(new CheckboxCell(true,false)) {
+        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
 
 
             @Override
@@ -170,7 +172,6 @@ public class TrackPanel extends Composite {
         nameColumn.setSortable(true);
 
 
-
         TextColumn<TrackInfo> typeColumn = new TextColumn<TrackInfo>() {
             @Override
             public String getValue(TrackInfo employee) {
@@ -180,11 +181,10 @@ public class TrackPanel extends Composite {
         typeColumn.setSortable(true);
 
 
-
         dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(typeColumn, "Type");
-        dataGrid.setColumnWidth(0,"10%");
+        dataGrid.setColumnWidth(0, "10%");
         dataGrid.setSelectionModel(singleSelectionModel);
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -196,9 +196,11 @@ public class TrackPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
-        loadTracks(trackInfoList);
-//        DataGenerator.populateTrackList(trackInfoList);
-
+        Scheduler.get().scheduleDeferred(new Command() {
+            public void execute() {
+                reload();
+            }
+        });
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -232,7 +234,8 @@ public class TrackPanel extends Composite {
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
             @Override
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                loadTracks(trackInfoList);
+//                loadTracks(trackInfoList);
+                reload();
             }
 
         });
@@ -245,15 +248,14 @@ public class TrackPanel extends Composite {
     }
 
     private void setTrackInfo(TrackInfo selectedObject) {
-        selectedTrackInfo = selectedObject ;
-        if(selectedTrackInfo==null){
+        selectedTrackInfo = selectedObject;
+        if (selectedTrackInfo == null) {
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
 //            trackCount.setText("");
 //            trackDensity.setText("");
-        }
-        else{
+        } else {
             trackName.setText(selectedTrackInfo.getName());
             trackType.setText(selectedTrackInfo.getType());
             optionTree.clear();
@@ -265,41 +267,38 @@ public class TrackPanel extends Composite {
     }
 
     private void setOptionDetails(JSONObject jsonObject) {
-        for(String key : jsonObject.keySet()){
+        for (String key : jsonObject.keySet()) {
             TreeItem treeItem = new TreeItem();
             treeItem.setHTML(generateHtmlFromObject(jsonObject, key));
-            if(jsonObject.get(key).isObject()!=null){
+            if (jsonObject.get(key).isObject() != null) {
                 treeItem.addItem(generateTreeItem(jsonObject.get(key).isObject()));
             }
             optionTree.addItem(treeItem);
         }
     }
 
-    private String generateHtmlFromObject(JSONObject jsonObject,String key ) {
-        if(jsonObject.get(key)==null){
+    private String generateHtmlFromObject(JSONObject jsonObject, String key) {
+        if (jsonObject.get(key) == null) {
             return key;
-        }
-        else
-        if(jsonObject.get(key).isObject()!=null){
+        } else if (jsonObject.get(key).isObject() != null) {
             return key;
-        }
-        else{
-            return "<b>"+key+"</b>: "+jsonObject.get(key).toString().replace("\\","");
+        } else {
+            return "<b>" + key + "</b>: " + jsonObject.get(key).toString().replace("\\", "");
         }
     }
 
-    private TreeItem generateTreeItem(JSONObject jsonObject){
+    private TreeItem generateTreeItem(JSONObject jsonObject) {
         TreeItem treeItem = new TreeItem();
 
-        for(String key : jsonObject.keySet()) {
-            treeItem.setHTML(generateHtmlFromObject(jsonObject,key));
+        for (String key : jsonObject.keySet()) {
+            treeItem.setHTML(generateHtmlFromObject(jsonObject, key));
             if (jsonObject.get(key).isObject() != null) {
                 treeItem.addItem(generateTreeItem(jsonObject.get(key).isObject()));
             }
         }
 
 
-        return treeItem ;
+        return treeItem;
     }
 
 //    private native void publishUpdate(JSONObject jsonObject) /*-{
@@ -318,18 +317,28 @@ public class TrackPanel extends Composite {
 //    }-*/;
 
     @UiHandler("nameSearchBox")
-    public void doSearch(KeyUpEvent keyUpEvent){
-        filterList(trackInfoList);
+    public void doSearch(KeyUpEvent keyUpEvent) {
+        filterList();
     }
 
-    static void filterList(List<TrackInfo> trackInfoList) {
+    static void filterList() {
         String text = nameSearchBox.getText();
+        GWT.log("input list: " + trackInfoList.size());
         filteredTrackInfoList.clear();
-        for(TrackInfo trackInfo : trackInfoList ){
-            if(trackInfo.getName().toLowerCase().contains(text.toLowerCase()) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)){
+        GWT.log("FL A");
+        TrackInfo trackInfo;
+        GWT.log(trackInfoList.get(2).toString());
+        for (int i = 0; i < trackInfoList.size(); i++) {
+            GWT.log("B: " + i);
+//        for(TrackInfo trackInfo : trackInfoList ){
+            trackInfo = trackInfoList.get(i);
+            GWT.log("i: " + i + " - " + trackInfo);
+            if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);
+                GWT.log("adding?: " + filteredTrackInfoList.size() + " with: " + trackInfo);
             }
         }
+        GWT.log("filtered list: " + filteredTrackInfoList.size());
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
@@ -345,51 +354,51 @@ public class TrackPanel extends Composite {
     }-*/;
 
     public void reload() {
-//        JSONObject commandObject = new JSONObject();
-//        commandObject.put("command", new JSONString("list"));
-//        MainPanel.executeFunction("handleTrackVisibility", commandObject.getJavaScriptObject());
-        loadTracks(trackInfoList);
+        JSONObject commandObject = new JSONObject();
+        commandObject.put("command", new JSONString("list"));
+        MainPanel.executeFunction("handleTrackVisibility", commandObject.getJavaScriptObject());
+//        loadTracks(trackInfoList);
     }
 
-    public static void updateTracks(String jsonString){
-//        Window.alert("updating tracks: "+jsonString);
+    public static void updateTracks(String jsonString) {
+        GWT.log("updating tracks: " + jsonString);
         JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
-
-
-        updateTracks(returnValueObject,dataProvider.getList());
+        GWT.log("array size: " + returnValueObject.size());
+        updateTracks(returnValueObject);
+        GWT.log("updated yo");
 
     }
 
-    public static void updateTracks(JSONArray array, List<TrackInfo> trackInfoList){
+    public static void updateTracks(JSONArray array) {
         trackInfoList.clear();
 
-        for(int i = 0 ; i < array.size() ; i++){
+        for (int i = 0; i < array.size(); i++) {
             JSONObject object = array.get(i).isObject();
             TrackInfo trackInfo = new TrackInfo();
             trackInfo.setName(object.get("key").isString().stringValue());
             trackInfo.setLabel(object.get("label").isString().stringValue());
             trackInfo.setType(object.get("type").isString().stringValue());
-            if(object.get("visible")!=null){
+            if (object.get("visible") != null) {
                 trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
-            }
-            else{
+            } else {
                 trackInfo.setVisible(false);
             }
             // todo, don't need all of this really, for now . .
             trackInfo.setPayload(object);
-            if(object.get("urlTemplate")!=null){
+            if (object.get("urlTemplate") != null) {
                 trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
             }
             trackInfoList.add(trackInfo);
         }
-        filterList(trackInfoList);
+        GWT.log("info list: " + trackInfoList.size());
+        filterList();
     }
 
 
     public void loadTracks(final List<TrackInfo> trackInfoList) {
 
 //        String url = rootUrl+"/jbrowse/allTracks";
-        String url = rootUrl+"/jbrowse/data/trackList.json";
+        String url = rootUrl + "/jbrowse/data/trackList.json";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -398,7 +407,7 @@ public class TrackPanel extends Composite {
 //                GWT.log("response: "+response.getText());
                 JSONValue returnValue = JSONParser.parseLenient(response.getText());
                 JSONObject returnValueObject = returnValue.isObject();
-                updateTracks(returnValueObject.get("tracks").isArray(),trackInfoList);
+                updateTracks(returnValueObject.get("tracks").isArray());
             }
 
             @Override

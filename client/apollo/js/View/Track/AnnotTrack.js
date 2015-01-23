@@ -402,7 +402,7 @@ define([
                                     filteredTrackList.push(filteredTrack);
                                 }
 
-                                console.log('AnnotTrack::returning filterted track list: ' + filteredTrackList.length);
+                                console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
                                 window.parent.loadTracks(JSON.stringify(filteredTrackList));
                             };
 
