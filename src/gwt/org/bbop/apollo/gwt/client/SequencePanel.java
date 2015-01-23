@@ -174,6 +174,7 @@ public class SequencePanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
+                trackInfoList.clear();
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
 //                    GWT.log(object.toString());

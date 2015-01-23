@@ -14,7 +14,6 @@ class SequenceController {
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def sequenceService
-    def configWrapperService
 
     def permissions(){
 
