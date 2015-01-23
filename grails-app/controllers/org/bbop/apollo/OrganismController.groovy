@@ -133,7 +133,7 @@ class OrganismController {
         if (organism) {
             organism.commonName = organismJson.name
 
-            directoryChanged = organism.directory != organismJson.directory
+            directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
             println "directoryChanged ${directoryChanged}"
             try {
                 if (directoryChanged) {

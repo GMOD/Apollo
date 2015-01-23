@@ -74,6 +74,8 @@ public class OrganismPanel extends Composite {
     Button deleteButton;
     @UiField
     InputGroupAddon validDirectory;
+    @UiField
+    Button reloadButton;
 
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
@@ -292,9 +294,19 @@ public class OrganismPanel extends Composite {
         updateOrganismInfo();
     }
 
+    @UiHandler("reloadButton")
+    public void handleReloadButton(ClickEvent clickEvent) {
+        if(selectedOrganismInfo==null) return ;
+        GWT.log("reloading "+selectedOrganismInfo.getName());
+        updateOrganismInfo(true);
+    }
 
     private void updateOrganismInfo() {
-        OrganismRestService.updateOrganismInfo(selectedOrganismInfo);
+        updateOrganismInfo(false);
+    }
+
+    private void updateOrganismInfo(boolean forceReload) {
+        OrganismRestService.updateOrganismInfo(selectedOrganismInfo,forceReload);
     }
 
 

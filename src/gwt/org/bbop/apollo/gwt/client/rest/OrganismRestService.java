@@ -87,8 +87,9 @@ public class OrganismRestService {
         loadOrganisms(requestCallback);
     }
 
-    public static void updateOrganismInfo(final OrganismInfo organismInfo) {
+    public static void updateOrganismInfo(final OrganismInfo organismInfo,boolean forceReload) {
         JSONObject organismInfoObject = JSONParser.parseStrict(organismInfo.toJSON()).isObject();
+        organismInfoObject.put("forceReload",JSONBoolean.getInstance(forceReload));
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -102,7 +103,7 @@ public class OrganismRestService {
                 Window.alert("error updating organism inof: "+exception);
             }
         };
-        RestService.sendRequest(requestCallback,"/organism/updateOrganismInfo", "data="+organismInfoObject.toString());
+        RestService.sendRequest(requestCallback, "/organism/updateOrganismInfo", "data=" + organismInfoObject.toString());
     }
 
     public static void changeOrganism(final MainPanel mainPanel, String newOrganismId) {

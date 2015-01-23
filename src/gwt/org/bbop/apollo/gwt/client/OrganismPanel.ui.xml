@@ -94,6 +94,7 @@
                                     <b:InputGroupAddon>Annotations</b:InputGroupAddon>
                                     <b:InputGroupAddon ui:field="annotationCount" />
                                     <b:InputGroupAddon ui:field="validDirectory" visible="false" icon="CHECK" iconPosition="RIGHT" color="RED">trackList.json</b:InputGroupAddon>
+                                    <b:Button icon="REFRESH" ui:field="reloadButton"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>

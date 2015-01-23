@@ -335,7 +335,10 @@ public class MainPanel extends Composite {
 
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
+        GWT.log("should be registering function: "+name);
         annotrackFunctionMap.put(name, javaScriptObject);
+        GWT.log("regiested teh function: "+name);
+
     }
 
 
@@ -354,15 +357,20 @@ public class MainPanel extends Composite {
     }
 
     public static String executeFunction(String name, JavaScriptObject dataObject) {
+        GWT.log("should be executing a function of some sortL "+annotrackFunctionMap + " for name: "+name);
         JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
+        GWT.log("target function was null?: "+targetFunction);
         if (targetFunction == null) {
             return "function " + name + " not found";
         }
+        GWT.log("function found!: "+targetFunction);
         return executeFunction(targetFunction, dataObject);
     }
 
 
     public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
+        console.log('trying to execute a function: '+targetFunction );
+        console.log('with data: '+data);
         return targetFunction(data);
         //return 'executed';
     }-*/;
