@@ -87,7 +87,12 @@ class OrganismController {
         } else if (!refSeqFile.exists()) {
             log.error("Reference sequence file does not exists: " + refSeqFile.absolutePath)
             organism.valid = false
-        } else {
+        }
+        else if(!trackListFile.text.contains("WebApollo")){
+            log.error("Track is not WebApollo enabled: " + trackListFile.absolutePath)
+            organism.valid = false
+        }
+        else {
             organism.valid = true
         }
         return organism.valid
@@ -129,11 +134,10 @@ class OrganismController {
         println "jsonObject ${organismJson}"
         Organism organism = Organism.findById(organismJson.id)
         println "found an orgnaism ${organism}"
-        boolean directoryChanged = false
         if (organism) {
             organism.commonName = organismJson.name
 
-            directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
+            boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
             println "directoryChanged ${directoryChanged}"
             try {
                 if (directoryChanged) {
