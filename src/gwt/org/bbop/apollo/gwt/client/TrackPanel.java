@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -68,6 +69,8 @@ public class TrackPanel extends Composite {
 //    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
     @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 100, tablecss );
     @UiField SplitLayoutPanel layoutPanel;
+    @UiField
+    Tree optionTree;
 
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
@@ -246,15 +249,57 @@ public class TrackPanel extends Composite {
         if(selectedTrackInfo==null){
             trackName.setText("");
             trackType.setText("");
+            optionTree.clear();
 //            trackCount.setText("");
 //            trackDensity.setText("");
         }
         else{
             trackName.setText(selectedTrackInfo.getName());
             trackType.setText(selectedTrackInfo.getType());
+            optionTree.clear();
+            JSONObject jsonObject = selectedTrackInfo.getPayload();
+            setOptionDetails(jsonObject);
 //            trackCount.setText(selectedTrackInfo.get);
 //            trackDensity.setText("");
         }
+    }
+
+    private void setOptionDetails(JSONObject jsonObject) {
+        for(String key : jsonObject.keySet()){
+            TreeItem treeItem = new TreeItem();
+            treeItem.setHTML(generateHtmlFromObject(jsonObject, key));
+            if(jsonObject.get(key).isObject()!=null){
+                treeItem.addItem(generateTreeItem(jsonObject.get(key).isObject()));
+            }
+            optionTree.addItem(treeItem);
+        }
+    }
+
+    private String generateHtmlFromObject(JSONObject jsonObject,String key ) {
+        if(jsonObject.get(key)==null){
+            return key;
+        }
+        else
+        if(jsonObject.get(key).isObject()!=null){
+            return key;
+        }
+        else{
+            return "<b>"+key+"</b>: "+jsonObject.get(key).toString().replace("\\","");
+        }
+    }
+
+    private TreeItem generateTreeItem(JSONObject jsonObject){
+        TreeItem treeItem = new TreeItem();
+
+        for(String key : jsonObject.keySet()) {
+            treeItem.setHTML(generateHtmlFromObject(jsonObject,key));
+            if (jsonObject.get(key).isObject() != null) {
+                treeItem.addItem(generateTreeItem(jsonObject.get(key).isObject()));
+            }
+        }
+
+
+        return treeItem ;
     }
 
 //    private native void publishUpdate(JSONObject jsonObject) /*-{

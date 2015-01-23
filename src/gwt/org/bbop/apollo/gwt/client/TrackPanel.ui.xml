@@ -97,6 +97,17 @@
                                 <gwt:HTML ui:field="trackType" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
+                        <b:Row visible="true">
+                            <b:Column size="MD_3" >
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Configuration
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_7" >
+                                <gwt:Tree ui:field="optionTree" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+
                         <b:Row visible="false">
                             <b:Column size="MD_3" >
                                 <gwt:HTML styleName="{style.tableKeyName}">
