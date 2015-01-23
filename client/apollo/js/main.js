@@ -62,7 +62,7 @@ return declare( JBPlugin,
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', updateLabels);
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
 
 
 
@@ -284,8 +284,8 @@ return declare( JBPlugin,
 
 
     },
-    updateLabels: function() { 
-        if(browser.cookie("showTrackLabel")=="false") {
+    updateLabels: function() {
+        if(this.browser.cookie("showTrackLabel")=="false") {
             $('.track-label').hide();
         }
         else {
@@ -422,7 +422,6 @@ return declare( JBPlugin,
                 onClick: function(event) {
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
                     thisB.updateLabels()
-                    
                 }
             });
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
