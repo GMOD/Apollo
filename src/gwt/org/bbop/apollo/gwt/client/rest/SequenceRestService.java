@@ -2,14 +2,12 @@ package org.bbop.apollo.gwt.client.rest;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.MainPanel;
-import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 
 import java.util.List;
@@ -42,6 +40,9 @@ public class SequenceRestService {
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    if(object.get("default")!=null){
+                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
+                    }
                     sequenceInfoList.add(sequenceInfo);
                 }
             }
@@ -57,5 +58,22 @@ public class SequenceRestService {
             return ;
         }
         loadSequences(requestCallback);
+    }
+
+    public static void setDefaultSequence(final String sequenceName) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                GWT.log("sequence: "+response.getText());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                GWT.log("error setting sequence name: "+sequenceName);
+            }
+        };
+
+        RestService.sendRequest(requestCallback,"/sequence/setDefaultSequence/"+ MainPanel.currentOrganismId+"?sequenceName="+ sequenceName);
     }
 }

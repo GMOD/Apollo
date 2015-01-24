@@ -117,7 +117,6 @@ public class MainPanel extends Composite {
                 for (OrganismInfo organismInfo : organismInfoList) {
                     organismList.addItem(organismInfo.getName(), organismInfo.getId());
                 }
-//                loadOrganisms(organismList);
             }
         });
 
@@ -145,6 +144,7 @@ public class MainPanel extends Composite {
     @UiHandler("sequenceList")
     public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
         updateGenomicViewer();
+        SequenceRestService.setDefaultSequence(sequenceList.getText());
     }
 
     public void updateGenomicViewer() {
@@ -178,6 +178,7 @@ public class MainPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 sequenceOracle.clear();
+                sequenceList.setText("");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
@@ -195,14 +196,26 @@ public class MainPanel extends Composite {
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    if(object.get("default")!=null){
+                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
+                    }
                     sequenceOracle.add(sequenceInfo.getName());
-                    if (sequenceInfo.getName().equals(currentSequenceId)) {
+                    if (currentSequenceId!=null && sequenceInfo.getName().equals(currentSequenceId)) {
+                        GWT.log("setting name: "+currentSequenceId);
                         sequenceList.setText(sequenceInfo.getName());
                     }
+//                    else
+//                      if(sequenceList.getText().length()==0 && sequenceInfo.isDefault()) {
+//                          sequenceList.setText(sequenceInfo.getName());
+//                      }
                 }
+//                if(sequenceList.getText().trim().length()==0){
+//                    sequenceList.setText(array.get(0).object.get("name").isString().stringValue());
+//                }
 
                 ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(),organismList.getSelectedValue());
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
+//                reloadTabPerIndex(detailTabs.getSelectedIndex());
             }
 
             @Override
@@ -282,7 +295,11 @@ public class MainPanel extends Composite {
 
     @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
-        switch (event.getSelectedItem()) {
+        reloadTabPerIndex(event.getSelectedItem());
+    }
+
+    private void reloadTabPerIndex(Integer selectedItem) {
+        switch (selectedItem) {
             case 0:
                 annotatorPanel.reload();
                 break;
@@ -304,7 +321,6 @@ public class MainPanel extends Composite {
             default:
                 break;
         }
-
     }
 
 
@@ -337,7 +353,7 @@ public class MainPanel extends Composite {
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         GWT.log("should be registering function: "+name);
         annotrackFunctionMap.put(name, javaScriptObject);
-        GWT.log("regiested teh function: "+name);
+        GWT.log("regiested teh function: " + name);
 
     }
 

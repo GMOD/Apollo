@@ -7,6 +7,7 @@ public class SequenceInfo {
 
     private String name ;
     private Integer length ;
+    private boolean aDefault;
 
     public SequenceInfo(){
 
@@ -31,5 +32,13 @@ public class SequenceInfo {
 
     public void setLength(Integer length) {
         this.length = length;
+    }
+
+    public boolean isDefault() {
+        return aDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        this.aDefault = aDefault;
     }
 }

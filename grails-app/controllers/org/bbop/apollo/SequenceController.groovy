@@ -54,19 +54,26 @@ class SequenceController {
     def retrieveSequences(Organism organism){
     }
 
+    def setDefaultSequence(String sequenceName){
+        println "setting default sequences: ${params}"
+        request.session.setAttribute("defaultSequenceName",sequenceName)
+    }
+
     @Transactional
     def loadSequences(Organism organism) {
         println "loading sequences for organism ${organism}"
         if(!organism.sequences){
             sequenceService.loadRefSeqs(organism)
         }
+
+        String defaultName = request.session.getAttribute("defaultSequenceName")
+        println "defaultName retrieved? ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
         for(Sequence sequence in organism.sequences){
             JSONObject jsonObject = new JSONObject()
             jsonObject.put("name",sequence.name)
             jsonObject.put("length",sequence.length)
-//            jsonObject.put("name",sequence.name)
-
+            jsonObject.put("default",defaultName && defaultName==sequence.name)
             sequenceArray.put(jsonObject)
         }
 
