@@ -2795,7 +2795,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                             }
                                         }
                                     });
-                                    var gserv = 'http://golr.berkeleybop.org/';
+                                    // replaced with valid GOLR URL in build.xml file during copy process #148
+                                    //var gserv = 'http://golr.berkeleybop.org/';
+                                    var gserv = '@GOLR_URL@';
                                     var gconf = new bbop.golr.conf(amigo.data.golr);
                                     var args = {
                                             label_template: '{{annotation_class_label}} [{{annotation_class}}]',
