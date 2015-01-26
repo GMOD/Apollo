@@ -229,11 +229,11 @@
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
             <filterset>
-                <filter token="GOLR_URL" value="http://golr.berkeleybop.org/"/>
+                <!--<filter token="GOLR_URL" value="http://golr.berkeleybop.org/"/>-->
                 <!--Alternate GOLR URL's-->
-                <!--<filter token="GOLR_URL" value="http://golr.geneontology.org/"/>-->
-                <!--<filter token="GOLR_URL" value="http://a2-proxy1.stanford.edu:8080/solr/"/>-->
+                <filter token="GOLR_URL" value="http://a2-proxy1.stanford.edu:8080/solr/"/>
                 <!--<filter token="GOLR_URL" value="http://a2-proxy2.stanford.edu:8080/solr/"/>-->
+                <!--<filter token="GOLR_URL" value="http://golr.geneontology.org/"/>-->
             </filterset>
         </copy>
     </target>
