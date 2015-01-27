@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
@@ -41,8 +42,8 @@ public class AnnotatorPanel extends Composite {
 
     @UiField
     TextBox nameSearchBox;
-    @UiField
-    ListBox sequenceList;
+    @UiField(provided = true)
+    SuggestBox sequenceList;
     @UiField
     CheckBox cdsFilter;
     @UiField
@@ -61,8 +62,13 @@ public class AnnotatorPanel extends Composite {
     @UiField
     ExonDetailPanel exonDetailPanel;
 
+    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
+
     public AnnotatorPanel() {
+        sequenceList = new SuggestBox(sequenceOracle);
+
         Widget rootElement = ourUiBinder.createAndBindUi(this);
+
         initWidget(rootElement);
 
         geneDetailPanel.setVisible(false);
@@ -113,15 +119,17 @@ public class AnnotatorPanel extends Composite {
                 if(selectedSequenceName==null && array.size()>0){
                     selectedSequenceName = array.get(0).isObject().get("name").isString().stringValue();
                 }
-                sequenceList.clear();
+                sequenceOracle.clear();
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-                    sequenceList.addItem(sequenceInfo.getName());
+                    sequenceOracle.add(sequenceInfo.getName());
+//                    sequenceList.addItem(sequenceInfo.getName());
                     if(selectedSequenceName.equals(sequenceInfo.getName())){
-                        sequenceList.setSelectedIndex(i);
+                        sequenceList.setText(sequenceInfo.getName());
+//                        sequenceList.setSelectedIndex(i);
                     }
                 }
 
@@ -181,8 +189,8 @@ public class AnnotatorPanel extends Composite {
     }
 
     @UiHandler("sequenceList")
-    public void changeRefSequence(ChangeEvent changeEvent){
-        selectedSequenceName = sequenceList.getSelectedValue();
+    public void changeRefSequence(KeyUpEvent changeEvent){
+        selectedSequenceName = sequenceList.getText() ;
         reload();
     }
 
