@@ -4,7 +4,10 @@ require({
                { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
            ]
        },
-       [
+       [],
+       function() {
+define.amd.jQuery = true;
+define([
            'dojo/_base/declare',
            'dojo/dom-construct',
            'dojo/_base/array',
@@ -21,6 +24,7 @@ require({
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/Track/SequenceTrack',
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
@@ -28,9 +32,8 @@ require({
            'lazyload/lazyload'
        ],
     function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, SequenceTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
-define.amd.jQuery = true;
 
 return declare( JBPlugin,
 {
@@ -99,9 +102,9 @@ return declare( JBPlugin,
         var cds_frame_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="true"?true:false,
+                    checked: browser.cookie("colorCdsByFrame")=="1",
                     onClick: function(event) {
-                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"1":"0");
                         browser.view.redrawTracks();
                     }
                 });
@@ -140,15 +143,17 @@ return declare( JBPlugin,
         browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
+        console.log((browser.cookie("showTrackLabel")||"1")=="1",browser.cookie("showTrackLabel"));
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: browser.cookie("showTrackLabel"),
+                checked: (browser.cookie("showTrackLabel")||"1")=="1",
                 onClick: function(event) {
-                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                    browser.cookie("showTrackLabel",this.get("checked")?"1":"0");
                     thisB.updateLabels();
                 }
             });
+        this.updateLabels();
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
 
@@ -292,7 +297,7 @@ return declare( JBPlugin,
 
     },
     updateLabels: function() {
-        if(this.browser.cookie("showTrackLabel")=="false") {
+        if(this.browser.cookie("showTrackLabel")=="0") {
             $('.track-label').hide();
         }
         else {
@@ -307,7 +312,7 @@ return declare( JBPlugin,
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Hide plus strand",
-                    checked: (browser.cookie("plusStrandFilter")||"1")=="1",
+                    checked: browser.cookie("plusStrandFilter")=="1",
                     onClick: function(event) {
                         browser.cookie("plusStrandFilter",this.get("checked")?"1":"0");
                         thisB.strandFilter("plusStrandFilter",thisB.plusStrandFilter);
@@ -318,7 +323,7 @@ return declare( JBPlugin,
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Hide minus strand",
-                    checked: (browser.cookie("minusStandFilter")||"1")=="1",
+                    checked: (browser.cookie("minusStandFilter")||"0")=="1",
                     onClick: function(event) {
                         browser.cookie("minusStrandFilter",this.get("checked")?"1":"0");
                         thisB.strandFilter("minusStrandFilter",thisB.minusStrandFilter);
@@ -333,26 +338,23 @@ return declare( JBPlugin,
     strandFilter: function(name,callback) {
         var browser=this.browser;
         if(browser.cookie(name)=="1") {
-            browser.addFeatureFilter(callback,name)
+            browser.addFeatureFilter(callback,name);
         } else {
             browser.removeFeatureFilter(name);
         }
     },
     minusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == 1 || strand == '+')  { return true; }
-        else  { return false; }
+        return strand == 1 || strand == '+';
     },
 
     plusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == -1 || strand == '-')  { return true; }
-        else  { return false; }
+        return strand == -1 || strand == '-';
     },
     
         
     addNavigationOptions: function()  {
-        var thisB = this;
         var browser = this.browser;
         var select_Tracks = new dijitMenuItem(
             {
@@ -443,13 +445,12 @@ return declare( JBPlugin,
      */
     getAnnotTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
-            var tracks = this.browser.view.tracks;
-            for (var i = 0; i < tracks.length; i++)  {
-                // should be doing instanceof here, but class setup is not being cooperative
-                if (tracks[i].isWebApolloAnnotTrack)  {
-                    return tracks[i];
+            array.some(this.browser.view.tracks,function(track) {
+                console.log(track.isInstanceOf(AnnotTrack),track.parents);
+                if (track.isInstanceOf(AnnotTrack))  {
+                    return track;
                 }
-            }
+            });
         }
         return null;
     },
@@ -463,13 +464,11 @@ return declare( JBPlugin,
     getSequenceTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
             var tracks = this.browser.view.tracks;
-            for (var i = 0; i < tracks.length; i++)  {
-                // should be doing instanceof here, but class setup is not being cooperative
-                if (tracks[i].isWebApolloSequenceTrack)  {
-                    // console.log("seq track refseq: " + tracks[i].refSeq.name);
-                    return tracks[i];
+            array.some(tracks,function(track) {
+                if (track.isInstanceOf(SequenceTrack))  {
+                    return track;
                 }
-            }
+            });
         }
         return null;
     },
@@ -519,14 +518,9 @@ return declare( JBPlugin,
      *   E ==> [ { label: A }, { label: C } ]
      */
     removeItemWithLabel: function(inarray, label) {
-        var outarray = [];
-        for (var i=0; i<inarray.length; i++) {
-            var obj = inarray[i];
-            if (! (obj.label && (obj.label === label))) {
-                outarray.push(obj);
-            }
-        }
-        return outarray;
+        return array.filter(inarray,function(obj) {
+            return ! (obj.label && (obj.label === label));
+        });
     },
 
     setFavicon: function(favurl) {
@@ -556,4 +550,7 @@ return declare( JBPlugin,
 });
 
 });
+
+});
+
 

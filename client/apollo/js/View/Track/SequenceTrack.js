@@ -427,7 +427,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
                                 // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
                                 //    otherwise use more muted "frame" styling
-                                if (track.browser.cookie("colorCdsByFrame")=="true") {
+                                if (track.browser.cookie("colorCdsByFrame")=="1") {
                                     $(transProtein).addClass("cds-frame" + frame);
                                 }
                                 else  {
@@ -542,7 +542,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
                                 frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
                                 var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                if (track.browser.cookie("colorCdsByFrame")=="true") {
+                                if (track.browser.cookie("colorCdsByFrame")=="1") {
                                     $(transProtein).addClass("cds-frame" + frame);
                                 }
                                 else  {
