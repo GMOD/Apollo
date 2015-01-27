@@ -67,7 +67,6 @@ return declare( JBPlugin,
 
 
         if (browser.config.favicon) {
-            // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
         }
 
@@ -76,9 +75,6 @@ return declare( JBPlugin,
             browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;
         } );
 
-        if (! browser.config.helpUrl)  {
-            browser.config.helpUrl = "http://genomearchitect.org/webapollo/docs/help.html";
-        }
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
@@ -143,7 +139,6 @@ return declare( JBPlugin,
         browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
-        console.log((browser.cookie("showTrackLabel")||"1")=="1",browser.cookie("showTrackLabel"));
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
@@ -158,49 +153,14 @@ return declare( JBPlugin,
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
 
 
-        if (browser.config.show_nav) {
-            var jbrowseUrl = "http://jbrowse.org";
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_powered_by_jbrowse',
-                                            label: 'Powered by JBrowse',
-                                            // iconClass: 'jbrowseIconHelp', 
-                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_web_service_api',
-                        label: 'Web Service API',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_users_guide',
-                        label: 'Apollo User\'s Guide',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
-                        }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_version',
-                        label: 'Get Version',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("../version.jsp",'help_window').focus();
-                        }
-                    })
-            );
-        }
+        browser.config.aboutThisBrowser={
+            description:"This is WebApollo 1.0.4",
+            title:"WebApollo 1.0.4"
+        };
+        browser.config.quickHelp={
+            content:"This is the help guide",
+            title:"Help guide"
+        };
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -257,34 +217,6 @@ return declare( JBPlugin,
 
             // Initialize information editor with similar style to track selector
             var view = browser.view;
-            view.oldOnResize = view.onResize;
-
-             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-              *    bug appears in Chrome, not Firefox, unsure of other browsers
-              */
-            view.onResize = function() {
-                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
-                var oldCharSize = thisB.getSequenceCharacterSize();
-                var newCharSize = thisB.getSequenceCharacterSize(true);
-                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-                var charWidthChanged = (newCharSize.width != oldCharSize.width);
-                var charWidth = newCharSize.width;
-                if (charWidthChanged) {
-                    if (! browser.config.view) { browser.config.view = {}; }
-                    browser.config.view.maxPxPerBp = charWidth;
-                    view.maxPxPerBp = charWidth;
-                }
-                if (charWidthChanged && fullZoom) {
-                    view.pxPerBp = view.maxPxPerBp;
-                    view.oldOnResize();
-                    thisB.browserZoomFix(centerBp);
-                }
-                else  {
-                    view.oldOnResize();
-                }
-            };
-
             var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
                 constructor: function( args ) {
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
@@ -446,7 +378,6 @@ return declare( JBPlugin,
     getAnnotTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
             array.some(this.browser.view.tracks,function(track) {
-                console.log(track.isInstanceOf(AnnotTrack),track.parents);
                 if (track.isInstanceOf(AnnotTrack))  {
                     return track;
                 }
@@ -511,12 +442,6 @@ return declare( JBPlugin,
         return result;
     },
 
-    /** utility function, given an array with objects that have label props,
-     *        return array with all objects that don't have label
-     *   D = [ { label: A }, { label: B}, { label: C } ]
-     *   E = D.removeItemWithLabel("B");
-     *   E ==> [ { label: A }, { label: C } ]
-     */
     removeItemWithLabel: function(inarray, label) {
         return array.filter(inarray,function(obj) {
             return ! (obj.label && (obj.label === label));
