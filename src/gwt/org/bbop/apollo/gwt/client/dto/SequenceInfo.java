@@ -9,6 +9,7 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
 
     private AlphanumericSorter alphanumericSorter = new AlphanumericSorter();
 
+    private Long id ;
     private String name ;
     private Integer length ;
     private Integer start ;
@@ -32,6 +33,14 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
             return length ;
         }
         return -1 ;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Boolean isDefault() {

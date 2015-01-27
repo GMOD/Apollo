@@ -1,0 +1,6 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:gwt='urn:import:com.google.gwt.user.client.ui'>
+    <gwt:FlowPanel>
+        <gwt:HTML text="asdfasdf"/>
+    </gwt:FlowPanel>
+</ui:UiBinder>

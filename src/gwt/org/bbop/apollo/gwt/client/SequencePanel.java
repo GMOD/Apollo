@@ -6,6 +6,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
@@ -32,6 +33,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.event.ExportEvent;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -41,6 +43,7 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,6 +53,7 @@ import java.util.List;
  * Created by ndunn on 12/17/14.
  */
 public class SequencePanel extends Composite {
+
     interface SequencePanelUiBinder extends UiBinder<Widget, SequencePanel> {
     }
 
@@ -69,28 +73,35 @@ public class SequencePanel extends Composite {
 
     @UiField
     HTML sequenceName;
-//    @UiField
+    //    @UiField
 //    HTML sequenceStart;
 //    @UiField
 //    HTML sequenceStop;
     @UiField
-    Button exportGffButton;
+    Button exportAllButton;
     @UiField
-    Button exportChadoButton;
+    Button exportSelectedButton;
     @UiField
-    Button exportFastaButton;
+    Button exportSingleButton;
     @UiField
     TextBox nameSearchBox;
     @UiField
     org.gwtbootstrap3.client.ui.Label viewableLabel;
     @UiField
     HTML sequenceLength;
+    @UiField
+    Button exportGff3Button;
+    @UiField
+    Button exportFastaButton;
+    @UiField
+    Button exportChadoButton;
 
     private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
     private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
     private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
     private SingleSelectionModel<SequenceInfo> singleSelectionModel = new SingleSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
+    private Integer selectedCount = 0 ;
 
     public SequencePanel() {
         pager = new SimplePager(SimplePager.TextLocation.CENTER);
@@ -110,6 +121,16 @@ public class SequencePanel extends Composite {
         selectColumn.setFieldUpdater(new FieldUpdater<SequenceInfo, Boolean>() {
             @Override
             public void update(int index, SequenceInfo object, Boolean value) {
+                selectedCount += value ? 1 : -1 ;
+                if(selectedCount>0){
+                    exportSelectedButton.setEnabled(true);
+                    exportSelectedButton.setText("Selected ("+selectedCount+")");
+                }
+                else{
+                    selectedCount=0;
+                    exportSelectedButton.setEnabled(false);
+                    exportSelectedButton.setText("None Selected");
+                }
                 object.setSelected(value);
             }
         });
@@ -161,14 +182,14 @@ public class SequencePanel extends Composite {
                     }
                 }
         );
-        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>()  {
+        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
                     @Override
                     public int compare(SequenceInfo o1, SequenceInfo o2) {
                         return o1.compareTo(o2);
                     }
                 }
         );
-        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>()  {
+        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
                     @Override
                     public int compare(SequenceInfo o1, SequenceInfo o2) {
                         return o1.getLength() - o2.getLength();
@@ -176,31 +197,23 @@ public class SequencePanel extends Composite {
                 }
         );
 
-//        sortHandler.setComparator(thirdNameColumn, new Comparator<SequenceInfo>() {
-//            @Override
-//            public int compare(SequenceInfo o1, SequenceInfo o2) {
-//                return o1.getType().compareTo(o2.getType());
-//            }
-//        });
-
-//        sequenceName.setHTML("LG1");
-//        sequenceStart.setHTML("100");
-//        sequenceStop.setHTML("4234");
-
-
-        //        DataGenerator.populateOrganismList(organismList);
         loadOrganisms(organismList);
 
-        Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE, new
-
-                        SequenceLoadEventHandler() {
-                            @Override
-                            public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
-                                filterSequences();
-//                dataGrid.redraw();
-                            }
+        Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE,
+                new SequenceLoadEventHandler() {
+                    @Override
+                    public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
+                        filterSequences();
+                        if(sequenceInfoList.size()>0){
+                            exportAllButton.setEnabled(true);
+                            exportAllButton.setText("All ("+sequenceInfoList.size()+")");
                         }
-
+                        else{
+                            exportAllButton.setEnabled(false);
+                            exportAllButton.setText("None Available");
+                        }
+                    }
+                }
         );
 
     }
@@ -209,16 +222,14 @@ public class SequencePanel extends Composite {
         selectedSequenceInfo = selectedObject;
         if (selectedSequenceInfo == null) {
             sequenceName.setText("");
-//            sequenceStart.setText("");
-//            sequenceStop.setText("");
             sequenceLength.setText("");
-//            trackCount.setText("");
-//            trackDensity.setText("");
+            exportSingleButton.setEnabled(false);
+            exportSingleButton.setText("None");
         } else {
             sequenceName.setHTML(selectedSequenceInfo.getName());
-//            sequenceStart.setHTML(selectedSequenceInfo.getStart().toString());
-//            sequenceStop.setHTML(selectedSequenceInfo.getEnd().toString());
             sequenceLength.setText(selectedSequenceInfo.getLength().toString());
+            exportSingleButton.setEnabled(true);
+            exportSingleButton.setText(selectedSequenceInfo.getName());
         }
     }
 
@@ -227,10 +238,54 @@ public class SequencePanel extends Composite {
         filterSequences();
     }
 
+    @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
+    public void handleExportTypeChanged(ClickEvent clickEvent) {
+        exportGff3Button.setType(ButtonType.DEFAULT);
+        exportFastaButton.setType(ButtonType.DEFAULT);
+        exportChadoButton.setType(ButtonType.DEFAULT);
+        Button selectedButton = (Button) clickEvent.getSource();
+        switch (selectedButton.getText()){
+            case "GFF3":  exportGff3Button.setType(ButtonType.PRIMARY); break ;
+            case "FASTA":  exportFastaButton.setType(ButtonType.PRIMARY); break ;
+            case "CHADO":  exportChadoButton.setType(ButtonType.PRIMARY); break ;
+        }
+    }
 
     @UiHandler(value = {"organismList"})
     public void handleOrganismChange(ChangeEvent changeEvent) {
         reload();
+    }
+
+    private void exportValues(OrganismInfo organismInfo,List<SequenceInfo> sequenceInfoList){
+
+    }
+
+    @UiHandler("exportSelectedButton")
+    public void exportSelectedHandler(ClickEvent clickEvent) {
+
+    }
+
+    @UiHandler("exportSingleButton")
+    public void exportSingleHandler(ClickEvent clickEvent) {
+        ExportPanel exportPanel = new ExportPanel();
+        exportPanel.show();
+
+    }
+
+    @UiHandler("exportAllButton")
+    public void exportAllHandler(ClickEvent clickEvent) {
+        GWT.log("exporting gff3");
+        Integer organismId = Integer.parseInt(organismList.getSelectedValue());
+        List<SequenceInfo> selectedSequenceInfoArrayList = new ArrayList<>();
+        for (SequenceInfo sequenceInfo : sequenceInfoList) {
+            if (sequenceInfo.getSelected()) {
+                selectedSequenceInfoArrayList.add(sequenceInfo);
+            }
+        }
+        OrganismInfo organismInfo = new OrganismInfo();
+        organismInfo.setId(organismId.toString());
+        organismInfo.setName(organismList.getSelectedItemText());
+//        Annotator.eventBus.fireEvent(new ExportEvent(ExportEvent.Action.EXPORT_READY, ExportEvent.Flavor.GFF3, organismInfo, selectedSequenceInfoArrayList));
     }
 
 

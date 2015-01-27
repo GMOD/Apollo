@@ -8,6 +8,8 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.event.ExportEvent;
+import org.bbop.apollo.gwt.client.event.ExportEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 //import org.realityforge.gwt.websockets.client.WebSocket;
@@ -43,6 +45,16 @@ public class Annotator implements EntryPoint {
 //                List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
             }
         });
+
+//        Annotator.eventBus.addHandler(ExportEvent.TYPE, new ExportEventHandler() {
+//            @Override
+//            public void onExport(ExportEvent exportEvent) {
+//                GWT.log("handling gff3 export");
+////                popupPanel.setWidget(new Label("export GFF3"));
+////                popupPanel.setModal(true);
+////                popupPanel.show();
+//            }
+//        });
 
     }
 

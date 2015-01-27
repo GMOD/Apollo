@@ -25,9 +25,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
-import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
-import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
-import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.Button;
@@ -84,7 +82,7 @@ public class MainPanel extends Composite {
     @UiField
     static ListBox organismList;
     @UiField(provided = true)
-    static SuggestBox sequenceList ;
+    static SuggestBox sequenceList;
     @UiField
     FlowPanel westPanel;
     @UiField
@@ -121,7 +119,7 @@ public class MainPanel extends Composite {
         });
 
 //        detailTabs.selectTab(3);
-        detailTabs.selectTab(0);
+//                detailTabs.selectTab(0);
 
     }
 
@@ -171,7 +169,6 @@ public class MainPanel extends Composite {
 
     /**
      * could use an sequence callback . . . however, this element needs to use the callback directly.
-     *
      */
     public void loadReferenceSequences(final boolean loadFirstSequence) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -198,12 +195,12 @@ public class MainPanel extends Composite {
                     sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
                     sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
 //                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-                    if(object.get("default")!=null){
+                    if (object.get("default") != null) {
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }
                     sequenceOracle.add(sequenceInfo.getName());
-                    if (currentSequenceId!=null && sequenceInfo.getName().equals(currentSequenceId)) {
-                        GWT.log("setting name: "+currentSequenceId);
+                    if (currentSequenceId != null && sequenceInfo.getName().equals(currentSequenceId)) {
+                        GWT.log("setting name: " + currentSequenceId);
                         sequenceList.setText(sequenceInfo.getName());
                     }
 //                    else
@@ -215,7 +212,7 @@ public class MainPanel extends Composite {
 //                    sequenceList.setText(array.get(0).object.get("name").isString().stringValue());
 //                }
 
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(),organismList.getSelectedValue());
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(), organismList.getSelectedValue());
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
 //                reloadTabPerIndex(detailTabs.getSelectedIndex());
             }
@@ -226,7 +223,7 @@ public class MainPanel extends Composite {
             }
         };
         // TODO: move to a javscript function in iFrame?
-        SequenceRestService.loadSequences(requestCallback,MainPanel.currentOrganismId);
+        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
 
     }
 
@@ -258,7 +255,7 @@ public class MainPanel extends Composite {
                     organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    if(organismInfo.isCurrent()){
+                    if (organismInfo.isCurrent()) {
                         currentOrganismId = Long.parseLong(organismInfo.getId());
                         trackInfoList.setSelectedIndex(i);
                     }
@@ -353,7 +350,7 @@ public class MainPanel extends Composite {
 
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
-        GWT.log("should be registering function: "+name);
+        GWT.log("should be registering function: " + name);
         annotrackFunctionMap.put(name, javaScriptObject);
         GWT.log("regiested teh function: " + name);
 
@@ -375,20 +372,20 @@ public class MainPanel extends Composite {
     }
 
     public static String executeFunction(String name, JavaScriptObject dataObject) {
-        GWT.log("should be executing a function of some sortL "+annotrackFunctionMap + " for name: "+name);
+        GWT.log("should be executing a function of some sortL " + annotrackFunctionMap + " for name: " + name);
         JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
-        GWT.log("target function was null?: "+targetFunction);
+        GWT.log("target function was null?: " + targetFunction);
         if (targetFunction == null) {
             return "function " + name + " not found";
         }
-        GWT.log("function found!: "+targetFunction);
+        GWT.log("function found!: " + targetFunction);
         return executeFunction(targetFunction, dataObject);
     }
 
 
     public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
-        console.log('trying to execute a function: '+targetFunction );
-        console.log('with data: '+data);
+        console.log('trying to execute a function: ' + targetFunction);
+        console.log('with data: ' + data);
         return targetFunction(data);
         //return 'executed';
     }-*/;

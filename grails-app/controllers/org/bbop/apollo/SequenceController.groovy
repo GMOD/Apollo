@@ -71,6 +71,7 @@ class SequenceController {
         JSONArray sequenceArray = new JSONArray()
         for(Sequence sequence in organism.sequences){
             JSONObject jsonObject = new JSONObject()
+            jsonObject.put("id",sequence.id)
             jsonObject.put("name",sequence.name)
             jsonObject.put("length",sequence.length)
             jsonObject.put("start",sequence.start)
