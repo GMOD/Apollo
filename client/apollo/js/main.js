@@ -4,12 +4,6 @@ require({
                { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
            ]
        },
-       [],
-       function() {
-
-define.amd.jQuery = true;
-
-define(
        [
            'dojo/_base/declare',
            'dojo/dom-construct',
@@ -35,6 +29,8 @@ define(
        ],
     function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+
+define.amd.jQuery = true;
 
 return declare( JBPlugin,
 {
@@ -150,7 +146,7 @@ return declare( JBPlugin,
                 checked: browser.cookie("showTrackLabel"),
                 onClick: function(event) {
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                    thisB.updateLabels()
+                    thisB.updateLabels();
                 }
             });
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
@@ -303,63 +299,6 @@ return declare( JBPlugin,
             $('.track-label').show();
         }
     },
-
-    /**
-     *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-     *    bug appears in Chrome, not Firefox, unsure of other browsers
-     *    based on GenomeView.zoomToBaseLevel(), GenomeView.updateZoom(), then stripping away unneeded
-    */
-    browserZoomFix: function(pos) {
-        var view = this.browser.view;
-        if (view.animation) return;
-        var baseZoomIndex = view.zoomLevels.length - 1;
-        var zoomLoc = 0.5;
-        view.showWait();
-        view.trimVertical();
-        var relativeScale = view.zoomLevels[baseZoomIndex] / view.pxPerBp;
-        var fixedBp = pos;
-        view.curZoom = baseZoomIndex;
-        view.pxPerBp = view.zoomLevels[baseZoomIndex];
-        view.maxLeft = (view.pxPerBp * view.ref.end) - view.getWidth();
-
-        // needed, otherwise Density track can render wrong
-        //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
-        for (var track = 0; track < view.tracks.length; track++)
-            view.tracks[track].startZoom(view.pxPerBp,
-                                         fixedBp - ((zoomLoc * view.getWidth())
-                                                    / view.pxPerBp),
-                                         fixedBp + (((1 - zoomLoc) * view.getWidth())
-                                                    / view.pxPerBp));
-
-        var eWidth = view.elem.clientWidth;
-        var centerPx = view.bpToPx(fixedBp) - (zoomLoc * eWidth) + (eWidth / 2);
-        // stripeWidth: pixels per block
-        view.stripeWidth = view.stripeWidthForZoom(view.curZoom);
-        view.scrollContainer.style.width =
-            (view.stripeCount * view.stripeWidth) + "px";
-        view.zoomContainer.style.width =
-            (view.stripeCount * view.stripeWidth) + "px";
-        var centerStripe = Math.round(centerPx / view.stripeWidth);
-        var firstStripe = (centerStripe - ((view.stripeCount) / 2)) | 0;
-        view.offset = firstStripe * view.stripeWidth;
-        view.maxOffset = view.bpToPx(view.ref.end+1) - view.stripeCount * view.stripeWidth;
-        view.maxLeft = view.bpToPx(view.ref.end+1) - view.getWidth();
-        view.minLeft = view.bpToPx(view.ref.start);
-        view.zoomContainer.style.left = "0px";
-        view.setX((centerPx - view.offset) - (eWidth / 2));
-        dojo.forEach(view.uiTracks, function(track) { track.clear(); });
-
-        // needed, otherwise Density track can render wrong
-        //    possibly would have problems with other Canvas-based tracks too, though haven't seen in XYPlot yet
-        view.trackIterate( function(track) {
-            track.endZoom( view.pxPerBp,Math.round(view.stripeWidth / view.pxPerBp));
-        });
-
-        view.showVisibleBlocks(true);
-        view.showDone();
-        view.showCoarse();
-    },
-
 
     addStrandFilterOptions: function()  {
         var thisB = this;
@@ -618,4 +557,3 @@ return declare( JBPlugin,
 
 });
 
-});
