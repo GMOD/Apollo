@@ -80,6 +80,8 @@ public class SequencePanel extends Composite {
     Button exportFastaButton;
     @UiField
     TextBox nameSearchBox;
+    @UiField
+    org.gwtbootstrap3.client.ui.Label viewableLabel;
 
     private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
     private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
@@ -194,6 +196,7 @@ public class SequencePanel extends Composite {
         }
 
         GWT.log("filtered size: " + filteredSequenceList.size());
+        viewableLabel.setText(filteredSequenceList.size()+"");
 
     }
 
