@@ -109,13 +109,13 @@
                     <b:Column size="MD_7" marginTop="8">
                         <b:ButtonGroup>
                         <b:Button ui:field="exportAllButton" size="EXTRA_SMALL" text="All"/>
-                        <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected"/>
+                        <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected" enabled="false"/>
                         <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single"/>
                         </b:ButtonGroup>
                     </b:Column>
                     <b:Column size="MD_5" marginTop="8">
                         <b:ButtonGroup>
-                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button">GFF3</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY">GFF3</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton">FASTA</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton">CHADO</b:Button>
                         </b:ButtonGroup>

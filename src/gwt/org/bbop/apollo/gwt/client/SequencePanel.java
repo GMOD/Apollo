@@ -114,15 +114,12 @@ public class SequencePanel extends Composite {
             public void update(int index, SequenceInfo object, Boolean value) {
                 selectedCount += value ? 1 : -1 ;
                 if(selectedCount>0){
-                    exportSelectedButton.setEnabled(true);
-                    exportSelectedButton.setText("Selected ("+selectedCount+")");
                 }
                 else{
                     selectedCount=0;
-                    exportSelectedButton.setEnabled(false);
-                    exportSelectedButton.setText("None Selected");
                 }
                 object.setSelected(value);
+                updatedExportSelectedButton();
             }
         });
 
@@ -218,6 +215,17 @@ public class SequencePanel extends Composite {
 
     }
 
+    private void updatedExportSelectedButton() {
+        if(selectedCount>0){
+            exportSelectedButton.setEnabled(true);
+            exportSelectedButton.setText("Selected ("+selectedCount+")");
+        }
+        else{
+            exportSelectedButton.setEnabled(false);
+            exportSelectedButton.setText("None Selected");
+        }
+    }
+
     private void setSequenceInfo(SequenceInfo selectedObject) {
         selectedSequenceInfo = selectedObject;
         if (selectedSequenceInfo == null) {
@@ -256,32 +264,28 @@ public class SequencePanel extends Composite {
         reload();
     }
 
-    private void exportValues(OrganismInfo organismInfo,List<SequenceInfo> sequenceInfoList){
-
-    }
-
-    @UiHandler("exportSelectedButton")
-    public void exportSelectedHandler(ClickEvent clickEvent) {
-
-    }
-
-    @UiHandler("exportSingleButton")
-    public void exportSingleHandler(ClickEvent clickEvent) {
-        ExportPanel exportPanel = new ExportPanel();
-        exportPanel.show();
-
-    }
 
     @UiHandler("selectSelectedButton")
     public void handleSetSelections(ClickEvent clickEvent){
         GWT.log("selecting selected?");
-//        boolean allSelected =
 
         boolean allSelectionsSelected = findAllSelectionsSelected();
 
         for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
-            sequenceInfo.setSelected(!allSelectionsSelected);
+            if(allSelectionsSelected){
+                if(sequenceInfo.getSelected()){
+                    --selectedCount ;
+                }
+                sequenceInfo.setSelected(false);
+            }
+            else{
+                if(!sequenceInfo.getSelected()){
+                    ++selectedCount ;
+                }
+                sequenceInfo.setSelected(true);
+            }
         }
+        updatedExportSelectedButton();
         dataGrid.redraw();
     }
 
@@ -292,19 +296,60 @@ public class SequencePanel extends Composite {
         return true ;
     }
 
-    @UiHandler("exportAllButton")
-    public void exportAllHandler(ClickEvent clickEvent) {
-        GWT.log("exporting gff3");
+    private void exportValues(List<SequenceInfo> sequenceInfoList){
         Integer organismId = Integer.parseInt(organismList.getSelectedValue());
-        List<SequenceInfo> selectedSequenceInfoArrayList = new ArrayList<>();
-        for (SequenceInfo sequenceInfo : sequenceInfoList) {
-            if (sequenceInfo.getSelected()) {
-                selectedSequenceInfoArrayList.add(sequenceInfo);
-            }
-        }
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setId(organismId.toString());
         organismInfo.setName(organismList.getSelectedItemText());
+
+        // get the type based on the active button
+        String type = null  ;
+        if(exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)){
+            type = exportGff3Button.getText();
+        }
+        else
+        if(exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)){
+            type = exportFastaButton.getText();
+        }
+        else
+        if(exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)){
+            type = exportChadoButton.getText();
+        }
+
+        ExportPanel exportPanel = new ExportPanel();
+        exportPanel.setOrganismInfo(organismInfo);
+        exportPanel.setSequenceList(sequenceInfoList);
+        exportPanel.setType(type);
+        exportPanel.show();
+    }
+
+    @UiHandler("exportSelectedButton")
+    public void exportSelectedHandler(ClickEvent clickEvent) {
+        List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
+        for(SequenceInfo sequenceInfo : sequenceInfoList){
+            if(sequenceInfo.getSelected()){
+                sequenceInfoList1.add(sequenceInfo);
+            }
+        }
+
+        GWT.log("adding selected: "+sequenceInfoList1.size());
+        exportValues(sequenceInfoList1);
+    }
+
+    @UiHandler("exportSingleButton")
+    public void exportSingleHandler(ClickEvent clickEvent) {
+        SequenceInfo sequenceInfo= multiSelectionModel.getSelectedSet().iterator().next();
+        List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
+        sequenceInfoList1.add(sequenceInfo);
+        exportValues(sequenceInfoList1);
+
+    }
+
+    @UiHandler("exportAllButton")
+    public void exportAllHandler(ClickEvent clickEvent) {
+        GWT.log("exporting gff3");
+
+        exportValues(sequenceInfoList);
 //        Annotator.eventBus.fireEvent(new ExportEvent(ExportEvent.Action.EXPORT_READY, ExportEvent.Flavor.GFF3, organismInfo, selectedSequenceInfoArrayList));
     }
 
