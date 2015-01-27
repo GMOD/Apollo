@@ -173,30 +173,44 @@ public class SequencePanel extends Composite {
 
     }
 
-    @UiHandler("nameSearchBox")
+    @UiHandler(value={"nameSearchBox","minFeatureLength","maxFeatureLength"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         filterSequences();
     }
 
     private void filterSequences() {
-        GWT.log("original size: "+sequenceInfoList.size());
+        GWT.log("original size: " + sequenceInfoList.size());
         filteredSequenceList.clear();
 
         String nameText = nameSearchBox.getText().toLowerCase();
+        String minLengthText = minFeatureLength.getText();
+        String maxLengthText = maxFeatureLength.getText();
+        Long minLength = Long.MIN_VALUE;
+        Long maxLength = Long.MAX_VALUE;
 
-        if (nameText.length() > 0) {
-            for (SequenceInfo sequenceInfo : sequenceInfoList) {
-                if (sequenceInfo.getName().toLowerCase().contains(nameText)) {
-                    filteredSequenceList.add(sequenceInfo);
-                }
+
+        if (minLengthText.length() > 0) {
+            minLength = Long.parseLong(minLengthText);
+        }
+
+        if (maxLengthText.length() > 0) {
+            maxLength = Long.parseLong(maxLengthText);
+        }
+
+        for (SequenceInfo sequenceInfo : sequenceInfoList) {
+            if (sequenceInfo.getName().toLowerCase().contains(nameText)
+                  && sequenceInfo.getLength() >= minLength
+                    && sequenceInfo.getLength() <= maxLength
+                    ) {
+                filteredSequenceList.add(sequenceInfo);
             }
         }
-        else {
-            filteredSequenceList.addAll(sequenceInfoList);
-        }
+//        else {
+//            filteredSequenceList.addAll(sequenceInfoList);
+//        }
 
         GWT.log("filtered size: " + filteredSequenceList.size());
-        viewableLabel.setText(filteredSequenceList.size()+"");
+        viewableLabel.setText(filteredSequenceList.size() + "");
 
     }
 
