@@ -1,15 +1,16 @@
 define( [
     'dojo/_base/declare',
-    'JBrowse/Store/Sequence/StaticChunked', 
+    'JBrowse/Store/Sequence/StaticChunked',
+    'JBrowse/View/Track/Sequence',
     'WebApollo/Store/SeqFeature/ScratchPad', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojox/widget/Standby'
      ],
-function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
+function( declare, StaticChunked, SequenceTrack, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
 
-    var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
+    var SequenceTrack = declare( "SequenceTrack", [DraggableFeatureTrack, SequenceTrack],
 
 {
 
@@ -41,17 +42,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         this.residuesMouseDown = function(event) {
             track.onResiduesMouseDown(event);
         };
-
-//        this.charSize = this.webapollo.getSequenceCharacterSize();
-        //        this.charWidth = this.charSize.charWidth;
-        //        this.seqHeight = this.charSize.seqHeight;
-
-        // splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible 
-        //    for DNA residues and protein translation to be different styles
-        //        this.dnaHeight = this.seqHeight;
-        //        this.proteinHeight = this.seqHeight;
-
-        // this.refSeq = refSeq;  already assigned in BlockBased superclass
+        if(!this.browser.config.view) this.browser.config.view={};
+        this.browser.config.view.maxPxPerBp = SequenceTrack.getCharacterSize('wa-sequence').width;
 
         if (this.store.name == 'refseqs') {
             this.sequenceStore = this.store;
@@ -255,8 +247,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     },
 
     endZoom: function(destScale, destBlockBases) {
-//        var charSize = this.getCharacterMeasurements();
-        var charSize = this.webapollo.getSequenceCharacterSize();
+        var charSize = SequenceTrack.getCharacterSize('wa-sequence');
 
         if( ( destScale == charSize.width ) ||
             this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0)) {
@@ -285,8 +276,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         this.inherited( arguments );
 
-//        var charSize = this.getCharacterMeasurements();
-        var charSize = this.webapollo.getSequenceCharacterSize();
+        var charSize = SequenceTrack.getCharacterSize('wa-sequence');
         if ( (scale == charSize.width ) ||
             this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
@@ -341,7 +331,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 track.stopStandby();
             };
         
-        var charSize = this.webapollo.getSequenceCharacterSize();
+        var charSize = SequenceTrack.getCharacterSize('wa-sequence');
         if ((scale == charSize.width) ||
                 this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
             this.show();
@@ -595,13 +585,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
 
-        // need to decrease the left boundary by 1% to properly overlay
-        //        var left = /-?\d+/.exec($(featDiv).css("left"));
-        //        if (left >= 0) {
-        //                $(featDiv).css("left", (left - 1) + "%");
-        //        }
-        //        var charSize = this.getCharacterMeasurements();
-        var charSize = this.webapollo.getSequenceCharacterSize();
+        var charSize = SequenceTrack.getCharacterSize('wa-sequence');
 
         var seqNode = $("div.wa-sequence", block.domNode).get(0);
         featDiv.style.top = "0px";

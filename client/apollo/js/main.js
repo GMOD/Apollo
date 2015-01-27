@@ -70,12 +70,6 @@ return declare( JBPlugin,
             this.setFavicon(browser.config.favicon);
         }
 
-        args.cssLoaded.then( function() {
-            if (! browser.config.view) { browser.config.view = {}; }
-            browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;
-        } );
-
-
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
 
@@ -92,75 +86,19 @@ return declare( JBPlugin,
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
-        this.addNavigationOptions();
 
-        // add a global menu option for setting CDS color
-        var cds_frame_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="1",
-                    onClick: function(event) {
-                        browser.cookie("colorCdsByFrame", this.get("checked")?"1":"0");
-                        browser.view.redrawTracks();
-                    }
-                });
-        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
-
-        var css_frame_menu = new dijitMenu();
-
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Light",
-                    onClick: function (event) {
-                        browser.cookie("Scheme","Light");
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Dark",
-                    onClick: function (event) {
-                        browser.cookie("Scheme","Dark");
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-
-
-        var css_frame_toggle = new dijitPopupMenuItem(
-            {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
-            });
-
-        browser.addGlobalMenuItem('view', css_frame_toggle);
-
-        this.addStrandFilterOptions();
-        var hide_track_label_toggle = new dijitCheckedMenuItem(
-            {
-                label: "Show track label",
-                checked: (browser.cookie("showTrackLabel")||"1")=="1",
-                onClick: function(event) {
-                    browser.cookie("showTrackLabel",this.get("checked")?"1":"0");
-                    thisB.updateLabels();
-                }
-            });
-        this.updateLabels();
-        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-
-
-        browser.config.aboutThisBrowser={
-            description:"This is WebApollo 1.0.4",
-            title:"WebApollo 1.0.4"
-        };
-        browser.config.quickHelp={
-            content:"This is the help guide",
-            title:"Help guide"
-        };
+        if(!browser.config.aboutThisBrowser) {
+            browser.config.aboutThisBrowser={
+                description:"This is WebApollo 1.0.4",
+                title:"WebApollo 1.0.4"
+            };
+        }
+        if(!browser.config.quickHelp) {
+            browser.config.quickHelp={
+                content:"This is the help guide",
+                title:"Help guide"
+            };
+        }
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -191,45 +129,29 @@ return declare( JBPlugin,
         //
         array.forEach(browser.config.tracks,function(e) { thisB.trackTransformer.transform(e); });
 
-        // update track selector to WebApollo's if needed
-        // if no track selector set, use WebApollo's Hierarchical selector
         if (!browser.config.trackSelector) {
             browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
         }
-        // if using JBrowse's Hierarchical selector, switch to WebApollo's
         else if (browser.config.trackSelector.type == "Hierarchical") {
             browser.config.trackSelector.type = 'WebApollo/View/TrackList/Hierarchical';
         }
-        // if using JBrowse's Hierarchical selector, switch to WebApollo's
         else if (browser.config.trackSelector.type == "Faceted") {
             browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
         }
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-            // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
-                dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
-                browser.poweredByLink.href = 'http://genomearchitect.org/';
-                browser.poweredByLink.target = "_blank";
             }
 
             // Initialize information editor with similar style to track selector
-            var view = browser.view;
-            var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
-                constructor: function( args ) {
-                    this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
-                }
-            });
-            browser.fileDialog.addFileTypeDriver(new customGff3Driver());
-
+            browser.fileDialog.addFileTypeDriver(new GFF3Driver());
         });
-
-
     },
     updateLabels: function() {
-        if(this.browser.cookie("showTrackLabel")=="0") {
+        var browser=this.browser;
+        if(browser.cookie("showTrackLabel")=="0") {
             $('.track-label').hide();
         }
         else {
@@ -238,8 +160,25 @@ return declare( JBPlugin,
     },
 
     addStrandFilterOptions: function()  {
+        var browser=this.browser;
         var thisB = this;
-        var browser = this.browser;
+
+        var strandFilter = function(name,callback) {
+            if(browser.cookie(name)=="1") {
+                browser.addFeatureFilter(callback,name);
+            } else {
+                browser.removeFeatureFilter(name);
+            }
+        };
+        var minusStrandFilter = function(feature)  {
+            var strand = feature.get('strand');
+            return strand == 1 || strand == '+';
+        };
+
+        var plusStrandFilter = function(feature)  {
+            var strand = feature.get('strand');
+            return strand == -1 || strand == '-';
+        };
 
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
@@ -251,11 +190,10 @@ return declare( JBPlugin,
                         browser.view.redrawTracks();
                     }
                 });
-        browser.addGlobalMenuItem( 'view', plus_strand_toggle );
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Hide minus strand",
-                    checked: (browser.cookie("minusStandFilter")||"0")=="1",
+                    checked: browser.cookie("minusStandFilter")=="1",
                     onClick: function(event) {
                         browser.cookie("minusStrandFilter",this.get("checked")?"1":"0");
                         thisB.strandFilter("minusStrandFilter",thisB.minusStrandFilter);
@@ -263,27 +201,12 @@ return declare( JBPlugin,
                     }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
+        browser.addGlobalMenuItem( 'view', plus_strand_toggle );
 
         this.strandFilter("minusStrandFilter",this.minusStrandFilter);
         this.strandFilter("plusStrandFilter",this.plusStrandFilter);
     },
-    strandFilter: function(name,callback) {
-        var browser=this.browser;
-        if(browser.cookie(name)=="1") {
-            browser.addFeatureFilter(callback,name);
-        } else {
-            browser.removeFeatureFilter(name);
-        }
-    },
-    minusStrandFilter: function(feature)  {
-        var strand = feature.get('strand');
-        return strand == 1 || strand == '+';
-    },
-
-    plusStrandFilter: function(feature)  {
-        var strand = feature.get('strand');
-        return strand == -1 || strand == '-';
-    },
+    
     
         
     addNavigationOptions: function()  {
@@ -404,44 +327,6 @@ return declare( JBPlugin,
         return null;
     },
 
-
-    /** ported from berkeleybop/jbrowse GenomeView.js
-      * returns char height/width on GenomeView
-      */
-    getSequenceCharacterSize: function(recalc)  {
-        var container = this.browser.container;
-        if (this.browser.view && this.browser.view.elem)  {
-            container = this.browser.view.elem;
-        }
-        if (recalc || (! this._charSize))  {
-            //            this._charSize = this.calculateSequenceCharacterSize(this.browser.view.elem);
-            this._charSize = this.calculateSequenceCharacterSize(container);
-        }
-        return this._charSize;
-    },
-
-    /**
-     * ported from berkeleybop/jbrowse GenomeView.js
-     * Conducts a test with DOM elements to measure sequence text width
-     * and height.
-     */
-    calculateSequenceCharacterSize: function( containerElement ) {
-        var widthTest = document.createElement("div");
-        widthTest.className = "wa-sequence";
-        widthTest.style.visibility = "hidden";
-        var widthText = "12345678901234567890123456789012345678901234567890";
-        widthTest.appendChild(document.createTextNode(widthText));
-        containerElement.appendChild(widthTest);
-
-        var result = {
-            width:  widthTest.clientWidth / widthText.length,
-            height: widthTest.clientHeight
-        };
-
-        containerElement.removeChild(widthTest);
-        return result;
-    },
-
     removeItemWithLabel: function(inarray, label) {
         return array.filter(inarray,function(obj) {
             return ! (obj.label && (obj.label === label));
@@ -469,6 +354,69 @@ return declare( JBPlugin,
 
         $head.prepend(favicon1);
         $head.prepend(favicon2);
+    },
+    createMenu: function() {
+        this.addNavigationOptions();
+
+        // add a global menu option for setting CDS color
+        var cds_frame_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Color by CDS frame",
+                    checked: browser.cookie("colorCdsByFrame")=="1",
+                    onClick: function(event) {
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"1":"0");
+                        browser.view.redrawTracks();
+                    }
+                });
+        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Light");
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Dark");
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
+
+        this.addStrandFilterOptions();
+        var hide_track_label_toggle = new dijitCheckedMenuItem(
+            {
+                label: "Show track label",
+                checked: (browser.cookie("showTrackLabel")||"1")=="1",
+                onClick: function(event) {
+                    browser.cookie("showTrackLabel",this.get("checked")?"1":"0");
+                    thisB.updateLabels();
+                }
+            });
+        this.updateLabels();
+        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+
+
     }
 
 
