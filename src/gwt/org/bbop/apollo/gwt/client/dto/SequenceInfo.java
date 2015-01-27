@@ -11,8 +11,8 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
 
     private String name ;
     private Integer length ;
-    private Boolean selected;
-    private Boolean aDefault;
+    private Boolean selected = false ;
+    private Boolean aDefault = false ;
 
     public SequenceInfo(){
 

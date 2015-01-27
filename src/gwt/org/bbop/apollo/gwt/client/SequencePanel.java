@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -63,7 +64,7 @@ public class SequencePanel extends Composite {
     @UiField(provided = true)
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
-    SimplePager pager = null ;
+    SimplePager pager = null;
 
     @UiField
     HTML sequenceName;
@@ -93,7 +94,20 @@ public class SequencePanel extends Composite {
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
 
-//        final SelectionModel<SequenceInfo> selectionModel = new SingleSelectionModel<SequenceInfo>();
+        Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
+            @Override
+            public Boolean getValue(SequenceInfo object) {
+                return object.getSelected();
+            }
+        };
+        selectColumn.setSortable(true);
+
+        selectColumn.setFieldUpdater(new FieldUpdater<SequenceInfo, Boolean>() {
+            @Override
+            public void update(int index, SequenceInfo object, Boolean value) {
+                object.setSelected(value);
+            }
+        });
 
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
@@ -111,45 +125,43 @@ public class SequencePanel extends Composite {
         };
         lengthColumn.setSortable(true);
 
-        Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
 
-            @Override
-            public Boolean getValue(SequenceInfo object) {
-                return object.getSelected();
-            }
-        };
-        selectColumn.setSortable(true);
-//        thirdNameColumn.setSortable(true);
-
-
-//        dataGrid.addColumn(selectColumn, "Select");
-        dataGrid.addColumn(selectColumn, "");
+        dataGrid.addColumn(selectColumn, "Selected");
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.setColumnWidth(0, "30px");
+        dataGrid.setColumnWidth(0, "100px");
 
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
 
 
-        SequenceRestService.loadSequences(sequenceInfoList,MainPanel.currentOrganismId);
+        SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
 
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
-            @Override
-            public int compare(SequenceInfo o1, SequenceInfo o2) {
-//                return o1.getName().compareTo(o2.getName());
-                return o1.compareTo(o2);
-            }
-        });
-        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
-            @Override
-            public int compare(SequenceInfo o1, SequenceInfo o2) {
-                return o1.getLength() - o2.getLength();
-            }
-        });
+
+        sortHandler.setComparator(selectColumn, new Comparator<SequenceInfo>()  {
+                    @Override
+                    public int compare(SequenceInfo o1, SequenceInfo o2) {
+                        return o1.getSelected().compareTo(o2.getSelected());
+                    }
+                }
+        );
+        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>()  {
+                    @Override
+                    public int compare(SequenceInfo o1, SequenceInfo o2) {
+                        return o1.compareTo(o2);
+                    }
+                }
+        );
+        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>()  {
+                    @Override
+                    public int compare(SequenceInfo o1, SequenceInfo o2) {
+                        return o1.getLength() - o2.getLength();
+                    }
+                }
+        );
 
 //        sortHandler.setComparator(thirdNameColumn, new Comparator<SequenceInfo>() {
 //            @Override
@@ -163,26 +175,30 @@ public class SequencePanel extends Composite {
         sequenceStop.setHTML("4234");
 
 
-//        DataGenerator.populateOrganismList(organismList);
+        //        DataGenerator.populateOrganismList(organismList);
         loadOrganisms(organismList);
 
-        Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE, new SequenceLoadEventHandler() {
-            @Override
-            public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
-                filterSequences();
+        Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE, new
+
+                        SequenceLoadEventHandler() {
+                            @Override
+                            public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
+                                filterSequences();
 //                dataGrid.redraw();
-            }
-        });
+                            }
+                        }
+
+        );
 
     }
 
-    @UiHandler(value={"nameSearchBox","minFeatureLength","maxFeatureLength"})
+    @UiHandler(value = {"nameSearchBox", "minFeatureLength", "maxFeatureLength"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         filterSequences();
     }
 
 
-    @UiHandler(value={"organismList"})
+    @UiHandler(value = {"organismList"})
     public void handleOrganismChange(ChangeEvent changeEvent) {
         reload();
     }
@@ -209,7 +225,7 @@ public class SequencePanel extends Composite {
 
         for (SequenceInfo sequenceInfo : sequenceInfoList) {
             if (sequenceInfo.getName().toLowerCase().contains(nameText)
-                  && sequenceInfo.getLength() >= minLength
+                    && sequenceInfo.getLength() >= minLength
                     && sequenceInfo.getLength() <= maxLength
                     ) {
                 filteredSequenceList.add(sequenceInfo);
@@ -263,14 +279,13 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
-        GWT.log("item count: "+organismList.getItemCount());
-        if(organismList.getItemCount()>0){
+        GWT.log("item count: " + organismList.getItemCount());
+        if (organismList.getItemCount() > 0) {
             Long organismListId = Long.parseLong(organismList.getSelectedValue());
-            GWT.log("list id: "+organismListId);
-            SequenceRestService.loadSequences(sequenceInfoList,organismListId);
-        }
-        else{
-            SequenceRestService.loadSequences(sequenceInfoList,MainPanel.currentOrganismId);
+            GWT.log("list id: " + organismListId);
+            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
+        } else {
+            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
         }
     }
 
