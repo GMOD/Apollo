@@ -195,7 +195,9 @@ public class MainPanel extends Composite {
                     JSONObject object = array.get(i).isObject();
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
-                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
+                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
+//                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
                     if(object.get("default")!=null){
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }

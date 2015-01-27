@@ -145,24 +145,34 @@
                                 <gwt:HTML ui:field="sequenceName" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
+                        <!--<b:Row>-->
+                            <!--<b:Column size="MD_2">-->
+                                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                                    <!--Start-->
+                                <!--</gwt:HTML>-->
+                            <!--</b:Column>-->
+                            <!--<b:Column size="MD_2">-->
+                                <!--<gwt:HTML ui:field="sequenceStart" styleName="{style.tableValue}"/>-->
+                            <!--</b:Column>-->
+                        <!--</b:Row>-->
+                        <!--<b:Row>-->
+                            <!--<b:Column size="MD_2">-->
+                                <!--<gwt:HTML styleName="{style.tableKeyName}">-->
+                                    <!--Stop-->
+                                <!--</gwt:HTML>-->
+                            <!--</b:Column>-->
+                            <!--<b:Column size="MD_2">-->
+                                <!--<gwt:HTML ui:field="sequenceStop" styleName="{style.tableValue}"/>-->
+                            <!--</b:Column>-->
+                        <!--</b:Row>-->
                         <b:Row>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}">
-                                    Start
+                                    Length
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_2">
-                                <gwt:HTML ui:field="sequenceStart" styleName="{style.tableValue}"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Stop
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_2">
-                                <gwt:HTML ui:field="sequenceStop" styleName="{style.tableValue}"/>
+                                <gwt:HTML ui:field="sequenceLength" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>

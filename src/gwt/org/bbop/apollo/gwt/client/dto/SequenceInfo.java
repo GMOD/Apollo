@@ -11,17 +11,10 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
 
     private String name ;
     private Integer length ;
+    private Integer start ;
+    private Integer end ;
     private Boolean selected = false ;
     private Boolean aDefault = false ;
-
-    public SequenceInfo(){
-
-    }
-
-    public SequenceInfo(String name){
-        this.name = name ;
-        this.length = (int) Math.round(Math.random()*1000);
-    }
 
     public String getName() {
         return name;
@@ -32,11 +25,13 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
     }
 
     public Integer getLength() {
-        return length;
-    }
-
-    public void setLength(Integer length) {
-        this.length = length;
+        if(end!=null && start!=null){
+            return end-start;
+        }
+        if(length!=null){
+            return length ;
+        }
+        return -1 ;
     }
 
     public Boolean isDefault() {
@@ -53,6 +48,26 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public Integer getEnd() {
+        return end;
+    }
+
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
+
+    public void setLength(Integer length) {
+        this.length = length;
     }
 
     @Override

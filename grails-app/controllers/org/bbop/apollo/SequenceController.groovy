@@ -50,9 +50,9 @@ class SequenceController {
     def create() {
         respond new Sequence(params)
     }
-
-    def retrieveSequences(Organism organism){
-    }
+//
+//    def retrieveSequences(Organism organism){
+//    }
 
     def setDefaultSequence(String sequenceName){
         println "setting default sequences: ${params}"
@@ -73,6 +73,8 @@ class SequenceController {
             JSONObject jsonObject = new JSONObject()
             jsonObject.put("name",sequence.name)
             jsonObject.put("length",sequence.length)
+            jsonObject.put("start",sequence.start)
+            jsonObject.put("end",sequence.end)
             jsonObject.put("default",defaultName && defaultName==sequence.name)
             sequenceArray.put(jsonObject)
         }

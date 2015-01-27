@@ -41,6 +41,8 @@ public class SequenceRestService {
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    sequenceInfo.setStart((int) object.get("start").isNumber().isNumber().doubleValue());
+                    sequenceInfo.setEnd((int) object.get("end").isNumber().isNumber().doubleValue());
                     if(object.get("default")!=null){
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }

@@ -26,6 +26,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
@@ -68,10 +69,10 @@ public class SequencePanel extends Composite {
 
     @UiField
     HTML sequenceName;
-    @UiField
-    HTML sequenceStart;
-    @UiField
-    HTML sequenceStop;
+//    @UiField
+//    HTML sequenceStart;
+//    @UiField
+//    HTML sequenceStop;
     @UiField
     Button exportGffButton;
     @UiField
@@ -82,10 +83,14 @@ public class SequencePanel extends Composite {
     TextBox nameSearchBox;
     @UiField
     org.gwtbootstrap3.client.ui.Label viewableLabel;
+    @UiField
+    HTML sequenceLength;
 
     private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
     private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
     private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
+    private SingleSelectionModel<SequenceInfo> singleSelectionModel = new SingleSelectionModel<SequenceInfo>();
+    private SequenceInfo selectedSequenceInfo = null;
 
     public SequencePanel() {
         pager = new SimplePager(SimplePager.TextLocation.CENTER);
@@ -130,7 +135,15 @@ public class SequencePanel extends Composite {
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.setColumnWidth(0, "100px");
+        dataGrid.setColumnWidth(0, "50px");
+
+        dataGrid.setSelectionModel(singleSelectionModel);
+        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                setSequenceInfo(singleSelectionModel.getSelectedObject());
+            }
+        });
 
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
@@ -141,7 +154,7 @@ public class SequencePanel extends Composite {
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
 
-        sortHandler.setComparator(selectColumn, new Comparator<SequenceInfo>()  {
+        sortHandler.setComparator(selectColumn, new Comparator<SequenceInfo>() {
                     @Override
                     public int compare(SequenceInfo o1, SequenceInfo o2) {
                         return o1.getSelected().compareTo(o2.getSelected());
@@ -170,9 +183,9 @@ public class SequencePanel extends Composite {
 //            }
 //        });
 
-        sequenceName.setHTML("LG1");
-        sequenceStart.setHTML("100");
-        sequenceStop.setHTML("4234");
+//        sequenceName.setHTML("LG1");
+//        sequenceStart.setHTML("100");
+//        sequenceStop.setHTML("4234");
 
 
         //        DataGenerator.populateOrganismList(organismList);
@@ -190,6 +203,23 @@ public class SequencePanel extends Composite {
 
         );
 
+    }
+
+    private void setSequenceInfo(SequenceInfo selectedObject) {
+        selectedSequenceInfo = selectedObject;
+        if (selectedSequenceInfo == null) {
+            sequenceName.setText("");
+//            sequenceStart.setText("");
+//            sequenceStop.setText("");
+            sequenceLength.setText("");
+//            trackCount.setText("");
+//            trackDensity.setText("");
+        } else {
+            sequenceName.setHTML(selectedSequenceInfo.getName());
+//            sequenceStart.setHTML(selectedSequenceInfo.getStart().toString());
+//            sequenceStop.setHTML(selectedSequenceInfo.getEnd().toString());
+            sequenceLength.setText(selectedSequenceInfo.getLength().toString());
+        }
     }
 
     @UiHandler(value = {"nameSearchBox", "minFeatureLength", "maxFeatureLength"})
