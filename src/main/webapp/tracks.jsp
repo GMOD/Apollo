@@ -26,19 +26,15 @@
     <script src="jslib/jquery-ui-menubar/jquery.ui.menu.js"></script>
     <script src="jslib/jquery-ui-menubar/jquery.ui.menubar.js"></script>
     <script src="jslib/jquery-ui-menubar/jquery.ui.dialog.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="jslib/DataTables/js/jquery.dataTables.js"></script>
     <script type="text/javascript" src="jslib/DataTables-plugins/dataTablesPlugins.js"></script>
+    <script type="text/javascript" src="jbrowse/src/dojo/dojo.js"></script>
 
 
     <script type="text/javascript" src="js/SequenceSearch.js"></script>
 
     <script type="text/javascript">
 
-        var tracks = new Array();
-        if (!!google) {
-            google.load("dojo", "1.5");
-        }
         var table;
         $(function () {
             $("#login_dialog").dialog({

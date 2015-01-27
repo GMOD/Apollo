@@ -11,6 +11,8 @@ define([
            'dojo/_base/declare',
            'dojo/dom-construct',
            'dojo/_base/array',
+           'dojo/dom-construct',
+           'dojo/request/xhr',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -24,20 +26,18 @@ define([
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
-           'WebApollo/View/Track/SequenceTrack',
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, SequenceTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+    function( declare, domConstruct, array, xhr, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 
 return declare( JBPlugin,
 {
-
     constructor: function( args ) {
         console.log("loaded WebApollo plugin");
         var thisB = this;
@@ -62,9 +62,6 @@ return declare( JBPlugin,
         }
 
         browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
-
-
-
 
         if (browser.config.favicon) {
             this.setFavicon(browser.config.favicon);
@@ -235,18 +232,18 @@ return declare( JBPlugin,
      *    with a "Search Sequence" dropdown
      */
     initSearchMenu: function()  {
-        if (! this.searchMenuInitialized) {
-            var webapollo = this;
-            this.browser.addGlobalMenuItem( 'tools',
-                                            new dijitMenuItem(
-                                                {
-                                                    id: 'menubar_apollo_seqsearch',
-                                                    label: "Search sequence",
-                                                    onClick: function() {
-                                                        webapollo.getAnnotTrack().searchSequence();
-                                                    }
-                                                }) );
-            this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+        var thisB = this;
+        this.browser.addGlobalMenuItem( 'tools',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_seqsearch',
+                    label: "Search sequence",
+                    onClick: function() {
+                        thisB.getAnnotTrack().searchSequence();
+                    }
+                })
+        );
+        this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
 
         }
 
@@ -263,13 +260,13 @@ return declare( JBPlugin,
         var loginButton;
         if (username)  {   // permission only set if permission request succeeded
             this.browser.addGlobalMenuItem( 'user',
-                            new dijitMenuItem(
-                                            {
-                                                    label: 'Logout',
-                                                    onClick: function()  {
-                                                            webapollo.getAnnotTrack().logout();
-                                                    }
-                                            })
+                new dijitMenuItem(
+                    {
+                        label: 'Logout',
+                        onClick: function()  {
+                            webapollo.getAnnotTrack().logout();
+                        }
+                    })
             );
             var userMenu = this.browser.makeGlobalMenu('user');
             loginButton = new dijitDropDownButton(
@@ -425,5 +422,3 @@ return declare( JBPlugin,
 });
 
 });
-
-

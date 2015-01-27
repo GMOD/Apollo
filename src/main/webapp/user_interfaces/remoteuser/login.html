@@ -11,19 +11,22 @@
 <script type="text/javascript" src="jslib/jquery-ui-1.8.9.custom/jquery-ui-1.8.9.custom.min.js"></script>
 -->
 <script>
-	var context;
 	$(document).ready(function() {
 		var pathname = location.pathname;
-		context = /^\/([^\/]+)\//.exec(pathname)[1];
         // Execute login ASAP.
         login();
 	});
+
+    function getParameterByName(name) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    }
 	
 	function login() {
 		var json = new Object();
     	$.ajax({
     		type: "post",
-    		url: "/" + context + "/Login?operation=login",
+    		url: getParameterByName("jbrowse")?"../Login?operation=login":"Login?operation=login",
     		processData: false,
     		dataType: "json",
     		contentType: "application/json",

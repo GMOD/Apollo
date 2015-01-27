@@ -1,22 +1,16 @@
 define( ['dojo/_base/declare',
-         'JBrowse/Store/SeqFeature'
+         'JBrowse/Store/Sequence/StaticChunked',
         ],
-        function( declare, SeqFeatureStore ) {
+        function( declare, StaticChunked ) {
 
-return declare( SeqFeatureStore,
+return declare( StaticChunked,
 {
-    constructor: function( args ) {
-        console.log("SCRATCH");
-        this.refSeq = args.refSeq;
-        this.features = {};
-        this.sorted_feats = [];
-        this._calculateStats();
-    },
-
     insert: function( feature ) {
         this.features[ feature.id() ] = feature;
         this._calculateStats();
     },
+    _canExportRegion: function() { console.log("canExport"); },
+    getGlobalStats: function(callback) { callback(this.globalStats); },
 
     replace: function( feature ) {
         this.features[ feature.id() ] = feature;
@@ -58,18 +52,7 @@ return declare( SeqFeatureStore,
             maxEnd: maxEnd,     /* 3'-most feature end */
             span: (maxEnd-minStart+1)  /* min span containing all features */
         };
-    },
-
-    getFeatures: function( query, featCallback, endCallback, errorCallback ) {
-        var start = query.start;
-        var end = query.end;
-        for( var id in this.features ) {
-            var f = this.features[id];
-            if(! ( f.get('end') < start  || f.get('start') > end ) ) {
-                featCallback( f );
-            }
-        }
-        if (endCallback)  { endCallback() }
     }
+
 });
 });
