@@ -135,7 +135,7 @@ public class SequencePanel extends Composite {
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.setColumnWidth(0, "50px");
+        dataGrid.setColumnWidth(0, "80px");
 
         dataGrid.setSelectionModel(singleSelectionModel);
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
