@@ -29,6 +29,10 @@ define( [   'dojo/_base/declare',
             
 return declare( [ GFF3 ], 
 {
+    constructor: function( args ) {
+        this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
+        this.inherited(arguments);
+    },
     /* overriding _loadFeatures to handle common case of three-level gene-transcript-exon hierarchy, 
      *   when three-level hierarchy is fully represented in the data model, currently HTMLFeatures and DraggableHTMLFeatures can't render it correctly 
      *   (always renders the top two levels of a feature hierarchy)
