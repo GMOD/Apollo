@@ -19,10 +19,8 @@ import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
@@ -64,7 +62,9 @@ public class SequencePanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(10, tablecss);
+    DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
+    @UiField(provided = true)
+    SimplePager pager = null ;
 
     @UiField
     HTML sequenceName;
@@ -88,6 +88,7 @@ public class SequencePanel extends Composite {
     private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
 
     public SequencePanel() {
+        pager = new SimplePager(SimplePager.TextLocation.CENTER);
         initWidget(ourUiBinder.createAndBindUi(this));
 
         dataGrid.setWidth("100%");
@@ -130,6 +131,7 @@ public class SequencePanel extends Composite {
         dataGrid.setColumnWidth(0, "30px");
 
         dataProvider.addDataDisplay(dataGrid);
+        pager.setDisplay(dataGrid);
 
 
         SequenceRestService.loadSequences(sequenceInfoList,MainPanel.currentOrganismId);
