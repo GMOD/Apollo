@@ -7,7 +7,8 @@ public class SequenceInfo {
 
     private String name ;
     private Integer length ;
-    private boolean aDefault;
+    private Boolean selected;
+    private Boolean aDefault;
 
     public SequenceInfo(){
 
@@ -34,11 +35,19 @@ public class SequenceInfo {
         this.length = length;
     }
 
-    public boolean isDefault() {
+    public Boolean isDefault() {
         return aDefault;
     }
 
-    public void setDefault(boolean aDefault) {
+    public void setDefault(Boolean aDefault) {
         this.aDefault = aDefault;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

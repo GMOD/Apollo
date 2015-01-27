@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
@@ -21,6 +22,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -31,6 +33,8 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
@@ -49,10 +53,12 @@ public class SequencePanel extends Composite {
     TextBox minFeatureLength;
     @UiField
     TextBox maxFeatureLength;
-    @UiField ListBox organismList;
+    @UiField
+    ListBox organismList;
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-    @UiField(provided=true) DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>( 10, tablecss );
+    @UiField(provided = true)
+    DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(10, tablecss);
 
     @UiField
     HTML sequenceName;
@@ -60,6 +66,12 @@ public class SequencePanel extends Composite {
     HTML sequenceStart;
     @UiField
     HTML sequenceStop;
+    @UiField
+    Button exportGffButton;
+    @UiField
+    Button exportChadoButton;
+    @UiField
+    Button exportFastaButton;
 
     private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
     private List<SequenceInfo> sequenceInfoList = dataProvider.getList();
@@ -70,77 +82,78 @@ public class SequencePanel extends Composite {
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
 
-        final SelectionModel<SequenceInfo> selectionModel = new SingleSelectionModel<SequenceInfo>();
+//        final SelectionModel<SequenceInfo> selectionModel = new SingleSelectionModel<SequenceInfo>();
 
-        TextColumn<SequenceInfo> firstNameColumn = new TextColumn<SequenceInfo>() {
+        TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
             public String getValue(SequenceInfo employee) {
                 return employee.getName();
             }
         };
-        firstNameColumn.setSortable(true);
+        nameColumn.setSortable(true);
 
-        Column<SequenceInfo,Number> secondNameColumn = new Column<SequenceInfo,Number>(new NumberCell()) {
+        Column<SequenceInfo, Number> lengthColumn = new Column<SequenceInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(SequenceInfo object) {
                 return object.getLength();
             }
         };
-        secondNameColumn.setSortable(true);
+        lengthColumn.setSortable(true);
 
-        SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
+//        SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
+//            @Override
+//            public SafeHtml render(String object) {
+//                SafeHtmlBuilder sb = new SafeHtmlBuilder();
+//                sb.appendHtmlConstant("<div class=\"btn-group\" role=\"group\">");
+//                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>");
+//                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"  data-toggle=\"dropdown\" aria-expanded=\"true\">" +
+//                        "    <span class=\"glyphicon glyphicon-export\" aria-hidden=\"true\">" +
+//                        "    <span class=\"caret\"></span></button>");
+//                sb.appendHtmlConstant("</div>");
+////                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
+////                        .appendHtmlConstant("</a> | ");
+////                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped("Export")
+////                        .appendHtmlConstant("</a>");
+//                return sb.toSafeHtml();
+//            }
+//        };
+
+//        Column<SequenceInfo,String> selectColumn = new Column<SequenceInfo, String>(new ClickableTextCell(anchorRenderer)) {
+        Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
+
             @Override
-            public SafeHtml render(String object) {
-                SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                sb.appendHtmlConstant("<div class=\"btn-group\" role=\"group\">");
-                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>");
-                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"  data-toggle=\"dropdown\" aria-expanded=\"true\">" +
-                        "    <span class=\"glyphicon glyphicon-export\" aria-hidden=\"true\">" +
-                        "    <span class=\"caret\"></span></button>");
-                sb.appendHtmlConstant("</div>");
-//                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
-//                        .appendHtmlConstant("</a> | ");
-//                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped("Export")
-//                        .appendHtmlConstant("</a>");
-                return sb.toSafeHtml();
+            public Boolean getValue(SequenceInfo object) {
+                return object.getSelected();
             }
         };
-
-        Column<SequenceInfo,String> thirdNameColumn = new Column<SequenceInfo, String>(new ClickableTextCell(anchorRenderer)) {
-            @Override
-            public String getValue(SequenceInfo employee) {
-                return "Select";
-            }
-        };
+        selectColumn.setSortable(true);
 //        thirdNameColumn.setSortable(true);
 
 
+//        dataGrid.addColumn(selectColumn, "Select");
+        dataGrid.addColumn(selectColumn, "");
+        dataGrid.addColumn(nameColumn, "Name");
+        dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.addColumn(firstNameColumn, "Name");
-        dataGrid.addColumn(secondNameColumn, "Length");
-        dataGrid.addColumn(thirdNameColumn, "Action");
-
+        dataGrid.setColumnWidth(0,"30px");
 
         dataProvider.addDataDisplay(dataGrid);
 
 
         SequenceRestService.loadSequences(sequenceInfoList);
-//        for(int i = 1 ; i < 20 ; i++){
-//            trackInfoList.add(new SequenceInfo(DataGenerator.SEQUENCE_PREFIX + i));
-//        }
 
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(sequenceInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(firstNameColumn, new Comparator<SequenceInfo>() {
+        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
             @Override
             public int compare(SequenceInfo o1, SequenceInfo o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        sortHandler.setComparator(secondNameColumn, new Comparator<SequenceInfo>() {
+        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
             @Override
             public int compare(SequenceInfo o1, SequenceInfo o2) {
-                return o1.getLength()-o2.getLength();
+                return o1.getLength() - o2.getLength();
             }
         });
 
@@ -156,8 +169,6 @@ public class SequencePanel extends Composite {
         sequenceStop.setHTML("4234");
 
 
-
-
 //        DataGenerator.populateOrganismList(organismList);
         loadOrganisms(organismList);
 
@@ -165,6 +176,7 @@ public class SequencePanel extends Composite {
 
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
+     *
      * @param trackInfoList
      */
     public void loadOrganisms(final ListBox trackInfoList) {
@@ -175,7 +187,7 @@ public class SequencePanel extends Composite {
                 JSONArray array = returnValue.isArray();
 
                 trackInfoList.clear();
-                for(int i = 0 ; i < array.size() ; i++){
+                for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
 //                    GWT.log(object.toString());
                     OrganismInfo organismInfo = new OrganismInfo();
@@ -200,7 +212,7 @@ public class SequencePanel extends Composite {
 
     }
 
-    public void reload(){
+    public void reload() {
         SequenceRestService.loadSequences(dataProvider.getList());
         dataGrid.redraw();
     }
