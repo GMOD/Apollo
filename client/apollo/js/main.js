@@ -11,7 +11,6 @@ define([
            'dojo/_base/declare',
            'dojo/dom-construct',
            'dojo/_base/array',
-           'dojo/dom-construct',
            'dojo/request/xhr',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -244,8 +243,6 @@ return declare( JBPlugin,
                 })
         );
         this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
-
-        }
 
         // move Tool menu in front of Help menu
         var toolsMenu = dojo.query('.menu[widgetid="dropdownbutton_tools"]')[0];

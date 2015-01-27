@@ -60,20 +60,13 @@ return declare( Sequence,
         var finishCallback=args.finishCallback;
         args.finishCallback=function() {
             finishCallback();
-            //query('.base',args.block.domNode).addClass('testing');
-            query('.base',args.block.domNode).on(mouse.enter,function(evt) {
-                console.log("Mouse enter",evt);
-                domStyle.set(evt.toElement,"backgroundColor","orange");
+            var nl=query('.base',args.block.domNode)
+            nl.style("backgroundColor","#E0E0E0")
+            nl.on(mouse.enter,function(evt) {
+              domStyle.set(evt.target,"backgroundColor","orange");
             });
-            query('.base',args.block.domNode).on(mouse.leave,function(evt) {
-                console.log("Mouse leave",evt);
-                domStyle.set(evt.fromElement,"backgroundColor","#E0E0E0");
-            });
-            query('.base',args.block.domNode).on("click",function(evt) {
-                console.log("Mouse click");
-                if(mouse.isRight(evt)) {
-                    console.log("Mouse right click",evt);
-                }
+            nl.on(mouse.leave,function(evt) {
+              domStyle.set(evt.target,"backgroundColor","#E0E0E0");
             });
         };
         supermethod.call(this,args);
