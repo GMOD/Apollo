@@ -19,15 +19,15 @@ import java.util.List;
  */
 public class SequenceRestService {
 
-    public static void loadSequences(RequestCallback requestCallback){
+    public static void loadSequences(RequestCallback requestCallback,Long organismId){
         if(MainPanel.currentOrganismId==null){
             GWT.log("organism not set . . returrning ");
             return ;
         }
-        RestService.sendRequest(requestCallback,"/sequence/loadSequences/"+ MainPanel.currentOrganismId);
+        RestService.sendRequest(requestCallback,"/sequence/loadSequences/"+ organismId);
     }
 
-    public static void loadSequences(final List<SequenceInfo> sequenceInfoList) {
+    public static void loadSequences(final List<SequenceInfo> sequenceInfoList,Long organismId) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -62,7 +62,7 @@ public class SequenceRestService {
             sequenceInfoList.clear();
             return ;
         }
-        loadSequences(requestCallback);
+        loadSequences(requestCallback,organismId);
     }
 
     public static void setDefaultSequence(final String sequenceName) {

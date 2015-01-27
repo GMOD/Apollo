@@ -132,7 +132,7 @@ public class SequencePanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
 
 
-        SequenceRestService.loadSequences(sequenceInfoList);
+        SequenceRestService.loadSequences(sequenceInfoList,MainPanel.currentOrganismId);
 
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -168,6 +168,7 @@ public class SequencePanel extends Composite {
             @Override
             public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
                 filterSequences();
+//                dataGrid.redraw();
             }
         });
 
@@ -177,6 +178,13 @@ public class SequencePanel extends Composite {
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         filterSequences();
     }
+
+
+    @UiHandler(value={"organismList"})
+    public void handleOrganismChange(ChangeEvent changeEvent) {
+        reload();
+    }
+
 
     private void filterSequences() {
         GWT.log("original size: " + sequenceInfoList.size());
@@ -253,8 +261,15 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
-        SequenceRestService.loadSequences(sequenceInfoList);
-        dataGrid.redraw();
+        GWT.log("item count: "+organismList.getItemCount());
+        if(organismList.getItemCount()>0){
+            Long organismListId = Long.parseLong(organismList.getSelectedValue());
+            GWT.log("list id: "+organismListId);
+            SequenceRestService.loadSequences(sequenceInfoList,organismListId);
+        }
+        else{
+            SequenceRestService.loadSequences(sequenceInfoList,MainPanel.currentOrganismId);
+        }
     }
 
 }

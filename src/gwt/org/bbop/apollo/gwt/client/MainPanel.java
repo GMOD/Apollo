@@ -224,7 +224,7 @@ public class MainPanel extends Composite {
             }
         };
         // TODO: move to a javscript function in iFrame?
-        SequenceRestService.loadSequences(requestCallback);
+        SequenceRestService.loadSequences(requestCallback,MainPanel.currentOrganismId);
 
     }
 

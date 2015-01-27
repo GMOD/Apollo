@@ -133,7 +133,7 @@ public class AnnotatorPanel extends Composite {
                 Window.alert("Error loading organisms");
             }
         };
-        SequenceRestService.loadSequences(requestCallback);
+        SequenceRestService.loadSequences(requestCallback,MainPanel.currentOrganismId);
     }
 
     private String getType(JSONObject internalData) {
