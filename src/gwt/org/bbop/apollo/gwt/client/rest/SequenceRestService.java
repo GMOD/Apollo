@@ -7,8 +7,10 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
 
 import java.util.List;
 
@@ -32,7 +34,6 @@ public class SequenceRestService {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
                 sequenceInfoList.clear();
-//                Window.alert("array size: "+array.size());
 
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
@@ -45,6 +46,10 @@ public class SequenceRestService {
                     }
                     sequenceInfoList.add(sequenceInfo);
                 }
+                SequenceLoadEvent contextSwitchEvent = new SequenceLoadEvent(SequenceLoadEvent.Action.FINISHED_LOADING);
+                Annotator.eventBus.fireEvent(contextSwitchEvent);
+                GWT.log("added # sequences: "+sequenceInfoList.size());
+
             }
 
             @Override

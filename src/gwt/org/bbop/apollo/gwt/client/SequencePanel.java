@@ -32,6 +32,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
+import org.bbop.apollo.gwt.client.event.SequenceLoadEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -107,25 +109,6 @@ public class SequencePanel extends Composite {
         };
         lengthColumn.setSortable(true);
 
-//        SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
-//            @Override
-//            public SafeHtml render(String object) {
-//                SafeHtmlBuilder sb = new SafeHtmlBuilder();
-//                sb.appendHtmlConstant("<div class=\"btn-group\" role=\"group\">");
-//                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button>");
-//                sb.appendHtmlConstant("<button class=\"btn btn-sm\" type=\"button\"  data-toggle=\"dropdown\" aria-expanded=\"true\">" +
-//                        "    <span class=\"glyphicon glyphicon-export\" aria-hidden=\"true\">" +
-//                        "    <span class=\"caret\"></span></button>");
-//                sb.appendHtmlConstant("</div>");
-////                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped(object)
-////                        .appendHtmlConstant("</a> | ");
-////                sb.appendHtmlConstant("<a href=\"javascript:;\">").appendEscaped("Export")
-////                        .appendHtmlConstant("</a>");
-//                return sb.toSafeHtml();
-//            }
-//        };
-
-//        Column<SequenceInfo,String> selectColumn = new Column<SequenceInfo, String>(new ClickableTextCell(anchorRenderer)) {
         Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
 
             @Override
@@ -148,8 +131,6 @@ public class SequencePanel extends Composite {
 
 
         SequenceRestService.loadSequences(sequenceInfoList);
-
-        filterSequences();
 
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -181,6 +162,13 @@ public class SequencePanel extends Composite {
 //        DataGenerator.populateOrganismList(organismList);
         loadOrganisms(organismList);
 
+        Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE, new SequenceLoadEventHandler() {
+            @Override
+            public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
+                filterSequences();
+            }
+        });
+
     }
 
     @UiHandler("nameSearchBox")
@@ -205,7 +193,7 @@ public class SequencePanel extends Composite {
             filteredSequenceList.addAll(sequenceInfoList);
         }
 
-        GWT.log("filtered size: "+filteredSequenceList.size());
+        GWT.log("filtered size: " + filteredSequenceList.size());
 
     }
 
@@ -248,7 +236,7 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
-        SequenceRestService.loadSequences(dataProvider.getList());
+        SequenceRestService.loadSequences(sequenceInfoList);
         dataGrid.redraw();
     }
 
