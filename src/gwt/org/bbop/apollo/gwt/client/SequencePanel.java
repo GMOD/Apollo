@@ -1,7 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
@@ -9,15 +8,10 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
-import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -26,19 +20,13 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionModel;
-import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.demo.DataGenerator;
+import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
-import org.bbop.apollo.gwt.client.event.ExportEvent;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
@@ -48,6 +36,7 @@ import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -95,11 +84,13 @@ public class SequencePanel extends Composite {
     Button exportFastaButton;
     @UiField
     Button exportChadoButton;
+    @UiField
+    Button selectSelectedButton;
 
     private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
     private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
     private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
-    private SingleSelectionModel<SequenceInfo> singleSelectionModel = new SingleSelectionModel<SequenceInfo>();
+    private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0 ;
 
@@ -158,11 +149,20 @@ public class SequencePanel extends Composite {
 
         dataGrid.setColumnWidth(0, "80px");
 
-        dataGrid.setSelectionModel(singleSelectionModel);
-        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+        dataGrid.setSelectionModel(multiSelectionModel);
+        multiSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                setSequenceInfo(singleSelectionModel.getSelectedObject());
+                Set<SequenceInfo> selectedSequenceInfo = multiSelectionModel.getSelectedSet();
+                if(selectedSequenceInfo.size()==1){
+                    setSequenceInfo(selectedSequenceInfo.iterator().next());
+                    selectSelectedButton.setEnabled(true);
+                }
+                else {
+                    setSequenceInfo(null);
+                }
+
+                selectSelectedButton.setEnabled(selectedSequenceInfo.size()>0);
             }
         });
 
@@ -270,6 +270,26 @@ public class SequencePanel extends Composite {
         ExportPanel exportPanel = new ExportPanel();
         exportPanel.show();
 
+    }
+
+    @UiHandler("selectSelectedButton")
+    public void handleSetSelections(ClickEvent clickEvent){
+        GWT.log("selecting selected?");
+//        boolean allSelected =
+
+        boolean allSelectionsSelected = findAllSelectionsSelected();
+
+        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
+            sequenceInfo.setSelected(!allSelectionsSelected);
+        }
+        dataGrid.redraw();
+    }
+
+    private boolean findAllSelectionsSelected() {
+        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
+            if(!sequenceInfo.getSelected()) return false ;
+        }
+        return true ;
     }
 
     @UiHandler("exportAllButton")
