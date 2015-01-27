@@ -4,6 +4,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
@@ -16,6 +18,7 @@ import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
 import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -38,6 +41,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -72,9 +76,12 @@ public class SequencePanel extends Composite {
     Button exportChadoButton;
     @UiField
     Button exportFastaButton;
+    @UiField
+    TextBox nameSearchBox;
 
     private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
-    private List<SequenceInfo> sequenceInfoList = dataProvider.getList();
+    private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
+    private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
 
     public SequencePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -135,14 +142,16 @@ public class SequencePanel extends Composite {
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.setColumnWidth(0,"30px");
+        dataGrid.setColumnWidth(0, "30px");
 
         dataProvider.addDataDisplay(dataGrid);
 
 
         SequenceRestService.loadSequences(sequenceInfoList);
 
-        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(sequenceInfoList);
+        filterSequences();
+
+        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
             @Override
@@ -171,6 +180,32 @@ public class SequencePanel extends Composite {
 
 //        DataGenerator.populateOrganismList(organismList);
         loadOrganisms(organismList);
+
+    }
+
+    @UiHandler("nameSearchBox")
+    public void handleNameSearch(KeyUpEvent keyUpEvent) {
+        filterSequences();
+    }
+
+    private void filterSequences() {
+        GWT.log("original size: "+sequenceInfoList.size());
+        filteredSequenceList.clear();
+
+        String nameText = nameSearchBox.getText().toLowerCase();
+
+        if (nameText.length() > 0) {
+            for (SequenceInfo sequenceInfo : sequenceInfoList) {
+                if (sequenceInfo.getName().toLowerCase().contains(nameText)) {
+                    filteredSequenceList.add(sequenceInfo);
+                }
+            }
+        }
+        else {
+            filteredSequenceList.addAll(sequenceInfoList);
+        }
+
+        GWT.log("filtered size: "+filteredSequenceList.size());
 
     }
 
