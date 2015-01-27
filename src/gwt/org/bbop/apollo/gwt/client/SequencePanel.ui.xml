@@ -118,11 +118,11 @@
                     <gwt:HTMLPanel>
                         <table style="width:100%">
                             <tr>
-                                <td style="width:30%"/>
+                                <td style="width:20%"/>
                                 <td align="center">
                                     <cellview:SimplePager ui:field="pager" styleName="{style.pager}"/>
                                 </td>
-                                <td style="width:30%"/>
+                                <td style="width:20%"/>
                             </tr>
                         </table>
                     </gwt:HTMLPanel>

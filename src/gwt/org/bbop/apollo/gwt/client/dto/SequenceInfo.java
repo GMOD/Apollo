@@ -1,9 +1,13 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import org.bbop.apollo.gwt.client.comparators.AlphanumericSorter;
+
 /**
  * Created by ndunn on 12/18/14.
  */
-public class SequenceInfo {
+public class SequenceInfo implements Comparable<SequenceInfo>{
+
+    private AlphanumericSorter alphanumericSorter = new AlphanumericSorter();
 
     private String name ;
     private Integer length ;
@@ -49,5 +53,10 @@ public class SequenceInfo {
 
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    @Override
+    public int compareTo(SequenceInfo o) {
+        return alphanumericSorter.compare(name,o.getName());
     }
 }

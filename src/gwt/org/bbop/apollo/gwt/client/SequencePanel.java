@@ -36,7 +36,6 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -141,7 +140,8 @@ public class SequencePanel extends Composite {
         sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
             @Override
             public int compare(SequenceInfo o1, SequenceInfo o2) {
-                return o1.getName().compareTo(o2.getName());
+//                return o1.getName().compareTo(o2.getName());
+                return o1.compareTo(o2);
             }
         });
         sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
