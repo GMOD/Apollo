@@ -213,11 +213,12 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             }
         },
         function() {
-            track.config.disableJBrowseMode?track.login():track.hide();
+            if(track.config.disableJBrowseMode) {
+                track.login();
+            }
             if (!track.webapollo.loginMenuInitialized) {
                 track.webapollo.initLoginMenu(track.username);
             }
-            console.log("Error");
         });
 
 
@@ -4986,121 +4987,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
 
 
-    /**
-     * handles adding overlay of sequence residues to "row" of selected feature
-     * (also handled in similar manner in fillBlock()); WARNING: this _requires_
-     * browser support for pointer-events CSS property, (currently supported by
-     * Firefox 3.6+, Chrome 4.0+, Safari 4.0+) (Exploring possible workarounds
-     * for IE, for example see:
-     * http://www.vinylfox.com/forwarding-mouse-events-through-layers/
-     * http://stackoverflow.com/questions/3680429/click-through-a-div-to-underlying-elements [
-     * see section on CSS conditional statement workaround for IE ] ) and must
-     * set "pointer-events: none" in CSS rule for div.annot-sequence otherwise,
-     * since sequence overlay is rendered on top of selected features (and is a
-     * sibling of feature divs), events intended for feature divs will get
-     * caught by overlay and not make it to the feature divs
-     */
-    selectionAdded: function( rec, smanager)  {
-        var feat = rec.feature;
-        this.inherited( arguments );
-        var track = this;
-
-        // switched to only have most recent selected annot have residues overlay if
-        // zoomed to base level,
-        // rather than all selected annots
-        // therefore want to revove all prior residues overlay divs
-        if (rec.track === track)  {
-            // remove sequence text nodes
-            $("div.annot-sequence", track.div).remove();
-        }
-
-        // want to get child of block, since want position relative to block
-        // so get top-level feature div (assumes top level feature is always
-        // rendered...)
-        var topfeat = this.getTopLevelAnnotation(feat);
-        var featdiv = track.getFeatDiv(topfeat);
-        if (featdiv)  {
-            if (this.currentResizableFeature && feat.id() == this.currentResizableFeature.id()) {
-                this.makeResizable(this.getFeatDiv(feat));
-            }
-            var strand = topfeat.get('strand');
-            var selectionYPosition = $(featdiv).position().top;
-            var scale = track.gview.bpToPx(1);
-            var charSize = track.webapollo.getSequenceCharacterSize();
-            if (scale === charSize.width && track.useResiduesOverlay)  {
-                var seqTrack = this.getSequenceTrack();
-                for (var bindex = this.firstAttached; bindex <= this.lastAttached; bindex++)  {
-                    var blk = this.blocks[bindex];
-                    seqTrack.sequenceStore.getReferenceSequence(
-                    { ref: this.refSeq.name, start: blk.startBase, end: blk.endBase },
-                    function( block ) {
-                        return function(seq) {
-                            var start = block.startBase;
-                            var end = block.endBase;
-
-                            var ypos = selectionYPosition + 2;
-                            // checking to see if residues for this "row" of the
-                            // block are already present
-                            // ( either from another selection in same row, or
-                            // previous rendering
-                            // of same selection [which often happens when
-                            // scrolling] )
-                            // trying to avoid duplication both for efficiency
-                            // and because re-rendering of text can
-                            // be slighly off from previous rendering, leading
-                            // to bold / blurry text when overlaid
-
-                            var $seqdivs = $("div.annot-sequence", block.domNode);
-                            var sindex = $seqdivs.length;
-                            var add_residues = true;
-                            if ($seqdivs && sindex > 0)  {
-                                for (var i=0; i<sindex; i++) {
-                                    var sdiv = $seqdivs[i];
-                                    if ($(sdiv).position().top === ypos)  {
-                                        // console.log("residues already present
-                                        // in block: " + bindex);
-                                        add_residues = false;
-                                    }
-                                }
-                            }
-                            if (add_residues)  {
-                                var seqNode = document.createElement("div");
-                                seqNode.className = "annot-sequence";
-                                if (strand == '-' || strand == -1)  {
-                                    // seq = track.reverseComplement(seq);
-                                    seq = track.getSequenceTrack().complement(seq);
-                                }
-                                seqNode.appendChild(document.createTextNode(seq));
-                                // console.log("ypos: " + ypos);
-                                seqNode.style.cssText = "top: " + ypos + "px;";
-                                block.domNode.appendChild(seqNode);
-                                if (track.FADEIN_RESIDUES)  {
-                                    $(seqNode).hide();
-                                    $(seqNode).fadeIn(1500);
-                                }
-                            }
-                        };
-                    }(blk) );
-                }
-            }
-        }
-    },
-
-    selectionRemoved: function(selected_record, smanager)  {
-        // console.log("AnnotTrack.selectionRemoved() called");
-        this.inherited( arguments );
-        var track = this;
-        if (selected_record.track === track)  {
-            var feat = selected_record.feature;
-            var featdiv = this.getFeatDiv(feat);
-            // remove sequence text nodes
-            // console.log("removing base residued text from selected annot");
-            $("div.annot-sequence", track.div).remove();
-            delete this.currentResizableFeature;
-            $(featdiv).resizable("destroy");
-        }
-    }, 
-
+    
     startZoom: function(destScale, destStart, destEnd) {
         this.inherited( arguments );
 
