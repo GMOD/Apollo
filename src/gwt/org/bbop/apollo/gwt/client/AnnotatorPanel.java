@@ -16,16 +16,26 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -51,8 +61,13 @@ public class AnnotatorPanel extends Composite {
 
 
     Tree.Resources tablecss = GWT.create(Tree.Resources.class);
-    @UiField(provided = true)
+//    @UiField(provided = true)
     Tree features = new Tree(tablecss);
+
+    @UiField(provided = true)
+    DataGrid<AnnotationInfo> dataGrid = new DataGrid<>();
+
+
     @UiField
     ListBox typeList;
     @UiField
@@ -66,8 +81,58 @@ public class AnnotatorPanel extends Composite {
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
+    private ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
+    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
+//    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
+    private SingleSelectionModel<AnnotationInfo> annotationInfoSingleSelectionModel = new SingleSelectionModel<>();
+
     public AnnotatorPanel() {
         sequenceList = new SuggestBox(sequenceOracle);
+        dataGrid.setWidth("100%");
+        dataGrid.setEmptyTableWidget(new Label("Loading"));
+
+
+        TextColumn<AnnotationInfo> nameColumn = new TextColumn<AnnotationInfo>() {
+            @Override
+            public String getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getName();
+            }
+        };
+        nameColumn.setSortable(true);
+
+        TextColumn<AnnotationInfo> typeColumn = new TextColumn<AnnotationInfo>() {
+            @Override
+            public String getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getType();
+            }
+        };
+        typeColumn.setSortable(true);
+
+
+        dataGrid.addColumn(nameColumn,"Name");
+        dataGrid.addColumn(typeColumn,"Type");
+
+        ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
+        dataGrid.addColumnSortHandler(sortHandler);
+
+        sortHandler.setComparator(nameColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        dataGrid.setSelectionModel(annotationInfoSingleSelectionModel);
+        annotationInfoSingleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler(){
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                GWT.log("something selected");
+            }
+        });
+
+        dataProvider.addDataDisplay(dataGrid);
+//        pager.setDisplay(dataGrid);
+
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
 
@@ -166,14 +231,25 @@ public class AnnotatorPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isObject().get("features").isArray();
                 features.clear();
+                filteredAnnotationList.clear();
+
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     TreeItem treeItem = processFeatureEntry(object);
                     features.addItem(treeItem);
+                    GWT.log(object.toString());
+
+
+                    AnnotationInfo annotationInfo = new AnnotationInfo();
+                    annotationInfo.setName(object.get("name").isString().stringValue());
+                    annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
+                    filteredAnnotationList.add(annotationInfo);
                 }
 
                 features.setAnimationEnabled(true);
+                GWT.log("# of annoations: "+filteredAnnotationList.size());
+                dataGrid.redraw();
             }
 
             @Override

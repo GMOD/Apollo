@@ -31,7 +31,6 @@ public class AnnotationContainerWidget extends HTML{
                 featureName = object.get("name").isString().stringValue();
                 break;
         }
-        GWT.log("featureType: "+featureType);
         int lastFeature = featureType.lastIndexOf(".");
         featureType = featureType.substring(lastFeature + 1);
         HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
