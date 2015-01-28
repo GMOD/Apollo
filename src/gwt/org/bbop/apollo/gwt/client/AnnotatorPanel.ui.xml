@@ -63,6 +63,17 @@
             /*margin: 10px;*/
         }
 
+        .pager {
+            width: 100%;
+            /*display: inline;*/
+            /*border-right: solid;*/
+            /*border-width: medium;*/
+            /*border-color: #000000;*/
+            margin-left: auto;
+            margin-right: auto;
+            /*padding-left: auto;*/
+            /*padding-right: auto;*/
+        }
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="180">
@@ -121,10 +132,31 @@
             <!--<gwt:HTML text="centerPanel "/>-->
             <!--<gwt:FlowPanel>-->
             <!--<gwt:ScrollPanel>-->
-                <cellview:DataGrid ui:field="dataGrid" />
+                <!--<cellview:DataGrid ui:field="dataGrid" />-->
                 <!--<gwt:Tree ui:field="features" styleName="{style.widgetPanel}"/>-->
             <!--</gwt:ScrollPanel>-->
             <!--</gwt:FlowPanel>-->
+
+            <gwt:DockLayoutPanel>
+                <gwt:north size="25">
+                    <gwt:HTMLPanel>
+                        <table style="width:100%">
+                            <tr>
+                                <td style="width:20%">
+                                    <!--<b:Button ui:field="selectSelectedButton" size="EXTRA_SMALL" enabled="false" icon="CHECK_CIRCLE" marginLeft="10"/>-->
+                                </td>
+                                <td align="center">
+                                    <cellview:SimplePager ui:field="pager" styleName="{style.pager}"/>
+                                </td>
+                                <td style="width:20%"/>
+                            </tr>
+                        </table>
+                    </gwt:HTMLPanel>
+                </gwt:north>
+                <gwt:center>
+                    <cellview:DataGrid ui:field="dataGrid"/>
+                </gwt:center>
+            </gwt:DockLayoutPanel>
         </gwt:center>
         <gwt:south size="280">
             <gwt:TabLayoutPanel barHeight="35">
