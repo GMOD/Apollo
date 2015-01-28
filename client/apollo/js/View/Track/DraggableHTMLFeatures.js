@@ -1110,29 +1110,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
     },
 
-    /**
-     *  get the GenomeView's sequence track -- maybe move this to GenomeView?
-     *  WebApollo assumes there is only one SequenceTrack
-     *     if there are multiple SequenceTracks, getSequenceTrack returns first one found
-     *         iterating through tracks list
-     */
-    getSequenceTrack: function()  {
-        if( this.seqTrack )  {
-             return this.seqTrack;
-        }
-        else  {
-            var tracks = this.gview.tracks;
-            for (var i = 0; i < tracks.length; i++)  {
-                if (tracks[i] instanceof SequenceTrack)  {
-                    this.seqTrack = tracks[i];
-                    tracks[i].setAnnotTrack(this);
-                    break;
-                }
-            }
-            return this.seqTrack;
-        }
-    }, 
-
 
 /*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
