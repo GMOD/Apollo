@@ -128,9 +128,10 @@
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
                         <b:Row>
-                            <apollo:GeneDetailPanel ui:field="geneDetailPanel"/>
-                            <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel"/>
-                            <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
+                            <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
+                            <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
+                            <apollo:ExonDetailPanel ui:field="exonDetailPanel" visible="false"/>
+                            <apollo:CDSDetailPanel ui:field="cdsDetailPanel" visible="false"/>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>

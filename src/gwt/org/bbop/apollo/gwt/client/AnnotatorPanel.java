@@ -61,6 +61,8 @@ public class AnnotatorPanel extends Composite {
     TranscriptDetailPanel transcriptDetailPanel;
     @UiField
     ExonDetailPanel exonDetailPanel;
+    @UiField
+    CDSDetailPanel cdsDetailPanel;
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
@@ -71,9 +73,6 @@ public class AnnotatorPanel extends Composite {
 
         initWidget(rootElement);
 
-        geneDetailPanel.setVisible(false);
-        transcriptDetailPanel.setVisible(false);
-        exonDetailPanel.setVisible(false);
         stopCodonFilter.setValue(false);
 
         features.setAnimationEnabled(true);
@@ -96,6 +95,9 @@ public class AnnotatorPanel extends Composite {
                         transcriptDetailPanel.updateData(internalData);
                         break;
                     case "exon":
+                        exonDetailPanel.updateData(internalData);
+                        break;
+                    case "CDS":
                         exonDetailPanel.updateData(internalData);
                         break;
                     default:
