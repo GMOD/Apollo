@@ -25,14 +25,11 @@ define([
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
-           'WebApollo/View/TrackList/Hierarchical',
-           'WebApollo/View/TrackList/Faceted',
-           'WebApollo/InformationEditor',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
     function( declare, domConstruct, array, xhr, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, GFF3Driver,LazyLoad ) {
 
 
 return declare( JBPlugin,
@@ -51,7 +48,6 @@ return declare( JBPlugin,
         array.forEach(externals,function(src) {
           var script = document.createElement('script');
           script.src = src;
-          script.async = false;
           document.head.appendChild(script);
         });
 
@@ -144,6 +140,8 @@ return declare( JBPlugin,
             // Initialize information editor with similar style to track selector
             browser.fileDialog.addFileTypeDriver(new GFF3Driver());
         });
+        this.createMenu();
+
     },
     updateLabels: function() {
         var browser=this.browser;
@@ -182,7 +180,7 @@ return declare( JBPlugin,
                     checked: browser.cookie("plusStrandFilter")=="1",
                     onClick: function(event) {
                         browser.cookie("plusStrandFilter",this.get("checked")?"1":"0");
-                        thisB.strandFilter("plusStrandFilter",thisB.plusStrandFilter);
+                        strandFilter("plusStrandFilter",plusStrandFilter);
                         browser.view.redrawTracks();
                     }
                 });
@@ -192,15 +190,15 @@ return declare( JBPlugin,
                     checked: browser.cookie("minusStandFilter")=="1",
                     onClick: function(event) {
                         browser.cookie("minusStrandFilter",this.get("checked")?"1":"0");
-                        thisB.strandFilter("minusStrandFilter",thisB.minusStrandFilter);
+                        strandFilter("minusStrandFilter",minusStrandFilter);
                         browser.view.redrawTracks();
                     }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
         browser.addGlobalMenuItem( 'view', plus_strand_toggle );
 
-        this.strandFilter("minusStrandFilter",this.minusStrandFilter);
-        this.strandFilter("plusStrandFilter",this.plusStrandFilter);
+        strandFilter("minusStrandFilter",minusStrandFilter);
+        strandFilter("plusStrandFilter",plusStrandFilter);
     },
     
     
@@ -294,11 +292,14 @@ return declare( JBPlugin,
      */
     getAnnotTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
+            var a;
             array.some(this.browser.view.tracks,function(track) {
-                if (track.isInstanceOf(AnnotTrack))  {
-                    return track;
+                if(track.isInstanceOf(AnnotTrack))  {
+                    a=track;
+                    return true;
                 }
             });
+            return a;
         }
         return null;
     },
@@ -311,12 +312,14 @@ return declare( JBPlugin,
      */
     getSequenceTrack: function()  {
         if (this.browser && this.browser.view && this.browser.view.tracks)  {
-            var tracks = this.browser.view.tracks;
-            array.some(tracks,function(track) {
+            var a;
+            array.some(this.browser.view.tracks,function(track) {
                 if (track.isInstanceOf(SequenceTrack))  {
-                    return track;
+                    a=track;
+                    return true;
                 }
             });
+            return a;
         }
         return null;
     },
@@ -350,6 +353,8 @@ return declare( JBPlugin,
         $head.prepend(favicon2);
     },
     createMenu: function() {
+        var browser=this.browser;
+        var thisB=this;
         this.addNavigationOptions();
 
         // add a global menu option for setting CDS color
@@ -409,8 +414,6 @@ return declare( JBPlugin,
         this.updateLabels();
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-
-
     }
 
 

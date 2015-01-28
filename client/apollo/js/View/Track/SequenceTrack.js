@@ -257,7 +257,6 @@ return declare( Sequence,
     },
     loadTranslationTable: function() {
         var track = this;
-        console.log(this.refSeq.name);
         return xhr.post( track.context_path + "/AnnotationEditorService",
         {
             data: JSON.stringify({ "track": this.refSeq.name, "operation": "get_translation_table" }),
