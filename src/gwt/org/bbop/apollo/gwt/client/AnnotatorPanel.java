@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -16,6 +17,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -108,9 +110,19 @@ public class AnnotatorPanel extends Composite {
         };
         typeColumn.setSortable(true);
 
+        Column<AnnotationInfo,Number> lengthColumn = new Column<AnnotationInfo,Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getLength();
+            }
+        };
+        lengthColumn.setSortable(true);
+
 
         dataGrid.addColumn(nameColumn,"Name");
         dataGrid.addColumn(typeColumn,"Type");
+        dataGrid.addColumn(lengthColumn,"Length");
+
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -119,6 +131,21 @@ public class AnnotatorPanel extends Composite {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
                 return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+
+        sortHandler.setComparator(typeColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getType().compareTo(o2.getType());
+            }
+        });
+
+        sortHandler.setComparator(lengthColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getLength()- o2.getLength() ;
             }
         });
 
@@ -244,6 +271,8 @@ public class AnnotatorPanel extends Composite {
                     AnnotationInfo annotationInfo = new AnnotationInfo();
                     annotationInfo.setName(object.get("name").isString().stringValue());
                     annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
+                    annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
+                    annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
                     filteredAnnotationList.add(annotationInfo);
                 }
 
