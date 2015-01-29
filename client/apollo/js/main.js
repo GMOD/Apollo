@@ -81,8 +81,8 @@ return declare( JBPlugin,
 
         if(!browser.config.aboutThisBrowser) {
             browser.config.aboutThisBrowser={
-                description:"This is WebApollo 1.0.4",
-                title:"WebApollo 1.0.4"
+description:"<img width=400 src='http://gmod.org/mediawiki/images/4/4a/WebApolloLogo.png'></img><br><p style='text-align:center;'>WebApollo 1.0.4-SNAPSHOT</p>",
+                title:"WebApollo 1.0.4-SNAPSHOT"
             };
         }
         if(!browser.config.quickHelp) {
