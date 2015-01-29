@@ -99,7 +99,6 @@ public class AnnotatorPanel extends Composite {
     private ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     //    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
-    private SingleSelectionModel<AnnotationInfo> annotationInfoSingleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
 
@@ -123,6 +122,7 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
+                GWT.log(selectionModel.getSelectedObject().getName());
                 updateAnnotationInfo(annotationInfo);
             }
         });
@@ -169,6 +169,7 @@ public class AnnotatorPanel extends Composite {
 
     private void updateAnnotationInfo(AnnotationInfo annotationInfo){
         String type = annotationInfo.getType();
+        GWT.log("annoation type: "+type);
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         exonDetailPanel.setVisible(false);
@@ -180,7 +181,7 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "mRNA":
             case "tRNA":
-                transcriptDetailPanel.updateData(AnnotationRestService.convertAnnotationInfoToJSONObject(annotationInfo));
+                transcriptDetailPanel.updateData(annotationInfo);
                 break;
             case "exon":
                 exonDetailPanel.updateData(AnnotationRestService.convertAnnotationInfoToJSONObject(annotationInfo));
@@ -286,13 +287,6 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
-        dataGrid.setSelectionModel(annotationInfoSingleSelectionModel);
-        annotationInfoSingleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                GWT.log("something selected");
-            }
-        });
 
     }
 
@@ -415,26 +409,26 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    private TreeItem processFeatureEntry(JSONObject object) {
-        TreeItem treeItem = new TreeItem();
-
-        String featureName = object.get("name").isString().stringValue();
-        String featureType = object.get("type").isObject().get("name").isString().stringValue();
-        int lastFeature = featureType.lastIndexOf(".");
-        featureType = featureType.substring(lastFeature + 1);
-//        HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
-        treeItem.setWidget(new AnnotationContainerWidget(object));
-
-        if (object.get("children") != null) {
-            JSONArray childArray = object.get("children").isArray();
-            for (int i = 0; childArray != null && i < childArray.size(); i++) {
-                JSONObject childObject = childArray.get(i).isObject();
-                treeItem.addItem(processFeatureEntry(childObject));
-            }
-        }
-
-        return treeItem;
-    }
+//    private TreeItem processFeatureEntry(JSONObject object) {
+//        TreeItem treeItem = new TreeItem();
+//
+//        String featureName = object.get("name").isString().stringValue();
+//        String featureType = object.get("type").isObject().get("name").isString().stringValue();
+//        int lastFeature = featureType.lastIndexOf(".");
+//        featureType = featureType.substring(lastFeature + 1);
+////        HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
+//        treeItem.setWidget(new AnnotationContainerWidget(object));
+//
+//        if (object.get("children") != null) {
+//            JSONArray childArray = object.get("children").isArray();
+//            for (int i = 0; childArray != null && i < childArray.size(); i++) {
+//                JSONObject childObject = childArray.get(i).isObject();
+//                treeItem.addItem(processFeatureEntry(childObject));
+//            }
+//        }
+//
+//        return treeItem;
+//    }
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
 
@@ -459,11 +453,17 @@ public class AnnotatorPanel extends Composite {
         }
 
         private void buildAnnotationRow(AnnotationInfo rowValue, int absRowIndex, boolean showTranscripts) {
-            SelectionModel<? super AnnotationInfo> selectionModel = dataGrid.getSelectionModel();
-            boolean isSelected =
-                    (selectionModel == null || rowValue == null) ? false : selectionModel
-                            .isSelected(rowValue);
-            boolean isEven = absRowIndex % 2 == 0;
+            final SingleSelectionModel<AnnotationInfo> selectionModel = (SingleSelectionModel<AnnotationInfo>) dataGrid.getSelectionModel();
+//            boolean isSelected = (selectionModel == null || rowValue == null) ? false : selectionModel .isSelected(rowValue);
+//            boolean isEven = absRowIndex % 2 == 0;
+//            selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler(){
+//                @Override
+//                public void onSelectionChange(SelectionChangeEvent event) {
+//                    GWT.log("updated expdanded stuff");
+//                    AnnotationInfo annotationInfo  = selectionModel.getSelectedObject();
+//                    updateAnnotationInfo(annotationInfo);
+//                }
+//            });
 //            StringBuilder trClasses = new StringBuilder(rowStyle);
 //            if (isSelected) {
 //                trClasses.append(selectedRowStyle);
@@ -518,7 +518,7 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 td.text(rowValue.getName());
             } else {
-                renderCell(td, createContext(2), nameColumn, rowValue);
+                renderCell(td, createContext(0), nameColumn, rowValue);
             }
             td.endTD();
 
@@ -529,7 +529,7 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 td.text(rowValue.getType());
             } else {
-                renderCell(td, createContext(3), typeColumn, rowValue);
+                renderCell(td, createContext(1), typeColumn, rowValue);
             }
             td.endTD();
 

@@ -121,8 +121,8 @@ public class GeneDetailPanel extends Composite {
         GWT.log("A");
         nameField.setText(internalAnnotationInfo.getName());
         GWT.log("B");
-//        symbolField.setText(internalAnnotationInfo.getSymbol());
-//        descriptionField.setText(internalAnnotationInfo.getDescription());
+        symbolField.setText(internalAnnotationInfo.getSymbol());
+        descriptionField.setText(internalAnnotationInfo.getDescription());
 
 //        if(this.internalData.get("name") instanceof JSONString){
 //            nameField.setText(internalData.get("name").isString().stringValue());

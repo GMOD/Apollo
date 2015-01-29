@@ -14,6 +14,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.gwt.CellTable;
 
@@ -21,6 +22,8 @@ import org.gwtbootstrap3.client.ui.gwt.CellTable;
  * Created by ndunn on 1/9/15.
  */
 public class TranscriptDetailPanel extends Composite {
+
+    private AnnotationInfo internalAnnotationInfo;
 
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> { }
 
@@ -74,23 +77,44 @@ public class TranscriptDetailPanel extends Composite {
         descriptionField.setEnabled(enabled);
     }
 
-    public void updateData(JSONObject internalData) {
-        this.internalData = internalData ;
+    public void updateData(AnnotationInfo annotationInfo) {
+        this.internalAnnotationInfo = annotationInfo ;
+//        this.internalData = internalData ;
         GWT.log("updating transcript detail panel");
-        GWT.log(internalData.toString());
-        nameField.setText(internalData.get("name").isString().stringValue());
-        symbolField.setText(internalData.containsKey("symbol") ? internalData.get("symbol").isString().stringValue(): "");
-        descriptionField.setText(internalData.containsKey("description") ? internalData.get("description").isString().stringValue() : "");
+//        GWT.log(internalData.toString());
+//        nameField.setText(internalData.get("name").isString().stringValue());
+//        symbolField.setText(internalData.containsKey("symbol") ? internalData.get("symbol").isString().stringValue(): "");
+//        descriptionField.setText(internalData.containsKey("description") ? internalData.get("description").isString().stringValue() : "");
+        nameField.setText(internalAnnotationInfo.getName());
+        descriptionField.setText(internalAnnotationInfo.getDescription());
 
-        JSONObject locationObject = internalData.get("location").isObject();
-        String locationText = locationObject.get("fmin").isNumber().toString();
-        locationText += " - ";
-        locationText += locationObject.get("fmax").isNumber().toString();
-        locationText += " strand(";
-        locationText += locationObject.get("strand").isNumber().doubleValue() > 0 ? "+" : "-";
-        locationText += ")";
+//        JSONObject locationObject = internalData.get("location").isObject();
+//        String locationText = locationObject.get("fmin").isNumber().toString();
+//        locationText += " - ";
+//        locationText += locationObject.get("fmax").isNumber().toString();
+//        locationText += " strand(";
+//        locationText += locationObject.get("strand").isNumber().doubleValue() > 0 ? "+" : "-";
+//        locationText += ")";
+//
+//        locationField.setText(locationText);
 
-        locationField.setText(locationText);
+//        JSONObject locationObject = internalData.get("location").isObject();
+        if (internalAnnotationInfo.getMin() != null) {
+            GWT.log("C");
+            String locationText = internalAnnotationInfo.getMin().toString();
+            locationText += " - ";
+            locationText += internalAnnotationInfo.getMax().toString();
+            locationText += " strand(";
+            locationText += internalAnnotationInfo.getStrand() > 0 ? "+" : "-";
+            locationText += ")";
+            locationField.setText(locationText);
+            locationField.setVisible(true);
+            GWT.log("D");
+        }
+        else{
+            GWT.log("E");
+            locationField.setVisible(false);
+        }
 
         setVisible(true);
     }
@@ -113,7 +137,7 @@ public class TranscriptDetailPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error updating gene: " + exception);
+                Window.alert("Error updating transcript: " + exception);
                 enableFields(true);
             }
         };
