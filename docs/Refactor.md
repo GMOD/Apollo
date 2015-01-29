@@ -1,25 +1,22 @@
-
 RefactorClient goals:
 - Modular code
-- Net reduction in LOC
 - Testable code
-- No ad-hoc fixes, do the right thing
+- Avoid ad-hoc fixes, do the right thing
 - Modern javascript approaches
 - Configurable and extensible
-- The intangible benefit of clean code
 
 RefactorClient changes:
 - Remove DraggableHTMLFeatures inheritence  from SequenceTrack
 - Make SequenceTrack inherit from jbrowse Sequence track
 - Add CodonTable.js change in JBrowse to allow multiple CodonTracks
 - Removed all the webapollo Sequencetrack code to make room for inheriting jbrowse code
-- Create new translation table renderer in CodonTable.js for jbrowse
-- Login using AJAX (instead of synchronous XHR)!! Many “ajax” requests we have are using synchronous flag. Very bad practice
+- Login using AJAX. Many "ajax" requests we have are using synchronous XHR instead.
 - Remove maxPxPerBp limit to allow zooming in farther into the sequence
-- Remove “BrowserZoomFix” (unnecessary after Sequencetrack refactor)
-- Use the quickHelp/aboutThisBrowser config options instead of custom help links
-- Random fix: the title now says webapollo in the browser window instead of jbrowse
-
+- Remove “BrowserZoomFix” (unnecessary after Sequencetrack refactor).
+- Make the JSON requests use actual JSON instead of string building
+- Use the quickHelp/aboutThisBrowser config options
+- The title now says webapollo instead of jbrowse (was implemented but fixed now)
+- Make Tool menu appear before help (was previously implemented but fixed now)
 
 Casualties of the refactoring process, might be reimplemented soon:
 - the sequence displaying inside the feature when zoomed in (should this be reimplemented?)
