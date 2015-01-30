@@ -115,7 +115,6 @@
 
     <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present" unless="jbrowse.perl.installed">
         <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
-            <arg value="${jbrowse.download.directory}"/> -->
         </exec>
     </target>
 
