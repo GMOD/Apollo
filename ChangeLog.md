@@ -3,16 +3,16 @@
 
 Features
 
-+ Added Drupal and OAuth authentication
-+ Made "Show track labels" and "Color by CDS" more persistent
++ Added Drupal and OAuth authentication (#117)
++ Made "Show track labels" and "Color by CDS" more persistent (#120)
 
 
 Bugfixes
 
 
-+ Fixed an issue where the API could be used to create random berkeley DBs.
-+ Fixed the sample log4j2 implementation and added extra notes on it to the documentation.
-+ Fixed an issue where the config files where readable by the outside world.
++ Fixed an issue where the API could be used to create random berkeley DBs (#152)
++ Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151)
++ Fixed an issue where the config files where readable by the outside world
 
 
 ## 1.0.3 release
