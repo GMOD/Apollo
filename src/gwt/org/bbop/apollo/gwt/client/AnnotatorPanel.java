@@ -134,6 +134,7 @@ public class AnnotatorPanel extends Composite {
 
         initWidget(rootElement);
 
+        initializeTypes();
         stopCodonFilter.setValue(false);
 
 //        features.setAnimationEnabled(true);
@@ -167,6 +168,16 @@ public class AnnotatorPanel extends Composite {
 ////                annotationName.setText(internalData.get("name").isString().stringValue());
 //            }
 //        });
+    }
+
+    private void initializeTypes() {
+        typeList.addItem("All Types");
+        typeList.addItem("Gene");
+        typeList.addItem("Pseudogene");
+        typeList.addItem("mRNA");
+        typeList.addItem("ncRNA");
+        typeList.addItem("tRNA");
+        // TODO: add rest
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
@@ -492,7 +503,7 @@ public class AnnotatorPanel extends Composite {
                 // a custom cell rendering might work as well, but not sure
 
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='"+transcriptStyle+"' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
+                HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
 //                updateAnnotationInfo(rowValue);
                 td.html(htmlString);
@@ -525,8 +536,7 @@ public class AnnotatorPanel extends Composite {
                 td.endDiv();
                 td.endTD();
 
-            }
-            else{
+            } else {
                 td.text(NumberFormat.getDecimalFormat().format(rowValue.getLength())).endTD();
             }
 
