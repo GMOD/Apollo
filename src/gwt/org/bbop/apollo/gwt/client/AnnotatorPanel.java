@@ -4,9 +4,13 @@ import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -40,10 +44,7 @@ import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -78,7 +79,7 @@ public class AnnotatorPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(10,tablecss);
+    DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(10, tablecss);
     @UiField(provided = true)
     SimplePager pager = null;
 
@@ -86,18 +87,18 @@ public class AnnotatorPanel extends Composite {
     @UiField
     ListBox typeList;
     @UiField
-    GeneDetailPanel geneDetailPanel;
+    static GeneDetailPanel geneDetailPanel;
     @UiField
-    TranscriptDetailPanel transcriptDetailPanel;
+    static TranscriptDetailPanel transcriptDetailPanel;
     @UiField
-    ExonDetailPanel exonDetailPanel;
+    static ExonDetailPanel exonDetailPanel;
     @UiField
-    CDSDetailPanel cdsDetailPanel;
+    static CDSDetailPanel cdsDetailPanel;
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
-    private ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
-    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
+    private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
+    private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     //    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
@@ -126,6 +127,7 @@ public class AnnotatorPanel extends Composite {
                 updateAnnotationInfo(annotationInfo);
             }
         });
+        exportStaticMethod(this);
 
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
@@ -167,9 +169,9 @@ public class AnnotatorPanel extends Composite {
 //        });
     }
 
-    private void updateAnnotationInfo(AnnotationInfo annotationInfo){
+    private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
         String type = annotationInfo.getType();
-        GWT.log("annoation type: "+type);
+        GWT.log("annoation type: " + type);
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         exonDetailPanel.setVisible(false);
@@ -430,6 +432,32 @@ public class AnnotatorPanel extends Composite {
 //        return treeItem;
 //    }
 
+    // TODO: need to cache these or retrieve from the backend
+    public static void displayTranscript(int geneIndex, String uniqueName) {
+        AnnotationInfo annotationInfo = filteredAnnotationList.get(geneIndex);
+
+//        Iterator<AnnotationInfo> annotationInfoIterator = filteredAnnotationList.iterator();
+//        for(int i = 0 ; i<filteredAnnotationList.size() && annotationInfo==null  ; i++){
+//            if(i==geneIndex){
+//                annotationInfo = annotationInfoIterator.next();
+//            }
+//            else{
+//                annotationInfoIterator.next();
+//            }
+//        }
+
+        for (AnnotationInfo childAnnotation : filteredAnnotationList.get(geneIndex).getAnnotationInfoSet()) {
+            if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
+                updateAnnotationInfo(childAnnotation);
+                return;
+            }
+        }
+    }
+
+    public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
+        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+    }-*/;
+
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
 
         public CustomTableBuilder() {
@@ -452,77 +480,28 @@ public class AnnotatorPanel extends Composite {
             }
         }
 
-        private void buildAnnotationRow(AnnotationInfo rowValue, int absRowIndex, boolean showTranscripts) {
-            final SingleSelectionModel<AnnotationInfo> selectionModel = (SingleSelectionModel<AnnotationInfo>) dataGrid.getSelectionModel();
-//            boolean isSelected = (selectionModel == null || rowValue == null) ? false : selectionModel .isSelected(rowValue);
-//            boolean isEven = absRowIndex % 2 == 0;
-//            selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler(){
-//                @Override
-//                public void onSelectionChange(SelectionChangeEvent event) {
-//                    GWT.log("updated expdanded stuff");
-//                    AnnotationInfo annotationInfo  = selectionModel.getSelectedObject();
-//                    updateAnnotationInfo(annotationInfo);
-//                }
-//            });
-//            StringBuilder trClasses = new StringBuilder(rowStyle);
-//            if (isSelected) {
-//                trClasses.append(selectedRowStyle);
-//            }
-
-            // Calculate the cell styles.
-//            String cellStyles = cellStyle;
-//            if (isSelected) {
-//                cellStyles += selectedCellStyle;
-//            }
-//            if (showTranscripts) {
-//                cellStyles += childCell;
-//            }
+        private void buildAnnotationRow(final AnnotationInfo rowValue, int absRowIndex, boolean showTranscripts) {
+//            final SingleSelectionModel<AnnotationInfo> selectionModel = (SingleSelectionModel<AnnotationInfo>) dataGrid.getSelectionModel();
 
             TableRowBuilder row = startRow();
-//            row.className(trClasses.toString());
-
-      /*
-       * Checkbox column.
-       *
-       * This table will uses a checkbox column for selection. Alternatively,
-       * you can call dataGrid.setSelectionEnabled(true) to enable mouse
-       * selection.
-       */
-//            td.className(cellStyles);
-//            td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
-//            if (!showTranscripts) {
-//                renderCell(td, createContext(0), nameColumn, rowValue);
-//            }
-//            td.endTD();
-
-      /*
-       * View friends column.
-       *
-       * Displays a link to "show friends". When clicked, the list of friends is
-       * displayed below the contact.
-       */
-//            td = row.startTD();
-////            td.className(cellStyles);
-//            if (!showTranscripts) {
-//                td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
-//                renderCell(td, createContext(1), typeColumn, rowValue);
-//            }
-//            td.endTD();
-
             TableCellBuilder td = row.startTD();
 
-            // First name column.
-//            td = row.startTD();
-//            td.className(cellStyles);
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             if (showTranscripts) {
-                td.text(rowValue.getName());
+                // TODO: this is ugly, but it works
+                // a custom cell rendering might work as well, but not sure
+                
+                String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
+                HTML html = new HTML("<a style='"+transcriptStyle+"' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
+                SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
+//                updateAnnotationInfo(rowValue);
+                td.html(htmlString);
             } else {
                 renderCell(td, createContext(0), nameColumn, rowValue);
             }
             td.endTD();
 
-            // Last name column.
+            // Type column.
             td = row.startTD();
 //            td.className(cellStyles);
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
@@ -533,30 +512,10 @@ public class AnnotatorPanel extends Composite {
             }
             td.endTD();
 
-            // Age column.
+            // Length column.
             td = row.startTD();
-//            td.className(cellStyles);
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             td.text(NumberFormat.getDecimalFormat().format(rowValue.getLength())).endTD();
-
-            // Category column.
-//            td = row.startTD();
-//            td.className(cellStyles);
-//            td.style().outlineStyle(OutlineStyle.NONE).endStyle();
-//            if (showTranscripts) {
-//                td.text(rowValue.getCategory().getDisplayName());
-//            } else {
-//                renderCell(td, createContext(5), categoryColumn, rowValue);
-//            }
-//            td.endTD();
-//
-//            // Address column.
-//            td = row.startTD();
-//            td.className(cellStyles);
-//            DivBuilder div = td.startDiv();
-//            div.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
-//            div.text(rowValue.getAddress()).endDiv();
-//            td.endTD();
 
             row.endTR();
 
