@@ -109,7 +109,7 @@ public class AnnotatorPanel extends Composite {
         sequenceList = new SuggestBox(sequenceOracle);
         dataGrid.setWidth("100%");
 
-        dataGrid.setEmptyTableWidget(new Label("Loading"));
+//        dataGrid.setEmptyTableWidget(new Label("Loading"));
         initializeTable();
 
         dataGrid.setTableBuilder(new CustomTableBuilder());
@@ -490,7 +490,7 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 // TODO: this is ugly, but it works
                 // a custom cell rendering might work as well, but not sure
-                
+
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
                 HTML html = new HTML("<a style='"+transcriptStyle+"' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
@@ -506,7 +506,10 @@ public class AnnotatorPanel extends Composite {
 //            td.className(cellStyles);
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             if (showTranscripts) {
-                td.text(rowValue.getType());
+                DivBuilder div = td.startDiv();
+                div.style().trustedColor("green").endStyle();
+                div.text(rowValue.getType());
+                td.endDiv();
             } else {
                 renderCell(td, createContext(1), typeColumn, rowValue);
             }
@@ -515,7 +518,17 @@ public class AnnotatorPanel extends Composite {
             // Length column.
             td = row.startTD();
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
-            td.text(NumberFormat.getDecimalFormat().format(rowValue.getLength())).endTD();
+            if (showTranscripts) {
+                DivBuilder div = td.startDiv();
+                div.style().trustedColor("green").endStyle();
+                div.text(NumberFormat.getDecimalFormat().format(rowValue.getLength()));
+                td.endDiv();
+                td.endTD();
+
+            }
+            else{
+                td.text(NumberFormat.getDecimalFormat().format(rowValue.getLength())).endTD();
+            }
 
             row.endTR();
 
