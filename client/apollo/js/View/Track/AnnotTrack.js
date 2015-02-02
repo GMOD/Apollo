@@ -64,8 +64,6 @@ var contextMenuItems;
 var context_path = "..";
 
 var non_annot_context_menu;
-var list_of_positions={};
-var currently_annotating=false;
 
 var AnnotTrack = declare( DraggableFeatureTrack,
 {
@@ -5430,81 +5428,35 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                            });
     },
 
-    showRange: function(first, last, startBase, bpPerBlock, scale,
-                        containerStart, containerEnd) {
-        // console.log("called AnnotTrack.showRange()");
-        this.inherited( arguments );
 
-        // console.log("after calling annot track.showRange(), block range: " +
-        // this.firstAttached + "--" + this.lastAttached + ", " +
-        // (this.lastAttached - this.firstAttached));
-
-        // handle showing base residues for selected here?
-        // selected feats
-        // ==> selected feat divs
-        // ==> selected "rows"
-        // ==> (A) float SequenceTrack-like residues layer (with blocks) on each
-        // selected row?
-        // OR (B) just get all residues needed and float simple div (no blocks)
-        // but set up so that callback for actual render happens once all needed
-        // residues
-        // are available
-        // can do this way while still using SequenceTrack.getRange function
-        //                   
-        // update:
-        // OR (C), hybrid of A and B, block-based AND leveraging
-        // SequenceTrack.getRange()
-        // originally tried (B), but after struggling a bit with
-        // SequenceTrack.getRange() etc., now leaning
-        // trying (C)
-        /*
-         * var track = this; if (scale === track.browserParams.charWidth) { // need
-         * to float sequence residues over selected row(s) var seqTrack =
-         * this.getSequenceTrack(); seqTrack.getRange(containerStart, containerEnd, //
-         * see // callback, gets called for every block that overlaps with
-         * containerStart->containerEnd range // start = genome coord of first bp of
-         * block // end = genome coord of function(start, end, seq) {
-         *  } ); }
-         */
-    },
     // override getLayout to access addRect method
     _getLayout: function( ) {
-        console.log('my getlayout');
-        track=this; 
+        var thisB=this; 
         var layout=this.inherited( arguments ); 
         return dojo.safeMixin(layout, { 
             addRect: function( id, left, right, height, data ) {
-                var current_top=track.getCurrentYCoord( id ); 
                 var top=this.inherited(arguments); 
-
-                console.log('my addrect '+current_top+' '+top);
-                // don't change the y-coordinate if we are annotating
-                if(track.isCurrentlyAnnotating()) { 
-                    setCurrentYCoord(id,current_top);
-                    return current_top; 
-                } else {
-                    setCurrentYCoord(id,top);
-                    return top; 
-                }
+                return thisB.browser.cookie('Collapsed')=="1"?0:top;
             }
         });
     },
 
-    isCurrentlyAnnotating: function () {
-        return currently_annotating;
-    },
-    setCurrentlyAnnotating: function(flag) {
-        currently_annotating=flag;
-    },
+    _trackMenuOptions: function() {
+        var thisB = this;
+        var options = this.inherited(arguments) || [];
 
-    getCurrentYCoord: function(id) {
-        return list_of_positions[id];
-    },
-    setCurrentYCoord: function(id, top) {
-        list_of_positions[id]=top;
-    },
+        options.push({ label: "Collapsed view",
+                 title: "Collapsed view",
+                 type: 'dijit/CheckedMenuItem',
+                 checked: this.browser.cookie('Collapsed')==1,
+                 onClick: function(event) {
+                     thisB.browser.cookie('Collapsed',this.get("checked")?"1":"0");
+                     thisB.redraw();
+                 }
+               });
 
-
+        return options;
+    },
 
     /**
      * handles adding overlay of sequence residues to "row" of selected feature
