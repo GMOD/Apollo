@@ -48,19 +48,16 @@ define( [
           SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
 
 
-var creation_count = 0;
 
 var annot_context_menu;
 var contextMenuItems;
 
 var context_path = "..";
 
-var non_annot_context_menu;
 
 var AnnotTrack = declare( DraggableFeatureTrack,
 {
     constructor: function( args ) {
-        this.isWebApolloAnnotTrack = true;
         this.has_custom_context_menu = true;
         this.exportAdapters = [];
 
@@ -69,13 +66,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         this.selectionClass = "selected-annotation";
         this.annot_under_mouse = null;
 
-        /**
-         * only show residues overlay if "pointer-events" CSS property is
-         * supported (otherwise will interfere with passing of events to
-         * features beneath the overlay)
-         */
-        this.useResiduesOverlay = 'pointerEvents' in document.body.style;
-        this.FADEIN_RESIDUES = false;
 
         var thisObj = this;
         this.comet_working = true;

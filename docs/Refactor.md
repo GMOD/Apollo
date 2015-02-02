@@ -19,6 +19,8 @@ RefactorClient changes:
 - Use the quickHelp/aboutThisBrowser config options
 - The title now says webapollo instead of jbrowse (was implemented but fixed now)
 - Make Tool menu appear before help (was previously implemented but fixed now)
+- Fixed resizing of features at any scale (even highly zoomed in)
+- Completely removed the "DraggableResultFeatures" because it was unused. It offered the option to "Promote all features" to the annotation track. If this is desired, we need to revisit it, but deleted for now.
 
 Casualties of the refactoring process, might be reimplemented soon:
 
