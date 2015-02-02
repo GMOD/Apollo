@@ -59,18 +59,18 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
-            Symbol symbol = feature.symbol
-            if (!symbol) {
-                symbol = new Symbol(
-                        value: symbolString
-                        , feature: feature
-                ).save()
-            } else {
-                symbol.value = symbolString
-                symbol.save()
-            }
+//            Symbol symbol = feature.symbol
+//            if (!symbol) {
+//                symbol = new Symbol(
+//                        value: symbolString
+//                        , feature: feature
+//                ).save()
+//            } else {
+//                symbol.value = symbolString
+//                symbol.save()
+//            }
 
-            feature.symbol = symbol
+            feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
 
             updateFeatureContainer = wrapFeature(updateFeatureContainer,feature)
@@ -101,18 +101,18 @@ class RequestHandlingService {
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
 
-            Description description = feature.description
-            if (!description) {
-                description = new Description(
-                        value: descriptionString
-                        , feature: feature
-                ).save()
-            } else {
-                description.value = descriptionString
-                description.save()
-            }
+//            Description description = feature.description
+//            if (!description) {
+//                description = new Description(
+//                        value: descriptionString
+//                        , feature: feature
+//                ).save()
+//            } else {
+//                description.value = descriptionString
+//                description.save()
+//            }
 
-            feature.description = description
+            feature.description = descriptionString
             feature.save(flush: true, failOnError: true)
 
             // TODO: need to fire

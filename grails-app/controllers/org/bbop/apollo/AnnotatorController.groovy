@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -26,6 +27,7 @@ class AnnotatorController {
      * updates shallow properties of gene / feature
      * @return
      */
+    @Transactional
     def updateFeature() {
         println "updating feature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
@@ -33,15 +35,14 @@ class AnnotatorController {
         println "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
         println "foiund feature: "+feature
-        feature.name = data.name
 
-        if (feature.symbol) {
-            feature.symbol.value = data?.symbol
-        }
-        if (feature.description) {
-            feature.description.value = data?.description
-        }
+        feature.name = data.name
+        feature.symbol = data.symbol
+        feature.description = data.description
+
         feature.save(flush: true, failOnError: true)
+
+        println "saved!! "
 
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         if (feature instanceof Gene) {

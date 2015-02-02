@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.gwt.CellTable;
 
@@ -30,14 +31,13 @@ public class TranscriptDetailPanel extends Composite {
 
     Dictionary dictionary = Dictionary.getDictionary("Options");
     String rootUrl = dictionary.get("rootUrl");
-    private JSONObject internalData ;
 
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
 
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameField;
-    @UiField
-    org.gwtbootstrap3.client.ui.TextBox symbolField;
+//    @UiField
+//    org.gwtbootstrap3.client.ui.TextBox symbolField;
     @UiField
     org.gwtbootstrap3.client.ui.TextBox descriptionField;
     @UiField
@@ -45,27 +45,21 @@ public class TranscriptDetailPanel extends Composite {
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
-//        Window.alert("changed: "+e);
-        GWT.log("changing transcript name");
-        String updatedName = nameField.getText();
-        internalData.put("name", new JSONString(updatedName));
-        updateTranscript(internalData);
+        internalAnnotationInfo.setName(nameField.getText());
+        updateTranscript();
     }
 
-    @UiHandler("symbolField")
-    void handleSymbolChange(ChangeEvent e) {
-//        Window.alert("symbol field changed: "+e);
-        String updatedName = symbolField.getText();
-        internalData.put("symbol", new JSONString(updatedName));
-        updateTranscript(internalData);
-    }
+//    @UiHandler("symbolField")
+//    void handleSymbolChange(ChangeEvent e) {
+////        Window.alert("symbol field changed: "+e);
+//        internalAnnotationInfo.setSymbol(symbolField.getText());
+//        updateTranscript();
+//    }
 
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
-//        Window.alert("symbol field changed: "+e);
-        String updatedName = descriptionField.getText();
-        internalData.put("description", new JSONString(updatedName));
-        updateTranscript(internalData);
+        internalAnnotationInfo.setDescription(descriptionField.getText());
+        updateTranscript();
     }
 
     public TranscriptDetailPanel() {
@@ -74,7 +68,7 @@ public class TranscriptDetailPanel extends Composite {
 
     private void enableFields(boolean enabled){
         nameField.setEnabled(enabled);
-        symbolField.setEnabled(enabled);
+//        symbolField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
     }
 
@@ -120,19 +114,20 @@ public class TranscriptDetailPanel extends Composite {
         setVisible(true);
     }
 
-    private void updateTranscript(JSONObject internalData) {
+    private void updateTranscript() {
         String url = rootUrl + "/annotator/updateFeature";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
-        sb.append("data="+internalData.toString());
+        sb.append("data="+ AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
+        final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
         builder.setRequestData(sb.toString());
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(internalAnnotationInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
 //                Window.alert("successful update: "+returnValue);
                 enableFields(true);
             }

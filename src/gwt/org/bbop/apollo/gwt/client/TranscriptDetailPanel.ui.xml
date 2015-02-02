@@ -56,14 +56,14 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
-        <b:Row>
-            <b:Column size="XS_12" styleName="{style.widgetPanel}">
-                <b:InputGroup>
-                    <b:InputGroupAddon>Symbol</b:InputGroupAddon>
-                    <b:TextBox autoComplete="false" ui:field="symbolField"/>
-                </b:InputGroup>
-            </b:Column>
-        </b:Row>
+        <!--<b:Row>-->
+            <!--<b:Column size="XS_12" styleName="{style.widgetPanel}">-->
+                <!--<b:InputGroup>-->
+                    <!--<b:InputGroupAddon>Symbol</b:InputGroupAddon>-->
+                    <!--<b:TextBox autoComplete="false" ui:field="symbolField"/>-->
+                <!--</b:InputGroup>-->
+            <!--</b:Column>-->
+        <!--</b:Row>-->
         <b:Row>
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>

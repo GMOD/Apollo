@@ -82,14 +82,9 @@ public class GeneDetailPanel extends Composite {
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
-        GWT.log("d");
         sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
-//        sb.append("&key2=val2");
-//        sb.append("&key3=val3");
-        GWT.log("e");
         builder.setRequestData(sb.toString());
-        GWT.log("f");
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override

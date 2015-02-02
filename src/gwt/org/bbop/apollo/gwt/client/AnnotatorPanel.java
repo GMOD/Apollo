@@ -419,6 +419,12 @@ public class AnnotatorPanel extends Composite {
         annotationInfo.setName(object.get("name").isString().stringValue());
         GWT.log("top-level processing: " + annotationInfo.getName());
         annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
+        if(object.get("symbol")!=null){
+            annotationInfo.setSymbol(object.get("symbol").isString().stringValue());
+        }
+        if(object.get("description")!=null){
+            annotationInfo.setDescription(object.get("description").isString().stringValue());
+        }
         annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
         annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());

@@ -425,8 +425,8 @@ class AnnotationEditorController implements AnnotationListener {
             println "retrieved feature ${feature.name} ${feature.uniqueName}"
             JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
 
-            if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol.value)
-            if (feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description.value)
+            if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol)
+            if (feature.description) newFeature.put(FeatureStringEnum.DESCRIPTION.value, feature.description)
 
 //            if (feature.getTimeAccessioned() != null) {
             jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);

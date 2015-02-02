@@ -26,14 +26,17 @@ class Feature implements Ontological{
         isObsolete nullable: true
         dateCreated nullable: true
         lastUpdated nullable: true
-        symbol nullable: true // TODO: should be false and unique
+        symbol nullable: true // TODO: should be false and unique per organism
         description nullable: true
         status nullable: true
 //        featureLocation nullable: true
     }
 
-    Symbol symbol
-    Description description
+//    Symbol symbol
+//    Description description
+
+    String symbol
+    String description
 //    Integer featureId;
 //    CVTerm type;
     DBXref dbxref;
@@ -133,10 +136,11 @@ class Feature implements Ontological{
 
 
 
-    @Override
-    public String toString() {
-        return String.format("%s (%s)", getUniqueName(), ontologyId);
-    }
+//    @Override
+//    public String toString() {
+//        return String.format("%s (%s)", getUniqueName(), ontologyId);
+//    }
+
 
     public String getResidues(int fmin, int fmax) {
         if (getResidues() != null) {
@@ -218,4 +222,19 @@ class Feature implements Ontological{
         featureLocation.strand
     }
 
+
+    @Override
+    public String toString() {
+        return "Feature{" +
+                "id=" + id +
+                ", symbol='" + symbol + '\'' +
+                ", description='" + description + '\'' +
+                ", name='" + name + '\'' +
+                ", uniqueName='" + uniqueName + '\'' +
+                ", sequenceLength=" + sequenceLength +
+                ", status=" + status +
+                ", dateCreated=" + dateCreated +
+                ", lastUpdated=" + lastUpdated +
+                '}';
+    }
 }

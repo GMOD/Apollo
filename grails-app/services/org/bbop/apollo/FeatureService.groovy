@@ -1719,10 +1719,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
             }
             if (gsolFeature.symbol) {
-                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol.value);
+                jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
             }
             if (gsolFeature.description) {
-                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description.value);
+                jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
             // get children
 //            Collection<FeatureRelationship> childrenRelationships = gsolFeature.getChildFeatureRelationships();
