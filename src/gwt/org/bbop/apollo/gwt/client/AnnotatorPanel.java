@@ -37,6 +37,8 @@ import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
+import org.bbop.apollo.gwt.client.event.ContextSwitchEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
@@ -136,6 +138,15 @@ public class AnnotatorPanel extends Composite {
 
         initializeTypes();
         stopCodonFilter.setValue(false);
+
+        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
+            @Override
+            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
+                selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
+                loadSequences();
+//                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
+            }
+        });
 
 //        features.setAnimationEnabled(true);
 
