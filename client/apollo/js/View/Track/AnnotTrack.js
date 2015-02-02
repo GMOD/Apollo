@@ -476,7 +476,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
              * subfeature is not selectable, do not bind mouse down
              */
             if (subdiv && subdiv != null && (! this.selectionManager.unselectableTypes[subfeature.get('type')]) )  {
-                $(subdiv).bind("mousedown", this.onAnnotMouseDown);
+                $(subdiv).bind("mousedown", dojo.hitch(this, 'onAnnotMouseDown'));
             }
         }
         
