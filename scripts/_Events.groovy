@@ -1,7 +1,10 @@
+
+// from grails-gwt plugin, maybe be exapnded
+
 //includeTargets << new File("${gwtPluginDir}/scripts/_GwtInternal.groovy")
 
 eventCompileStart = {
-  println "COMPILE START"
+//  println "COMPILE START"
 //  checkGwtHome()
 //  updateClasspath()
     projectCompiler.srcDirectories << "${basedir}/src/gwt/org/bbop/apollo/gwt/shared"

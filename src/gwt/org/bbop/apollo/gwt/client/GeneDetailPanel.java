@@ -39,13 +39,12 @@ public class GeneDetailPanel extends Composite {
     @UiField
     InputGroupAddon locationField;
 
-    private SharedStuff sharedStuff = new SharedStuff();
+//    private SharedStuff sharedStuff = new SharedStuff();
 //    private JSONObject internalData ;
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        Window.alert(sharedStuff.getSomthing());
-
+//        Window.alert(sharedStuff.getSomthing());
     }
 
     @UiHandler("nameField")

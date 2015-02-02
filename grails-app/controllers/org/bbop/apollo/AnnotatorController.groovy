@@ -31,8 +31,6 @@ class AnnotatorController {
     @Transactional
     def updateFeature() {
         println "updating feature ${params.data}"
-        SharedStuff sharedStuff = new SharedStuff()
-        println "sharing the stuff: ${sharedStuff.somthing}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"
