@@ -13,7 +13,8 @@ Bugfixes
 + Fixed an issue where the API could be used to create random berkeley DBs (#152)
 + Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151)
 + Fixed an issue where the config files were readable by the outside world
-
++ Changed maxHeight on User-create annotations track to prevent overflow (#124).
++ Changed default database to EncryptedLocalDbUserAuthentication. Unencrypted options are still available via command line scripts for LocalDbUserAuthentication if needed (#148).
 
 ## 1.0.3 release
 
