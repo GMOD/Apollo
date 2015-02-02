@@ -1,33 +1,19 @@
 define( [
             'dojo/_base/declare',
             'jquery',
-            'jqueryui/draggable',
             'jqueryui/droppable',
             'jqueryui/resizable',
-            'jqueryui/autocomplete',
-            'jqueryui/dialog',
             'dijit/Menu',
             'dijit/MenuItem', 
             'dijit/MenuSeparator', 
-            'dijit/PopupMenuItem',
             'dijit/form/Button',
             'dijit/form/DropDownButton',
-            'dijit/DropDownMenu',
-            'dijit/form/ComboBox',
-            'dijit/form/TextBox',
-            'dijit/form/ValidationTextBox',
-            'dijit/form/RadioButton',
             'dojox/widget/DialogSimple',
-            'dojox/grid/DataGrid',
-            'dojox/grid/cells/dijit',
-            'dojo/data/ItemFileWriteStore',
             'WebApollo/View/Track/DraggableHTMLFeatures',
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
-            'WebApollo/BioFeatureUtils',
             'WebApollo/Permission', 
             'WebApollo/SequenceSearch', 
-            'WebApollo/EUtils',
             'WebApollo/SequenceOntologyUtils',
             'JBrowse/Model/SimpleFeature',
             'JBrowse/Util', 
@@ -36,17 +22,33 @@ define( [
             'dojox/widget/Standby',
             'dijit/Tooltip',
             'WebApollo/FormatUtils',
-            'dijit/form/Select',
-            'dojo/store/Memory',
-            'dojo/data/ObjectStore',
             'WebApollo/View/InformationEditor'
         ],
-        function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
-          dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
-          dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-          dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
-          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-          SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore, InformationEditor ) {
+        function( declare,
+                $,
+                droppable,
+                resizable,
+                dijitMenu,
+                dijitMenuItem,
+                dijitMenuSeparator,
+                dijitButton,
+                dijitDropDownButton,
+                dojoxDialogSimple,
+                DraggableFeatureTrack,
+                FeatureSelectionManager,
+                JSONUtils,
+                Permission,
+                SequenceSearch,
+                SequenceOntologyUtils,
+                SimpleFeature,
+                Util,
+                Layout,
+                xhr,
+                Standby,
+                Tooltip,
+                FormatUtils,
+                InformationEditor
+                ) {
 
 
 
@@ -408,8 +410,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if (featDiv && featDiv != null && !history)  {
             annot_context_menu.bindDomNode(featDiv);
             $(featDiv).droppable(  {
-                accept: ".selected-feature",   // only accept draggables that
-                                                // are selected feature divs
+                accept: ".selected-feature",
                 tolerance: "pointer",
                 hoverClass: "annot-drop-hover",
                 over: function(event, ui)  {
@@ -2509,9 +2510,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             annot_context_menu.addChild(new dijit.MenuSeparator());
             index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information Editor (alt-click)",
+                label: "Information Viewer (alt-click)",
                 onClick: function(event) {
-                    thisB.getAnnotationInfoEditor();
+                    InformationEditor.getAnnotationInfoEditor();
                 }
             } ));
             contextMenuItems["annotation_info_editor"] = index++;
@@ -2520,7 +2521,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             annot_context_menu.addChild(new dijit.MenuItem( {
                 label: "Edit Annotation (alt-click)",
                 onClick: function(event) {
-                    thisB.getAnnotationInfoEditor();
+                    InformationEditor.getAnnotationInfoEditor();
                 }
             } ));
             contextMenuItems["annotation_info_editor"] = index++;
