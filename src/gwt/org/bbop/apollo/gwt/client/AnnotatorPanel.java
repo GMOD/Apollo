@@ -9,6 +9,7 @@ import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -102,6 +103,7 @@ public class AnnotatorPanel extends Composite {
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
+    private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
     private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     //    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
@@ -191,7 +193,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     private void initializeTypes() {
-        typeList.addItem("All Types");
+        typeList.addItem("All Types","");
         typeList.addItem("Gene");
         typeList.addItem("Pseudogene");
         typeList.addItem("mRNA");
@@ -378,7 +380,7 @@ public class AnnotatorPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isObject().get("features").isArray();
 //                features.clear();
-                filteredAnnotationList.clear();
+                annotationInfoList.clear();
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
@@ -388,11 +390,13 @@ public class AnnotatorPanel extends Composite {
 
 
                     AnnotationInfo annotationInfo = generateAnnotationInfo(object);
-                    filteredAnnotationList.add(annotationInfo);
+                    annotationInfoList.add(annotationInfo);
                 }
 
 //                features.setAnimationEnabled(true);
                 GWT.log("# of annoations: " + filteredAnnotationList.size());
+
+                filterList();
                 dataGrid.redraw();
             }
 
@@ -408,6 +412,42 @@ public class AnnotatorPanel extends Composite {
             // Couldn't connect to server
             Window.alert(e.getMessage());
         }
+    }
+
+    private void filterList() {
+        String text = nameSearchBox.getText() ;
+        filteredAnnotationList.clear();
+        for(int i = 0 ; i < annotationInfoList.size() ; i++){
+            AnnotationInfo annotationInfo = annotationInfoList.get(i);
+            if(searchMatches(annotationInfo)){
+                filteredAnnotationList.add(annotationInfo);
+            }
+            else{
+                if(searchMatches(annotationInfo.getAnnotationInfoSet())){
+                    filteredAnnotationList.add(annotationInfo);
+                }
+            }
+        }
+    }
+
+    private boolean searchMatches(Set<AnnotationInfo> annotationInfoSet) {
+        for(AnnotationInfo annotationInfo : annotationInfoSet){
+            if(searchMatches(annotationInfo)){
+                return true ;
+            }
+        }
+        return false;
+    }
+
+    private boolean searchMatches(AnnotationInfo annotationInfo) {
+        String nameText = nameSearchBox.getText() ;
+        String typeText = typeList.getSelectedValue();
+        return (
+                (annotationInfo.getName().toLowerCase().contains(nameText.toLowerCase()))
+                        &&
+                        annotationInfo.getType().toLowerCase().contains(typeText.toLowerCase())
+                );
+
     }
 
     private AnnotationInfo generateAnnotationInfo(JSONObject object) {
@@ -440,6 +480,17 @@ public class AnnotatorPanel extends Composite {
 
         return annotationInfo;
     }
+
+    @UiHandler("typeList")
+    public void searchType(ChangeEvent changeEvent){
+        filterList();
+    }
+
+    @UiHandler("nameSearchBox")
+    public void searchName(KeyUpEvent keyUpEvent){
+        filterList();
+    }
+
 
     @UiHandler("sequenceList")
     public void changeRefSequence(KeyUpEvent changeEvent) {

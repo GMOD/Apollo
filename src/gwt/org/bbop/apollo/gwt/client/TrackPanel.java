@@ -86,15 +86,6 @@ public class TrackPanel extends Composite {
     private TrackInfo selectedTrackInfo = null;
 
 
-    //    @UiField(provided = true) org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
-//    @UiField
-//    DataGrid dataGrid;
-//    @UiField(provided = true)
-//    org.gwtbootstrap3.client.ui.gwt.DataGrid<TrackInfo> dataGrid;
-
-//    private ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<TrackInfo>();
-
-
     public TrackPanel() {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
@@ -103,21 +94,7 @@ public class TrackPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
-//        configurationTable.setHTML(0, 0, "maxHeight"); ;
-//        configurationTable.setHTML(0, 1, "1000");
-//        configurationTable.setHTML(1, 0, "maxFeatureScreenDensity");
-//        configurationTable.setHTML(1, 1, "0.5");
-//        configurationTable.setHTML(2, 0, "maxDescriptionLength");
-//        configurationTable.setHTML(2, 1, "70");
-//        configurationTable.setHTML(3, 0, "label");
-//        configurationTable.setHTML(3, 1, "Cflo_OGSv3.3");
-//
-//        configurationTable.setWidth("100%");
-
-
-//        dataGrid = new CellTable<>();
         dataGrid.setWidth("100%");
-//        dataGrid.setAutoHeaderRefreshDisabled(true);
 
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
