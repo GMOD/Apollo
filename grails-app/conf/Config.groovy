@@ -11,6 +11,11 @@
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
 
+extraSrcDirs = "$basedir/src/gwt/org.bbop.apollo.gwt.shared"
+eventCompileStart = {
+    projectCompiler.srcDirectories << extraSrcDirs
+}
+
 grails.config.locations = [
         "file:./${appName}-config.groovy"
         ,"file:/tmp/${appName}-config.groovy"

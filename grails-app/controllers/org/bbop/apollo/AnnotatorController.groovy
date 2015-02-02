@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.gwt.shared.SharedStuff
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -30,6 +31,8 @@ class AnnotatorController {
     @Transactional
     def updateFeature() {
         println "updating feature ${params.data}"
+        SharedStuff sharedStuff = new SharedStuff()
+        println "sharing the stuff: ${sharedStuff.somthing}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"

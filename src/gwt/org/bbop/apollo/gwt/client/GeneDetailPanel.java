@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
+import org.bbop.apollo.gwt.shared.SharedStuff;
 import org.gwtbootstrap3.client.ui.*;
 
 /**
@@ -38,10 +39,12 @@ public class GeneDetailPanel extends Composite {
     @UiField
     InputGroupAddon locationField;
 
+    private SharedStuff sharedStuff = new SharedStuff();
 //    private JSONObject internalData ;
 
     public GeneDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        Window.alert(sharedStuff.getSomthing());
 
     }
 
