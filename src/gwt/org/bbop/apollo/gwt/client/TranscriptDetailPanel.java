@@ -15,6 +15,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.gwt.CellTable;
 
@@ -131,6 +132,7 @@ public class TranscriptDetailPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(internalAnnotationInfo, AnnotationInfoChangeEvent.Action.UPDATE));
 //                Window.alert("successful update: "+returnValue);
                 enableFields(true);
             }

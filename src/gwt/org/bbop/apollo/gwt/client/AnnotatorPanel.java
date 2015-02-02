@@ -37,6 +37,8 @@ import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
 import org.bbop.apollo.gwt.client.event.ContextSwitchEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -145,6 +147,13 @@ public class AnnotatorPanel extends Composite {
                 selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
                 loadSequences();
 //                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
+            }
+        });
+
+        Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
+            @Override
+            public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
+                reload();
             }
         });
 
@@ -370,7 +379,6 @@ public class AnnotatorPanel extends Composite {
                 JSONArray array = returnValue.isObject().get("features").isArray();
 //                features.clear();
                 filteredAnnotationList.clear();
-
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();

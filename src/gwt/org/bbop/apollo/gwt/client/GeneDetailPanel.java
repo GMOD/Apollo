@@ -11,6 +11,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.*;
 
@@ -46,11 +47,8 @@ public class GeneDetailPanel extends Composite {
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
-        GWT.log("a");
         String updatedName = nameField.getText();
-        GWT.log("b");
         internalAnnotationInfo.setName(updatedName);
-        GWT.log("c");
         updateGene();
     }
 
@@ -86,6 +84,7 @@ public class GeneDetailPanel extends Composite {
         StringBuilder sb = new StringBuilder();
         GWT.log("d");
         sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
+        final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
 //        sb.append("&key2=val2");
 //        sb.append("&key3=val3");
         GWT.log("e");
@@ -99,6 +98,7 @@ public class GeneDetailPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("successful update: " + returnValue);
                 enableFields(true);
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
             @Override
