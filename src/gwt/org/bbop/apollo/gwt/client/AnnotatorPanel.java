@@ -4,17 +4,13 @@ import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -34,7 +30,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
@@ -43,8 +38,8 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
 import org.bbop.apollo.gwt.client.event.ContextSwitchEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.gwtbootstrap3.client.shared.event.TabEvent;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -98,7 +93,9 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static ExonDetailPanel exonDetailPanel;
     @UiField
-    static CDSDetailPanel cdsDetailPanel;
+    TabLayoutPanel tabPanel;
+//    @UiField
+//    static CDSDetailPanel cdsDetailPanel;
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
@@ -172,17 +169,17 @@ public class AnnotatorPanel extends Composite {
 //                switch (type) {
 //                    case "gene":
 //                    case "pseduogene":
-//                        geneDetailPanel.updateData(internalData);
+//                        geneDetailPanel.updateDetailData(internalData);
 //                        break;
 //                    case "mRNA":
 //                    case "tRNA":
-//                        transcriptDetailPanel.updateData(internalData);
+//                        transcriptDetailPanel.updateDetailData(internalData);
 //                        break;
 //                    case "exon":
-//                        exonDetailPanel.updateData(internalData);
+//                        exonDetailPanel.updateDetailData(internalData);
 //                        break;
 //                    case "CDS":
-//                        exonDetailPanel.updateData(internalData);
+//                        exonDetailPanel.updateDetailData(internalData);
 //                        break;
 //                    default:
 //                        GWT.log("not sure what to do with " + type);
@@ -193,7 +190,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     private void initializeTypes() {
-        typeList.addItem("All Types","");
+        typeList.addItem("All Types", "");
         typeList.addItem("Gene");
         typeList.addItem("Pseudogene");
         typeList.addItem("mRNA");
@@ -208,7 +205,7 @@ public class AnnotatorPanel extends Composite {
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         exonDetailPanel.setVisible(false);
-        cdsDetailPanel.setVisible(false);
+//        cdsDetailPanel.setVisible(false);
         switch (type) {
             case "gene":
             case "pseduogene":
@@ -218,12 +215,12 @@ public class AnnotatorPanel extends Composite {
             case "tRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 break;
-            case "exon":
-                exonDetailPanel.updateData(AnnotationRestService.convertAnnotationInfoToJSONObject(annotationInfo));
-                break;
-            case "CDS":
-                cdsDetailPanel.updateData(AnnotationRestService.convertAnnotationInfoToJSONObject(annotationInfo));
-                break;
+//            case "exon":
+//                exonDetailPanel.updateData(annotationInfo);
+//                break;
+//            case "CDS":
+//                cdsDetailPanel.updateDetailData(AnnotationRestService.convertAnnotationInfoToJSONObject(annotationInfo));
+//                break;
             default:
                 GWT.log("not sure what to do with " + type);
         }
@@ -415,7 +412,6 @@ public class AnnotatorPanel extends Composite {
     }
 
     private void filterList() {
-        String text = nameSearchBox.getText() ;
         filteredAnnotationList.clear();
         for(int i = 0 ; i < annotationInfoList.size() ; i++){
             AnnotationInfo annotationInfo = annotationInfoList.get(i);
@@ -479,6 +475,17 @@ public class AnnotatorPanel extends Composite {
         }
 
         return annotationInfo;
+    }
+
+    @UiHandler("tabPanel")
+    public void handleTabChange(SelectionEvent<Integer> event){
+        Window.alert("tab changed: "+tabPanel.getSelectedIndex());
+        switch (tabPanel.getSelectedIndex()){
+            case 1: exonDetailPanel.updateData(selectionModel.getSelectedObject());
+                break;
+            default:
+                break ;
+        }
     }
 
     @UiHandler("typeList")
