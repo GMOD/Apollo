@@ -60,7 +60,7 @@ var contextMenuItems;
 var context_path = "..";
 
 
-var AnnotTrack = declare([InformationEditorMixin, DraggableFeatureTrack], 
+var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin], 
 {
     constructor: function( args ) {
         this.has_custom_context_menu = true;

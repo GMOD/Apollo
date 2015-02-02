@@ -21,17 +21,19 @@ RefactorClient changes:
 - Make Tool menu appear before help (was previously implemented but fixed now)
 - Fixed resizing of features at any scale (even highly zoomed in)
 - Completely removed the "DraggableResultFeatures" because it was unused. It offered the option to "Promote all features" to the annotation track. If this is desired, we need to revisit it, but deleted for now.
+- Refactored InformationEditor into a new module WebApollo/View/InformationEditor that is a mixin for AnnotTrack (1400 lines removed from Annottrack.js)
+- Convert all synchronous XHR in information editor to use AJAX
 
-Casualties of the refactoring process, might be reimplemented soon:
+Casualties of the refactoring process so far:
 
-- the sequence displaying inside the feature when zoomed in (should this be reimplemented?)
-- color by CDS doesn’t highlight frame (temporarily)
-- the highlight doing both top and bottom (temporarily)
-- creating new insertions and deletions (temporarily)
+- The sequence displaying inside the feature when zoomed in (should this be reimplemented?)
+- Color by CDS doesn’t highlight frame (temporarily)
+- The highlight doing both top and bottom (temporarily)
+- Creating new insertions and deletions (temporarily)
 
 
 
-Envision:
+Future:
 
 - Simple highlighting bases when we have insertion or deletion
 - Remove “login” code from annottrack, place in main plugin or different module

@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'jqueryui/autocomplete',
             'dijit/Menu',
             'dijit/MenuItem', 
             'dijit/MenuSeparator', 
@@ -11,6 +12,7 @@ define( [
             'dojox/widget/DialogSimple',
             'dojox/grid/DataGrid',
             'dojo/data/ItemFileWriteStore',
+            'dojox/grid/cells/dijit',
             'WebApollo/View/Track/DraggableHTMLFeatures',
             'WebApollo/JSONUtils',
             'WebApollo/Permission', 
@@ -26,10 +28,10 @@ define( [
             'dojo/store/Memory',
             'dojo/data/ObjectStore'
         ],
-        function( declare, 
+        function( declare, autocomplete,
           dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton,
           dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-          dojoxDialogSimple, dojoxDataGrid, dojoItemFileWriteStore, 
+          dojoxDialogSimple, dojoxDataGrid, dojoItemFileWriteStore, dijit,
           DraggableFeatureTrack, JSONUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
           SimpleFeature, Util, Layout, xhr, FormatUtils, Select, Memory, ObjectStore ) {
 
@@ -50,54 +52,55 @@ return declare([],{
         if (seltrack !== track)  {
             return;
         }
-        track.getAnnotationInfoEditorConfigs(track.getUniqueTrackName());
-        var content = dojo.create("div", { 'class': "annotation_info_editor_container" });
-        if (annot.afeature.parent_id) {
-            var selectorDiv = dojo.create("div", { 'class': "annotation_info_editor_selector" }, content);
-            var selectorLabel = dojo.create("label", { innerHTML: "Select " + annot.get("type"), 'class': "annotation_info_editor_selector_label" }, selectorDiv);
-            var data = [];
-            var feats = track.topLevelParents[annot.afeature.parent_id];
-            for (var i in feats) {
-                var feat = feats[i];
-                data.push({ id: feat.uniquename, label: feat.name });
-            }
-            var store = new Memory({
-                data: data
-            });
-            var os = new ObjectStore({ objectStore: store });
-            var selector = new Select({ store: os });
-            selector.placeAt(selectorDiv);
-            selector.attr("value", annot.afeature.uniquename);
-            selector.attr("style", "width: 50%;");
-            var first = true;
-            dojo.connect(selector, "onChange", function(id) {
-                if (!first) {
-                    dojo.destroy("child_annotation_info_editor");
-                    annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
-                    dojo.attr(annotContent, "class", "annotation_info_editor");
-                    dojo.attr(annotContent, "id", "child_annotation_info_editor");
-                    dojo.place(annotContent, content);
+        track.getAnnotationInfoEditorConfigs(track.getUniqueTrackName()).then(function() {
+            var content = dojo.create("div", { 'class': "annotation_info_editor_container" });
+            if (annot.afeature.parent_id) {
+                var selectorDiv = dojo.create("div", { 'class': "annotation_info_editor_selector" }, content);
+                var selectorLabel = dojo.create("label", { innerHTML: "Select " + annot.get("type"), 'class': "annotation_info_editor_selector_label" }, selectorDiv);
+                var data = [];
+                var feats = track.topLevelParents[annot.afeature.parent_id];
+                for (var i in feats) {
+                    var feat = feats[i];
+                    data.push({ id: feat.uniquename, label: feat.name });
                 }
-                first = false;
-            });
-        }
-        var numItems = 0;
-        // if annotation has parent, get comments for parent
-        if (annot.afeature.parent_id) {
-            var parentContent = this.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
-            dojo.attr(parentContent, "class", "parent_annotation_info_editor");
-            dojo.place(parentContent, content);
+                var store = new Memory({
+                    data: data
+                });
+                var os = new ObjectStore({ objectStore: store });
+                var selector = new Select({ store: os });
+                selector.placeAt(selectorDiv);
+                selector.attr("value", annot.afeature.uniquename);
+                selector.attr("style", "width: 50%;");
+                var first = true;
+                dojo.connect(selector, "onChange", function(id) {
+                    if (!first) {
+                        dojo.destroy("child_annotation_info_editor");
+                        annotContent = track.createAnnotationInfoEditorPanelForFeature(id, track.getUniqueTrackName(), selector, true);
+                        dojo.attr(annotContent, "class", "annotation_info_editor");
+                        dojo.attr(annotContent, "id", "child_annotation_info_editor");
+                        dojo.place(annotContent, content);
+                    }
+                    first = false;
+                });
+            }
+            var numItems = 0;
+            // if annotation has parent, get comments for parent
+            if (annot.afeature.parent_id) {
+                var parentContent = track.createAnnotationInfoEditorPanelForFeature(annot.afeature.parent_id, track.getUniqueTrackName());
+                dojo.attr(parentContent, "class", "parent_annotation_info_editor");
+                dojo.place(parentContent, content);
+                ++numItems;
+            }
+            var annotContent = track.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
+            dojo.attr(annotContent, "class", "annotation_info_editor");
+            dojo.attr(annotContent, "id", "child_annotation_info_editor");
+            dojo.place(annotContent, content);
             ++numItems;
-        }
-        var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
-        dojo.attr(annotContent, "class", "annotation_info_editor");
-        dojo.attr(annotContent, "id", "child_annotation_info_editor");
-        dojo.place(annotContent, content);
-        ++numItems;
-        dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-        this.openDialog("Information Editor (alt-click)", content);
-        this.popupDialog.resize();
-        this.popupDialog._position();
+            dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
+            track.openDialog("Information Editor (alt-click)", content);
+            track.popupDialog.resize();
+            track.popupDialog._position();
+        });
     },
     
     getAnnotationInfoEditorConfigs: function(trackName) {
@@ -107,19 +110,15 @@ return declare([],{
         }
         var operation = "get_annotation_info_editor_configuration";
         var postData = { "track": trackName, "operation": operation };
-        dojo.xhrPost( {
-            sync: true,
-            postData: JSON.stringify(postData),
-            url: context_path + "/AnnotationEditorService",
-            handleAs: "json",
-            timeout: 5000 * 1000, // Time in milliseconds
-            load: function(response, ioArgs) {
-                track.annotationInfoEditorConfigs = {};
-                for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
-                    var config = response.annotation_info_editor_configs[i];
-                    for (var j = 0; j < config.supported_types.length; ++j) {
-                        track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
-                    }
+        return xhr.post(context_path + "/AnnotationEditorService", {
+            data: JSON.stringify(postData),
+            handleAs: "json"
+        }).then(function(response) {
+            track.annotationInfoEditorConfigs = {};
+            for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
+                var config = response.annotation_info_editor_configs[i];
+                for (var j = 0; j < config.supported_types.length; ++j) {
+                    track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
                 }
             }
         });
@@ -176,21 +175,17 @@ return declare([],{
             var features = [ { "uniquename": uniqueName } ];
             var operation = "get_annotation_info_editor_data";
             var postData = { "track": trackName, "features": features, "operation": operation };
-            dojo.xhrPost( {
-                sync: true,
-                postData: JSON.stringify(postData),
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    var feature = response.features[0];
-                    var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
-                    initName(feature);
-                    initSymbol(feature);
-                    initDescription(feature);
-                    initDates(feature);
-                    initStatus(feature, config);
-                }
+            xhr.post(context_path + "/AnnotationEditorService", {
+                data: JSON.stringify(postData),
+                handleAs: "json"
+            }).then(function(response) {
+                var feature = response.features[0];
+                var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
+                initName(feature);
+                initSymbol(feature);
+                initDescription(feature);
+                initDates(feature);
+                initStatus(feature, config);
             });
         };
         var initName = function(feature) {
@@ -406,27 +401,23 @@ return declare([],{
             var features = [ { "uniquename": uniqueName } ];
             var operation = "get_annotation_info_editor_data";
             var postData = { "track": trackName, "features": features, "operation": operation };
-            dojo.xhrPost( {
-                sync: true,
-                postData: JSON.stringify(postData),
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    var feature = response.features[0];
-                    var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
-                    initType(feature);
-                    initName(feature);
-                    initSymbol(feature);
-                    initDescription(feature);
-                    initDates(feature);
-                    initStatus(feature, config);
-                    initDbxrefs(feature, config);
-                    initAttributes(feature, config);
-                    initPubmedIds(feature, config);
-                    initGoIds(feature, config);
-                    initComments(feature, config);
-                }
+            xhr.post( context_path + "/AnnotationEditorService",{
+                data: JSON.stringify(postData),
+                handleAs: "json"
+            }).then(function(response) {
+                var feature = response.features[0];
+                var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
+                initType(feature);
+                initName(feature);
+                initSymbol(feature);
+                initDescription(feature);
+                initDates(feature);
+                initStatus(feature, config);
+                initDbxrefs(feature, config);
+                initAttributes(feature, config);
+                initPubmedIds(feature, config);
+                initGoIds(feature, config);
+                initComments(feature, config);
             });
         };
         
@@ -1415,22 +1406,17 @@ return declare([],{
             var features = [ { "uniquename": uniqueName } ];
             var operation = "get_canned_comments";
             var postData = { "track": trackName, "features": features, "operation": operation };
-            dojo.xhrPost( {
-                postData: JSON.stringify(postData),
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                sync: true,
-                timeout: 5000 * 1000, // Time in milliseconds
-                load: function(response, ioArgs) {
-                    var feature = response.features[0];
-                        cannedComments = feature.comments;
-                    },
-                    // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) {
-                    track.handleError(response);
-                    console.error("HTTP status code: ", ioArgs.xhr.status);
-                    return response;
-                }
+            xhr.post(context_path + "/AnnotationEditorService", {
+                data: JSON.stringify(postData),
+                handleAs: "json"
+            }).then(function(response) {
+                var feature = response.features[0];
+                cannedComments = feature.comments;
+            },
+            function(response, ioArgs) {
+                track.handleError(response);
+                console.error("HTTP status code: ", ioArgs.xhr.status);
+                return response;
             });
         };
         

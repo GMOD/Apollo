@@ -25,7 +25,6 @@ return declare( Sequence,
      * far enough.
      */
     constructor: function( args ) {
-        this.isWebApolloSequenceTrack = true;
         var track = this;
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
             this.webapollo = p;
