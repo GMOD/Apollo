@@ -1,4 +1,5 @@
 RefactorClient goals:
+
 - Modular code
 - Testable code
 - Avoid ad-hoc fixes, do the right thing
@@ -6,6 +7,7 @@ RefactorClient goals:
 - Configurable and extensible
 
 RefactorClient changes:
+
 - Remove DraggableHTMLFeatures inheritence  from SequenceTrack
 - Make SequenceTrack inherit from jbrowse Sequence track
 - Add CodonTable.js change in JBrowse to allow multiple CodonTracks
@@ -19,6 +21,7 @@ RefactorClient changes:
 - Make Tool menu appear before help (was previously implemented but fixed now)
 
 Casualties of the refactoring process, might be reimplemented soon:
+
 - the sequence displaying inside the feature when zoomed in (should this be reimplemented?)
 - color by CDS doesn’t highlight frame (temporarily)
 - the highlight doing both top and bottom (temporarily)
@@ -27,8 +30,11 @@ Casualties of the refactoring process, might be reimplemented soon:
 
 
 Envision:
+
 - Simple highlighting bases when we have insertion or deletion
 - Remove “login” code from annottrack, place in main plugin or different module
 - Remove information editor code from annottrack, place in new module
 
+
+Screenshot:
 ![Refactor](http://i.imgur.com/2QnCnJP.png)
