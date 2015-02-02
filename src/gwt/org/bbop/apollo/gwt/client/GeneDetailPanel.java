@@ -46,9 +46,11 @@ public class GeneDetailPanel extends Composite {
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
-//        Window.alert("changed: "+e);
+        GWT.log("a");
         String updatedName = nameField.getText();
+        GWT.log("b");
         internalAnnotationInfo.setName(updatedName);
+        GWT.log("c");
         updateGene();
     }
 
@@ -82,14 +84,18 @@ public class GeneDetailPanel extends Composite {
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
+        GWT.log("d");
         sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
 //        sb.append("&key2=val2");
 //        sb.append("&key3=val3");
+        GWT.log("e");
         builder.setRequestData(sb.toString());
+        GWT.log("f");
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                GWT.log("f");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("successful update: " + returnValue);
                 enableFields(true);

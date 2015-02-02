@@ -32,6 +32,7 @@ class AnnotatorController {
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
+        println "foiund feature: "+feature
         feature.name = data.name
 
         if (feature.symbol) {
