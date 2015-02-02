@@ -19,7 +19,7 @@ my $USER_TABLE = "users";
 my $dbh;
 my $username;
 my $password;
-my $encrypted=0;
+my $unencrypted=0;
 
 parse_options();
 change_password();
@@ -40,7 +40,7 @@ sub parse_options {
            "username|u=s"	=> \$username,
            "password|p=s"	=> \$password,
            "help|h"		=> \$help,
-           "encrypted|e" => \$encrypted);
+           "unencrypted|x" => \$unencrypted);
     print_usage() if $help;
     die "Database name is required\n" if !$dbname;
     die "User name for existing user required\n" if !$username;
@@ -60,7 +60,7 @@ usage: $progname
     [-P|--dbpassword <user_database_password>]
     -u|--username <username_for_user_to_be_added>
     -p|--password <password_for_user_to_be_added>
-    [-e|--encrypted]
+    [-e|--unencrypted]
     [-h|--help]
 END
 }
@@ -73,7 +73,12 @@ sub change_password {
     }
 
     my $sql="";
-    if($encrypted) {
+    if($unencrypted) {
+        $sql = "UPDATE $USER_TABLE " .
+          "SET password='$password' " .
+          "WHERE user_id=$user_id";
+    }
+    else {
         my $pbkdf2 = Crypt::PBKDF2->new(
             hash_class => 'HMACSHA1', # this is the default
             iterations => 1000,      # so is this
@@ -87,12 +92,6 @@ sub change_password {
         $sql = "UPDATE $USER_TABLE " .
           "SET password='$hash' " .
           "WHERE user_id=$user_id";
-    }
-    else {
-         $sql = "UPDATE $USER_TABLE " .
-          "SET password='$password' " .
-          "WHERE user_id=$user_id";
-
     }
     $dbh->do($sql);
 }

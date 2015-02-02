@@ -18,7 +18,7 @@ my $USER_TABLE = "users";
 my $dbh;
 my $username;
 my $password;
-my $encrypted=0;
+my $unencrypted=1;
 
 parse_options();
 add_user();
@@ -39,7 +39,7 @@ sub parse_options {
            "username|u=s"	=> \$username,
            "password|p=s"	=> \$password,
            "help|h"		=> \$help,
-           "encrypted|e" => \$encrypted);
+           "unencrypted|x" => \$unencrypted);
 
     print_usage() if $help;
     die "Database name is required\n" if !$dbname;
@@ -60,7 +60,7 @@ usage: $progname
     [-P|--dbpassword <user_database_password>]
     -u|--username <username_for_user_to_be_added>
     [-p|--password <password_for_user_to_be_added>]
-    [-e|--encrypted]
+    [-x|--unencrypted]
     [-h|--help]
 END
 }
@@ -78,7 +78,14 @@ sub add_user {
     }
 
     my $sql="";
-    if($encrypted) {
+    if($unencrypted) {
+        print "Encrypted $encrypted";
+        $sql = "INSERT INTO $USER_TABLE(username, password) " . 
+                      "VALUES(?, ?)";
+        $dbh->do($sql, undef, $username, $password);       
+    }
+
+    else {
         my $pbkdf2 = Crypt::PBKDF2->new(
             hash_class => 'HMACSHA1', # this is the default
             iterations => 1000,      # so is this
@@ -92,11 +99,7 @@ sub add_user {
         $sql = "INSERT INTO $USER_TABLE(username, password) " .
               "VALUES(?, ?)";
         $dbh->do($sql, undef, $username, $hash);
-    }
-    else {
-        $sql = "INSERT INTO $USER_TABLE(username, password) " . 
-                      "VALUES(?, ?)";
-        $dbh->do($sql, undef, $username, $password);
+
     }
 }
 
