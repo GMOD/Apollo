@@ -21,7 +21,7 @@ This guide will be doing the following steps
 #### Setup environment
 First set some environmental variables. These can be customized appropriate to your setup. Note that PGUSER is simply your username in this setup, but if you set it to something different, make sure to see [database setup](Database_setup.md) for details.
 
-    export PGUSER=`whoami`
+    export PGUSER=web_apollo_users_admin
     export PGPASSWORD=password
     export WEBAPOLLO_USER=web_apollo_admin
     export WEBAPOLLO_PASSWORD=web_apollo_admin
@@ -44,7 +44,7 @@ Then get some system pre-requisites. These commands will try to get everything i
     # install system prerequisites (debian/ubuntu)
     sudo apt-get install openjdk-7-jdk libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7 git
     # install system prerequisites (centOS/redhat)
-    sudo yum install postgresql postgresql-devel maven expat-devel tomcat git
+    sudo yum install postgresql postgresql-server postgresql-devel maven expat-devel tomcat git
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
     brew install maven postgresql wget tomcat git
 
@@ -71,7 +71,7 @@ After starting postgres, you can create a new user and database for Web Apollo a
     createuser -RDIElPS $PGUSER
     createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
 
-Note: see [database setup](Database_setup.md#authentication) for more details about postgres setup, especially if using a non-operating system user for PGUSER.
+Note: see [database setup](Database_setup.md#authentication) for more details about postgres setup.
  
 #### Download sample data
 
@@ -84,7 +84,6 @@ If you are following our example, you can download the sample data here:
 
 We will use the `apollo deploy` script to initialize jbrowse and install some basic perl pre-requisites. We can use simply copy the default configs when initializing setups.
 
-    cp sample_canned_comments.xml canned_comments.xml
     cp sample_config.properties config.properties
     cp sample_config.xml config.xml
     ./apollo deploy
@@ -94,10 +93,10 @@ If there are any errors during this build step, you can check setup.log. See the
 #### Initialize Web Apollo logins and permissions
 Now you may initialize the database tables add a new Web Apollo user as follows.
 
-    psql -U $PGUSER $WEBAPOLLO_DATABASE < tools/user/user_database_postgresql.sql
+    psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
     tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
 
-The permissions for the Web Apollo user are configured for each track/refseq, so the following scripts are used to (1) extract refseqs from a fasta file (2) add the refseqs to the database and (3) initialize the permissions database.
+Note: the reason we use the -h localhost is to force password-based host authentication instead of peer authentication.
 
     tools/user/extract_seqids_from_fasta.pl -p Annotations- -i pyu_data/scf1117875582023.fa -o seqids.txt
     tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
