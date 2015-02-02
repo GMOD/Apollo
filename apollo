@@ -52,11 +52,6 @@ function check_perldependencies(){
 }
 
 function check_configs_for_release(){
-    make_executable=$(which make)
-    if ! [ -x "$make_executable" ] ; then
-        echo "You must install 'Make' to do a release of web apollo."
-        exit 1 ;
-    fi
     ant_executable=$(which ant)
     if ! [ -x "$ant_executable" ] ; then
         echo "You must install 'Ant' to do a release of web apollo."
@@ -101,12 +96,8 @@ if [[ $1 == "run" ]];then
     mvn tomcat7:run
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
-    OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
-    export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    mvn tomcat7:run
-    export MAVEN_OPTS=$OLD_MAVEN_OPTS
-    unset OLD_MAVEN_OPTS
+    mvnDebug tomcat7:run
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     mvn test
@@ -115,13 +106,11 @@ elif [[ $1 == "deploy" ]];then
     check_configs
     mvn package
 elif [[ $1 == "release" ]];then
-   # should call the copy target first
-   check_configs
-   check_configs_for_release
-   ant release
-   mvn package
-    # make -f build/Makefile release
-    # make -f build/Makefile create-precompiled
+    # should call the copy target first
+    check_configs
+    check_configs_for_release
+    ant release
+    mvn package
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
     mvn compile
