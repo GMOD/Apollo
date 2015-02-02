@@ -64,6 +64,8 @@ var contextMenuItems;
 var context_path = "..";
 
 var non_annot_context_menu;
+var list_of_positions={};
+var currently_annotating=false;
 
 var AnnotTrack = declare( DraggableFeatureTrack,
 {
@@ -5465,6 +5467,43 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          *  } ); }
          */
     },
+    // override getLayout to access addRect method
+    _getLayout: function( ) {
+        console.log('my getlayout');
+        track=this; 
+        var layout=this.inherited( arguments ); 
+        return dojo.safeMixin(layout, { 
+            addRect: function( id, left, right, height, data ) {
+                var current_top=track.getCurrentYCoord( id ); 
+                var top=this.inherited(arguments); 
+
+                console.log('my addrect '+current_top+' '+top);
+                // don't change the y-coordinate if we are annotating
+                if(track.isCurrentlyAnnotating()) { 
+                    setCurrentYCoord(id,current_top);
+                    return current_top; 
+                } else {
+                    setCurrentYCoord(id,top);
+                    return top; 
+                }
+            }
+        });
+    },
+
+    isCurrentlyAnnotating: function () {
+        return currently_annotating;
+    },
+    setCurrentlyAnnotating: function(flag) {
+        currently_annotating=flag;
+    },
+
+    getCurrentYCoord: function(id) {
+        return list_of_positions[id];
+    },
+    setCurrentYCoord: function(id, top) {
+        list_of_positions[id]=top;
+    },
+
 
 
     /**
