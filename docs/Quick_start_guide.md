@@ -53,7 +53,8 @@ Then get some system pre-requisites. These commands will try to get everything i
 On debian/ubuntu, postgres is started and added to OS boot automatically, but on other systems (centOS/redhat, mac OSX) they need to be kickstarted. 
 
     # on centOS/redhat, manually kickstart postgres and make it start on OS boot with chkconfig
-    sudo su -c "service postgresql initdb && service postgresql start"
+    sudo su -c "PGSETUP_INITDB_OPTIONS='--auth-host=md5' postgresql-setup initdb"
+    sudo su -c "service postgresql start"
     sudo su -c "chkconfig postgresql on"
 
     # on macOSX/homebrew, manually kickstart postgres and make it start on OS boot with launchctl
