@@ -2,9 +2,13 @@ define( [
     'dojo/_base/declare',
     'dojo/mouse',
     'dojo/query',
+    'dojo/dom',
     'dojo/dom-style',
     'dojo/dom-class',
+    'dojo/_base/array',
     'dojo/on',
+    'dijit/Menu',
+    'dijit/MenuItem',
     'JBrowse/View/Track/Sequence',
     'JBrowse/CodonTable',
     'WebApollo/JSONUtils',
@@ -12,7 +16,7 @@ define( [
     'dojo/request/xhr',
     'dojox/widget/Standby'
      ],
-function( declare, mouse, query, domStyle, on, domClass, Sequence, CodonTable, JSONUtils, Permission, xhr, Standby ) {
+function( declare, mouse, query, dom, domStyle, domClass, array, on, Menu, MenuItem, Sequence, CodonTable, JSONUtils, Permission, xhr, Standby ) {
 
 return declare( Sequence,
 {
@@ -30,7 +34,26 @@ return declare( Sequence,
         this.context_path = "..";
         this.store=args.store;
         this.loadTranslationTable();
-        this.trackPadding = 10;
+        var menu = new Menu({
+            targetNodeIds: ['track_DNA' ],
+            selector: "td.base"
+        });
+        menu.addChild(new MenuItem({
+            label: "Create insertion",
+            iconClass: "dijitIconNewTask",
+            onClick: function(evt){
+                var node = this.getParent().currentTarget;
+                alert("Insertion for node ", node);
+            }
+        }));
+        menu.addChild(new MenuItem({
+            label: "Create deletion",
+            iconClass: "dijitIconDelete",
+            onClick: function(evt){
+                var node = this.getParent().currentTarget;
+                alert("Deletion for node ", node);
+            }
+        }));
     },
 
     /*
@@ -56,11 +79,12 @@ return declare( Sequence,
         return count;
     }, 
     fillBlock: function(args) {
+        var thisB=this;
         var supermethod = this.getInherited(arguments);
         var finishCallback=args.finishCallback;
         args.finishCallback=function() {
             finishCallback();
-            var nl=query('.base',args.block.domNode)
+            var nl=query('.base',args.block.domNode);
             nl.style("backgroundColor","#E0E0E0")
             nl.on(mouse.enter,function(evt) {
               domStyle.set(evt.target,"backgroundColor","orange");
@@ -256,17 +280,17 @@ return declare( Sequence,
         return content;
     },
     loadTranslationTable: function() {
-        var track = this;
-        return xhr.post( track.context_path + "/AnnotationEditorService",
+        var thisB = this;
+        return xhr.post( this.context_path + "/AnnotationEditorService",
         {
             data: JSON.stringify({ "track": this.refSeq.name, "operation": "get_translation_table" }),
             handleAs: "json"
         }).then(function(response) {
             console.log('Loaded translation table');
-            track._codonTable=CodonTable.updateCodonTable(response.translation_table);
-            console.log(track._codonTable);
-            track.changed();
-            track.redraw();
+            thisB._codonTable=CodonTable.updateCodonTable(response.translation_table);
+            console.log(thisB._codonTable);
+            thisB.changed();
+            thisB.redraw();
         },
         function(response) {
             console.log('Failed to load translation table. Setting default');
