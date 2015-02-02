@@ -551,12 +551,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 }
                 var scale = track.gview.bpToPx(1);
                 
-                // if zoomed int to showing sequence residues, then make
-                // edge-dragging snap to interbase pixels
-                var gridvals;
-                var charSize = track.webapollo.getSequenceCharacterSize();
-                if (scale === charSize.width) { gridvals = [track.gview.charWidth, 1]; }
-                else  { gridvals = false; }
+                var gridvals=[scale];
                 $(featdiv).resizable( {
                     handles: "e, w",
                     helper: "ui-resizable-helper",
