@@ -480,19 +480,19 @@ var AnnotTrack = declare( DraggableFeatureTrack,
      * through tracks list
      */
     getSequenceTrack: function()  {
+        var thisB=this;
         if (this.seqTrack)  {
             return this.seqTrack;
         }
         else  {
-            var tracks = this.gview.tracks;
-            for (var i = 0; i < tracks.length; i++)  {
-                if (tracks[i].isWebApolloSequenceTrack)  {
-                    this.seqTrack = tracks[i];
-                    break;
+            array.some(this.gview.tracks,function(track) {
+                if (track.isInstanceOf(SequenceTrack))  {
+                    thisB.seqTrack=track;
+                    return true;
                 }
-            }
+            });
         }
-        return this.seqTrack;
+        return this.seqTrack||{};
     }, 
 
     onFeatureMouseDown: function(event) {
@@ -621,12 +621,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             var feature_record = feature_records[i];
             var original_feat = feature_record.feature;
             var feat = JSONUtils.makeSimpleFeature( original_feat );
-            var isSubfeature = !! feat.parent();  // !! is
-                                                    // shorthand for
-                                                    // returning
-                                                    // true if value
-                                                    // is defined
-                                                    // and non-null
+            var isSubfeature = !! feat.parent();
             var annotStrand = annot.get('strand');
             if (isSubfeature)  {
                 var featStrand = feat.get('strand');
@@ -863,11 +858,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         for (var i in feats)  {
             var dragfeat = feats[i];
 
-            var is_subfeature = !! dragfeat.parent();  // !! is shorthand
-                                                        // for returning
-                                                        // true if value is
-                                                        // defined and
-                                                        // non-null
+            var is_subfeature = !! dragfeat.parent();
             var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
             if (parentFeatures[parentId] === undefined) {
@@ -941,11 +932,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         for (var i in feats)  {
             var dragfeat = feats[i];
 
-            var is_subfeature = !! dragfeat.parent();  // !! is shorthand
-                                                        // for returning
-                                                        // true if value is
-                                                        // defined and
-                                                        // non-null
+            var is_subfeature = !! dragfeat.parent();
             var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
             if (parentFeatures[parentId] === undefined) {
@@ -1017,11 +1004,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var proteinCoding = false;
         for( var i in feats )  {
             var feat = feats[i];
-            var is_subfeature = !! feat.parent() ;  // !! is shorthand
-                                                    // for returning
-                                                    // true if value is
-                                                    // defined and
-                                                    // non-null
+            var is_subfeature = !! feat.parent() ;
             if (is_subfeature) {
                 subfeaturesToAdd.push(feat);
             }
@@ -4282,7 +4265,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     },
 
     initPopupDialog: function() {
-        if (AnnotTrack.popupDialog) {
+        if (this.popupDialog) {
             return;
         }
         var track = this;
@@ -4293,7 +4276,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         if (widget) {
             widget.destroy();
         }
-        AnnotTrack.popupDialog = new dojoxDialogSimple({
+        this.popupDialog = new dojoxDialogSimple({
             preventCache: true,
             refreshOnShow: true,
             executeScripts: true,
@@ -4302,23 +4285,9 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         dojo.connect(AnnotTrack.popupDialog, "onHide", AnnotTrack.popupDialog, function() {
             document.activeElement.blur();
             track.selectionManager.clearSelection();
-            if (track.getSequenceTrack())  {
-                track.getSequenceTrack().clearHighlightedBases();
-            }
-            
-            dojo.style(dojo.body(), 'overflow', 'auto'); 
-            document.body.scroll = ''; // needed for ie6/7
-
-            
-        });
-
-        dojo.connect(AnnotTrack.popupDialog, 'onShow', function() { 
-            dojo.style(dojo.body(), 'overflow', 'hidden'); 
-            document.body.scroll = 'no'; // needed for ie6/7
         });
 
         AnnotTrack.popupDialog.startup();
-
     },
 
     getUniqueTrackName: function() {
