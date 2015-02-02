@@ -93,9 +93,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static ExonDetailPanel exonDetailPanel;
     @UiField
-    TabLayoutPanel tabPanel;
-//    @UiField
-//    static CDSDetailPanel cdsDetailPanel;
+    static TabLayoutPanel tabPanel;
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
@@ -156,37 +154,6 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
-//        features.setAnimationEnabled(true);
-
-//        features.addSelectionHandler(new SelectionHandler<TreeItem>() {
-//            @Override
-//            public void onSelection(SelectionEvent<TreeItem> event) {
-//                JSONObject internalData = ((AnnotationContainerWidget) event.getSelectedItem().getWidget()).getInternalData();
-//                String type = getType(internalData);
-//                geneDetailPanel.setVisible(false);
-//                transcriptDetailPanel.setVisible(false);
-//                exonDetailPanel.setVisible(false);
-//                switch (type) {
-//                    case "gene":
-//                    case "pseduogene":
-//                        geneDetailPanel.updateDetailData(internalData);
-//                        break;
-//                    case "mRNA":
-//                    case "tRNA":
-//                        transcriptDetailPanel.updateDetailData(internalData);
-//                        break;
-//                    case "exon":
-//                        exonDetailPanel.updateDetailData(internalData);
-//                        break;
-//                    case "CDS":
-//                        exonDetailPanel.updateDetailData(internalData);
-//                        break;
-//                    default:
-//                        GWT.log("not sure what to do with " + type);
-//                }
-////                annotationName.setText(internalData.get("name").isString().stringValue());
-//            }
-//        });
     }
 
     private void initializeTypes() {
@@ -204,16 +171,16 @@ public class AnnotatorPanel extends Composite {
         GWT.log("annoation type: " + type);
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
-        exonDetailPanel.setVisible(false);
-//        cdsDetailPanel.setVisible(false);
         switch (type) {
             case "gene":
             case "pseduogene":
                 geneDetailPanel.updateData(annotationInfo);
+                exonDetailPanel.setVisible(false);
                 break;
             case "mRNA":
             case "tRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
+                exonDetailPanel.setVisible(true);
                 break;
 //            case "exon":
 //                exonDetailPanel.updateData(annotationInfo);
@@ -477,17 +444,6 @@ public class AnnotatorPanel extends Composite {
         return annotationInfo;
     }
 
-    @UiHandler("tabPanel")
-    public void handleTabChange(SelectionEvent<Integer> event){
-        Window.alert("tab changed: "+tabPanel.getSelectedIndex());
-        switch (tabPanel.getSelectedIndex()){
-            case 1: exonDetailPanel.updateData(selectionModel.getSelectedObject());
-                break;
-            default:
-                break ;
-        }
-    }
-
     @UiHandler("typeList")
     public void searchType(ChangeEvent changeEvent){
         filterList();
@@ -505,44 +461,17 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-//    private TreeItem processFeatureEntry(JSONObject object) {
-//        TreeItem treeItem = new TreeItem();
-//
-//        String featureName = object.get("name").isString().stringValue();
-//        String featureType = object.get("type").isObject().get("name").isString().stringValue();
-//        int lastFeature = featureType.lastIndexOf(".");
-//        featureType = featureType.substring(lastFeature + 1);
-////        HTML html = new HTML(featureName + " <div class='label label-success'>" + featureType + "</div>");
-//        treeItem.setWidget(new AnnotationContainerWidget(object));
-//
-//        if (object.get("children") != null) {
-//            JSONArray childArray = object.get("children").isArray();
-//            for (int i = 0; childArray != null && i < childArray.size(); i++) {
-//                JSONObject childObject = childArray.get(i).isObject();
-//                treeItem.addItem(processFeatureEntry(childObject));
-//            }
-//        }
-//
-//        return treeItem;
-//    }
 
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
+
+        // 1 - get the correct gene
         AnnotationInfo annotationInfo = filteredAnnotationList.get(geneIndex);
 
-//        Iterator<AnnotationInfo> annotationInfoIterator = filteredAnnotationList.iterator();
-//        for(int i = 0 ; i<filteredAnnotationList.size() && annotationInfo==null  ; i++){
-//            if(i==geneIndex){
-//                annotationInfo = annotationInfoIterator.next();
-//            }
-//            else{
-//                annotationInfoIterator.next();
-//            }
-//        }
-
-        for (AnnotationInfo childAnnotation : filteredAnnotationList.get(geneIndex).getAnnotationInfoSet()) {
+        for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 updateAnnotationInfo(childAnnotation);
+                exonDetailPanel.updateData(childAnnotation);
                 return;
             }
         }

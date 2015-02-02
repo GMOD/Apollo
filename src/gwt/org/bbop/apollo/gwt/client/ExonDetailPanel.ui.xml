@@ -53,7 +53,6 @@
             <cellview:DataGrid ui:field="dataGrid"/>
         </gwt:west>
         <gwt:center>
-
             <b:Container fluid="true" width="100%" styleName="{style.container}">
                 <b:Row>
                     <b:Column size="6" styleName="{style.widgetPanel}">

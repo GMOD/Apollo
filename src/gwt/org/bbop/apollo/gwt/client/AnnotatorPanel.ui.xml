@@ -195,9 +195,9 @@
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <gwt:tab>
+                <gwt:tab >
                     <gwt:header>Coding</gwt:header>
-                    <apollo:ExonDetailPanel ui:field="exonDetailPanel" visible="false"/>
+                    <apollo:ExonDetailPanel ui:field="exonDetailPanel" />
                 </gwt:tab>
 
                 <gwt:tab>

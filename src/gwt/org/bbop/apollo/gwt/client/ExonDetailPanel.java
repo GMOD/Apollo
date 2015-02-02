@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -10,12 +11,17 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -25,6 +31,7 @@ import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -55,13 +62,65 @@ public class ExonDetailPanel extends Composite {
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(10, tablecss);
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
+    private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
+
+    private TextColumn<AnnotationInfo> typeColumn;
+    private Column<AnnotationInfo, Number> lengthColumn;
 
 
     public ExonDetailPanel() {
+        dataGrid.setWidth("100%");
+        initializeTable();
+        dataProvider.addDataDisplay(dataGrid);
+        dataGrid.setSelectionModel(selectionModel);
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                updateDetailData(selectionModel.getSelectedObject());
+            }
+        });
+
+
         initWidget(ourUiBinder.createAndBindUi(this));
 
+    }
 
-        dataProvider.addDataDisplay(dataGrid);
+    private void initializeTable() {
+        typeColumn = new TextColumn<AnnotationInfo>() {
+            @Override
+            public String getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getType();
+            }
+        };
+        typeColumn.setSortable(true);
+
+        lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getLength();
+            }
+        };
+        lengthColumn.setSortable(true);
+
+        dataGrid.addColumn(typeColumn, "Type");
+        dataGrid.addColumn(lengthColumn, "Length");
+
+        ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(annotationInfoList);
+        dataGrid.addColumnSortHandler(sortHandler);
+
+        sortHandler.setComparator(typeColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getType().compareTo(o2.getType());
+            }
+        });
+
+        sortHandler.setComparator(lengthColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getLength() - o2.getLength();
+            }
+        });
     }
 
     private void enableFields(boolean enabled) {
@@ -72,17 +131,21 @@ public class ExonDetailPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo){
-        Window.alert("updating data: "+annotationInfo);
+        GWT.log("updating data: " + annotationInfo.getName());
         if(annotationInfo==null) return ;
         annotationInfoList.clear();
-        Window.alert("sublist: "+annotationInfo.getAnnotationInfoSet().size());
+        GWT.log("sublist: " + annotationInfo.getAnnotationInfoSet().size());
         for(AnnotationInfo annotationInfo1 : annotationInfo.getAnnotationInfoSet()){
+            GWT.log("adding: "+annotationInfo1.getName());
             annotationInfoList.add(annotationInfo1);
         }
+
+        GWT.log("should be showing: "+annotationInfoList.size());
 
         if(annotationInfoList.size()>0){
             updateDetailData(annotationInfoList.get(0));
         }
+        dataGrid.redraw();
     }
 
     public void updateDetailData(AnnotationInfo annotationInfo) {
