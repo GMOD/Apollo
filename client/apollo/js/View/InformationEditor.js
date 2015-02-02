@@ -5,19 +5,14 @@ define( [
             'dijit/MenuSeparator', 
             'dijit/PopupMenuItem',
             'dijit/form/Button',
-            'dijit/form/DropDownButton',
-            'dijit/DropDownMenu',
-            'dijit/form/ComboBox',
             'dijit/form/TextBox',
             'dijit/form/ValidationTextBox',
             'dijit/form/RadioButton',
             'dojox/widget/DialogSimple',
             'dojox/grid/DataGrid',
-            'dojox/grid/cells/dijit',
             'dojo/data/ItemFileWriteStore',
             'WebApollo/View/Track/DraggableHTMLFeatures',
             'WebApollo/JSONUtils',
-            'WebApollo/BioFeatureUtils',
             'WebApollo/Permission', 
             'WebApollo/SequenceSearch', 
             'WebApollo/EUtils',
@@ -32,13 +27,14 @@ define( [
             'dojo/data/ObjectStore'
         ],
         function( declare, 
-          dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
-          dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-          dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
-          DraggableFeatureTrack, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
+          dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton,
+          dijitTextBox, dijitValidationTextBox, dijitRadioButton,
+          dojoxDialogSimple, dojoxDataGrid, dojoItemFileWriteStore, 
+          DraggableFeatureTrack, JSONUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
           SimpleFeature, Util, Layout, xhr, FormatUtils, Select, Memory, ObjectStore ) {
 
-return declare([], function() {
+var context_path='..';
+return declare([],{
     getAnnotationInfoEditor: function()  {
         var selected = this.selectionManager.getSelection();
         this.getAnnotationInfoEditorForSelectedFeatures(selected);

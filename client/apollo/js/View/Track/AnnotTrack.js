@@ -9,6 +9,7 @@ define( [
             'dijit/form/Button',
             'dijit/form/DropDownButton',
             'dojox/widget/DialogSimple',
+            'dojo/json',
             'WebApollo/View/Track/DraggableHTMLFeatures',
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
@@ -34,6 +35,7 @@ define( [
                 dijitButton,
                 dijitDropDownButton,
                 dojoxDialogSimple,
+                JSON,
                 DraggableFeatureTrack,
                 FeatureSelectionManager,
                 JSONUtils,
@@ -47,7 +49,7 @@ define( [
                 Standby,
                 Tooltip,
                 FormatUtils,
-                InformationEditor
+                InformationEditorMixin
                 ) {
 
 
@@ -58,7 +60,7 @@ var contextMenuItems;
 var context_path = "..";
 
 
-var AnnotTrack = declare( DraggableFeatureTrack,
+var AnnotTrack = declare([InformationEditorMixin, DraggableFeatureTrack], 
 {
     constructor: function( args ) {
         this.has_custom_context_menu = true;
@@ -429,7 +431,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } )
                 .click(function(event){
                     if (event.altKey) {
-                        InformationEditor.getAnnotationInfoEditor(track);
+                        track.getAnnotationInfoEditor(track);
                     }
                 })
             ;
@@ -2353,7 +2355,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         console.log(response.stack);
         //avoid eval of html content
         if(response.responseText.match("^<")!="<") {
-            var error = eval('(' + response.responseText + ')');
+            
+            var error = JSON.parse(response.responseText);
             if (error && error.error) {
                 alert(error.error);
             }
@@ -2512,7 +2515,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             annot_context_menu.addChild(new dijit.MenuItem( {
                 label: "Information Viewer (alt-click)",
                 onClick: function(event) {
-                    InformationEditor.getAnnotationInfoEditor();
+                    thisB.getAnnotationInfoEditor();
                 }
             } ));
             contextMenuItems["annotation_info_editor"] = index++;
@@ -2521,7 +2524,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             annot_context_menu.addChild(new dijit.MenuItem( {
                 label: "Edit Annotation (alt-click)",
                 onClick: function(event) {
-                    InformationEditor.getAnnotationInfoEditor();
+                    thisB.getAnnotationInfoEditor();
                 }
             } ));
             contextMenuItems["annotation_info_editor"] = index++;
