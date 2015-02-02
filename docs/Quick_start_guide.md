@@ -66,8 +66,8 @@ On debian/ubuntu, postgres is started and added to OS boot automatically, but on
 After starting postgres, you can create a new user and database for Web Apollo authentication.
 
     # On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
-    sudo su postgres -c "createuser -RDIElPS $PGUSER"
-    sudo su postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
+    sudo su - postgres -c "createuser -RDIElPS $PGUSER"
+    sudo su - postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
     # macOSX/homebrew, may not necessary to createuser if using `whoami` for PGUSER
     createuser -RDIElPS $PGUSER
     createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
