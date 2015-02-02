@@ -33,35 +33,12 @@
         }
     </ui:style>
 
-    <!--<g:HTMLPanel>-->
-    <!--<div class="row">-->
-    <!--<div class="span8">-->
-    <!--<form class="form-horizontal">-->
-    <!--<fieldset>-->
-    <!--<div class="controls">-->
-    <!--&lt;!&ndash;<b:TextBox inputSize="Large" b:id="focusedInput">This is focused</b:TextBox>&ndash;&gt;-->
-    <!--<b:TextBox gridSize="Span1" ui:field="nameField"/>-->
-    <!--<b:TextBox ui:field="symbolField"/>-->
-    <!--</div>-->
-    <!--</fieldset>-->
-    <!--</form>-->
-    <!--</div>-->
-    <!--</div>-->
-    <!--</g:HTMLPanel>-->
     <gwt:SplitLayoutPanel>
         <gwt:west size="250">
             <cellview:DataGrid ui:field="dataGrid"/>
         </gwt:west>
         <gwt:center>
             <b:Container fluid="true" width="100%" styleName="{style.container}">
-                <b:Row>
-                    <b:Column size="6" styleName="{style.widgetPanel}">
-                        <b:InputGroup>
-                            <b:InputGroupAddon>Min</b:InputGroupAddon>
-                            <b:TextBox autoComplete="false" ui:field="minField"/>
-                        </b:InputGroup>
-                    </b:Column>
-                </b:Row>
                 <b:Row>
                     <b:Column size="6" styleName="{style.widgetPanel}">
                         <b:InputGroup>
@@ -73,25 +50,20 @@
                 <b:Row>
                     <b:Column size="6" styleName="{style.widgetPanel}">
                         <b:InputGroup>
+                            <b:InputGroupAddon>Min</b:InputGroupAddon>
+                            <b:TextBox autoComplete="false" ui:field="minField"/>
+                        </b:InputGroup>
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="6" styleName="{style.widgetPanel}">
+                        <b:InputGroup>
                             <b:InputGroupAddon>Strand</b:InputGroupAddon>
-
-                            <!--<b:InputGroupButton>-->
                             <b:ButtonGroup dataToggle="BUTTONS" ui:field="strand">
                                 <b:Button ui:field="negativeStrandValue">-</b:Button>
                                 <b:Button ui:field="positiveStrandValue">+</b:Button>
-                                <!--<b:RadioButton ui:field="positiveStrandValue" name="strandValue"> +</b:RadioButton>-->
-                                <!--<b:RadioButton ui:field="negativeStrandValue" name="strandValue"> -</b:RadioButton>-->
                             </b:ButtonGroup>
-                            <!--<g:RadioButton name="strand">+</g:RadioButton>-->
-                            <!--</b:InputGroupButton>-->
-                            <!--<b:InputGroupButton>-->
-                            <!--<g:RadioButton name="strand">-</g:RadioButton>-->
-                            <!--</b:InputGroupButton>-->
                         </b:InputGroup>
-                        <!--<b:InputGroup>-->
-                        <!--<b:InputGroupAddon>Location</b:InputGroupAddon>-->
-                        <!--<b:InputGroupAddon ui:field="locationField"/>-->
-                        <!--</b:InputGroup>-->
                     </b:Column>
                 </b:Row>
             </b:Container>

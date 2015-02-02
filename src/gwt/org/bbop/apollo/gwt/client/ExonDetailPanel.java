@@ -3,7 +3,6 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
@@ -17,7 +16,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -27,10 +25,8 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -173,13 +169,13 @@ public class ExonDetailPanel extends Composite {
     @UiHandler("minField")
     void handleMinChange(ChangeEvent e) {
         internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));
-        updateExon();
+        updateFeatureLocation();
     }
 
     @UiHandler("maxField")
     void handleMaxChange(ChangeEvent e) {
-        internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));
-        updateExon();
+        internalAnnotationInfo.setMax(Integer.parseInt(maxField.getText()));
+        updateFeatureLocation();
     }
 
     @UiHandler("positiveStrandValue")
@@ -188,7 +184,7 @@ public class ExonDetailPanel extends Composite {
             internalAnnotationInfo.setStrand(1);
             positiveStrandValue.setActive(true);
             negativeStrandValue.setActive(false);
-            updateExon();
+            updateFeatureLocation();
         }
     }
 
@@ -198,13 +194,13 @@ public class ExonDetailPanel extends Composite {
             internalAnnotationInfo.setStrand(-1);
             positiveStrandValue.setActive(false);
             negativeStrandValue.setActive(true);
-            updateExon();
+            updateFeatureLocation();
         }
     }
 
 
-    private void updateExon() {
-        String url = rootUrl + "/annotator/updateExon";
+    private void updateFeatureLocation() {
+        String url = rootUrl + "/annotator/updateFeatureLocation";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();

@@ -70,15 +70,16 @@ class AnnotatorController {
         render updateFeatureContainer
     }
 
-    def updateExon() {
+
+    def updateFeatureLocation() {
         println "updating exon ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
         println "uqnieuname 2: ${data.uniquename}"
         println "rendered data ${data as JSON}"
-        Exon exon = Exon.findByUniqueName(data.uniquename)
-        exon.featureLocation.fmin = data.location.fmin
-        exon.featureLocation.fmax = data.location.fmax
-        exon.featureLocation.strand = data.location.strand
+        Feature exon = Feature.findByUniqueName(data.uniquename)
+        exon.featureLocation.fmin = data.fmin
+        exon.featureLocation.fmax = data.fmax
+        exon.featureLocation.strand = data.strand
         exon.save(flush: true, failOnError: true)
 
         // need to grant the parent feature to force a redraw
