@@ -1,9 +1,6 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.ClickableTextCell;
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
@@ -67,7 +64,7 @@ public class AnnotatorPanel extends Composite {
     private String selectedSequenceName = null;
 
     private Column<AnnotationInfo, String> nameColumn;
-    private Column<AnnotationInfo, SafeHtml> filterColumn;
+    private TextColumn<AnnotationInfo> filterColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
 
@@ -138,10 +135,9 @@ public class AnnotatorPanel extends Composite {
         });
         exportStaticMethod(this);
 
+        initWidget(ourUiBinder.createAndBindUi(this));
 
-        Widget rootElement = ourUiBinder.createAndBindUi(this);
 
-        initWidget(rootElement);
 
         initializeTypes();
 
@@ -216,6 +212,7 @@ public class AnnotatorPanel extends Composite {
             stopCodonButton.setIcon(IconType.BAN);
             stopCodonButton.setType(ButtonType.DEFAULT);
         }
+        filterList();
     }
 
     @UiHandler("cdsButton")
@@ -234,6 +231,7 @@ public class AnnotatorPanel extends Composite {
             cdsButton.setIcon(IconType.BAN);
             cdsButton.setType(ButtonType.DEFAULT);
         }
+        filterList();
     }
 
     private void initializeTable() {
@@ -272,30 +270,35 @@ public class AnnotatorPanel extends Composite {
         nameColumn.setSortable(true);
 
 
-        final SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
-        filterColumn = new Column<AnnotationInfo, SafeHtml>(safeHtmlCell) {
+//        final SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
+        filterColumn = new TextColumn<AnnotationInfo>() {
             @Override
-            public SafeHtml getValue(AnnotationInfo object) {
-                Random random = new Random();
-                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
-
-//                if(random.nextBoolean()){
-//                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>CDS-3</div>");
-//                }
-//                else
-//                if(random.nextBoolean()){
-//                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>Stop Codon</div>");
-//                }
-//                else{
-//                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
-//                }
-                safeHtmlBuilder.appendHtmlConstant("<pre>BOO</pre>");
-
-
-                return safeHtmlBuilder.toSafeHtml();
+            public String getValue(AnnotationInfo object) {
+                return "Bob";
             }
+
+            //            @Override
+//            public String getValue(AnnotationInfo object) {
+//                Random random = new Random();
+//                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+//
+////                if(random.nextBoolean()){
+////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>CDS-3</div>");
+////                }
+////                else
+////                if(random.nextBoolean()){
+////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>Stop Codon</div>");
+////                }
+////                else{
+////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
+////                }
+//                safeHtmlBuilder.appendHtmlConstant("<pre>BOO</pre>");
+//
+//
+//                return safeHtmlBuilder.toSafeHtml().to;
+//            }
         };
-        filterColumn.setSortable(false);
+//        filterColumn.setSortable(false);
 
 
         typeColumn = new TextColumn<AnnotationInfo>() {
@@ -317,9 +320,9 @@ public class AnnotatorPanel extends Composite {
 
 //        dataGrid.addColumn(nameColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         dataGrid.addColumn(nameColumn, "Name");
-//        dataGrid.addColumn(filterColumn, "Warnings");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
+        dataGrid.addColumn(filterColumn, "Warnings");
 
         dataGrid.setColumnWidth(0, "50%");
 
@@ -456,6 +459,13 @@ public class AnnotatorPanel extends Composite {
                 }
             }
         }
+
+//        if(cdsButton.getIcon()==IconType.BAN){
+//            dataGrid.removeColumn(3);
+//        }
+//        else{
+//            dataGrid.addColumn(filterColumn);
+//        }
     }
 
     private boolean searchMatches(Set<AnnotationInfo> annotationInfoSet) {
@@ -548,6 +558,9 @@ public class AnnotatorPanel extends Composite {
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
 
+        // TODO: delete this .. just for demo version
+        Random random = new Random();
+
         public CustomTableBuilder() {
             super(dataGrid);
         }
@@ -616,6 +629,50 @@ public class AnnotatorPanel extends Composite {
             } else {
                 td.text(NumberFormat.getDecimalFormat().format(rowValue.getLength())).endTD();
             }
+
+            td = row.startTD();
+            td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
+
+            // TODO: is it necessary to have two separte ones?
+//            if(showTranscripts){
+                DivBuilder div = td.startDiv();
+                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+
+                if(random.nextBoolean()){
+                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>CDS-3</div>");
+                }
+                else
+                if(random.nextBoolean()){
+                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>Stop Codon</div>");
+                }
+                else{
+//                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
+                }
+
+                div.html(safeHtmlBuilder.toSafeHtml());
+                td.endDiv();
+                td.endTD();
+//            }
+//            else{
+//                DivBuilder div = td.startDiv();
+//                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+//
+//                if(random.nextBoolean()){
+//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>CDS-3</div>");
+//                }
+//                else
+//                if(random.nextBoolean()){
+//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>Stop Codon</div>");
+//                }
+//                else{
+////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
+//                }
+//
+//                div.html(safeHtmlBuilder.toSafeHtml());
+//                td.endDiv();
+//                td.endTD();
+//            }
+//            row.endTD();
 
             row.endTR();
 

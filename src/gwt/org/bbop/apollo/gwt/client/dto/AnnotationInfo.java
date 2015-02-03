@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,6 +18,7 @@ public class AnnotationInfo {
     private String symbol;
     private String description;
     private Integer strand;
+    private List<String> errors = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -98,5 +101,13 @@ public class AnnotationInfo {
 
     public void setStrand(Integer strand) {
         this.strand = strand;
+    }
+
+    public List<String> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<String> errors) {
+        this.errors = errors;
     }
 }

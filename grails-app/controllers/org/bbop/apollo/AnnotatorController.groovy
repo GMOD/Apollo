@@ -125,6 +125,8 @@ class AnnotatorController {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
+        // TODO: do checks here
+
         render returnObject
 
     }
