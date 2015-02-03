@@ -61,6 +61,8 @@ public class ExonDetailPanel extends Composite {
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
 
     private TextColumn<AnnotationInfo> typeColumn;
+    private Column<AnnotationInfo, Number> startColumn;
+    private Column<AnnotationInfo, Number> stopColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
 
 
@@ -78,7 +80,6 @@ public class ExonDetailPanel extends Composite {
 
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
     }
 
     private void initializeTable() {
@@ -90,6 +91,22 @@ public class ExonDetailPanel extends Composite {
         };
         typeColumn.setSortable(true);
 
+        startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getMin();
+            }
+        };
+        startColumn.setSortable(true);
+
+        stopColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
+            @Override
+            public Integer getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getMax();
+            }
+        };
+        stopColumn.setSortable(true);
+
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
@@ -99,6 +116,8 @@ public class ExonDetailPanel extends Composite {
         lengthColumn.setSortable(true);
 
         dataGrid.addColumn(typeColumn, "Type");
+        dataGrid.addColumn(startColumn, "Start");
+//        dataGrid.addColumn(stopColumn, "Stop");
         dataGrid.addColumn(lengthColumn, "Length");
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(annotationInfoList);
@@ -108,6 +127,20 @@ public class ExonDetailPanel extends Composite {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
                 return o1.getType().compareTo(o2.getType());
+            }
+        });
+
+        sortHandler.setComparator(startColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getMin() - o2.getMin();
+            }
+        });
+
+        sortHandler.setComparator(stopColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getMax() - o2.getMax();
             }
         });
 
