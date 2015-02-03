@@ -16,7 +16,22 @@ define( [
     'dojo/request/xhr',
     'dojox/widget/Standby'
      ],
-function( declare, mouse, query, dom, domStyle, domClass, array, on, Menu, MenuItem, Sequence, CodonTable, JSONUtils, Permission, xhr, Standby ) {
+function(
+    declare,
+    mouse,query,
+    dom,
+    domStyle,
+    domClass,
+    array,
+    on,
+    Menu,
+    MenuItem,
+    Sequence,
+    CodonTable,
+    JSONUtils,
+    Permission,
+    xhr,
+    Standby ) {
 
 return declare( Sequence,
 {
@@ -29,30 +44,8 @@ return declare( Sequence,
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
             this.webapollo = p;
         }));
-
         this.context_path = "..";
-        this.store=args.store;
         this.loadTranslationTable();
-        var menu = new Menu({
-            targetNodeIds: ['track_DNA' ],
-            selector: "td.base"
-        });
-        menu.addChild(new MenuItem({
-            label: "Create insertion",
-            iconClass: "dijitIconNewTask",
-            onClick: function(evt){
-                var node = this.getParent().currentTarget;
-                alert("Insertion for node ", node);
-            }
-        }));
-        menu.addChild(new MenuItem({
-            label: "Create deletion",
-            iconClass: "dijitIconDelete",
-            onClick: function(evt){
-                var node = this.getParent().currentTarget;
-                alert("Deletion for node ", node);
-            }
-        }));
     },
 
     /*
@@ -83,6 +76,28 @@ return declare( Sequence,
         var finishCallback=args.finishCallback;
         args.finishCallback=function() {
             finishCallback();
+            if(!this._menu) {
+                this._menu = new Menu({
+                    targetNodeIds:['track_DNA'],
+                    selector: "td.base"
+                });
+                this._menu.addChild(new MenuItem({
+                    label: "Create insertion",
+                    iconClass: "dijitIconNewTask",
+                    onClick: function(evt){
+                        var node = this.getParent().currentTarget;
+                        alert("Insertion for node ", node);
+                    }
+                }));
+                this._menu.addChild(new MenuItem({
+                    label: "Create deletion",
+                    iconClass: "dijitIconDelete",
+                    onClick: function(evt){
+                        var node = this.getParent().currentTarget;
+                        alert("Deletion for node ", node);
+                    }
+                }));
+            }
             var nl=query('.base',args.block.domNode);
             nl.style("backgroundColor","#E0E0E0")
             nl.on(mouse.enter,function(evt) {
