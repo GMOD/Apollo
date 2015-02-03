@@ -19,7 +19,8 @@ This guide will be doing the following steps
  - Configuring WebApollo using the config.properties file
 
 #### Setup environment
-First set some environmental variables. These can be customized appropriate to your setup. Note that PGUSER is simply your username in this setup, but if you set it to something different, make sure to see [database setup](Database_setup.md) for details.
+
+First set some environmental variables. These represent the postgres user/pass, the login user/pass, the database storing the login info. We also specify the organism name and say where we want our JBrowse data directory and WebApollo annotations.
 
     export PGUSER=web_apollo_users_admin
     export PGPASSWORD=password
@@ -29,6 +30,8 @@ First set some environmental variables. These can be customized appropriate t
     export ORGANISM="Pythium ultimum"
     export JBROWSE_DATA_DIR=`pwd`/data
     export WEBAPOLLO_DATA_DIR=`pwd`/annotations
+
+More details about the postgres setup is in the [database setup](Database_setup.md). Also note that JBROWSE_DATA_DIR and WEBAPOLLO_DATA_DIR don't have to be initialized, we will do that in in this guide.
 
 
 #### Download webapollo
