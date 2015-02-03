@@ -21,6 +21,7 @@ class RequestHandlingService {
 
     def featureService
     def transcriptService
+    def exonService
     def brokerMessagingTemplate
     def nonCanonicalSplitSiteService
 
@@ -342,6 +343,90 @@ class RequestHandlingService {
 
     }
 
+    /**
+     * TODO: test in interface
+     * @param inputObject
+     * @return
+     */
+    JSONObject setExonBoundaries(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        Transcript transcript = null
+        Sequence sequence = null
+
+        JSONObject returnObject = createJSONFeatureContainer()
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            if (!jsonFeature.has("location")) {
+                continue;
+            }
+            JSONObject jsonLocation = jsonFeature.getJSONObject("location");
+            int fmin = jsonLocation.getInt("fmin");
+            int fmax = jsonLocation.getInt("fmax");
+            if (fmin < 0 || fmax < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+//            Exon exon = (Exon) editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
+            Exon exon = Exon.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            transcript = exonService.getTranscript(exon)
+            if(!sequence){
+                sequence = transcript.featureLocation.sequence
+            }
+
+            if(transcript.fmin==exon.fmax){
+                transcript.featureLocation.fmin = fmin
+            }
+            if(transcript.fmax==exon.fmax){
+                transcript.featureLocation.fmax = fmax
+            }
+
+
+            exon.featureLocation.fmin = transcript.fmin
+            exon.featureLocation.fmax = transcript.fmax
+            featureService.removeExonOverlapsAndAdjacencies(transcript)
+            transcriptService.updateGeneBoundaries(transcript)
+
+            exon.save()
+
+            featureService.calculateCDS(transcript)
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+
+//            featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+//            if (dataStore != null) {
+//                writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+//            }
+//            if (historyStore != null) {
+//                Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
+//                transaction.addOldFeature(oldTranscript);
+//                transaction.addNewFeature(transcript);
+//                writeHistoryToStore(historyStore, transaction);
+//            }
+
+            transcript.save()
+
+
+            returnObject.getJSONArray("features").put(featureService.convertFeatureToJSON(transcript));
+
+        }
+
+
+
+
+
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: returnObject
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.SET_EXON_BOUNDARY
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+
+        return returnObject
+    }
+
     def fireAnnotationEvent(AnnotationEvent... annotationEvents) {
         handleChangeEvent(annotationEvents)
     }
@@ -391,4 +476,5 @@ class RequestHandlingService {
     private static String fixTrackHeader(String trackInput) {
         return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
     }
+
 }

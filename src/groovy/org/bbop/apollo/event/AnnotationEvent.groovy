@@ -25,7 +25,8 @@ class AnnotationEvent {
     public enum Operation {
         ADD,
         DELETE,
-        UPDATE
+        UPDATE,
+        SET_EXON_BOUNDARY,
     }
 
 }

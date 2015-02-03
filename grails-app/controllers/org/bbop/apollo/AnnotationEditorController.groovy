@@ -245,11 +245,15 @@ class AnnotationEditorController implements AnnotationListener {
             } else {
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(newFeature));
             }
-
         }
 
-
         render returnObject
+    }
+
+    def setExonBoundaries(){
+        println "setting exon boundaries ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.setExonBoundaries(inputObject)
     }
 
 
@@ -257,7 +261,6 @@ class AnnotationEditorController implements AnnotationListener {
         println "adding exon ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.addExon(inputObject)
-        render returnObject
     }
 
     /**
