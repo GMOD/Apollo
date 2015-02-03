@@ -239,6 +239,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin],
             handleAs: "json",
             preventCache: true,
             timeout: 5 * 60 * 1000,
+            failOk: true,
             load: function(response, ioArgs) {
                 if (response == null) {
                     track.createAnnotationChangeListener();
@@ -285,9 +286,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin],
             error: function(response, ioArgs) { //
                 // client cancel
                 if (response.dojoType == "cancel") {
-                    console.log("AnnotationChangeNotification  XHR returned with error of type CANCEL");
-                    track.handleError(response);
-
                     return;
                 }
                 // client timeout
