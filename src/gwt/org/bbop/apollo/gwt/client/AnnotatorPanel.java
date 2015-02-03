@@ -411,13 +411,10 @@ public class AnnotatorPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isObject().get("features").isArray();
-//                features.clear();
                 annotationInfoList.clear();
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
-//                    TreeItem treeItem = processFeatureEntry(object);
-//                    features.addItem(treeItem);
                     GWT.log(object.toString());
 
 
@@ -459,13 +456,6 @@ public class AnnotatorPanel extends Composite {
                 }
             }
         }
-
-//        if(cdsButton.getIcon()==IconType.BAN){
-//            dataGrid.removeColumn(3);
-//        }
-//        else{
-//            dataGrid.addColumn(filterColumn);
-//        }
     }
 
     private boolean searchMatches(Set<AnnotationInfo> annotationInfoSet) {
@@ -507,6 +497,16 @@ public class AnnotatorPanel extends Composite {
         annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
+
+        List<String> noteList = new ArrayList<>();
+        if(object.get("notes")!=null){
+            JSONArray jsonArray = object.get("notes").isArray();
+            for(int i = 0 ; i< jsonArray.size() ; i++){
+                String note = jsonArray.get(i).isString().stringValue();
+                noteList.add(note) ;
+            }
+        }
+        annotationInfo.setNoteList(noteList);
 
         if (processChildren && object.get("children") != null) {
             JSONArray jsonArray = object.get("children").isArray();
@@ -638,16 +638,20 @@ public class AnnotatorPanel extends Composite {
                 DivBuilder div = td.startDiv();
                 SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
 
-                if(random.nextBoolean()){
-                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>CDS-3</div>");
+                for(String error : rowValue.getNoteList()){
+                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>"+error+"</div>");
                 }
-                else
-                if(random.nextBoolean()){
-                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>Stop Codon</div>");
-                }
-                else{
-//                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
-                }
+
+//                if(random.nextBoolean()){
+//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>CDS-3</div>");
+//                }
+//                else
+//                if(random.nextBoolean()){
+//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>Stop Codon</div>");
+//                }
+//                else{
+////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
+//                }
 
                 div.html(safeHtmlBuilder.toSafeHtml());
                 td.endDiv();

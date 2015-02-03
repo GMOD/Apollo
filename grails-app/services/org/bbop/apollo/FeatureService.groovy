@@ -3,6 +3,8 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
 import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.filter.Cds3Filter
+import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.bbop.apollo.web.util.JSONUtil
@@ -1724,6 +1726,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (gsolFeature.description) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
+
+            // TODO: move this to a configurable place or in another method to process afterwards
+            List<String> errorList = new ArrayList<>()
+            errorList.addAll(new Cds3Filter().filterFeature(gsolFeature))
+            errorList.addAll(new StopCodonFilter().filterFeature(gsolFeature))
+            JSONArray notesArray = new JSONArray()
+            for(String error : errorList){
+                notesArray.put(error)
+            }
+            jsonFeature.put(FeatureStringEnum.NOTES.value,notesArray)
+
             // get children
 //            Collection<FeatureRelationship> childrenRelationships = gsolFeature.getChildFeatureRelationships();
             Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;

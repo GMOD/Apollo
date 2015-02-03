@@ -31,6 +31,7 @@ enum FeatureStringEnum {
      COMMENTS,
      CANNED_COMMENTS,
      STATUS,
+     NOTES,
      TAG,
      NON_RESERVED_PROPERTIES,
      LOCATION,

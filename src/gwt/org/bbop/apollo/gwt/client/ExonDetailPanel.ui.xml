@@ -66,6 +66,12 @@
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
+                <b:Row>
+                    <b:Column size="6" styleName="{style.widgetPanel}">
+                        <gwt:HTML ui:field="notePanel"/>
+                    </b:Column>
+
+                </b:Row>
             </b:Container>
 
         </gwt:center>

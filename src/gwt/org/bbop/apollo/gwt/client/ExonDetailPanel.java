@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -16,6 +17,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -56,6 +58,8 @@ public class ExonDetailPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(10, tablecss);
+    @UiField
+    HTML notePanel;
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
@@ -194,6 +198,14 @@ public class ExonDetailPanel extends Composite {
             positiveStrandValue.setActive(false);
             negativeStrandValue.setActive(true);
         }
+
+        SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+        for(String note : annotationInfo.getNoteList()){
+            safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>"+note+"</div>");
+        }
+        notePanel.setHTML(safeHtmlBuilder.toSafeHtml());
+
+//        safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>"+error+"</div>");
 
 
         setVisible(true);

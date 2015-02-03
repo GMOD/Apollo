@@ -18,7 +18,7 @@ public class AnnotationInfo {
     private String symbol;
     private String description;
     private Integer strand;
-    private List<String> errors = new ArrayList<>();
+    private List<String> noteList = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -103,11 +103,11 @@ public class AnnotationInfo {
         this.strand = strand;
     }
 
-    public List<String> getErrors() {
-        return errors;
+    public List<String> getNoteList() {
+        return noteList;
     }
 
-    public void setErrors(List<String> errors) {
-        this.errors = errors;
+    public void setNoteList(List<String> noteList) {
+        this.noteList = noteList;
     }
 }
