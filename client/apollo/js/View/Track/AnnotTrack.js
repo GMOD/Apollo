@@ -1894,15 +1894,15 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
             };
             if (id == track.refSeq.name) {
                 var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
-                track.gview.browser.config.highlightSearchedRegions = true;
-                track.gview.browser.showRegionWithHighlight(locobj);
-                track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
+                browser.config.highlightSearchedRegions = true;
+                browser.showRegionWithHighlight(locobj);
+                browser.config.highlightSearchedRegions = highlightSearchedRegions;
             }
             else {
                 var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
-                track.gview.browser.config.highlightSearchedRegions = true;
-                track.gview.browser.showRegionWithHighlight(locobj);
-                track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
+                browser.config.highlightSearchedRegions = true;
+                browser.showRegionWithHighlight(locobj);
+                browser.config.highlightSearchedRegions = highlightSearchedRegions;
             }
         });
         search.setErrorCallback(function(response) {

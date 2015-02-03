@@ -1,23 +1,24 @@
 define( [
             'dojo/_base/declare',
             'jquery'
-], 
-    function( declare, $ ) {
+        ], 
+        function(declare, $) {
 
+return declare([], {
 
-function SequenceSearch(contextPath) {
+constructor: function(contextPath) {
     this.contextPath = contextPath;
-};
+},
 
-SequenceSearch.prototype.setRedirectCallback = function(callback) {
+setRedirectCallback: function(callback) {
     this.redirectCallback = callback;
-};
+},
 
-SequenceSearch.prototype.setErrorCallback = function(callback) {
+setErrorCallback: function(callback) {
     this.errorCallback = callback;
-};
+},
 
-SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts) {
+searchSequence: function(trackName, refSeqName, starts) {
     var operation = "search_sequence";
     var contextPath = this.contextPath;
     var redirectCallback = this.redirectCallback;
@@ -183,10 +184,10 @@ SequenceSearch.prototype.searchSequence = function(trackName, refSeqName, starts
     }
     
     return content;
-};
+}
 
-//        window.SequenceSearch = SequenceSearch;
+});
 
-        return SequenceSearch;
-    } );
+
+} );
 
