@@ -140,13 +140,12 @@
                 <b:Row>
                     <b:Column size="MD_2">
                         <b:InputGroup>
-                            <b:CheckBox text="CDS/3" ui:field="cdsFilter"/>
+                            <b:Button size="EXTRA_SMALL" icon="BAN" text="CDS/3" ui:field="cdsButton"/>
                         </b:InputGroup>
                     </b:Column>
                     <b:Column size="MD_2">
                         <b:InputGroup>
-                            <b:CheckBox text="Stop Codons" ui:field="stopCodonFilter"
-                                        addStyleNames="{style.labelText}"/>
+                            <b:Button size="EXTRA_SMALL" icon="BAN" text="Stop Codons" ui:field="stopCodonButton"/>
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>

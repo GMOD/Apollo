@@ -9,6 +9,7 @@ import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
@@ -26,6 +27,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
@@ -40,9 +42,13 @@ import org.bbop.apollo.gwt.client.event.ContextSwitchEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.gwtbootstrap3.client.shared.event.TabEvent;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.*;
 
@@ -67,10 +73,6 @@ public class AnnotatorPanel extends Composite {
     TextBox nameSearchBox;
     @UiField(provided = true)
     SuggestBox sequenceList;
-    @UiField
-    CheckBox cdsFilter;
-    @UiField
-    CheckBox stopCodonFilter;
 
 
 //    Tree.Resources tablecss = GWT.create(Tree.Resources.class);
@@ -94,6 +96,10 @@ public class AnnotatorPanel extends Composite {
     static ExonDetailPanel exonDetailPanel;
     @UiField
     static TabLayoutPanel tabPanel;
+    @UiField
+    Button cdsButton;
+    @UiField
+    Button stopCodonButton;
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
@@ -136,7 +142,6 @@ public class AnnotatorPanel extends Composite {
         initWidget(rootElement);
 
         initializeTypes();
-        stopCodonFilter.setValue(false);
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
             @Override
@@ -191,9 +196,42 @@ public class AnnotatorPanel extends Composite {
             default:
                 GWT.log("not sure what to do with " + type);
         }
-//                annotationName.setText(internalData.get("name").isString().stringValue());
+    }
 
+    @UiHandler("stopCodonButton")
+    // switch betwen states
+    public void handleStopCodonStuff(ClickEvent clickEvent){
+        if(stopCodonButton.getIcon().equals(IconType.BAN)){
+            stopCodonButton.setIcon(IconType.WARNING);
+            stopCodonButton.setType(ButtonType.WARNING);
+        }
+        else
+        if(stopCodonButton.getIcon().equals(IconType.WARNING)){
+            stopCodonButton.setIcon(IconType.FILTER);
+            stopCodonButton.setType(ButtonType.PRIMARY);
+        }
+        else{
+            stopCodonButton.setIcon(IconType.BAN);
+            stopCodonButton.setType(ButtonType.DEFAULT);
+        }
+    }
 
+    @UiHandler("cdsButton")
+    // switch betwen states
+    public void handleCdsStuff(ClickEvent clickEvent){
+        if(cdsButton.getIcon().equals(IconType.BAN)){
+            cdsButton.setIcon(IconType.WARNING);
+            cdsButton.setType(ButtonType.WARNING);
+        }
+        else
+        if(cdsButton.getIcon().equals(IconType.WARNING)){
+            cdsButton.setIcon(IconType.FILTER);
+            cdsButton.setType(ButtonType.PRIMARY);
+        }
+        else{
+            cdsButton.setIcon(IconType.BAN);
+            cdsButton.setType(ButtonType.DEFAULT);
+        }
     }
 
     private void initializeTable() {
@@ -333,7 +371,6 @@ public class AnnotatorPanel extends Composite {
             selectedSequenceName = MainPanel.currentSequenceId;
             loadSequences();
         }
-//        features.setAnimationEnabled(false);
 
         String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + selectedSequenceName;
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
