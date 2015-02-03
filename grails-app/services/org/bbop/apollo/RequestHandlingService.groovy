@@ -1,16 +1,10 @@
 package org.bbop.apollo
-
-import grails.converters.JSON
-
 //import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
-import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.SendTo
 
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
@@ -28,6 +22,7 @@ class RequestHandlingService {
     def featureService
     def transcriptService
     def brokerMessagingTemplate
+    def nonCanonicalSplitSiteService
 
 //    def nameService
 
@@ -237,6 +232,60 @@ class RequestHandlingService {
                 , sequence: sequence
         ))
 
+
+        return returnObject
+
+    }
+
+    /**
+     * First feature is transcript . . . all the first must be exons to add
+     * @param inputObject
+     * @return
+     * TODO: test in interface
+     */
+    JSONObject addExon(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
+
+        Transcript transcript = Transcript.findByUniqueName(uniqueName)
+        Sequence sequence = transcript.featureLocation.sequence
+
+        for (int i = 1; i < features.length(); ++i) {
+            JSONObject jsonExon = features.getJSONObject(i);
+            // could be that this is null
+//            Feature gsolExon = featureService.convertJSONToFeature(jsonExon,transcript,sequence)
+            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon,null,sequence)
+
+//            featureService.updateNewGsolFeatureAttributes(gsolExon, transcript);
+            featureService.updateNewGsolFeatureAttributes(gsolExon, null);
+
+            if (gsolExon.getFmin() < 0 || gsolExon.getFmax() < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+
+            transcriptService.addExon(transcript,gsolExon)
+
+            featureService.calculateCDS(transcript)
+
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+
+            gsolExon.save(flush: false, insert:true)
+        }
+
+        transcript.save(flush: true,insert:false)
+
+        // TODO: one of these two versions . . .
+        JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false))
+//        JSONObject returnObject = featureService.convertFeatureToJSON(transcript,false)
+//
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: returnObject
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.ADD
+        )
+
+        fireAnnotationEvent(annotationEvent)
 
         return returnObject
 

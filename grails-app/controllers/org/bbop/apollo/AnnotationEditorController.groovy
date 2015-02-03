@@ -256,11 +256,8 @@ class AnnotationEditorController implements AnnotationListener {
     def addExon() {
         println "adding exon ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-
-        JSONObject returnObject = createJSONFeatureContainer()
-
+        render requestHandlingService.addExon(inputObject)
+        render returnObject
     }
 
     /**
@@ -274,6 +271,7 @@ class AnnotationEditorController implements AnnotationListener {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.addTranscript(inputObject)
     }
+
 /**
  *
  * Should return of form:

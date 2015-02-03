@@ -367,4 +367,20 @@ class TranscriptService {
         cds.save()
         feature.save(flush: true)
     }
+
+    def addExon(Transcript transcript, Exon exon) {
+
+//        transcript.addExon(exon);
+        featureRelationshipService.addChildFeature(transcript,exon)
+
+//        removeExonOverlapsAndAdjacencies(transcript);
+        featureService.removeExonOverlapsAndAdjacencies(transcript)
+//
+//        // if the exon is removed during a merge, then we will get a null-pointer
+//        updateGeneBoundaries(transcript.getGene());
+        updateGeneBoundaries(transcript);
+//
+//        // event fire
+//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
+    }
 }
