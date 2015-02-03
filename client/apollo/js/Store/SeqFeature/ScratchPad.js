@@ -6,7 +6,6 @@ define( ['dojo/_base/declare',
 return declare( SeqFeatureStore,
 {
     constructor: function( args ) {
-        console.log("SCRATCH");
         this.refSeq = args.refSeq;
         this.features = {};
         this.sorted_feats = [];

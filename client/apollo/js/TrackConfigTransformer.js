@@ -14,7 +14,6 @@ constructor: function()  {
     };
 
     this["JBrowse/View/Track/Sequence"] = function(trackConfig) {
-        console.log("transforming Sequence track");
         trackConfig.type = "WebApollo/View/Track/AnnotSequenceTrack";
         trackConfig.storeClass = "WebApollo/Store/Sequence/ScratchPad";
         trackConfig.style = { className: "{type}", 
