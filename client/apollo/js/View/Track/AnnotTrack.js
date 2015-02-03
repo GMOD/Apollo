@@ -344,8 +344,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
                     return;
                 }
                 
-            },
-            failOk: true
+            }
         });
     },
 
