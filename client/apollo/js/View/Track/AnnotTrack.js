@@ -3,6 +3,7 @@ define( [
             'jquery',
             'jqueryui/droppable',
             'jqueryui/resizable',
+            'jqueryui/draggable',
             'dijit/Menu',
             'dijit/MenuItem', 
             'dijit/MenuSeparator', 
@@ -29,6 +30,7 @@ define( [
                 $,
                 droppable,
                 resizable,
+                draggable,
                 dijitMenu,
                 dijitMenuItem,
                 dijitMenuSeparator,
@@ -102,11 +104,15 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin],
         this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function(names) {
         }));
         
-        this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
-        this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
+        if(!this.gview.browser._keyBoardShortcuts)
+        {
+            this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
+            this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
         
-        this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
-        this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
+            this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
+            this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
+            this.gview.browser._keyBoardShortcuts=true;
+        }
         
         this.topLevelParents = {};
     },
