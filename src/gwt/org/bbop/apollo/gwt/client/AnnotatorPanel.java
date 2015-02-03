@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
+import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
@@ -66,6 +67,7 @@ public class AnnotatorPanel extends Composite {
     private String selectedSequenceName = null;
 
     private Column<AnnotationInfo, String> nameColumn;
+    private Column<AnnotationInfo, SafeHtml> filterColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
 
@@ -254,7 +256,6 @@ public class AnnotatorPanel extends Composite {
             }
         };
 
-
         nameColumn.setFieldUpdater(new FieldUpdater<AnnotationInfo, String>() {
             @Override
             public void update(int index, AnnotationInfo annotationInfo, String value) {
@@ -268,8 +269,34 @@ public class AnnotatorPanel extends Composite {
                 dataGrid.redrawRow(index);
             }
         });
-
         nameColumn.setSortable(true);
+
+
+        final SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
+        filterColumn = new Column<AnnotationInfo, SafeHtml>(safeHtmlCell) {
+            @Override
+            public SafeHtml getValue(AnnotationInfo object) {
+                Random random = new Random();
+                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+
+//                if(random.nextBoolean()){
+//                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>CDS-3</div>");
+//                }
+//                else
+//                if(random.nextBoolean()){
+//                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>Stop Codon</div>");
+//                }
+//                else{
+//                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
+//                }
+                safeHtmlBuilder.appendHtmlConstant("<pre>BOO</pre>");
+
+
+                return safeHtmlBuilder.toSafeHtml();
+            }
+        };
+        filterColumn.setSortable(false);
+
 
         typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
@@ -290,10 +317,11 @@ public class AnnotatorPanel extends Composite {
 
 //        dataGrid.addColumn(nameColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         dataGrid.addColumn(nameColumn, "Name");
+//        dataGrid.addColumn(filterColumn, "Warnings");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.setColumnWidth(0, "70%");
+        dataGrid.setColumnWidth(0, "50%");
 
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
