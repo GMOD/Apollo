@@ -76,6 +76,7 @@ return declare( Sequence,
         var finishCallback=args.finishCallback;
         args.finishCallback=function() {
             finishCallback();
+            // Add right-click menu
             if(!this._menu) {
                 this._menu = new Menu({
                     targetNodeIds:['track_DNA'],
@@ -98,6 +99,8 @@ return declare( Sequence,
                     }
                 }));
             }
+
+            // Add mouseover highlight
             var nl=query('.base',args.block.domNode);
             nl.style("backgroundColor","#E0E0E0")
             nl.on(mouse.enter,function(evt) {
@@ -106,6 +109,14 @@ return declare( Sequence,
             nl.on(mouse.leave,function(evt) {
               domStyle.set(evt.target,"backgroundColor","#E0E0E0");
             });
+
+            // Add colorCdsByFrame
+            if (thisB.browser.cookie("colorCdsByFrame")=="1") {
+                query(".translatedSequence").addClass("colorCds");
+            }
+            else {
+                query(".translatedSequence .colorCds").removeClass("colorCds");
+            }
         };
         supermethod.call(this,args);
     },

@@ -15,3 +15,14 @@
 @import url("annotation_info_editor.css");
 @import url("confirm_dialog.css");
 @import url("information_editor_panel.css");
+
+
+.translatedSequence.frame0.colorCds {
+    background-color: #FF8080;
+}
+.translatedSequence.frame1.colorCds {
+    background-color: #80FF80;
+}
+.translatedSequence.frame2.colorCds {
+    background-color: #8080FF;
+}

@@ -23,11 +23,16 @@ RefactorClient changes:
 - Completely removed the "DraggableResultFeatures" because it was unused. It offered the option to "Promote all features" to the annotation track. If this is desired, we need to revisit it, but deleted for now.
 - Refactored InformationEditor into a new module WebApollo/View/InformationEditor that is a mixin for AnnotTrack (1400 lines removed from Annottrack.js)
 - Convert all synchronous XHR in information editor to use AJAX
+- Ignore long-polling request cancellations making noise in the console (normally happens on chromosome change)
+- Separate History panel into new module
+- Use declare for proper class declarations on SequenceSearch
+- Added colorByCds back to the SequenceTrack
+
+
 
 Casualties of the refactoring process so far:
 
 - The sequence displaying inside the feature when zoomed in (should this be reimplemented?)
-- Color by CDS doesn’t highlight frame (temporarily)
 - The highlight doing both top and bottom (temporarily)
 - Creating new insertions and deletions (temporarily)
 
