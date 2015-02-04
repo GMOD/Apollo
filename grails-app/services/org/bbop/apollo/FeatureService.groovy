@@ -1008,7 +1008,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         CDS cds = transcriptService.getCDS(transcript)
-        boolean needCdsIndex = cds == null;
+//        boolean needCdsIndex = cds == null;
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
             transcriptService.setCDS(transcript, cds);

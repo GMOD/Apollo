@@ -539,6 +539,8 @@ class AnnotationEditorController implements AnnotationListener {
                     break
                 case "setBoundaries":  requestHandlingService.setBoundaries(rootElement)
                     break
+                case "setLongestOrf":  requestHandlingService.setLongestOrf(rootElement)
+                    break
                 default: nameService.generateUniqueName()
                     break
             }

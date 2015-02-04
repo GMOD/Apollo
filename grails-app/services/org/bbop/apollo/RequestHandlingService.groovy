@@ -420,6 +420,30 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    JSONObject setLongestOrf(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject transcriptJSONObject = features.getJSONObject(0);
+
+        Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        featureService.setLongestORF(transcript,false)
+
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: featureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return featureContainer
+    }
+
     /**
      * TODO: test in interface
      * @param inputObject
