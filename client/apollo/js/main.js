@@ -14,7 +14,7 @@ define(
            'dojo/_base/declare',
            'dojo/dom-construct',
            'dojo/dom-class',
-	   'dojo/_base/window',
+           'dojo/_base/window',
 	   'dojo/_base/array',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -61,7 +61,7 @@ return declare( JBPlugin,
 
         // Checking for cookie for determining the color scheme of WebApollo
         if (browser.cookie("Scheme")=="Dark") {
-	    domClass.add(win.body(), "Dark");
+            domClass.add(win.body(), "Dark");
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
