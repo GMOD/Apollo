@@ -430,6 +430,8 @@ class RequestHandlingService {
 
         featureService.setLongestORF(transcript,false)
 
+        transcript.save(flush: true,insert:false)
+
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
 
         if (sequence) {
