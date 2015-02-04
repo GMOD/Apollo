@@ -1,6 +1,6 @@
 # Database setup
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md">On GitHub</a>
 
 WebApollo uses a database backed authentication by default that uses PostgreSQL.
 Make sure to understand the [postgres configuration](http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html) for configuring the database and see our [troubleshooting guide](Troubleshooting.md) to help with any problems with these steps.

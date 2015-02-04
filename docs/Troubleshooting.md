@@ -1,7 +1,7 @@
 
 ### Tomcat memory
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md">On GitHub</a>
 
 
 Many times the default memory allowance is too low.

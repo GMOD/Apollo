@@ -1,6 +1,6 @@
 # Developer guide
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On GitHub</a>
 
 In the [build guide](Build.md) we discussed briefly how to create a build package.
 If you are a developer and have a custom setup of WebApollo or JBrowse, then you can use this guide to compile your own release package.

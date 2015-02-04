@@ -1,6 +1,6 @@
 # Quick start guide
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Quick_start_guide.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Quick_start_guide.md">On GitHub</a>
 
 While there are a number of prerequisites to WebApollo, we hope that
 this quick-start guide can help by automating some setup steps. This
@@ -100,7 +100,7 @@ Now you may initialize the database tables add a new Web Apollo user as follows
     psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
     tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
 
-Note: the reason we use the -h localhost is to force password-based host authentication instead of peer authentication.
+Note: the reason we use psql with "-h localhost" is to force password-based host authentication instead of peer authentication.
 
     tools/user/extract_seqids_from_fasta.pl -p Annotations- -i pyu_data/scf1117875582023.fa -o seqids.txt
     tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
