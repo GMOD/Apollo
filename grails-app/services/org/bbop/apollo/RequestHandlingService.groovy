@@ -21,6 +21,7 @@ class RequestHandlingService {
 
     def featureService
     def transcriptService
+    def cdsService
     def exonService
     def brokerMessagingTemplate
     def nonCanonicalSplitSiteService
@@ -341,6 +342,43 @@ class RequestHandlingService {
 
         return returnObject
 
+    }
+
+    /**
+     * Transcript is the first object
+     * @param inputObject
+     */
+    JSONObject setTranslationStart(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject transcriptJSONObject = features.getJSONObject(0);
+
+        Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
+        Sequence sequence = transcript.featureLocation.sequence
+
+        boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
+        if (!setStart) {
+            CDS cds = transcriptService.getCDS(transcript)
+            cdsService.setManuallySetTranslationStart(cds,false)
+            featureService.calculateCDS(transcript)
+        } else {
+            JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
+            featureService.setTranslationStart(transcript,jsonCDSLocation.getInt("fmin"),true)
+        }
+        transcript.save()
+//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
+//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: featureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return featureContainer
     }
 
     /**

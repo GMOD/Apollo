@@ -275,6 +275,12 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.addTranscript(inputObject)
     }
 
+    def lationetTranslationStart(){
+        println "AEC::set translation start ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.setTranslationStart(inputObject)
+    }
+
 /**
  *
  * Should return of form:
