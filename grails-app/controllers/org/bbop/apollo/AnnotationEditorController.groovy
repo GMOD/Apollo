@@ -282,9 +282,15 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def setTranslationEnd(){
-        println "AEC::set translation start ${params}"
+        println "AEC::set translation end ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setTranslationEnd(inputObject)
+    }
+
+    def setBoundaries(){
+        println "AEC::set boundaries ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.setBoundaries(inputObject)
     }
 
 /**
@@ -530,6 +536,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "addExon":  requestHandlingService.addExon(rootElement)
                     break
                 case "setExonBoundaries":  requestHandlingService.setExonBoundaries(rootElement)
+                    break
+                case "setBoundaries":  requestHandlingService.setBoundaries(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

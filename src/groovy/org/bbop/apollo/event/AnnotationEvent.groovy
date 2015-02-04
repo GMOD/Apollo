@@ -26,7 +26,6 @@ class AnnotationEvent {
         ADD,
         DELETE,
         UPDATE,
-        SET_EXON_BOUNDARY,
     }
 
 }

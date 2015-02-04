@@ -435,12 +435,12 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
-            if (!jsonFeature.has("location")) {
+            if (!jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 continue;
             }
-            JSONObject jsonLocation = jsonFeature.getJSONObject("location");
-            int fmin = jsonLocation.getInt("fmin");
-            int fmax = jsonLocation.getInt("fmax");
+            JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
+            int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
+            int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
@@ -469,16 +469,6 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
-//            featureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
-//            if (dataStore != null) {
-//                writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
-//            }
-//            if (historyStore != null) {
-//                Transaction transaction = new Transaction(Transaction.Operation.SET_EXON_BOUNDARIES, transcript.getUniqueName(), username);
-//                transaction.addOldFeature(oldTranscript);
-//                transaction.addNewFeature(transcript);
-//                writeHistoryToStore(historyStore, transaction);
-//            }
 
             transcript.save()
 
@@ -487,19 +477,56 @@ class RequestHandlingService {
 
         }
 
-
-
-
-
-
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
                 , sequence: sequence
-                , operation: AnnotationEvent.Operation.SET_EXON_BOUNDARY
+                , operation: AnnotationEvent.Operation.UPDATE
         )
 
         fireAnnotationEvent(annotationEvent)
 
+
+        return returnObject
+    }
+
+    JSONObject setBoundaries(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        JSONObject returnObject = createJSONFeatureContainer()
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            if (!jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
+                continue;
+            }
+            JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
+            int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
+            int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
+            if (fmin < 0 || fmax < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            println "exon: ${feature}"
+//            editor.setBoundaries(feature, fmin, fmax);
+            FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
+
+            featureLocation.fmin = fmin
+            featureLocation.fmax = fmax
+            feature.save()
+
+            returnObject.getJSONArray("features").put(featureService.convertFeatureToJSON(feature));
+        }
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: returnObject
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
 
         return returnObject
     }
