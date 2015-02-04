@@ -13,7 +13,9 @@ define(
        [
            'dojo/_base/declare',
            'dojo/dom-construct',
-           'dojo/_base/array',
+           'dojo/dom-class',
+	   'dojo/_base/window',
+	   'dojo/_base/array',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -33,7 +35,7 @@ define(
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+       function( declare, domConstruct, domClass, win, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
               FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
 
 return declare( JBPlugin,
@@ -59,6 +61,7 @@ return declare( JBPlugin,
 
         // Checking for cookie for determining the color scheme of WebApollo
         if (browser.cookie("Scheme")=="Dark") {
+	    domClass.add(win.body(), "Dark");
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
