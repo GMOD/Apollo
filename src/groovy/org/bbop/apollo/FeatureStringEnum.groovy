@@ -66,6 +66,8 @@ enum FeatureStringEnum {
      HASGOIDS("hasGoIds"),
      HASCOMMENTS("hasComments"),
      SUPPORTED_TYPES,
+     OLD_DBXREFS,
+     NEW_DBXREFS,
      UNIQUENAME
 
 
@@ -83,4 +85,5 @@ enum FeatureStringEnum {
      String toString() {
           return value
      }
+
 }

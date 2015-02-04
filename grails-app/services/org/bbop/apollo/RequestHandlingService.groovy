@@ -186,6 +186,10 @@ class RequestHandlingService {
 
     }
 
+    /**
+     *{ "track": "Annotations-GroupUn4254", "features": [ { "uniquename": "19c39835-d10c-4ed3-a90c-c6608a49d5af", "old_dbxrefs": [ { "db": "aaa", "accession": "111" } ], "new_dbxrefs": [ { "db": "mmmm", "accession": "111" } ] } ], "operation": "update_non_primary_dbxrefs" }* @param inputObject
+     * @return
+     */
     def updateNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -194,36 +198,31 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            println "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)}"
-            JSONArray dbXrefJSONArray = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)
+            println "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.OLD_DBXREFS.value)}"
+            JSONObject oldDbXrefJSONObject = jsonFeature.getJSONArray(FeatureStringEnum.OLD_DBXREFS.value).getJSONObject(0)
+            JSONObject newDbXrefJSONObject = jsonFeature.getJSONArray(FeatureStringEnum.NEW_DBXREFS.value).getJSONObject(0)
 
-            for (int j = 0; j < dbXrefJSONArray.size(); j++) {
-                JSONObject dbXfrefJsonObject = dbXrefJSONArray.getJSONObject(j)
-                println "innerArray ${j}: ${dbXfrefJsonObject}"
-//                for(int k = 0 ; k < innerArray.size(); k++){
-//                    String jsonString = innerArray.getString(k)
-//                println "string ${k} ${jsonString}"
-                String dbString = dbXfrefJsonObject.getString(FeatureStringEnum.DB.value)
-                println "dbString: ${dbString}"
-                String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
-                println "accessionString : ${accessionString}"
-                DB db = DB.findByName(dbString)
-                if (!db) {
-                    db = new DB(name: dbString).save()
-                }
+            String dbString = oldDbXrefJSONObject.getString(FeatureStringEnum.DB.value)
+            println "dbString: ${dbString}"
+            String accessionString = oldDbXrefJSONObject.getString(FeatureStringEnum.ACCESSION.value)
+            println "accessionString : ${accessionString}"
+            DB db = DB.findByName(dbString)
+            if (!db) {
+                db = new DB(name: dbString).save()
+            }
 //                db.save(flush: true)
 //                println "db2: ${db}"
-                DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
-                dbXref.save(flush: true)
+            DBXref oldDbXref = DBXref.findByAccessionAndDb(accessionString, db)
 
-                feature.addToFeatureDBXrefs(dbXref)
-                feature.save()
-//                }
-
+            if(!oldDbXref){
+                log.error("could not find original dbxref: "+oldDbXrefJSONObject)
             }
 
+//            DB newDB = DB.findOrSaveByName(newDbXrefJSONObject.getString(FeatureStringEnum.DB.value))
+            oldDbXref.db = DB.findOrSaveByName(newDbXrefJSONObject.getString(FeatureStringEnum.DB.value))
+            oldDbXref.accession = newDbXrefJSONObject.getString(FeatureStringEnum.ACCESSION.value)
 
-            feature.save(flush: true, failOnError: true)
+            oldDbXref.save(flush: true, failOnError: true)
 
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
