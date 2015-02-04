@@ -69,7 +69,7 @@ class FeatureRelationshipService {
     }
 
 
-    Feature getParentForFeature(Feature feature,String ontologyId) {
+    Feature getParentForFeature(Feature feature,String... ontologyId) {
         List<Feature> featureList = getParentsForFeature(feature,ontologyId)
 
         if (featureList.size() == 0) {
@@ -84,9 +84,13 @@ class FeatureRelationshipService {
         return featureList.get(0)
     }
 
-    List<Feature> getParentsForFeature(Feature feature,String ontologyId) {
+    List<Feature> getParentsForFeature(Feature feature,String... ontologyIds) {
+        List<String> ontologyIdList = new ArrayList<>()
+        ontologyIdList.addAll(ontologyIds)
         return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll(){
-            it.ontologyId == ontologyId
+//            ontologyIds.contains(it.ontologyId)
+            ontologyIdList.contains(it.ontologyId)
+//            it.ontologyId == ontologyId
         }
     }
 

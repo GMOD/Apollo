@@ -92,6 +92,8 @@ class NonCanonicalSplitSiteService {
 
     public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript) {
 
+        transcript.attach()
+
         deleteAllNonCanonicalFivePrimeSpliceSites(transcript)
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 

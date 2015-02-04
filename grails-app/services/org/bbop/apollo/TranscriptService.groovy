@@ -8,6 +8,7 @@ import grails.compiler.GrailsCompileStatic
 @Transactional
 class TranscriptService {
 
+    List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
 //    CvTermService cvTermService
     FeatureService featureService
     FeatureRelationshipService featureRelationshipService
@@ -155,7 +156,6 @@ class TranscriptService {
 //        Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
 
 
-        List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
 
         featureRelationshipService.deleteChildrenForTypes(gene,ontologyIds as String[])
         featureRelationshipService.deleteParentForTypes(transcript,Gene.ontologyId,Pseudogene.ontologyId)
@@ -243,7 +243,6 @@ class TranscriptService {
 //        List<String> transcriptNameList = ["Transcript", "SnRNA", "MRNA", "SnoRNA", "MiRNA", "TRNA", "NcRNA", "RRNA"]
 //        Collection<CVTerm> transcriptCvterms = CVTerm.findAllByNameInList(transcriptNameList);
 
-        List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
 
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene,ontologyIds as String[])
 ////        featureRelationshipService.deleteParentForTypes(transcript,Gene.ontologyId,Pseudogene.ontologyId)

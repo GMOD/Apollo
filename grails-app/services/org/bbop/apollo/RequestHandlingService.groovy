@@ -390,7 +390,6 @@ class RequestHandlingService {
     JSONObject setExonBoundaries(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-        Transcript transcript = null
         Sequence sequence = null
 
         JSONObject returnObject = createJSONFeatureContainer()
@@ -408,21 +407,25 @@ class RequestHandlingService {
             }
 //            Exon exon = (Exon) editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
             Exon exon = Exon.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            transcript = exonService.getTranscript(exon)
+            println "exon: ${exon}"
+            Transcript transcript = exonService.getTranscript(exon)
+            FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+            FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
             if(!sequence){
-                sequence = transcript.featureLocation.sequence
+                List<Sequence> sequenceList = Sequence.executeQuery("select s from Sequence s join s.featureLocations fl join fl.feature f where f.id = :transcriptId ",[transcriptId:transcript.id])
+                sequence = sequenceList.iterator().next()
             }
 
-            if(transcript.fmin==exon.fmax){
+            if(transcriptFeatureLocation.fmin==transcriptFeatureLocation.fmax){
                 transcript.featureLocation.fmin = fmin
             }
-            if(transcript.fmax==exon.fmax){
-                transcript.featureLocation.fmax = fmax
+            if(transcriptFeatureLocation.fmax==transcriptFeatureLocation.fmax){
+                transcriptFeatureLocation.fmax = fmax
             }
 
 
-            exon.featureLocation.fmin = transcript.fmin
-            exon.featureLocation.fmax = transcript.fmax
+            exonFeatureLocation.fmin = transcriptFeatureLocation.fmin
+            exonFeatureLocation.fmax = transcriptFeatureLocation.fmax
             featureService.removeExonOverlapsAndAdjacencies(transcript)
             transcriptService.updateGeneBoundaries(transcript)
 
