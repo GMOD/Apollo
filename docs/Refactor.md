@@ -36,12 +36,16 @@ Casualties of the refactoring process so far:
 - The highlight doing both top and bottom (temporarily)
 - Creating new insertions and deletions (temporarily)
 
+Some caveats
+
+- Right clicking takes awhile on Firefox on the sequence track
+- The right clicking mechanism is based on track_ID which could technically change if someone edited the trackLabel on the sequence track
 
 
 Future:
 
 - Simple highlighting bases when we have insertion or deletion
-- Remove “login” code from annottrack, place in main plugin or different module
+- Remove "login" code from annottrack, place in main plugin or different module
 - Remove information editor code from annottrack, place in new module
 
 

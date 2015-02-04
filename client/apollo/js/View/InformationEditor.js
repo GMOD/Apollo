@@ -1423,6 +1423,66 @@ return declare([],{
         init();
         return content;
     }
+    getAnnotationInformation: function()  {
+        var selected = this.selectionManager.getSelection();
+        this.getInformationForSelectedAnnotations(selected);
+    },
+
+    getInformationForSelectedAnnotations: function(records) {
+        var track = this;
+        var features = [];
+        var seqtrack = track.getSequenceTrack();
+        for (var i in records)  {
+            var record = records[i];
+            var selfeat = record.feature;
+            var seltrack = record.track;
+            var topfeat = this.getTopLevelAnnotation(selfeat);
+            var uniqueName = topfeat.id();
+            // just checking to ensure that all features in selection are from
+            // this annotation track
+            // (or from sequence annotation track);
+            if (seltrack === track || (seqtrack && (seltrack === seqtrack)))  {
+                var trackdiv = track.div;
+                var trackName = track.getUniqueTrackName();
+
+                features.push({ "uniquename": uniqueName });
+            }
+        }
+        var operation = "get_information";
+        var trackName = track.getUniqueTrackName();
+        var information = "";
+        dojo.xhrPost( {
+            postData: JSON.stringify( { "track": trackName, "features": features, "operation": operation }),
+            url: context_path + "/AnnotationEditorService",
+            handleAs: "json",
+            timeout: 5000 * 1000, // Time in milliseconds
+            load: function(response, ioArgs) {
+                for (var i = 0; i < response.features.length; ++i) {
+                        var feature = response.features[i];
+                        if (i > 0) {
+                                information += "<hr/>";
+                        }
+                        information += "Unique id: " + feature.uniquename + "<br/>";
+                        information += "Date of creation: " + feature.time_accessioned + "<br/>";
+                        information += "Owner: " + feature.owner + "<br/>";
+                        if (feature.parent_ids) {
+                            information += "Parent ids: " + feature.parent_ids + "<br/>";
+                        }
+                }
+                track.openDialog("Annotation information", information);
+            },
+            // The ERROR function will be called in an error case.
+            error: function(response, ioArgs) {
+                        track.handleError(response);
+                console.log("Annotation server error--maybe you forgot to login to the server?");
+                console.error("HTTP status code: ", ioArgs.xhr.status);
+                //
+                // dojo.byId("replace").innerHTML = 'Loading the resource
+                // from the server did not work';
+                return response;
+            }
+        });
+    },
     
 });
 });
