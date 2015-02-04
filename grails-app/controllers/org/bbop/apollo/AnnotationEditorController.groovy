@@ -527,6 +527,10 @@ class AnnotationEditorController implements AnnotationListener {
                     break
                 case "addNonPrimaryDbxrefs":  requestHandlingService.addNonPrimaryDbxrefs(rootElement)
                     break
+                case "deleteNonPrimaryDbxrefs":  requestHandlingService.deleteNonPrimaryDbxrefs(rootElement)
+                    break
+                case "updateNonPrimaryDbxrefs":  requestHandlingService.updateNonPrimaryDbxrefs(rootElement)
+                    break
                 case "setSymbol":  requestHandlingService.updateSymbol(rootElement)
                     break
                 case "setDescription":  requestHandlingService.updateDescription(rootElement)

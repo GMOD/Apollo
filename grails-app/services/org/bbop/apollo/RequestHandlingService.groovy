@@ -142,7 +142,51 @@ class RequestHandlingService {
         }
     }
 
-    def addNonPrimaryDbxrefs(JSONObject inputObject) {
+    def deleteNonPrimaryDbxrefs(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONArray dbXrefJSONArray = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)
+
+            for (int j = 0; j < dbXrefJSONArray.size(); j++) {
+                JSONObject dbXfrefJsonObject = dbXrefJSONArray.getJSONObject(j)
+                String dbString = dbXfrefJsonObject.getString(FeatureStringEnum.DB.value)
+                String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
+                DB db = DB.findByName(dbString)
+                if (db) {
+                    DBXref dbXref = DBXref.findByAccessionAndDb(accessionString, db)
+                    if (dbXref) {
+                        feature.removeFromFeatureDBXrefs(dbXref)
+                        DBXref.deleteAll(dbXref)
+                        feature.save(failOnError: true)
+                    }
+                }
+            }
+
+            feature.save(flush: true, failOnError: true)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.DELETE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+
+    }
+
+    def updateNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
@@ -164,7 +208,7 @@ class RequestHandlingService {
                 String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
                 println "accessionString : ${accessionString}"
                 DB db = DB.findByName(dbString)
-                if(!db){
+                if (!db) {
                     db = new DB(name: dbString).save()
                 }
 //                db.save(flush: true)
@@ -191,6 +235,64 @@ class RequestHandlingService {
                     features: updateFeatureContainer
                     , sequence: sequence
                     , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+
+
+    }
+
+    def addNonPrimaryDbxrefs(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            println "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)}"
+            JSONArray dbXrefJSONArray = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)
+
+            for (int j = 0; j < dbXrefJSONArray.size(); j++) {
+                JSONObject dbXfrefJsonObject = dbXrefJSONArray.getJSONObject(j)
+                println "innerArray ${j}: ${dbXfrefJsonObject}"
+//                for(int k = 0 ; k < innerArray.size(); k++){
+//                    String jsonString = innerArray.getString(k)
+//                println "string ${k} ${jsonString}"
+                String dbString = dbXfrefJsonObject.getString(FeatureStringEnum.DB.value)
+                println "dbString: ${dbString}"
+                String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
+                println "accessionString : ${accessionString}"
+                DB db = DB.findByName(dbString)
+                if (!db) {
+                    db = new DB(name: dbString).save()
+                }
+//                db.save(flush: true)
+//                println "db2: ${db}"
+                DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
+                dbXref.save(flush: true)
+
+                feature.addToFeatureDBXrefs(dbXref)
+                feature.save()
+//                }
+
+            }
+
+
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.ADD
             )
             fireAnnotationEvent(annotationEvent)
         }
