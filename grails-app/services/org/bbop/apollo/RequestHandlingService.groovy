@@ -363,7 +363,45 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            featureService.setTranslationStart(transcript,jsonCDSLocation.getInt("fmin"),true)
+            featureService.setTranslationStart(transcript,jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value),true)
+        }
+        transcript.save()
+//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
+//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: featureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return featureContainer
+    }
+
+    /**
+     * Transcript is the first object
+     * @param inputObject
+     */
+    JSONObject setTranslationEnd(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject transcriptJSONObject = features.getJSONObject(0);
+
+        Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
+        if (!setStart) {
+            CDS cds = transcriptService.getCDS(transcript)
+            cdsService.setManuallySetTranslationEnd(cds,false)
+            featureService.calculateCDS(transcript)
+        } else {
+            JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
+            featureService.setTranslationStart(transcript,jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value),true)
         }
         transcript.save()
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());

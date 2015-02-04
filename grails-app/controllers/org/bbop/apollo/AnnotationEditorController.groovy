@@ -281,6 +281,12 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.setTranslationStart(inputObject)
     }
 
+    def setTranslationEnd(){
+        println "AEC::set translation start ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.setTranslationEnd(inputObject)
+    }
+
 /**
  *
  * Should return of form:
@@ -518,6 +524,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "setDescription":  requestHandlingService.updateDescription(rootElement)
                     break
                 case "setTranslationStart":  requestHandlingService.setTranslationStart(rootElement)
+                    break
+                case "setTranslationEnd":  requestHandlingService.setTranslationEnd(rootElement)
                     break
                 case "addExon":  requestHandlingService.addExon(rootElement)
                     break
