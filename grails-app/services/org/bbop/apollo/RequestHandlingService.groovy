@@ -5,6 +5,7 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.json.JSONString
 
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
@@ -70,7 +71,7 @@ class RequestHandlingService {
             feature.symbol = symbolString
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer = wrapFeature(updateFeatureContainer,feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 //            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
 
@@ -125,22 +126,78 @@ class RequestHandlingService {
 //            fireAnnotationEvent(annotationEvent)
 //        }
 
-
 //        println "update descripton #2"
         return updateFeatureContainer
     }
 
-    private JSONObject wrapFeature(JSONObject jsonObject,Feature feature){
+    private JSONObject wrapFeature(JSONObject jsonObject, Feature feature) {
 
         // only pass in transcript
-        if(feature instanceof Gene){
+        if (feature instanceof Gene) {
             feature.parentFeatureRelationships.childFeature.each { childFeature ->
                 jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(childFeature));
             }
-        }
-        else{
+        } else {
             jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
+    }
+
+    def addNonPrimaryDbxrefs(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            println "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)}"
+            JSONArray dbXrefJSONArray = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)
+
+            for (int j = 0; j < dbXrefJSONArray.size(); j++) {
+                JSONObject dbXfrefJsonObject = dbXrefJSONArray.getJSONObject(j)
+                println "innerArray ${j}: ${dbXfrefJsonObject}"
+//                for(int k = 0 ; k < innerArray.size(); k++){
+//                    String jsonString = innerArray.getString(k)
+//                println "string ${k} ${jsonString}"
+                String dbString = dbXfrefJsonObject.getString(FeatureStringEnum.DB.value)
+                println "dbString: ${dbString}"
+                String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
+                println "accessionString : ${accessionString}"
+                DB db = DB.findByName(dbString)
+                if(!db){
+                    db = new DB(name: dbString).save()
+                }
+//                db.save(flush: true)
+//                println "db2: ${db}"
+                DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
+                dbXref.save(flush: true)
+
+                feature.addToFeatureDBXrefs(dbXref)
+                feature.save()
+//                }
+
+            }
+
+
+            feature.save(flush: true, failOnError: true)
+
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+
+
     }
 
     JSONObject updateName(JSONObject inputObject) {
@@ -161,7 +218,7 @@ class RequestHandlingService {
 
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer = wrapFeature(updateFeatureContainer,feature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
         if (sequence) {
@@ -256,7 +313,7 @@ class RequestHandlingService {
             JSONObject jsonExon = features.getJSONObject(i);
             // could be that this is null
 //            Feature gsolExon = featureService.convertJSONToFeature(jsonExon,transcript,sequence)
-            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon,null,sequence)
+            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, null, sequence)
 
 //            featureService.updateNewGsolFeatureAttributes(gsolExon, transcript);
             featureService.updateNewGsolFeatureAttributes(gsolExon, null);
@@ -265,19 +322,19 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
 
-            transcriptService.addExon(transcript,gsolExon)
+            transcriptService.addExon(transcript, gsolExon)
 
             featureService.calculateCDS(transcript)
 
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
-            gsolExon.save(flush: false, insert:true)
+            gsolExon.save(flush: false, insert: true)
         }
 
-        transcript.save(flush: true,insert:false)
+        transcript.save(flush: true, insert: false)
 
         // TODO: one of these two versions . . .
-        JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false))
+        JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))
 //        JSONObject returnObject = featureService.convertFeatureToJSON(transcript,false)
 //
 
@@ -359,15 +416,15 @@ class RequestHandlingService {
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setStart) {
             CDS cds = transcriptService.getCDS(transcript)
-            cdsService.setManuallySetTranslationStart(cds,false)
+            cdsService.setManuallySetTranslationStart(cds, false)
             featureService.calculateCDS(transcript)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            featureService.setTranslationStart(transcript,jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value),true)
+            featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value), true)
         }
         transcript.save()
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 //        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 
         if (sequence) {
@@ -397,15 +454,15 @@ class RequestHandlingService {
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setStart) {
             CDS cds = transcriptService.getCDS(transcript)
-            cdsService.setManuallySetTranslationEnd(cds,false)
+            cdsService.setManuallySetTranslationEnd(cds, false)
             featureService.calculateCDS(transcript)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            featureService.setTranslationStart(transcript,jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value),true)
+            featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
         }
         transcript.save()
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 //        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 
         if (sequence) {
@@ -428,11 +485,11 @@ class RequestHandlingService {
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
 
-        featureService.setLongestORF(transcript,false)
+        featureService.setLongestORF(transcript, false)
 
-        transcript.save(flush: true,insert:false)
+        transcript.save(flush: true, insert: false)
 
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript,false));
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -477,10 +534,10 @@ class RequestHandlingService {
             FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
             FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
 
-            if(transcriptFeatureLocation.fmin==transcriptFeatureLocation.fmax){
+            if (transcriptFeatureLocation.fmin == transcriptFeatureLocation.fmax) {
                 transcript.featureLocation.fmin = fmin
             }
-            if(transcriptFeatureLocation.fmax==transcriptFeatureLocation.fmax){
+            if (transcriptFeatureLocation.fmax == transcriptFeatureLocation.fmax) {
                 transcriptFeatureLocation.fmax = fmax
             }
 
@@ -564,10 +621,10 @@ class RequestHandlingService {
     public void sendAnnotationEvent(String returnString) {
         println "RHS::return operations sent . . ${returnString?.size()}"
 //        println "returnString ${returnString}"
-        if(returnString.startsWith("[")){
-            returnString = returnString.substring(1,returnString.length()-1)
+        if (returnString.startsWith("[")) {
+            returnString = returnString.substring(1, returnString.length() - 1)
         }
-        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification",returnString
+        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification", returnString
     }
 
     synchronized void handleChangeEvent(AnnotationEvent... events) {

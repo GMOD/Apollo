@@ -1797,8 +1797,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
                 for (DBXref gsolDbxref : gsolFeatureDbxrefs) {
                     JSONObject dbxref = new JSONObject();
-                    dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getDbxref().getAccession());
-                    dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDbxref().getDb().getName()));
+                    dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getAccession());
+                    dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDb().getName()));
                     dbxrefs.put(dbxref);
                 }
             }

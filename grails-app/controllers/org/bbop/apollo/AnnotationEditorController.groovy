@@ -471,7 +471,7 @@ class AnnotationEditorController implements AnnotationListener {
                 newFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
                 for (DBXref dbxref : feature.featureDBXrefs) {
                     JSONObject jsonDbxref = new JSONObject();
-                    jsonDbxref.put(FeatureStringEnum.CV.value, dbxref.getDb().getName());
+                    jsonDbxref.put(FeatureStringEnum.DB.value, dbxref.getDb().getName());
                     jsonDbxref.put(FeatureStringEnum.ACCESSION.value, dbxref.getAccession());
                     dbxrefs.put(jsonDbxref);
                 }
@@ -524,6 +524,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "addTranscript": requestHandlingService.addTranscript(rootElement)
                     break
                 case "setName":  requestHandlingService.updateName(rootElement)
+                    break
+                case "addNonPrimaryDbxrefs":  requestHandlingService.addNonPrimaryDbxrefs(rootElement)
                     break
                 case "setSymbol":  requestHandlingService.updateSymbol(rootElement)
                     break

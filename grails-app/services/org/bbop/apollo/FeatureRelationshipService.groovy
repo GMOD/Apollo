@@ -186,11 +186,15 @@ class FeatureRelationshipService {
 //        CVTerm parentType = parent.type
 
         // replace if of the same type
+
         if(replace){
             def criteria = FeatureRelationship.createCriteria()
             criteria{
                     eq("parentFeature", parent)
-                    eq("childFeature.ontologyId", child.ontologyId)
+//                    eq("childFeature.ontologyId", child.ontologyId)
+            }
+            .findAll(){
+                it.childFeature.ontologyId == child.ontologyId
             }
             .each {
                 it.childFeature = child
@@ -211,8 +215,10 @@ class FeatureRelationshipService {
                 , childFeature: child
                 ,rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         );
-        parent.getChildFeatureRelationships().add(fr);
-        child.getParentFeatureRelationships().add(fr);
+//        parent.getChildFeatureRelationships().add(fr);
+        parent.addToChildFeatureRelationships(fr)
+//        child.getParentFeatureRelationships().add(fr);
+        child.addToParentFeatureRelationships(fr)
     }
 
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {

@@ -3,6 +3,10 @@ package org.bbop.apollo
 class DBXref {
 
     static constraints = {
+        db nullable: false
+        accession nullable: false
+        version nullable: true
+        description nullable: true
     }
 
 //    Integer dbxrefId;

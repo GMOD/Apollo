@@ -7,9 +7,13 @@ package org.bbop.apollo
 class DB {
 
     static constraints = {
+        name nullable: false, unique: true
+        urlPrefix nullable: true
+        url nullable: true
+        description nullable: true
     }
 
-     Integer dbId;
+//     Integer dbId;
      String name;
      String description;
      String urlPrefix;
