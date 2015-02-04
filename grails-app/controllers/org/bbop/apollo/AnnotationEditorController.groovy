@@ -275,7 +275,7 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.addTranscript(inputObject)
     }
 
-    def lationetTranslationStart(){
+    def setTranslationStart(){
         println "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setTranslationStart(inputObject)
@@ -516,6 +516,12 @@ class AnnotationEditorController implements AnnotationListener {
                 case "setSymbol":  requestHandlingService.updateSymbol(rootElement)
                     break
                 case "setDescription":  requestHandlingService.updateDescription(rootElement)
+                    break
+                case "setTranslationStart":  requestHandlingService.setTranslationStart(rootElement)
+                    break
+                case "addExon":  requestHandlingService.addExon(rootElement)
+                    break
+                case "setExonBoundaries":  requestHandlingService.setExonBoundaries(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

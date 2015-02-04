@@ -353,6 +353,7 @@ class RequestHandlingService {
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
+        transcript.featureLocation.attach()
         Sequence sequence = transcript.featureLocation.sequence
 
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
