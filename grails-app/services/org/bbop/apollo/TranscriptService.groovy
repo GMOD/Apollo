@@ -111,9 +111,12 @@ class TranscriptService {
 
 //        CDS cds = new CDS(transcript.getOrganism(), uniqueName, transcript.isAnalysis(),
 //                transcript.isObsolete(), null, transcript.getConfiguration());
+
+        FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+
         FeatureLocation featureLocation = new FeatureLocation(
-                strand: transcript.strand
-                , sourceFeature: transcript.featureLocation.sourceFeature
+                strand: transcriptFeatureLocation.strand
+                , sourceFeature: transcriptFeatureLocation.sourceFeature
                 , feature: cds
         ).save(insert: true)
         cds.addToFeatureLocations(featureLocation);

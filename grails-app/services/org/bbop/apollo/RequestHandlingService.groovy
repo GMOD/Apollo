@@ -353,8 +353,8 @@ class RequestHandlingService {
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
-        transcript.featureLocation.attach()
-        Sequence sequence = transcript.featureLocation.sequence
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
 
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setStart) {
@@ -390,7 +390,8 @@ class RequestHandlingService {
     JSONObject setExonBoundaries(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-        Sequence sequence = null
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
 
         JSONObject returnObject = createJSONFeatureContainer()
 
@@ -411,10 +412,6 @@ class RequestHandlingService {
             Transcript transcript = exonService.getTranscript(exon)
             FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
             FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
-            if(!sequence){
-                List<Sequence> sequenceList = Sequence.executeQuery("select s from Sequence s join s.featureLocations fl join fl.feature f where f.id = :transcriptId ",[transcriptId:transcript.id])
-                sequence = sequenceList.iterator().next()
-            }
 
             if(transcriptFeatureLocation.fmin==transcriptFeatureLocation.fmax){
                 transcript.featureLocation.fmin = fmin

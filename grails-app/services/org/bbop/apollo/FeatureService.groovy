@@ -627,7 +627,8 @@ class FeatureService {
             featureRelationshipService.addChildFeature(transcript, cds)
 //            transcript.setCDS(cds);
         }
-        if (transcript.getStrand() == -1) {
+        FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
+        if (transcriptFeatureLocation.getStrand() == -1) {
             setFmax(cds, translationStart + 1);
         } else {
             setFmin(cds, translationStart);
