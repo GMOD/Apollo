@@ -19,6 +19,7 @@ public class AnnotationInfo {
     private String description;
     private Integer strand;
     private List<String> noteList = new ArrayList<>();
+    private String sequence;
 
     public String getName() {
         return name;
@@ -109,5 +110,13 @@ public class AnnotationInfo {
 
     public void setNoteList(List<String> noteList) {
         this.noteList = noteList;
+    }
+
+    public void setSequence(String sequence) {
+        this.sequence = sequence;
+    }
+
+    public String getSequence() {
+        return sequence;
     }
 }

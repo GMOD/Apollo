@@ -497,6 +497,7 @@ public class AnnotatorPanel extends Composite {
         annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
+        annotationInfo.setSequence(object.get("sequence").isString().stringValue());
 
         List<String> noteList = new ArrayList<>();
         if(object.get("notes")!=null){

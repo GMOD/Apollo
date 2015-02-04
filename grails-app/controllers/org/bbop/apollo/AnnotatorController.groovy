@@ -119,18 +119,13 @@ class AnnotatorController {
         // TODO: should only be returning the top-level features
         List<Feature> allFeatures
         if(!sequence){
-            allFeatures = Feature.all
+            allFeatures = Feature.executeQuery("select f from Feature f join f.parentFeatureRelationships pfr where f.childFeatureRelationships is empty")
         }
         else{
-            allFeatures = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s.name = :sequenceName",[sequenceName: sequenceName])
+            allFeatures = Feature.executeQuery("select f from Feature f join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s where s.name = :sequenceName and f.childFeatureRelationships is empty",[sequenceName: sequenceName])
         }
 
-        // just the genes
-        def topLevelFeatureList = allFeatures.findAll() {
-            it?.childFeatureRelationships?.size() == 0
-        }
-
-        for (Feature feature in topLevelFeatureList) {
+        for (Feature feature in allFeatures) {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 

@@ -38,6 +38,8 @@ public class GeneDetailPanel extends Composite {
     org.gwtbootstrap3.client.ui.TextBox descriptionField;
     @UiField
     InputGroupAddon locationField;
+    @UiField
+    InputGroupAddon sequenceField;
 
 //    private SharedStuff sharedStuff = new SharedStuff();
 //    private JSONObject internalData ;
@@ -126,6 +128,7 @@ public class GeneDetailPanel extends Composite {
         GWT.log("B");
         symbolField.setText(internalAnnotationInfo.getSymbol());
         descriptionField.setText(internalAnnotationInfo.getDescription());
+        sequenceField.setText(internalAnnotationInfo.getSequence());
 
 //        if(this.internalData.get("name") instanceof JSONString){
 //            nameField.setText(internalData.get("name").isString().stringValue());

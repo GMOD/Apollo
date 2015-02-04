@@ -1728,6 +1728,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
 
+            if(gsolFeature.featureLocation){
+                Sequence sequence = gsolFeature.featureLocation.sequence
+                jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
+            }
+
             // TODO: move this to a configurable place or in another method to process afterwards
             List<String> errorList = new ArrayList<>()
             errorList.addAll(new Cds3Filter().filterFeature(gsolFeature))
