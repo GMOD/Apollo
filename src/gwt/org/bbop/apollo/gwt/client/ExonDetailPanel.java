@@ -57,7 +57,7 @@ public class ExonDetailPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(10, tablecss);
+    DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     HTML notePanel;
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();

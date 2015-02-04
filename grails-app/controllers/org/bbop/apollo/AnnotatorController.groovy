@@ -114,7 +114,16 @@ class AnnotatorController {
     def findAnnotationsForSequence(String sequenceName) {
         JSONObject returnObject = createJSONFeatureContainer()
 
-        List<Feature> allFeatures = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s.name = :sequenceName",[sequenceName: sequenceName])
+        Sequence sequence = Sequence.findByName(sequenceName)
+
+        // TODO: should only be returning the top-level features
+        List<Feature> allFeatures
+        if(!sequence){
+            allFeatures = Feature.all
+        }
+        else{
+            allFeatures = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s.name = :sequenceName",[sequenceName: sequenceName])
+        }
 
         // just the genes
         def topLevelFeatureList = allFeatures.findAll() {
