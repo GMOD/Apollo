@@ -15,7 +15,7 @@ define(
            'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/_base/window',
-	   'dojo/_base/array',
+           'dojo/_base/array',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
