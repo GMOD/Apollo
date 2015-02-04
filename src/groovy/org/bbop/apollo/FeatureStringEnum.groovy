@@ -4,7 +4,7 @@ package org.bbop.apollo
  * Created by ndunn on 10/28/14.
  */
 enum FeatureStringEnum {
-     FEATURES,
+    FEATURES,
      FEATURE_PROPERTY,
      PARENT_ID,
      USERNAME,
@@ -22,6 +22,7 @@ enum FeatureStringEnum {
      PSEUDOGENE("Pseudogene"),
      STOP_CODON_READTHROUGH("StopCodonReadThrough"),
      STOP_CODON_READHTHROUGH_SUFFIX("-stop_codon_read_through"),
+     READTHROUGH_STOP_CODON,
      TRANSCRIPT("Transcript"),
      NONCANONICALFIVEPRIMESPLICESITE("NonCanonicalFivePrimeSpliceSite"),
      NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),

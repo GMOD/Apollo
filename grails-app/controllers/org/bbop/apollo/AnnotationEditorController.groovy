@@ -423,6 +423,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.updateSymbol(inputObject)
     }
 
+    def setReadthroughStopCodon() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.setReadthroughStopCodon(inputObject)
+    }
+
     def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -546,6 +551,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "setBoundaries":  requestHandlingService.setBoundaries(rootElement)
                     break
                 case "setLongestOrf":  requestHandlingService.setLongestOrf(rootElement)
+                    break
+                case "setReadthroughStopCodon":  requestHandlingService.setReadthroughStopCodon(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

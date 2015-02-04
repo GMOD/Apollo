@@ -1728,6 +1728,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
             }
 
+            gsolFeature.attach()
+//            gsolFeature.featureLocations.each {
+//                it.attach()
+//            }
             if(gsolFeature.featureLocation){
                 Sequence sequence = gsolFeature.featureLocation.sequence
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
