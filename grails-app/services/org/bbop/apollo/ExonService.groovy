@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.editor.AnnotationEditor
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 @GrailsCompileStatic
 @Transactional
@@ -427,4 +428,69 @@ class ExonService {
         return sortedExons
     }
 
+    /**
+     * Set exon boundaries.
+     *
+     * @param exon - Exon to be modified
+     * @param fmin - New fmin to be set
+     * @param fmax - New fmax to be set
+     */
+    public void setExonBoundaries(Exon exon, int fmin, int fmax) {
+
+        Transcript transcript = getTranscript(exon)
+//        Transcript transcript = exon.getTranscript();
+        exon.getFeatureLocation().fmin = fmin;
+        exon.getFeatureLocation().fmax = fmax;
+        featureService.removeExonOverlapsAndAdjacencies(transcript);
+
+        featureService.updateGeneBoundaries(transcriptService.getGene(transcript));
+    }
+
+    def setToDownstreamDonor(Exon exon) {
+        Transcript transcript = getTranscript(exon)
+        Gene gene = transcriptService.getGene(transcript)
+
+        List<Exon> exons = getSortedExons(transcript,true)
+
+        Integer nextExonFmin = null;
+        Integer nextExonFmax = null;
+        for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
+            Exon e = iter.next();
+            if (e.getUniqueName().equals(exon.getUniqueName())) {
+                if (iter.hasNext()) {
+                    Exon e2 = iter.next();
+                    nextExonFmin = e2.getFeatureLocation().getFmin();
+                    nextExonFmax = e2.getFeatureLocation().getFmax();
+                    break;
+                }
+            }
+        }
+//        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) + 2 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) + 1;
+        FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
+        int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
+        String residues = gene.getResidues();
+        println "coordinate: "+coordinate
+        println "residues: "+residues
+        while (coordinate < residues.length()) {
+//            int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
+            int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
+            if (nextExonFmin != null && (c >= nextExonFmin && c <= nextExonFmax + 1)) {
+                throw new AnnotationException("Cannot set to downstream donor - will overlap next exon");
+            }
+            String seq = residues.substring(coordinate, coordinate + 2);
+
+//            if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
+                if (exon.getFeatureLocation().getStrand() == -1) {
+//                    setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
+                    setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFeatureLocation().getFmax())
+                } else {
+//                    setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
+                    setExonBoundaries(exon,exon.getFeatureLocation().getFmin(),featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate))
+                }
+                return;
+            }
+            ++coordinate;
+        }
+    }
 }

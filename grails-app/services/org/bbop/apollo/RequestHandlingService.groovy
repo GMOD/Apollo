@@ -605,6 +605,53 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    def setToDownstreamDonor(JSONObject inputObject) {
+        println "setting to donor: ${inputObject}"
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONArray transcriptArray = new JSONArray( )
+        featureContainer.put(FeatureStringEnum.FEATURES.value,transcriptArray)
+
+        println "features length: ${features.length()}"
+
+        for (int i = 0; i < features.length(); ++i) {
+            String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
+            println "handling feature: ${uniqueName}"
+            Exon exon = Exon.findByName(uniqueName)
+            Transcript transcript = exonService.getTranscript(exon)
+            println "with transcript: ${transcript.name}"
+
+//            editor.setToDownstreamDonor(exon);
+            exonService.setToDownstreamDonor(exon)
+
+
+            featureService.calculateCDS(transcript)
+
+            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+//            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+
+            transcript.save()
+
+            transcriptArray.add(featureService.convertFeatureToJSON(transcript))
+
+        }
+
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: featureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return featureContainer
+    }
+
     JSONObject setLongestOrf(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);

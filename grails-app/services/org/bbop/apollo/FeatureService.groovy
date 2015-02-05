@@ -1322,13 +1322,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @return Local coordinate, -1 if source coordinate is <= fmin or >= fmax
  */
     public int convertSourceCoordinateToLocalCoordinate(Feature feature, int sourceCoordinate) {
-        if (sourceCoordinate < feature.getFeatureLocation().getFmin() || sourceCoordinate > feature.getFeatureLocation().getFmax()) {
+        FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
+        if (sourceCoordinate < featureLocation.getFmin() || sourceCoordinate > featureLocation.getFmax()) {
             return -1;
         }
-        if (feature.getFeatureLocation().getStrand() == -1) {
-            return feature.getFeatureLocation().getFmax() - 1 - sourceCoordinate;
+        if (featureLocation.getStrand() == -1) {
+            return featureLocation.getFmax() - 1 - sourceCoordinate;
         } else {
-            return sourceCoordinate - feature.getFeatureLocation().getFmin();
+            return sourceCoordinate - featureLocation.getFmin();
         }
     }
 

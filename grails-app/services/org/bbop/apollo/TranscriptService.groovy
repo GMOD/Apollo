@@ -75,19 +75,6 @@ class TranscriptService {
     public Gene getGene(Transcript transcript) {
 
         return (Gene) featureRelationshipService.getParentForFeature(transcript,Gene.ontologyId)
-//        CVTerm partOfCvterm = cvTermService.partOf
-//        CVTerm geneCvterm = cvTermService.getTerm(FeatureStringEnum.GENE.value)
-//        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-//            if (partOfCvterm != fr.getType()) {
-//                continue;
-//            }
-//            if (geneCvterm != fr.getObjectFeature().getType()) {
-//                continue;
-//            }
-////            return ((Gene)BioObjectUtil.createBioObject(fr.getObjectFeature(), conf));
-//            return (Gene) fr.getObjectFeature()
-//        }
-//        return null;
     }
 
 

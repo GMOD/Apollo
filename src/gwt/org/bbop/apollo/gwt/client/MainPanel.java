@@ -212,6 +212,8 @@ public class MainPanel extends Composite {
 //                    sequenceList.setText(array.get(0).object.get("name").isString().stringValue());
 //                }
 
+//                updateGenomicViewer();
+
                 ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(), organismList.getSelectedValue());
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
 //                reloadTabPerIndex(detailTabs.getSelectedIndex());
@@ -266,6 +268,13 @@ public class MainPanel extends Composite {
 //                    } else if (i == 0) {
 //                        currentOrganismId = Long.parseLong(organismInfo.getId());
 //                    }
+                }
+
+                if(currentOrganismId==null && array.size()>0){
+                    JSONObject rootObject = array.get(0).isObject();
+//                    String name = rootObject.get("commonName").isString().stringValue();
+                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
+                    trackInfoList.setSelectedIndex(0);
                 }
 
                 loadReferenceSequences(true);
