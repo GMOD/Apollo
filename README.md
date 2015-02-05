@@ -58,7 +58,7 @@ To run tomcat on 8080:
 
     apollo run
 
-To run tomcat on 8080, but open up the debug port on 5005:
+To run tomcat on 8080, but open up the debug port on 8000:
 
     apollo debug
 

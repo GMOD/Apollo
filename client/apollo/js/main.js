@@ -13,6 +13,8 @@ define(
        [
            'dojo/_base/declare',
            'dojo/dom-construct',
+           'dojo/dom-class',
+           'dojo/_base/window',
            'dojo/_base/array',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -30,13 +32,14 @@ define(
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
+           'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+    function( declare, domConstruct, domClass, win, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, HelpMixin, GFF3Driver,LazyLoad ) {
 
-return declare( JBPlugin,
+return declare( [JBPlugin, HelpMixin],
 {
 
     constructor: function( args ) {
@@ -59,6 +62,7 @@ return declare( JBPlugin,
 
         // Checking for cookie for determining the color scheme of WebApollo
         if (browser.cookie("Scheme")=="Dark") {
+            domClass.add(win.body(), "Dark");
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
@@ -180,17 +184,6 @@ return declare( JBPlugin,
             browser.addGlobalMenuItem( 'help',
                 new dijitMenuItem(
                     {
-                        id: 'menubar_apollo_users_guide',
-                        label: 'Apollo User\'s Guide',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
-                        }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
                         id: 'menubar_apollo_version',
                         label: 'Get Version',
                         // iconClass: 'jbrowseIconHelp',
@@ -199,6 +192,14 @@ return declare( JBPlugin,
                         }
                     })
             );
+
+            if(!browser.config.quickHelp)
+            {
+                browser.config.quickHelp = {
+                    "title": "Web Apollo Help",
+                    "content": this.defaultHelp()
+                }
+            };
         }
 
         // register the WebApollo track types with the browser, so

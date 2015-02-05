@@ -1,6 +1,6 @@
 # Quick start guide
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Quick_start_guide.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Quick_start_guide.md">On GitHub</a>
 
 While there are a number of prerequisites to WebApollo, we hope that
 this quick-start guide can help by automating some setup steps. This
@@ -19,7 +19,8 @@ This guide will be doing the following steps
  - Configuring WebApollo using the config.properties file
 
 #### Setup environment
-First set some environmental variables. These can be customized appropriate to your setup. Note that PGUSER is simply your username in this setup, but if you set it to something different, make sure to see [database setup](Database_setup.md) for details.
+
+First set some environmental variables. These represent the postgres user/pass, the login user/pass, the database storing the login info. We also specify the organism name and say where we want our JBrowse data directory and WebApollo annotations.
 
     export PGUSER=web_apollo_users_admin
     export PGPASSWORD=password
@@ -29,6 +30,8 @@ First set some environmental variables. These can be customized appropriate t
     export ORGANISM="Pythium ultimum"
     export JBROWSE_DATA_DIR=`pwd`/data
     export WEBAPOLLO_DATA_DIR=`pwd`/annotations
+
+More details about the postgres setup is in the [database setup](Database_setup.md). Also note that JBROWSE_DATA_DIR and WEBAPOLLO_DATA_DIR don't have to be initialized, we will do that in in this guide.
 
 
 #### Download webapollo
@@ -97,7 +100,7 @@ Now you may initialize the database tables add a new Web Apollo user as follows
     psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
     tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
 
-Note: the reason we use the -h localhost is to force password-based host authentication instead of peer authentication.
+Note: the reason we use psql with "-h localhost" is to force password-based host authentication instead of peer authentication.
 
     tools/user/extract_seqids_from_fasta.pl -p Annotations- -i pyu_data/scf1117875582023.fa -o seqids.txt
     tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
