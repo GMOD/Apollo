@@ -30,13 +30,14 @@ define(
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
+           'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
     function( declare, domConstruct, array, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, HelpMixin, GFF3Driver,LazyLoad ) {
 
-return declare( JBPlugin,
+return declare( [JBPlugin, HelpMixin],
 {
 
     constructor: function( args ) {
@@ -180,17 +181,6 @@ return declare( JBPlugin,
             browser.addGlobalMenuItem( 'help',
                 new dijitMenuItem(
                     {
-                        id: 'menubar_apollo_users_guide',
-                        label: 'Apollo User\'s Guide',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
-                        }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
                         id: 'menubar_apollo_version',
                         label: 'Get Version',
                         // iconClass: 'jbrowseIconHelp',
@@ -199,6 +189,13 @@ return declare( JBPlugin,
                         }
                     })
             );
+
+            if(!browser.config.quickHelp)
+            {
+                browser.config.quickHelp = {
+                    "content": this.defaultHelp()
+                }
+            };
         }
 
         // register the WebApollo track types with the browser, so
