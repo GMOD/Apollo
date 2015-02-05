@@ -35,7 +35,7 @@ return declare( null, {
                 + '<dd><ul><li>Click-and-drag features to the User-created annotations or right click features and select "Create new annotation".</li>'
                 + '<li>Use "edge matching" which is shown as red highlight to match exon boundaries to evidence from gene models or alignments.</li>'
                 + '<li>Use "Color by CDS" to highlight the calculated translation frame for annotations and evidence features.</li>'
-                + '<li>Add more information to the annotations using the "Edit Annotation" dialog</li></ul></dd>'
+                + '<li>Add more information to the annotations using the "Edit Annotation" dialog.</li></ul></dd>'
                 + '<dt>Annotation shortcuts</dt>'
                 + '<dd>'
                 + '    <ul>'

@@ -193,6 +193,7 @@ return declare( [JBPlugin, HelpMixin],
             if(!browser.config.quickHelp)
             {
                 browser.config.quickHelp = {
+                    "title": "Web Apollo Help",
                     "content": this.defaultHelp()
                 }
             };
