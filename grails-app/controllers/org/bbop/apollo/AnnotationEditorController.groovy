@@ -563,7 +563,7 @@ class AnnotationEditorController implements AnnotationListener {
             }
         }
         def results = p.get()
-        println "completling result ${results as JSON}"
+//        println "completling result ${results as JSON}"
         return results
 
 //        p.onComplete([p]){ List results ->

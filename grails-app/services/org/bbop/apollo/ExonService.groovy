@@ -513,7 +513,7 @@ class ExonService {
             }
             String seq = residues.substring(coordinate, coordinate + 2);
 
-            println "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
+//            println "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
             if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 1, exon.getFmax());

@@ -1,4 +1,5 @@
 import org.bbop.apollo.Organism
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
 
@@ -18,10 +19,13 @@ class BootStrap {
 //        mockupService.addSequences()  // add tracks
 //        mockupService.addFeatureWithLocations()  // add tracks
 
+        SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
+        SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
 
 //        sequenceService.parseRefSeqs()
 //        sequenceService.parseAllRefSeqs()
         try {
+
 
             def c = Organism.createCriteria()
             def results = c.list{

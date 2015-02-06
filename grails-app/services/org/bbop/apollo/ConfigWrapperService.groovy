@@ -67,4 +67,12 @@ class ConfigWrapperService {
     Boolean hasStatus(){
         return true
     }
+
+    List<String> getSpliceDonorSites(){
+        return grailsApplication.config.apollo.splice_donor_sites
+    }
+
+    List<String> getSpliceAcceptorSites(){
+        return grailsApplication.config.apollo.splice_acceptor_sites
+    }
 }

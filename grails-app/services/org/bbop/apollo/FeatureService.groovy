@@ -881,12 +881,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return getResiduesWithAlterations(feature, alterations);
     }
 
+    /**
+     * Only because we are limiting the sequences
+     // TODO: should be a single query here
+     * @param feature
+     * @return
+     */
     List<SequenceAlteration> getAllSequenceAlterationsForFeature(Feature feature) {
         List<Sequence> sequences = feature.featureLocations*.sequence
-        List<SequenceAlteration> allSequenceAlterationList = SequenceAlteration.executeQuery(
-                "select sa from  SequenceAlteration sa where sa.featureLocation.sequence in (:sequences) "
-                , [sequences: sequences])
-        return allSequenceAlterationList
+        List<FeatureLocation> featureLocations = FeatureLocation.findAllBySequenceInList(sequences)
+        println "sequences ${sequences}"
+        println "featureLocations ${featureLocations}"
+//        return  SequenceAlteration.findAllByFeatureLocationsInList(featureLocations)
+        return  SequenceAlteration.all.findAll(){
+            it.featureLocation in featureLocations
+        }
     }
 
     List<SequenceAlteration> getFrameshiftsAsAlterations(Transcript transcript) {
