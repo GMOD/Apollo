@@ -471,7 +471,7 @@ class ExonService {
         int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
         String residues = sequenceService.getResiduesFromFeature(gene)
         println "coordinate: "+coordinate
-        println "residues: "+residues
+        println "residues: "+residues.size()
         while (coordinate < residues.length()) {
 //            int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
             int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
@@ -492,6 +492,37 @@ class ExonService {
                 return;
             }
             ++coordinate;
+        }
+    }
+
+    def setToUpstreamDonor(Exon exon) {
+        Transcript transcript = getTranscript(exon)
+        Gene gene = transcriptService.getGene(transcript)
+
+        FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
+        int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
+        int exonStart = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
+        String residues = sequenceService.getResiduesFromFeature(gene)
+        println "exonStart [${exonStart}] coordinate [${coordinate}]"
+        println "coordinate: "+coordinate
+        println "residues: "+residues.size()
+        while (coordinate > 0 ) {
+
+            if (coordinate <= exonStart) {
+                throw new AnnotationException("Cannot set to upstream donor - will remove exon");
+            }
+            String seq = residues.substring(coordinate, coordinate + 2);
+
+            println "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
+            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
+                if (exon.getStrand() == -1) {
+                    setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 1, exon.getFmax());
+                } else {
+                    setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate));
+                }
+                return;
+            }
+            --coordinate;
         }
     }
 }

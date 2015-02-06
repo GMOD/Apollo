@@ -554,7 +554,9 @@ class AnnotationEditorController implements AnnotationListener {
                     break
                 case "setReadthroughStopCodon":  requestHandlingService.setReadthroughStopCodon(rootElement)
                     break
-                case "setToDownstreamDonor":  requestHandlingService.setToDownstreamDonor(rootElement)
+                case "setToDownstreamDonor":  requestHandlingService.setDonor(rootElement,false)
+                    break
+                case "setToUpstreamDonor":  requestHandlingService.setDonor(rootElement,true)
                     break
                 default: nameService.generateUniqueName()
                     break

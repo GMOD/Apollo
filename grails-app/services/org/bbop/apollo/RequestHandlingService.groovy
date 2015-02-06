@@ -605,7 +605,8 @@ class RequestHandlingService {
         return featureContainer
     }
 
-    def setToDownstreamDonor(JSONObject inputObject) {
+
+    def setDonor(JSONObject inputObject,boolean upstreamDonor) {
         println "setting to donor: ${inputObject}"
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String trackName = fixTrackHeader(inputObject.track)
@@ -626,7 +627,12 @@ class RequestHandlingService {
                 println "with transcript: ${transcript.name}"
 
 //            editor.setToDownstreamDonor(exon);
-                exonService.setToDownstreamDonor(exon)
+                if(upstreamDonor){
+                    exonService.setToUpstreamDonor(exon)
+                }
+                else{
+                    exonService.setToDownstreamDonor(exon)
+                }
 
 
                 featureService.calculateCDS(transcript)

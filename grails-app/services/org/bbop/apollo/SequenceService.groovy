@@ -48,7 +48,7 @@ class SequenceService {
 
         for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
             SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
-            sequenceString.append(sequenceChunk)
+            sequenceString.append(sequenceChunk.residue)
         }
 
         // TODO: optimize
