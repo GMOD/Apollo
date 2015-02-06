@@ -100,7 +100,7 @@ class NonCanonicalSplitSiteService {
         List<Exon> exons = exonService.getSortedExons(transcript)
         int exonNum = 0;
 //        int sourceFeatureLength = transcript.getFeatureLocation().getSourceFeature().getSequenceLength();
-        int sourceFeatureLength = transcript.getFeatureLocation().getSequence().getLength()
+        int sequenceLength = transcript.getFeatureLocation().getSequence().getLength()
         for (Exon exon : exons) {
             ++exonNum;
             int fivePrimeSpliceSitePosition = -1;
@@ -120,9 +120,9 @@ class NonCanonicalSplitSiteService {
                     String donorSpliceSiteSequence = session.getResiduesWithAlterations(spliceDonorSiteFlankingRegion);
                     String acceptorSpliceSiteSequence = session.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion);
                     */
-                    String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sourceFeatureLength ?
+                    String donorSpliceSiteSequence = spliceDonorSiteFlankingRegion.getFmin() >= 0 && spliceDonorSiteFlankingRegion.getFmax() <= sequenceLength ?
                             featureService.getResiduesWithAlterations(spliceDonorSiteFlankingRegion) : null;
-                    String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sourceFeatureLength ?
+                    String acceptorSpliceSiteSequence = spliceAcceptorSiteFlankingRegion.getFmin() >= 0 && spliceAcceptorSiteFlankingRegion.getFmax() <= sequenceLength ?
                             featureService.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
                     if (exonNum < exons.size()) {
                         if (!validFivePrimeSplice) {
@@ -222,7 +222,7 @@ class NonCanonicalSplitSiteService {
                 );
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
-                ,sourceFeature: transcript.featureLocation.sourceFeature
+                ,sequence: transcript.featureLocation.sequence
                 ,fmin: position
                 ,fmax: position
                 ,feature: spliceSite
@@ -246,7 +246,7 @@ class NonCanonicalSplitSiteService {
         );
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
-                ,sourceFeature: transcript.featureLocation.sourceFeature
+                ,sequence: transcript.featureLocation.sequence
                 ,fmin: position
                 ,fmax: position
                 ,feature: spliceSite
@@ -267,7 +267,7 @@ class NonCanonicalSplitSiteService {
 
         flankingRegion.addToFeatureLocations(new FeatureLocation(
                 strand: feature.strand
-                ,sourceFeature: feature.featureLocation.sourceFeature
+                ,sequence: feature.featureLocation.sequence
                 ,fmin: fmin
                 ,fmax: fmax
                 ,feature: flankingRegion

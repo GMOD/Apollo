@@ -105,14 +105,18 @@ class FeatureRelationshipService {
 
     }
 
-    def setChildForType(Feature feature, Feature childFeature) {
+    def setChildForType(Feature parentFeature, Feature childFeature) {
         // delete transcript -> non canonical 3' splice site child relationship
-        def criteria = FeatureRelationship.createCriteria()
-
-        def results = criteria{
-            eq("parentFeature", feature)
-            eq("childFeature.ontologyId", childFeature.ontologyId)
+//        def criteria = FeatureRelationship.createCriteria()
+//        def results = criteria{
+//            eq("parentFeature", parentFeature)
+//            eq("childFeature.ontologyId", childFeature.ontologyId)
+//        }
+        List<FeatureRelationship> results = FeatureRelationship.findAllByParentFeature(parentFeature).findAll(){
+            println "evaluating: ${it.childFeature.ontologyId} vs ${childFeature.ontologyId}"
+            it.childFeature.ontologyId == childFeature.ontologyId
         }
+
 
         if(results.size()==1){
             results.get(0).childFeature = childFeature
@@ -120,10 +124,10 @@ class FeatureRelationshipService {
         }
         else{
             if(results.size()==0){
-                log.error "No feature relationships exist for parent ${feature} and child ${childFeature}"
+                log.error "No feature relationships exist for parent ${parentFeature} and child ${childFeature}"
             }
             if(results.size()>1){
-                log.error "${results.size()} feature relationships exist for parent ${feature} and child ${childFeature}"
+                log.error "${results.size()} feature relationships exist for parent ${parentFeature} and child ${childFeature}"
             }
             return false
         }

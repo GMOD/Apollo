@@ -3,8 +3,11 @@ package org.bbop.apollo
 class SequenceAlteration extends SequenceFeature{
 
 
+
     static constraints = {
     }
+
+    String alterationResidue
 
     static String cvTerm  = "SequenceAlteration"
     static String ontologyId = "SO:0001059"

@@ -13,6 +13,7 @@ class ExonService {
     TranscriptService transcriptService
     FeatureService featureService
     FeatureRelationshipService featureRelationshipService
+    SequenceService sequenceService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
@@ -468,7 +469,7 @@ class ExonService {
 //        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) + 2 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) + 1;
         FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
         int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
-        String residues = gene.getResidues();
+        String residues = sequenceService.getResiduesFromFeature(gene)
         println "coordinate: "+coordinate
         println "residues: "+residues
         while (coordinate < residues.length()) {

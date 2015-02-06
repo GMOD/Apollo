@@ -1,5 +1,4 @@
 import org.bbop.apollo.Organism
-import org.bbop.apollo.Sequence
 
 class BootStrap {
 
@@ -23,9 +22,17 @@ class BootStrap {
 //        sequenceService.parseRefSeqs()
 //        sequenceService.parseAllRefSeqs()
         try {
-            Organism.findAllBySequencesIsEmpty(){ organism ->
+
+            def c = Organism.createCriteria()
+            def results = c.list{
+                isEmpty("sequences")
+            }
+
+//            results.each{ organism ->
+           results.each{ Organism organism ->
                 println "processing organism ${organism}"
-                File testFile = new File(organism.getRefSeqFile())
+                 String fileName = organism.getRefseqFile()
+                File testFile = new File(fileName)
                 if(testFile.exists() && testFile.isFile()){
                     println "trying to load refseq file: ${testFile.absolutePath}"
                     sequenceService.loadRefSeqs(organism)

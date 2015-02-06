@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import grails.util.Pair
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -12,10 +13,90 @@ class SequenceService {
 
 //    def configWrapperService
 
-    def getFeatureLocations(Sequence sequence){
+    List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
     }
 
+    /**
+     * Get residues from sequence . . . could be multiple locations
+     * @param feature
+     * @return
+     */
+    String getResiduesFromFeature(Feature feature ) {
+        List<FeatureLocation> featureLocationList = FeatureLocation.createCriteria().list {
+            eq("feature",feature)
+            order("fmin","asc")
+        }
+        String returnResidue = ""
+
+        for(FeatureLocation featureLocation in featureLocationList){
+            returnResidue += getResidueFromFeatureLocation(featureLocation)
+        }
+
+        return returnResidue
+    }
+
+    String getResidueFromFeatureLocation(FeatureLocation featureLocation) {
+        return getResiduesFromSequence(featureLocation.sequence,featureLocation.fmin,featureLocation.fmax)
+    }
+
+    String getResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
+        StringBuilder sequenceString = new StringBuilder()
+
+        int startChunkNumber = fmin / sequence.seqChunkSize;
+        int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
+
+        for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
+            SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
+            sequenceString.append(sequenceChunk)
+        }
+
+        // TODO: optimize
+        //   SequenceChunk.findAllBySequenceAndChunkNumberGreaterThanAndChunkNumberLessThanEquals(sequence,startChunkNumber,endChunkNumber)["order":"chunkNumber"].collect(){ it -> it.residue}
+
+
+        return sequenceString.toString()
+    }
+
+    SequenceChunk getSequenceChunkForChunk(Sequence sequence, int i) {
+        SequenceChunk sequenceChunk = SequenceChunk.findBySequenceAndChunkNumber(sequence,i)
+        if(!sequenceChunk){
+            String residue = loadResidueForSequence(sequence,i)
+            println "RESIDUE load: ${residue?.size()}"
+            sequenceChunk = new SequenceChunk(
+                    sequence: sequence
+                    ,chunkNumber: i
+                    ,residue: residue
+            ).save(flush:true)
+        }
+        println "RESIDUE loaded from DB: ${sequenceChunk.residue?.size()}"
+        return sequenceChunk
+    }
+
+    String loadResidueForSequence(Sequence sequence, int chunkNumber) {
+//        for (Pair<Integer, String> data : cache) {
+//            if (data.getFirst().equals(chunkNumber)) {
+//                return data.getSecond();
+//            }
+//        }
+        String filePath = sequence.sequenceDirectory + "/" + sequence.seqChunkPrefix + chunkNumber + ".txt"
+//        BufferedReader br = new BufferedReader(new FileReader(sequenceDirectory + "/" + chunkPrefix + chunkNumber + ".txt"));
+//        BufferedReader br = new BufferedReader(new FileReader(filePath));
+
+        return new File(filePath).getText().toUpperCase()
+//        String line;
+//        StringBuilder sb = new StringBuilder();
+//        while ((line = br.readLine()) != null) {
+//            sb.append(line.toUpperCase());
+//        }
+//        String sequence = sb.toString();
+//        if (cache.size() >= cacheSize) {
+//            cache.remove();
+//        }
+//        cache.add(new Pair<Integer, String>(chunkNumber, sequence));
+//        br.close();
+//        return sequence;
+    }
 
     private String[] splitStringByNumberOfCharacters(String str, int numOfChars) {
         int numTokens = str.length() / numOfChars;
@@ -104,4 +185,5 @@ class SequenceService {
 
         bufferedInputStream.close();
     }
+
 }

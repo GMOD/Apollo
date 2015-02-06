@@ -19,7 +19,6 @@ class Feature implements Ontological{
         uniqueName nullable: true
         dbxref nullable: true
 //        organism nullable: true
-        residues nullable: true
         sequenceLength nullable: true
         md5checksum nullable: true
         isAnalysis nullable: true
@@ -43,7 +42,6 @@ class Feature implements Ontological{
 //    Organism organism;
     String name;
     String uniqueName;
-    String residues;
     Integer sequenceLength;
     String md5checksum;
     Status status
@@ -109,12 +107,11 @@ class Feature implements Ontological{
 
     public Feature generateClone() {
         Feature cloned = new Feature();
-        cloned.type = this.type;
+//        cloned.type = this.type;
         cloned.dbxref = this.dbxref;
 //        cloned.organism = this.organism;
         cloned.name = this.name;
         cloned.uniqueName = this.uniqueName;
-        cloned.residues = this.residues;
         cloned.sequenceLength = this.sequenceLength;
         cloned.md5checksum = this.md5checksum;
         cloned.isAnalysis = this.isAnalysis;
@@ -141,13 +138,6 @@ class Feature implements Ontological{
 //        return String.format("%s (%s)", getUniqueName(), ontologyId);
 //    }
 
-
-    public String getResidues(int fmin, int fmax) {
-        if (getResidues() != null) {
-            return getResidues().substring(fmin, fmax);
-        }
-        return null;
-    }
 
 
     /** Convenience method for retrieving the location.  Assumes that it only contains a single

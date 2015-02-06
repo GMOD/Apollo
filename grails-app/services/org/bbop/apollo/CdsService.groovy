@@ -133,7 +133,7 @@ class CdsService {
 //        StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(cds.getOrganism(), uniqueName, cds.isAnalysis(),
 //                cds.isObsolete(), null, cds.getConfiguration());
         FeatureLocation featureLocation = new FeatureLocation(
-                sourceFeature: cds.featureLocation.sourceFeature
+                sequence: cds.featureLocation.sequence
                 , feature: stopCodonReadThrough
         ).save()
 

@@ -25,6 +25,7 @@ class Sequence {
             users:User
             ,groups:GroupAnnotation
             , featureLocations: FeatureLocation
+            , sequenceChunks: SequenceChunk
     ]
 
     static mapping = {
@@ -36,6 +37,7 @@ class Sequence {
     }
 
     static belongsTo = [User]
+
 
     String name
     Organism organism

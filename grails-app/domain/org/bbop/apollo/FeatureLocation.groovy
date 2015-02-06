@@ -13,7 +13,7 @@ class FeatureLocation {
 
 
         isFminPartial nullable: true
-        sourceFeature nullable: true
+//        sourceFeature nullable: true
         isFmaxPartial nullable: true
         strand nullable: true
         phase nullable: true
@@ -24,7 +24,7 @@ class FeatureLocation {
 
     }
 
-    Feature sourceFeature;
+//    Feature sourceFeature;
     Feature feature;
     Integer fmin;
     boolean isFminPartial;
@@ -65,7 +65,7 @@ class FeatureLocation {
 
     public FeatureLocation generateClone() {
         FeatureLocation cloned = new FeatureLocation();
-        cloned.sourceFeature = this.sourceFeature;
+        cloned.sequence = this.sequence;
         cloned.feature = this.feature;
         cloned.fmin = this.fmin;
         cloned.isFminPartial = this.isFminPartial;

@@ -414,10 +414,10 @@ class RequestHandlingService {
             JSONObject jsonExon = features.getJSONObject(i);
             // could be that this is null
 //            Feature gsolExon = featureService.convertJSONToFeature(jsonExon,transcript,sequence)
-            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, null, sequence)
+            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon,  sequence)
 
 //            featureService.updateNewGsolFeatureAttributes(gsolExon, transcript);
-            featureService.updateNewGsolFeatureAttributes(gsolExon, null);
+            featureService.updateNewGsolFeatureAttributes(gsolExon);
 
             if (gsolExon.getFmin() < 0 || gsolExon.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
@@ -617,27 +617,29 @@ class RequestHandlingService {
 
         println "features length: ${features.length()}"
 
-        for (int i = 0; i < features.length(); ++i) {
-            String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
-            println "handling feature: ${uniqueName}"
-            Exon exon = Exon.findByName(uniqueName)
-            Transcript transcript = exonService.getTranscript(exon)
-            println "with transcript: ${transcript.name}"
+        Transcript.withNewSession {
+            for (int i = 0; i < features.length(); ++i) {
+                String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
+                println "handling feature: ${uniqueName}"
+                Exon exon = Exon.findByName(uniqueName)
+                Transcript transcript = exonService.getTranscript(exon)
+                println "with transcript: ${transcript.name}"
 
 //            editor.setToDownstreamDonor(exon);
-            exonService.setToDownstreamDonor(exon)
+                exonService.setToDownstreamDonor(exon)
 
 
-            featureService.calculateCDS(transcript)
+                featureService.calculateCDS(transcript)
 
-            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 //            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
 
-            transcript.save()
+                transcript.save()
 
-            transcriptArray.add(featureService.convertFeatureToJSON(transcript))
-
+                transcriptArray.add(featureService.convertFeatureToJSON(transcript))
+            }
         }
+
 
 
         if (sequence) {

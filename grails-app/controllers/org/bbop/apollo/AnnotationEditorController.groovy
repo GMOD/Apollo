@@ -219,8 +219,8 @@ class AnnotationEditorController implements AnnotationListener {
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, null, sequence)
-            featureService.updateNewGsolFeatureAttributes(newFeature, null)
+            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
+            featureService.updateNewGsolFeatureAttributes(newFeature)
             featureService.addFeature(newFeature)
             newFeature.save(insert: true, flush: true)
 

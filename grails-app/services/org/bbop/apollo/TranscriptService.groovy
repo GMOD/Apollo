@@ -92,9 +92,10 @@ class TranscriptService {
                 uniqueName: uniqueName
                 , isAnalysis: transcript.isAnalysis
                 , isObsolete: transcript.isObsolete
+                ,name: uniqueName
 //                ,timeAccessioned: new Date()
 //                ,timeLastModified: new Date()
-        ).save()
+        ).save(failOnError: true)
 
 //        CDS cds = new CDS(transcript.getOrganism(), uniqueName, transcript.isAnalysis(),
 //                transcript.isObsolete(), null, transcript.getConfiguration());
@@ -103,9 +104,11 @@ class TranscriptService {
 
         FeatureLocation featureLocation = new FeatureLocation(
                 strand: transcriptFeatureLocation.strand
-                , sourceFeature: transcriptFeatureLocation.sourceFeature
+                , sequence: transcriptFeatureLocation.sequence
+                ,fmin: transcriptFeatureLocation.fmin
+                ,fmax: transcriptFeatureLocation.fmax
                 , feature: cds
-        ).save(insert: true)
+        ).save(insert: true,failOnError: true)
         cds.addToFeatureLocations(featureLocation);
         cds.save(flush: true, insert: true)
         return cds;
@@ -347,11 +350,14 @@ class TranscriptService {
                 parentFeature: feature
                 , childFeature: cds
                 ,rank: 0
-        ).save(insert:true)
+        ).save(insert:true,failOnError: true)
 
 
-        feature.getChildFeatureRelationships().add(fr);
-        cds.getParentFeatureRelationships().add(fr);
+        println "fr: ${fr}"
+        println "feature: ${feature}"
+        println "cds: ${cds}"
+        feature.addToChildFeatureRelationships(fr)
+        cds.addToParentFeatureRelationships(fr)
 
         cds.save()
         feature.save(flush: true)
