@@ -181,6 +181,8 @@ apollo.translation_table = "/config/translation_tables/ncbi_1_translation_table.
 apollo.is_partial_translation_allowed = false // unused so far
 //apollo.get_translation_code = -1
 apollo.get_translation_code = 1
+
+// TODO: should come from config or via preferences database
 apollo.splice_donor_sites = [ "GT"]
 apollo.splice_acceptor_sites = [ "AG"]
 
