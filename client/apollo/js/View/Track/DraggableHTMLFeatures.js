@@ -47,7 +47,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             dojo.clone( this.inherited(arguments) ),
             {
                 style: {
-            // className: "{type}",   // feature classname gets set to feature.get('type')
                     className: "container-16px", 
                     renderClassName: "gray-center-30pct", 
                     arrowheadClass: "webapollo-arrowhead", 
@@ -61,9 +60,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         stop_codon: null, 
                         match_part: "darkblue-80pct"
                     }, 
-
-                    // renderClassName: 'DraggableFeatureTrack'  ???
-                    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
                     minSubfeatureWidth: 1, 
                     centerChildrenVertically: false
                 },
@@ -71,16 +67,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     // need to map click to a null-op, to override default JBrowse click behavior for click on features 
                     //     (JBrowse default is feature detail popup)
                     click:     function(event) {
-                        // not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
+                        // not quite a null-op, also need to supress propagation of click recursively up through parent divs, 
                         //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
                         event.stopPropagation();
                     }
-                    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
-                    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
-                    //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
-                    // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
-                    // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
-                    // , dblclick:  dojo.hitch( this, 'onFeatureDoubleClick' )
                 }
             }
         );
@@ -163,7 +153,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var $div = $(this.div);
         var track = this;
 
-        // this.scale = scale;  // scale is in pixels per base
 
         // setting up mousedown and mouseup handlers to enable click-in-whitespace to clear selection
         //    (without conflicting with JBrowse drag-in-whitespace to scroll)
@@ -333,7 +322,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 var rendiv = document.createElement("div");
                 dojo.addClass(rendiv, "feature-render");
                 dojo.addClass(rendiv, rclass);
-                if (Util.is_ie6) rendiv.appendChild(document.createComment());
                 featdiv.appendChild(rendiv);
             }
             if (clsName) {
@@ -607,11 +595,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             CDSclass = this.config.style.subfeatureClasses["CDS"];  
         }
 
-        //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
-
         var segDiv;
-        // console.log("render sub frame");
-        // whole exon is untranslated (falls outside wholeCDS range, or no CDS info found)
         if( (cdsMin === undefined && cdsMax === undefined) ||
             (cdsMax <= subStart || cdsMin >= subEnd))  {
             if( render )  {
@@ -619,7 +603,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // not worrying about appending "plus-"/"minus-" based on strand yet
                 dojo.addClass(segDiv, "subfeature");
                 dojo.addClass(segDiv, UTRclass);
-                if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
@@ -660,7 +643,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // not worrying about appending "plus-"/"minus-" based on strand yet
                 dojo.addClass(segDiv, "subfeature");
                 dojo.addClass(segDiv, CDSclass);
-                if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
@@ -716,7 +698,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     // not worrying about appending "plus-"/"minus-" based on strand yet
                     dojo.addClass(segDiv, "subfeature");
                     dojo.addClass(segDiv, UTRclass);
-                    if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
                         + "width: " + (100 * ((utrEnd - utrStart) / subLength)) + "%;";
@@ -729,7 +710,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // not worrying about appending "plus-"/"minus-" based on strand yet
                 dojo.addClass(segDiv, "subfeature");
                 dojo.addClass(segDiv, CDSclass);
-                if (Util.is_ie6) segDiv.appendChild(document.createComment());
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
@@ -749,7 +729,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     // not worrying about appending "plus-"/"minus-" based on strand yet
                     dojo.addClass(segDiv, "subfeature");
                     dojo.addClass(segDiv, UTRclass);
-                    if (Util.is_ie6) segDiv.appendChild(document.createComment());
                     segDiv.style.cssText =
                         "left: " + (100 * ((utrStart - subStart) / subLength)) + "%;"
                         + "width: " + (100 * ((utrEnd - utrStart) / subLength)) + "%;";
@@ -778,7 +757,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // event.stopPropagation();
         if( this.verbose_selection || this.verbose_drag ) { 
             console.log("DFT.onFeatureMouseDown called"); 
-        console.log("genome coord: " + this.getGenomeCoord(event));
+            console.log("genome coord: " + this.getGenomeCoord(event));
         }
 
         // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
@@ -868,28 +847,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
-        // set all other tracks to standard track zIndex, 
-        // set this track to > than others to ensure ghost is drawn on top of all other tracks
-  /*     ftrack.div.style.zIndex = 10;
-        $(ftrack.gview.tracks).each( function(index, track)  {
-            if (track.div !== ftrack.div && track.div.style.zIndex !== 7)  {
-                track.div.style.zIndex = 7;
-            }
-        } );
-        */
-
-        /*
-        // simple version for testing
-        // (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
-            if (selected)  {  
-                var $featdiv = $(featdiv);
-                $featdiv.draggable(   { 
-                helper: 'clone', 
-                opacity: 0.5,
-                axis: 'y', 
-                } );
-            }
-        */
         /**
          *  ideally would only make $.draggable call once for each selected div
          *  but having problems with draggability disappearing from selected divs
@@ -995,9 +952,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     },
                     opacity: 0.5,
                     axis: 'y'
-                    // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
-                    //     but not with different JQuery 1.7+ strategy
-                    // , create: function(event, ui)  { ftrack.drag_create = true; }
                 } );
 
                 // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
@@ -1111,30 +1065,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     },
 
 
-/*
- *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
- *  WARNING: returns base position relative to UI coordinate system 
- *       (which is 1-based interbase)
- *  But for most elements in genome view (features, graphs, etc.) the underlying data structures are 
- *       in 0-base interbase coordinate system
- *  So if you want data structure coordinates, you need to do (getUiGenomeCoord() - 1)
- *       or use the convenience function getGenomeCoord()
- *
- *  event can be on GenomeView.elem or any descendant DOM elements (track, block, feature divs, etc.)
- *  assumes:
- *      event is a mouse event (plain Javascript event or JQuery event)
- *      elem is a DOM element OR JQuery wrapped set (in which case result is based on first elem in result set)
- *      elem is displayed  (see JQuery.offset() docs)
- *      no border/margin/padding set on the doc <body> element  (see JQuery.offset() docs)
- *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
- *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
- */
-
-/*   
-    getUiGenomeCoord: function(mouseEvent)  {
-        return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
-    }, 
-*/
 
 /**
  *  for the input mouse event, returns genome position under mouse IN 0-BASED INTERBASE COORDINATES
@@ -1156,7 +1086,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
  */
     getGenomeCoord: function(mouseEvent)  {
         return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
-        //  return this.getUiGenomeCoord(mouseEvent) - 1;
     },
     
     _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
