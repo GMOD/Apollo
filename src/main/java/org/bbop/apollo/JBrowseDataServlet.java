@@ -26,39 +26,53 @@ public class JBrowseDataServlet extends HttpServlet {
 
     private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
+    private Properties properties = null ;
+    private String filename = null ;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         // TODO: move up so not recalculating each time
-        String pathTranslated = request.getPathTranslated();
-        String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
-        String configPath = rootPath + "/config/config.properties";
 
 
-        File propertyFile = new File(configPath);
-        String filename = null;
+        if(properties==null){
+            String pathTranslated = request.getPathTranslated();
+            String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
+            String configPath = rootPath + "/config/config.properties";
 
-        if (propertyFile.exists()) {
-            Properties properties = new Properties();
-            FileInputStream fileInputStream = new FileInputStream(propertyFile);
-            properties.load(fileInputStream);
 
-            filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
-            File dataFile = new File(filename);
-            if (!dataFile.exists() || !dataFile.canRead()) {
-                logger.debug("NOT found: " + filename);
-                filename = null;
+            File propertyFile = new File(configPath);
+
+            if (propertyFile.exists()) {
+                Properties properties = new Properties();
+                FileInputStream fileInputStream = new FileInputStream(propertyFile);
+                properties.load(fileInputStream);
+
+                filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
+                File dataFile = new File(filename);
+                if (!dataFile.exists() || !dataFile.canRead()) {
+                    logger.debug("NOT found: " + filename);
+                    filename = null;
+                }
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    logger.error("failed to close property file: "+filename + " \n"+e);
+                }
             }
+            if (filename == null) {
+                filename = rootPath + request.getServletPath() + request.getPathInfo();
+                File testFile = new File(filename);
+                if (FileUtils.isSymlink(testFile)) {
+                    filename = testFile.getAbsolutePath();
+                    logger.debug("symlink found so adjusting to absolute path: " + filename);
+                }
+            }
+
+
         }
 
-        if (filename == null) {
-            filename = rootPath + request.getServletPath() + request.getPathInfo();
-            File testFile = new File(filename);
-            if (FileUtils.isSymlink(testFile)) {
-                filename = testFile.getAbsolutePath();
-                logger.debug("symlink found so adjusting to absolute path: " + filename);
-            }
-        }
+
 
 
         // Get the absolute path of the file
