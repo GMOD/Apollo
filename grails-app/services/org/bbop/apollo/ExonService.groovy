@@ -525,4 +525,70 @@ class ExonService {
             --coordinate;
         }
     }
+
+    def setToUpstreamAcceptor(Exon exon) {
+        Transcript transcript = getTranscript(exon);
+        Gene gene = transcriptService.getGene(transcript);
+
+        List<Exon> exons = getSortedExons(transcript,true)
+        Integer prevExonFmin = null;
+        Integer prevExonFmax = null;
+        for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
+            Exon e = iter.next();
+            if (e.getUniqueName().equals(exon.getUniqueName())) {
+                if (iter.hasPrevious()) {
+                    iter.previous();
+                    if (iter.hasPrevious()) {
+                        Exon e2 = iter.previous();
+                        prevExonFmin = e2.getFmin();
+                        prevExonFmax = e2.getFmax();
+                    }
+                }
+                break;
+            }
+        }
+        int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax() + 2) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin() - 3);
+        String residues = sequenceService.getResiduesFromFeature(gene)
+        while (coordinate >= 0) {
+            int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
+            if (prevExonFmin != null && (c >= prevExonFmin && c <= prevExonFmax - 2)) {
+                throw new AnnotationException("Cannot set to upstream acceptor - will overlap previous exon");
+            }
+            String seq = residues.substring(coordinate, coordinate + 2);
+            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq)) {
+                if (exon.getStrand() == -1) {
+                    setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) - 1);
+                } else {
+                    setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 2, exon.getFmax());
+                }
+                return;
+            }
+            --coordinate;
+        }
+
+    }
+
+    def setToDownstreamAcceptor(Exon exon) {
+        Transcript transcript = getTranscript(exon);
+        Gene gene = transcriptService.getGene(transcript);
+        int coordinate = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
+        int exonEnd = exon.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin()) : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1;
+        String residues = sequenceService.getResiduesFromFeature(gene);
+        while (coordinate < residues.length()) {
+            if (coordinate >= exonEnd) {
+                throw new AnnotationException("Cannot set to downstream acceptor - will remove exon");
+            }
+            String seq = residues.substring(coordinate, coordinate + 2);
+            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq)) {
+                if (exon.getStrand() == -1) {
+                    setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) - 1);
+                } else {
+                    setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 2, exon.getFmax());
+                }
+                return;
+            }
+            ++coordinate;
+        }
+
+    }
 }

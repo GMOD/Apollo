@@ -605,6 +605,60 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    def setAcceptor(JSONObject inputObject, boolean upstreamDonor) {
+        println "setting to donor: ${inputObject}"
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONArray transcriptArray = new JSONArray( )
+        featureContainer.put(FeatureStringEnum.FEATURES.value,transcriptArray)
+
+        println "features length: ${features.length()}"
+
+        Transcript.withNewSession {
+            for (int i = 0; i < features.length(); ++i) {
+                String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
+                println "handling feature: ${uniqueName}"
+                Exon exon = Exon.findByName(uniqueName)
+                Transcript transcript = exonService.getTranscript(exon)
+                println "with transcript: ${transcript.name}"
+
+//            editor.setToDownstreamDonor(exon);
+                if(upstreamDonor){
+                    exonService.setToUpstreamAcceptor(exon)
+                }
+                else{
+                    exonService.setToDownstreamAcceptor(exon)
+                }
+
+
+                featureService.calculateCDS(transcript)
+
+                nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+//            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+
+                transcript.save()
+
+                transcriptArray.add(featureService.convertFeatureToJSON(transcript))
+            }
+        }
+
+
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: featureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return featureContainer
+    }
+
 
     def setDonor(JSONObject inputObject,boolean upstreamDonor) {
         println "setting to donor: ${inputObject}"

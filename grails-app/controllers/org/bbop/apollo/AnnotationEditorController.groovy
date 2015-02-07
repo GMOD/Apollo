@@ -558,6 +558,10 @@ class AnnotationEditorController implements AnnotationListener {
                     break
                 case "setToUpstreamDonor":  requestHandlingService.setDonor(rootElement,true)
                     break
+                case "setToDownstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,false)
+                    break
+                case "setToUpstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,true)
+                    break
                 default: nameService.generateUniqueName()
                     break
             }
