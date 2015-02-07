@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -29,12 +30,7 @@ public class JBrowseDataServlet extends HttpServlet {
     private Properties properties = null ;
     private String filename = null ;
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        // TODO: move up so not recalculating each time
-
-
+    private void checkProperties(HttpServletRequest request) throws IOException{
         if(properties==null){
             String pathTranslated = request.getPathTranslated();
             String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
@@ -73,7 +69,12 @@ public class JBrowseDataServlet extends HttpServlet {
         }
 
 
+    }
 
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        checkProperties(request);
 
         // Get the absolute path of the file
         ServletContext sc = getServletContext();
