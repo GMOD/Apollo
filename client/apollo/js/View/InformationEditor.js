@@ -1422,7 +1422,7 @@ return declare([],{
         
         init();
         return content;
-    }
+    },
     getAnnotationInformation: function()  {
         var selected = this.selectionManager.getSelection();
         this.getInformationForSelectedAnnotations(selected);

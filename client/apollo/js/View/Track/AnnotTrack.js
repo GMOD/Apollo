@@ -25,7 +25,7 @@ define( [
             'dijit/Tooltip',
             'WebApollo/FormatUtils',
             'WebApollo/View/InformationEditor',
-            'WebApollo/View/History'
+            'WebApollo/View/History',
             'WebApollo/View/GetSequence'
         ],
         function( declare,
