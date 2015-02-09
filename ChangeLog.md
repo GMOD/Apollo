@@ -3,18 +3,23 @@
 
 Features
 
-+ Added Drupal and OAuth authentication (#117)
-+ Made "Show track labels" and "Color by CDS" more persistent (#120)
-
++ Added Drupal authentication module to share authentication with an existing Drupal DB (#117).
++ Made "Show track labels" and "Color by CDS" more persistent (#120).
++ Added a "collapse" option to the User-created annotations track (#155).
++ Changed maxHeight on User-create annotations track to prevent overflow (#124).
 
 Bugfixes
 
++ Fixed an issue where the API could be used to create random berkeley DBs (#152).
++ Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151).
++ Fixed an issue where the config files were readable by the outside world in previous 1.x versions.
++ Changed default user database to be encrypted. Unencrypted options are still available via command line scripts for people with older configurations (#148).
++ Made GOLR servers configuarable (#151).
++ Added new Help page with WebApollo specific content (#153).
++ Fixed bug where Tomcat could report "Too many open files error" (#162).
++ Fixed bug where the dark theme made the reference sequence too dark (#119).
++ Added some basic help text for search parameters in the sequences view (#160).
 
-+ Fixed an issue where the API could be used to create random berkeley DBs (#152)
-+ Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151)
-+ Fixed an issue where the config files were readable by the outside world
-+ Changed maxHeight on User-create annotations track to prevent overflow (#124).
-+ Changed default database to EncryptedLocalDbUserAuthentication. Unencrypted options are still available via command line scripts for LocalDbUserAuthentication if needed (#148).
 
 ## 1.0.3 release
 
