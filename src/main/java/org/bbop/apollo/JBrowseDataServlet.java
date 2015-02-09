@@ -27,54 +27,50 @@ public class JBrowseDataServlet extends HttpServlet {
 
     private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
-    private Properties properties = null ;
-    private String filename = null ;
+    private Properties properties = null;
 
-    private void checkProperties(HttpServletRequest request) throws IOException{
-        if(properties==null){
-            String pathTranslated = request.getPathTranslated();
-            String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
-            String configPath = rootPath + "/config/config.properties";
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        String configPath = getServletContext().getRealPath("/config/config.properties") ;
 
+        File propertyFile = new File(configPath);
 
-            File propertyFile = new File(configPath);
-
-            if (propertyFile.exists()) {
-                Properties properties = new Properties();
+        if (propertyFile.exists()) {
+            properties = new Properties();
+            try {
                 FileInputStream fileInputStream = new FileInputStream(propertyFile);
                 properties.load(fileInputStream);
-
-                filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
-                File dataFile = new File(filename);
-                if (!dataFile.exists() || !dataFile.canRead()) {
-                    logger.debug("NOT found: " + filename);
-                    filename = null;
-                }
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    logger.error("failed to close property file: "+filename + " \n"+e);
-                }
+                fileInputStream.close();
+            } catch (IOException e) {
+                throw new ServletException("Failed to load property file", e);
             }
-            if (filename == null) {
-                filename = rootPath + request.getServletPath() + request.getPathInfo();
-                File testFile = new File(filename);
-                if (FileUtils.isSymlink(testFile)) {
-                    filename = testFile.getAbsolutePath();
-                    logger.debug("symlink found so adjusting to absolute path: " + filename);
-                }
-            }
-
-
+        } else {
+            throw new ServletException("File does note exist: " + configPath);
         }
-
-
     }
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
+        File dataFile = new File(filename);
+        if (!dataFile.exists() || !dataFile.canRead()) {
+            logger.debug("NOT found: " + filename);
+            filename = null;
+        }
 
-        checkProperties(request);
+        if (filename == null)
+        {
+            String pathTranslated = request.getPathTranslated();
+            String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
+            filename = rootPath + request.getServletPath() + request.getPathInfo();
+            File testFile = new File(filename);
+            if (FileUtils.isSymlink(testFile)) {
+                filename = testFile.getAbsolutePath();
+                logger.debug("symlink found so adjusting to absolute path: " + filename);
+            }
+        }
 
         // Get the absolute path of the file
         ServletContext sc = getServletContext();
@@ -107,12 +103,12 @@ public class JBrowseDataServlet extends HttpServlet {
             }
         }
 
-        if(isCacheableFile(filename)){
+        if (isCacheableFile(filename)) {
             String eTag = createHashFromFile(file);
             String dateString = formatLastModifiedDate(file);
 
-            response.setHeader("ETag",eTag);
-            response.setHeader("Last-Modified",dateString );
+            response.setHeader("ETag", eTag);
+            response.setHeader("Last-Modified", dateString);
         }
 
         String range = request.getHeader("range");
@@ -205,19 +201,17 @@ public class JBrowseDataServlet extends HttpServlet {
         }
 
 
-
-
     }
 
     private boolean isCacheableFile(String filename) {
-        if(filename.endsWith(".txt")) return true ;
-        if(filename.endsWith(".json")){
+        if (filename.endsWith(".txt")) return true;
+        if (filename.endsWith(".json")) {
             String[] names = filename.split("\\/");
-            String requestName = names[names.length-1];
+            String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");
         }
 
-        return false ;
+        return false;
     }
 
     private String formatLastModifiedDate(File file) {
