@@ -65,7 +65,7 @@ for (int i = 0; i < providers.getLength(); i++) {
        "scope=" + uname_field + "&" +
        "response_type=code" + "&" +
        "state=na" + "&" +
-       "redirect_uri=" + encodeURIComponent("http://localhost:8080/WebApollo/Login?operation=login&forceRedirect=true") + "&" +
+       "redirect_uri=" + encodeURIComponent("http://localhost:8080/apollo/Login?operation=login") + "&" +
        "client_id=" + client_id;
     window.location = redirect_url;
   };

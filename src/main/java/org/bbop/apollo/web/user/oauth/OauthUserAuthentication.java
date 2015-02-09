@@ -1,12 +1,9 @@
 package org.bbop.apollo.web.user.oauth;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
+import java.io.*;
+import java.util.Iterator;
+import java.util.Collection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -49,6 +46,11 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson.JacksonFactory;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 /**
  * NOTE: not yet working
  */
@@ -62,12 +64,26 @@ public class OauthUserAuthentication implements UserAuthentication {
     private String tokenURL = null;
     private String profileUrl = null;
     private String unameField = null;
+    private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
     
     public OauthUserAuthentication() {
         try {
-            URL resource = getClass().getResource("/");
-            String configPath = resource.getPath() + "/../../config/oauth.xml";
-            
+            File currentDirectory= new File(".");
+            String[] extensions = new String[]{"xml"};
+            Collection<File> files = FileUtils.listFiles(currentDirectory, extensions, true);
+            String configPath = null ;
+            Iterator<File> fileIterator = files.iterator() ;
+            while(fileIterator.hasNext() && configPath ==null ){
+                File file = fileIterator.next();
+                if(file.getName().contains("oauth.xml")){
+                    configPath = file.getAbsolutePath();
+                    logger.info("Found the oauth file: "+configPath);
+                }
+            }
+            if(configPath==null ){
+                logger.error("could not find the oauth.xml file in path") ;
+                return;
+            }
             FileInputStream fstream = new FileInputStream(configPath);
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -164,7 +180,7 @@ public class OauthUserAuthentication implements UserAuthentication {
             AuthorizationCodeFlow codeFlow = acfb.setScopes(Arrays.asList(unameField)).build();
             
             // Next we need to construct a token request object to request the access token
-            String redirectUri = "http://localhost:8080/WebApollo/Login?operation=login&forceRedirect=true";
+            String redirectUri = "http://localhost:8080/apollo/Login?operation=login";
             AuthorizationCodeTokenRequest actr = codeFlow.newTokenRequest(authCode);
             actr.setRedirectUri(redirectUri);
             actr.setScopes(Arrays.asList(unameField));
@@ -190,23 +206,27 @@ public class OauthUserAuthentication implements UserAuthentication {
             // store the details in a TokenResponse object
             TokenResponse tokenResponse = new TokenResponse();
             tokenResponse.setExpiresInSeconds(tokenJson.getLong("expires_in"));
-            tokenResponse.setScope(tokenJson.getString("scope"));
+            //tokenResponse.setScope(tokenJson.getString("scope"));
             tokenResponse.setAccessToken(tokenJson.getString("access_token"));
             tokenResponse.setTokenType(tokenJson.getString("token_type"));
-            tokenResponse.setRefreshToken(tokenJson.getString("refresh_token"));
+            //tokenResponse.setRefreshToken(tokenJson.getString("refresh_token"));
             tokenResponse.setFactory(jsonFactory);
             
             // ---------------
             // Step 3: now that we have the access token, we can request the profile
             // information which should include the username
             HttpClient httpClient = new DefaultHttpClient();
+            System.out.println(profileUrl);
             HttpPost httpPost = new HttpPost(profileUrl);
             
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("access_token", accessToken));
+            nvps.add(new BasicNameValuePair("scope", "openid email profile"));
             httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+            
             org.apache.http.HttpResponse post_response = httpClient.execute(httpPost);
             String postJson = EntityUtils.toString(post_response.getEntity());
+            System.out.println(postJson);
             JSONObject postObj = new JSONObject(postJson);
             
             if (postObj.has("error")) {
