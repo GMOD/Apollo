@@ -46,7 +46,7 @@ public class JBrowseDataServlet extends HttpServlet {
                 throw new ServletException("Failed to load property file", e);
             }
         } else {
-            throw new ServletException("File does note exist: " + configPath);
+            throw new ServletException("File does not exist: " + configPath);
         }
     }
 

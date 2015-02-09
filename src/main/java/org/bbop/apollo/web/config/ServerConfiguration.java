@@ -215,7 +215,7 @@ public class ServerConfiguration {
         logger.debug("real path: " + servletContext.getRealPath("."));
         if(currentDirectory.getAbsolutePath().startsWith("/")){
             currentDirectory = new File(servletContext.getRealPath("."));
-            logger.debug("curretn directory reset: " + currentDirectory);
+            logger.debug("current directory reset: " + currentDirectory);
             logger.debug("exists: " + currentDirectory.exists());
             logger.debug("is directory: " + currentDirectory.isDirectory());
         }
