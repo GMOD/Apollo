@@ -79,7 +79,6 @@ sub add_user {
 
     my $sql="";
     if($unencrypted) {
-        print "Encrypted $encrypted";
         $sql = "INSERT INTO $USER_TABLE(username, password) " . 
                       "VALUES(?, ?)";
         $dbh->do($sql, undef, $username, $password);       
