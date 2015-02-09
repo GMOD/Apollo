@@ -86,16 +86,37 @@ If you are following our example, you can download the sample data here:
 
 #### Setup some basic dependencies
 
-We will use the `apollo deploy` script to initialize jbrowse and install some basic perl pre-requisites. We can use simply copy the default configs when initializing setups.
+As a first step, use some of the default config files and run apollo deploy. This will download and install jbrowse binaries.
 
-    cp sample_config.properties config.properties
-    cp sample_config.xml config.xml
+    cp sample_config.properties config.properties     # a basic config file for database setup
+    cp sample_config.xml config.xml                   # a more intricate config for advanced configuration
+    cp sample_log4j2.json log4j2.json                 # a simple log for ~/logs/webapollo.log. see sample_log4j2-catalina.json for production 
+    cp sample_canned_comments.xml canned_comments.xml # a set of canned comments used for annotators
     ./apollo deploy
 
 If there are any errors during this build step, you can check setup.log. See the [troubleshooting guide](Troubleshooting.md) for common issues.
 
+#### Setup genome browser data
+
+Setup the JBrowse data directory with some of the sample data for Pythium ultimum. Here, the split_gff.pl script will separate the example GFF based on source types, and then the JBROWSE_DATA_DIR will be initialized with prepare-refseqs.pl and flatfile-to-json.pl.
+
+    mkdir $WEBAPOLLO_DATA_DIR
+    mkdir $JBROWSE_DATA_DIR
+    mkdir temp
+    tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d temp
+    bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out data
+    bin/flatfile-to-json.pl --gff  temp/maker.gff --arrowheadClass trellis-arrowhead \
+        --subfeatureClasses '{"wholeCDS": null, "CDS":"brightgreen-80pct", "UTR": "darkgreen-60pct", "exon":"container-100pct"}' \
+        --className container-16px --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
+
+    
+For more info on adding genome browser tracks, see the [configuration guide](Configure.md) guide.
+
+
 #### Initialize Web Apollo logins and permissions
-Now you may initialize the database tables add a new Web Apollo user as follows.
+
+
+Initialize the database for logging into WebApollo as follows:
 
     psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
     tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
@@ -107,20 +128,6 @@ Note: the reason we use psql with "-h localhost" is to force password-based host
     tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
 
 
-
-#### Setup genome browser data
-Now we will setup our data directory. In this example we will use the Pythium ultimum sample data. For more info on adding genome browser tracks, see the [configuration guide](Configure.md) guide.
-
-Here, the split_gff.pl script will separate the example GFF based on source types, and then the JBROWSE_DATA_DIR will be initialized with prepare-refseqs.pl and flatfile-to-json.pl.
-
-    mkdir $WEBAPOLLO_DATA_DIR
-    mkdir $JBROWSE_DATA_DIR
-    mkdir temp
-    tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d temp
-    bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out data
-    bin/flatfile-to-json.pl --gff  temp/maker.gff --arrowheadClass trellis-arrowhead \
-        --subfeatureClasses '{"wholeCDS": null, "CDS":"brightgreen-80pct", "UTR": "darkgreen-60pct", "exon":"container-100pct"}' \
-        --className container-16px --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
 
 ##### Add webapollo plugin to the genome browser
 Once the tracks are initialized, the webapollo plugin needs to be added to the JBrowse configuration using the add-webapollo-plugin.pl script.
