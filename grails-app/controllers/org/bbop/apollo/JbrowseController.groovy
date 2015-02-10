@@ -140,6 +140,17 @@ class JbrowseController {
         render file.text
     }
 
+    def seqMapper() {
+        String filename = getJBrowseDirectoryForSession()
+        File file = new File(filename + "/seq/${params.a}/${params.b}/${params.c}/${params.group}");
+        if (!file.exists()) {
+            log.error("Could not get seq file " + file.absolutePath);
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        render file.text
+    }
+
     /**
      * Has to handle a number of routes based on selected genome or just use the default otherwise.
      *
@@ -240,5 +251,6 @@ class JbrowseController {
         fis.close();
         out.close();
     }
+
 
 }
