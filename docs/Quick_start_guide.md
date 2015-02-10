@@ -8,19 +8,20 @@ this quick-start guide can help by automating some setup steps. This
 WebApollo instance from scratch.
 
 ## Checklist
-This guide will be doing the following steps
 
- - Installing system and perl prerequisites
+This guide will cover the following steps:
+
+ - Downloading Web Apollo
+ - Installing system pre-requisites
+ - Using `apollo deploy` to setup environment + perl pre-requisites
  - Setting up a postgres user and database
- - Downloading WebApollo from github
- - Running the WebApollo build script
- - Creating a new data directory for the JBrowse data
- - Creating a new data directory for the WebApollo annotations
- - Configuring WebApollo using the config.properties file
+ - Running JBrowse scripts to load data
+ - Configuring Web Apollo with the config.properties file
+ - Running a temporary server using `apollo run`
 
 #### Setup environment
 
-First set some environmental variables. These represent the postgres user/pass, the login user/pass, the database storing the login info. We also specify the organism name and say where we want our JBrowse data directory and WebApollo annotations.
+First set some environmental variables. These are simply used for the proceeding steps and don't require anything to be already setup.
 
     export PGUSER=web_apollo_users_admin
     export PGPASSWORD=password
@@ -30,8 +31,6 @@ First set some environmental variables. These represent the postgres user/pas
     export ORGANISM="Pythium ultimum"
     export JBROWSE_DATA_DIR=`pwd`/data
     export WEBAPOLLO_DATA_DIR=`pwd`/annotations
-
-More details about the postgres setup is in the [database setup](Database_setup.md). Also note that JBROWSE_DATA_DIR and WEBAPOLLO_DATA_DIR don't have to be initialized, we will do that in in this guide.
 
 
 #### Download webapollo
@@ -166,17 +165,13 @@ Once we have our data directories and database configuration setup, we can put t
 
 Note: the organism property should be a two-word "genus species" ID for proper chado exports. For more details on chado export see the [configuration guide](Configure.md).
 
-#### Setup additional Web Apollo configuration
+#### Launch a temporary Web Apollo instance
 
-In this guide, we have simply added basic properties to config.properties, but more extensive configuration options are available to both JBrowse and Web Apollo. See the [configuration guide](Configure.md) for details.
-
-#### Run a test server
-
-After this setup, you are ready to deploy a new instance. You can use 
+After this setup, you are ready to deploy a new instance.
 
     ./apollo run
 
-This will launch a temporary tomcat instances that you will be able to access from http://localhost:8080/apollo/ and login with your $WEBAPOLLO_USER information.
+This will launch a temporary tomcat instances that you will be able to access from http://localhost:8080/apollo/ and login with your $WEBAPOLLO_USER and $WEBAPOLLO_PASSWORD information.
 
 Note: if you already have a tomcat instance running, you may have to shut it down to launch the test server.
 
