@@ -36,8 +36,14 @@ More details about the postgres setup is in the [database setup](Database_setup.
 
 #### Download webapollo
 
-You can download the latest Web Apollo release from [github](https://github.com/gmod/Apollo.git) or from
+You can download the latest Web Apollo release from [GitHub](https://github.com/gmod/Apollo.git) or from
 [genomearchitect.org](http://genomearchitect.org) (the 1.x release branch is not available from genomearchitect yet).
+
+Example:
+
+    # clone the latest webapollo from GitHub and use the latest release tag
+    git clone https://github.com/GMOD/Apollo.git
+    git checkout 1.0.3
 
 
 #### Get prerequisites
@@ -51,31 +57,40 @@ Then get some system pre-requisites. These commands will try to get everything i
     # install system prerequisites (macOSX/homebrew), read the postgresql start guide
     brew install maven postgresql wget tomcat git
 
+
+See [prerequisites](Prerequisites.md) for more details on the pre-requisites if you think something isn't working with these.
+
 #### Kickstart postgres (not needed for ubuntu)
 
 On debian/ubuntu, postgres is started and added to OS boot automatically, but on other systems (centOS/redhat, mac OSX) they need to be kickstarted. 
 
-    # on centOS/redhat, manually kickstart postgres and make it start on OS boot with chkconfig
+    # on centOS/redhat, manually kickstart postgres and allow md5 type logins
     sudo su -c "PGSETUP_INITDB_OPTIONS='--auth-host=md5' postgresql-setup initdb"
     sudo su -c "service postgresql start"
     sudo su -c "chkconfig postgresql on"
 
-    # on macOSX/homebrew, manually kickstart postgres and make it start on OS boot with launchctl
+    # on macOSX/homebrew, manually kickstart postgres using launchctl (see homebrew guide for details)
     ln -sfv /usr/local/opt/postgresql/*.plist ~/Library/LaunchAgents
     launchctl load ~/Library/LaunchAgents/homebrew.mxcl.postgresql.plist
 
+
+For more details on setting up postgres in CentOS, refer to [https://wiki.postgresql.org/wiki/YUM_Installation](https://wiki.postgresql.org/wiki/YUM_Installation) (but note that we encourage using host-based password authentication with --auth-host=md5)
+
+For more details on setting up postgres in Homebrew refer to [https://wiki.postgresql.org/wiki/Homebrew](https://wiki.postgresql.org/wiki/Homebrew)
+
 #### Initialize postgres database
 
-After starting postgres, you can create a new user and database for Web Apollo authentication.
+After starting postgres, you can create a new database for managing login and track information.
 
-    # On debian/ubuntu/redhat/centOS,requires postgres user to execute command, hence "sudo su postgres"
+    # On debian/ubuntu/redhat/centOS, typically requires "postgres" user to execute commands
     sudo su - postgres -c "createuser -RDIElPS $PGUSER"
     sudo su - postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
-    # macOSX/homebrew, may not necessary to createuser if using `whoami` for PGUSER
+
+    # On macOSX/homebrew there is no need login as the postgres user
     createuser -RDIElPS $PGUSER
     createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
 
-Note: see [database setup](Database_setup.md#authentication) for more details about postgres setup.
+Note: see [database setup](Database_setup.md#authentication) for more details about the database setup.
  
 #### Download sample data
 
@@ -88,13 +103,31 @@ If you are following our example, you can download the sample data here:
 
 As a first step, use some of the default config files and run apollo deploy. This will download and install jbrowse binaries.
 
-    cp sample_config.properties config.properties     # a basic config file for database setup
-    cp sample_config.xml config.xml                   # a more intricate config for advanced configuration
-    cp sample_log4j2.json log4j2.json                 # a simple log for ~/logs/webapollo.log. see sample_log4j2-catalina.json for production 
-    cp sample_canned_comments.xml canned_comments.xml # a set of canned comments used for annotators
+    cp sample_config.properties config.properties
+    cp sample_config.xml config.xml
+    cp sample_log4j2.json log4j2.json
+    cp sample_canned_comments.xml canned_comments.xml
     ./apollo deploy
 
 If there are any errors during this build step, you can check setup.log. See the [troubleshooting guide](Troubleshooting.md) for common issues.
+
+
+#### Initialize Web Apollo logins and permissions
+
+
+Initialize the database for logging into WebApollo as follows:
+
+    psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
+    tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
+
+
+Then we will add permissions on a track-by-track basis by first extracting the seqids from a FASTA file and adding them to the database. Carefully observe the arguments to these functions (particularly, adding the -a option to set_track_permissions.pl allows "all" or "admin" access, and the -p option for extract_seqids_from_fasta is called the Annotation prefix).
+
+    tools/user/extract_seqids_from_fasta.pl -p Annotations- -i pyu_data/scf1117875582023.fa -o seqids.txt
+    tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
+    tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
+
+Note: the reason we use psql with "-h localhost" is to force password-based host authentication instead of peer authentication.
 
 #### Setup genome browser data
 
@@ -111,22 +144,6 @@ Setup the JBrowse data directory with some of the sample data for Pythium ultimu
 
     
 For more info on adding genome browser tracks, see the [configuration guide](Configure.md) guide.
-
-
-#### Initialize Web Apollo logins and permissions
-
-
-Initialize the database for logging into WebApollo as follows:
-
-    psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
-    tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
-
-Note: the reason we use psql with "-h localhost" is to force password-based host authentication instead of peer authentication.
-
-    tools/user/extract_seqids_from_fasta.pl -p Annotations- -i pyu_data/scf1117875582023.fa -o seqids.txt
-    tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
-    tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
-
 
 
 ##### Add webapollo plugin to the genome browser
