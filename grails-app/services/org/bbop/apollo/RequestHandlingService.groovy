@@ -977,7 +977,10 @@ class RequestHandlingService {
 
         fireAnnotationEvent(annotationEvent)
 
-//                {"operation":"ADD","sequenceAlterationEvent":true,"features":[{"residues":"ATATAT","location":{"fmin":919509,"strand":1,"fmax":919509},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D17F2F5C60D228AE80432F532E27C09F","type":{"name":"insertion","cv":{"name":"sequence"}},"date_last_modified":1423597853173}]}
+        println "event fired: ${addFeatureContainer.toString()}"
+
+//                {"operation":"ADD","sequenceAlterationEvent":true,"features":[{"residues":"AAAAA","date_creation":1423603053379,"location":{"fmin":1198764,"strand":1,"fmax":1198764},"sequence":"Group1.1","name":"61c7dad8-08f7-458f-84b9-92fc19b1e357","notes":[],"uniquename":"61c7dad8-08f7-458f-84b9-92fc19b1e357","type":{"name":"insertion","cv":{"name":"sequence"}},"date_last_modified":1423603053383}]}
+//                {"operation":"ADD","sequenceAlterationEvent":true,"features":[{"residues":"GGGGG","location":{"fmin":904069,"strand":1,"fmax":904069},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6633C6C501078CE230DB26D74A907C71","type":{"name":"insertion","cv":{"name":"sequence"}},"date_last_modified":1423603056246}]}
 
         return addFeatureContainer
 

@@ -352,7 +352,6 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def getSequenceAlterations() {
-        log.debug "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
@@ -360,11 +359,7 @@ class AnnotationEditorController implements AnnotationListener {
         String trackName = fixTrackHeader(returnObject.track)
         Sequence sequence = Sequence.findByName(trackName)
 
-        println "sequence: ${sequence}"
-
         def sequenceTypes = [Insertion.class.canonicalName,Deletion.class.canonicalName,Substitution.class.canonicalName]
-
-        println "sequence types: ${sequenceTypes}"
 
         // TODO: get alternations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
@@ -382,19 +377,6 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def getOrganism() {
-//        JSONObject organism = new JSONObject();
-//        if (editor.getSession().getOrganism() == null) {
-//            return;
-//        }
-//        organism.put("genus", editor.getSession().getOrganism().getGenus());
-//        organism.put("species", editor.getSession().getOrganism().getSpecies());
-//        out.write(organism.toString());
-
-        // the editor is bound to the session
-        log.debug "getting sequence alterations "
-//        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-
-        // TODO: implement this from the session
         String organismName = session.getAttribute(FeatureStringEnum.ORGANISM.value)
         if (organismName) {
             Organism organism = Organism.findByCommonName(organismName)
@@ -404,17 +386,8 @@ class AnnotationEditorController implements AnnotationListener {
             }
         }
         render new JSONObject()
-
-//
-//        JSONArray jsonFeatures = new JSONArray()
-//        returnObject.put("features",jsonFeatures)
     }
 
-//    @Override
-//    def handleEvent(AnnotationEvent annotationEvent) {
-//        println "hadnling event"
-//        return null
-//    }
 
     /**
      * TODO: link to the database for real config values

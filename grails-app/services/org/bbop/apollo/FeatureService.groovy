@@ -890,8 +890,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     List<SequenceAlteration> getAllSequenceAlterationsForFeature(Feature feature) {
         List<Sequence> sequences = feature.featureLocations*.sequence
         List<FeatureLocation> featureLocations = FeatureLocation.findAllBySequenceInList(sequences)
-        println "sequences ${sequences}"
-        println "featureLocations ${featureLocations}"
 //        return  SequenceAlteration.findAllByFeatureLocationsInList(featureLocations)
         return  SequenceAlteration.all.findAll(){
             it.featureLocation in featureLocations
@@ -1803,9 +1801,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
             if (includeSequence ) {
-                String residues = sequenceService.getResiduesFromFeature(gsolFeature)
-                if(residues){
-                    jsonFeature.put(FeatureStringEnum.RESIDUES.value, residues);
+                if(gsolFeature instanceof SequenceAlteration){
+                    SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
+                    if(sequenceAlteration.alterationResidue){
+                        jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
+                    }
+                }
+                    // don't think we handle this case
+                else{
+//                String residues = sequenceService.getResiduesFromFeature(gsolFeature)
+//                if(residues){
+//                    jsonFeature.put(FeatureStringEnum.RESIDUES.value, residues);
+//                }
                 }
             }
             Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
