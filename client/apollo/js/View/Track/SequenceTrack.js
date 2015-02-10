@@ -10,7 +10,6 @@ define( [
     'dijit/Menu',
     'dijit/MenuItem',
     'JBrowse/View/Track/Sequence',
-    'JBrowse/CodonTable',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojo/request/xhr',
@@ -27,7 +26,6 @@ function(
     Menu,
     MenuItem,
     Sequence,
-    CodonTable,
     JSONUtils,
     Permission,
     xhr,
@@ -45,6 +43,7 @@ return declare( Sequence,
             this.webapollo = p;
         }));
         this.context_path = "..";
+        this.annotationPrefix = "Annotations-";
         this.loadTranslationTable();
     },
 
@@ -308,12 +307,10 @@ return declare( Sequence,
         var thisB = this;
         return xhr.post( this.context_path + "/AnnotationEditorService",
         {
-            data: JSON.stringify({ "track": this.refSeq.name, "operation": "get_translation_table" }),
+            data: JSON.stringify({ "track": this.annotationPrefix+this.refSeq.name, "operation": "get_translation_table" }),
             handleAs: "json"
         }).then(function(response) {
-            console.log('Loaded translation table');
-            thisB._codonTable=CodonTable.updateCodonTable(response.translation_table);
-            console.log(thisB._codonTable);
+            thisB._codonTable=thisB.generateCodonTable(response.translation_table);
             thisB.changed();
             thisB.redraw();
         },
