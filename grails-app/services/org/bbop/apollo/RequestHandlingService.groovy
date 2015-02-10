@@ -919,6 +919,7 @@ class RequestHandlingService {
 
 
     JSONObject deleteSequenceAlteration(JSONObject inputObject) {
+        println "attempting to delete a sequence alteration "
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
 
@@ -930,6 +931,7 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value ))
+            println "deleting a sequence alteration: ${sequenceAlteration}"
 //            SequenceAlteration sequenceAlteration = (SequenceAlteration) getFeature(editor, features.getJSONObject(i));
 
 //            editor.deleteSequenceAlteration(sequenceAlteration);
@@ -959,13 +961,15 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.UPDATE
                 ,sequenceAlterationEvent: true
         )
-        fireAnnotationEvent(deleteAnnotationEvent,updateAnnotationEvent)
+        fireAnnotationEvent(deleteAnnotationEvent)
+        fireAnnotationEvent(updateAnnotationEvent)
 
         return createJSONFeatureContainer()
     }
 
 //    { "track": "Annotations-GroupUn4157", "features": [ { "location": { "fmin": 1284, "fmax": 1284, "strand": 1 }, "type": {"name": "insertion", "cv": { "name":"sequence" } }, "residues": "ATATATA" } ], "operation": "add_sequence_alteration" }
     def addSequenceAlteration(JSONObject inputObject) {
+        println "adding sequence alteration: ${inputObject}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject addFeatureContainer = createJSONFeatureContainer();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -977,7 +981,8 @@ class RequestHandlingService {
             JSONObject jsonFeature = features.getJSONObject(i);
 //            Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 //            updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
-            Insertion sequenceAlteration = (Insertion) featureService.convertJSONToFeature(jsonFeature, sequence)
+            SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+
 
             updateNewGsolFeatureAttributes(sequenceAlteration, sequence)
 

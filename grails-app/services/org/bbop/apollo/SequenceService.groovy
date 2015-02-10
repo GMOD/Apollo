@@ -54,8 +54,9 @@ class SequenceService {
         // TODO: optimize
         //   SequenceChunk.findAllBySequenceAndChunkNumberGreaterThanAndChunkNumberLessThanEquals(sequence,startChunkNumber,endChunkNumber)["order":"chunkNumber"].collect(){ it -> it.residue}
 
+        int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
 
-        return sequenceString.toString()
+        return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
 
     SequenceChunk getSequenceChunkForChunk(Sequence sequence, int i) {
@@ -188,5 +189,12 @@ class SequenceService {
 
     def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {
         sequenceAlteration.alterationResidue = residue
+    }
+
+    def setResiduesForFeatureFromLocation(Deletion deletion) {
+        FeatureLocation featureLocation = deletion.featureLocation
+        println " feature min: ${featureLocation.fmin} - ${featureLocation.fmax}"
+        deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
+        println "residues? ${deletion.alterationResidue}"
     }
 }

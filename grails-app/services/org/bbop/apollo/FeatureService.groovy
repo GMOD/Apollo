@@ -35,7 +35,6 @@ class FeatureService {
     SequenceService sequenceService
 
 
-
     public
     static FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
@@ -62,7 +61,7 @@ class FeatureService {
      * @param compareStrands - Whether to compare strands in overlap
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
-    public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true ) {
+    public Collection<Feature> getOverlappingFeatures(FeatureLocation location, boolean compareStrands = true) {
 //        LinkedList<Feature> overlappingFeatures = new LinkedList<Feature>();
 
 
@@ -182,14 +181,13 @@ class FeatureService {
         println "organism name: ${sequence.organism.commonName}"
 //        Organism organism = sequence.organism
 
-
 //        FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
 //        println "featureLazyResidues ${featureLazyResidues}"
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene != null) {
             println "has a gene! ${gene}"
 //            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
-            transcript = (Transcript) convertJSONToFeature(jsonTranscript,  sequence);
+            transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
 //            transcript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -209,7 +207,7 @@ class FeatureService {
 //            transcriptService.updateTranscriptAttributes(transcript);
         } else {
             println "there IS no gene! ${gene}"
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value),sequence)
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
             println "has a feature location ${featureLocation}"
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
             println "overlapping features . . . . ${overlappingFeatures.size()}"
@@ -217,7 +215,7 @@ class FeatureService {
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
                     println "found an overlpaping gene ${tmpGene}"
-                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript,  sequence);
+                    Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
@@ -227,7 +225,7 @@ class FeatureService {
                     String username = null
                     try {
                         username = SecurityUtils?.subject?.principal
-                    } catch (e ) {
+                    } catch (e) {
                         log.error(e)
                         username = "demo@demo.gov"
                     }
@@ -238,7 +236,7 @@ class FeatureService {
                         calculateCDS(tmpTranscript);
                     }
 //                    tmpTranscript.name = nameService.generateUniqueName(transcript)
-                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript,tmpGene.name)
+                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
 //                    updateTranscriptAttributes(tmpTranscript);
                     if (overlaps(tmpTranscript, tmpGene)) {
                         println "there is an overlap . . . adding to an existing gene? "
@@ -248,7 +246,7 @@ class FeatureService {
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                         transcript.save()
                         // was existing
-                        gene.save(insert:false,flush:true)
+                        gene.save(insert: false, flush: true)
                         break;
                     } else {
                         println "there is no overlap .  . we are going to return a NULL gene and a NULL transcript "
@@ -273,10 +271,10 @@ class FeatureService {
 //            CVTerm cvTerm = new CVTerm()
 //            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
-            jsonGene.put(FeatureStringEnum.NAME.value,jsonTranscript.getString(FeatureStringEnum.NAME.value))
+            jsonGene.put(FeatureStringEnum.NAME.value, jsonTranscript.getString(FeatureStringEnum.NAME.value))
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
-            gene = (Gene) convertJSONToFeature(jsonGene,  sequence);
+            gene = (Gene) convertJSONToFeature(jsonGene, sequence);
             updateNewGsolFeatureAttributes(gene);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
@@ -436,7 +434,7 @@ class FeatureService {
     }
 
     public boolean isAdjacentTo(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands) {
-        if ( leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
+        if (leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
             return false;
         }
         int thisFmin = leftFeatureLocation.getFmin();
@@ -459,7 +457,7 @@ class FeatureService {
     }
 
     boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
-        if ( leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
+        if (leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
             return false;
         }
         int thisFmin = leftFeatureLocation.getFmin();
@@ -507,8 +505,6 @@ class FeatureService {
             setTranslationEnd(transcript, cds.getFeatureLocation().getStrand().equals(-1) ? cds.getFmin() : cds.getFmax() - 1, true);
         }
     }
-
-
 
 /**
  * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
@@ -891,7 +887,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<Sequence> sequences = feature.featureLocations*.sequence
         List<FeatureLocation> featureLocations = FeatureLocation.findAllBySequenceInList(sequences)
 //        return  SequenceAlteration.findAllByFeatureLocationsInList(featureLocations)
-        return  SequenceAlteration.all.findAll(){
+        return SequenceAlteration.all.findAll() {
             it.featureLocation in featureLocations
         }
     }
@@ -966,7 +962,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                        frameshift.getCoordinate() + frameshift.getFrameshiftValue(),
 //                        cds.getFeatureLocation().getStrand(), sourceFeature);
 
-                String alterationResidues = sequenceService.getResiduesFromSequence(sequence,frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
+                String alterationResidues = sequenceService.getResiduesFromSequence(sequence, frameshift.getCoordinate() + frameshift.getFrameshiftValue(), frameshift.getCoordinate())
                 insertion.alterationResidue = alterationResidues
                 // TODO: correct?
 //                insertion.setResidues(sequence.getResidues().substring(
@@ -1123,8 +1119,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.addToFeatureLocations(featureLocation);
             }
 
-            if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature instanceof SequenceAlteration) {
-                sequenceService.setResiduesForFeature(gsolFeature,jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
+            if (gsolFeature instanceof Deletion) {
+                sequenceService.setResiduesForFeatureFromLocation((Deletion) gsolFeature)
+            } else if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature instanceof SequenceAlteration) {
+                sequenceService.setResiduesForFeature(gsolFeature, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
 
 
@@ -1376,7 +1374,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int currentOffset = 0;
         for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
             if (!overlaps(feature, sequenceAlteration, false)) {
-
+                continue
             }
 //            if (!feature.overlaps(sequenceAlteration, false)) {
 //                continue;
@@ -1470,271 +1468,112 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //    }
 
     /**
-     * {
-     "features": [{
-     "location": {
-     "fmin": 511,
+     *{"features": [{"location": {"fmin": 511,
      "strand": - 1,
-     "fmax": 656
-     },
-     "parent_type": {
-     "name": "gene",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "fmax": 656},
+     "parent_type": {"name": "gene",
+     "cv": {"name": "sequence"}},
      "name": "gnl|Amel_4.5|TA31.1_00029673-1",
-     "children": [{
-     "location": {
-     "fmin": 511,
+     "children": [{"location": {"fmin": 511,
      "strand": - 1,
-     "fmax": 656
-     },
-     "parent_type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
-     "properties": [{
-     "value": "demo",
-     "type": {
-     "name": "owner",
-     "cv": {
-     "name": "feature_property"
-     }
-     }
-     }
-     ],
+     "fmax": 656},
+     "parent_type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
+     "properties": [{"value": "demo",
+     "type": {"name": "owner",
+     "cv": {"name": "feature_property"}}}],
      "uniquename": "9690BBB8C6ADF67B972DB9DC2E89E008",
-     "type": {
-     "name": "exon",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "exon",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046537689,
-     "parent_id": "CCBBA69B0C47AD5FA9F0E45710B5E589"
-     }, {
-     "location": {
-     "fmin": 595,
+     "parent_id": "CCBBA69B0C47AD5FA9F0E45710B5E589"}, {"location": {"fmin": 595,
      "strand": - 1,
-     "fmax": 622
-     },
-     "parent_type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "fmax": 622},
+     "parent_type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
      "uniquename": "CCBBA69B0C47AD5FA9F0E45710B5E589-CDS",
-     "type": {
-     "name": "CDS",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "CDS",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046537762,
-     "parent_id": "CCBBA69B0C47AD5FA9F0E45710B5E589"
-     }
-     ],
-     "properties": [{
-     "value": "demo",
-     "type": {
-     "name": "owner",
-     "cv": {
-     "name": "feature_property"
-     }
-     }
-     }
-     ],
+     "parent_id": "CCBBA69B0C47AD5FA9F0E45710B5E589"}],
+     "properties": [{"value": "demo",
+     "type": {"name": "owner",
+     "cv": {"name": "feature_property"}}}],
      "uniquename": "CCBBA69B0C47AD5FA9F0E45710B5E589",
-     "type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046537763,
-     "parent_id": "E39A4BB7B95876512E0747AF92FB8966"
-     }, {
-     "location": {
-     "fmin": 511,
+     "parent_id": "E39A4BB7B95876512E0747AF92FB8966"}, {"location": {"fmin": 511,
      "strand": - 1,
-     "fmax": 656
-     },
-     "parent_type": {
-     "name": "gene",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "fmax": 656},
+     "parent_type": {"name": "gene",
+     "cv": {"name": "sequence"}},
      "name": "gnl|Amel_4.5|TA31.1_00029673-1",
-     "children": [{
-     "location": {
-     "fmin": 595,
+     "children": [{"location": {"fmin": 595,
      "strand": - 1,
-     "fmax": 622
-     },
-     "parent_type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "fmax": 622},
+     "parent_type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
      "uniquename": "BFABBEE28A09FF795A839C990EC943C8-CDS",
-     "type": {
-     "name": "CDS",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "CDS",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046565147,
-     "parent_id": "BFABBEE28A09FF795A839C990EC943C8"
-     }, {
-     "location": {
-     "fmin": 511,
+     "parent_id": "BFABBEE28A09FF795A839C990EC943C8"}, {"location": {"fmin": 511,
      "strand": - 1,
-     "fmax": 656
-     },
-     "parent_type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
-     "properties": [{
-     "value": "demo",
-     "type": {
-     "name": "owner",
-     "cv": {
-     "name": "feature_property"
-     }
-     }
-     }
-     ],
+     "fmax": 656},
+     "parent_type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
+     "properties": [{"value": "demo",
+     "type": {"name": "owner",
+     "cv": {"name": "feature_property"}}}],
      "uniquename": "B5979F69978E170011AC06CEF73ECF0C",
-     "type": {
-     "name": "exon",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "exon",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046565146,
-     "parent_id": "BFABBEE28A09FF795A839C990EC943C8"
-     }
-     ],
-     "properties": [{
-     "value": "demo",
-     "type": {
-     "name": "owner",
-     "cv": {
-     "name": "feature_property"
-     }
-     }
-     }
-     ],
+     "parent_id": "BFABBEE28A09FF795A839C990EC943C8"}],
+     "properties": [{"value": "demo",
+     "type": {"name": "owner",
+     "cv": {"name": "feature_property"}}}],
      "uniquename": "BFABBEE28A09FF795A839C990EC943C8",
-     "type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046565148,
-     "parent_id": "E39A4BB7B95876512E0747AF92FB8966"
-     }, {
-     "location": {
-     "fmin": 1248,
+     "parent_id": "E39A4BB7B95876512E0747AF92FB8966"}, {"location": {"fmin": 1248,
      "strand": - 1,
-     "fmax": 1422
-     },
-     "parent_type": {
-     "name": "gene",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "fmax": 1422},
+     "parent_type": {"name": "gene",
+     "cv": {"name": "sequence"}},
      "name": "GB48495-RA",
-     "children": [{
-     "location": {
-     "fmin": 1248,
+     "children": [{"location": {"fmin": 1248,
      "strand": - 1,
-     "fmax": 1422
-     },
-     "parent_type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
-     "properties": [{
-     "value": "demo",
-     "type": {
-     "name": "owner",
-     "cv": {
-     "name": "feature_property"
-     }
-     }
-     }
-     ],
+     "fmax": 1422},
+     "parent_type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
+     "properties": [{"value": "demo",
+     "type": {"name": "owner",
+     "cv": {"name": "feature_property"}}}],
      "uniquename": "32B569E1FD3A375112A6232940575208",
-     "type": {
-     "name": "exon",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "exon",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046600891,
-     "parent_id": "173CA8771F1CB5855FCC65874ACC16C5"
-     }, {
-     "location": {
-     "fmin": 1248,
+     "parent_id": "173CA8771F1CB5855FCC65874ACC16C5"}, {"location": {"fmin": 1248,
      "strand": - 1,
-     "fmax": 1422
-     },
-     "parent_type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "fmax": 1422},
+     "parent_type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
      "uniquename": "173CA8771F1CB5855FCC65874ACC16C5-CDS",
-     "type": {
-     "name": "CDS",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "CDS",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046600893,
-     "parent_id": "173CA8771F1CB5855FCC65874ACC16C5"
-     }
-     ],
-     "properties": [{
-     "value": "demo",
-     "type": {
-     "name": "owner",
-     "cv": {
-     "name": "feature_property"
-     }
-     }
-     }
-     ],
+     "parent_id": "173CA8771F1CB5855FCC65874ACC16C5"}],
+     "properties": [{"value": "demo",
+     "type": {"name": "owner",
+     "cv": {"name": "feature_property"}}}],
      "uniquename": "173CA8771F1CB5855FCC65874ACC16C5",
-     "type": {
-     "name": "mRNA",
-     "cv": {
-     "name": "sequence"
-     }
-     },
+     "type": {"name": "mRNA",
+     "cv": {"name": "sequence"}},
      "date_last_modified": 1415046600893,
-     "parent_id": "62B8EB1512A5752E525D17A42DB37E35"
-     }
-     ]
-     }
-
-
-     * @param gsolFeature
+     "parent_id": "62B8EB1512A5752E525D17A42DB37E35"}]}* @param gsolFeature
      * @param includeSequence
      * @return
      */
@@ -1758,7 +1597,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //            gsolFeature.featureLocations.each {
 //                it.attach()
 //            }
-            if(gsolFeature.featureLocation){
+            if (gsolFeature.featureLocation) {
                 Sequence sequence = gsolFeature.featureLocation.sequence
                 jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
             }
@@ -1768,10 +1607,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             errorList.addAll(new Cds3Filter().filterFeature(gsolFeature))
             errorList.addAll(new StopCodonFilter().filterFeature(gsolFeature))
             JSONArray notesArray = new JSONArray()
-            for(String error : errorList){
+            for (String error : errorList) {
                 notesArray.put(error)
             }
-            jsonFeature.put(FeatureStringEnum.NOTES.value,notesArray)
+            jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
             // get children
 //            Collection<FeatureRelationship> childrenRelationships = gsolFeature.getChildFeatureRelationships();
@@ -1800,20 +1639,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     jsonFeature.put(FeatureStringEnum.LOCATION.value, convertFeatureLocationToJSON(gsolFeatureLocation));
                 }
             }
-            if (includeSequence ) {
-                if(gsolFeature instanceof SequenceAlteration){
-                    SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
-                    if(sequenceAlteration.alterationResidue){
-                        jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
-                    }
+
+            if (gsolFeature instanceof SequenceAlteration) {
+                SequenceAlteration sequenceAlteration = (SequenceAlteration) gsolFeature
+                if (sequenceAlteration.alterationResidue) {
+                    jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
                 }
-                    // don't think we handle this case
-                else{
-//                String residues = sequenceService.getResiduesFromFeature(gsolFeature)
-//                if(residues){
-//                    jsonFeature.put(FeatureStringEnum.RESIDUES.value, residues);
+            } else if (includeSequence) {
+                // don't think we handle this case
+//                else{
+                String residues = sequenceService.getResiduesFromFeature(gsolFeature)
+                if (residues) {
+                    jsonFeature.put(FeatureStringEnum.RESIDUES.value, residues);
+                }
 //                }
-                }
             }
             Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
             if (gsolFeatureProperties) {
@@ -1824,10 +1663,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, generateFeaturePropertyStringForType(property.ontologyId));
                     JSONObject jsonPropertyType = new JSONObject()
-                    jsonPropertyType.put(FeatureStringEnum.NAME.value,property.type)
+                    jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
                     JSONObject jsonPropertyTypeCv = new JSONObject()
-                    jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value,FeatureStringEnum.FEATURE_PROPERTY.value)
-                    jsonPropertyType.put(FeatureStringEnum.CV.value,jsonPropertyTypeCv)
+                    jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
+                    jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
 
                     println "jsonPropertyType ${jsonPropertyType}"
 
@@ -1863,13 +1702,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
 
-        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value): feature.cvTerm
+        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
 
-        jSONObject.put(FeatureStringEnum.NAME.value,cvTerm)
+        jSONObject.put(FeatureStringEnum.NAME.value, cvTerm)
 
         JSONObject cvObject = new JSONObject()
-        cvObject.put(FeatureStringEnum.NAME.value,FeatureStringEnum.SEQUENCE.value)
-        jSONObject.put(FeatureStringEnum.CV.value,cvObject)
+        cvObject.put(FeatureStringEnum.NAME.value, FeatureStringEnum.SEQUENCE.value)
+        jSONObject.put(FeatureStringEnum.CV.value, cvObject)
 
         return jSONObject
     }
@@ -1888,7 +1727,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return jsonFeatureLocation;
     }
 
-    Boolean deleteFeature(Feature feature,HashMap<String, List<Feature>> modifiedFeaturesUniqueNames) {
+    Boolean deleteFeature(Feature feature, HashMap<String, List<Feature>> modifiedFeaturesUniqueNames) {
 
         if (feature instanceof Exon) {
             Exon exon = (Exon) feature;
@@ -1904,7 +1743,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
 
-            exonService.deleteExon(transcript,exon)
+            exonService.deleteExon(transcript, exon)
             List<Feature> deletedFeatures = modifiedFeaturesUniqueNames.get(transcript.getUniqueName());
             if (deletedFeatures == null) {
                 deletedFeatures = new ArrayList<Feature>();
@@ -1929,7 +1768,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param isUpdateOperation
      */
     def updateModifiedFeaturesAfterDelete(HashMap<String, List<Feature>> modifiedFeaturesUniqueNames, Boolean isUpdateOperation) {
-        if(true) throw new RuntimeException("Not implemented")
+        if (true) throw new RuntimeException("Not implemented")
 
         for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
             String uniqueName = entry.getKey();
