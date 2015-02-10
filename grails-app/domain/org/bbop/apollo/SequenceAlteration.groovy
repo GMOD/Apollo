@@ -5,6 +5,7 @@ class SequenceAlteration extends SequenceFeature{
 
 
     static constraints = {
+        alterationResidue nullable: true
     }
 
     String alterationResidue

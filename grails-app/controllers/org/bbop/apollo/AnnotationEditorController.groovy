@@ -320,10 +320,26 @@ class AnnotationEditorController implements AnnotationListener {
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
+        String trackName = fixTrackHeader(returnObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        println "sequence: ${sequence}"
+
+        def sequenceTypes = [Insertion.class.canonicalName,Deletion.class.canonicalName,Substitution.class.canonicalName]
+
+        println "sequence types: ${sequenceTypes}"
+
         // TODO: get alternations from session
+        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
+                ,[sequence:sequence,sequenceTypes:sequenceTypes])
+//        FeatureLocation.findAllBySequence(sequence)
+//        Insertion.findAllByFeatureLocations
 //        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
 //            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
 //        }
+        for (SequenceAlteration alteration : sequenceAlterationList) {
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration));
+        }
 
         render returnObject
     }

@@ -1259,6 +1259,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
             case RepeatRegion.ontologyId: return new RepeatRegion()
+            case Insertion.ontologyId: return new Insertion()
+            case Deletion.ontologyId: return new Deletion()
+            case Substitution.ontologyId: return new Substitution()
             default:
                 log.error("No feature type exists for ${ontologyId}")
                 return null
@@ -1291,6 +1294,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
+                case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
+                case Deletion.cvTerm.toUpperCase(): return Deletion.ontologyId
+                case Substitution.cvTerm.toUpperCase(): return Substitution.ontologyId
                 default:
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null

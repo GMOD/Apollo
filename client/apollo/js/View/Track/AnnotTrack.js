@@ -376,10 +376,15 @@ define([
 
                 createAnnotationChangeListener: function (numTry) {
                     //this.listener = new SockJS(context_path, this);
-                    console.log('creating change listener: ' + numTry);
+                    //console.log('creating change listener: ' + numTry);
                     // https://github.com/zyro23/grails-spring-websocket
                     this.listener = new SockJS("/apollo/stomp");
                     this.client = Stomp.over(this.listener);
+                    this.client.debug = function(str){
+                        if(this.verbose_server_notification){
+                            console.log(str);
+                        }
+                    }
                     var client = this.client;
                     var track = this;
                     var browser = this.gview.browser;
@@ -402,19 +407,19 @@ define([
                                     filteredTrackList.push(filteredTrack);
                                 }
 
-                                console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
+                                //console.log('AnnotTrack::returning filtered track list: ' + filteredTrackList.length);
                                 window.parent.loadTracks(JSON.stringify(filteredTrackList));
                             };
 
                             var handleTrackVisibility = function (trackInfo) {
-                                console.log(trackInfo);
+                                //console.log(trackInfo);
 
 
                                 var command = trackInfo.command;
-                                console.log(command);
+                                //console.log(command);
 
                                 if (command == "show") {
-                                    console.log('trying to show the track: ' + trackInfo);
+                                    //console.log('trying to show the track: ' + trackInfo);
                                     track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
                                 }
                                 else if (command == "hide") {
@@ -500,7 +505,7 @@ define([
                                     }
                                 }
                                 else {
-                                    console.log('unknown command: ' + changeData.operation)
+                                    console.log('unknown command: ' + changeData.operation);
                                     // unknown command from server, null-op?
                                 }
 
@@ -5865,16 +5870,16 @@ define([
                     //this.listener.send(postData, loadCallback);
 
                     //var client = Stomp.over(this.listener);
-                    console.log('client established 1 2 3 ');
+                    //console.log('client established 1 2 3 ');
                     //client.connect({}, function() {
                     //    console.log('trying to subscribe 1 2 3');
                     //    client.subscribe("/topic/AnnotationNotification", function (message) {
                     //        console.log('recieved annotation notification 1 2 3: ' + JSON.parse(message.body));
                     //loadCallback(message.body);
                     //});
-                    console.log('connected . .. trying to send 1 2 3');
+                    console.log('connected . .. trying to send notification');
                     this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
-                    console.log('sent mesage  1 2 3');
+                    console.log('sent notification message');
                     //client.send("/app/AnnotationNotification", {}, JSON.stringify("world"));
                     //});
 

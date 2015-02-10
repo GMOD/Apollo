@@ -977,6 +977,8 @@ class RequestHandlingService {
 
         fireAnnotationEvent(annotationEvent)
 
+//                {"operation":"ADD","sequenceAlterationEvent":true,"features":[{"residues":"ATATAT","location":{"fmin":919509,"strand":1,"fmax":919509},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D17F2F5C60D228AE80432F532E27C09F","type":{"name":"insertion","cv":{"name":"sequence"}},"date_last_modified":1423597853173}]}
+
         return addFeatureContainer
 
 //        fireDataStoreChange(new DataStoreChangeEvent(this, addFeatureContainer, track, DataStoreChangeEvent.Operation.ADD, true), new DataStoreChangeEvent(this, updateFeatureContainer, track, DataStoreChangeEvent.Operation.UPDATE));
