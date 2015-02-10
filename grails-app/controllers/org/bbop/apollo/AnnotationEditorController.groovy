@@ -459,6 +459,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.addSequenceAlteration(inputObject)
     }
 
+    def deleteSequenceAlteration() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.deleteSequenceAlteration(inputObject)
+    }
+
     def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -594,6 +599,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "setToUpstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,true)
                     break
                 case "addSequenceAlteration":  requestHandlingService.addSequenceAlteration(rootElement)
+                    break
+                case "deleteSequenceAlteration":  requestHandlingService.deleteSequenceAlteration(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

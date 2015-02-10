@@ -917,6 +917,53 @@ class RequestHandlingService {
 //        }
     }
 
+
+    JSONObject deleteSequenceAlteration(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject deleteFeatureContainer = createJSONFeatureContainer();
+
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value ))
+//            SequenceAlteration sequenceAlteration = (SequenceAlteration) getFeature(editor, features.getJSONObject(i));
+
+//            editor.deleteSequenceAlteration(sequenceAlteration);
+            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
+                if (feature instanceof Gene) {
+                    for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
+                        featureService.setLongestORF(transcript)
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+                    }
+                    feature.save()
+                }
+            }
+            FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
+            sequenceAlteration.delete()
+            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration));
+        }
+        AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
+                features: deleteFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.DELETE
+                ,sequenceAlterationEvent: true
+        )
+        AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+                ,sequenceAlterationEvent: true
+        )
+        fireAnnotationEvent(deleteAnnotationEvent,updateAnnotationEvent)
+
+        return createJSONFeatureContainer()
+    }
+
 //    { "track": "Annotations-GroupUn4157", "features": [ { "location": { "fmin": 1284, "fmax": 1284, "strand": 1 }, "type": {"name": "insertion", "cv": { "name":"sequence" } }, "residues": "ATATATA" } ], "operation": "add_sequence_alteration" }
     def addSequenceAlteration(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
