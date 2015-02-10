@@ -314,6 +314,43 @@ class AnnotationEditorController implements AnnotationListener {
 //        AbstractDataStoreManager.getInstance().fireDataStoreChange(events);
 //    }
 
+    def getInformation() {
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+//        JSONArray jsonFeatures = new JSONArray()
+//        featureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
+            Feature gbolFeature = Feature.findByName(uniqueName)
+//            Date timeAccessioned = gbolFeature.getTimeAccessioned();
+//            String owner = gbolFeature.getOwner().getOwner();
+            JSONObject info = new JSONObject();
+            info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
+            info.put("time_accessioned", gbolFeature.lastUpdated)
+            info.put("owner", "some username");
+            String parentIds = "";
+            featureRelationshipService.getParentForFeature(gbolFeature).each {
+                if (parentIds.length() > 0) {
+                    parentIds += ", ";
+                }
+                parentIds += it.getUniqueName();
+            }
+//            for (AbstractSingleLocationBioFeature feature : gbolFeature.getParents()) {
+//            }
+            if (parentIds.length() > 0) {
+                info.put("parent_ids", parentIds);
+            }
+
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
+        }
+
+        render featureContainer
+//        out.write(featureContainer.toString());
+    }
+
     def getSequenceAlterations() {
         log.debug "getting sequence alterations "
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)

@@ -8,6 +8,7 @@ class Insertion extends SequenceAlteration{
 
     static String cvTerm  = "Insertion"
     static String ontologyId = "SO:0000667"
+    static String alternateCvTerm = "insertion"
 
 
 }
