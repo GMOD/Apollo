@@ -1125,7 +1125,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.addToFeatureLocations(featureLocation);
             }
 
-            if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
+            if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature instanceof SequenceAlteration) {
                 sequenceService.setResiduesForFeature(gsolFeature,jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
 

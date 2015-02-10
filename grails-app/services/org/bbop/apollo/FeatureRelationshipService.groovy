@@ -279,4 +279,8 @@ class FeatureRelationshipService {
 //            }
 //        }
     }
+
+    List<Feature> getChildren(Feature feature) {
+        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
+    }
 }

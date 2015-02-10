@@ -428,6 +428,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.setReadthroughStopCodon(inputObject)
     }
 
+    def addSequenceAlteration() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.addSequenceAlteration(inputObject)
+    }
+
     def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -561,6 +566,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "setToDownstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,false)
                     break
                 case "setToUpstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,true)
+                    break
+                case "addSequenceAlteration":  requestHandlingService.addSequenceAlteration(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

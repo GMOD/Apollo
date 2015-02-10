@@ -5,7 +5,7 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.json.JSONString
+import org.gmod.gbol.bioObject.util.BioObjectUtil
 
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
@@ -21,6 +21,7 @@ class RequestHandlingService {
     public static String REST_SEQUENCE_ALTERNATION_EVENT = "sequenceAlterationEvent"
 
     def featureService
+    def featureRelationshipService
     def transcriptService
     def cdsService
     def exonService
@@ -214,8 +215,8 @@ class RequestHandlingService {
 //                println "db2: ${db}"
             DBXref oldDbXref = DBXref.findByAccessionAndDb(accessionString, db)
 
-            if(!oldDbXref){
-                log.error("could not find original dbxref: "+oldDbXrefJSONObject)
+            if (!oldDbXref) {
+                log.error("could not find original dbxref: " + oldDbXrefJSONObject)
             }
 
 //            DB newDB = DB.findOrSaveByName(newDbXrefJSONObject.getString(FeatureStringEnum.DB.value))
@@ -414,7 +415,7 @@ class RequestHandlingService {
             JSONObject jsonExon = features.getJSONObject(i);
             // could be that this is null
 //            Feature gsolExon = featureService.convertJSONToFeature(jsonExon,transcript,sequence)
-            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon,  sequence)
+            Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, sequence)
 
 //            featureService.updateNewGsolFeatureAttributes(gsolExon, transcript);
             featureService.updateNewGsolFeatureAttributes(gsolExon);
@@ -612,8 +613,8 @@ class RequestHandlingService {
         Sequence sequence = Sequence.findByName(trackName)
 
         JSONObject featureContainer = createJSONFeatureContainer();
-        JSONArray transcriptArray = new JSONArray( )
-        featureContainer.put(FeatureStringEnum.FEATURES.value,transcriptArray)
+        JSONArray transcriptArray = new JSONArray()
+        featureContainer.put(FeatureStringEnum.FEATURES.value, transcriptArray)
 
         println "features length: ${features.length()}"
 
@@ -626,10 +627,9 @@ class RequestHandlingService {
                 println "with transcript: ${transcript.name}"
 
 //            editor.setToDownstreamDonor(exon);
-                if(upstreamDonor){
+                if (upstreamDonor) {
                     exonService.setToUpstreamAcceptor(exon)
-                }
-                else{
+                } else {
                     exonService.setToDownstreamAcceptor(exon)
                 }
 
@@ -660,15 +660,15 @@ class RequestHandlingService {
     }
 
 
-    def setDonor(JSONObject inputObject,boolean upstreamDonor) {
+    def setDonor(JSONObject inputObject, boolean upstreamDonor) {
         println "setting to donor: ${inputObject}"
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
 
         JSONObject featureContainer = createJSONFeatureContainer();
-        JSONArray transcriptArray = new JSONArray( )
-        featureContainer.put(FeatureStringEnum.FEATURES.value,transcriptArray)
+        JSONArray transcriptArray = new JSONArray()
+        featureContainer.put(FeatureStringEnum.FEATURES.value, transcriptArray)
 
         println "features length: ${features.length()}"
 
@@ -681,10 +681,9 @@ class RequestHandlingService {
                 println "with transcript: ${transcript.name}"
 
 //            editor.setToDownstreamDonor(exon);
-                if(upstreamDonor){
+                if (upstreamDonor) {
                     exonService.setToUpstreamDonor(exon)
-                }
-                else{
+                } else {
                     exonService.setToDownstreamDonor(exon)
                 }
 
@@ -901,4 +900,87 @@ class RequestHandlingService {
         return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
     }
 
+
+    private void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence) {
+        gsolFeature.setIsAnalysis(false);
+        gsolFeature.setIsObsolete(false);
+        if (sequence != null) {
+            gsolFeature.getFeatureLocations().iterator().next().setSequence(sequence);
+        }
+
+        for (FeatureRelationship fr : gsolFeature.parentFeatureRelationships) {
+            updateNewGsolFeatureAttributes(fr.childFeature, sequence);
+        }
+
+//        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
+//            updateNewGsolFeatureAttributes(fr.getSubjectFeature(), sourceFeature);
+//        }
+    }
+
+//    { "track": "Annotations-GroupUn4157", "features": [ { "location": { "fmin": 1284, "fmax": 1284, "strand": 1 }, "type": {"name": "insertion", "cv": { "name":"sequence" } }, "residues": "ATATATA" } ], "operation": "add_sequence_alteration" }
+    def addSequenceAlteration(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject addFeatureContainer = createJSONFeatureContainer();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+//            Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
+//            updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
+            Insertion sequenceAlteration = (Insertion) featureService.convertJSONToFeature(jsonFeature, sequence)
+
+            updateNewGsolFeatureAttributes(sequenceAlteration, sequence)
+
+//            SequenceAlteration sequenceAlteration = (SequenceAlteration) BioObjectUtil.createBioObject(gsolFeature, bioObjectConfiguration);
+            if (sequenceAlteration.getFmin() < 0 || sequenceAlteration.getFmax() < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+
+//            setOwner(sequenceAlteration, (String) session.getAttribute("username"));
+//            editor.addSequenceAlteration(sequenceAlteration);
+
+            sequenceAlteration.save(insert:true, failOnError: true,flush: true)
+//
+//            if (dataStore != null) {
+//                writeFeatureToStore(editor, dataStore, sequenceAlteration, track);
+//            }
+//            for (AbstractSingleLocationBioFeature feature : editor.getSession().getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
+            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)) {
+                if (feature instanceof Gene) {
+                    for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
+                        featureService.setLongestORF(transcript)
+//                        editor.setLongestORF(transcript);
+                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+//                        findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
+//                        updateFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+                    }
+//                    if (dataStore != null) {
+//                        writeFeatureToStore(editor, dataStore, feature, track);
+//                    }
+                }
+            }
+//            addFeatureContainer.getJSONArray("features").put(JSONUtil.convertFeatureToJSON(gsolFeature));
+            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration));
+        }
+
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: addFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.ADD
+                ,sequenceAlterationEvent: true
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return addFeatureContainer
+
+//        fireDataStoreChange(new DataStoreChangeEvent(this, addFeatureContainer, track, DataStoreChangeEvent.Operation.ADD, true), new DataStoreChangeEvent(this, updateFeatureContainer, track, DataStoreChangeEvent.Operation.UPDATE));
+//        out.write(addFeatureContainer.toString());
+
+    }
 }

@@ -186,4 +186,7 @@ class SequenceService {
         bufferedInputStream.close();
     }
 
+    def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {
+        sequenceAlteration.alterationResidue = residue
+    }
 }
