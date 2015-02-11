@@ -18,8 +18,8 @@
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
-    <property name="jbrowse.release.version" value="1.11.5-release"/>
-    <property name="jbrowse.download.file.name" value="JBrowse-1.11.5-dev"/>
+    <property name="jbrowse.release.version" value="1.11.6-beta"/>
+    <property name="jbrowse.download.file.name" value="JBrowse-1.11.6-dev"/>
 
 
 
@@ -102,10 +102,10 @@
             <arg value="${jbrowse.download.directory}"/>
         </exec>
         <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
-<!--         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
+<exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <arg value="tags/${jbrowse.release.version}"/>
-        </exec> -->
+        </exec>
     </target>
 
 
