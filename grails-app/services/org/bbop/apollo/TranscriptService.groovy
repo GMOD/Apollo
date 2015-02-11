@@ -378,4 +378,36 @@ class TranscriptService {
 //        // event fire
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
     }
+
+//    Transcript flipTranscriptStrand(Transcript transcript) {
+////        Gene gene = getGene(transcript)
+////        boolean isPseudogene = gene instanceof Pseudogene
+//
+//        featureService.flipStrand(transcript)
+//
+//        transcript.save(failOnError: true,flush: true)
+//
+////        boolean isPseudogene = oldTranscript.getGene().isPseudogene();
+////        Gene oldGene = oldTranscript.getGene();
+////        editor.deleteTranscript(oldGene, oldTranscript);
+////        if (oldGene.getTranscripts().size() == 0) {
+////            editor.deleteFeature(oldGene);
+////        }
+////        editor.flipStrand(oldTranscript);
+////        Transcript newTranscript = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(oldTranscript), track, nameAdapter, isPseudogene);
+////        if (dataStore != null) {
+////            if (oldGene.getTranscripts().size() == 0) {
+////                deleteFeatureFromStore(dataStore, oldGene);
+////            } else {
+////                writeFeatureToStore(editor, dataStore, oldGene, track);
+////            }
+////            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(newTranscript), track);
+////        }
+////        if (historyStore != null) {
+////            Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
+////            transaction.addNewFeature(newTranscript);
+////            writeHistoryToStore(historyStore, transaction);
+////        }
+////        return newTranscript;
+//    }
 }

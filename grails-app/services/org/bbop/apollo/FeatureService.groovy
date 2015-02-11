@@ -1867,4 +1867,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
     }
+
+    def flipStrand(Feature feature) {
+
+        for (FeatureLocation featureLocation in feature.featureLocations) {
+            featureLocation.strand = featureLocation.strand > 0 ? -1 : 1
+            featureLocation.save()
+        }
+
+        for (Feature childFeature : feature.parentFeatureRelationships.childFeature) {
+            flipStrand(childFeature);
+        }
+
+        feature.save()
+
+    }
 }

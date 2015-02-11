@@ -462,6 +462,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.deleteSequenceAlteration(inputObject)
     }
 
+    def flipStrand() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.flipStrand(inputObject)
+    }
+
     def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -603,6 +608,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "lockFeature":  requestHandlingService.lockFeature(rootElement)
                     break
                 case "unlockFeature":  requestHandlingService.unlockFeature(rootElement)
+                    break
+                case "flipStrand":  requestHandlingService.flipStrand(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

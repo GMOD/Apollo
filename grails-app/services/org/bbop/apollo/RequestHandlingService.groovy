@@ -1112,4 +1112,34 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+    def flipStrand(JSONObject inputObject) {
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+
+//            if (feature instanceof Transcript) {
+//                feature = transcriptService.flipTranscriptStrand((Transcript) feature);
+//            } else {
+//                feature = featureService.flipFeatureStrand(feature);
+//            }
+            featureService.flipStrand(feature)
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+    }
 }
