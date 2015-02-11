@@ -196,8 +196,6 @@ class AnnotationEditorController implements AnnotationListener {
         featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
 
 
-
-
         JSONObject returnObject = createJSONFeatureContainer()
         render returnObject
     }
@@ -601,6 +599,10 @@ class AnnotationEditorController implements AnnotationListener {
                 case "addSequenceAlteration":  requestHandlingService.addSequenceAlteration(rootElement)
                     break
                 case "deleteSequenceAlteration":  requestHandlingService.deleteSequenceAlteration(rootElement)
+                    break
+                case "lockFeature":  requestHandlingService.lockFeature(rootElement)
+                    break
+                case "unlockFeature":  requestHandlingService.unlockFeature(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

@@ -69,7 +69,8 @@ enum FeatureStringEnum {
      SUPPORTED_TYPES,
      OLD_DBXREFS,
      NEW_DBXREFS,
-     UNIQUENAME
+     UNIQUENAME,
+     LOCKED
 
 
      String value

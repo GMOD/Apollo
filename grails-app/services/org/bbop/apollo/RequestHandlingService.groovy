@@ -1040,4 +1040,76 @@ class RequestHandlingService {
 //        out.write(addFeatureContainer.toString());
 
     }
+
+    def lockFeature(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject featureContainer = createJSONFeatureContainer();
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value ))
+//            if (!feature.getOwner().getOwner().equals(username) && (permission & Permission.ADMIN) == 0) {
+//                throw new AnnotationEditorServiceException("Cannot lock someone else's annotation");
+//            }
+            if(FeatureProperty.findByFeatureAndValue(feature,FeatureStringEnum.LOCKED.value)){
+                log.error("Feature ${feature.name} already locked")
+            }
+            else{
+                FeatureProperty featureProperty = new FeatureProperty(
+                        value: FeatureStringEnum.LOCKED.value
+                        ,feature: feature
+                ).save()
+                feature.addToFeatureProperties(featureProperty)
+                feature.save()
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            }
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+    }
+
+    def unlockFeature(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject featureContainer = createJSONFeatureContainer();
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value ))
+//            if (!feature.getOwner().getOwner().equals(username) && (permission & Permission.ADMIN) == 0) {
+//                throw new AnnotationEditorServiceException("Cannot lock someone else's annotation");
+//            }
+            FeatureProperty featureProperty = FeatureProperty.findByFeatureAndValue(feature,FeatureStringEnum.LOCKED.value)
+            if(featureProperty) {
+                feature.removeFromFeatureProperties(featureProperty)
+                feature.save()
+                FeatureProperty.deleteAll(featureProperty)
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            }
+            else{
+                log.error("Feature ${feature.name} was not locked.  Doing nothing.")
+            }
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+    }
 }
