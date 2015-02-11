@@ -14,6 +14,7 @@ class ExonService {
     FeatureService featureService
     FeatureRelationshipService featureRelationshipService
     SequenceService sequenceService
+    NameService nameService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
      * determine which parent is a transcript.  The transcript object is generated on the fly.  Returns
@@ -589,6 +590,33 @@ class ExonService {
             }
             ++coordinate;
         }
+
+    }
+
+    Exon splitExon(Exon exon, int newLeftMax, int newRightMin) {
+        throw new RuntimeException("NOT YET implmented")
+//        Exon leftExon = exon;
+//        Exon rightExon = new Exon(exon, nameService.generateUniqueName(exon));
+//
+////        leftExon.setUniqueName(exon.getUniqueName() + "-left");
+//        leftExon.setFmax(newLeftMax);
+//        rightExon.setFmin(newRightMin);
+//
+//        addExon(exon.getTranscript(), rightExon);
+//        session.indexFeature(leftExon);
+//        session.indexFeature(rightExon);
+//
+//        // event fire
+//        fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
+//
+//        Date date = new Date();
+//        exon.setTimeLastModified(date);
+//        rightExon.setTimeAccessioned(date);
+//        rightExon.setTimeLastModified(date);
+//        exon.getTranscript().setTimeLastModified(date);
+//
+//        return rightExon;
+//
 
     }
 }

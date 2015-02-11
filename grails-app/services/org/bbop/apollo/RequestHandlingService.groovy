@@ -1177,4 +1177,48 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+    def splitExons(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject jsonExon = features.getJSONObject(0)
+        Exon exon = (Exon) Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
+        JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value);
+        Transcript transcript = exonService.getTranscript(exon)
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+//        Exon splitExon = editor.splitExon(exon, exonLocation.getInt("fmax"), exonLocation.getInt("fmin"), nameAdapter.generateUniqueName());
+        Exon splitExon = exonService.splitExon(exon,exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
+//        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
+        updateNewGsolFeatureAttributes(splitExon,sequence)
+//        calculateCDS(editor, exon.getTranscript());
+        featureService.calculateCDS(transcript)
+//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+//        updateTranscriptAttributes(exon.getTranscript());
+
+        exon.save(flush: true )
+//        if (dataStore != null) {
+//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
+//        }
+//        if (historyStore != null) {
+//            Transaction transaction = new Transaction(Transaction.Operation.SPLIT_EXON, exon.getTranscript().getUniqueName(), username);
+//            transaction.addOldFeature(oldTranscript);
+//            transaction.addNewFeature(exon.getTranscript());
+//            writeHistoryToStore(historyStore, transaction);
+//        }
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript));
+
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+    }
 }
