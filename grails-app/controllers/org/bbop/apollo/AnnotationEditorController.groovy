@@ -467,6 +467,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.flipStrand(inputObject)
     }
 
+    def mergeExons() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.mergeExons(inputObject)
+    }
+
     def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -610,6 +615,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "unlockFeature":  requestHandlingService.unlockFeature(rootElement)
                     break
                 case "flipStrand":  requestHandlingService.flipStrand(rootElement)
+                    break
+                case "mergeExons":  requestHandlingService.mergeExons(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

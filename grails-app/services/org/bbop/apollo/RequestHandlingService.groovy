@@ -1142,4 +1142,39 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+    def mergeExons(JSONObject inputObject) {
+
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Exon exon1 = (Exon) Exon.findByUniqueName(features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value));
+        Exon exon2 = (Exon) Exon.findByUniqueName(features.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value));
+        Transcript transcript1 = exonService.getTranscript(exon1)
+//        Transcript oldTransript = transcript1.generateClone()
+//        Transcript oldTranscript = cloneTranscript(transcript);
+//        editor.mergeExons(exon1, exon2);
+        exonService.mergeExons(exon1,exon2)
+        featureService.calculateCDS(transcript1);
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
+        // rename?
+//        updateTranscriptAttributes(exon1.getTranscript());
+
+        transcript1.save(flush: true)
+        exon1.save(flush:true)
+
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript1))
+
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+    }
 }
