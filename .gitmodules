@@ -1,0 +1,3 @@
+[submodule "src/jbrowse"]
+	path = src/jbrowse
+	url = https://github.com/GMOD/jbrowse.git
