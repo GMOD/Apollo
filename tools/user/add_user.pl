@@ -12,13 +12,14 @@ use DBI;
 use Getopt::Long qw(:config no_ignore_case bundling);
 use File::Basename;
 use Crypt::PBKDF2;
+use Term::ReadKey;
 
 my $USER_TABLE = "users";
 
 my $dbh;
 my $username;
 my $password;
-my $unencrypted=1;
+my $unencrypted=0;
 
 parse_options();
 add_user();
@@ -72,14 +73,16 @@ sub add_user {
     }
 
     if(!$password) { 
+        ReadMode ('noecho');
         print "Enter a password for $username: ";
         $password =<STDIN>;
         chomp($password);
+        ReadMode ('restore');
+        print "\n";
     }
 
     my $sql="";
     if($unencrypted) {
-        print "Encrypted $encrypted";
         $sql = "INSERT INTO $USER_TABLE(username, password) " . 
                       "VALUES(?, ?)";
         $dbh->do($sql, undef, $username, $password);       

@@ -1,10 +1,9 @@
 # Database setup
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md">On GitHub</a>
 
-WebApollo uses a database backed authentication by default that uses postgres.
-This is the so called LocalDbUserAuthentication class. To configure it, you must
-setup a postgres database. Make sure to understand the [postgres configuration](http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html) for configuring the database and see our [troubleshooting guide](Troubleshooting.md) to help with any problems with these steps.
+WebApollo uses a database backed authentication by default that uses PostgreSQL.
+Make sure to understand the [postgres configuration](http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html) for configuring the database and see our [troubleshooting guide](Troubleshooting.md) to help with any problems with these steps.
 
 ## User database
 
@@ -35,28 +34,31 @@ as the *postgres* user.
 
 ### Create new authentication database
 
-    $ createdb -U web_apollo_users_admin web_apollo_users
+Now we can create a new database that is owned by the web_apollo_users_admin user. We will use the "-h localhost" flag to force host based authentication instead of peer authentication.
 
-If you get an authentication error, use the -W flag to get a password
-prompt.  "-h localhost" may also be needed.
-
-    $ createdb -U web_apollo_users_admin -W web_apollo_users
-
-If you are not using the web_apollo_users_admin login, you can also simply use
-
-    $ createdb web_apollo_users
+    $ createdb -U web_apollo_users_admin web_apollo_users -h localhost
 
 Now that the database is created, we need to load the schema to it.
 
-    psql -U web_apollo_users_admin web_apollo_users < tools/user/user_database_postgresql.sql
+    psql -U web_apollo_users_admin web_apollo_users -h localhost < tools/user/user_database_postgresql.sql
 
-Now the user database has been setup.
+Now the user database has been setup, and you can run accessory scripts to add users and tracks.
 
 ### Create a Web Apollo login
 
 Next we'll use the `add_user.pl` script in `WEB_APOLLO_DIR/tools/user` to create a user with access to Web Apollo. Let's create a user in the Web Apollo database named `web_apollo_admin` with the password `web_apollo_admin`.
 
     tools/user/add_user.pl -D web_apollo_users -U web_apollo_users_admin -P web_apollo_users_admin -u web_apollo_admin -p web_apollo_admin
+
+Note that the default mode add_user is to produce encrypted passwords using the EncryptedLocalDbUserAuthentication with the PBKDF2 algorithm. Other options for authentication include:
+
+- EncryptedLocalDbUserAuthentication (Default as of 1.0.4)
+- LocalDbUserAuthentication
+- DrupalDbUserAuthentication (For Mozilla Persona)
+- RemoteUserAuthentication (For LDAP)
+- OauthUserAuthentication (For Oauth providers)
+
+Use the authentication_class tag in config.xml to configure this option.
 
 
 ### Initialize permissions for Web Apollo login

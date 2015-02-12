@@ -10,6 +10,8 @@ define.amd.jQuery = true;
 define([
            'dojo/_base/declare',
            'dojo/dom-construct',
+           'dojo/dom-class',
+           'dojo/_base/window',
            'dojo/_base/array',
            'dojo/request/xhr',
            'dijit/Menu',
@@ -25,14 +27,38 @@ define([
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/TrackList/Hierarchical',
+           'WebApollo/View/TrackList/Faceted',
+           'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'lazyload/lazyload'
        ],
-    function( declare, domConstruct, array, xhr, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, GFF3Driver,LazyLoad ) {
+    function( declare,
+            domConstruct,
+            domClass,
+            win,
+            array,
+            xhr,
+            dijitMenu,
+            dijitMenuItem,
+            dijitMenuSeparator,
+            dijitCheckedMenuItem,
+            dijitPopupMenuItem,
+            dijitDropDownButton,
+            dijitDropDownMenu,
+            dijitButton,
+            JBPlugin,
+            FeatureEdgeMatchManager,
+            FeatureSelectionManager,
+            TrackConfigTransformer,
+            AnnotTrack,
+            Hierarchical,
+            Faceted,
+            HelpMixin,
+            GFF3Driver,
+            LazyLoad ) {
 
-
-return declare( JBPlugin,
+return declare( [JBPlugin, HelpMixin],
 {
     constructor: function( args ) {
         console.log("loaded WebApollo plugin");
@@ -54,6 +80,7 @@ return declare( JBPlugin,
 
         // Checking for cookie for determining the color scheme of WebApollo
         if (browser.cookie("Scheme")=="Dark") {
+            domClass.add(win.body(), "Dark");
             LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
 
@@ -80,16 +107,102 @@ return declare( JBPlugin,
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
 
-        if(!browser.config.aboutThisBrowser) {
-            browser.config.aboutThisBrowser={
-description:"<img width=400 src='http://gmod.org/mediawiki/images/4/4a/WebApolloLogo.png'></img><br><p style='text-align:center;'>WebApollo 1.0.4-SNAPSHOT</p>",
-                title:"WebApollo 1.0.4-SNAPSHOT"
-            };
-        }
-        if(!browser.config.quickHelp) {
-            browser.config.quickHelp={
-                content:"This is the help guide",
-                title:"Help guide"
+        // add a global menu option for setting CDS color
+        var cds_frame_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Color by CDS frame",
+                    checked: browser.cookie("colorCdsByFrame")=="true"?true:false,
+                    onClick: function(event) {
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
+                        browser.view.redrawTracks();
+                    }
+                });
+        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Light");
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Dark");
+                        window.location.reload();
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
+
+        this.addStrandFilterOptions();
+        var hide_track_label_toggle = new dijitCheckedMenuItem(
+            {
+                label: "Show track label",
+                checked: browser.cookie("showTrackLabel"),
+                onClick: function(event) {
+                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                    thisB.updateLabels()
+                }
+            });
+        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+
+
+        if (browser.config.show_nav) {
+            var jbrowseUrl = "http://jbrowse.org";
+            browser.addGlobalMenuItem( 'help',
+                                    new dijitMenuItem(
+                                        {
+                                            id: 'menubar_powered_by_jbrowse',
+                                            label: 'Powered by JBrowse',
+                                            // iconClass: 'jbrowseIconHelp', 
+                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                        })
+                                  );
+            browser.addGlobalMenuItem( 'help',
+                new dijitMenuItem(
+                    {
+                        id: 'menubar_web_service_api',
+                        label: 'Web Service API',
+                        // iconClass: 'jbrowseIconHelp',
+                        onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
+                    })
+            );
+            browser.addGlobalMenuItem( 'help',
+                new dijitMenuItem(
+                    {
+                        id: 'menubar_apollo_version',
+                        label: 'Get Version',
+                        // iconClass: 'jbrowseIconHelp',
+                        onClick: function()  {
+                            window.open("../version.jsp",'help_window').focus();
+                        }
+                    })
+            );
+
+            if(!browser.config.quickHelp)
+            {
+                browser.config.quickHelp = {
+                    "title": "Web Apollo Help",
+                    "content": this.defaultHelp()
+                }
             };
         }
 

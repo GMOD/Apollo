@@ -61,3 +61,7 @@ div.locationThumb {
 }
 
 
+/* hiding standard JBrowse Help->About menuitem */
+#menubar_about {
+    display: none;
+}

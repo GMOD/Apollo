@@ -470,9 +470,9 @@
 
             </td>
             <%--<th><input type="text" name="organism" value="${organism}"/></th>--%>
-            <th><input type="text" name="name" value="${name}"></th>
-            <th><input type="text" name="minLength" value="${minLength}">-<input type="text" name="maxLength"
-                                                                                 value="${maxLength}"></th>
+            <th><input type="text" name="name" value="${name}" placeholder="Search by Name"></th>
+            <th><input type="text" name="minLength" value="${minLength}" placeholder="Minimum Length">-<input type="text" name="maxLength"
+                                                                                 value="${maxLength}" placeholder="Maximum Length"></th>
         </tr>
         <tr>
             <th></th>

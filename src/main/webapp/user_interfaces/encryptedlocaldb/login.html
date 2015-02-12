@@ -48,7 +48,10 @@
     		contentType: "application/json",
     		data: JSON.stringify(json),
     		success: function(data) {
-    			window.location.reload();
+                setTimeout(function() {
+                    window.location.reload();
+                    },3000);
+                setMessage("Success");
     		},
     		error: function(jqXHR, textStatus, errorThrown) {
     			var error = $.parseJSON(jqXHR.responseText);
