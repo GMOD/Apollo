@@ -187,9 +187,9 @@ Now let’s look at the other elements in the `user` element.
 Defines how user authentication is handled. This points to a class implementing the `org.bbop.apollo.web.user.UserAuthentication` interface. This allows you to implement any type of authentication you’d like (e.g., LDAP). Currently available options are:
 
 -   `org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication`
-    -   Uses the user permission database to also store authentication information, meaning it stores user passwords in the database. This is the default before 1.0.4 of WebApollo. It requires using the --unencrypted option for add_user.pl
+    -   Uses the user permission database to also store authentication information, meaning it stores user passwords in the database. This is the default before 1.0.4 of WebApollo. It requires using the --unencrypted option for add_user.pl for versions 1.0.4+.
 - `org.bbop.apollo.web.user.localdb.EncryptedLocalDbUserAuthentication`
-    -   Uses the user permission database to also store authentication information, but encrypts user passwords using PBKDF2. This is the default since 1.0.4 of WebApollo 
+    -   Uses the user permission database to also store authentication information, but encrypts user passwords using PBKDF2. This is the default since 1.0.4 of WebApollo. It requires using th --encrypted option for add_user.pl previous to 1.0.4.
 -   `org.bbop.apollo.web.user.browserid.BrowserIdUserAuthentication`
     -   Uses Mozilla’s [BrowserID](https://browserid.org) service for authentication. This has the benefits of offloading all authentication security to Mozilla and allows one account to have access to multiple resources (as long as they have BrowserID support). Being that the service is provided through Mozilla, it will require users to create a BrowserID account
 
