@@ -3844,24 +3844,6 @@ public class AnnotationEditorService extends HttpServlet {
             editor.getConfiguration().setTranslationTable(trackToTranslationTable.get(track));
             trackToEditor.put(track, editor);
 
-            //              AbstractDataStore dataStore = new JEDatabase(getStorageFile(track).getAbsolutePath());
-
-            /*
-            if (useMemoryStore) {
-                java.util.Iterator<Feature> iter = dataStore.getFeatureIterator();
-                while (iter.hasNext()) {
-                    Feature feature = iter.next();
-                    addSourceToFeature(feature, trackToSourceFeature.get(track));
-                    editor.getSession().addFeature((AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration));
-                }
-                iter = dataStore.getSequenceAlterationIterator();
-                while (iter.hasNext()) {
-                    Feature sequenceAlteration = iter.next();
-                    addSourceToFeature(sequenceAlteration, trackToSourceFeature.get(track));
-                    editor.getSession().addSequenceAlteration((SequenceAlteration)BioObjectUtil.createBioObject(sequenceAlteration, bioObjectConfiguration));
-                }
-            }
-            */
 
             AbstractDataStoreManager.getInstance().addDataStore(track, dataStore);
 
@@ -3872,16 +3854,8 @@ public class AnnotationEditorService extends HttpServlet {
         } else {
             sessionData = new SessionData(editor, AbstractDataStoreManager.getInstance().getDataStore(track), AbstractHistoryStoreManager.getInstance().getHistoryStore(track));
         }
-//      if (session.getAttribute("uniquenameCounter") == null) {
-//              session.setAttribute("uniquenameCounter", getUniquenameCounter(session.getId(), editor.getSession().getFeatures()));
-//              int count = getFeatureCount(editor.getSession().getFeatures());
-//              count += getFeatureCount(editor.getSession().getSequenceAlterations());
-//              session.setAttribute("uniquenameCounter", count);
-//      }
 
         trackToLastAccess.put(track, new Date());
-
-//        printMemoryUsage();
 
         return sessionData;
     }
