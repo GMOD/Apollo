@@ -84,12 +84,12 @@ If you are following our example, you can download the sample data here:
 
 We will use the `apollo deploy` script to initialize jbrowse and install some basic perl pre-requisites. We can use simply copy the default configs when initializing setups.
 
-    cp sample_canned_comments.xml canned_comments.xml
-    cp sample_config.properties config.properties
-    cp sample_config.xml config.xml
-    ./apollo deploy
-
+    ./install_jbrowse.sh
+    
 If there are any errors during this build step, you can check setup.log. See the [troubleshooting guide](Troubleshooting.md) for common issues.
+
+Also, if you are using your own custom JBrowse repository, point to it using ./install_jbrowse.sh /location/of/repo and it will simply install the binaries and perl pre-requisites locally using cpanm.
+
 
 #### Initialize Web Apollo logins and permissions
 Now you may initialize the database tables add a new Web Apollo user as follows.
@@ -145,8 +145,12 @@ In this guide, we have simply added basic properties to config.properties, but m
 
 #### Run a test server
 
-After this setup, you are ready to deploy a new instance. You can use 
+After this setup, you are ready to deploy a new instance. You can copy the basic config files and run the instance on a temporary server:
 
+     cp sample_canned_comments.xml canned_comments.xml
+     cp sample_config.properties config.properties
+     cp sample_config.xml config.xml
+     cp sample_log4j2.json log4j2.json
     ./apollo run
 
 This will launch a temporary tomcat instances that you will be able to access from http://localhost:8080/apollo/ and login with your $WEBAPOLLO_USER information.
@@ -155,5 +159,5 @@ Note: if you already have a tomcat instance running, you may have to shut it dow
 
 #### Congratulations
 
-If everything works, then you can continue to the [build guide](Build.md) for more instructions on packaging the build, and to the [deployment guide](Deploy.md) for information about deploying to a production server. Additionally, information about configuration and adding Chado export can be found in the [configuration guide](Configure.md). More information about loading additional tracks is available in the [data loading](Data_loading.md) section.
+If everything works, then you can use `apollo deploy` and then copy the WAR file into a production instance. You can also continue to the [build guide](Build.md) for more instructions on packaging the build, and to the [deployment guide](Deploy.md) for information about deploying to a production server. Additionally, information about configuration and adding Chado export can be found in the [configuration guide](Configure.md). More information about loading additional tracks is available in the [data loading](Data_loading.md) section.
 

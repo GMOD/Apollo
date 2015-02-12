@@ -21,7 +21,7 @@ RefactorClient changes:
 - Make Tool menu appear before help (was previously implemented but fixed now)
 - Fixed resizing of features at any scale (even highly zoomed in)
 - Completely removed the "DraggableResultFeatures" because it was unused. It offered the option to "Promote all features" to the annotation track. If this is desired, we need to revisit it, but deleted for now.
-- Refactored InformationEditor into a new module WebApollo/View/InformationEditor that is a mixin for AnnotTrack (1400 lines removed from Annottrack.js)
+- Refactored InformationEditor,GetSequence,History into a new modules  (remove over 1500 lines from AnnotTrack.js)
 - Convert all synchronous XHR in information editor to use AJAX
 - Ignore long-polling request cancellations making noise in the console (normally happens on chromosome change)
 - Separate History panel into new module

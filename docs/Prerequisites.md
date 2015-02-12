@@ -36,13 +36,24 @@ quickest way to take care of pre-requisites.
         -   libexpat1-dev (Debian/Ubuntu)
         -   expat-dev (RedHat/CentOS)
 -   Perl prerequisites:
-    -   Web Apollo will automatically try to install all perl-pre-requisites using install_jbrowse.sh or automatically when running the "apollo deploy" step
-    -   If you experience problems with this perl setup, please review setup.log (oftentimes, a system pre-requisite will be needed, see below)
-    -   If you are building Web Apollo in "release" mode, perl 5.10 or up will be required
+    -   Perl pre-requesites will be automatically installed by `install_jbrowse.sh`
+    -   If you experience problems with this perl setup, please review setup.log and post to mailing list
 -   Sequence search (optional)
     -   Blat (download
         [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/)
         or
         [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/|Mac)
         binaries)
+
+#### Automatically get prerequisites
+
+These commands will try to get everything in one bang for several system types.
+
+    # install system prerequisites (debian/ubuntu)
+    sudo apt-get install openjdk-7-jdk libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7 git
+    # install system prerequisites (centOS/redhat)
+    sudo yum install postgresql postgresql-server postgresql-devel maven expat-devel tomcat git
+    # install system prerequisites (macOSX/homebrew), read the postgresql start guide
+    brew install maven postgresql wget tomcat git
+
 
