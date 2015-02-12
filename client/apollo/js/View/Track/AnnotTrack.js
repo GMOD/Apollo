@@ -66,7 +66,7 @@ var contextMenuItems;
 var context_path = "..";
 
 
-var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMixin,GetSequenceMixin], 
+var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMixin,GetSequenceMixin,Permission], 
 {
     constructor: function( args ) {
         this.has_custom_context_menu = true;
@@ -139,7 +139,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         // nulling out menuTemplate to suppress default JBrowse feature contextual
         // menu
         thisConfig.menuTemplate = null;
-        thisConfig.noExport = true;  // turn off default "Save track data" "
+        thisConfig.noExport = true;  // turn off default "Save track data"
         thisConfig.style.centerChildrenVertically = false;
         thisConfig.pinned = true;
         return thisConfig;
@@ -164,7 +164,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         this.inherited( arguments );
         var track = this;
         track.hide();
-        this.getPermission( ).then(function() {
+        this.getPermission( track.getUniqueTrackName() ).then(function() {
             var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
             document.body.appendChild(standby.domNode);
             standby.startup();
@@ -2402,20 +2402,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         }
     },
 
-    getPermission: function( ) {
-        var thisObj = this;
-        return xhr.post(context_path + "/AnnotationEditorService", {
-            data: JSON.stringify({ "track": thisObj.getUniqueTrackName(), "operation": "get_user_permission" }),
-            handleAs: "json",
-            timeout: 5 * 1000, // Time in milliseconds
-        }).then(function(response) {
-            // The LOAD function will be called on a successful response.
-            var permission = response.permission;
-            thisObj.permission = permission;
-            var username = response.username;
-            thisObj.username = username;
-        });
-    },
+    
 
     initPopupDialog: function() {
         if (this.popupDialog) {

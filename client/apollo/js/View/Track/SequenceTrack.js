@@ -13,7 +13,7 @@ define( [
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojo/request/xhr',
-    'dojox/widget/Standby'
+    'dojox/widget/Standby',
      ],
 function(
     declare,
@@ -31,7 +31,7 @@ function(
     xhr,
     Standby ) {
 
-return declare( Sequence,
+return declare( [Sequence],
 {
     /**
      * Track to display the underlying reference sequence, when zoomed in
