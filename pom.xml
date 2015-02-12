@@ -84,11 +84,6 @@
 
 
 
-        <!--<dependency>-->
-        <!--<groupId>org.apache.tomcat.embed</groupId>-->
-        <!--<artifactId>tomcat-embed-core</artifactId>-->
-        <!--<version>7.0.53</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-util</artifactId>
@@ -185,42 +180,11 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-            <!--<groupId>org.fortasoft</groupId>-->
-            <!--<artifactId>gradle-maven-plugin</artifactId>-->
-            <!--<version>1.0.5</version>-->
-            <!--<configuration>-->
-            <!--<tasks>-->
-            <!--&lt;!&ndash; this would effectively call "gradle doSomething" &ndash;&gt;-->
-            <!--<task>doSomething</task>-->
-            <!--</tasks>-->
-            <!--</configuration>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--&lt;!&ndash; You can bind this to any phase you like &ndash;&gt;-->
-            <!--<phase>compile</phase>-->
-            <!--<goals>-->
-            <!--&lt;!&ndash; goal must be "invoke" &ndash;&gt;-->
-            <!--<goal>invoke</goal>-->
-            <!--</goals>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
 
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.7</version>
                 <executions>
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>java</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<tasks>-->
-                                <!--<echo>safsdf</echo>-->
-                            <!--</tasks>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
                     <execution>
                         <phase>generate-sources</phase>
                         <goals>
