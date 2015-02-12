@@ -24,9 +24,6 @@ public class SelectTrackServlet extends HttpServlet {
 
     final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
     private ServerConfiguration serverConfig;
-//    private String databaseDir;
-//    private Set<String> allStatusList = new TreeSet<String>();
-//    private BioObjectConfiguration bioObjectConfiguration;
 
     private final Integer DEFAULT_LIST_SIZE = 10;
 
@@ -38,13 +35,7 @@ public class SelectTrackServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
-//        InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
 
-//        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : serverConfig.getAnnotationInfoEditor().values()) {
-//            allStatusList.addAll(annotationInfoEditorConfiguration.getStatus());
-//        }
-
-//        bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
         if (!UserManager.getInstance().isInitialized()) {
             ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
             try {
@@ -53,7 +44,6 @@ public class SelectTrackServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
-//        databaseDir = serverConfig.getDataStoreDirectory();
     }
 
     /**

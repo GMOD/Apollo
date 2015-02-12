@@ -79,19 +79,13 @@ function check_configs(){
 	   exit 1 ;
 	fi
 
-	if [ ! -e "./config.xml" ]; then
+	if [ ! -e "config/config.xml" ]; then
 	   echo "No config.xml found, exiting."
 	   echo "You must copy and sample_config.xml to config.xml in order to build."
 	   exit 1;
 	fi
 
-	if [ ! -e "./canned_comments.xml" ]; then
-	   echo "No canned_comments.xml found, exiting."
-	   echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
-	   exit 1;
-	fi
-
-	if [ ! -e "./config.properties" ]; then
+	if [ ! -e "config/config.properties" ]; then
 	   echo "No config.properties found, exiting."
 	   echo "You must copy and sample_config.properties to config.properties in order to build."
 	   exit 1;
