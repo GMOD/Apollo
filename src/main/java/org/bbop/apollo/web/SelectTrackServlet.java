@@ -60,13 +60,6 @@ public class SelectTrackServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-//        BufferedReader in = new BufferedReader(new InputStreamReader(request.getServletContext().getResourceAsStream(serverConfig.getTrackNameComparator())));
-//        String line;
-//        String lineString = "";
-//        while ((line = in.readLine()) != null) {
-//            lineString += line + "\n";
-////            out.println(line);
-//        }
 
         Object maximumString = request.getParameter("maximum");
         Object minLengthString = request.getParameter("minLength");
@@ -91,21 +84,16 @@ public class SelectTrackServlet extends HttpServlet {
             log("Failed to parse max string",e);
         }
 
-//        Object organism = request.getParameter("organism");
         Object name = request.getParameter("name");
 
         int maximum = DEFAULT_LIST_SIZE;
         if (maximumString != null) {
-//            if(maximumString.equals("All")){
-//                maximum = Integer.MAX_VALUE;
-//            }
             maximum = Integer.parseInt(maximumString.toString());
         }
 
         int count = 0;
         Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 
-//        System.out.println("# of tracks: " + tracks.size());
         boolean isAdmin = false;
         List<List<String>> trackTableList = new ArrayList<>();
         List<ServerConfiguration.TrackConfiguration> trackList = new ArrayList<>();
@@ -120,7 +108,6 @@ public class SelectTrackServlet extends HttpServlet {
                 trackList.add(track);
                 Integer permission = permissions.get(track.getName());
                 organism = track.getOrganism();
-//                System.out.println("count [" + count + "] / maximum [" + maximum + "] offset[" + offset + "]");
                 if (permission == null) {
                     permission = 0;
                 }
@@ -147,7 +134,6 @@ public class SelectTrackServlet extends HttpServlet {
 
                             List<String> trackRow = new ArrayList<>();
                             trackRow.add(String.format("<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>", track.getName()));
-//                            trackRow.add(track.getOrganism());
                             trackRow.add(String.format("<a target=\"_blank\" href=\"jbrowse/?loc=%s\">%s</a>", track.getSourceFeature().getUniqueName(), track.getSourceFeature().getUniqueName()));
                             trackRow.add(String.format("%d", track.getSourceFeature().getSequenceLength()));
                             trackTableList.add(trackRow);
@@ -156,8 +142,6 @@ public class SelectTrackServlet extends HttpServlet {
                     }
                 }
             }
-//            System.out.println("has next " + iterator.hasNext());
-//            System.out.println("count < maximum + offset " + count + " < " + maximum + " " + offset);
         }
 
         int permission = !permissions.isEmpty() ? permissions.values().iterator().next() : 0;
@@ -179,7 +163,6 @@ public class SelectTrackServlet extends HttpServlet {
         List<String> allTrackIds = new ArrayList<>();
         for (ServerConfiguration.TrackConfiguration thisTrack : tracks) {
             Integer thisPermission = permissions.get(thisTrack.getName());
-//                System.out.println("count ["+count+"] / maximum ["+maximum +"]");
             if (thisPermission == null) {
                 thisPermission = 0;
             }
@@ -210,8 +193,4 @@ public class SelectTrackServlet extends HttpServlet {
         view.forward(request, response);
     }
 
-//    @Override
-//    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        super.doGet(req, resp);
-//    }
 }

@@ -21,10 +21,6 @@ public class VersionServlet extends HttpServlet {
 
     final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
     private ServerConfiguration serverConfig;
-//    private String databaseDir;
-//    private Set<String> allStatusList = new TreeSet<String>();
-//    private BioObjectConfiguration bioObjectConfiguration;
-
     private final Integer DEFAULT_LIST_SIZE = 10;
 
 
@@ -35,13 +31,6 @@ public class VersionServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException(e);
         }
-//        InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
-
-//        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : serverConfig.getAnnotationInfoEditor().values()) {
-//            allStatusList.addAll(annotationInfoEditorConfiguration.getStatus());
-//        }
-
-//        bioObjectConfiguration = new BioObjectConfiguration(gbolMappingStream);
         if (!UserManager.getInstance().isInitialized()) {
             ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
             try {
@@ -50,7 +39,6 @@ public class VersionServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
-//        databaseDir = serverConfig.getDataStoreDirectory();
     }
 
     /**
@@ -71,11 +59,6 @@ public class VersionServlet extends HttpServlet {
             } else {
                 System.err.println("is is null");
             }
-//            InputStream is = getClass().getResourceAsStream("/META-INF/maven/com.my.group/my-artefact/pom.properties");
-//            if (is != null) {
-//                p.load(is);
-//                version = p.getProperty("version", "");
-//            }
         } catch (Exception e) {
             System.err.println(e);
             // ignore
@@ -109,8 +92,4 @@ public class VersionServlet extends HttpServlet {
         response.getWriter().close();
     }
 
-//    @Override
-//    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-//        super.doGet(req, resp);
-//    }
 }

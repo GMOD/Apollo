@@ -71,9 +71,6 @@ public class RecentChangeServlet extends HttpServlet {
         long right = Math.min(feature.getFmax() + flank, track.getSourceFeature().getSequenceLength() - 1);
 
 
-//        Transaction t = historyDataStore.getCurrentTransactionForFeature(feature.getUniqueName());
-
-
         builder += String.format("<input type=\"checkbox\" class=\"track_select\" id=\"%s\"/>,", track.getName() + "<=>" + feature.getUniqueName());
         builder += String.format("%s,", track.getSourceFeature().getUniqueName());
         if (feature.getName() == null || feature.getName().trim().length() == 0) {
@@ -85,24 +82,13 @@ public class RecentChangeServlet extends HttpServlet {
         }
         builder += String.format("%s,", feature.getType().split(":")[1]);
         builder += String.format("%s,", feature.getTimeLastModified());
-//        String editorString = t != null ? t.getEditor() : feature.getOwner().getOwner();
 
-//        if (editorString.length() > maxStringLength) {
-//            editorString = editorString.substring(0, maxStringLength) + "...";
-//        }
-//        builder += String.format("'%s',", editorString);
         String ownerString = feature.getOwner().getOwner();
         if (ownerString.length() > maxStringLength) {
             ownerString = ownerString.substring(0, maxStringLength) + "...";
         }
         builder += String.format("%s,", ownerString);
         builder += String.format("%s,", feature.getStatus() == null ? " " : feature.getStatus().getStatus());
-
-//        String notes = " ";
-//        if(feature.getResidues()!= null && feature.getResidues().length()>0 && feature.getResidues().length()%3!=0){
-//            notes += "aa sequence length is not an integer";
-//        }
-//        builder += String.format("%s",notes);
 
         return builder;
     }
@@ -114,7 +100,6 @@ public class RecentChangeServlet extends HttpServlet {
      */
     private List<String> generateFeatureRecord(AbstractSingleLocationBioFeature feature, ServerConfiguration.TrackConfiguration track, JEHistoryDatabase historyDataStore, HttpServletRequest request) {
         List<String> builder = new ArrayList<>();
-//        String type=feature.getType().split(":")[1];
 
         for (AbstractSingleLocationBioFeature subfeature : feature.getChildren()) {
             if (matchesFilter(request, track, subfeature)) {
@@ -141,7 +126,6 @@ public class RecentChangeServlet extends HttpServlet {
         String lineString = "";
         while ((line = in.readLine()) != null) {
             lineString += line + "\n";
-//            out.println(line);
         }
 
         int offset = 0;
@@ -166,7 +150,6 @@ public class RecentChangeServlet extends HttpServlet {
         if (username != null) {
 
             Iterator<ServerConfiguration.TrackConfiguration> iterator = tracks.iterator();
-//            for (ServerConfiguration.TrackConfiguration track : tracks) {
             while (iterator.hasNext() && count < maximum+offset) {
 
                 ServerConfiguration.TrackConfiguration track = iterator.next();
@@ -342,9 +325,6 @@ public class RecentChangeServlet extends HttpServlet {
                 case "After":
                     matches = lastDateCal.after(cal);
                     break;
-//                case "Equals":
-//                    matches = lastDateCal.equals(cal);
-//                    break;
                 default:
                     matches = true ;
                     break;

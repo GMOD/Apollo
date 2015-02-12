@@ -72,7 +72,6 @@ public class UserManagerService extends HttpServlet {
             }
         }
         catch(Exception e){
-//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             try {
                 response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
@@ -80,25 +79,6 @@ public class UserManagerService extends HttpServlet {
                 log("Error serializing error "+e.getMessage(),e1);
             }
         }
-//        catch (UserManagerServiceException e) {
-//            try {
-//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-//            }
-//            catch (JSONException e2) {
-//            }
-//        } catch (JSONException e) {
-//            try {
-//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-//            }
-//            catch (JSONException e2) {
-//            }
-//        } catch (SQLException e) {
-//            try {
-//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
-//            }
-//            catch (JSONException e2) {
-//            }
-//        }
     }
 
     private void setPermissions(JSONObject permissions) throws JSONException, SQLException {
