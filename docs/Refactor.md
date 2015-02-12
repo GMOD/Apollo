@@ -27,7 +27,7 @@ RefactorClient changes:
 - Separate History panel into new module
 - Use declare for proper class declarations on SequenceSearch
 - Added colorByCds back to the SequenceTrack
-
+- Use JBrowse as a submodule instead of a extra part of the Maven download
 
 
 Casualties of the refactoring process so far:

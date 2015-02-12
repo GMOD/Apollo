@@ -4,9 +4,6 @@
 	<!-- mapping configuration for GBOL data structures -->
 	<gbol_mapping>/config/mapping.xml</gbol_mapping>
 
-	<!-- directory where JE database will be created -->
-	<datastore_directory>ENTER_DATASTORE_DIRECTORY_HERE</datastore_directory>
-
 	<!-- minimum size for introns created -->
 	<default_minimum_intron_size>1</default_minimum_intron_size>
 
@@ -29,36 +26,13 @@
 	<!-- user authentication/permission configuration -->
 	<user>
 
-		<!-- database configuration -->
-		<database>
-
-			<!-- driver for user database -->
-			<driver>org.postgresql.Driver</driver>
-
-            <!-- JDBC URL for user database -->
-            <url>jdbc:postgresql:web_apollo_users</url>
-
-            <!-- username for user database -->
-            <username>web_apollo_users_admin</username>
-
-            <!-- password for user database -->
-            <password>web_apollo_users_admin</password>
-
-		</database>
-
-		<!-- class for generating user authentication page
-		(login page) -->
+		<!-- class for generating user authentication page (login page) -->
 		<authentication_class>org.bbop.apollo.web.user.encryptedlocaldb.EncryptedLocalDbUserAuthentication</authentication_class>
-		<!-- If the database is unencrypted (older default).  -->
-<!--        <authentication_class>org.bbop.apollo.web.user.encryptedlocaldb.LocalDbUserAuthentication</authentication_class>-->
 
 	</user>
 
 	<tracks>
 
-		<!--&lt;!&ndash; path to JBrowse refSeqs.json file &ndash;&gt;-->
-        <!--<refseqs>/opt/apollo/jbrowse/data/seq/refSeqs.json</refseqs>-->
-        <!--<data>/opt/apollo/jbrowse/data/</data>-->
 
 		<!-- annotation track name the current convention is to append
 		the genomic region id to the the name of the annotation track
@@ -67,18 +41,11 @@
 		"Annotations-chr2L".-->
 		<annotation_track_name>Annotations</annotation_track_name>
 
-	 	<!-- organism being annotated -->
-        <!--moved to config.properties-->
-		<!--<organism>Apis cerana</organism>-->
 
 		<!-- CV term for the genomic sequences - should be in the form
 		of "CV:term".  This applies to all sequences -->
-		<!--<sequence_type>ENTER_CVTERM_FOR_SEQUENCE</sequence_type>-->
         <sequence_type>sequence:scaffold</sequence_type>
 
-		<!-- path to file containing translation table.
-		optional - defaults to NCBI translation table 1 if
-		absent -->
 		<translation_table>/config/translation_tables/ncbi_1_translation_table.txt</translation_table>
 
 		<!-- splice acceptor and donor sites. Multiple entries may be
