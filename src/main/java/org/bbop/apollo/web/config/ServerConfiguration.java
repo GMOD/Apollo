@@ -257,17 +257,6 @@ public class ServerConfiguration {
         }
 
 
-        if(dataStoreDirectory!=null){
-            dataStoreDirectory = dataStoreDirectory;
-            logger.debug("override dataStore directory: " + dataStoreDirectory);
-        }
-        else{
-            Node dataStoreDirectoryNode = doc.getElementsByTagName("datastore_directory").item(0);
-            if (dataStoreDirectoryNode != null) {
-                dataStoreDirectory = dataStoreDirectoryNode.getTextContent();
-            }
-        }
-
         Node minimumIntronSizeNode = doc.getElementsByTagName("default_minimum_intron_size").item(0);
         if (minimumIntronSizeNode != null) {
             defaultMinimumIntronSize = Integer.parseInt(minimumIntronSizeNode.getTextContent());
