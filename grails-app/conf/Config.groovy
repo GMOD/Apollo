@@ -168,7 +168,6 @@ log4j.main = {
 //    '*'(nullable: true)
 //}
 
-apollo.datastore.directory = "/opt/apollo/data"
 apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
 
 apollo.default_minimum_intron_size = 1
