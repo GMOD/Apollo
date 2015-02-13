@@ -27,8 +27,8 @@ class RequestHandlingService {
     def exonService
     def brokerMessagingTemplate
     def nonCanonicalSplitSiteService
-
-//    def nameService
+    def configWrapperService
+    def nameService
 
     // TODO: make a grails singleton
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
@@ -1250,5 +1250,92 @@ class RequestHandlingService {
 //        }
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
 
+    }
+
+    def addFeature(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        JSONObject returnObject = createJSONFeatureContainer()
+
+        println "AEC::adding feature return object ${returnObject?.size()}"
+        String trackName = fixTrackHeader(inputObject.track)
+        println "PRE featuresArray ${featuresArray}"
+        Sequence sequence = Sequence.findByName(trackName)
+        println "sequence ${sequence}"
+        println "features Array size ${featuresArray.size()}"
+        println "features Array ${featuresArray}"
+
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
+            featureService.updateNewGsolFeatureAttributes(newFeature)
+            featureService.addFeature(newFeature)
+            newFeature.save(insert: true, flush: true)
+
+            if (newFeature instanceof Gene) {
+                for (Transcript transcript : transcriptService.getTranscripts((Gene) newFeature)) {
+                    if (!(newFeature instanceof Pseudogene) && transcriptService.isProteinCoding(transcript)) {
+                        if (!configWrapperService.useCDS() || transcriptService.getCDS(transcript) == null) {
+                            featureService.calculateCDS(transcript);
+                        }
+                    } else {
+                        if (transcriptService.getCDS(transcript) != null) {
+                            featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                        }
+                    }
+                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+                    transcript.name = nameService.generateUniqueName(transcript)
+                    transcript.uniqueName = transcript.name
+
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+                }
+            } else {
+                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(newFeature));
+            }
+        }
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: returnObject
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.ADD
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return returnObject
+    }
+
+
+    /**
+     * TODO
+     *  From AnnotationEditorService .. . deleteFeature 1 and 2
+     */
+//    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
+    def deleteFeature(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
+        boolean isUpdateOperation = false
+
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            if (feature) {
+                // is this a bug?
+                isUpdateOperation = isUpdateOperation || featureService.deleteFeature(feature);
+                List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
+                if (modifiedFeaturesList == null) {
+                    modifiedFeaturesList = new ArrayList<>()
+                }
+                modifiedFeaturesList.add(feature)
+            }
+        }
+
+        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
+
+
+        JSONObject returnObject = createJSONFeatureContainer()
+        return returnObject
     }
 }

@@ -41,8 +41,11 @@ class TranscriptService {
      * @return Gene that this Transcript is associated with
      */
     public Gene getGene(Transcript transcript) {
-
         return (Gene) featureRelationshipService.getParentForFeature(transcript,Gene.ontologyId)
+    }
+
+    public Pseudogene getPseudogene(Transcript transcript) {
+        return (Pseudogene) featureRelationshipService.getParentForFeature(transcript,Pseudogene.ontologyId)
     }
 
 

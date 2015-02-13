@@ -1587,6 +1587,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = true) {
+        println "converting feature: ${gsolFeature}"
         JSONObject jsonFeature = new JSONObject();
         try {
 //            jsonFeature.put("type", convertCVTermToJSON(gsolFeature.getType()));
@@ -1622,14 +1623,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.NOTES.value, notesArray)
 
             // get children
-//            Collection<FeatureRelationship> childrenRelationships = gsolFeature.getChildFeatureRelationships();
-            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
             gsolFeature.attach()
+            Collection<FeatureRelationship> parentRelationships = gsolFeature.parentFeatureRelationships;
             if (parentRelationships) {
                 JSONArray children = new JSONArray();
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 for (FeatureRelationship fr : parentRelationships) {
-                    children.put(convertFeatureToJSON(fr.getChildFeature()));
+                    Feature childFeature = fr.childFeature
+                    children.put(convertFeatureToJSON(childFeature));
                 }
             }
 //            Collection<FeatureRelationship> parentRelationships = gsolFeature.getParentFeatureRelationships();
@@ -1736,7 +1737,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return jsonFeatureLocation;
     }
 
-    Boolean deleteFeature(Feature feature, HashMap<String, List<Feature>> modifiedFeaturesUniqueNames) {
+    Boolean deleteFeature(Feature feature, HashMap<String, List<Feature>> modifiedFeaturesUniqueNames = new ArrayList<>()) {
 
         if (feature instanceof Exon) {
             Exon exon = (Exon) feature;

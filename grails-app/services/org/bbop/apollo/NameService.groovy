@@ -19,6 +19,10 @@ class NameService {
                 if(!principalName){
                     Gene gene = transcriptService.getGene((Transcript) thisFeature)
                     println "transcript has gene ${gene}"
+                    if(!gene){
+                        gene = transcriptService.getPseudogene((Transcript) thisFeature)
+                        println "transcript has pseudogene ${gene}"
+                    }
                     principalName = gene.name
                 }
 
