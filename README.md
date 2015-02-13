@@ -22,6 +22,10 @@ Note: For documentation of older Web Apollo versions, please see [http://gmod.or
 
 If you already have Web Apollo instances running, you can use these steps to update to Version 1.0.x.
 
+### Remove any symlinks in your deploy directory
+In your deployment / webapp directory, remove your symlinks.  Tomcat will remove data through the symlinks.  You won't need symlinks or to deploy the war file. 
+
+
 ### Edit property files and config files before deploying
 
     cp ./sample_config.properties ./config.properties  # must set database parameters and data directories
