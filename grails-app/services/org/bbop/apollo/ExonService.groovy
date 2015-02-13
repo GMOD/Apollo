@@ -594,29 +594,53 @@ class ExonService {
     }
 
     Exon splitExon(Exon exon, int newLeftMax, int newRightMin) {
-        throw new RuntimeException("NOT YET implmented")
-//        Exon leftExon = exon;
-//        Exon rightExon = new Exon(exon, nameService.generateUniqueName(exon));
-//
-////        leftExon.setUniqueName(exon.getUniqueName() + "-left");
+        println "SPLITTING EXON ${exon.name} ${newLeftMax} - ${newRightMin} "
+        Exon leftExon = exon;
+        String uniqueName = nameService.generateUniqueName(exon)
+        Exon rightExon = new Exon(
+                uniqueName: uniqueName
+                ,name: uniqueName
+                ,isAnalysis: leftExon.isAnalysis
+                ,isObsolete: leftExon.isObsolete
+        ).save(insert:true,failOnError: true)
+
+        FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()
+        FeatureLocation rightFeatureLocation = new FeatureLocation(
+                feature: rightExon
+                ,fmin: leftFeatureLocation.fmin
+                ,isFminPartial: leftFeatureLocation.isFminPartial
+                ,fmax: leftFeatureLocation.fmax
+                ,isFmaxPartial: leftFeatureLocation.isFmaxPartial
+                ,strand: leftFeatureLocation.strand
+                ,phase: leftFeatureLocation.phase
+                ,residueInfo: leftFeatureLocation.residueInfo
+                ,locgroup: leftFeatureLocation.locgroup
+                ,rank: leftFeatureLocation.rank
+                ,sequence: leftFeatureLocation.sequence
+        ).save(insert:true,flush:true,failOnError: true)
+
+        rightExon.addToFeatureLocations(rightFeatureLocation)
+
+        leftFeatureLocation.fmax = newLeftMax
 //        leftExon.setFmax(newLeftMax);
+        rightFeatureLocation.fmin = newRightMin
 //        rightExon.setFmin(newRightMin);
-//
+
+///
 //        addExon(exon.getTranscript(), rightExon);
-//        session.indexFeature(leftExon);
-//        session.indexFeature(rightExon);
-//
-//        // event fire
-//        fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
-//
-//        Date date = new Date();
-//        exon.setTimeLastModified(date);
-//        rightExon.setTimeAccessioned(date);
-//        rightExon.setTimeLastModified(date);
-//        exon.getTranscript().setTimeLastModified(date);
-//
-//        return rightExon;
-//
+        println "GETTING TRANSCRIPT from Exon: ${leftExon.parentFeatureRelationships}"
+        Transcript transcript = getTranscript(leftExon)
+        println "GOT TRANSCRIPT"
+        transcriptService.addExon(transcript,rightExon)
+        println "ADDED EXON"
+
+        transcript.save(failOnError: true)
+
+        println "SAVE !"
+        rightExon.save(failOnError: true)
+        println "DONE SPLITTING EXON ${rightExon}"
+
+        return rightExon
 
     }
 }

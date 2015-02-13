@@ -623,7 +623,7 @@ class AnnotationEditorController implements AnnotationListener {
                     break
                 case "mergeExons":  requestHandlingService.mergeExons(rootElement)
                     break
-                case "splitExons":  requestHandlingService.splitExons(rootElement)
+                case "splitExon":  requestHandlingService.splitExons(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

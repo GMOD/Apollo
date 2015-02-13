@@ -911,10 +911,6 @@ class RequestHandlingService {
         for (FeatureRelationship fr : gsolFeature.parentFeatureRelationships) {
             updateNewGsolFeatureAttributes(fr.childFeature, sequence);
         }
-
-//        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
-//            updateNewGsolFeatureAttributes(fr.getSubjectFeature(), sourceFeature);
-//        }
     }
 
 
@@ -1189,16 +1185,19 @@ class RequestHandlingService {
         Sequence sequence = Sequence.findByName(trackName)
 
 //        Exon splitExon = editor.splitExon(exon, exonLocation.getInt("fmax"), exonLocation.getInt("fmin"), nameAdapter.generateUniqueName());
+        println  "TRYING TO SPLIT ${exon}"
         Exon splitExon = exonService.splitExon(exon,exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
 //        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
+        println "SPLITEXON: ${splitExon} - ${sequence}"
         updateNewGsolFeatureAttributes(splitExon,sequence)
+        println "ATTRIBUTES . . . "
 //        calculateCDS(editor, exon.getTranscript());
         featureService.calculateCDS(transcript)
 //        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 //        updateTranscriptAttributes(exon.getTranscript());
 
-        exon.save(flush: true )
+        exon.save(flush: true ,failOnError: true)
 //        if (dataStore != null) {
 //            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
 //        }

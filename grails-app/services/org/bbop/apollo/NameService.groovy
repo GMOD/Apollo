@@ -59,7 +59,7 @@ class NameService {
                 while (exon != null) {
                     ++exonNumber
                     exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
-                    exon = Transcript.findByName(exonName)
+                    exon = Exon.findByName(exonName)
                 }
                 return exonName
             }
