@@ -9,7 +9,8 @@
     <property name="jbrowse.download.directory" location="jbrowse-download"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
     <property name="webapp.apollo.plugin.test.file" location="${apollo.plugin.directory}/js/main.js"/>
-    <property name="webapp.apollo.plugin.uncompressed.test.file" location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
+    <property name="webapp.apollo.plugin.uncompressed.test.file"
+              location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
     <property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>
     <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
@@ -22,13 +23,12 @@
     <property name="jbrowse.download.file.name" value="JBrowse-1.11.6-dev"/>
 
 
-
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
     <available file="${jbrowse.webapp.test.file}" type="file" property="jbrowse.webapp.installed"/>
     <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
     <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
-    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled" />
+    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled"/>
 
     <target name="get.project.version" description="Get the project version from Maven">
         <exec executable="sh" failifexecutionfails="false" outputproperty="project.version">
@@ -56,7 +56,8 @@
         <echo>${jbrowse.download.directory}</echo>
     </target>
 
-    <target name="release" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+    <target name="release" description=""
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -68,7 +69,8 @@
         <delete file="JBrowse-${jbrowse.version}"/>
     </target>
 
-    <target name="debug" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+    <target name="debug" description=""
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
@@ -78,7 +80,7 @@
         </move>
         <delete file="JBrowse-${jbrowse.version}-dev.zip"/>
         <delete dir="JBrowse-${jbrowse.version}-dev"/>
-    </target>  
+    </target>
 
     <target name="clean" description="">
         <delete dir="${apollo.jbrowse.directory}"/>
@@ -102,7 +104,7 @@
             <arg value="${jbrowse.download.directory}"/>
         </exec>
         <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
-<exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
+        <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <arg value="tags/${jbrowse.release.version}"/>
         </exec>
@@ -113,8 +115,10 @@
         <exec executable="./apollo" failifexecutionfails="false" errorproperty=""/>
     </target>
 
-    <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present" unless="jbrowse.perl.installed">
-        <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
+    <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present"
+            unless="jbrowse.perl.installed">
+        <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true"
+              errorproperty="jbrowse-fail">
         </exec>
     </target>
 
@@ -137,7 +141,7 @@
         <contains substring="SNAPSHOT" string="${project.version}" casesensitive="true"/>
     </condition>
 
-    <target name="install-no-release-version"  if="${release.is.snapshot}">
+    <target name="install-no-release-version" if="${release.is.snapshot}">
         <echo>IS SNAPSHOT ${project.version}</echo>
         <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
             <filterset>
@@ -147,7 +151,7 @@
         </copy>
     </target>
 
-    <target name="install-release-version"  unless="${release.is.snapshot}">
+    <target name="install-release-version" unless="${release.is.snapshot}">
         <echo>IS RELEASE ${project.version}</echo>
         <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
             <filterset>
@@ -161,7 +165,7 @@
         <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
     </target>
 
-    <target name="setup-jbrowse"  unless="jbrowse.webapp.installed">
+    <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
 
         <antcall target="git.clone"/>
         <antcall target="copy.apollo.plugin.jbrowse"/>
@@ -184,7 +188,8 @@
         </copy>
     </target>
 
-    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed" description="Copy client into webapp plugin directory.">
+    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
+            description="Copy client into webapp plugin directory.">
         <echo>copying plugin to webapp ...</echo>
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
@@ -200,19 +205,22 @@
 
     <target name="copy-web-apollo-config">
         <echo>copying config ...</echo>
-        <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
-        <copy failonerror="false" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
-        <copy failonerror="false" file="canned_comments.xml" tofile="${apollo.webapp.directory}/config/canned_comments.xml" />
-        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" />
-        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
-        <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json" />
+        <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml"/>
+        <copy failonerror="false" file="config.properties"
+              tofile="${apollo.webapp.directory}/config/config.properties"/>
+        <copy failonerror="false" file="canned_comments.xml"
+              tofile="${apollo.webapp.directory}/config/canned_comments.xml"/>
+        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml"/>
+        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml"/>
+        <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json"/>
         <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>
         <copy failonerror="false" file="drupal.xml" tofile="${apollo.webapp.directory}/config/drupal.xml"/>
         <copy failonerror="false" file="oauth.xml" tofile="${apollo.webapp.directory}/config/oauth.xml"/>
     </target>
 
 
-    <target name="copy-resources" depends="copy-web-apollo-config,copy.apollo.plugin.webapp,install-version,setup-jbrowse"
+    <target name="copy-resources"
+            depends="copy-web-apollo-config,copy.apollo.plugin.webapp,install-version,setup-jbrowse"
             description="This is called externally by shell script.">
 
     </target>
