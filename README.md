@@ -37,9 +37,11 @@ In your deployment / webapp directory, remove your symlinks.  Tomcat will remove
     cp ./sample_log4j2-test.json ./log4j2-test.json     # optional
 
 
-You must edit config.properties to supply the jbrowse data and annotations directory. The datastore.directory property is where Web Apollo annotations are to be stored.  The jbrowse.data property is where the jbrowse tracks are stored.
+You must edit config.properties to supply the jbrowse data and annotations directory. The datastore.directory property is where Web Apollo annotations are to be stored.  The jbrowse.data property is where the jbrowse tracks are stored.   
 
-**Note: the JBrowse data directory should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat**.
+If you specify the database properties in both the config.xml and config.properties, only the one in config.properties will be used.
+
+**Important Note: the JBrowse data directory should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat**.
 
 
 ### Generate a war file
