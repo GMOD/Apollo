@@ -308,7 +308,16 @@ class FeatureService {
         return jsonCVTerm;
     }
 
-
+    /**
+     * TODO: Should be the same result as the older method, need to check:
+     *
+     *         if (transcript.getGene() != null) {
+     return transcript.getGene();
+     }
+     return transcript;
+     * @param feature
+     * @return
+     */
     Feature getTopLevelFeature(Feature feature) {
         Collection<? extends Feature> parents = feature.getParentFeatureRelationships()*.parentFeature
         if (parents.size() > 0) {

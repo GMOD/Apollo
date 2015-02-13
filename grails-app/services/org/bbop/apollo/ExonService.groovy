@@ -24,17 +24,8 @@ class ExonService {
      */
     public Transcript getTranscript(Exon exon) {
 
-//        CVTerm partOfCvTerm = cvTermService.partOf
-//        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
-
         // this could be for any transcript, though
         return (Transcript) featureRelationshipService.getParentForFeature(exon,transcriptService.ontologyIds as String[])
-//        for (FeatureRelationship fr : exon.getParentFeatureRelationships()) {
-//            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
-//                return (Transcript) fr.getObjectFeature()
-//            }
-//        }
-//        return null;
     }
 
     /**
@@ -87,9 +78,6 @@ class ExonService {
      * @param exon - Exon to be deleted from the transcript
      */
     public void deleteExon(Transcript transcript, Exon exon) {
-//        transcript.deleteExon(exon);
-//        transcriptService.removeChildFeature(transcript,exon,FeatureStringEnum.EXON.value)
-//        transcriptService.removeParentFeature(transcript,exon,FeatureStringEnum.EXON.value)
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
 
@@ -154,67 +142,6 @@ class ExonService {
         }
     }
 
-    /** Set the transcript that this exon is associated with.  Uses the configuration to
-     * determine which parent is a transcript.  If the exon is already associated with a transcript,
-     * updates that association.  Otherwise, it creates a new association.
-     *
-     * @param transcript - Transcript that this transcript will be associated with
-     */
-//    public void setTranscript(Exon exon, Transcript transcript) {
-//        CVTerm partOfCvTerm = cvTermService.partOf
-//        CVTerm transcriptCvTerm = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT.value)
-//
-//        featureRelationshipService.setChildForType(transcript,exon)
-//
-////        for (FeatureRelationship fr : transcript.getParentFeatureRelationships()) {
-////            if (partOfCvTerm == fr.getType() && transcriptCvTerm == fr.getObjectFeature().getType()) {
-////                fr.setObjectFeature(transcript);
-////            }
-////            return;
-////        }
-//
-////        FeatureRelationship fr = new FeatureRelationship(
-////                type: partOfCvTerm,
-////                childFeature: transcript,
-////                parentFeature: exon,
-////                rank: 0 // TODO: Do we need to rank the order of any other transcripts?
-////        );
-////        exon.getParentFeatureRelationships().add(fr);
-////        transcript.getChildFeatureRelationships().add(fr);
-//    }
-
-/**
- * Splits the exon, creating two exons, the left one which starts at exon.getFmin() and ends at
- * newLeftMax and the right one which starts at newRightMin and ends at exon.getFeatureLocation.getFmax().
- *
- * @param exon - Exon to be split
- * @param newLeftMax - Left split exon max
- * @param newRightMin - Right split exon min
- */
-//    public Exon splitExon(Exon exon, int newLeftMax, int newRightMin, String splitExonUniqueName) {
-//        session.unindexFeature(exon);
-//        Exon leftExon = exon;
-//        Exon rightExon = new Exon(exon, splitExonUniqueName);
-//
-////        leftExon.setUniqueName(exon.getUniqueName() + "-left");
-//        leftExon.setFmax(newLeftMax);
-//        rightExon.setFmin(newRightMin);
-//
-//        addExon(exon.getTranscript(), rightExon);
-//        session.indexFeature(leftExon);
-//        session.indexFeature(rightExon);
-//
-//        // event fire
-////        fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationEvent.Operation.UPDATE);
-//
-//        Date date = new Date();
-//        exon.setTimeLastModified(date);
-//        rightExon.setTimeAccessioned(date);
-//        rightExon.setTimeLastModified(date);
-//        exon.getTranscript().setTimeLastModified(date);
-//
-//        return rightExon;
-//    }
 //
 //    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize, String splitExonUniqueName) {
 //        String sequence = exon.getResidues();

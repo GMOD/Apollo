@@ -477,6 +477,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.splitExons(inputObject)
     }
 
+    def deleteExons() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.deleteExon(inputObject)
+    }
+
     def getAnnotationInfoEditorData() {
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)

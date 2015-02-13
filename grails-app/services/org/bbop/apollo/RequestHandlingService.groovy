@@ -1198,15 +1198,6 @@ class RequestHandlingService {
 //        updateTranscriptAttributes(exon.getTranscript());
 
         exon.save(flush: true ,failOnError: true)
-//        if (dataStore != null) {
-//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
-//        }
-//        if (historyStore != null) {
-//            Transaction transaction = new Transaction(Transaction.Operation.SPLIT_EXON, exon.getTranscript().getUniqueName(), username);
-//            transaction.addOldFeature(oldTranscript);
-//            transaction.addNewFeature(exon.getTranscript());
-//            writeHistoryToStore(historyStore, transaction);
-//        }
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript));
 
 
@@ -1219,5 +1210,45 @@ class RequestHandlingService {
         fireAnnotationEvent(annotationEvent)
 
         return featureContainer
+    }
+
+    /**
+     * First object is Transcript.
+     * Subsequence objects are exons
+     * @param inputObject
+     */
+    def deleteExon(JSONObject inputObject) {
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject jsonTranscript = features.getJSONObject(0)
+
+        Transcript transcript = Transcript.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.UNIQUENAME.value));
+        for (int i = 1; i < features.length(); ++i) {
+            JSONObject jsonExon = features.getJSONObject(i)
+            Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
+
+            exonService.deleteExon(transcript, exon);
+            Exon.deleteAll(exon)
+        }
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature))
+
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.DELETE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+
+//        if (dataStore != null) {
+//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript), track);
+//        }
+//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
+
     }
 }
