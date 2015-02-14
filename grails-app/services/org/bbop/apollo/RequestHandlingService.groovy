@@ -1257,13 +1257,8 @@ class RequestHandlingService {
 
         JSONObject returnObject = createJSONFeatureContainer()
 
-        println "AEC::adding feature return object ${returnObject?.size()}"
         String trackName = fixTrackHeader(inputObject.track)
-        println "PRE featuresArray ${featuresArray}"
         Sequence sequence = Sequence.findByName(trackName)
-        println "sequence ${sequence}"
-        println "features Array size ${featuresArray.size()}"
-        println "features Array ${featuresArray}"
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)

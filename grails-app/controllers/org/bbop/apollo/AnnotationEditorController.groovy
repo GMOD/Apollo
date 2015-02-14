@@ -1,6 +1,13 @@
 package org.bbop.apollo
 
 import grails.async.Promise
+import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.StandardTranslationTable
+
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import static grails.async.Promises.*
 
 
@@ -33,6 +40,8 @@ class AnnotationEditorController implements AnnotationListener {
     def nameService
     def featurePropertyService
     def requestHandlingService
+    def cdsService
+    def exonService
 
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
@@ -409,6 +418,159 @@ class AnnotationEditorController implements AnnotationListener {
     def deleteExon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.deleteExon(inputObject)
+    }
+
+    def getSequence() {
+        throw new RuntimeException("Still working on it")
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+
+        StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sourceSequence = Sequence.findByName(trackName)
+
+//        for (int i = 0; i < featuresArray.length(); ++i) {
+//            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+//            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+//            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+//            String sequence = null;
+//            if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
+//                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+//                    CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
+//                    String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds);
+//                    sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null);
+//                    if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+//                        sequence = sequence.substring(0, sequence.size() - 1);
+//                    }
+//                    int idx;
+//                    if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+//                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3);
+//                        String aa = editor.getConfiguration().getTranslationTable().getAlternateTranslationTable().get(codon);
+//                        if (aa != null) {
+//                            sequence = sequence.replace(StandardTranslationTable.STOP, aa);
+//                        }
+//                    }
+//                } else if (gbolFeature instanceof Exon && ((Exon) gbolFeature).getTranscript().isProteinCoding()) {
+//                    String rawSequence = getCodingSequenceInPhase(editor, (Exon) gbolFeature, true);
+//                    sequence = SequenceUtil.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Exon) gbolFeature).getTranscript().getCDS().getStopCodonReadThrough() != null);
+//                    if (sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+//                        sequence = sequence.substring(0, sequence.length() - 1);
+//                    }
+//                    int idx;
+//                    if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+//                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3);
+//                        String aa = editor.getConfiguration().getTranslationTable().getAlternateTranslationTable().get(codon);
+//                        if (aa != null) {
+//                            sequence = sequence.replace(StandardTranslationTable.STOP, aa);
+//                        }
+//                    }
+//                } else {
+////                    sequence = SequenceUtil.translateSequence(editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature), editor.getConfiguration().getTranslationTable());
+//                    sequence = "";
+//                }
+//
+//            } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
+//                if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
+//                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature);
+//                } else {
+//                    sequence = "";
+//                }
+//            } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
+//                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+//                    sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(((Transcript) gbolFeature).getCDS());
+//                }
+////                } else if (gbolFeature instanceof Exon && ((Exon) gbolFeature).getTranscript().isProteinCoding()) {
+//                else
+//                if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
+//                    sequence = getCodingSequenceInPhase(editor, (Exon) gbolFeature, false);
+//                }
+//                else {
+////                    sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature);
+//                    sequence = "";
+//                }
+//            } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
+//                AbstractSingleLocationBioFeature genomicFeature = new AbstractSingleLocationBioFeature((Feature) ((SimpleObjectIteratorInterface) gbolFeature.getWriteableSimpleObjects(bioObjectConfiguration)).next(), bioObjectConfiguration) {
+//                };
+//                FeatureLazyResidues sourceFeature = (FeatureLazyResidues) gbolFeature.getFeatureLocation().getSourceFeature();
+//                genomicFeature.getFeatureLocation().setSourceFeature(sourceFeature);
+//                if (flank > 0) {
+//                    int fmin = genomicFeature.getFmin() - flank;
+////                    if (fmin < 0) {
+////                        fmin = 0;
+////                    }
+//                    if (fmin < sourceFeature.getFmin()) {
+//                        fmin = sourceFeature.getFmin();
+//                    }
+//                    int fmax = genomicFeature.getFmax() + flank;
+////                    if (fmax > genomicFeature.getFeatureLocation().getSourceFeature().getSequenceLength()) {
+////                        fmax = genomicFeature.getFeatureLocation().getSourceFeature().getSequenceLength();
+////                    }
+//                    if (fmax > sourceFeature.getFmax()) {
+//                        fmax = sourceFeature.getFmax();
+//                    }
+//                    genomicFeature.setFmin(fmin);
+//                    genomicFeature.setFmax(fmax);
+//                }
+//                gbolFeature = genomicFeature;
+//                sequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(gbolFeature);
+//            }
+//            JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature);
+//            outFeature.put("residues", sequence);
+//            outFeature.put("uniquename", uniqueName);
+//            outFeature.put("residues", sequence);
+//            featureContainer.getJSONArray("features").put(outFeature);
+//        }
+//        out.write(featureContainer.toString());
+
+        render featureContainer
+    }
+
+    def getGff3() {
+        throw new RuntimeException("Still working on it")
+//        JSONObject featureContainer = createJSONFeatureContainer();
+        File tempFile = File.createTempFile("feature",".gff3");
+
+        // TODO: use specified metadata?
+        Set<String> metaDataToExport = new HashSet<>();
+        metaDataToExport.add("name");
+        metaDataToExport.add("symbol");
+        metaDataToExport.add("description");
+        metaDataToExport.add("status");
+        metaDataToExport.add("dbxrefs");
+        metaDataToExport.add("attributes");
+        metaDataToExport.add("pubmed_ids");
+        metaDataToExport.add("go_ids");
+        metaDataToExport.add("comments");
+
+//        List<AbstractSingleLocationBioFeature> featuresToWrite = new ArrayList<>();
+//        for (int i = 0; i < features.length(); ++i) {
+//            JSONObject jsonFeature = features.getJSONObject(i);
+//            String uniqueName = jsonFeature.getString("uniquename");
+//            AbstractSingleLocationBioFeature gbolFeature = editor.getSession().getFeatureByUniqueName(uniqueName);
+//            while(gbolFeature.getParents().size()>0){
+//                gbolFeature = gbolFeature.getParents().iterator().next() ;
+//            }
+//            featuresToWrite.add(gbolFeature);
+//        }
+//
+//        GFF3Handler gff3Handler = new GFF3Handler(tempFile.getAbsolutePath(),GFF3Handler.Mode.WRITE, GFF3Handler.Format.TEXT,metaDataToExport);
+//        String inputString = ".";
+////        Node sourceNode = doc.getElementsByTagName("source").item(0);
+////        source = sourceNode != null ? source = sourceNode.getTextContent() : ".";
+//        gff3Handler.writeFeatures(featuresToWrite,inputString);
+//        gff3Handler.close();
+        Charset encoding = Charset.defaultCharset();
+//        List<String> lines = Files.readAllLines(Paths.get(tempFile.getAbsolutePath()), encoding);
+
+        byte[] encoded = Files.readAllBytes(Paths.get(tempFile.getAbsolutePath()));
+        String gff3String = new String(encoded, encoding);
+//
+//        assert tempFile.delete();
+
+        response << gff3String;
     }
 
     def getAnnotationInfoEditorData() {

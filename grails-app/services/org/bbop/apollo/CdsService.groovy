@@ -10,8 +10,6 @@ class CdsService {
     public static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
     public static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
 
-    FeatureService featureService
-//    CvTermService cvTermService
     FeatureRelationshipService featureRelationshipService
     FeaturePropertyService featurePropertyService
 
@@ -96,6 +94,9 @@ class CdsService {
 
     }
 
+    def getStopCodonReadThrough(CDS cds){
+        return featureRelationshipService.getChildrenForFeatureAndTypes(cds,StopCodonReadThrough.ontologyId)
+    }
 
 //    Transcript getTranscript(CDS cds) {
 //        Criteria criteria = FeatureRelationship.createCriteria()
