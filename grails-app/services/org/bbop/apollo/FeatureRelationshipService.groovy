@@ -87,21 +87,13 @@ class FeatureRelationshipService {
         List<String> ontologyIdList = new ArrayList<>()
         ontologyIdList.addAll(ontologyIds)
         return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
-//            ontologyIds.contains(it.ontologyId)
-            ontologyIdList.contains(it.ontologyId)
-//            it.ontologyId == ontologyId
+            ontologyIdList.empty || ontologyIdList.contains(it.ontologyId)
         }
     }
 
-//    def deleteRelationships(Feature feature, FeatureStringEnum parentFeatureEnum, FeatureStringEnum childFeatureEnum) {
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
-//        CVTerm parentFeatureCvTerm = cvTermService.getTerm(parentFeatureEnum)
-//        CVTerm childFeatureCvTerm = cvTermService.getTerm(childFeatureEnum)
-//        CVTerm partOfCvTerm = cvTermService.partOf
-
         deleteChildrenForTypes(feature, childOntologyId)
         deleteParentForTypes(feature, parentOntologyId)
-
     }
 
     def setChildForType(Feature parentFeature, Feature childFeature) {

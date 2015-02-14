@@ -535,27 +535,32 @@ class AnnotationEditorController implements AnnotationListener {
 
         // TODO: use specified metadata?
         Set<String> metaDataToExport = new HashSet<>();
-        metaDataToExport.add("name");
-        metaDataToExport.add("symbol");
-        metaDataToExport.add("description");
-        metaDataToExport.add("status");
-        metaDataToExport.add("dbxrefs");
-        metaDataToExport.add("attributes");
-        metaDataToExport.add("pubmed_ids");
-        metaDataToExport.add("go_ids");
-        metaDataToExport.add("comments");
+        metaDataToExport.add(FeatureStringEnum.NAME.value);
+        metaDataToExport.add(FeatureStringEnum.SYMBOL.value);
+        metaDataToExport.add(FeatureStringEnum.DESCRIPTION.value);
+        metaDataToExport.add(FeatureStringEnum.STATUS.value);
+        metaDataToExport.add(FeatureStringEnum.DBXREFS.value);
+        metaDataToExport.add(FeatureStringEnum.ATTRIBUTES.value);
+        metaDataToExport.add(FeatureStringEnum.PUBMEDIDS.value);
+        metaDataToExport.add(FeatureStringEnum.GOIDS.value);
+        metaDataToExport.add(FeatureStringEnum.COMMENTS.value);
 
-//        List<AbstractSingleLocationBioFeature> featuresToWrite = new ArrayList<>();
-//        for (int i = 0; i < features.length(); ++i) {
-//            JSONObject jsonFeature = features.getJSONObject(i);
-//            String uniqueName = jsonFeature.getString("uniquename");
-//            AbstractSingleLocationBioFeature gbolFeature = editor.getSession().getFeatureByUniqueName(uniqueName);
-//            while(gbolFeature.getParents().size()>0){
-//                gbolFeature = gbolFeature.getParents().iterator().next() ;
+        List<Feature> featuresToWrite = new ArrayList<>();
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
+            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+
+            gbolFeature = featureService.getTopLevelFeature(gbolFeature)
+//            while(featureRelationshipService.getParentForFeature(gbolFeature).size()>0){
+//                gbolFeature = featureRelationshipService.getParentForFeature(gbolFeature).iterator().next() ;
 //            }
-//            featuresToWrite.add(gbolFeature);
-//        }
-//
+            featuresToWrite.add(gbolFeature);
+        }
+
 //        GFF3Handler gff3Handler = new GFF3Handler(tempFile.getAbsolutePath(),GFF3Handler.Mode.WRITE, GFF3Handler.Format.TEXT,metaDataToExport);
 //        String inputString = ".";
 ////        Node sourceNode = doc.getElementsByTagName("source").item(0);

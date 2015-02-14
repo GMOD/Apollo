@@ -69,6 +69,9 @@ enum FeatureStringEnum {
     SUPPORTED_TYPES,
     OLD_DBXREFS,
     NEW_DBXREFS,
+    ATTRIBUTES,
+    PUBMEDIDS("pubmed_ids"),
+    GOIDS("go_ids"),
     UNIQUENAME,
     // TODO: move these to a SequenceTypeEnum
             TYPE_PEPTIDE("peptide"),
