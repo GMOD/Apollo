@@ -142,44 +142,47 @@ class ExonService {
         }
     }
 
-//
-//    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize, String splitExonUniqueName) {
-//        String sequence = exon.getResidues();
-//        int exonPosition = exon.convertSourceCoordinateToLocalCoordinate(genomicPosition);
+
+//    , String splitExonUniqueName
+    public Exon makeIntron(Exon exon, int genomicPosition, int minimumIntronSize) {
+        String sequence = sequenceService.getResiduesFromFeature(exon)
+        int exonPosition = featureService.convertSourceCoordinateToLocalCoordinate(exon,genomicPosition);
 //        // find donor coordinate
-//        String donorSite = null;
-//        int donorCoordinate = -1;
-//        for (String donor : SequenceUtil.getSpliceDonorSites()) {
-//            int coordinate = sequence.substring(0, exonPosition - minimumIntronSize).lastIndexOf(donor);
-//            if (coordinate > donorCoordinate) {
-//                donorCoordinate = coordinate;
-//                donorSite = donor;
-//            }
-//        }
+        String donorSite = null;
+        int donorCoordinate = -1;
+        for(String donor : SequenceTranslationHandler.spliceDonorSites){
+            int coordinate = sequence.substring(0, exonPosition - minimumIntronSize).lastIndexOf(donor);
+            if (coordinate > donorCoordinate) {
+                donorCoordinate = coordinate;
+                donorSite = donor;
+            }
+        }
 //        // find acceptor coordinate
-//        String acceptorSite = null;
-//        int acceptorCoordinate = -1;
-//        for (String acceptor : SequenceUtil.getSpliceAcceptorSites()) {
-//            int coordinate = sequence.substring(exonPosition + minimumIntronSize, sequence.length()).indexOf(acceptor);
-//            if (acceptorCoordinate == -1 || coordinate < acceptorCoordinate) {
-//                acceptorCoordinate = coordinate;
-//                acceptorSite = acceptor;
-//            }
-//        }
+        String acceptorSite = null;
+        int acceptorCoordinate = -1;
+        for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
+            int coordinate = sequence.substring(exonPosition + minimumIntronSize, sequence.length()).indexOf(acceptor);
+            if (acceptorCoordinate == -1 || coordinate < acceptorCoordinate) {
+                acceptorCoordinate = coordinate;
+                acceptorSite = acceptor;
+            }
+        }
 //        // no donor/acceptor found
-//        if (donorCoordinate == -1 || acceptorCoordinate == -1 || (acceptorCoordinate - donorCoordinate) == 1) {
-//            //return splitExon(exon, genomicPosition - 1, genomicPosition + 1, splitExonUniqueName);
-//            return null;
-//        }
-//        acceptorCoordinate += exonPosition + minimumIntronSize;
-//        if (exon.getStrand().equals(-1)) {
-//            int tmp = acceptorCoordinate;
-//            acceptorCoordinate = donorCoordinate + 1 - donorSite.length();
-//            donorCoordinate = tmp + 1;
-//        } else {
-//            acceptorCoordinate += acceptorSite.length();
-//        }
-//        Exon splitExon = splitExon(exon, exon.convertLocalCoordinateToSourceCoordinate(donorCoordinate), exon.convertLocalCoordinateToSourceCoordinate(acceptorCoordinate), splitExonUniqueName);
+        if (donorCoordinate == -1 || acceptorCoordinate == -1 || (acceptorCoordinate - donorCoordinate) == 1) {
+            //return splitExon(exon, genomicPosition - 1, genomicPosition + 1, splitExonUniqueName);
+            return null;
+        }
+        acceptorCoordinate += exonPosition + minimumIntronSize;
+        FeatureLocation exonFeatureLocation = exon.featureLocation
+        if (exonFeatureLocation.getStrand().equals(-1)) {
+            int tmp = acceptorCoordinate;
+            acceptorCoordinate = donorCoordinate + 1 - donorSite.length();
+            donorCoordinate = tmp + 1;
+        } else {
+            acceptorCoordinate += acceptorSite.length();
+        }
+//        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate,splitExonUniqueName));
+        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate));
 //        /*
 //        if (exon.getLength() == 0) {
 //            deleteExon(exon.getTranscript(), exon);
@@ -197,159 +200,13 @@ class ExonService {
 //        splitExon.setTimeAccessioned(date);
 //        splitExon.setTimeLastModified(date);
 //        exon.getTranscript().setTimeLastModified(date);
+
+        exon.save()
+        splitExon.save()
+
+        return splitExon;
+    }
 //
-//        return splitExon;
-//    }
-//
-//    /**
-//     * Set exon boundaries.
-//     *
-//     * @param exon - Exon to be modified
-//     * @param fmin - New fmin to be set
-//     * @param fmax - New fmax to be set
-//     */
-//    public void setExonBoundaries(Exon exon, int fmin, int fmax) {
-//        Transcript transcript = exon.getTranscript();
-//        exon.setFmin(fmin);
-//        exon.setFmax(fmax);
-//        removeExonOverlapsAndAdjacencies(transcript);
-//
-//        updateGeneBoundaries(exon.getTranscript().getGene());
-//
-//        session.unindexFeature(transcript);
-//        session.indexFeature(transcript);
-//
-//        Date date = new Date();
-//        exon.setTimeLastModified(date);
-//        exon.getTranscript().setTimeLastModified(date);
-//
-//        // event fire
-//        fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
-//
-//    }
-//
-//    public void setToDownstreamDonor(Exon exon) throws AnnotationEditorException {
-//        Transcript transcript = exon.getTranscript();
-//        Gene gene = transcript.getGene();
-//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true);
-//        Integer nextExonFmin = null;
-//        Integer nextExonFmax = null;
-//        for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext();) {
-//            Exon e = iter.next();
-//            if (e.getUniqueName().equals(exon.getUniqueName())) {
-//                if (iter.hasNext()) {
-//                    Exon e2 = iter.next();
-//                    nextExonFmin = e2.getFmin();
-//                    nextExonFmax = e2.getFmax();
-//                    break;
-//                }
-//            }
-//        }
-//        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) + 2 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) + 1;
-//        String residues = gene.getResidues();
-//        while (coordinate < residues.length()) {
-//            int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
-//            if (nextExonFmin != null && (c >= nextExonFmin && c <= nextExonFmax + 1)) {
-//                throw new AnnotationEditorException("Cannot set to downstream donor - will overlap next exon");
-//            }
-//            String seq = residues.substring(coordinate, coordinate + 2);
-//            if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
-//                if (exon.getStrand() == -1) {
-//                    setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
-//                } else {
-//                    setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
-//                }
-//                return;
-//            }
-//            ++coordinate;
-//        }
-//    }
-//
-//    public void setToUpstreamDonor(Exon exon) throws AnnotationEditorException {
-//        Transcript transcript = exon.getTranscript();
-//        Gene gene = transcript.getGene();
-//        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) - 1;
-//        int exonStart = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) - 1 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin());
-//        String residues = gene.getResidues();
-//        while (coordinate > 0) {
-//            if (coordinate <= exonStart) {
-//                throw new AnnotationEditorException("Cannot set to upstream donor - will remove exon");
-//            }
-//            String seq = residues.substring(coordinate, coordinate + 2);
-//            if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
-//                if (exon.getStrand() == -1) {
-//                    setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
-//                } else {
-//                    setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
-//                }
-//                return;
-//            }
-//            --coordinate;
-//        }
-//    }
-//
-//    public void setToDownstreamAcceptor(Exon exon) throws AnnotationEditorException {
-//        Transcript transcript = exon.getTranscript();
-//        Gene gene = transcript.getGene();
-//        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin());
-//        int exonEnd = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) - 1;
-//        String residues = gene.getResidues();
-//        while (coordinate < residues.length()) {
-//            if (coordinate >= exonEnd) {
-//                throw new AnnotationEditorException("Cannot set to downstream acceptor - will remove exon");
-//            }
-//            String seq = residues.substring(coordinate, coordinate + 2);
-//            if (SequenceUtil.getSpliceAcceptorSites().contains(seq)) {
-//                if (exon.getStrand() == -1) {
-//                    setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate) - 1);
-//                } else {
-//                    setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 2, exon.getFmax());
-//                }
-//                return;
-//            }
-//            ++coordinate;
-//        }
-//    }
-//
-//    public void setToUpstreamAcceptor(Exon exon) throws AnnotationException {
-//        Transcript transcript = exon.getTranscript();
-//        Gene gene = transcript.getGene();
-//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true);
-//        Integer prevExonFmin = null;
-//        Integer prevExonFmax = null;
-//        for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext();) {
-//            Exon e = iter.next();
-//            if (e.getUniqueName().equals(exon.getUniqueName())) {
-//                if (iter.hasPrevious()) {
-//                    iter.previous();
-//                    if (iter.hasPrevious()) {
-//                        Exon e2 = iter.previous();
-//                        prevExonFmin = e2.getFmin();
-//                        prevExonFmax = e2.getFmax();
-//                    }
-//                }
-//                break;
-//            }
-//        }
-//        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax() + 2) : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin() - 3);
-//        String residues = gene.getResidues();
-//        while (coordinate >= 0) {
-//            int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
-//            if (prevExonFmin != null && (c >= prevExonFmin && c <= prevExonFmax - 2)) {
-//                throw new AnnotationEditorException("Cannot set to upstream acceptor - will overlap previous exon");
-//            }
-//            String seq = residues.substring(coordinate, coordinate + 2);
-//            if (SequenceUtil.getSpliceAcceptorSites().contains(seq)) {
-//                if (exon.getStrand() == -1) {
-//                    setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate) - 1);
-//                } else {
-//                    setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 2, exon.getFmax());
-//                }
-//                return;
-//            }
-//            --coordinate;
-//        }
-//    }
 
     List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = false ) {
         List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));

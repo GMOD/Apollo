@@ -50,7 +50,7 @@ class Feature implements Ontological{
 
     Date dateCreated;
     Date lastUpdated ;
-
+//    Feature owner
 //    Date timeAccessioned;
 //    Date timeLastModified;
 
@@ -65,7 +65,8 @@ class Feature implements Ontological{
             ,featurePublications: Publication
             ,featurePhenotypes: Phenotype
             ,featureProperties: FeatureProperty
-//            ,owners:User
+            ,synonyms: Synonym
+            ,owners:User
     ]
 
     static mappedBy = [
@@ -78,6 +79,13 @@ class Feature implements Ontological{
     static belongsTo = [
             User
     ]
+    
+    public User getOwner(){
+        if(owners?.size()>0){
+            return owners.iterator().next()
+        }
+        return null
+    }
 
 
     public boolean equals(Object other) {

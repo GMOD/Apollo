@@ -2,9 +2,9 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
-import grails.compiler.GrailsCompileStatic
+//import grails.compiler.GrailsCompileStatic
 
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class MockupService {
 

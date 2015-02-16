@@ -420,6 +420,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.deleteExon(inputObject)
     }
 
+    def makeIntron() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.makeIntron(inputObject)
+    }
+
     def getSequence() {
         throw new RuntimeException("Still working on it")
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -726,6 +731,8 @@ class AnnotationEditorController implements AnnotationListener {
                 case "deleteFeature":  requestHandlingService.deleteFeature(rootElement)
                     break
                 case "addFeature":  requestHandlingService.addFeature(rootElement)
+                    break
+                case "makeIntron":  requestHandlingService.makeIntron(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

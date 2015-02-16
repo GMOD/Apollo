@@ -1333,4 +1333,33 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer()
         return returnObject
     }
+
+    def makeIntron(JSONObject inputObject) {
+        throw new RuntimeException("Implement make intron")
+//        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        Exon exon = (Exon) getFeature(editor, jsonExon);
+//        Transcript oldTranscript = cloneTranscript(exon.getTranscript());
+//        JSONObject exonLocation = jsonExon.getJSONObject("location");
+//        Exon splitExon = editor.makeIntron(exon, exonLocation.getInt("fmin"), defaultMinimumIntronSize, nameAdapter.generateUniqueName());
+//        if (splitExon == null) {
+//            out.write(new JSONObject().put("alert", "Unable to find canonical splice sites.").toString());
+//            return;
+//        }
+//        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
+//        calculateCDS(editor, exon.getTranscript());
+//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
+//        updateTranscriptAttributes(exon.getTranscript());
+//        if (dataStore != null) {
+//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
+//        }
+//        if (historyStore != null) {
+//            Transaction transaction = new Transaction(Transaction.Operation.SPLIT_EXON, exon.getTranscript().getUniqueName(), username);
+//            transaction.addOldFeature(oldTranscript);
+//            transaction.addNewFeature(exon.getTranscript());
+//            writeHistoryToStore(historyStore, transaction);
+//        }
+//        JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
+//        out.write(featureContainer.toString());
+//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+    }
 }

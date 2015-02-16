@@ -1,19 +1,17 @@
 package org.bbop.apollo
 
 
-//import org.gmod.gbol.bioObject.AbstractSingleLocationBioFeature;
-//import org.gmod.gbol.bioObject.Comment;
-//import org.gmod.gbol.bioObject.GenericFeatureProperty;
-//import org.gmod.gbol.simpleObject.DBXref;
 
 
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
-import groovy.transform.CompileStatic
+//import groovy.transform.CompileStatic
+//import grails.compiler.GrailsCompileStatic
 
 
-@CompileStatic
+//@CompileStatic
+//@GrailsCompileStatic
 public class FastaHandlerService {
 
     private File file;
@@ -21,7 +19,8 @@ public class FastaHandlerService {
     private Mode mode;
     private int numResiduesPerLine;
 
-    def sequenceService
+    SequenceService sequenceService
+    FeaturePropertyService featurePropertyService
 
     public enum Mode {
         READ,
@@ -181,36 +180,36 @@ public class FastaHandlerService {
                 }
             }
             // TODO: set comment
-//            if (metaDataToExport.contains("comments")) {
-//                Iterator<Comment> commentIter = feature.getComments().iterator();
-//                if (commentIter.hasNext()) {
-//                    StringBuilder comments = new StringBuilder();
-//                    comments.append(commentIter.next().getComment());
-//                    while (commentIter.hasNext()) {
-//                        comments.append(",");
-//                        comments.append(commentIter.next().getComment());
-//                    }
-//                    if (!first) {
-//                        defline += ";";
-//                    }
-//                    else {
-//                        defline += " ";
-//                    }
-//                    first = false;
-//                    defline += "comments=" + comments.toString();
-//                }
-//            }
+            if (metaDataToExport.contains(FeatureStringEnum.COMMENTS.value)) {
+                Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
+                if (commentIter.hasNext()) {
+                    StringBuilder comments = new StringBuilder();
+                    comments.append(commentIter.next().value);
+                    while (commentIter.hasNext()) {
+                        comments.append(",");
+                        comments.append(commentIter.next().value);
+                    }
+                    if (!first) {
+                        defline += ";";
+                    }
+                    else {
+                        defline += " ";
+                    }
+                    first = false;
+                    defline += FeatureStringEnum.COMMENTS.value+"=" + comments.toString();
+                }
+            }
             // TODO: set owner
-//            if (metaDataToExport.contains("owner") && feature.getOwner() != null) {
-//                if (!first) {
-//                    defline += ";";
-//                }
-//                else {
-//                    defline += " ";
-//                }
-//                first = false;
-//                defline += "owner=" + feature.getOwner().getOwner();
-//            }
+            if (metaDataToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner() != null) {
+                if (!first) {
+                    defline += ";";
+                }
+                else {
+                    defline += " ";
+                }
+                first = false;
+                defline += FeatureStringEnum.OWNER.value+"=" + feature.getOwner().getOwner();
+            }
             if (metaDataToExport.contains("date_creation") && feature.dateCreated != null) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(feature.dateCreated)

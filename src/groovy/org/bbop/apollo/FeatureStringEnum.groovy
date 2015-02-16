@@ -72,12 +72,19 @@ enum FeatureStringEnum {
     ATTRIBUTES,
     PUBMEDIDS("pubmed_ids"),
     GOIDS("go_ids"),
+    SYNONYMS,
     UNIQUENAME,
     // TODO: move these to a SequenceTypeEnum
             TYPE_PEPTIDE("peptide"),
     TYPE_CDS("cds"),
     TYPE_CDNA("cdna"),
     TYPE_GENOMIC("genomic"),
+    EXPORT_ID("ID"),
+    EXPORT_DBXREF("Dbxref"),
+    EXPORT_NAME("Name"),
+    EXPORT_ALIAS("Alias"),
+    EXPORT_NOTE("Note"),
+    EXPORT_PARENT("Parent"),
     LOCKED
 
 

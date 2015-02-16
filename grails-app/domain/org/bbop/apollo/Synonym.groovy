@@ -6,7 +6,6 @@ class Synonym {
     }
 
 
-    Integer synonymId;
     CVTerm type;
     String name;
     String synonymSGML;

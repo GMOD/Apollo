@@ -1,10 +1,10 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import grails.compiler.GrailsCompileStatic
+//import grails.compiler.GrailsCompileStatic
 
 
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class TranscriptService {
 
@@ -215,4 +215,7 @@ class TranscriptService {
         updateGeneBoundaries(transcript);
     }
 
+    Transcript getParentTranscriptForFeature(Feature feature) {
+        return (Transcript) featureRelationshipService.getParentForFeature(feature,ontologyIds as String[])
+    }
 }
