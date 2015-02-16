@@ -37,7 +37,7 @@ Map<String, Integer> permissions = UserManager.getInstance().getPermissionsForUs
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <!-- <link rel="stylesheet" type="text/css" href="jslib/DataTables-1.9.4/media/css/demo_table.css" /> -->
 
-<title>Select track</title>
+<title>Select sequence</title>
 
 <link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">
 <link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">
