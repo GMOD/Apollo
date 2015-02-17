@@ -95,20 +95,25 @@ return declare( [Sequence],
             // Add mouseover highlight
             var nl=query('.base',args.block.domNode);
             nl.style("backgroundColor","#E0E0E0");
+            console.log(alterations);
             array.forEach(alterations,function(alt) {
                 var start=alt.get("start");
                 var end=alt.get("end");
                 var type=alt.get("type");
                 relStart=start-leftBase;
                 relEnd=end-leftBase;
-                console.log(start,relStart,relStart+rightBase-leftBase,nl.length,nl[relStart+rightBase-leftBase]);
+                console.log(start,relStart,relStart+rightBase-leftBase,nl.length,nl[relStart+rightBase-leftBase],nl);
                 if(type=="insertion") {
                     domStyle.set(nl[relStart],"backgroundColor","lightgreen");
-                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightgreen");
+                //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightgreen");
                 }
                 else if(type=="deletion") {
                     domStyle.set(nl[relStart],"backgroundColor","lightcoral");
-                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightcoral");
+                  //  domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightcoral");
+                }
+                else if(type=="substitution") {
+                    domStyle.set(nl[relStart],"backgroundColor","yellow");
+                   // domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","yellow");
                 }
             });
             nl.on(mouse.enter,function(evt) {
@@ -166,6 +171,8 @@ return declare( [Sequence],
             iconClass: "dijitIconNewTask",
             onClick: function(evt){
                 var node = this.getParent().currentTarget;
+                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                thisB.createGenomicInsertion(evt,gcoord-1);
             }
         }));
         menu.addChild(new MenuItem({
@@ -174,7 +181,7 @@ return declare( [Sequence],
             onClick: function(evt){
                 var node = this.getParent().currentTarget;
                 var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
-                thisB.createGenomicDeletion(evt,gcoord);
+                thisB.createGenomicDeletion(evt,gcoord-1);
             }
         }));
         menu.addChild(new MenuItem({
@@ -183,7 +190,7 @@ return declare( [Sequence],
             onClick: function(evt){
                 var node = this.getParent().currentTarget;
                 var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
-                thisB.createGenomicSubstitution(evt,gcoord);
+                thisB.createGenomicSubstitution(evt,gcoord-1);
             }
         }));
         menu.startup();
@@ -404,6 +411,7 @@ return declare( [Sequence],
             handleAs: "json"
         }).then(
             function(response) {
+                console.log(response);
                 var responseFeatures = response.features;
                 for (var i = 0; i < responseFeatures.length; i++) {
                     var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
@@ -434,10 +442,12 @@ return declare( [Sequence],
         },evt);
     },
 
-    createGenomicSubstitution: function()  {
-        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-        var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
-        this.annotTrack.openDialog("Add Substitution", content);
+    createGenomicSubstitution: function(evt,gcoord)  {
+        this._openDialog({
+            action: "contentDialog",
+            title: "Add Substitution",
+            content: this.createAddSequenceAlterationPanel("substitution", gcoord)
+        },evt);
     },
     complement: (function() { 
          var compl_rx   = /[ACGT]/gi; 
