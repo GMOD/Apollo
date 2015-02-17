@@ -94,15 +94,16 @@ return declare( [Sequence],
             // Add right-click menu
             // Add mouseover highlight
             var nl=query('.base',args.block.domNode);
+            if(!nl.length) return;
+
             nl.style("backgroundColor","#E0E0E0");
-            console.log(alterations);
+
             array.forEach(alterations,function(alt) {
                 var start=alt.get("start");
                 var end=alt.get("end");
                 var type=alt.get("type");
                 relStart=start-leftBase;
                 relEnd=end-leftBase;
-                console.log(start,relStart,relStart+rightBase-leftBase,nl.length,nl[relStart+rightBase-leftBase],nl);
                 if(type=="insertion") {
                     domStyle.set(nl[relStart],"backgroundColor","lightgreen");
                 //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightgreen");
