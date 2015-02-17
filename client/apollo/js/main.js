@@ -106,66 +106,8 @@ return declare( [JBPlugin, HelpMixin],
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
+        if (browser.config.show_nav&&browser.config.show_menu) {
 
-        // add a global menu option for setting CDS color
-        var cds_frame_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="true"?true:false,
-                    onClick: function(event) {
-                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
-                        browser.view.redrawTracks();
-                    }
-                });
-        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
-
-        var css_frame_menu = new dijitMenu();
-
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Light",
-                    onClick: function (event) {
-                        browser.cookie("Scheme","Light");
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Dark",
-                    onClick: function (event) {
-                        browser.cookie("Scheme","Dark");
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-
-
-        var css_frame_toggle = new dijitPopupMenuItem(
-            {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
-            });
-
-        browser.addGlobalMenuItem('view', css_frame_toggle);
-
-        this.addStrandFilterOptions();
-        var hide_track_label_toggle = new dijitCheckedMenuItem(
-            {
-                label: "Show track label",
-                checked: browser.cookie("showTrackLabel"),
-                onClick: function(event) {
-                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                    thisB.updateLabels()
-                }
-            });
-        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-
-
-        if (browser.config.show_nav) {
             var jbrowseUrl = "http://jbrowse.org";
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
