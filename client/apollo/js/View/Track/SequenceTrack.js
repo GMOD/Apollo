@@ -127,6 +127,7 @@ return declare( [Sequence],
         }, timeToLive );
     },
     _makeFeatureContextMenu( featDiv ) {
+        var thisB=this;
         var menu=new Menu();
         this.own( menu );
         
@@ -135,7 +136,8 @@ return declare( [Sequence],
             iconClass: "dijitIconNewTask",
             onClick: function(evt){
                 var node = this.getParent().currentTarget;
-                alert("Insertion for node ", node);
+                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                thisB.createGenomicInsertion(evt,gcoord);
             }
         }));
         menu.addChild(new MenuItem({
@@ -189,7 +191,7 @@ return declare( [Sequence],
                     addSequenceAlteration();
                 }
                 else {
-                    var curval = e.srcElement.value;
+                    var curval = e.currentTarget.value;
                     var newchar = String.fromCharCode(unicode);
                     // only allow acgtnACGTN and backspace
                     //    (and acgtn are transformed to uppercase in CSS)
@@ -223,7 +225,7 @@ return declare( [Sequence],
                     addSequenceAlteration();
                 }
                 else {
-                    var curval = e.srcElement.value;
+                    var curval = e.currentTarget.value;
                     var newchar = String.fromCharCode(unicode);
                     // only allow acgtnACGTN and backspace
                     //    (and acgtn are transformed to uppercase in CSS)
@@ -317,12 +319,19 @@ return declare( [Sequence],
                     }
                     var features = [feature];
                     var postData = {
-                        "track": track.annotTrack.getUniqueTrackName(),
+                        "track": track.annotationPrefix+track.refSeq.name,
                         "features": features,
                         "operation": "add_sequence_alteration"
                     };
-                    track.annotTrack.executeUpdateOperation(postData);
-                    track.annotTrack.closeDialog();
+                    xhr(track.context_path + "/AnnotationEditorService", {
+                        handleAs: "json",
+                        data: JSON.stringify(postData),
+                        method: "post"
+                    }).then(function(response) {
+                        console.log(response);
+                    }, function(response) {
+                        console.log(response);
+                    });
                 }
             }
         };
@@ -350,22 +359,20 @@ return declare( [Sequence],
         });
     },
 
-    createGenomicInsertion: function()  {
-        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-
-        var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
-        this.annotTrack.openDialog("Add Insertion", content);
-
-    
-
+    createGenomicInsertion: function(evt,gcoord)  {
+        this._openDialog({
+            action: "contentDialog",
+            title: "Add Insertion",
+            content: this.createAddSequenceAlterationPanel("insertion", gcoord)
+        },evt);
     },
 
-    createGenomicDeletion: function()  {
-        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-
-        var content = this.createAddSequenceAlterationPanel("deletion", gcoord);
-        this.annotTrack.openDialog("Add Deletion", content);
-
+    createGenomicDeletion: function(evt,gcoord)  {
+        this._openDialog({
+            action: "contentDialog",
+            title: "Add Deletion",
+            content: this.createAddSequenceAlterationPanel("deletion", gcoord)
+        },evt);
     },
 
     createGenomicSubstitution: function()  {
@@ -373,6 +380,16 @@ return declare( [Sequence],
         var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
         this.annotTrack.openDialog("Add Substitution", content);
     },
+    complement: (function() { 
+         var compl_rx   = /[ACGT]/gi; 
+
+         var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"}; 
+
+         var compl_func = function(m) { return compl_tbl[m] || SequenceTrack.nbsp; }; 
+         return function( seq ) { 
+             return seq.replace( compl_rx, compl_func ); 
+         }; 
+     })(), 
 
  
 });
