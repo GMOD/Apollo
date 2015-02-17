@@ -225,11 +225,11 @@
         </copy>
     </target>
 
-    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
+    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.git.present"
             description="Copy client into webapp plugin directory.">
         <echo>copying plugin to webapp ...</echo>
-        <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
-            <fileset dir="${apollo.client.directory}"/>
+        <copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">
+            <fileset dir="${apollo.client.directory}" includes="**/*.js" />
             <filterset>
                 <!--<filter token="GOLR_URL" value="http://golr.berkeleybop.org/"/>-->
                 <!--Alternate GOLR URL's-->
