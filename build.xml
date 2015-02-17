@@ -231,14 +231,14 @@
         <echo>copying plugin to webapp ...</echo>
         <!--<copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">-->
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
-            <fileset dir="${apollo.client.directory}" includes="**/*.js" />
-            <filterset>
-                <!--<filter token="GOLR_URL" value="http://golr.berkeleybop.org/"/>-->
-                <!--Alternate GOLR URL's-->
-                <filter token="GOLR_URL" value="http://a2-proxy1.stanford.edu:8080/solr/"/>
-                <!--<filter token="GOLR_URL" value="http://a2-proxy2.stanford.edu:8080/solr/"/>-->
-                <!--<filter token="GOLR_URL" value="http://golr.geneontology.org/"/>-->
-            </filterset>
+            <fileset dir="${apollo.client.directory}" />
+            <!--<filterset>-->
+                <!--&lt;!&ndash;<filter token="GOLR_URL" value="http://golr.berkeleybop.org/"/>&ndash;&gt;-->
+                <!--&lt;!&ndash;Alternate GOLR URL's&ndash;&gt;-->
+                <!--<filter token="GOLR_URL" value="http://a2-proxy1.stanford.edu:8080/solr/"/>-->
+                <!--&lt;!&ndash;<filter token="GOLR_URL" value="http://a2-proxy2.stanford.edu:8080/solr/"/>&ndash;&gt;-->
+                <!--&lt;!&ndash;<filter token="GOLR_URL" value="http://golr.geneontology.org/"/>&ndash;&gt;-->
+            <!--</filterset>-->
         </copy>
     </target>
 
