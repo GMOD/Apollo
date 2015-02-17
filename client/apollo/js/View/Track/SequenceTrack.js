@@ -1,15 +1,17 @@
 define( [
     'dojo/_base/declare',
+    'dojo/_base/lang',
+    'dojo/_base/array',
     'dojo/mouse',
     'dojo/query',
     'dojo/dom',
     'dojo/dom-style',
     'dojo/dom-class',
-    'dojo/_base/array',
     'dojo/on',
     'dijit/Menu',
     'dijit/MenuItem',
     'JBrowse/View/Track/Sequence',
+    'JBrowse/Util',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojo/request/xhr',
@@ -17,15 +19,17 @@ define( [
      ],
 function(
     declare,
+    lang,
+    array,
     mouse,query,
     dom,
     domStyle,
     domClass,
-    array,
     on,
     Menu,
     MenuItem,
     Sequence,
+    Util,
     JSONUtils,
     Permission,
     xhr,
@@ -76,37 +80,19 @@ return declare( [Sequence],
         args.finishCallback=function() {
             finishCallback();
             // Add right-click menu
-            if(!this._menu) {
-                this._menu = new Menu({
-                    targetNodeIds:['track_DNA'],
-                    selector: "td.base"
-                });
-                this._menu.addChild(new MenuItem({
-                    label: "Create insertion",
-                    iconClass: "dijitIconNewTask",
-                    onClick: function(evt){
-                        var node = this.getParent().currentTarget;
-                        alert("Insertion for node ", node);
-                    }
-                }));
-                this._menu.addChild(new MenuItem({
-                    label: "Create deletion",
-                    iconClass: "dijitIconDelete",
-                    onClick: function(evt){
-                        var node = this.getParent().currentTarget;
-                        alert("Deletion for node ", node);
-                    }
-                }));
-            }
-
             // Add mouseover highlight
             var nl=query('.base',args.block.domNode);
             nl.style("backgroundColor","#E0E0E0")
+            
             nl.on(mouse.enter,function(evt) {
               domStyle.set(evt.target,"backgroundColor","orange");
             });
             nl.on(mouse.leave,function(evt) {
               domStyle.set(evt.target,"backgroundColor","#E0E0E0");
+            });
+            nl.forEach(function( featDiv ) {
+                var refreshMenu = lang.hitch( thisB, '_refreshMenu', featDiv );
+                thisB.own( on( featDiv,  'mouseover', refreshMenu ) );
             });
 
             // Add colorCdsByFrame
@@ -118,6 +104,50 @@ return declare( [Sequence],
             }
         };
         supermethod.call(this,args);
+    },
+
+    _refreshMenu: function( featDiv ) {
+        // if we already have a menu generated for this feature,
+        // give it a new lease on life
+        if( ! featDiv.contextMenu ) {
+            featDiv.contextMenu = this._makeFeatureContextMenu( featDiv, this.config.menuTemplate );
+        }
+
+        // give the menu a timeout so that it's cleaned up if it's not used within a certain time
+        if( featDiv.contextMenuTimeout ) {
+            window.clearTimeout( featDiv.contextMenuTimeout );
+        }
+        var timeToLive = 30000; // clean menus up after 30 seconds
+        featDiv.contextMenuTimeout = window.setTimeout( function() {
+            if( featDiv.contextMenu ) {
+                featDiv.contextMenu.destroyRecursive();
+                Util.removeAttribute( featDiv, 'contextMenu' );
+            }
+            Util.removeAttribute( featDiv, 'contextMenuTimeout' );
+        }, timeToLive );
+    },
+    _makeFeatureContextMenu( featDiv ) {
+        var menu=new Menu();
+        this.own( menu );
+        
+        menu.addChild(new MenuItem({
+            label: "Create insertion",
+            iconClass: "dijitIconNewTask",
+            onClick: function(evt){
+                var node = this.getParent().currentTarget;
+                alert("Insertion for node ", node);
+            }
+        }));
+        menu.addChild(new MenuItem({
+            label: "Create deletion",
+            iconClass: "dijitIconDelete",
+            onClick: function(evt){
+                var node = this.getParent().currentTarget;
+                alert("Deletion for node ", node);
+            }
+        }));
+        menu.startup();
+        menu.bindDomNode( featDiv );
     },
 
     createAddSequenceAlterationPanel: function(type, gcoord) {
@@ -320,6 +350,31 @@ return declare( [Sequence],
         });
     },
 
+    createGenomicInsertion: function()  {
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
+
+        var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
+        this.annotTrack.openDialog("Add Insertion", content);
+
+    
+
+    },
+
+    createGenomicDeletion: function()  {
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
+
+        var content = this.createAddSequenceAlterationPanel("deletion", gcoord);
+        this.annotTrack.openDialog("Add Deletion", content);
+
+    },
+
+    createGenomicSubstitution: function()  {
+        var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
+        var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
+        this.annotTrack.openDialog("Add Substitution", content);
+    },
+
+ 
 });
 });
 
