@@ -101,13 +101,14 @@ return declare( [Sequence],
                 var type=alt.get("type");
                 relStart=start-leftBase;
                 relEnd=end-leftBase;
+                console.log(start,relStart,relStart+rightBase-leftBase,nl.length,nl[relStart+rightBase-leftBase]);
                 if(type=="insertion") {
-                    domStyle.set(nl[relStart],"backgroundColor","green");
-                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","green");
+                    domStyle.set(nl[relStart],"backgroundColor","lightgreen");
+                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightgreen");
                 }
                 else if(type=="deletion") {
-                    domStyle.set(nl[relStart],"backgroundColor","red");
-                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","red");
+                    domStyle.set(nl[relStart],"backgroundColor","lightcoral");
+                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightcoral");
                 }
             });
             nl.on(mouse.enter,function(evt) {
@@ -165,8 +166,6 @@ return declare( [Sequence],
             iconClass: "dijitIconNewTask",
             onClick: function(evt){
                 var node = this.getParent().currentTarget;
-                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
-                thisB.createGenomicInsertion(evt,gcoord);
             }
         }));
         menu.addChild(new MenuItem({
@@ -174,7 +173,17 @@ return declare( [Sequence],
             iconClass: "dijitIconDelete",
             onClick: function(evt){
                 var node = this.getParent().currentTarget;
-                alert("Deletion for node ", node);
+                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                thisB.createGenomicDeletion(evt,gcoord);
+            }
+        }));
+        menu.addChild(new MenuItem({
+            label: "Create substitution",
+            iconClass: "dijitIconEditProperty",
+            onClick: function(evt){
+                var node = this.getParent().currentTarget;
+                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                thisB.createGenomicSubstitution(evt,gcoord);
             }
         }));
         menu.startup();
