@@ -1971,7 +1971,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         dojo.xhrPost( {
             url: context_path + "/Login?operation=logout",
             handleAs: "json",
-            timeout: 5 * 1000, // Time in milliseconds
+            timeout: 5 * 1000 // Time in milliseconds
         });
     },
     

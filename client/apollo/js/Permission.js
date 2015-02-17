@@ -1,5 +1,5 @@
 define(['dojo/_base/declare',
-        'dojo/request/xhr',
+        'dojo/request/xhr'
         ],
        function(declare,
            xhr) {
@@ -18,7 +18,7 @@ var Permission = declare(null, {
         return xhr.post(this.context_path + "/AnnotationEditorService", {
             data: JSON.stringify({ "track": trackName, "operation": "get_user_permission" }),
             handleAs: "json",
-            timeout: 5 * 1000, // Time in milliseconds
+            timeout: 5 * 1000 // Time in milliseconds
         }).then(function(response) {
             // The LOAD function will be called on a successful response.
             var permission = response.permission;
