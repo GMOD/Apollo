@@ -28,7 +28,11 @@ RefactorClient changes:
 - Use declare for proper class declarations on SequenceSearch
 - Added colorByCds back to the SequenceTrack
 - Use JBrowse as a submodule instead of a extra part of the Maven download
-
+- Use similar menu resource allocation scheme that is used for HTMLFeatures (progressively build and cleanup menu resources that are attached to individual bases in the sequence track, other technique to globally try to attach to all nodes without cleanup resulted in very slow rendering)
+- Replace the openDialog function in sequenceTrack with the _openDialog method from the BlockBased method
+- Login pops up a little success before page refresh, along with the Invalid login you get a quick notification of the success/failure of login
+- Success with insertion if logged in
+- 
 
 Casualties of the refactoring process so far:
 
