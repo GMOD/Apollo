@@ -32,31 +32,24 @@ RefactorClient changes:
 - Replace the openDialog function in sequenceTrack with the _openDialog method from the BlockBased method
 - Login pops up a little success before page refresh, along with the Invalid login you get a quick notification of the success/failure of login
 - Features can be subbed/inserted/deleted, etc.
-- 
+
 
 Casualties of the refactoring process so far:
 
-- The sequence displaying inside the feature when zoomed in (should this be reimplemented?)
-- The highlight doing both top and bottom (temporarily)
-- Notification listening
-
-Some caveats
-
-- Right clicking takes awhile on Firefox on the sequence track (FIXED)
-- The right clicking mechanism is based on track_ID which could technically change if someone edited the trackLabel on the sequence track (FIXED)
-- Simple highlighting bases when we have insertion or deleted (FIXED) 
-- Remove information editor code from annottrack, place in new module (FIXED)
+- The sequence overlay on the annotation track (sequence is overlaid on top of feature)
 
 
 Issues
 
-- Currently two insertions can be created in the same place (bad) although it does prevent overlapping ones
-- Begin removing the limitation where features with no subfeatures can be annotated
+* The dojo/query module is not guaranteed to return the divs in order, which we assume when highlighting the bases, which we assume when highlighting using the insertions/deletions. We can either:
+    * Find another way to address this without using this assumption, or
+    * Display sequence alterations a different way (without highlighting bases)
+
 
 Future
 
 - Remove "login" code from annottrack, place in main plugin or different module
-
+- Remove the limitation that features without subfeatures cannot be annotated
 
 
 Screenshot:
