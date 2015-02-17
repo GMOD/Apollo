@@ -153,7 +153,7 @@
             <!--<arg value="${jbrowse.git.directory}"/>-->
         <!--</exec>-->
         <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
-            <arg value="${jbrowse.download.directory}"/> -->
+            <arg value="${jbrowse.download.directory}"/>
         </exec>
     </target>
 
