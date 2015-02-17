@@ -78,10 +78,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         this.annot_under_mouse = null;
 
 
-        var thisObj = this;
-        this.comet_working = true;
-
-
         this.verbose_create = false;
         this.verbose_add = false;
         this.verbose_delete = false;
@@ -94,9 +90,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         this.verbose_render = false;
         this.verbose_server_notification = false;
 
-        var track = this;
-
-
         this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function(currRegion) {
             if (currRegion.ref != this.refSeq.name) {
                 if (this.listener && this.listener.fired == -1 ) {
@@ -105,16 +98,13 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
             }
         }));
 
-        this.gview.browser.subscribe("/jbrowse/v1/v/tracks/show", dojo.hitch(this, function(names) {
-        }));
-        
         if(!this.gview.browser._keyBoardShortcuts)
         {
-            this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
-            this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
+            this.gview.browser.setGlobalKeyboardShortcut('[', this, 'scrollToPreviousEdge');
+            this.gview.browser.setGlobalKeyboardShortcut(']', this, 'scrollToNextEdge');
         
-            this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
-            this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
+            this.gview.browser.setGlobalKeyboardShortcut('}', this, 'scrollToNextTopLevelFeature');
+            this.gview.browser.setGlobalKeyboardShortcut('{', this, 'scrollToPreviousTopLevelFeature');
             this.gview.browser._keyBoardShortcuts=true;
         }
         
@@ -136,8 +126,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
 
     _defaultConfig: function() {
         var thisConfig = this.inherited(arguments);
-        // nulling out menuTemplate to suppress default JBrowse feature contextual
-        // menu
+        // nulling out menuTemplate to suppress default JBrowse feature context menu
         thisConfig.menuTemplate = null;
         thisConfig.noExport = true;  // turn off default "Save track data"
         thisConfig.style.centerChildrenVertically = false;
@@ -336,7 +325,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
                 // actual error
                 if (response.responseText) {
                     track.handleError(response);
-                    track.comet_working = false;
                     console.error("HTTP status code: ", ioArgs.xhr.status);
                     return response;
                 }
@@ -657,8 +645,8 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
                     var featStrand = feat.get('strand');
                     var featToAdd = feat;
                     if (featStrand != annotStrand) {
-                            allSameStrand = 0;
-                            featToAdd.set('strand', annotStrand);
+                        allSameStrand = 0;
+                        featToAdd.set('strand', annotStrand);
                     }
                     featToAdd.set('type', 'exon');
                     subfeats.push(featToAdd);
@@ -762,10 +750,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
             }
             else {
                 var children = dragfeat.get("subfeatures");
-				if(!children) {
-                    alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
-                    return;
-                }
                 for (var j = 0; j < children.length; ++j) {
                     subfeatures.push(children[j]);
                  }
