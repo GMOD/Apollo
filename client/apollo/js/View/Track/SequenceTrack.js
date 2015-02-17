@@ -14,14 +14,16 @@ define( [
     'JBrowse/Util',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
+    'WebApollo/Store/SeqFeature/ScratchPad',
     'dojo/request/xhr',
-    'dojox/widget/Standby',
+    'dojox/widget/Standby'
      ],
 function(
     declare,
     lang,
     array,
-    mouse,query,
+    mouse,
+    query,
     dom,
     domStyle,
     domClass,
@@ -32,6 +34,7 @@ function(
     Util,
     JSONUtils,
     Permission,
+    ScratchPad,
     xhr,
     Standby ) {
 
@@ -49,6 +52,11 @@ return declare( [Sequence],
         this.context_path = "..";
         this.annotationPrefix = "Annotations-";
         this.loadTranslationTable();
+        this.loadSequenceAlterations();
+        this.annotStoreConfig=lang.clone(this.config);
+        this.annotStoreConfig.browser=this.browser;
+        this.annotStoreConfig.refSeq=this.refSeq;
+        this.alterationsStore = new ScratchPad(this.annotStoreConfig);
     },
 
     /*
@@ -69,7 +77,7 @@ return declare( [Sequence],
             end = track.refSeq.end;
         }
         var count = 0;
-        track.store.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
+        track.alterationsStore.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
         
         return count;
     }, 
@@ -77,23 +85,44 @@ return declare( [Sequence],
         var thisB=this;
         var supermethod = this.getInherited(arguments);
         var finishCallback=args.finishCallback;
+        var alterations=[];
+        var leftBase=args.leftBase;
+        var rightBase=args.rightBase;
+        this.alterationsStore.getFeatures({start: args.leftBase, end: args.rightBase },function(f) { alterations.push(f); }); 
         args.finishCallback=function() {
             finishCallback();
             // Add right-click menu
             // Add mouseover highlight
             var nl=query('.base',args.block.domNode);
-            nl.style("backgroundColor","#E0E0E0")
-            
+            nl.style("backgroundColor","#E0E0E0");
+            array.forEach(alterations,function(alt) {
+                var start=alt.get("start");
+                var end=alt.get("end");
+                var type=alt.get("type");
+                relStart=start-leftBase;
+                relEnd=end-leftBase;
+                if(type=="insertion") {
+                    domStyle.set(nl[relStart],"backgroundColor","green");
+                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","green");
+                }
+                else if(type=="deletion") {
+                    domStyle.set(nl[relStart],"backgroundColor","red");
+                    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","red");
+                }
+            });
             nl.on(mouse.enter,function(evt) {
-              domStyle.set(evt.target,"backgroundColor","orange");
+                evt.target.oldColor=domStyle.get(evt.target,"backgroundColor");
+                domStyle.set(evt.target,"backgroundColor","orange");
             });
             nl.on(mouse.leave,function(evt) {
-              domStyle.set(evt.target,"backgroundColor","#E0E0E0");
+                domStyle.set(evt.target,"backgroundColor",evt.target.oldColor);
+                evt.target.oldColor=null
             });
             nl.forEach(function( featDiv ) {
                 var refreshMenu = lang.hitch( thisB, '_refreshMenu', featDiv );
                 thisB.own( on( featDiv,  'mouseover', refreshMenu ) );
             });
+            
 
             // Add colorCdsByFrame
             if (thisB.browser.cookie("colorCdsByFrame")=="1") {
@@ -103,7 +132,7 @@ return declare( [Sequence],
                 query(".translatedSequence .colorCds").removeClass("colorCds");
             }
         };
-        supermethod.call(this,args);
+        supermethod.call(thisB,args);
     },
 
     _refreshMenu: function( featDiv ) {
@@ -126,7 +155,7 @@ return declare( [Sequence],
             Util.removeAttribute( featDiv, 'contextMenuTimeout' );
         }, timeToLive );
     },
-    _makeFeatureContextMenu( featDiv ) {
+    _makeFeatureContextMenu: function( featDiv ) {
         var thisB=this;
         var menu=new Menu();
         this.own( menu );
@@ -358,6 +387,27 @@ return declare( [Sequence],
             return response;
         });
     },
+    loadSequenceAlterations: function() {
+        var track = this;
+        return xhr.post( this.context_path + "/AnnotationEditorService",
+        {
+            data: JSON.stringify({ "track": this.annotationPrefix+this.refSeq.name, "operation": "get_sequence_alterations" }),
+            handleAs: "json"
+        }).then(
+            function(response) {
+                var responseFeatures = response.features;
+                for (var i = 0; i < responseFeatures.length; i++) {
+                    var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
+                    track.alterationsStore.insert(jfeat);
+                }
+                track.featureCount = track.storedFeatureCount();
+                track.changed();
+            },
+            function(response) {
+                console.log('Failed to load sequence alternations');
+                return response;
+            });
+     },
 
     createGenomicInsertion: function(evt,gcoord)  {
         this._openDialog({
