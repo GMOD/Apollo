@@ -15,8 +15,7 @@ define( [
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'WebApollo/Store/SeqFeature/ScratchPad',
-    'dojo/request/xhr',
-    'dojox/widget/Standby'
+    'dojo/request/xhr'
      ],
 function(
     declare,
@@ -35,8 +34,8 @@ function(
     JSONUtils,
     Permission,
     ScratchPad,
-    xhr,
-    Standby ) {
+    xhr
+     ) {
 
 return declare( [Sequence],
 {
@@ -45,17 +44,11 @@ return declare( [Sequence],
      * far enough.
      */
     constructor: function( args ) {
-        var track = this;
-        this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
-            this.webapollo = p;
-        }));
         this.context_path = "..";
         this.annotationPrefix = "Annotations-";
         this.loadTranslationTable();
         this.loadSequenceAlterations();
-        this.annotStoreConfig=lang.clone(this.config);
-        this.annotStoreConfig.browser=this.browser;
-        this.annotStoreConfig.refSeq=this.refSeq;
+        this.annotStoreConfig=lang.mixin(lang.clone(this.config),{browser:this.browser,refSeq:this.refSeq});
         this.alterationsStore = new ScratchPad(this.annotStoreConfig);
     },
 
@@ -66,6 +59,27 @@ return declare( [Sequence],
     annotationsUpdatedNotification: function(annots)  {
         this.annotationsDeletedNotification(annots);
         this.annotationAddedNotification(annots);
+    },
+    annotationsAddedNotification: function(responseFeatures)  {
+        for (var i = 0; i < responseFeatures.length; ++i) {
+            var feat = JSONUtils.createJBrowseSequenceAlteration( responseFeatures[i] );
+            var id = responseFeatures[i].uniquename;
+            if (! this.alterationsStore.getFeatureById(id))  {
+                this.alterationsStore.insert(feat);
+            }
+        }
+        this.changed();
+    },
+    /**
+     * sequence alteration annotation DELETE command received by a ChangeNotificationListener,
+     *      so telling SequenceTrack to remove from it's SeqFeatureStore
+     */
+    annotationsDeletedNotification: function(annots)  {
+        for (var i = 0; i < annots.length; ++i) {
+            var id_to_delete = annots[i].uniquename;
+            this.alterationsStore.deleteFeatureById(id_to_delete);
+        }
+        this.changed();
     },
     
     storedFeatureCount: function(start, end)  {
@@ -105,12 +119,12 @@ return declare( [Sequence],
                 relStart=start-leftBase;
                 relEnd=end-leftBase;
                 if(type=="insertion") {
-                    domStyle.set(nl[relStart],"backgroundColor","lightgreen");
-                //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightgreen");
+                    domStyle.set(nl[relStart],"backgroundColor","green");
+                //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","green");
                 }
                 else if(type=="deletion") {
-                    domStyle.set(nl[relStart],"backgroundColor","lightcoral");
-                  //  domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","lightcoral");
+                    domStyle.set(nl[relStart],"backgroundColor","red");
+                  //  domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","red");
                 }
                 else if(type=="substitution") {
                     domStyle.set(nl[relStart],"backgroundColor","yellow");
@@ -247,10 +261,10 @@ return declare( [Sequence],
                         // but, if scrolling triggered (or potentially triggered), can hide other strand input element
                         // scrolling only triggered when length of input text exceeds character size of input element
                         if (isBackspace)  {
-                            minusField.value = track.complement(curval.substring(0,curval.length-1));  
+                            minusField.value = Util.complement(curval.substring(0,curval.length-1));  
                         }
                         else {
-                            minusField.value = track.complement(curval + newchar);  
+                            minusField.value = Util.complement(curval + newchar);  
                         }
                         if (curval.length > charWidth) {
                             $(minusDiv).hide();
@@ -281,10 +295,10 @@ return declare( [Sequence],
                         // but, if scrolling triggered (or potentially triggered), can hide other strand input element
                         // scrolling only triggered when length of input text exceeds character size of input element
                         if (isBackspace)  {
-                            plusField.value = track.complement(curval.substring(0,curval.length-1));  
+                            plusField.value = Util.complement(curval.substring(0,curval.length-1));  
                         }
                         else {
-                            plusField.value = track.complement(curval + newchar);  
+                            plusField.value = Util.complement(curval + newchar);  
                         }
                         if (curval.length > charWidth) {
                             $(plusDiv).hide();
@@ -374,9 +388,9 @@ return declare( [Sequence],
                         data: JSON.stringify(postData),
                         method: "post"
                     }).then(function(response) {
-                        console.log(response);
+                        // Success
                     }, function(response) {
-                        console.log(response);
+                        console.log("Error",response);
                     });
                 }
             }
@@ -449,17 +463,7 @@ return declare( [Sequence],
             title: "Add Substitution",
             content: this.createAddSequenceAlterationPanel("substitution", gcoord)
         },evt);
-    },
-    complement: (function() { 
-         var compl_rx   = /[ACGT]/gi; 
-
-         var compl_tbl  = {"S":"S","w":"w","T":"A","r":"y","a":"t","N":"N","K":"M","x":"x","d":"h","Y":"R","V":"B","y":"r","M":"K","h":"d","k":"m","C":"G","g":"c","t":"a","A":"T","n":"n","W":"W","X":"X","m":"k","v":"b","B":"V","s":"s","H":"D","c":"g","D":"H","b":"v","R":"Y","G":"C"}; 
-
-         var compl_func = function(m) { return compl_tbl[m] || SequenceTrack.nbsp; }; 
-         return function( seq ) { 
-             return seq.replace( compl_rx, compl_func ); 
-         }; 
-     })(), 
+    }
 
  
 });
