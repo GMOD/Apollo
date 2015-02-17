@@ -1,5 +1,6 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/array',
             'jquery',
             'jqueryui/droppable',
             'jqueryui/resizable',
@@ -12,6 +13,7 @@ define( [
             'dojox/widget/DialogSimple',
             'dojo/json',
             'WebApollo/View/Track/DraggableHTMLFeatures',
+            'WebApollo/View/Track/SequenceTrack',
             'WebApollo/FeatureSelectionManager',
             'WebApollo/JSONUtils',
             'WebApollo/Permission', 
@@ -29,6 +31,7 @@ define( [
             'WebApollo/View/GetSequence'
         ],
         function( declare,
+                array,
                 $,
                 droppable,
                 resizable,
@@ -41,6 +44,7 @@ define( [
                 dojoxDialogSimple,
                 JSON,
                 DraggableFeatureTrack,
+                SequenceTrack,
                 FeatureSelectionManager,
                 JSONUtils,
                 Permission,
@@ -252,18 +256,18 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
                         }
                         if (changeData.operation == "ADD") {
                             if (changeData.sequenceAlterationEvent) {
-                                    track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                                track.getSequenceTrack().annotationsAddedNotification(changeData.features);
                             }
                             else {
-                                    track.annotationsAddedNotification(changeData.features);
+                                track.annotationsAddedNotification(changeData.features);
                             }
                         }
                         else if (changeData.operation == "DELETE") {
                             if (changeData.sequenceAlterationEvent) {
-                                    track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                                track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
                             }
                             else {
-                                    track.annotationsDeletedNotification(changeData.features);
+                                track.annotationsDeletedNotification(changeData.features);
                             }
                         }
                         else if (changeData.operation == "UPDATE") {
@@ -330,7 +334,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
                 }
                 // everything else
                 else {
-                    track.handleError({responseText: '{ error: "Server connection error" }'});
+                    track.handleError(response);
                     return;
                 }
                 
