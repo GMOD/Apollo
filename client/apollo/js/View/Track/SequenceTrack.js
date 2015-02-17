@@ -81,6 +81,23 @@ return declare( [Sequence],
         }
         this.changed();
     },
+    requestDeletion: function(selected)  {
+        var features = [{uniquename: selected.id()}];
+        var postData = {
+            "track": this.annotationPrefix+this.refSeq.name,
+            "features": features,
+            "operation": "delete_sequence_alteration"
+        };
+        xhr(this.context_path + "/AnnotationEditorService", {
+            handleAs: "json",
+            data: JSON.stringify(postData),
+            method: "post"
+        }).then(function(response) {
+            // Success
+        }, function(response) {
+            console.log("Error",response);
+        });
+    },
     
     storedFeatureCount: function(start, end)  {
         var track = this;
@@ -118,6 +135,7 @@ return declare( [Sequence],
                 var type=alt.get("type");
                 relStart=start-leftBase;
                 relEnd=end-leftBase;
+
                 if(type=="insertion") {
                     domStyle.set(nl[relStart],"backgroundColor","green");
                 //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","green");
@@ -130,6 +148,7 @@ return declare( [Sequence],
                     domStyle.set(nl[relStart],"backgroundColor","yellow");
                    // domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","yellow");
                 }
+                nl[relStart]._altered=alt;
             });
             nl.on(mouse.enter,function(evt) {
                 evt.target.oldColor=domStyle.get(evt.target,"backgroundColor");
@@ -180,34 +199,46 @@ return declare( [Sequence],
         var thisB=this;
         var menu=new Menu();
         this.own( menu );
-        
-        menu.addChild(new MenuItem({
-            label: "Create insertion",
-            iconClass: "dijitIconNewTask",
-            onClick: function(evt){
-                var node = this.getParent().currentTarget;
-                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
-                thisB.createGenomicInsertion(evt,gcoord-1);
-            }
-        }));
-        menu.addChild(new MenuItem({
-            label: "Create deletion",
-            iconClass: "dijitIconDelete",
-            onClick: function(evt){
-                var node = this.getParent().currentTarget;
-                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
-                thisB.createGenomicDeletion(evt,gcoord-1);
-            }
-        }));
-        menu.addChild(new MenuItem({
-            label: "Create substitution",
-            iconClass: "dijitIconEditProperty",
-            onClick: function(evt){
-                var node = this.getParent().currentTarget;
-                var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
-                thisB.createGenomicSubstitution(evt,gcoord-1);
-            }
-        }));
+        var alt=featDiv._altered;
+        if(alt) {
+            menu.addChild(new MenuItem({
+                label: "Remove "+alt.get("type"),
+                iconClass: "dijitIconDelete",
+                onClick: function(evt) {
+                    var node=evt.target;
+                    thisB.requestDeletion(alt);
+                }
+            }));
+        }
+        else {
+            menu.addChild(new MenuItem({
+                label: "Create insertion",
+                iconClass: "dijitIconNewTask",
+                onClick: function(evt){
+                    var node = this.getParent().currentTarget;
+                    var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                    thisB.createGenomicInsertion(evt,gcoord-1);
+                }
+            }));
+            menu.addChild(new MenuItem({
+                label: "Create deletion",
+                iconClass: "dijitIconDelete",
+                onClick: function(evt){
+                    var node = this.getParent().currentTarget;
+                    var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                    thisB.createGenomicDeletion(evt,gcoord-1);
+                }
+            }));
+            menu.addChild(new MenuItem({
+                label: "Create substitution",
+                iconClass: "dijitIconEditProperty",
+                onClick: function(evt){
+                    var node = this.getParent().currentTarget;
+                    var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
+                    thisB.createGenomicSubstitution(evt,gcoord-1);
+                }
+            }));
+        }
         menu.startup();
         menu.bindDomNode( featDiv );
     },
@@ -426,7 +457,6 @@ return declare( [Sequence],
             handleAs: "json"
         }).then(
             function(response) {
-                console.log(response);
                 var responseFeatures = response.features;
                 for (var i = 0; i < responseFeatures.length; i++) {
                     var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
