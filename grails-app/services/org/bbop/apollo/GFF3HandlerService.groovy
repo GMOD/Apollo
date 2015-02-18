@@ -7,20 +7,21 @@ package org.bbop.apollo;
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
-//import grails.compiler.GrailsCompileStatic
+
+import grails.compiler.GrailsCompileStatic
 
 //import groovy.transform.CompileStatic
 //
 //
 //@CompileStatic
-//@GrailsCompileStatic
+@GrailsCompileStatic
 public class GFF3HandlerService {
 
-    private File file;
-    private boolean firstEntry;
-    private PrintWriter out;
-    private Mode mode;
-    private Set<String> attributesToExport;
+//    private File file;
+//    private boolean firstEntry;
+//    private PrintWriter out;
+//    private Mode mode;
+//    private Set<String> attributesToExport;
 
     SequenceService sequenceService
     FeatureRelationshipService featureRelationshipService
@@ -29,62 +30,65 @@ public class GFF3HandlerService {
     FeatureService featureService
     FeaturePropertyService featurePropertyService
 
-    public enum Mode {
-        READ,
-        WRITE
+//    public GFF3HandlerService(String path, Mode mode, Set<String> attributesToExport) throws IOException {
+//        this(path, mode, Format.TEXT, attributesToExport);
+//    }
+//    
+//    public GFF3HandlerService(String path, Mode mode, Format format, Set<String> attributesToExport) throws IOException {
+//        this.mode = mode;
+//        this.attributesToExport = attributesToExport;
+//        file = new File(path);
+//        file.createNewFile();
+//        firstEntry = true;
+//        if (mode == Mode.READ) {
+//            if (!file.canRead()) {
+//                throw new IOException("Cannot read GFF3 file: " + file.getAbsolutePath());
+//            }
+//        }
+//        if (mode == Mode.WRITE) {
+//            if (!file.canWrite()) {
+//                throw new IOException("Cannot write GFF3 to: " + file.getAbsolutePath());
+//            }
+//            switch (format) {
+//            case Format.TEXT:
+//                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+//                break;
+//            case Format.GZIP:
+//                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
+//            }
+//        }
+//    }
+
+//    public void close() {
+//        if (mode == Mode.READ) {
+//            //TODO
+//        }
+//        else if (mode == Mode.WRITE) { 
+//            out.close();
+//        }
+//    }
+
+    public void writeFeaturesToText(String path,Collection<? extends Feature> features, String source) throws IOException {
+        WriteObject writeObject = new WriteObject(
+        )
+
+        writeObject.mode= Mode.WRITE
+        writeObject.file= new File(path)
+        writeObject.format= Format.TEXT
+        if (!writeObject.file.canWrite()) {
+            throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
+        }
+        
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file)));
+        writeObject.out = out
+        out.println("##gff-version 3");
+       
+        writeFeatures(writeObject,features,source)
+        
     }
-    
-    public enum Format {
-        TEXT,
-        GZIP
-    }
-    
-    public GFF3HandlerService(String path, Mode mode, Set<String> attributesToExport) throws IOException {
-        this(path, mode, Format.TEXT, attributesToExport);
-    }
-    
-    public GFF3HandlerService(String path, Mode mode, Format format, Set<String> attributesToExport) throws IOException {
-        this.mode = mode;
-        this.attributesToExport = attributesToExport;
-        file = new File(path);
-        file.createNewFile();
-        firstEntry = true;
-        if (mode == Mode.READ) {
-            if (!file.canRead()) {
-                throw new IOException("Cannot read GFF3 file: " + file.getAbsolutePath());
-            }
-        }
-        if (mode == Mode.WRITE) {
-            if (!file.canWrite()) {
-                throw new IOException("Cannot write GFF3 to: " + file.getAbsolutePath());
-            }
-            switch (format) {
-            case Format.TEXT:
-                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-                break;
-            case Format.GZIP:
-                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
-            }
-        }
-    }
-    
-    public void close() {
-        if (mode == Mode.READ) {
-            //TODO
-        }
-        else if (mode == Mode.WRITE) { 
-            out.close();
-        }
-    }
-    
-    public void writeFeatures(Collection<? extends Feature> features, String source) throws IOException {
-        if (mode != Mode.WRITE) {
-            throw new IOException("Cannot write to file in READ mode");
-        }
-        if (firstEntry) {
-            out.println("##gff-version 3");
-            firstEntry = false;
-        }
+
+
+    public void writeFeatures(WriteObject writeObject,Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
             Sequence sourceFeature = feature.getFeatureLocation().sequence
@@ -96,79 +100,75 @@ public class GFF3HandlerService {
             featureList.add(feature);
         }
         for (Map.Entry<Sequence, Collection<Feature>> entry : featuresBySource.entrySet()) {
-            writeGroupDirectives(entry.getKey());
+            writeGroupDirectives(writeObject,entry.getKey());
             for (Feature feature : entry.getValue()) {
-                writeFeature(feature, source);
-                writeFeatureGroupEnd();
+                writeFeature(writeObject,feature, source);
+                writeFeatureGroupEnd(writeObject.out);
             }
         }
     }
-    
-    public void writeFeatures(Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
-        if (mode != Mode.WRITE) {
-            throw new IOException("Cannot write to file in READ mode");
-        }
-        if (firstEntry) {
-            out.println("##gff-version 3");
-            firstEntry = false;
-        }
+
+    public void writeFeatures(WriteObject writeObject,Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
+//        if (firstEntry) {
+//            out.println("##gff-version 3");
+//            firstEntry = false;
+//        }
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
             if (needDirectives) {
-                writeGroupDirectives(feature.getFeatureLocation().sequence)
+                writeGroupDirectives(writeObject,feature.getFeatureLocation().sequence)
                 needDirectives = false;
             }
-            writeFeature(feature, source);
-            writeFeatureGroupEnd();
+            writeFeature(writeObject,feature, source);
+            writeFeatureGroupEnd(writeObject.out);
         }
     }
-    
-    private void writeGroupDirectives(Sequence sourceFeature) {
-        if(sourceFeature.getFeatureLocations().size()==0) return ;
+
+    static private void writeGroupDirectives(WriteObject writeObject,Sequence sourceFeature) {
+        if (sourceFeature.getFeatureLocations().size() == 0) return;
         FeatureLocation loc = sourceFeature.getFeatureLocations().iterator().next();
-        out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, loc.getFmin() + 1, loc.getFmax()));
+        writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, loc.getFmin() + 1, loc.getFmax()));
     }
-    
-    private void writeFeatureGroupEnd() {
+
+    static private void writeFeatureGroupEnd(PrintWriter out) {
         out.println("###");
     }
-    
-    private void writeEmptyFastaDirective() {
+
+    static private void writeEmptyFastaDirective(PrintWriter out) {
         out.println("##FASTA");
     }
-    
-    private void writeFeature(Feature feature, String source) {
-        for (GFF3Entry entry : convertToEntry(feature, source)) {
-            out.println(entry.toString());
+
+    private void writeFeature(WriteObject writeObject,Feature feature, String source) {
+        for (GFF3Entry entry : convertToEntry(writeObject,feature, source)) {
+            writeObject.out.println(entry.toString());
         }
     }
-    
-    public void writeFasta(Collection<? extends Feature> features) {
-        writeEmptyFastaDirective();
+
+    public void writeFasta(PrintWriter out,Collection<? extends Feature> features) {
+        writeEmptyFastaDirective(out);
         for (Feature feature : features) {
-            writeFasta(feature, false);
+            writeFasta(out,feature, false);
         }
     }
-    
-    public void writeFasta(Feature feature) {
-        writeFasta(feature, true);
+
+    public void writeFasta(PrintWriter out,Feature feature) {
+        writeFasta(out,feature, true);
     }
-    
-    public void writeFasta(Feature feature, boolean writeFastaDirective) {
-        writeFasta(feature, writeFastaDirective, true);
+
+    public void writeFasta(PrintWriter out,Feature feature, boolean writeFastaDirective) {
+        writeFasta(out,feature, writeFastaDirective, true);
     }
-    
-    public void writeFasta(Feature feature, boolean writeFastaDirective, boolean useLocation) {
+
+    public void writeFasta(PrintWriter out,Feature feature, boolean writeFastaDirective, boolean useLocation) {
         int lineLength = 60;
         if (writeFastaDirective) {
-            writeEmptyFastaDirective();
+            writeEmptyFastaDirective(out);
         }
         String residues = null;
         if (useLocation) {
             FeatureLocation loc = feature.getFeatureLocations().iterator().next();
             residues = sequenceService.getResidueFromFeatureLocation(loc)
-        }
-        else {
+        } else {
             residues = sequenceService.getResiduesFromFeature(feature)
         }
         if (residues != null) {
@@ -180,15 +180,15 @@ public class GFF3HandlerService {
             }
         }
     }
-    
-    private Collection<GFF3Entry> convertToEntry(Feature feature, String source) {
+
+    private Collection<GFF3Entry> convertToEntry(WriteObject writeObject,Feature feature, String source) {
         List<GFF3Entry> gffEntries = new ArrayList<GFF3Entry>();
-        convertToEntry(feature, source, gffEntries);
+        convertToEntry(writeObject,feature, source, gffEntries);
         return gffEntries;
     }
-    
-    private void convertToEntry(Feature feature, String source, Collection<GFF3Entry> gffEntries) {
-        String []cvterm = feature.cvTerm.split(":");
+
+    private void convertToEntry(WriteObject writeObject,Feature feature, String source, Collection<GFF3Entry> gffEntries) {
+        String[] cvterm = feature.cvTerm.split(":");
         String seqId = feature.getFeatureLocation().sequence.name
         String type = cvterm[1];
         int start = feature.getFmin() + 1;
@@ -197,28 +197,25 @@ public class GFF3HandlerService {
         String strand;
         if (feature.getStrand() == 1) {
             strand = "+";
-        }
-        else if (feature.getStrand() == -1) {
+        } else if (feature.getStrand() == -1) {
             strand = "-";
-        }
-        else {
+        } else {
             strand = "";
         }
         String phase = "";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
-        entry.setAttributes(extractAttributes(feature));
+        entry.setAttributes(extractAttributes(writeObject,feature));
         gffEntries.add(entry);
         for (Feature child : featureRelationshipService.getChildren(feature)) {
             if (child instanceof CDS) {
-                convertToEntry((CDS)child, source, gffEntries);
-            }
-            else {
-                convertToEntry(child, source, gffEntries);
+                convertToEntry(writeObject,(CDS) child, source, gffEntries);
+            } else {
+                convertToEntry(writeObject,child, source, gffEntries);
             }
         }
     }
-    
-    private void convertToEntry(CDS cds, String source, Collection<GFF3Entry> gffEntries) {
+
+    private void convertToEntry(WriteObject writeObject,CDS cds, String source, Collection<GFF3Entry> gffEntries) {
 //        String []cvterm = cds.getType().split(":");
         String seqId = cds.getFeatureLocation().sequence.name
 //        String type = cvterm[1];
@@ -227,23 +224,21 @@ public class GFF3HandlerService {
         String strand;
         if (cds.getStrand() == 1) {
             strand = "+";
-        }
-        else if (cds.getStrand() == -1) {
+        } else if (cds.getStrand() == -1) {
             strand = "-";
-        }
-        else {
+        } else {
             strand = "";
         }
 //        featureRelationshipService.getParentForFeature(cds,transcriptService.ontologyIds)
-       
-       
+
+
         Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
 
         List<Exon> exons = exonService.getSortedExons(transcript)
 //        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(cds.getTranscript().getExons());
         int length = 0;
         for (Exon exon : exons) {
-            if (!featureService.overlaps(exon,cds)) {
+            if (!featureService.overlaps(exon, cds)) {
                 continue;
             }
             int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
@@ -251,30 +246,28 @@ public class GFF3HandlerService {
             String phase;
             if (length % 3 == 0) {
                 phase = "0";
-            }
-            else if (length % 3 == 1) {
+            } else if (length % 3 == 1) {
                 phase = "2";
-            }
-            else {
+            } else {
                 phase = "1";
             }
             length += fmax - fmin;
             GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
-            entry.setAttributes(extractAttributes(cds));
+            entry.setAttributes(extractAttributes(writeObject,cds));
             gffEntries.add(entry);
         }
         for (Feature child : featureRelationshipService.getChildren(cds)) {
-            convertToEntry(child, source, gffEntries);
+            convertToEntry(writeObject,child, source, gffEntries);
         }
     }
-    
-    private Map<String, String> extractAttributes(Feature feature) {
+
+    private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
-        if (feature.getName() != null && attributesToExport.contains(FeatureStringEnum.NAME.value)) {
+        if (feature.getName() != null && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-        if (attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
             Iterator<Synonym> synonymIter = feature.synonyms.iterator();
             if (synonymIter.hasNext()) {
                 StringBuilder synonyms = new StringBuilder();
@@ -286,7 +279,7 @@ public class GFF3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_ALIAS.value, synonyms.toString());
             }
         }
-        
+
         // gets the top writeable object
 //        SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
 //        Feature simpleFeature = (Feature)iterator.next();
@@ -314,7 +307,7 @@ public class GFF3HandlerService {
 
         //TODO: Target
         //TODO: Gap
-        if (attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
             Iterator<Comment> commentIter = featurePropertyService.getComments(feature).iterator()
             if (commentIter.hasNext()) {
                 StringBuilder comments = new StringBuilder();
@@ -326,7 +319,7 @@ public class GFF3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_NOTE.value, comments.toString());
             }
         }
-        if (attributesToExport.contains(FeatureStringEnum.DBXREFS.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.DBXREFS.value)) {
             Iterator<DBXref> dbxrefIter = feature.featureDBXrefs.iterator();
             if (dbxrefIter.hasNext()) {
                 StringBuilder dbxrefs = new StringBuilder();
@@ -340,29 +333,28 @@ public class GFF3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_DBXREF.value, dbxrefs.toString());
             }
         }
-        if (feature.getDescription() != null && attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value)) {
+        if (feature.getDescription() != null && writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value)) {
             attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
         }
-        if (feature.getStatus() != null && attributesToExport.contains(FeatureStringEnum.STATUS.value)) {
+        if (feature.getStatus() != null && writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value)) {
             attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
         }
-        if (feature.getSymbol() != null && attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
+        if (feature.getSymbol() != null && writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
             attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
         }
         //TODO: Ontology_term
         //TODO: Is_circular
         Iterator<FeatureProperty> propertyIter = feature.featureProperties.iterator();
-        if (attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.ATTRIBUTES.value)) {
             if (propertyIter.hasNext()) {
                 Map<String, StringBuilder> properties = new HashMap<String, StringBuilder>();
-                while (propertyIter.hasNext()){
+                while (propertyIter.hasNext()) {
                     FeatureProperty prop = propertyIter.next();
                     StringBuilder props = properties.get(prop.getTag());
                     if (props == null) {
                         props = new StringBuilder();
                         properties.put(prop.getTag(), props);
-                    }
-                    else {
+                    } else {
                         props.append(",");
                     }
                     props.append(encodeString(prop.getValue()));
@@ -372,26 +364,26 @@ public class GFF3HandlerService {
                 }
             }
         }
-        if (attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
-            attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().name));
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
+            attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
         }
-        if (attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(feature.dateCreated);
             attributes.put(FeatureStringEnum.DATE_CREATION.value, encodeString(String.format("%d-%02d-%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))));
         }
-        if (attributesToExport.contains(FeatureStringEnum.DATE_LAST_MODIFIED.value)) {
+        if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_LAST_MODIFIED.value)) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(feature.lastUpdated);
             attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(String.format("%d-%02d-%d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))));
         }
         return attributes;
     }
-    
-    private String encodeString(String str) {
+
+    static private String encodeString(String str) {
         return str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09");
     }
-    
+
     public class GFF3Entry {
 
         private String seqId;
@@ -403,7 +395,7 @@ public class GFF3HandlerService {
         private String strand;
         private String phase;
         private Map<String, String> attributes;
-        
+
         public GFF3Entry(String seqId, String source, String type, int start, int end, String score, String strand, String phase) {
             this.seqId = seqId;
             this.source = source;
@@ -423,31 +415,31 @@ public class GFF3HandlerService {
         public void setSeqId(String seqId) {
             this.seqId = seqId;
         }
-        
+
         public String getSource() {
             return source;
         }
-        
+
         public void setSource(String source) {
             this.source = source;
         }
-        
+
         public String getType() {
             return type;
         }
-        
+
         public void setType(String type) {
             this.type = type;
         }
-        
+
         public int getStart() {
             return start;
         }
-        
+
         public void setStart(int start) {
             this.start = start;
         }
-        
+
         public int getEnd() {
             return end;
         }
@@ -479,19 +471,19 @@ public class GFF3HandlerService {
         public void setPhase(String phase) {
             this.phase = phase;
         }
-        
+
         public Map<String, String> getAttributes() {
             return attributes;
         }
-        
+
         public void setAttributes(Map<String, String> attributes) {
             this.attributes = attributes;
         }
-        
+
         public void addAttribute(String key, String value) {
             attributes.put(key, value);
         }
-        
+
         public String toString() {
             StringBuilder buf = new StringBuilder();
             buf.append(String.format("%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s\t", getSeqId(), getSource(), getType(), getStart(), getEnd(), getScore(), getStrand(), getPhase()));
@@ -512,5 +504,25 @@ public class GFF3HandlerService {
             return buf.toString();
         }
     }
-    
+
+    public enum Mode {
+        READ,
+        WRITE
+    }
+
+    public enum Format {
+        TEXT,
+        GZIP
+    }
+
+
+    private class WriteObject {
+        File file;
+//        boolean firstEntry;
+        PrintWriter out;
+        Mode mode;
+        Set<String> attributesToExport;
+        Format format
+    }
+
 }

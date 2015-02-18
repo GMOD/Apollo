@@ -184,6 +184,7 @@ apollo.get_translation_code = 1
 // TODO: should come from config or via preferences database
 apollo.splice_donor_sites = [ "GT"]
 apollo.splice_acceptor_sites = [ "AG"]
+apollo.gff3.source= "."
 
 apollo.info_editor = {
     feature_types = "default"

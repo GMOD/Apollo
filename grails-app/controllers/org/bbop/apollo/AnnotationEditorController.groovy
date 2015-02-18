@@ -42,6 +42,7 @@ class AnnotationEditorController implements AnnotationListener {
     def requestHandlingService
     def cdsService
     def exonService
+    GFF3HandlerService gff3HandlerService
 
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
@@ -426,7 +427,6 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def getSequence() {
-        throw new RuntimeException("Still working on it")
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -534,7 +534,6 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def getGff3() {
-        throw new RuntimeException("Still working on it")
 //        JSONObject featureContainer = createJSONFeatureContainer();
         File tempFile = File.createTempFile("feature",".gff3");
 
@@ -566,6 +565,9 @@ class AnnotationEditorController implements AnnotationListener {
             featuresToWrite.add(gbolFeature);
         }
 
+        gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,grailsApplication.config.apollo.gff3.source as String)
+//        gff3HandlerService.writeFeatures(featuresToWrite,grailsApplication.config.apollo.gff3.source)
+        
 //        GFF3Handler gff3Handler = new GFF3Handler(tempFile.getAbsolutePath(),GFF3Handler.Mode.WRITE, GFF3Handler.Format.TEXT,metaDataToExport);
 //        String inputString = ".";
 ////        Node sourceNode = doc.getElementsByTagName("source").item(0);
@@ -580,7 +582,8 @@ class AnnotationEditorController implements AnnotationListener {
 //
 //        assert tempFile.delete();
 
-        response << gff3String;
+//        response << gff3String;
+        render gff3String
     }
 
     def getAnnotationInfoEditorData() {
