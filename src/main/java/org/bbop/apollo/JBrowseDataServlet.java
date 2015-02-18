@@ -89,6 +89,8 @@ public class JBrowseDataServlet extends HttpServlet {
         if (mimeType == null) {
             if (filename.endsWith(".bam")
                     || filename.endsWith(".bw")
+                    || filename.endsWith(".bigwig")
+                    || filename.endsWith(".bigWig")
                     || filename.endsWith(".bai")
                     || filename.endsWith(".conf")
                     ) {

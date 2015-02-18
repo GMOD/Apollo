@@ -60,7 +60,7 @@ usage: $progname
     [-P|--dbpassword <user_database_password>]
     -u|--username <username_for_user_to_be_added>
     -p|--password <password_for_user_to_be_added>
-    [-e|--unencrypted]
+    [-x|--unencrypted]
     [-h|--help]
 END
 }

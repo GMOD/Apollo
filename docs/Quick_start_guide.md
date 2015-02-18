@@ -85,9 +85,9 @@ After starting postgres, you can create a new database for managing login and tr
     sudo su - postgres -c "createuser -RDIElPS $PGUSER"
     sudo su - postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
 
-    # On macOSX/homebrew there is no need login as the postgres user
-    createuser -RDIElPS $PGUSER
-    createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE
+    # On macOSX/homebrew there is no need login as the postgres user but use "whoami" since PGUSER is changed
+    createuser -RDIElPS $PGUSER -U `whoami`
+    createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE -U `whoami`
 
 Note: see [database setup](Database_setup.md#authentication) for more details about the database setup.
  
