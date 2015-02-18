@@ -13,7 +13,7 @@ Bugfixes
 + Fixed an issue where the API could be used to create random berkeley DBs (#152).
 + Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151).
 + Fixed an issue where the config files were readable by the outside world in previous 1.x versions.
-+ Changed default user database to be encrypted. Unencrypted options are still available via command line scripts for people with older configurations (#148).
++ Changed default user database to be encrypted. Unencrypted options are still available via command line scripts for people with older configurations (#147).
 + Added new Help page with WebApollo specific content (#153).
 + Fixed bug where Tomcat could report "Too many open files error" (#162).
 + Fixed bug where the dark theme made the reference sequence too dark (#119).
