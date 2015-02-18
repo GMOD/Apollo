@@ -384,7 +384,7 @@ define([
                         if(this.verbose_server_notification){
                             console.log(str);
                         }
-                    }
+                    };
                     var client = this.client;
                     var track = this;
                     var browser = this.gview.browser;

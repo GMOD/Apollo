@@ -9,16 +9,9 @@ class Feature implements Ontological{
     static auditable = true
 
     static constraints = {
-
-//        featureId nullable: true
-
         name nullable: false
-
-//        type nullable: true
-
         uniqueName nullable: true
         dbxref nullable: true
-//        organism nullable: true
         sequenceLength nullable: true
         md5checksum nullable: true
         isAnalysis nullable: true
@@ -28,18 +21,11 @@ class Feature implements Ontological{
         symbol nullable: true // TODO: should be false and unique per organism
         description nullable: true
         status nullable: true
-//        featureLocation nullable: true
     }
-
-//    Symbol symbol
-//    Description description
 
     String symbol
     String description
-//    Integer featureId;
-//    CVTerm type;
     DBXref dbxref;
-//    Organism organism;
     String name;
     String uniqueName;
     Integer sequenceLength;
