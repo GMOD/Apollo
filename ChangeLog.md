@@ -18,6 +18,7 @@ Bugfixes
 + Fixed bug where Tomcat could report "Too many open files error" (#162).
 + Fixed bug where the dark theme made the reference sequence too dark (#119).
 + Added some basic help text for search parameters in the sequences view (#160).
++ Added MIME types for bigwig files (#166)
 
 
 ## 1.0.3 release
