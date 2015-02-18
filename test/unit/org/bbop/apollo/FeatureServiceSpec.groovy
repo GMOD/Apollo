@@ -17,16 +17,16 @@ class FeatureServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "convertJSON to Ontology ID"() {
+//    void "convertJSON to Ontology ID"() {
 
-        when: "We hav a json object of type"
-        JSONObject json = JSON.parse("[name:exon, cv:[name:sequence]]")
+//        when: "We hav a json object of type"
+//        JSONObject json = JSON.parse("[name:exon, cv:[name:sequence]]")
 
 
-        then: "We should be able to infer the ontology ID"
-        String ontologyId = service.convertJSONToOntologyId(json)
-        assert ontologyId != null
-        assert ontologyId == Exon.ontologyId
-        
-    }
+//        then: "We should be able to infer the ontology ID"
+//        String ontologyId = service.convertJSONToOntologyId(json)
+//        assert ontologyId != null
+//        assert ontologyId == Exon.ontologyId
+//        
+//    }
 }
