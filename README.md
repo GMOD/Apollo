@@ -73,4 +73,6 @@ To run tomcat on 8080, but open up the debug port on 8000:
 [![IntelliJ](https://lh6.googleusercontent.com/--QIIJfKrjSk/UJJ6X-UohII/AAAAAAAAAVM/cOW7EjnH778/s800/banner_IDEA.png)](http://www.jetbrains.com/idea/index.html)
 
 [![YourKit] (https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
+
+
 Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit supports Open Source.
