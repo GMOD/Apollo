@@ -2,6 +2,10 @@ git clone https://github.com/GMOD/Apollo.git grails-apollo
 cd grails-apollo
 git checkout grails1
 git status   # should be grails1
+ant debug  # just once
+./copy_client.sh # every time JS code in client changes 
+
+
 
 It runs with H2, postgreSQL, etc.
 
