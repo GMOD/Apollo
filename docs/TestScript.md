@@ -64,7 +64,7 @@ Login|Password : demo|demo
 
    /Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
 
-   /Add Combination Track (see 10. below)
+   /Add Combination Track (see 15. below)
 
    /Add Sequence Search Track (perform search test)
 
