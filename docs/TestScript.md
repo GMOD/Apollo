@@ -64,7 +64,7 @@ Login|Password : demo|demo
 
    /Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
 
-   /Add Combination Track (see 10. below)
+   /Add Combination Track (see 15. below)
 
    /Add Sequence Search Track (perform search test)
 
@@ -104,25 +104,27 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 12.1) Test: 
 
-12.1.1) Get Sequence
+12.1.1) Get Sequence, Get GFF3
 
-12.1.2) Delete, merge, split, duplicate, make intron, flip strand, set translation start, set translation end, longest ORF, readthrough. 
+12.1.2) Delete, Merge, Split, Duplicate, Make Intron, Move to Opposite Strand.
 
-12.1.3) Undo/Redo
+12.1.3) Set Translation Start, Set Translation End, Set Longest ORF, Set Readthrough Stop Codon.
 
-12.1.4) History
+12.1.4) Set to Downstream Splice Donor, Set to Upstream Splice Donor, Set to Downstream Splice Acceptor, Set to Upstream Splice Acceptor.
 
-12.1.5) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
+12.1.5) Undo, Redo
 
-12.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
+12.1.6) Show History, and test the ability to revert to any of the previous versions of the feature.
+
+12.1.7) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
+
+12.2) Use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
 13) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
 
 14) Test Export of User-created Annotations to Chado, GFF3, FASTA
 
-15) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: 
-
-File / Add combination track
+15) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: File / Add combination track
 
 
 ### Test the “Changes” screen (formerly “Recent Changes”)
