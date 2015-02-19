@@ -544,8 +544,8 @@ function open_user_manager_dialog() {
         <%--<input type="submit" value="Search" class="btn ui-icon-search btn-default col-1">--%>
         <input type="submit"  value="Search"
                class="search-button col-offset-1 btn ui-icon-search btn-default col-1">
-        <a href="recentChanges.jsp" class="col-offset-1 col-2 btn-mini btn-default btn-link">Older Recent Changes Page<br/>(smaller
-            data only)</a>
+        <%--<a href="recentChanges.jsp" class="col-offset-1 col-2 btn-mini btn-default btn-link">Older Recent Changes Page<br/>(smaller--%>
+            <%--data only)</a>--%>
     </div>
     <table class="table">
         <thead>
@@ -610,8 +610,8 @@ function open_user_manager_dialog() {
         </tr>
         <tr>
             <th>Select</th>
-            <th>Track</th>
-            <th>Group</th>
+            <th>Sequence</th>
+            <th>Annotation</th>
             <th>Type</th>
             <th>Date</th>
             <%--<th>Editor</th>--%>
