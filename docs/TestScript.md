@@ -58,9 +58,9 @@ Login|Password : demo|demo
 
 8.1) Test functions on each menu option:
 
--- Login: login/logout. 
+8.1.1) Login: login/logout. 
 
--- File 
+8.1.2) File 
 
    /Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
 
@@ -68,11 +68,11 @@ Login|Password : demo|demo
 
    /Add Sequence Search Track (perform search test)
 
--- Tools (see 8.2)
+8.1.3) Tools (see 8.2)
 
--- View: follow menu options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
+8.1.4) View: follow menu options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
 
--- Help: All links go to a new screen.
+8.1.5) Help: All links go to a new screen.
 
 8.2) From “Tools” menu, query genome with BLAT using a sequence: 
 
@@ -86,52 +86,52 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 10) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
--- change intron/exon boundary (dragging)
+10.1) change intron/exon boundary (dragging)
 
--- check the recalculated ORF
+10.2) check the recalculated ORF
 
--- color by CDS
+10.3) color by CDS
 
 11) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
 
--- Insertions 
+11.1) Insertions 
 
--- Deletions 
+11.2) Deletions 
 
--- Substitutions
+11.3) Substitutions
 
 12) 'Zoom back out', then reveal right-click menu. 
 
-13.1) Test: 
+12.1) Test: 
 
--- Get Sequence
+12.1.1) Get Sequence
 
--- Delete, merge, split, duplicate, make intron, flip strand, set translation start, set translation end, longest ORF, readthrough. 
+12.1.2) Delete, merge, split, duplicate, make intron, flip strand, set translation start, set translation end, longest ORF, readthrough. 
 
--- Undo/Redo
+12.1.3) Undo/Redo
 
--- History
+12.1.4) History
 
--- Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
+12.1.5) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
 
-13.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
+12.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
-14) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
+13) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
 
-15) Test Export of User-created Annotations to Chado, GFF3, FASTA
+14) Test Export of User-created Annotations to Chado, GFF3, FASTA
 
-16) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: 
+15) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: 
 
 File / Add combination track
 
 
 ### Test the “Changes” screen (formerly “Recent Changes”)
 
-17) Check all filters, pagination, and number of results shown.
+16) Check all filters, pagination, and number of results shown.
 
-18) Clicking on group name link should take you to the corresponding group track in the main window.
+17) Clicking on group name link should take you to the corresponding group track in the main window.
 
-19) Test all File Menu as in section 3.
+18) Test all File Menu as in section 3.
 
 <!--
 ### Test Bulk-Update
