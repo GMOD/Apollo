@@ -34,19 +34,23 @@ Login|Password : demo|demo
 
 2) Check that you are able to query the entire genome using BLAT from this window using the Tools / Search sequence menu option.
 
-3) Check all filters, pagination, and number of results shown.
+3) Check the use of filters (e.g. group/scaffold/chromosome name, lenght) and review pagination and number of results shown.
 
-4) Clicking on group name link should take you to the corresponding group track in the main window.
+4) Clicking on group/scaffold/chromosome name link should take you to the corresponding sequence track in the main window.
 
 5) Test top-level menus.
 
 5.1) Test that you are able to Log out from the upper-right corner, top-level menu.
 
-5.2) In top-level menu, go to Tools -> Manage Users. Create a new user and grant read, write and publish permissions. Logout and log back in as the newly created user. Create some new annotations or modify existing ones.
+5.2) For Administrators: From top-level menu choose the option Tools -> Manage Users. 
+
+5.2.1) Create a new user and grant read, write, and publish permissions.
+
+5.2.2) Logout and log back in as the newly created user, then create new annotations and modify existing ones (if available).
 
 ###Testing functions in the main window
 
-6) Check display of tracks by "check" and "uncheck" clicks on list of evidence tracks. Display evidence available on other tracks. 
+6) Check the display of evidence available on all  tracks by using "check" and "uncheck" clicks on the list of available tracks.
 
 7) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
 
@@ -66,7 +70,7 @@ Login|Password : demo|demo
 
 -- Tools (see 8.2)
 
--- View: check options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
+-- View: follow menu options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
 
 -- Help: All links go to a new screen.
 
