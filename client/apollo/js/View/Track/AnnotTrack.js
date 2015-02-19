@@ -4410,7 +4410,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             //annot_context_menu.addChild(new dijit.MenuSeparator());
             //index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Edit Annotation (alt-click)",
+                label: "Edit Information (alt-click)",
                 onClick: function(event) {
                     thisObj.getAnnotationInfoEditor();
                 }
@@ -4455,7 +4455,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["duplicate"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Make intron",
+                label: "Make Intron",
                 // use annot_context_mousedown instead of current event, since want
                 // to split
                 // at mouse position of event that triggered annot_context_menu
@@ -4466,7 +4466,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["make_intron"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Move to opposite strand",
+                label: "Move to Opposite Strand",
                 onClick: function(event) {
                     thisObj.flipStrand();
                 }
@@ -4476,7 +4476,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             index++;
 
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set translation start",
+                label: "Set Translation Start",
                 // use annot_context_mousedown instead of current event, since want
                 // to split
                 // at mouse position of event that triggered annot_context_menu
@@ -4487,7 +4487,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["set_translation_start"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set translation end",
+                label: "Set Translation End",
                 // use annot_context_mousedown instead of current event, since want
                 // to split
                 // at mouse position of event that triggered annot_context_menu
@@ -4498,7 +4498,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["set_translation_end"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set longest ORF",
+                label: "Set Longest ORF",
                 // use annot_context_mousedown instead of current event, since want
                 // to split
                 // at mouse position of event that triggered annot_context_menu
@@ -4509,7 +4509,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["set_longest_orf"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set readthrough stop codon",
+                label: "Set Readthrough Stop Codon",
                 onClick: function(event) {
                     thisObj.setReadthroughStopCodon();
                 }
@@ -4519,21 +4519,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             index++;
             
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set as 5' end",
+                label: "Set as 5' End",
                 onClick: function(event) {
                     thisObj.setAsFivePrimeEnd();
                 }
             } ));
             contextMenuItems["set_as_five_prime_end"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set as 3' end",
+                label: "Set as 3' End",
                 onClick: function(event) {
                     thisObj.setAsThreePrimeEnd();
                 }
             } ));
             contextMenuItems["set_as_three_prime_end"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Set both ends",
+                label: "Set Both Ends",
                 onClick: function(event) {
                     thisObj.setBothEnds();
                 }
@@ -4543,28 +4543,28 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             index++;
             contextMenuItems["set_downstream_donor"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Set to downstream splice donor",
+                    label: "Set to Downstream Splice Donor",
                     onClick: function(event) {
                             thisObj.setToDownstreamDonor();
                     }
             }));
             contextMenuItems["set_upstream_donor"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Set to upstream splice donor",
+                    label: "Set to Upstream Splice Donor",
                     onClick: function(event) {
                             thisObj.setToUpstreamDonor();
                     }
             }));
             contextMenuItems["set_downstream_acceptor"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Set to downstream splice acceptor",
+                    label: "Set to Downstream Splice Acceptor",
                     onClick: function(event) {
                             thisObj.setToDownstreamAcceptor();
                     }
             }));
             contextMenuItems["set_upstream_acceptor"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                    label: "Set to upstream splice acceptor",
+                    label: "Set to Upstream Splice Acceptor",
                     onClick: function(event) {
                             thisObj.setToUpstreamAcceptor();
                     }
@@ -4586,7 +4586,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
             } ));
             contextMenuItems["redo"] = index++;
             annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "History",
+                label: "Show History",
                 onClick: function(event) {
                     thisObj.getHistory();
                 }
