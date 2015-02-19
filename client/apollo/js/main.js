@@ -317,6 +317,7 @@ return declare( [JBPlugin, HelpMixin],
             browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
         });
+        this.monkeyPatchRegexPlugin();
 
 
     },
@@ -636,7 +637,25 @@ return declare( [JBPlugin, HelpMixin],
 
         $head.prepend(favicon1);
         $head.prepend(favicon2);
-    }
+    },
+    monkeyPatchRegexPlugin: function() {
+        require(['RegexSequenceSearch/Store/SeqFeature/RegexSearch'], function(RegexSearch) {
+            RegexSearch.prototype.translateSequence=function( sequence, frameOffset ) {
+                var slicedSeq = sequence.slice( frameOffset );
+                slicedSeq = slicedSeq.slice( 0, Math.floor( slicedSeq.length / 3 ) * 3);
+
+                var translated = "";
+                var codontable=new CodonTable();
+                var codons=codontable.generateCodonTable(codontable.defaultCodonTable);
+                for(var i = 0; i < slicedSeq.length; i += 3) {
+                    var nextCodon = slicedSeq.slice(i, i + 3);
+                    translated = translated + codons[nextCodon];
+                }
+
+                return translated;
+            }
+        });
+     }
 
 
 });
