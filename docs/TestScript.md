@@ -104,7 +104,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 12.1) Test: 
 
-12.1.1) Get Sequence
+12.1.1) Get Sequence, Get GFF3
 
 12.1.2) Delete, merge, split, duplicate, make intron, flip strand, set translation start, set translation end, longest ORF, readthrough. 
 
