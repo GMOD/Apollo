@@ -85,7 +85,12 @@ public class SelectTrackServlet extends HttpServlet {
         int offset = 0;
         Object offsetString = request.getParameter("offset");
         if (offsetString != null && offsetString.toString().length() > 0) {
-            offset = Integer.parseInt(offsetString.toString());
+            try {
+                offset = Integer.parseInt(offsetString.toString());
+            } catch (NumberFormatException e) {
+                logger.error("Problem parsing offset string: "+offsetString);
+                offset = 0 ;
+            }
         }
 
         Integer minLength = 0 ;
