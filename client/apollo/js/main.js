@@ -282,9 +282,9 @@ return declare( [JBPlugin, HelpMixin],
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
                 }
             });
+            browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
-            if(browser.config.show_nav) {
-                browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+            if(browser.config.show_nav||browser.config.show_menu) {
                 var help=dijit.byId("menubar_generalhelp");
                 help.set("label", "Web Apollo Help");
                 help.set("iconClass", null);
@@ -485,7 +485,6 @@ return declare( [JBPlugin, HelpMixin],
         // move Tool menu in front of Help menu
         var toolsMenu = dijit.byId('dropdownbutton_tools');
         var helpMenu = dijit.byId('dropdownbutton_help');
-        console.log(toolsMenu,helpMenu);
         domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
         this.searchMenuInitialized = true;
     },
@@ -556,7 +555,6 @@ return declare( [JBPlugin, HelpMixin],
             for (var i = 0; i < tracks.length; i++)  {
                 // should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloSequenceTrack)  {
-                    // console.log("seq track refseq: " + tracks[i].refSeq.name);
                     return tracks[i];
                 }
             }
