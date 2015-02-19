@@ -1,6 +1,5 @@
 ## 1.0.4 release
 
-
 Features
 
 + Added Drupal authentication module to share authentication with an existing Drupal DB (#117).
