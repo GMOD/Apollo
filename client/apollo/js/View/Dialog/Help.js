@@ -41,7 +41,7 @@ return declare( null, {
                 + '    <ul>'
                 + '        <li>Use [ and ] to jump between splice sites in a given annotation on the User-created annotation track.</dt>'
                 + '        <li>Use { and } to jump to the nearest gene on the User-created annotation area.</dt>'
-                + '        <li>Select a feature in the User-created annotation area and ress alt-click to quickly reach the "Information editor".</dt>'
+                + '        <li>Select a feature in the User-created annotation area and press alt-click to quickly reach the "Information editor".</dt>'
                 + '    </ul>'
                 + '</dd>'
                 + '<div style="float: left; width: 49%;"><dt>Web Apollo links</dt>'

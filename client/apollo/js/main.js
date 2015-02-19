@@ -16,9 +16,6 @@ define(
            'dojo/dom-class',
            'dojo/_base/window',
            'dojo/_base/array',
-           'dojo/domReady',
-           'dojo/request/xhr',
-           'dijit/Dialog',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -38,7 +35,6 @@ define(
            'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
-           'JBrowse/View/Dialog/QuickHelp',
            'lazyload/lazyload'
        ],
     function( declare,
@@ -46,9 +42,6 @@ define(
             domClass,
             win,
             array,
-            domReady,
-            xhr,
-            dijitDialog,
             dijitMenu,
             dijitMenuItem,
             dijitMenuSeparator,
@@ -68,7 +61,6 @@ define(
             HelpMixin,
             GFF3Driver,
             CodonTable,
-            HelpDialog,
             LazyLoad ) {
 
 return declare( [JBPlugin, HelpMixin],
@@ -193,75 +185,14 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
 
 
-        if (browser.config.show_nav) {
-            var jbrowseUrl = "http://jbrowse.org";
-
-            //browser.addGlobalMenuItem( 'help',
-            //    new dijitMenuItem(
-            //        {
-            //            title: 'Web Apollo Help',
-            //            label: 'Web Apollo Help',
-            //            // iconClass: 'jbrowseIconHelp',
-            //            //"content": this.defaultHelp()
-            //            onClick: function () {
-            //                xhr("../help/apollo_quick_help.html",{
-            //                    handleAs: "html"
-            //                }).then(function(response){
-            //                    //window.open("../help/apollo_quick_help.html",'help_window').focus();
-            //                    //new HelpDialog( "../help/apollo_quick_help.html" || {}, { browser: this} ).show();
-            //                    var myDialog = new dijitDialog({
-            //                        title: "me dialog",
-            //                        content: response,
-            //                        style: "width: 900px"
-            //                    }).show();
-            //                });
-            //            }
-            //        })
-            //);
             
-
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_powered_by_jbrowse',
-                                            label: 'Powered by JBrowse',
-                                            // iconClass: 'jbrowseIconHelp', 
-                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_web_service_api',
-                        label: 'Web Service API',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_version',
-                        label: 'Get Version',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("../version.jsp",'help_window').focus();
-                        }
-                    })
-            );
-            
-
-            if(!browser.config.quickHelp) {
-                browser.config.quickHelp = {
-                    "title": "Web Apollo Help",
-                    "content": this.defaultHelp()
-                }
+        if(!browser.config.quickHelp)
+        {
+            browser.config.quickHelp = {
+                "title": "Web Apollo Help",
+                "content": this.defaultHelp()
             }
-
-            //if(browser.config.quickHelp){
-            //    $('#menubar_generalhelp_text').hide();
-            //}
-        }
+        };
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -351,7 +282,45 @@ return declare( [JBPlugin, HelpMixin],
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
                 }
             });
-            browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+
+            if(browser.config.show_nav) {
+                browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+                var help=dijit.byId("menubar_generalhelp");
+                help.set("label", "Web Apollo Help");
+                help.set("iconClass", null);
+                var jbrowseUrl = "http://jbrowse.org";
+                browser.addGlobalMenuItem( 'help',
+                                        new dijitMenuItem(
+                                            {
+                                                id: 'menubar_powered_by_jbrowse',
+                                                label: 'Powered by JBrowse',
+                                                // iconClass: 'jbrowseIconHelp', 
+                                                onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                            })
+                                      );
+                browser.addGlobalMenuItem( 'help',
+                    new dijitMenuItem(
+                        {
+                            id: 'menubar_web_service_api',
+                            label: 'Web Service API',
+                            // iconClass: 'jbrowseIconHelp',
+                            onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
+                        })
+                );
+                browser.addGlobalMenuItem( 'help',
+                    new dijitMenuItem(
+                        {
+                            id: 'menubar_apollo_version',
+                            label: 'Get Version',
+                            // iconClass: 'jbrowseIconHelp',
+                            onClick: function()  {
+                                window.open("../version.jsp",'help_window').focus();
+                            }
+                        })
+                );
+            }
+
+
 
         });
         this.monkeyPatchRegexPlugin();
@@ -497,10 +466,6 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
 
-    /**
-     * hacking addition of a "tools" menu to standard JBrowse menubar,
-     *    with a "Search Sequence" dropdown
-     */
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) {
             var webapollo = this;
@@ -518,9 +483,10 @@ return declare( [JBPlugin, HelpMixin],
         }
 
         // move Tool menu in front of Help menu
-        var toolsMenu = dojo.query('.menu[widgetid="dropdownbutton_tools"]')[0];
-        var helpMenu = dojo.query('.menu[widgetid="dropdownbutton_help"]')[0];
-        domConstruct.place(toolsMenu,helpMenu,'before');
+        var toolsMenu = dijit.byId('dropdownbutton_tools');
+        var helpMenu = dijit.byId('dropdownbutton_help');
+        console.log(toolsMenu,helpMenu);
+        domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
         this.searchMenuInitialized = true;
     },
 
