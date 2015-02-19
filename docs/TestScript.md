@@ -114,7 +114,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 12.1.5) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
 
-12.2) Also, use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
+12.2) Use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
 13) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
 
