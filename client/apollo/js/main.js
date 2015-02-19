@@ -16,6 +16,9 @@ define(
            'dojo/dom-class',
            'dojo/_base/window',
            'dojo/_base/array',
+           'dojo/domReady',
+           'dojo/request/xhr',
+           'dijit/Dialog',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -35,6 +38,7 @@ define(
            'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
+           'JBrowse/View/Dialog/QuickHelp',
            'lazyload/lazyload'
        ],
     function( declare,
@@ -42,6 +46,9 @@ define(
             domClass,
             win,
             array,
+            domReady,
+            xhr,
+            dijitDialog,
             dijitMenu,
             dijitMenuItem,
             dijitMenuSeparator,
@@ -61,6 +68,7 @@ define(
             HelpMixin,
             GFF3Driver,
             CodonTable,
+            HelpDialog,
             LazyLoad ) {
 
 return declare( [JBPlugin, HelpMixin],
@@ -187,6 +195,31 @@ return declare( [JBPlugin, HelpMixin],
 
         if (browser.config.show_nav) {
             var jbrowseUrl = "http://jbrowse.org";
+
+            //browser.addGlobalMenuItem( 'help',
+            //    new dijitMenuItem(
+            //        {
+            //            title: 'Web Apollo Help',
+            //            label: 'Web Apollo Help',
+            //            // iconClass: 'jbrowseIconHelp',
+            //            //"content": this.defaultHelp()
+            //            onClick: function () {
+            //                xhr("../help/apollo_quick_help.html",{
+            //                    handleAs: "html"
+            //                }).then(function(response){
+            //                    //window.open("../help/apollo_quick_help.html",'help_window').focus();
+            //                    //new HelpDialog( "../help/apollo_quick_help.html" || {}, { browser: this} ).show();
+            //                    var myDialog = new dijitDialog({
+            //                        title: "me dialog",
+            //                        content: response,
+            //                        style: "width: 900px"
+            //                    }).show();
+            //                });
+            //            }
+            //        })
+            //);
+            
+
             browser.addGlobalMenuItem( 'help',
                                     new dijitMenuItem(
                                         {
@@ -216,14 +249,18 @@ return declare( [JBPlugin, HelpMixin],
                         }
                     })
             );
+            
 
-            if(!browser.config.quickHelp)
-            {
+            if(!browser.config.quickHelp) {
                 browser.config.quickHelp = {
                     "title": "Web Apollo Help",
                     "content": this.defaultHelp()
                 }
-            };
+            }
+
+            //if(browser.config.quickHelp){
+            //    $('#menubar_generalhelp_text').hide();
+            //}
         }
 
         // register the WebApollo track types with the browser, so
