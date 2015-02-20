@@ -3,9 +3,6 @@
 
 */
 
-.track .global_highlight {
-    background: rgba( 255, 255, 0, 0.5 );
-}
 
 .feature, .plus-feature, .minus-feature {
   height: 10px;
@@ -40,11 +37,11 @@
 
 
 div.track_annotations {
-    background-color: #FFFFDD !important;
+    background-color: #FFFFDD;
 }
 
 div.track_localannot {
-    background-color: #DDDDCC !important;
+    background-color: #DDDDCC;
 }
 
 /* 
@@ -621,18 +618,6 @@ div.basic-hist {
     z-index: 15;
 }
 
-.cds-frame0 {
-    background-color: #FF8080 !important;
-}
-
-.cds-frame1 {
-    background-color: #80FF80 !important;
-}
-
-.cds-frame2 {
-    background-color: #8080FF !important;
-}
-
 /**
 *   appearance of resizing box when dragging annotation edges
 *   if case browser doesn't support transparency via "rgba", fall back on solid background?
@@ -730,51 +715,6 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     visibility: hidden;
 }
 
-/*
-*  diagnostics for blocks
-*/
-/*
-div.block  {
-    outline-style: solid;
-    outline-color: gray;
-    outline-width: 1px;
-}
-*/
-
-
-/*  experimental canvas graph stuff 
-div.graph-color-picker {
-    border: 2px black solid;
-}
-
-div.graph-range-slider {
-    height: 165px;
-    width: 10px;
-}
-
-div.canvas-track-control {
-    left: 0px;
-    top: 0px;
-    width: 300px;
-    height: 250px;
-    padding: 10px;
-    z-index: 190;
-    background-color: white; 
-    border: 2px black solid;
-}
-*/
-
-/* maker    background-color: rgb(255,204,204); */
-/* blastn   background-color: rgb(102,204,102); */
-/* blastx     background-color: rgb(0,200,204); */
-/* tblastx    background-color: rgb(0,200,104); */
-/* snap       background-color: rgb(153,100,204); */
-/* est2genome     background-color: rgb(100,100,210); */
-/* protein2genome   background-color: rgb(117,150,255); */
-/* repeatmasker     background-color: red; */
-/* repeatrunner     background-color: rgb(255,152,255); */
-/* default-alignment-block    background-color: #C87C8E; */
-/* nvit-alignment    background-color: #848DBF; */
 
 .stop_codon_read_through, 
 .plus-stop_codon_read_through,
@@ -921,4 +861,15 @@ div.canvas-track-control {
     outline-style: solid;
     outline-color: blue;
     outline-width: 3px;
+}
+
+
+.translatedSequence.frame0.colorCds {
+    background-color: #FF8080;
+}
+.translatedSequence.frame1.colorCds {
+    background-color: #80FF80;
+}
+.translatedSequence.frame2.colorCds {
+    background-color: #8080FF;
 }
