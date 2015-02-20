@@ -3,6 +3,7 @@ define( [
     'dojo/_base/lang',
     'dojo/_base/array',
     'dojo/mouse',
+    'dojo/dom-construct',
     'dojo/query',
     'dojo/dom',
     'dojo/dom-style',
@@ -22,6 +23,7 @@ function(
     lang,
     array,
     mouse,
+    domConstruct,
     query,
     dom,
     domStyle,
@@ -119,7 +121,7 @@ return declare( [Sequence],
         var alterations=[];
         var leftBase=args.leftBase;
         var rightBase=args.rightBase;
-        this.alterationsStore.getFeatures({start: args.leftBase, end: args.rightBase },function(f) { alterations.push(f); }); 
+        this.alterationsStore.getFeatures({start: args.leftBase, end: args.rightBase-1 },function(f) { alterations.push(f); }); 
         args.finishCallback=function() {
             finishCallback();
             // Add right-click menu
@@ -133,18 +135,56 @@ return declare( [Sequence],
                 var start=alt.get("start");
                 var end=alt.get("end");
                 var type=alt.get("type");
-                relStart=start-leftBase;
-                relEnd=end-leftBase;
+                var relStart=start-leftBase;
+                var relEnd=end-leftBase;
+                var pct=relStart*100/(rightBase-leftBase);
+                console.log(relStart,start,leftBase,pct);
 
                 if(type=="insertion") {
+                    var featDiv=domConstruct.create("div",{ 
+                        "style": {
+                            "position": "absolute",
+                            "z-index": 20,
+                            "top": "0px",
+                            "width": "2px",
+                            "left": pct+"%",
+                            "backgroundColor": "rgba(0,255,0,0.2)",
+                            "height": "100%",
+                        }
+                    },args.block.domNode);
                     domStyle.set(nl[relStart],"backgroundColor","green");
+                    console.log(featDiv);
                 //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","green");
                 }
                 else if(type=="deletion") {
+                    var charWidth=100/(rightBase-leftBase);
+                    var featDiv=domConstruct.create("div",{ 
+                        "style": {
+                            "position": "absolute",
+                            "z-index": 20,
+                            "top": "0px",
+                            "width": (end-start)*charWidth+"%",
+                            "left": pct+"%",
+                            "backgroundColor": "rgba(255,0,0,0.2)",
+                            "height": "100%",
+                        }
+                    },args.block.domNode);
                     domStyle.set(nl[relStart],"backgroundColor","red");
                   //  domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","red");
                 }
                 else if(type=="substitution") {
+                    var charWidth=100/(rightBase-leftBase);
+                    var featDiv=domConstruct.create("div",{ 
+                        "style": {
+                            "position": "absolute",
+                            "z-index": 20,
+                            "top": "0px",
+                            "width": (end-start)*charWidth+"%",
+                            "left": pct+"%",
+                            "backgroundColor": "rgba(255,255,0,0.2)",
+                            "height": "100%",
+                        }
+                    },args.block.domNode);
                     domStyle.set(nl[relStart],"backgroundColor","yellow");
                    // domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","yellow");
                 }
@@ -195,7 +235,7 @@ return declare( [Sequence],
             Util.removeAttribute( featDiv, 'contextMenuTimeout' );
         }, timeToLive );
     },
-    _makeFeatureContextMenu: function( featDiv ) {
+    _makeFeatureContextMenu: function( featDiv,container ) {
         var thisB=this;
         var menu=new Menu();
         this.own( menu );
@@ -215,7 +255,6 @@ return declare( [Sequence],
                 label: "Create insertion",
                 iconClass: "dijitIconNewTask",
                 onClick: function(evt){
-                    var node = this.getParent().currentTarget;
                     var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
                     thisB.createGenomicInsertion(evt,gcoord-1);
                 }
@@ -224,7 +263,6 @@ return declare( [Sequence],
                 label: "Create deletion",
                 iconClass: "dijitIconDelete",
                 onClick: function(evt){
-                    var node = this.getParent().currentTarget;
                     var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
                     thisB.createGenomicDeletion(evt,gcoord-1);
                 }
@@ -233,7 +271,6 @@ return declare( [Sequence],
                 label: "Create substitution",
                 iconClass: "dijitIconEditProperty",
                 onClick: function(evt){
-                    var node = this.getParent().currentTarget;
                     var gcoord = Math.floor(thisB.browser.view.absXtoBp(evt.pageX));
                     thisB.createGenomicSubstitution(evt,gcoord-1);
                 }
