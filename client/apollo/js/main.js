@@ -12,6 +12,7 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/_base/window',
@@ -38,6 +39,7 @@ define(
            'lazyload/lazyload'
        ],
     function( declare,
+            lang,
             domConstruct,
             domClass,
             win,
@@ -641,20 +643,22 @@ return declare( [JBPlugin, HelpMixin],
     },
     monkeyPatchRegexPlugin: function() {
         require(['RegexSequenceSearch/Store/SeqFeature/RegexSearch'], function(RegexSearch) {
-            RegexSearch.prototype.translateSequence=function( sequence, frameOffset ) {
-                var slicedSeq = sequence.slice( frameOffset );
-                slicedSeq = slicedSeq.slice( 0, Math.floor( slicedSeq.length / 3 ) * 3);
+            lang.extend(RegexSearch,{
+                translateSequence:function( sequence, frameOffset ) {
+                    var slicedSeq = sequence.slice( frameOffset );
+                    slicedSeq = slicedSeq.slice( 0, Math.floor( slicedSeq.length / 3 ) * 3);
 
-                var translated = "";
-                var codontable=new CodonTable();
-                var codons=codontable.generateCodonTable(codontable.defaultCodonTable);
-                for(var i = 0; i < slicedSeq.length; i += 3) {
-                    var nextCodon = slicedSeq.slice(i, i + 3);
-                    translated = translated + codons[nextCodon];
+                    var translated = "";
+                    var codontable=new CodonTable();
+                    var codons=codontable.generateCodonTable(codontable.defaultCodonTable);
+                    for(var i = 0; i < slicedSeq.length; i += 3) {
+                        var nextCodon = slicedSeq.slice(i, i + 3);
+                        translated = translated + codons[nextCodon];
+                    }
+
+                    return translated;
                 }
-
-                return translated;
-            }
+            });
         });
      }
 
