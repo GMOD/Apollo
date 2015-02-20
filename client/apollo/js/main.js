@@ -12,10 +12,12 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/_base/window',
            'dojo/_base/array',
+           'dojo/Deferred',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -38,10 +40,12 @@ define(
            'lazyload/lazyload'
        ],
     function( declare,
+            lang,
             domConstruct,
             domClass,
             win,
             array,
+            Deferred,
             dijitMenu,
             dijitMenuItem,
             dijitMenuSeparator,
@@ -324,6 +328,7 @@ return declare( [JBPlugin, HelpMixin],
 
         });
         this.monkeyPatchRegexPlugin();
+        this.monkeyPatchCombination();
 
 
     },
@@ -656,8 +661,41 @@ return declare( [JBPlugin, HelpMixin],
                 return translated;
             }
         });
-     }
+    },
+    monkeyPatchCombination: function() {
+        var combinationExtension = {
+            createCombinationTrack: function() {
+                if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
+                var d = new Deferred();
+                var storeConf = {
+                    browser: this,
+                    refSeq: this.refSeq,
+                    type: 'JBrowse/Store/SeqFeature/Combination'
+                };
+                var storeName = this.addStoreConfig(undefined, storeConf);
+                storeConf.name = storeName;
+                this.getStore(storeName, function(store) {
+                    d.resolve(true);
+                });
+                var thisB = this;
+                d.promise.then(function(){
+                    var combTrackConfig = {
+                        type: 'WebApollo/View/Track/Combination',
+                        label: "combination_track" + (thisB._combinationTrackCount++),
+                        key: "Combination Track " + (thisB._combinationTrackCount),
+                        metadata: {Description: "Drag-and-drop interface that creates a track out of combinations of other tracks."},
+                        store: storeName
+                    };
+                    // send out a message about how the user wants to create the new tracks
+                    thisB.publish( '/jbrowse/v1/v/tracks/new', [combTrackConfig] );
 
+                    // Open the track immediately
+                    thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
+                });
+            }
+        };
+        lang.mixin(this.browser, combinationExtension);
+    }
 
 });
 
