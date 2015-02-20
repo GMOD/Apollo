@@ -20,7 +20,7 @@ class FeatureLocationControllerSpec extends Specification {
                 ,seqChunkSize: 3
                 ,start: 5
                 ,end: 8
-                ,dataDirectory: "adsfads"
+//                ,dataDirectory: "adsfads"
                 ,sequenceDirectory: "asdfadsf"
                 ,name: "chromosome7"
         ).save(failOnError: true)

@@ -168,7 +168,7 @@ class SequenceService {
                     ,seqChunkSize: seqChunkSize
                     ,start: start
                     ,end: end
-                    ,dataDirectory: refSeqsFile.getParentFile().getParent()
+//                    ,dataDirectory: refSeqsFile.getParentFile().getParent()
                     ,sequenceDirectory: seqDir
                     ,name: name
             ).save(failOnError: true)

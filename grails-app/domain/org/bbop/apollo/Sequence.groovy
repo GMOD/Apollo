@@ -10,7 +10,7 @@ class Sequence {
     static constraints = {
         organism nullable: true
         refSeqFile nullable: true
-        dataDirectory nullable: true
+//        dataDirectory nullable: true
         translationTableLocation nullable: true
         spliceDonorSite nullable: true
         spliceAcceptor nullable: true
@@ -44,7 +44,7 @@ class Sequence {
 
     // TODO: remove these as they should be redundant with organism
     String refSeqFile
-    String dataDirectory
+//    String dataDirectory
 //    String sequenceType
 //    String sequenceCV
 //    String organismName
