@@ -38,102 +38,100 @@ Login|Password : demo|demo
 
 4) Clicking on group/scaffold/chromosome name link should take you to the corresponding sequence track in the main window.
 
-5) Test top-level menus.
+5) Test that you are able to Log out from the upper-right corner, top-level menu.
 
-5.1) Test that you are able to Log out from the upper-right corner, top-level menu.
+6) For Administrators: From top-level menu choose the option Tools -> Manage Users. 
 
-5.2) For Administrators: From top-level menu choose the option Tools -> Manage Users. 
+6.1) Create a new user and grant read, write, and publish permissions.
 
-5.2.1) Create a new user and grant read, write, and publish permissions.
-
-5.2.2) Logout and log back in as the newly created user, then create new annotations and modify existing ones (if available).
+6.2) Logout and log back in as the newly created user, then create new annotations and modify existing ones (if available).
 
 ###Testing functions in the main window
 
-6) Check the display of evidence available on all  tracks by using "check" and "uncheck" clicks on the list of available tracks.
+7) Check the display of evidence available on all  tracks by using "check" and "uncheck" clicks on the list of available tracks.
 
-7) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
+8) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
 
-8) Test top-level menu options in the main window.
+9) Test top-level menu options in the main window.
 
-8.1) Test functions on each menu option:
+9.1) Test functions on each menu option:
 
-8.1.1) Login: login/logout. 
+9.1.1) Login: login/logout. 
 
-8.1.2) File 
+9.1.2) File 
 
    /Open (Test that data can be loaded locally using URLs (File / Open / Remote URLs)).
 
-   /Add Combination Track (see 15. below)
+   /Add Combination Track (see 16. below)
 
    /Add Sequence Search Track (perform search test)
 
-8.1.3) Tools (see 8.2)
+9.1.3) Tools (see 9.2)
 
-8.1.4) View: follow menu options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
+9.1.4) View: follow menu options to go to "Changes" and "Sequences" (select sequences) page, check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS (also tested in 10), and changing the color scheme (dark or light).
 
-8.1.5) Help: All links go to a new screen.
+9.1.5) Help: All links go to a new screen.
 
-8.2) From “Tools” menu, query genome with BLAT using a sequence: 
+9.2) From “Tools” menu, query genome with BLAT using a sequence: 
 
 E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
 
 >sp|P04632|CPNS1_HUMAN Calpain small subunit 1 MFLVNSFLKGGGGGGGGGGGLGGGLGNVLGGLISGAGGGGGGGGGGGGGGGGGGGGTAMRILGGVISAISEAAAQYNPEPPPPRTHYSNIEANESEEVRQFRRLFAQLAGDDMEVSATELMNILNKVVTRHPDLKTDGFGIDTCRSMVAVMDSDTTGKLGFEEFKYLWNNIKRWQAIYKQFDTDRSGTICSSELPGAFEAAGFHLNEHLYNMIIRRYSDESGNMDFDNFISCLVRLDAMFRAFKSLDKDGTGQIQVNIQEWLQLTMYS
 
-8.3) Clear highlight using the command from the 'View' menu.
+9.3) Clear highlight using the command from the 'View' menu.
 
-9) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box. 
+10) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box. 
 
-10) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
+11) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
-10.1) change intron/exon boundary (dragging)
+11.1) change intron/exon boundary (dragging)
 
-10.2) check the recalculated ORF
+11.2) check the recalculated ORF
 
-10.3) color by CDS
+11.3) color by CDS
 
-11) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
+12) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
 
-11.1) Insertions 
+12.1) Insertions 
 
-11.2) Deletions 
+12.2) Deletions 
 
-11.3) Substitutions
+12.3) Substitutions
 
-12) 'Zoom back out', then reveal right-click menu. 
+13) 'Zoom back out', then reveal right-click menu. 
 
-12.1) Test: 
+13.1) Test: 
 
-12.1.1) Get Sequence, Get GFF3
+13.1.1) Get Sequence, Get GFF3
 
-12.1.2) Delete, Merge, Split, Duplicate, Make Intron, Move to Opposite Strand.
+13.1.2) Delete, Merge, Split, Duplicate, Make Intron, Move to Opposite Strand.
 
-12.1.3) Set Translation Start, Set Translation End, Set Longest ORF, Set Readthrough Stop Codon.
+13.1.3) Set Translation Start, Set Translation End, Set Longest ORF, Set Readthrough Stop Codon.
 
-12.1.4) Set to Downstream Splice Donor, Set to Upstream Splice Donor, Set to Downstream Splice Acceptor, Set to Upstream Splice Acceptor.
+13.1.4) Set to Downstream Splice Donor, Set to Upstream Splice Donor, Set to Downstream Splice Acceptor, Set to Upstream Splice Acceptor.
 
-12.1.5) Undo, Redo
+13.1.5) Undo, Redo
 
-12.1.6) Show History, and test the ability to revert to any of the previous versions of the feature.
+13.1.6) Show History, and test the ability to revert to any of the previous versions of the feature.
 
-12.1.7) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
+13.1.7) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
 
-12.2) Use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
+13.2) Use annotation in progress + feature from an evidence track to test: set as 3' end, set as 5' end, set both ends.
 
-13) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
+14) Check that the URL can be used for sharing work (on a different browser): bring up different browser window and paste the shared URL. Check real-time update by dragging and dropping another exon to the model on the left (same strand); check that “non-canonical boundaries” warning sign appears as appropriate. Last, delete an exon, Redo/Undo to test. 
 
-14) Test Export of User-created Annotations to Chado, GFF3, FASTA
+15) Test Export of User-created Annotations to Chado, GFF3, FASTA
 
-15) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: File / Add combination track
+16) Combination tracks: test that arithmetic combination of quantitative tracks is possible by combining tracks using the menu option: File / Add combination track
 
 
 ### Test the “Changes” screen (formerly “Recent Changes”)
 
-16) Check all filters, pagination, and number of results shown.
+17) Check all filters, pagination, and number of results shown.
 
-17) Clicking on group name link should take you to the corresponding group track in the main window.
+18) Clicking on group name link should take you to the corresponding group track in the main window.
 
-18) Test all File Menu as was done in 5.
+19) Test all File Menu as was done for the “Sequences” screen.
 
 <!--
 ### Test Bulk-Update
