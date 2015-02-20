@@ -133,7 +133,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 17) Clicking on group name link should take you to the corresponding group track in the main window.
 
-18) Test all File Menu as in section 3.
+18) Test all File Menu as was done in 5.
 
 <!--
 ### Test Bulk-Update
