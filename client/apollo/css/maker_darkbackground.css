@@ -67,20 +67,7 @@
     background-color: rgb(59, 59, 61);
 }
 
-.Dark .dna-residues.forward-strand,
-.Dark .dna-residues.reverse-strand {
-    background-color: transparent;
-}
 
-.Dark div.wa-sequence .dna-residues.forward-strand {
-    color: rgb(240, 240, 240);
-    z-index: 5;
-}
-
-.Dark div.wa-sequence .dna-residues.reverse-strand {
-    color: rgb(170, 169, 169);
-    z-index: 5;
-}
 /*  nucleotide alignments from MAKER */
 .Dark .blastn-part,
 .Dark .plus-blastn-part,
@@ -131,32 +118,12 @@
     background-color: rgb(255,255,0);
 }
 
-/* ???? not found in gff3.tiers
-.Dark .protein_gff-part,
-.Dark .plus-protein_gff-part,
-.Dark .minus-protein_gff-part  {
-}
-*/
-
 .Dark .tblastx-part,
 .Dark .plus-tblastx-part,
 .Dark .minus-tblastx-part  {
     background-color: rgb(102,51,102);
 }
 
-/*  ????  couldn't find in gff3.tiers
-.Dark .cdna2genome-part,
-.Dark .plus-cdna2genome-part,
-.Dark .minus-cdna2genome-part  {
-}
-*/
-
-/*  ????  couldn't find in gff3.tiers
-.Dark .altest_gff-part,
-.Dark .plus-altest_gff-part,
-.Dark .minus-altest_gff-part  {
-}
-*/
 
 .Dark .maker-CDS  {
     height: 80%;
@@ -284,30 +251,7 @@
     background-color: #142933;
 }
 
-/* ???? not sure about pred_gff, same as GeneMark?
-.Dark .pred_gff-CDS {
-    height: 80%;
-    top: 10%;
-    background-color: rgb(103,155,104);
-}
-.Dark .pred_gff-UTR {
-    height: 80%;
-    top: 10%;
-    border: 1px solid rgb(103,155,104);
-    background-color: #142933;
-}
-*/
 
-/* ???? couldn't find model_gff in gff3.tiers
-.Dark .model_gff-CDS {
-}
-.Dark .model_gff-UTR {
-    height: 80%;
-    top: 10%;
-    border: 1px solid rgb(103,155,104);
-    background-color: #142933;
-}
-*/
 
 .Dark .fgenesh-CDS {
     height: 80%;
@@ -318,23 +262,12 @@
 .Dark .fgenesh-UTR {
     height: 80%;
     top: 10%;
-    /*    background-color: rgb(255,204,255); */
     border-style: solid;
     border-color: rgb(255,153,255);
     border-width: 1px;
     background-color: #142933;
 }
 
-/*  for MAKER repeatmasker, using just regular render-class (gray line) */
-/*  ???? for MAKER repeat_gff, just use regular render-class (gray line)? */
-
-/*  ???? repeatrunner is different than repeatmasker in gff3.tiers,
-    should we make it different also for webapollo?
-.Dark .repeatrunner,
-.Dark .plus-repeatrunner,
-.Dark .minus-repeatrunner  {
-}
-*/
 
 .Dark .left-edge-match  {
     border-left: solid red 3px;

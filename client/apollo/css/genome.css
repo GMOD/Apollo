@@ -1,30 +1,3 @@
-/** TODO: need to remove all standard JBrowse styles, since they're now in either "main.css" or "feature_style.css", 
-     and keep added / modified styles here (or break out into additional "webapollo.css" ? */
-/* main application CSS styles */
-/* @import url("main.css"); */
-
-
-/* This is the window around the whole feature map (including the numbers at the top) */
-/* kept diff frrm JBrowse main.css, but commented out
-div.dragWindow {
-    cursor: url("img/openhand.cur");
-}
-*/
-
-/*  kept diff from JBrowse main.css, but commented out
-div.locationTrap {
-    border-bottom-color: #ccc;
-}
-*/
-
-/* This is the red rectangular outline that appears on the top scale bar */
-/*  kept diff from JBrowse main.css, but commented out
-div.locationThumb {
-    cursor: url("img/openhand.cur");
-}
-*/
-
-
 /* tweak the style of the powered_by link that has the WA logo in it */
 .menuBar .powered_by {
     height: 27px;
@@ -55,8 +28,6 @@ div.locationThumb {
     margin-top: -2px;
     display: inline;
     display: inline-block;
-   /* background: url("img/glyphs_white.png") no-repeat -168px -27px; */
-/*    background: pink; */
     background: url("../img/user_icon_16px.png");
 }
 

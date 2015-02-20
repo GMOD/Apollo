@@ -1,8 +1,3 @@
-/*
-*  naming conventions
-
-*/
-
 
 .feature, .plus-feature, .minus-feature {
   height: 10px;
@@ -20,10 +15,6 @@
 .webapollo-UTR {
     height: 50%;
     top: 25%;
-/*    height: 8px;  */
-/*    margin-top: 4px; */  /* relying on centering code instead */
-/*    z-index: 8; */
- /*   background-color: #AA5626; */
     background-color: rgb(173, 92, 194);
 }
 
@@ -31,135 +22,15 @@
 .plus-mRNA, 
 .minus-mRNA  {
     height: 14px;
-    /* outline: 2px dashed green; */
     background-color: transparent;
 }
 
 
-div.track_annotations {
+.track.track_annotations {
     background-color: #FFFFDD;
 }
 
-div.track_localannot {
-    background-color: #DDDDCC;
-}
 
-/* 
-   To support WebApollo with sequence alteration features shown on SequenceTrack, 
-   sequence style MUST NOT have a z-index specified 
-*/
-div.wa-sequence {
-    position: absolute;
-    left: 0px;
-    /* Courier New is preferred by JBrowse, but it looks too light in Firefox, and jagged in Chrome */
-    /* font-family: Courier New,monospace; */
-    font-family: monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding-left: 2px;
-    /* top: 15px; */
-    cursor: pointer; 
-   /* z-index: 15; */
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* 
-   block_seq_container are SequenceTrack divs that are child of .block and parent of .dna-residues
-   need to break this out from div.sequence because .sequence is also used for determining 
-        font character width and height in GenomeView.calculateSequenceCharacterSize(), 
-	and for that don't want a specified width
-*/
-div.block-seq-container {
-    top: 15px;
-    width: 100%;
-    /* outline: 1px solid #00FF00; */
-}
-
-div.wa-sequence .dna-container  {
-    position: absolute;
-    width: 100%;
-}
-
-div.wa-sequence .dna-residues.forward-strand {
-    color: black;
-    z-index: 5;
-    /* outline: 1px solid pink; */
-}
-
-div.wa-sequence .dna-residues.reverse-strand {
-    color: gray;
-    border-top: 1px solid lightgray;
-    z-index: 5;
-    /* outline: 1px solid pink; */
-}
-
-div.wa-sequence .aa-residues  {
-    color: black;
-    z-index: 5;
-/*
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-*/
-/*    outline: 1px solid orange; */
-}
-
-div.wa-sequence .aa-residues.frame0 {
-    background-color: #999999; 
-    z-index: 5;
-}
-
-div.wa-sequence .aa-residues.frame1 {
-    background-color: #BBBBBB; 
-    z-index: 5;
-}
-
-div.wa-sequence .aa-residues.frame2 {
-    background-color: #DDDDDD; 
-    z-index: 5;
-}
-
-/* highlighting of dna residues in DNA track on mouseover */
-div.wa-sequence .dna-highlighted {
-    background: #F9BF3A
-}
-
-/* don't think this is currently (April 2012) being used */
-div.wa-sequence .highlighted {
-    background: #ff0;
-}
-
-div.annot-sequence  {
-    position: absolute;
-    left: 0px;
-    font-family: monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding-left: 2px;
-    z-index: 15;
-    /*  
-	need pointer-events:none so that any events pass through annot-sequence overlay
-	and onto the block or feature div underneath
-    */ 
-    pointer-events: none;
-
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-}
-
-/*
-div.basic-hist {
-    position: absolute;
-    z-index: 10;
-}
-*/
 
 /********************************************************
 *   invisible containers, 
@@ -277,10 +148,6 @@ div.basic-hist {
     top: 5%;
     background-color: #D8BDEB;
     border: 1px solid #01F;
-/*    border-style: solid;
-    border-color: #01F;
-    border-width: 1px;
-*/
 }
 
 .pink-12px, 
@@ -289,7 +156,6 @@ div.basic-hist {
     background-color: #D8BDEB;
     border: 1px solid #01F;
     height: 12px;
-    /*    margin-top: 2px; */  /* rely on centering in code instead? */
 }
 
 .pink-16px, 
@@ -298,7 +164,6 @@ div.basic-hist {
     background-color: #D8BDEB;
     border: 1px solid #01F;
     height: 16px;
-    /*    margin-top: 2px; */  /* rely on centering in code instead? */
 }
 
 .purple-60pct, 
@@ -314,7 +179,6 @@ div.basic-hist {
 .minus-purple-8px {
     background-color: #8F408F;
     height: 8px; 
-    /*   margin-top: 4px; */  /* rely on centering in code instead? */
 }
 
 .darkblue-80pct, 
@@ -535,9 +399,6 @@ div.basic-hist {
 .plus-noncanonical-splice-site,  
 .minus-noncanonical-splice-site  { 
     margin-left: -8px;
-    /* margin-top: -11px;  */
-    /*  moved noncanonical icon to bottom of annotation, prefer top of annotation but 
-	need to have a some padding at top of track before that works */
     margin-top: 9px;  
     padding-left: 8px;
     padding-right: 8px;
@@ -808,13 +669,13 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 .transposable_element,
 .plus-transposable_element, 
 .minus-transposable_element {
-	height: 12px;
-	border-left-color: blue;
-	border-right-color: blue;
-	border-width: 0px 2px 0px 2px;
-	border-style: solid;
-	background-color: transparent;
-	z-index: 10;
+    height: 12px;
+    border-left-color: blue;
+    border-right-color: blue;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
 }
 
 .transposable_element-render {
@@ -824,17 +685,17 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 }
 
 .blue-ibeam {
-	height: 12px;
-	border-left-color: blue;
-	border-right-color: blue;
-	border-width: 0px 2px 0px 2px;
-	border-style: solid;
-	background-color: transparent;
-	z-index: 10;
+    height: 12px;
+    border-left-color: blue;
+    border-right-color: blue;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
 }
 
 .blue-ibeam-render {
-	height: 3px;
+    height: 3px;
     margin-top: 4px;
     background-color: blue;
 }
@@ -842,8 +703,8 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 .magenta-80pct,
 .plus-magenta-80pct, 
 .minus-magenta-80pct {
-	top: 10%;
-	height: 80%;
+    top: 10%;
+    height: 80%;
     background-color: magenta;
     border: 1px solid #01F;
 }
@@ -851,8 +712,8 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 .light-purple-80pct,
 .plus-light-purple-80pct, 
 .minus-light-purple-80pct {
-	top: 10%;
-	height: 80%;
+    top: 10%;
+    height: 80%;
     background-color: rgb(153,153,255);
     border: 1px solid #01F;
 }
