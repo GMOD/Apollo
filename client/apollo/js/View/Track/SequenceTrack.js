@@ -130,66 +130,9 @@ return declare( [Sequence],
             if(!nl.length) return;
 
             nl.style("backgroundColor","#E0E0E0");
+            thisB.renderAlterations(alterations,leftBase,rightBase,args.block.domNode,thisB);
 
-            array.forEach(alterations,function(alt) {
-                var start=alt.get("start");
-                var end=alt.get("end");
-                var type=alt.get("type");
-                var relStart=start-leftBase;
-                var relEnd=end-leftBase;
-                var pct=relStart*100/(rightBase-leftBase);
-                console.log(relStart,start,leftBase,pct);
-
-                if(type=="insertion") {
-                    var featDiv=domConstruct.create("div",{ 
-                        "style": {
-                            "position": "absolute",
-                            "z-index": 20,
-                            "top": "0px",
-                            "width": "2px",
-                            "left": pct+"%",
-                            "backgroundColor": "rgba(0,255,0,0.2)",
-                            "height": "100%",
-                        }
-                    },args.block.domNode);
-                    domStyle.set(nl[relStart],"backgroundColor","green");
-                    console.log(featDiv);
-                //    domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","green");
-                }
-                else if(type=="deletion") {
-                    var charWidth=100/(rightBase-leftBase);
-                    var featDiv=domConstruct.create("div",{ 
-                        "style": {
-                            "position": "absolute",
-                            "z-index": 20,
-                            "top": "0px",
-                            "width": (end-start)*charWidth+"%",
-                            "left": pct+"%",
-                            "backgroundColor": "rgba(255,0,0,0.2)",
-                            "height": "100%",
-                        }
-                    },args.block.domNode);
-                    domStyle.set(nl[relStart],"backgroundColor","red");
-                  //  domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","red");
-                }
-                else if(type=="substitution") {
-                    var charWidth=100/(rightBase-leftBase);
-                    var featDiv=domConstruct.create("div",{ 
-                        "style": {
-                            "position": "absolute",
-                            "z-index": 20,
-                            "top": "0px",
-                            "width": (end-start)*charWidth+"%",
-                            "left": pct+"%",
-                            "backgroundColor": "rgba(255,255,0,0.2)",
-                            "height": "100%",
-                        }
-                    },args.block.domNode);
-                    domStyle.set(nl[relStart],"backgroundColor","yellow");
-                   // domStyle.set(nl[relStart+rightBase-leftBase],"backgroundColor","yellow");
-                }
-                nl[relStart]._altered=alt;
-            });
+            // render mouseover highlight
             nl.on(mouse.enter,function(evt) {
                 evt.target.oldColor=domStyle.get(evt.target,"backgroundColor");
                 domStyle.set(evt.target,"backgroundColor","orange");
@@ -212,7 +155,7 @@ return declare( [Sequence],
                 query(".translatedSequence .colorCds").removeClass("colorCds");
             }
         };
-        supermethod.call(thisB,args);
+        supermethod.call(this,args);
     },
 
     _refreshMenu: function( featDiv ) {
@@ -530,6 +473,63 @@ return declare( [Sequence],
             title: "Add Substitution",
             content: this.createAddSequenceAlterationPanel("substitution", gcoord)
         },evt);
+    },
+
+    renderAlterations: function(alterations,leftBase,rightBase,blockNode,thisB) {
+        array.forEach(alterations,function(alt) {
+            var start=alt.get("start");
+            var end=alt.get("end");
+            var type=alt.get("type");
+            var relStart=start-leftBase;
+            var relEnd=end-leftBase;
+            var pct=relStart*100/(rightBase-leftBase);
+            var featDiv;
+
+            if(type=="insertion") {
+                featDiv=domConstruct.create("div",{ 
+                    "style": {
+                        "position": "absolute",
+                        "z-index": 20,
+                        "top": "0px",
+                        "width": "2px",
+                        "left": pct+"%",
+                        "backgroundColor": "rgba(0,255,0,0.2)",
+                        "height": "100%",
+                    }
+                },blockNode);
+            }
+            else if(type=="deletion") {
+                var charWidth=100/(rightBase-leftBase);
+                featDiv=domConstruct.create("div",{ 
+                    "style": {
+                        "position": "absolute",
+                        "z-index": 20,
+                        "top": "0px",
+                        "width": (end-start)*charWidth+"%",
+                        "left": pct+"%",
+                        "backgroundColor": "rgba(255,0,0,0.2)",
+                        "height": "100%",
+                    }
+                },blockNode);
+            }
+            else if(type=="substitution") {
+                var charWidth=100/(rightBase-leftBase);
+                featDiv=domConstruct.create("div",{ 
+                    "style": {
+                        "position": "absolute",
+                        "z-index": 20,
+                        "top": "0px",
+                        "width": (end-start)*charWidth+"%",
+                        "left": pct+"%",
+                        "backgroundColor": "rgba(255,255,0,0.2)",
+                        "height": "100%",
+                    }
+                },blockNode);
+            }
+            var refreshMenu = lang.hitch( thisB, '_refreshMenu', featDiv );
+            thisB.own( on( featDiv,  'mouseover', refreshMenu ) );
+            featDiv._altered=alt;
+        });
     }
 
  
