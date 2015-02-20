@@ -112,7 +112,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 13.1.5) Undo, Redo
 
-13.1.6) Show History, and test the ability to revert to any of the previous versions of the feature.
+13.1.6) Show History, and test the ability to revert to any of the previous versions of the feature by clicking on the arrow buttons to the right of each version.
 
 13.1.7) Annotation Info Editor: dbXRefs, Comments, GO IDs, PubMed IDs
 
