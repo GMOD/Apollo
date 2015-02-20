@@ -438,19 +438,12 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         
         if (!history) {
             var label = "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
-            if (feature.get("locked")) {
-                label += "<br/>[Locked]";
-            }
             new Tooltip({
                 connectId: featDiv,
                 label: label,
                 position: ["above"],
                 showDelay: 600
             });
-        }
-        
-        if (feature.get("locked")) {
-            dojo.addClass(featDiv, "locked-annotation");
         }
         
         return featDiv;
@@ -1511,22 +1504,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         track.executeUpdateOperation(postData);
     },
 
-    lockAnnotation: function() {
-        var selectedAnnots = this.selectionManager.getSelection();
-        this.selectionManager.clearAllSelection();
-        this.lockAnnotationForSelectedFeatures(selectedAnnots);
-    },
-    
-    lockAnnotationForSelectedFeatures: function(selectedAnnots) {
-        var track = this;
-        var annot = this.getTopLevelAnnotation(selectedAnnots[0].feature);
-        var uniqueName = annot.id();
-        var features = [ { "uniquename":  uniqueName } ];
-        var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
-        var trackName = track.getUniqueTrackName();
-        var postData = { "track": trackName, "features": features, "operation": operation};
-        track.executeUpdateOperation(postData);
-    },
     undo: function()  {
         var selected = this.selectionManager.getSelection();
         this.selectionManager.clearSelection();
@@ -2452,7 +2429,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         this.updateSetPreviousDonorMenuItem();
         this.updateSetNextAcceptorMenuItem();
         this.updateSetPreviousAcceptorMenuItem();
-//        this.updateLockAnnotationMenuItem();
     },
 
     updateDeleteMenuItem: function() {
@@ -3014,26 +2990,6 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         menuItem.set("disabled", false);
     },
     
-    updateLockAnnotationMenuItem: function() {
-        var menuItem = this.getMenuItem("lock_annotation");
-        var selectedAnnots = this.selectionManager.getSelection();
-        if (selectedAnnots.length > 1) {
-            menuItem.set("disabled", true);
-            return;
-        }
-        var feature = this.getTopLevelAnnotation(selectedAnnots[0].feature);
-        if (feature.get("locked")) {
-            menuItem.set("label", "Unlock annotation");
-        }
-        else {
-            menuItem.set("label", "Lock annotation");
-        }
-        if (feature.get("owner") != this.username && !this.isAdmin()) {
-            menuItem.set("disabled", true);
-            return;
-        }
-        menuItem.set("disabled", false);
-    },
 
     getMenuItem: function(operation) {
         return annot_context_menu.getChildren()[contextMenuItems[operation]];
@@ -3129,7 +3085,7 @@ var AnnotTrack = declare([DraggableFeatureTrack,InformationEditorMixin,HistoryMi
         if (feature) {
             feature = this.getTopLevelAnnotation(feature);
         }
-        return this.hasWritePermission() && (feature ? !feature.get("locked") : true);
+        return this.hasWritePermission();
     },
 
     processParent: function(feature, operation) {
