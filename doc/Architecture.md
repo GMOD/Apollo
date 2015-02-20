@@ -1,10 +1,20 @@
-# Apollo 2.0 Code Review
-# 2015-02-18
-# Notes by M. Munoz-Torres
 
-Present at BBOP: Nathan, Moni
-Present at UM: Colin, Deepak
+A doc in progress.
 
+For reference:
+https://github.com/GMOD/Apollo/blob/grails1/doc/architecture2.png
+https://github.com/GMOD/Apollo/blob/grails1/doc/schemaupdates.pdf
+
+The main components are:
++ Grails Server (formally a simple servlet 3 container)
++ Datastore: configured via Hibernate / Grails . . can use most anything supported by JDBC / hibernate as well as MongoDB (and possibly ElasticSearch) . . in theory
++ JBrowse / Apollo Plugin: JS / HTML5
++ GWT client: provides the sidebar.   Can be written in another front-end language, as well.
+
+
+
+GRAILS
+Official doc is here:  http://grails.github.io/grails-doc/2.4.x/
 
 The main pieces to a Grails application (the four most important are 1 through 4).
 1 - the domain classes; these are the main objects
@@ -51,23 +61,7 @@ There are a few things that are not part of the SO "part_of"
 
 That's Domains. there is probably more stuff in there than there needs to be; Nathan will continue to clean more stuff now.
 
-
-Colin: this is still very similar to Chado. What do we want to do about that? 
-Nathan: I am less concerned with in which ways it is similar.
-Colin: we are making changes to improve our application, and that's "pretty awesome", but if we are going to support Chado export, we'll have to find a way to map back to Chado. Then won't we be back on the same boat? 
-Nathan: Not worried about that right now. There are many ways to go back to Chado. In an ideal world you could write a plugin to Chado and separate everything in the code, Chado from the architecture. We want to keep everything separated in the code.
-
-in the code you go through iteration thing looking a part_of
-we are still using ontology, and want to keep it; the data structure, the way you handle features or markers. we can create a service model with these tools, and we could create a separate Apollo Chado plugin (you can create inheretable plugins, which are similar to the main project, but with a few modifications).
-If you have an active Chado schema, you could create a grails project out of that. the hard part will be writing a service mapping between what Apollo is storing and what Chado is storing. It will be easier.
-
-Controlers:
-If you are writing a regular web-application,,, didn't complete sentence.
-
-Experiment is also a domain, 
-ideally we will have a single page, and everything else is going to be a rest operation. 
-
-if you have a def Index it will come in and ,,, didn't complete sentence.
+If you have a def Index it will come in and ,,, didn't complete sentence.
 if you go through and run this grails application when you send the URL request  (old JBrowse sent post request to AnnotationEditorService, now sends to AnnotationEditorController; manages everything with a handleOperation)
 the method called Operation determines what method is run; because everything is consistent, we can do that. We unwrap the method, figure out the action, and assign it.
 
@@ -95,6 +89,10 @@ we used to use long polling before websockets. now Spring is in charge of sendin
 brokerMessagingTemplate is the converter to broadcast the event
 
 
+Controllers:
+Route url and info to methods
+
+
 Services: 
 is something that does business logic
 (green buttons on the left of the intelliJ window in this section shows that it an Injected Spring Bean)
@@ -114,18 +112,9 @@ The different services do exactly what their name implies. It may not always be 
 
 Nathan created a FeatureString enum: creating names for everything, and it is useful to rename things and not worry about spelling.
 
-Nathan is moving the GBOL code into Service classes, and slowly converting it over.
 
-----------
-Colin:
-Do we want to make integration tests of the rest API? We don't have a clear vision of what it would be, but could create one. 
-
-Nathan: 
-Yes, great idea. Grails supports it out of the box. You just write them like you normally would, Grails creates a db and runs stuff easily.
-----------
 
 Configuration:
-
 Bootstrap gets launched every time you start up a server. Whatever you want to put in that startup goes there. Also processes organisms into the right directory. If there are no users and no annotations, it creates some annotations and users so there is something in there to begin with.
 
 UrlMappings:
@@ -165,22 +154,4 @@ A Bootstrap/GWT interface handles the tabs on the right for the new UI.
 The annotator object is at the root of everything. the source path is client. 
 
 MainPanel.ui.xml 
-
-[....]
-
-Next steps: 
-Wants to release the RC2 candidate of 1.0.4 on icebox.
-What makes the most sense for Deepak and Colin to work on? 
-- Colin on the client side, primarily JBrowse. 
-- Deepak on ?? Is there something you find interesting to do? 
--- Nathan could set up unit tests and have him write a few test. 
--- There is also a GFF3 export, or 
--- anything else on the 2.0 column of Trello board. When one of those things catches your interest, you could start going down there.
-Answer: Deepak will start working on the GFF3 export.
-
-It would be good to have Colin and Deepak working on the new branch.
-Most changes currently live on the gwt piece, and on websockets. 
-Colin will begin on a separate branch, to include the changes he has done to the client.
-Nathan to create a few examples of unit tests so Colin can follow them. 
-Nathan will also work on an integration test.
 
