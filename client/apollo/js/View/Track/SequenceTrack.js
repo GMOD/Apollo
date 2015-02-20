@@ -39,7 +39,7 @@ function(
     xhr
      ) {
 
-return declare( [Sequence],
+return declare( Sequence,
 {
     /**
      * Track to display the underlying reference sequence, when zoomed in
@@ -173,14 +173,25 @@ return declare( [Sequence],
         var thisB=this;
         var menu=new Menu();
         this.own( menu );
-        var alt=featDiv._altered;
-        if(alt) {
+        if(featDiv.feature) {
+            
             menu.addChild(new MenuItem({
-                label: "Remove "+alt.get("type"),
+                label: "View "+featDiv.feature.get("type")+" details",
+                iconClass: "dijitIconTask",
+                onClick: function(evt) {
+                    console.log(featDiv.feature);
+                    thisB._openDialog({
+                        action: "contentDialog",
+                        title: "Add Insertion",
+                        content: domConstruct.create('p',{innerHTML: featDiv.feature.data.id})
+                    },evt,featDiv);
+                }
+            }));
+            menu.addChild(new MenuItem({
+                label: "Remove "+featDiv.feature.get("type"),
                 iconClass: "dijitIconDelete",
                 onClick: function(evt) {
-                    var node=evt.target;
-                    thisB.requestDeletion(alt);
+                    thisB.requestDeletion(featDiv.feature);
                 }
             }));
         }
@@ -519,7 +530,7 @@ return declare( [Sequence],
             }
             var refreshMenu = lang.hitch( thisB, '_refreshMenu', featDiv );
             thisB.own( on( featDiv,  'mouseover', refreshMenu ) );
-            featDiv._altered=alt;
+            featDiv.feature=alt;
         });
     }
 
