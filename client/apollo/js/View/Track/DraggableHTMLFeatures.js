@@ -14,9 +14,21 @@ define( [
             'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils'
         ],
-        function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, 
-          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, $, draggable, Util, 
-          SimpleFeature, SeqOnto ) {
+        function( declare,
+            array, 
+            HTMLFeatureTrack,
+            FeatureSelectionManager,
+            dijitMenu,
+            dijitMenuItem, 
+            dijitCheckedMenuItem,
+            dijitMenuSeparator,
+            dijitPopupMenuItem,
+            $,
+            draggable,
+            Util,
+            SimpleFeature,
+            SeqOnto
+            ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
     and dragged and dropped into the annotation track to create annotations.
