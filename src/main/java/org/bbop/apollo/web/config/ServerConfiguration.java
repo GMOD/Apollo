@@ -103,24 +103,6 @@ public class ServerConfiguration {
     public void setOverlapperClass(String overlapperClass) {
         this.overlapperClass = overlapperClass;
     }
-
-    /*
-    public String getTrackNameComparatorClass() {
-        return trackNameComparatorClass;
-    }
-
-    public void setTrackNameComparatorClass(String trackNameComparatorClass) {
-        this.trackNameComparatorClass = trackNameComparatorClass;
-    }
-    */
-
-    public String getTrackNameComparator() {
-        return trackNameComparator;
-    }
-
-    public void setTrackNameComparator(String trackNameComparator) {
-        this.trackNameComparator = trackNameComparator;
-    }
     
     public UserDatabaseConfiguration getUserDatabase() {
         return userDatabase;
@@ -228,7 +210,6 @@ public class ServerConfiguration {
         }
         logger.debug("loaded: " + loaded) ;
 
-        String dataStoreDirectory = null ;
         String databaseUrl = null ;
         String databaseUsername = null ;
         String databasePassword= null ;
@@ -243,6 +224,7 @@ public class ServerConfiguration {
             databaseUsername = properties.getProperty("database.username");
             databasePassword = properties.getProperty("database.password");
             databaseDriver = properties.getProperty("database.driver");
+            userAuthenticationClass = properties.getProperty("database.authentication");
             organism = properties.getProperty("organism");
 
         }
@@ -268,20 +250,6 @@ public class ServerConfiguration {
         Node overlapperClassNode = doc.getElementsByTagName("overlapper_class").item(0);
         if (overlapperClassNode != null) {
             overlapperClass = overlapperClassNode.getTextContent();
-        }
-        Node trackNameComparatorNode = doc.getElementsByTagName("track_name_comparator").item(0);
-        if (trackNameComparatorNode != null) {
-            trackNameComparator = trackNameComparatorNode.getTextContent();
-        }
-        Element userNode = (Element)doc.getElementsByTagName("user").item(0);
-        logger.debug("has user node: " + userNode);
-        if (userNode != null) {
-            Element databaseNode = (Element)userNode.getElementsByTagName("database").item(0);
-            logger.debug("has database node: " + databaseNode);
-            Element authenticationClassNode = (Element)userNode.getElementsByTagName("authentication_class").item(0);
-            if (authenticationClassNode != null) {
-                userAuthenticationClass = authenticationClassNode.getTextContent();
-            }
         }
         userDatabase = new UserDatabaseConfiguration(databaseDriver, databaseUrl, databaseUsername, databasePassword);
         tracks = new HashMap<String, TrackConfiguration>();
