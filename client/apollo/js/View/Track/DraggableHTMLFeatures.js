@@ -646,9 +646,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.browser.cookie("colorCdsByFrame")=="1") {
-                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
-                }
+                dojo.addClass(segDiv, "frame" + cdsFrame);
                 subDiv.appendChild(segDiv);
             }
             priorCdsLength += subLength;
@@ -713,9 +711,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.browser.cookie("colorCdsByFrame")=="1") {
-                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
-                }
+                dojo.addClass(segDiv, "frame" + cdsFrame);
                 subDiv.appendChild(segDiv);
             }
             priorCdsLength += (cdsSegEnd - cdsSegStart);

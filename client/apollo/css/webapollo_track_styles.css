@@ -864,12 +864,13 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 }
 
 
-.translatedSequence.frame0.colorCds {
+
+.colorCds .frame0  {
     background-color: #FF8080;
 }
-.translatedSequence.frame1.colorCds {
+.colorCds .frame1 {
     background-color: #80FF80;
 }
-.translatedSequence.frame2.colorCds {
+.colorCds .frame2 {
     background-color: #8080FF;
 }
