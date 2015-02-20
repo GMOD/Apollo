@@ -1,37 +1,30 @@
-RefactorClient goals:
 
-- Modular code
-- Testable code
-- Avoid ad-hoc fixes, do the right thing
-- Modern javascript approaches
-- Configurable and extensible
 
 RefactorClient changes:
 
 - Remove DraggableHTMLFeatures inheritence  from SequenceTrack
 - Make SequenceTrack inherit from jbrowse Sequence track
-- Add CodonTable.js change in JBrowse to allow multiple CodonTracks
-- Removed all the webapollo Sequencetrack code to make room for inheriting jbrowse code
-- Login using AJAX. Many "ajax" requests we have are using synchronous XHR instead.
-- Remove maxPxPerBp limit to allow zooming in farther into the sequence
-- Remove “BrowserZoomFix” (unnecessary after Sequencetrack refactor).
-- Make the JSON requests use actual JSON instead of string building
+- Add CodonTable.js change in JBrowse to allow configurable CodonTable
+- Removed all the webapollo SequenceTrack code and inherit JBrowse Sequence track
+- Login using AJAX instead of synchronouse XHR
+- Remove maxPxPerBp limit on the calculated char width to allow further zooming in
+- Use actual JSON instead of creating JSON via string building for API requests
 - Use the quickHelp/aboutThisBrowser config options
-- The title now says webapollo instead of jbrowse (was implemented but fixed now)
-- Make Tool menu appear before help (was previously implemented but fixed now)
-- Fixed resizing of features at any scale (even highly zoomed in)
-- Completely removed the "DraggableResultFeatures" because it was unused. It offered the option to "Promote all features" to the annotation track. If this is desired, we need to revisit it, but deleted for now.
-- Refactored InformationEditor,GetSequence,History into a new modules  (remove over 1500 lines from AnnotTrack.js)
-- Convert all synchronous XHR in information editor to use AJAX
-- Ignore long-polling request cancellations making noise in the console (normally happens on chromosome change)
-- Separate History panel into new module
-- Use declare for proper class declarations on SequenceSearch
-- Added colorByCds back to the SequenceTrack
-- Use JBrowse as a submodule instead of a extra part of the Maven download
-- Use similar menu resource allocation scheme that is used for HTMLFeatures (progressively build and cleanup menu resources that are attached to individual bases in the sequence track, other technique to globally try to attach to all nodes without cleanup resulted in very slow rendering)
-- Replace the openDialog function in sequenceTrack with the _openDialog method from the BlockBased method
-- Login pops up a little success before page refresh, along with the Invalid login you get a quick notification of the success/failure of login
-- Features can be subbed/inserted/deleted, etc.
+- Browser title says Web Apollo instead of JBrowse (this was implemented previously but was fixed now)
+- Make Tool menu appear before help (this was  implemented previously but fixed now)
+- Fixed resizing of features at zoom levels higher than the calculated char width
+- Completely removed the "DraggableResultFeatures" because it was unused
+- Moved code for InformationEditor, GetSequence, and History dialogs from AnnotTrack into other modules
+- Silenced noisy console.log due to long-polling
+- Use dojo/declare for proper class declarations on legacy modules
+- Re-implemented colorByCds back for the new SequenceTrack
+- Added JBrowse as a submodule for the repo instead of having maven clone the repo
+- Use the same dijit/Menu right-click menu resource allocation scheme that is used for HTMLFeatures to avoid memory overflows (slightly tricky)
+- Make a little text that says "Success" before refreshing the page for logins (ideally wouldn't have to do a page refresh)
+- Added substitutions/insertions/deletions on new SequenceTrack
+- Made substitutions/insertions/deletions overlaid using a transparent div similar to old SequenceTrack
+- Made it so Dark theme is now instant and doesn't require a page reload
+- The thin borderline between tracks is made invisible in dark mode which is much nicer. Also blue highlight instead of yellow for that super-cool blue feeling.
 
 
 Casualties of the refactoring process so far:
@@ -39,18 +32,10 @@ Casualties of the refactoring process so far:
 - The sequence overlay on the annotation track (sequence is overlaid on top of feature)
 
 
-Issues
-
-* The dojo/query module is not guaranteed to return the divs in order, which we assume when highlighting the bases, which we assume when highlighting using the insertions/deletions. We can either:
-    * Find another way to address this without using this assumption, or
-    * Display sequence alterations a different way (without highlighting bases)
 
 
 Future
 
-- Remove "login" code from annottrack, place in main plugin or different module
+- Remove "login" code from AnnotTrack, place in main plugin or different module
 - Remove the limitation that features without subfeatures cannot be annotated
 
-
-Screenshot:
-![Refactor](http://i.imgur.com/2QnCnJP.png)
