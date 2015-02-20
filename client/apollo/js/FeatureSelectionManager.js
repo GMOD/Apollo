@@ -14,9 +14,11 @@ return declare( null,
         this.selected = [];
         this.listeners = [];
         this.clearOnAdd = [];
-        this.unselectableTypes = { "non_canonical_five_prime_splice_site" : true, 
-                                   "non_canonical_three_prime_splice_site" : true,
-                                   "stop_codon_read_through" : true};
+        this.unselectableTypes = {
+            "non_canonical_five_prime_splice_site" : true, 
+            "non_canonical_three_prime_splice_site" : true,
+            "stop_codon_read_through" : true
+        };
     },
 
     /**
@@ -25,9 +27,6 @@ return declare( null,
      *     effectively ensures that selection is mutually exclusive between this manager 
      *        and the set of other managers passed in as setClearOnAdd args
      */
-    //FeatureSelectionManager.prototype.setClearOnAdd = function(other_smanagers)  {
-    //    this.clearOnAdd = other_smanagers;
-    //};
     addMutualExclusion: function(other_smanager)  {
         this.clearOnAdd.push(other_smanager);
     },
@@ -45,7 +44,6 @@ return declare( null,
                 this.clearOnAdd[i].clearSelection();
             }
         }
-        //    console.log("called FeatureselectionManager.addToSelection()");
         // do nothing if feat is already in selection
         if ( this.isSelected( rec ) )  {
             console.log("called FeatureSelectionManager.addToSelection(), but feature already in selection");
@@ -73,7 +71,6 @@ return declare( null,
             var listener = this.listeners[lindex];
             listener.selectionAdded( rec, this );
         }
-        //    console.log("done calling FeatureselectionManager.addToSelection()");
     },
 
     /**
@@ -112,7 +109,6 @@ return declare( null,
      *     multiple calls to removeSelectionAt (and subsequent multiple calls to listeners.selectionRemoved();
      */
     clearSelection: function()  {
-        //    console.log("called FeatureselectionManager.clearSelection()");
         var previous_selected = this.selected;
         this.selected = [];
         var lislength = this.listeners.length;
@@ -120,23 +116,13 @@ return declare( null,
             var listener = this.listeners[lindex];
             listener.selectionCleared(previous_selected, this);
         }
-        /*
-          for (var sindex in previous_selected)  {
-          var feat = previous_selected[sindex];
-          for (var lindex in this.listeners)  {
-          var listener = this.listeners[lindex];
-          listener.selectionRemoved(feat);
-          }
-          }
-        */
-        //  console.log("done calling FeatureselectionManager.clearSelection()");
     },
     
     clearAllSelection: function() {
-            this.clearSelection();
-            for (var i = 0; i < this.clearOnAdd.length; ++i) {
-                    this.clearOnAdd[i].clearSelection();
-            }
+        this.clearSelection();
+        for (var i = 0; i < this.clearOnAdd.length; ++i) {
+            this.clearOnAdd[i].clearSelection();
+        }
     },
 
     isSelected: function( rec )  {
@@ -150,8 +136,6 @@ return declare( null,
      *  so if selection changes, previous value returned from getSelection will not change
      */
     getSelection: function()  {
-        //    return this.selected;
-        //    return this.selected.slice(0);  // return shallow copy of array
         return this.selected.slice(0, this.selected.length);  // return shallow copy of array
     },
 
