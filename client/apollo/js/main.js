@@ -81,8 +81,11 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
+        if(browser.cookie("colorByCds")=="true") {
+            domClass.add(win.body(), "colorCds");
+        }
 
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"showLabels",true));
 
         if (browser.config.favicon) {
             this.setFavicon(browser.config.favicon);
@@ -197,9 +200,14 @@ return declare( [JBPlugin, HelpMixin],
         this.createMenu();
 
     },
-    updateLabels: function() {
+    showLabels: function(show,updating) {
         var browser=this.browser;
-        if(browser.cookie("showTrackLabel")=="0") {
+        var showLabels;
+        if(updating) {
+            showLabels=(browser.cookie("showTrackLabel")||"true")=="true";
+        }
+        else { showLabels=show; }
+        if(!showLabels) {
             $('.track-label').hide();
         }
         else {
@@ -212,7 +220,7 @@ return declare( [JBPlugin, HelpMixin],
         var thisB = this;
 
         var strandFilter = function(name,callback) {
-            if(browser.cookie(name)=="1") {
+            if(browser.cookie(name)=="true") {
                 browser.addFeatureFilter(callback,name);
             } else {
                 browser.removeFeatureFilter(name);
@@ -231,9 +239,9 @@ return declare( [JBPlugin, HelpMixin],
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Hide plus strand",
-                    checked: browser.cookie("plusStrandFilter")=="1",
+                    checked: browser.cookie("plusStrandFilter")=="true",
                     onClick: function(event) {
-                        browser.cookie("plusStrandFilter",this.get("checked")?"1":"0");
+                        browser.cookie("plusStrandFilter",this.get("checked")?"true":"false");
                         strandFilter("plusStrandFilter",plusStrandFilter);
                         browser.view.redrawTracks();
                     }
@@ -241,9 +249,9 @@ return declare( [JBPlugin, HelpMixin],
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Hide minus strand",
-                    checked: browser.cookie("minusStandFilter")=="1",
+                    checked: browser.cookie("minusStandFilter")=="true",
                     onClick: function(event) {
-                        browser.cookie("minusStrandFilter",this.get("checked")?"1":"0");
+                        browser.cookie("minusStrandFilter",this.get("checked")?"true":"false");
                         strandFilter("minusStrandFilter",minusStrandFilter);
                         browser.view.redrawTracks();
                     }
@@ -415,10 +423,11 @@ return declare( [JBPlugin, HelpMixin],
         var cds_frame_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="1",
+                    checked: browser.cookie("colorCdsByFrame")=="true",
                     onClick: function(event) {
-                        browser.cookie("colorCdsByFrame", this.get("checked")?"1":"0");
-                        browser.view.redrawTracks();
+                        if(this.get("checked")) domClass.add(win.body(), "colorCds");
+                        else domClass.remove(win.body(),"colorCds");
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
                     }
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
@@ -449,8 +458,8 @@ return declare( [JBPlugin, HelpMixin],
 
         var css_frame_toggle = new dijitPopupMenuItem(
             {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
+                label: "Color Scheme",
+                popup: css_frame_menu
             });
 
         browser.addGlobalMenuItem('view', css_frame_toggle);
@@ -459,13 +468,13 @@ return declare( [JBPlugin, HelpMixin],
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: (browser.cookie("showTrackLabel")||"1")=="1",
+                checked: (browser.cookie("showTrackLabel")||"true")=="true",
                 onClick: function(event) {
-                    browser.cookie("showTrackLabel",this.get("checked")?"1":"0");
-                    thisB.updateLabels();
+                    thisB.showLabels(this.get("checked"));
+                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
                 }
             });
-        this.updateLabels();
+        this.showLabels();
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     }
