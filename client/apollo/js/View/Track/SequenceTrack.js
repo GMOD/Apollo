@@ -145,15 +145,6 @@ return declare( [Sequence],
                 var refreshMenu = lang.hitch( thisB, '_refreshMenu', featDiv );
                 thisB.own( on( featDiv,  'mouseover', refreshMenu ) );
             });
-            
-
-            // Add colorCdsByFrame
-            if (thisB.browser.cookie("colorCdsByFrame")=="1") {
-                query(".translatedSequence").addClass("colorCds");
-            }
-            else {
-                query(".translatedSequence .colorCds").removeClass("colorCds");
-            }
         };
         supermethod.call(this,args);
     },
