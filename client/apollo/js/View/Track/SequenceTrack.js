@@ -485,7 +485,7 @@ return declare( [Sequence],
                         "width": "2px",
                         "left": pct+"%",
                         "backgroundColor": "rgba(0,255,0,0.2)",
-                        "height": "100%",
+                        "height": "100%"
                     }
                 },blockNode);
             }
@@ -499,7 +499,7 @@ return declare( [Sequence],
                         "width": (end-start)*charWidth+"%",
                         "left": pct+"%",
                         "backgroundColor": "rgba(255,0,0,0.2)",
-                        "height": "100%",
+                        "height": "100%"
                     }
                 },blockNode);
             }
@@ -513,7 +513,7 @@ return declare( [Sequence],
                         "width": (end-start)*charWidth+"%",
                         "left": pct+"%",
                         "backgroundColor": "rgba(255,255,0,0.2)",
-                        "height": "100%",
+                        "height": "100%"
                     }
                 },blockNode);
             }
