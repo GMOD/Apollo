@@ -8,7 +8,6 @@ define( [
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
             'dijit/PopupMenuItem',
-            'dijit/Dialog',
             'jquery',
             'jqueryui/draggable',
             'JBrowse/Util', 
@@ -16,7 +15,7 @@ define( [
             'WebApollo/SequenceOntologyUtils'
         ],
         function( declare, array, HTMLFeatureTrack, FeatureSelectionManager, dijitMenu, dijitMenuItem, 
-          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitDialog, $, draggable, Util, 
+          dijitCheckedMenuItem, dijitMenuSeparator, dijitPopupMenuItem, $, draggable, Util, 
           SimpleFeature, SeqOnto ) {
 
 /*  Subclass of FeatureTrack that allows features to be selected,
@@ -33,14 +32,9 @@ define( [
        part of feature div that extends into next block won't even be visible, since next block background will render over it
  */
 
-var debugFrame = false;
-
 return declare( HTMLFeatureTrack,
 
 {
-    // so is dragging
-    dragging: false,
-
     _defaultConfig: function() {
         return Util.deepUpdate(
             dojo.clone( this.inherited(arguments) ),
@@ -63,11 +57,8 @@ return declare( HTMLFeatureTrack,
                     centerChildrenVertically: false
                 },
                 events: {
-                    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
-                    //     (JBrowse default is feature detail popup)
                     click:     function(event) {
-                        // not quite a null-op, also need to supress propagation of click recursively up through parent divs, 
-                        //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
+                        // suppress propagation of click recursively up through parent divs
                         event.stopPropagation();
                     }
                 }
@@ -100,15 +91,6 @@ return declare( HTMLFeatureTrack,
         this.feature_context_menu = null; 
     },
 
-
-    loadSuccess: function(trackInfo) {
-        /* if subclass indicates it has custom context menu, do not initialize default feature context menu */
-        if (! this.has_custom_context_menu) {
-            this.initFeatureContextMenu();
-            this.initFeatureDialog();
-        }
-        this.inherited( arguments );
-    },
 
     setSelectionManager: function(selman)  {
         if (this.selectionManager)  {
@@ -218,8 +200,6 @@ return declare( HTMLFeatureTrack,
                 if (!jq_featdiv.hasClass(track.selectionClass))  {
                     jq_featdiv.addClass(track.selectionClass);
                 }
-
-                //      track.showEdgeMatches(feat);
             }
         }
     },
@@ -471,7 +451,6 @@ return declare( HTMLFeatureTrack,
         if (wholeCDS) {
             var cdsStart = wholeCDS.get('start');
             var cdsEnd = wholeCDS.get('end');
-            //    current convention is start = min and end = max regardless of strand, but checking just in case
             var cdsMin = Math.min(cdsStart, cdsEnd);
             var cdsMax = Math.max(cdsStart, cdsEnd);
         }
@@ -496,8 +475,9 @@ return declare( HTMLFeatureTrack,
             var uid = this.getId(subfeat);
             subtype = subfeat.get('type');
             var subDiv = this.renderSubfeature( feature, featDiv, subfeat, displayStart, displayEnd, block);
-            if( subDiv )
+            if( subDiv ) {
                 subDiv.subfeature = subfeat;
+            }
 
 
             // CHANGED to call renderExonSegments even if no wholeCDS --
@@ -528,7 +508,6 @@ return declare( HTMLFeatureTrack,
 
         // if the feature has been truncated to where it doesn't cover
         // this subfeature anymore, just skip this subfeature
-        // GAH: was OR, but should be AND?? var render = ((subEnd > displayStart) && (subStart < displayEnd));
         var render = subDiv && (subEnd > displayStart) && (subStart < displayEnd);
 
         // look for UTR and CDS subfeature class mapping from trackData
@@ -570,12 +549,6 @@ return declare( HTMLFeatureTrack,
                 absFrame = (subStart % 3);
                 cdsFrame = (absFrame + relFrame) % 3;
             }
-            if (debugFrame)  {
-                    console.log("whole exon: " + subStart + " -- ", subEnd, " initFrame: ", initFrame,
-                                           ", overhang: " + overhang + ", relFrame: ", relFrame, ", absFrame: ", absFrame,
-                                           ", cdsFrame: " + cdsFrame);
-            }
-
             if (render)  {
                 segDiv = document.createElement("div");
                 // not worrying about appending "plus-"/"minus-" based on strand yet
@@ -610,9 +583,6 @@ return declare( HTMLFeatureTrack,
                     absFrame = (subStart % 3);
                     cdsFrame = (absFrame + relFrame) % 3;
                 }
-                if (debugFrame)  { console.log("partial exon: " + subStart + ", initFrame: " + (cdsMin % 3) +
-                                               ", overhang: " + overhang + ", relFrame: " + relFrame + ", subFrame: " + (subStart % 3) +
-                                               ", cdsFrame: " + cdsFrame); }
             }
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
@@ -688,10 +658,6 @@ return declare( HTMLFeatureTrack,
      *   "this" should be a featdiv or subfeatdiv
      */
     onFeatureMouseDown: function(event) {
-
-        // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
-        //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
-        // if (this.drag_create)  { this.drag_create = null; return; }
         this.handleFeatureSelection(event);
         if (this.drag_enabled)  {
             this.handleFeatureDragSetup(event);
@@ -911,7 +877,7 @@ return declare( HTMLFeatureTrack,
 
         // only take action on double-click for subfeatures
         //  (but stop propagation for both features and subfeatures)
-        // GAH TODO:  make this work for feature hierarchies > 2 levels deep
+        // TODO:  make this work for feature hierarchies > 2 levels deep
         var subfeat = featdiv.subfeature;
         // if (subfeat && (! unselectableTypes[subfeat.get('type')]))  {  // only allow double-click parent selection for selectable features
         if( subfeat && selman.isSelected({ feature: subfeat, track: ftrack }) ) {  // only allow double-click of child for parent selection if child is already selected
@@ -979,9 +945,6 @@ return declare( HTMLFeatureTrack,
  *      elem is a DOM element OR JQuery wrapped set (in which case result is based on first elem in result set)
  *      elem is displayed  (see JQuery.offset() docs)
  *      no border/margin/padding set on the doc <body> element  (see JQuery.offset() docs)
- *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
- *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
- * 
  */
     getGenomeCoord: function(mouseEvent)  {
         return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
