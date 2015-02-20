@@ -35,8 +35,7 @@ define( [
 
 var debugFrame = false;
 
-//var DraggableFeatureTrack = declare( HTMLFeatureTrack,
-var draggableTrack = declare( HTMLFeatureTrack,
+return declare( HTMLFeatureTrack,
 
 {
     // so is dragging
@@ -92,25 +91,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // override if want subclass to have different CSS class for selected features
         this.selectionClass = "selected-feature";
         
-        //  DraggableFeatureTrack.selectionManager.addListener(this);
-
         this.last_whitespace_mousedown_loc = null;
         this.last_whitespace_mouseup_time = new Date();  // dummy timestamp
         this.prev_selection = null;
 
-        this.verbose = false;
-        this.verbose_selection = false;
-        this.verbose_selection_notification = false;
-        this.verbose_drag = false;
         this.drag_enabled = true;
 
         this.feature_context_menu = null; 
-
-        /** hack to determine which tracks to apply edge matching to 
-            would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
-                but use of dojo.declare() for classes means track object's class is actually base Object. 
-        */
-        this.edge_matching_enabled = true;
     },
 
 
@@ -170,7 +157,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                           // if click in whitespace without dragging (no movement between mouse down and mouse up,
                           //    and no shift modifier,
                           //    then deselect all
-                          if (this.verbose_selection)  { console.log("mouse up on track whitespace"); }
                           var eventModifier = event.shiftKey || event.altKey || event.metaKey || event.ctrlKey;
                           if (track.last_whitespace_mousedown_loc &&
                               xup === track.last_whitespace_mousedown_loc[0] &&
@@ -181,19 +167,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                   track.last_whitespace_mouseup_time = timestamp;
                                   // if less than half a second, probably a doubleclick (or triple or more click...)
                                   var probably_doubleclick = ((timestamp.getTime() - prev_timestamp.getTime()) < 500);
-                                  if (probably_doubleclick)  {
-                                      if (this.verbose_selection)  { console.log("mouse up probably part of a doubleclick"); }
-                                      // don't record selection state, want to keep prev_selection set
-                                      //    to selection prior to first mouseup of doubleclick
-                                  }
-                                  else {
+                                  if(!probably_doubleclick) {
                                       track.prev_selection = track.selectionManager.getSelection();
-                                      if (this.verbose_selection)  {
-                                          console.log("recording prev selection");
-                                          console.log(track.prev_selection);
-                                      }
                                   }
-                                  if (this.verbose_selection)  { console.log("clearing selection"); }
                                   track.selectionManager.clearAllSelection();
                               }
                           else   {
@@ -210,11 +186,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                       // because of dblclick bound to features, will only bubble up to here on whitespace,
                       //   but doing feature check just to make sure
                       if (! (target.feature || target.subfeature))  {
-                          if (this.verbose_selection)  {
-                              console.log("double click on track whitespace");
-                              console.log("restoring selection after double click");
-                              console.log(track.prev_selection);
-                          }
                           if (track.prev_selection)  {
                               var plength = track.prev_selection.length;
                               // restore selection
@@ -242,11 +213,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var track = this;
         if( rec.track === track)  {
             var featdiv = track.getFeatDiv( rec.feature );
-            if( track.verbose_selection_notification )  {
-                console.log("DFT.selectionAdded called: ");
-                console.log( rec );
-                console.log( featdiv );
-            }
             if( featdiv )  {
                 var jq_featdiv = $(featdiv);
                 if (!jq_featdiv.hasClass(track.selectionClass))  {
@@ -260,9 +226,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     selectionCleared: function(selected, smanager) {
         var track = this;
-        if (track.verbose_selection_notification)  {
-            console.log("DFT.selectionCleared called");
-        }
 
         var slength = selected.length;
         for (var i=0; i<slength; i++)  {
@@ -275,11 +238,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var track = this;
         if( rec.track === track )  {
             var featdiv = track.getFeatDiv( rec.feature );
-            if( track.verbose_selection_notification )  {
-                console.log("DFT.selectionRemoved called");
-                console.log( rec );
-                console.log( featdiv );
-            }
             if( featdiv )  {
                 var jq_featdiv = $(featdiv);
                 if (jq_featdiv.hasClass(track.selectionClass))  {
@@ -516,11 +474,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
             //    current convention is start = min and end = max regardless of strand, but checking just in case
             var cdsMin = Math.min(cdsStart, cdsEnd);
             var cdsMax = Math.max(cdsStart, cdsEnd);
-            if (this.verbose_render)  { console.log("wholeCDS:"); console.log(wholeCDS); }
         }
 
         var priorCdsLength = 0;
-        if (debugFrame)  { console.log("====================================================="); }
 
         var strand = feature.get('strand');
         var reverse = false;
@@ -539,25 +495,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             var uid = this.getId(subfeat);
             subtype = subfeat.get('type');
-            // don't render "wholeCDS" type
-            // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
-            // if (subtype == "wholeCDS")  {  continue; }
             var subDiv = this.renderSubfeature( feature, featDiv, subfeat, displayStart, displayEnd, block);
             if( subDiv )
                 subDiv.subfeature = subfeat;
 
-            // if subfeat is of type "exon", add CDS/UTR rendering
-            // if (subDiv && wholeCDS && (subtype === "exon")) {
-            // if (wholeCDS && (subtype === "exon")) {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
 
             // CHANGED to call renderExonSegments even if no wholeCDS --
             //     non wholeCDS means undefined cdsMin, which will trigger creation of UTR div for entire exon
             if (subtype === "exon") {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
                 priorCdsLength = this.renderExonSegments(subfeat, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse);
-            }
-            if (this.verbose_render)  {
-                console.log("in DraggableFeatureTrack.handleSubFeatures, subDiv: ");
-                console.log(subDiv);
             }
         }
    },
@@ -579,7 +525,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subLength = subEnd - subStart;
         var CDSclass;
 
-        //   if (debugFrame)  { console.log("exon: " + subStart); }
 
         // if the feature has been truncated to where it doesn't cover
         // this subfeature anymore, just skip this subfeature
@@ -610,13 +555,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
         }
 
-        /*
-         Frame is calculated as (3 - ((length-frame) mod 3)) mod 3.
-            (length-frame) is the length of the previous feature starting at the first whole codon (and thus the frame subtracted out).
-            (length-frame) mod 3 is the number of bases on the 3' end beyond the last whole codon of the previous feature.
-            3-((length-frame) mod 3) is the number of bases left in the codon after removing those that are represented at the 3' end of the feature.
-            (3-((length-frame) mod 3)) mod 3 changes a 3 to a 0, since three bases makes a whole codon, and 1 and 2 are left unchanged.
-        */
         // whole exon is translated
         else if (cdsMin <= subStart && cdsMax >= subEnd) {
             var overhang = priorCdsLength % 3;  // number of bases overhanging from previous CDS
@@ -750,11 +688,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
      *   "this" should be a featdiv or subfeatdiv
      */
     onFeatureMouseDown: function(event) {
-        // event.stopPropagation();
-        if( this.verbose_selection || this.verbose_drag ) { 
-            console.log("DFT.onFeatureMouseDown called"); 
-            console.log("genome coord: " + this.getGenomeCoord(event));
-        }
 
         // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
         //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
@@ -780,13 +713,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
        var parent = feat.parent();
        if (parent)  {
            parent_selected = selman.isSelected( { feature: parent, track: ftrack } );
-       }
-       if (this.verbose_selection)  {
-           console.log("DFT.handleFeatureSelection() called, actual mouse event");
-           console.log(featdiv);
-           console.log(feat);
-           console.log("already selected: " + already_selected + ",  parent selected: " + parent_selected +
-                       ",  shift: " + (event.shiftKey));
        }
        // if parent is selected, allow propagation of event up to parent,
        //    in order to ensure parent draggable setup and triggering
@@ -816,7 +742,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
        }
        else  {  // no shift modifier
            if (already_selected)  {  // if this selected, do nothing (this remains selected)
-               if (this.verbose_selection)  { console.log("already selected"); }
            }
            else  {
                if (parent_selected)  {
@@ -840,7 +765,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
     handleFeatureDragSetup: function(event)  {
         var ftrack = this;
         var featdiv = (event.currentTarget || event.srcElement);
-        if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
         /**
@@ -853,10 +777,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (selected)  {
             var $featdiv = $(featdiv);
             if (! $featdiv.hasClass("ui-draggable"))  {
-                if (this.verbose_drag)  {
-                    console.log("setting up dragability");
-                    console.log(featdiv);
-                }
                 var atrack = ftrack.webapollo.getAnnotTrack();
                 if (! atrack) { atrack = ftrack.webapollo.getSequenceTrack();  }
                 var fblock = ftrack.getBlock(featdiv);
@@ -905,10 +825,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         var fwidth = $pfeatdiv.width();
                         var ftop = foffset.top;
                         var fleft = foffset.left;
-                        if (this.verbose_drag)  {
-                            console.log("featdiv dimensions: ");
-                            console.log(foffset); console.log("height: " + fheight + ", width: " + fwidth);
-                        }
                         var selection = ftrack.selectionManager.getSelection();
                         var selength = selection.length;
                         for (var i=0; i<selength; i++)  {
@@ -929,10 +845,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                 $divclone.height(sheight);
                                 var delta_top = seltop - ftop;
                                 var delta_left = sleft - fleft;
-                                if (this.verbose_drag)  {
-                                    console.log(sfeatdiv);
-                                    console.log("delta_left: " + delta_left + ", delta_top: " + delta_top);
-                                }
                                 //  setting left and top by pixel, based on delta relative to moused-on feature
                                 //    tried using $divclone.position( { ...., "offset": delta_left + " " + delta_top } );,
                                 //    but position() not working for negative deltas? (ends up using absolute value)
@@ -943,7 +855,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                 holder.appendChild(divclone);
                             }
                         }
-                        if (this.verbose_drag)  { console.log(holder); }
                         return holder;
                     },
                     opacity: 0.5,
@@ -997,11 +908,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // prevent event bubbling up to genome view and triggering zoom
         event.stopPropagation();
         var featdiv = (event.currentTarget || event.srcElement);
-        if (this.verbose_selection)  {
-            console.log("DFT.featDoubleClick");
-            console.log(ftrack);
-            console.log(featdiv);
-        }
 
         // only take action on double-click for subfeatures
         //  (but stop propagation for both features and subfeatures)
@@ -1043,9 +949,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                          containerStart, containerEnd ) {
         this.inherited( arguments );
 
-        //    console.log("called DraggableFeatureTrack.showRange(), block range: " +
-        //          this.firstAttached +  "--" + this.lastAttached + ",  " + (this.lastAttached - this.firstAttached));
-        // redo selection styles for divs in case any divs for selected features were changed/added/deleted
         var srecs = this.selectionManager.getSelection();
         for (var sin in srecs)  {
             // only look for selected features in this track --
@@ -1209,7 +1112,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 });
 
-        return draggableTrack;
 });
 
  /*
