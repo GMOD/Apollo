@@ -7,7 +7,7 @@ define( [
             'WebApollo/JSONUtils',
             'JBrowse/Util', 
             'JBrowse/View/GranularRectLayout',
-            'dojo/request/xhr',
+            'dojo/request/xhr'
         ],
         function( declare, 
           dijitMenu,
@@ -22,7 +22,6 @@ define( [
 
 var context_path='..';
 return declare([],{
-
 
     getSequence: function()  {
         var selected = this.selectionManager.getSelection();

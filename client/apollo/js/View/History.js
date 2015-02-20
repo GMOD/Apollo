@@ -7,7 +7,7 @@ define( [
             'WebApollo/JSONUtils',
             'JBrowse/Util', 
             'JBrowse/View/GranularRectLayout',
-            'dojo/request/xhr',
+            'dojo/request/xhr'
         ],
         function( declare, 
           dijitMenu,

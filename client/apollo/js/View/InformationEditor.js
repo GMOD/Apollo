@@ -1482,7 +1482,7 @@ return declare([],{
                 return response;
             }
         });
-    },
+    }
     
 });
 });
