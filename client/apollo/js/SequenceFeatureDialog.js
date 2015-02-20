@@ -16,17 +16,35 @@ define( [
             'dojox/grid/cells/dijit',
             'dojo/data/ItemFileWriteStore',
             'WebApollo/JSONUtils',
-            'WebApollo/BioFeatureUtils',
             'WebApollo/Permission', 
             'WebApollo/SequenceSearch', 
             'WebApollo/EUtils',
             'WebApollo/SequenceOntologyUtils',
             'WebApollo/FormatUtils'
         ],
-function(declare, dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton,
-        dijitDropDownButton, dijitDropDownMenu, dijitComboBox, dijitTextBox, dijitValidationTextBox, 
-        dijitRadioButton, dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore,
-        JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils, FormatUtils) {
+        function(
+                declare,
+                dijitMenu,
+                dijitMenuItem,
+                dijitMenuSeparator,
+                dijitPopupMenuItem,
+                dijitButton,
+                dijitDropDownButton,
+                dijitDropDownMenu,
+                dijitComboBox,
+                dijitTextBox,
+                dijitValidationTextBox,
+                dijitRadioButton,
+                dojoxDialogSimple,
+                dojoxDataGrid,
+                dojoxCells,
+                dojoItemFileWriteStore,
+                JSONUtils,
+                Permission,
+                SequenceSearch,
+                EUtils,
+                SequenceOntologyUtils,
+                FormatUtils) {
 
 var context_path = "..";
 
