@@ -75,4 +75,8 @@ class ConfigWrapperService {
     List<String> getSpliceAcceptorSites(){
         return grailsApplication.config.apollo.splice_acceptor_sites
     }
+
+    int getDefaultMinimumIntronSize() {
+        return grailsApplication.config.apollo.default_minimum_intron_size
+    }
 }

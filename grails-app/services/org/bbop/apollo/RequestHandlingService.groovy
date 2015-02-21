@@ -1335,31 +1335,51 @@ class RequestHandlingService {
     }
 
     def makeIntron(JSONObject inputObject) {
-        throw new RuntimeException("Implement make intron")
-//        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        throw new RuntimeException("Implement make intron")
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 //        Exon exon = (Exon) getFeature(editor, jsonExon);
+        JSONObject jsonExon = featuresArray.getJSONObject(0)
+        Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
 //        Transcript oldTranscript = cloneTranscript(exon.getTranscript());
 //        JSONObject exonLocation = jsonExon.getJSONObject("location");
+        JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
 //        Exon splitExon = editor.makeIntron(exon, exonLocation.getInt("fmin"), defaultMinimumIntronSize, nameAdapter.generateUniqueName());
-//        if (splitExon == null) {
-//            out.write(new JSONObject().put("alert", "Unable to find canonical splice sites.").toString());
-//            return;
-//        }
+        
+        Exon splitExon = exonService.makeIntron(
+                exon
+                ,exonLocation.getInt(FeatureStringEnum.FMIN.value)
+                , configWrapperService.getDefaultMinimumIntronSize()
+        )
+        if (splitExon == null) {
+            def returnContainer = createJSONFeatureContainer()
+            returnContainer.put("alert", "Unable to find canonical splice sites.");
+            return returnContainer
+        }
 //        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
+        featureService.updateNewGsolFeatureAttributes(splitExon)
 //        calculateCDS(editor, exon.getTranscript());
+        Transcript transcript = exonService.getTranscript(exon)
+        featureService.calculateCDS(transcript)
 //        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+        
 //        updateTranscriptAttributes(exon.getTranscript());
-//        if (dataStore != null) {
-//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(exon.getTranscript()), track);
-//        }
-//        if (historyStore != null) {
-//            Transaction transaction = new Transaction(Transaction.Operation.SPLIT_EXON, exon.getTranscript().getUniqueName(), username);
-//            transaction.addOldFeature(oldTranscript);
-//            transaction.addNewFeature(exon.getTranscript());
-//            writeHistoryToStore(historyStore, transaction);
-//        }
+        transcript.name  = transcript.name ?: nameService.generateUniqueName(transcript)
+       
 //        JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript))
 //        out.write(featureContainer.toString());
 //        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.ADD
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
     }
 }
