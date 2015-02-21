@@ -80,18 +80,22 @@ return declare( [JBPlugin, HelpMixin],
         });
 
         // Checking for cookie for determining the color scheme of WebApollo
-        if (browser.cookie("Scheme")=="Dark") {
+        if( browser.cookie("Scheme")=="Dark" ) {
             domClass.add(win.body(), "Dark");
         }
-        if(browser.cookie("colorByCds")=="true") {
+        if( browser.cookie("colorByCds")=="true" ) {
             domClass.add(win.body(), "colorCds");
         }
-
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"showLabels",true));
-
-        if (browser.config.favicon) {
+        if( browser.config.favicon ) {
             this.setFavicon(browser.config.favicon);
         }
+        if( !browser.config.quickHelp ) {
+            browser.config.quickHelp = {
+                "title": "Web Apollo Help",
+                "content": this.defaultHelp()
+            }
+        }
+
 
         // hand the browser object to the feature edge match manager
         FeatureEdgeMatchManager.setBrowser( browser );
@@ -109,57 +113,18 @@ return declare( [JBPlugin, HelpMixin],
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
-        if (browser.config.show_nav&&browser.config.show_menu) {
-        }
+        this.setupWebapolloTrackTypes();
 
-        // register the WebApollo track types with the browser, so
-        // that the open-file dialog and other things will have them
-        // as options
-        browser.registerTrackType({
-            type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
-            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
-                                    'JBrowse/Store/SeqFeature/GFF3',
-                                    'WebApollo/Store/SeqFeature/ApolloGFF3'
-                                  ],
-            label: 'WebApollo Features'
-        });
-        browser.registerTrackType({
-            type:                 'WebApollo/View/Track/DraggableAlignments',
-            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/BAM' ],
-            label: 'WebApollo Alignments'
-        });
-        browser.registerTrackType({
-            type:                 'WebApollo/View/Track/SequenceTrack',
-            defaultForStoreTypes: [ 'JBrowse/Store/Sequence/StaticChunked' ],
-            label: 'WebApollo Sequence'
-        });
 
-        // transform track configs from vanilla JBrowse to WebApollo:
-        // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
-        array.forEach(browser.config.tracks,function(e) { thisB.trackTransformer.transform(e); });
-
-        if (!browser.config.trackSelector) {
-            browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
-        }
-        else if (browser.config.trackSelector.type == "Hierarchical") {
-            browser.config.trackSelector.type = 'WebApollo/View/TrackList/Hierarchical';
-        }
-        else if (browser.config.trackSelector.type == "Faceted") {
-            browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
-        }
-
-        // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             if (browser.poweredByLink)  {
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
             }
 
-            // Initialize information editor with similar style to track selector
-            browser.fileDialog.addFileTypeDriver(new GFF3Driver());
+            thisB.createHelpMenu();
+            thisB.createViewMenu();
+            thisB.addStrandFilterOptions();
         });
-        this.createViewMenu();
-        this.addStrandFilterOptions();
-        this.createHelpMenu();
         this.monkeyPatchRegexPlugin();
 
     },
@@ -373,10 +338,9 @@ return declare( [JBPlugin, HelpMixin],
         $head.prepend(favicon1);
         $head.prepend(favicon2);
     },
-    createMenu: function() {
+    createViewMenu: function() {
         var browser=this.browser;
         var thisB=this;
-        this.addNavigationOptions();
 
         // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(
@@ -432,30 +396,35 @@ return declare( [JBPlugin, HelpMixin],
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
                 }
             });
+
         this.showLabels();
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"showLabels",true));
+
+
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
 
 
-    createHelp: function() {
-
+    createHelpMenu: function() {
         var jbrowseUrl = "http://jbrowse.org";
+        var browser=this.browser;
+        var help=dijit.byId("menubar_generalhelp");
+        help.set("label", "Web Apollo Help");
+        help.set("iconClass", null);
         browser.addGlobalMenuItem( 'help',
-                                new dijitMenuItem(
-                                    {
-                                        id: 'menubar_powered_by_jbrowse',
-                                        label: 'Powered by JBrowse',
-                                        // iconClass: 'jbrowseIconHelp', 
-                                        onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                    })
-                              );
+            new dijitMenuItem(
+                {
+                    id: 'menubar_powered_by_jbrowse',
+                    label: 'Powered by JBrowse',
+                    onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                })
+        );
         browser.addGlobalMenuItem( 'help',
             new dijitMenuItem(
                 {
                     id: 'menubar_web_service_api',
                     label: 'Web Service API',
-                    // iconClass: 'jbrowseIconHelp',
                     onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
                 })
         );
@@ -464,22 +433,15 @@ return declare( [JBPlugin, HelpMixin],
                 {
                     id: 'menubar_apollo_version',
                     label: 'Get Version',
-                    // iconClass: 'jbrowseIconHelp',
                     onClick: function()  {
                         window.open("../version.jsp",'help_window').focus();
                     }
                 })
         );
 
-        if(!browser.config.quickHelp)
-        {
-            browser.config.quickHelp = {
-                "title": "Web Apollo Help",
-                "content": this.defaultHelp()
-            }
-        }
-
     },
+
+
     monkeyPatchRegexPlugin: function() {
         require(['RegexSequenceSearch/Store/SeqFeature/RegexSearch'], function(RegexSearch) {
             lang.extend(RegexSearch,{
@@ -499,6 +461,48 @@ return declare( [JBPlugin, HelpMixin],
                 }
             });
         });
+     },
+     setupWebapolloTrackTypes: function() {
+        var browser=this.browser;
+        var thisB=this;
+
+        // register the WebApollo track types with the browser, so
+        // that the open-file dialog and other things will have them
+        // as options
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
+            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
+                                    'JBrowse/Store/SeqFeature/GFF3',
+                                    'WebApollo/Store/SeqFeature/ApolloGFF3'
+                                  ],
+            label: 'WebApollo Features'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/DraggableAlignments',
+            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/BAM' ],
+            label: 'WebApollo Alignments'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/SequenceTrack',
+            defaultForStoreTypes: [ 'JBrowse/Store/Sequence/StaticChunked' ],
+            label: 'WebApollo Sequence'
+        });
+
+        // transform track configs from vanilla JBrowse to WebApollo:
+        // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
+        array.forEach(browser.config.tracks,function(e) { thisB.trackTransformer.transform(e); });
+
+        if (!browser.config.trackSelector) {
+            browser.config.trackSelector = { type: 'WebApollo/View/TrackList/Hierarchical' };
+        }
+        else if (browser.config.trackSelector.type == "Hierarchical") {
+            browser.config.trackSelector.type = 'WebApollo/View/TrackList/Hierarchical';
+        }
+        else if (browser.config.trackSelector.type == "Faceted") {
+            browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
+        }
+
+
      }
 
 
