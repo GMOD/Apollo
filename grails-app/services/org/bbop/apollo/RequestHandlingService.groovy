@@ -418,7 +418,7 @@ class RequestHandlingService {
             Exon gsolExon = (Exon) featureService.convertJSONToFeature(jsonExon, sequence)
 
 //            featureService.updateNewGsolFeatureAttributes(gsolExon, transcript);
-            featureService.updateNewGsolFeatureAttributes(gsolExon);
+            featureService.updateNewGsolFeatureAttributes(gsolExon,sequence);
 
             if (gsolExon.getFmin() < 0 || gsolExon.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
@@ -1263,7 +1263,7 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
-            featureService.updateNewGsolFeatureAttributes(newFeature)
+            featureService.updateNewGsolFeatureAttributes(newFeature,sequence)
             featureService.addFeature(newFeature)
             newFeature.save(insert: true, flush: true)
 
@@ -1330,12 +1330,27 @@ class RequestHandlingService {
         featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
 
 
+
         JSONObject returnObject = createJSONFeatureContainer()
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: returnObject
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.DELETE
+        )
+
+        fireAnnotationEvent(annotationEvent)
+        
         return returnObject
     }
 
     def makeIntron(JSONObject inputObject) {
 //        throw new RuntimeException("Implement make intron")
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 //        Exon exon = (Exon) getFeature(editor, jsonExon);
         JSONObject jsonExon = featuresArray.getJSONObject(0)
@@ -1356,7 +1371,7 @@ class RequestHandlingService {
             return returnContainer
         }
 //        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
-        featureService.updateNewGsolFeatureAttributes(splitExon)
+        featureService.updateNewGsolFeatureAttributes(splitExon,sequence)
 //        calculateCDS(editor, exon.getTranscript());
         Transcript transcript = exonService.getTranscript(exon)
         featureService.calculateCDS(transcript)
@@ -1374,8 +1389,6 @@ class RequestHandlingService {
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript))
 //        out.write(featureContainer.toString());
 //        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
                 , sequence: sequence
@@ -1385,5 +1398,170 @@ class RequestHandlingService {
         fireAnnotationEvent(annotationEvent)
 
         return featureContainer
+    }
+
+    def splitTranscript(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        Exon exon1 = (Exon) getFeature(editor, features.getJSONObject(0));
+//        Exon exon2 = (Exon) getFeature(editor, features.getJSONObject(1));
+        Exon exon1 = Exon.findByUniqueName(featuresArray.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
+        Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
+//        Transcript oldTranscript = cloneTranscript(exon1.getTranscript(), true);
+
+//        Transcript splitTranscript = editor.splitTranscript(exon1.getTranscript(), exon1, exon2, transcriptNameAdapter.generateUniqueName());
+        Transcript transcript1 = exonService.getTranscript(exon1)
+        Transcript transcript2 = exonService.getTranscript(exon2)
+
+        Transcript splitTranscript = transcriptService.splitTranscript(transcript1,exon1,exon2)
+//        updateNewGbolFeatureAttributes(splitTranscript, trackToSourceFeature.get(track));
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        featureService.updateNewGsolFeatureAttributes(splitTranscript,sequence);
+//        calculateCDS(editor, exon1.getTranscript());
+        featureService.calculateCDS(transcript1)
+//        calculateCDS(editor, exon2.getTranscript());
+        featureService.calculateCDS(transcript2)
+        
+//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon1.getTranscript());
+//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon2.getTranscript());
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript2);
+//        updateTranscriptAttributes(exon1.getTranscript());
+//        updateTranscriptAttributes(exon2.getTranscript());
+        transcript1.name  = transcript1.name ?: nameService.generateUniqueName(transcript1)
+        transcript2.name  = transcript2.name ?: nameService.generateUniqueName(transcript2)
+//        exon2.getTranscript().setOwner(exon1.getTranscript().getOwner());
+//        Gene gene1 = exon1.getTranscript().getGene();
+        Gene gene1 = transcriptService.getGene(transcript1)
+//
+        if (gene1 != null) {
+            Set<Transcript> gene1Transcripts = new HashSet<Transcript>();
+            Set<Transcript> gene2Transcripts = new HashSet<Transcript>();
+            
+            // TODO:
+//            List<Transcript> transcripts = BioObjectUtil.createSortedFeatureListByLocation(gene1.getTranscripts(), false);
+//            gene1Transcripts.add(transcripts.get(0));
+//
+//            for (int i = 0; i < transcripts.size() - 1; ++i) {
+//                Transcript t1 = transcripts.get(i);
+//                for (int j = i + 1; j < transcripts.size(); ++j) {
+//                    Transcript t2 = transcripts.get(j);
+//                    if (gene1Transcripts.contains(t2) || gene2Transcripts.contains(t2)) {
+//                        continue;
+//                    }
+//                    if (t1.getFmin() < splitTranscript.getFmin()) {
+//                        if (overlapper.overlaps(t1, t2)) {
+//                            gene1Transcripts.add(t2);
+//                        } else {
+//                            gene2Transcripts.add(t2);
+//                        }
+//                    } else {
+//                        gene2Transcripts.add(t2);
+//                    }
+//                }
+//                if (t1.getFmin() > splitTranscript.getFmin()) {
+//                    break;
+//                }
+//            }
+//            /*
+//            for (Transcript t : transcripts) {
+//                if (t.getFmin() < splitTranscript.getFmin()) {
+//                    if (overlapper.overlaps(t, splitTranscript)) {
+//                        gene2Transcripts.add(t);
+//                    }
+//                    else {
+//                        gene1Transcripts.add(t);
+//                    }
+//                }
+//                else {
+//                    gene2Transcripts.add(t);
+//                }
+//            }
+//            */
+//            for (Transcript t : gene2Transcripts) {
+//                editor.deleteTranscript(gene1, t);
+////                Transcript tmp = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
+//            }
+//
+//            editor.getSession().indexFeature(gene1);
+//
+//            for (Transcript t : gene2Transcripts) {
+//                if (!t.equals(splitTranscript)) {
+//                    addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, geneNameAdapter, gene1.isPseudogene());
+//                }
+//            }
+//            splitTranscript = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(splitTranscript), track, geneNameAdapter, gene1.isPseudogene());
+//
+        }
+//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(exon1.getTranscript()))).toString());
+//
+//        JSONObject updateContainer = createJSONFeatureContainer();
+//        JSONObject addContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
+//        for (Transcript t : exon1.getTranscript().getGene().getTranscripts()) {
+//            updateContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(t));
+//        }
+//        for (Transcript t : splitTranscript.getGene().getTranscripts()) {
+//            if (!t.getUniqueName().equals(splitTranscript.getUniqueName())) {
+//                updateContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(t));
+//            }
+//        }
+//
+//        /*
+//        JSONObject updateContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon1.getTranscript()));
+//        JSONObject addContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
+//        */
+//
+//        fireDataStoreChange(new DataStoreChangeEvent(this, updateContainer, track, DataStoreChangeEvent.Operation.UPDATE), new DataStoreChangeEvent(this, addContainer, track, DataStoreChangeEvent.Operation.ADD));
+
+    }
+
+    def mergeTranscripts(JSONObject jsonObject) {
+//        Transcript transcript1 = (Transcript) getFeature(editor, jsonTranscript1);
+//        Transcript transcript2 = (Transcript) getFeature(editor, jsonTranscript2);
+//        // cannot merge transcripts from different strands
+//        if (!transcript1.getStrand().equals(transcript2.getStrand())) {
+//            throw new AnnotationEditorServiceException("You cannot merge transcripts on opposite strands");
+//        }
+//        Gene gene2 = transcript2.getGene();
+//        Transcript oldTranscript1 = cloneTranscript(transcript1, true);
+//        Transcript oldTranscript2 = cloneTranscript(transcript2, true);
+//        editor.mergeTranscripts(transcript1, transcript2);
+//        calculateCDS(editor, transcript1);
+//        findNonCanonicalAcceptorDonorSpliceSites(editor, transcript1);
+//        updateTranscriptAttributes(transcript1);
+//        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+//        JSONObject deleteFeatureContainer = createJSONFeatureContainer();
+//        if (historyStore != null) {
+//            Transaction transaction1 = new Transaction(Transaction.Operation.MERGE_TRANSCRIPTS, transcript1.getUniqueName(), username);
+//            transaction1.addOldFeature(oldTranscript1);
+//            transaction1.addOldFeature(oldTranscript2);
+//            transaction1.addNewFeature(transcript1);
+//            historyStore.addTransaction(transaction1);
+//
+//            Transaction transaction2 = new Transaction(Transaction.Operation.MERGE_TRANSCRIPTS, transcript2.getUniqueName(), username);
+//            transaction2.addOldFeature(oldTranscript1);
+//            transaction2.addOldFeature(oldTranscript2);
+//            transaction2.addNewFeature(transcript1);
+//            historyStore.addTransaction(transaction2);
+//
+//            /*
+//            if (gene2.getTranscripts().size() == 0) {
+//                historyStore.deleteHistoryForFeature(transcript2.getUniqueName());
+//            }
+//            */
+//        }
+//        if (dataStore != null) {
+//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript1), track);
+//            if (!transcript1.getGene().equals(gene2)) {
+//                deleteFeatureFromStore(dataStore, gene2);
+//            }
+//        }
+//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript1))).toString());
+//        for (Transcript transcript : transcript1.getGene().getTranscripts()) {
+//            updateFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
+//        }
+//        deleteFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript2));
+//        fireDataStoreChange(new DataStoreChangeEvent(this, updateFeatureContainer, track, DataStoreChangeEvent.Operation.UPDATE),
+//                new DataStoreChangeEvent(this, deleteFeatureContainer, track, DataStoreChangeEvent.Operation.DELETE));
     }
 }

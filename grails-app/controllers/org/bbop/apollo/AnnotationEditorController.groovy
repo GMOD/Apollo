@@ -426,6 +426,16 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.makeIntron(inputObject)
     }
 
+    def splitTranscript() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.splitTranscript(inputObject)
+    }
+
+    def mergeTranscripts() {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.mergeTranscripts(inputObject)
+    }
+
     def getSequence() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONObject featureContainer = createJSONFeatureContainer();
@@ -736,6 +746,10 @@ class AnnotationEditorController implements AnnotationListener {
                 case "addFeature":  requestHandlingService.addFeature(rootElement)
                     break
                 case "makeIntron":  requestHandlingService.makeIntron(rootElement)
+                    break
+                case "splitTranscript":  requestHandlingService.splitTranscript(rootElement)
+                    break
+                case "mergeTranscripts":  requestHandlingService.mergeTranscripts(rootElement)
                     break
                 default: nameService.generateUniqueName()
                     break

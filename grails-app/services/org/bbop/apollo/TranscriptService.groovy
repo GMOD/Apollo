@@ -11,6 +11,8 @@ class TranscriptService {
     List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
     FeatureService featureService
     FeatureRelationshipService featureRelationshipService
+    ExonService exonService
+    NameService nameService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -217,5 +219,48 @@ class TranscriptService {
 
     Transcript getParentTranscriptForFeature(Feature feature) {
         return (Transcript) featureRelationshipService.getParentForFeature(feature,ontologyIds as String[])
+    }
+
+    Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
+//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons());
+        List<Exon> exons = exonService.getSortedExons(transcript)
+//        Transcript splitTranscript = (Transcript) transcript.cloneFeature(splitTranscriptUniqueName);
+        Transcript splitTranscript = new Transcript( transcript.properties )
+        splitTranscript.uniqueName = nameService.generateUniqueName()
+
+
+//        if (transcript.getGene() != null) {
+//            addTranscript(transcript.getGene(), splitTranscript);
+//        } else {
+//            addFeature(splitTranscript);
+//        }
+        Gene gene = getGene(transcript)
+        if(gene){
+            featureService.addTranscriptToGene(gene,splitTranscript)
+        }
+        else{
+            featureService.addFeature(splitTranscript)
+        }
+      
+        FeatureLocation transcriptFeatureLocation = transcript.featureLocation
+//        transcript.setFmax(leftExon.getFmax());
+        transcriptFeatureLocation.fmax = leftExon.fmax
+//        splitTranscript.setFmin(rightExon.getFmin());
+        FeatureLocation splitFeatureLocation = splitTranscript.featureLocation
+        splitFeatureLocation.fmin = rightExon.fmin
+        for (Exon exon : exons) {
+            FeatureLocation exonFeatureLocation = exon.featureLocation
+            FeatureLocation leftFeatureLoocaiton = leftExon.featureLocation
+            if (exonFeatureLocation.fmin > leftFeatureLoocaiton.getFmin()) {
+                exonService.deleteExon(transcript, exon);
+                if (exon.equals(rightExon)) {
+                    addExon(splitTranscript, rightExon);
+                } else {
+                    addExon(splitTranscript, exon);
+                }
+            }
+        }
+        
+        return splitTranscript
     }
 }

@@ -137,22 +137,22 @@ class FeatureService {
 //    return overlappingFeatures;
 //}
 
-    void updateNewGsolFeatureAttributes(Feature gsolFeature) {
+    void updateNewGsolFeatureAttributes(Feature gsolFeature,Sequence sequence = null ) {
 
         gsolFeature.setIsAnalysis(false);
         gsolFeature.setIsObsolete(false);
 //        gsolFeature.setDateCreated(new Date()); //new Timestamp(new Date().getTime()));
 //        gsolFeature.setLastUpdated(new Date()); //new Timestamp(new Date().getTime()));
-//        if (sourceFeature != null) {
-//            gsolFeature.getFeatureLocations().iterator().next().setSourceFeature(sourceFeature);
-//        }
+        if (sequence) {
+            gsolFeature.getFeatureLocations().iterator().next().sequence = sequence ;
+        }
 
         // TODO: this may be a mistake, is different than the original code
         // you are iterating through all of the children in order to set the SourceFeature and analsysis
 //        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
         for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
             println "gsolFeature ${gsolFeature} - ${fr.childFeature}"
-            updateNewGsolFeatureAttributes(fr.getChildFeature());
+            updateNewGsolFeatureAttributes(fr.getChildFeature(),sequence);
         }
     }
 
@@ -216,7 +216,7 @@ class FeatureService {
                     Gene tmpGene = (Gene) feature;
                     println "found an overlpaping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
-                    updateNewGsolFeatureAttributes(tmpTranscript);
+                    updateNewGsolFeatureAttributes(tmpTranscript,sequence);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
@@ -275,7 +275,7 @@ class FeatureService {
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
-            updateNewGsolFeatureAttributes(gene);
+            updateNewGsolFeatureAttributes(gene,sequence);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
