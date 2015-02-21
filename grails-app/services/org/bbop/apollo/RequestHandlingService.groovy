@@ -1366,6 +1366,10 @@ class RequestHandlingService {
 //        updateTranscriptAttributes(exon.getTranscript());
         transcript.name  = transcript.name ?: nameService.generateUniqueName(transcript)
        
+        transcript.save(failOnError: true)
+        exon.save(failOnError: true)
+        splitExon.save(failOnError: true,flush:true)
+       
 //        JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript))
 //        out.write(featureContainer.toString());
