@@ -9,6 +9,7 @@ require({
 define.amd.jQuery = true;
 define([
            'dojo/_base/declare',
+           'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
            'dojo/_base/window',
@@ -33,6 +34,7 @@ define([
            'JBrowse/View/FileDialog/TrackList/GFF3Driver'
        ],
     function( declare,
+            lang,
             domConstruct,
             domClass,
             win,
@@ -108,45 +110,6 @@ return declare( [JBPlugin, HelpMixin],
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
 
         if (browser.config.show_nav&&browser.config.show_menu) {
-
-            var jbrowseUrl = "http://jbrowse.org";
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_powered_by_jbrowse',
-                                            label: 'Powered by JBrowse',
-                                            // iconClass: 'jbrowseIconHelp', 
-                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_web_service_api',
-                        label: 'Web Service API',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_version',
-                        label: 'Get Version',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("../version.jsp",'help_window').focus();
-                        }
-                    })
-            );
-
-            if(!browser.config.quickHelp)
-            {
-                browser.config.quickHelp = {
-                    "title": "Web Apollo Help",
-                    "content": this.defaultHelp()
-                }
-            };
         }
 
         // register the WebApollo track types with the browser, so
@@ -162,9 +125,7 @@ return declare( [JBPlugin, HelpMixin],
         });
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/DraggableAlignments',
-            defaultForStoreTypes: [
-                                    'JBrowse/Store/SeqFeature/BAM'
-                                  ],
+            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/BAM' ],
             label: 'WebApollo Alignments'
         });
         browser.registerTrackType({
@@ -175,7 +136,6 @@ return declare( [JBPlugin, HelpMixin],
 
         // transform track configs from vanilla JBrowse to WebApollo:
         // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
-        //
         array.forEach(browser.config.tracks,function(e) { thisB.trackTransformer.transform(e); });
 
         if (!browser.config.trackSelector) {
@@ -197,7 +157,10 @@ return declare( [JBPlugin, HelpMixin],
             // Initialize information editor with similar style to track selector
             browser.fileDialog.addFileTypeDriver(new GFF3Driver());
         });
-        this.createMenu();
+        this.createViewMenu();
+        this.addStrandFilterOptions();
+        this.createHelpMenu();
+        this.monkeyPatchRegexPlugin();
 
     },
     showLabels: function(show,updating) {
@@ -286,10 +249,6 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
 
-    /**
-     * hacking addition of a "tools" menu to standard JBrowse menubar,
-     *    with a "Search Sequence" dropdown
-     */
     initSearchMenu: function()  {
         var thisB = this;
         this.browser.addGlobalMenuItem( 'tools',
@@ -305,9 +264,9 @@ return declare( [JBPlugin, HelpMixin],
         this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
 
         // move Tool menu in front of Help menu
-        var toolsMenu = dojo.query('.menu[widgetid="dropdownbutton_tools"]')[0];
-        var helpMenu = dojo.query('.menu[widgetid="dropdownbutton_help"]')[0];
-        domConstruct.place(toolsMenu,helpMenu,'before');
+        var toolsMenu = dijit.byId('dropdownbutton_tools');
+        var helpMenu = dijit.byId('dropdownbutton_help');
+        domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
         this.searchMenuInitialized = true;
     },
 
@@ -464,7 +423,6 @@ return declare( [JBPlugin, HelpMixin],
 
         browser.addGlobalMenuItem('view', css_frame_toggle);
 
-        this.addStrandFilterOptions();
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
@@ -477,7 +435,71 @@ return declare( [JBPlugin, HelpMixin],
         this.showLabels();
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-    }
+    },
+
+
+    createHelp: function() {
+
+        var jbrowseUrl = "http://jbrowse.org";
+        browser.addGlobalMenuItem( 'help',
+                                new dijitMenuItem(
+                                    {
+                                        id: 'menubar_powered_by_jbrowse',
+                                        label: 'Powered by JBrowse',
+                                        // iconClass: 'jbrowseIconHelp', 
+                                        onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                    })
+                              );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_web_service_api',
+                    label: 'Web Service API',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
+                })
+        );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_version',
+                    label: 'Get Version',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  {
+                        window.open("../version.jsp",'help_window').focus();
+                    }
+                })
+        );
+
+        if(!browser.config.quickHelp)
+        {
+            browser.config.quickHelp = {
+                "title": "Web Apollo Help",
+                "content": this.defaultHelp()
+            }
+        }
+
+    },
+    monkeyPatchRegexPlugin: function() {
+        require(['RegexSequenceSearch/Store/SeqFeature/RegexSearch'], function(RegexSearch) {
+            lang.extend(RegexSearch,{
+                translateSequence:function( sequence, frameOffset ) {
+                    var slicedSeq = sequence.slice( frameOffset );
+                    slicedSeq = slicedSeq.slice( 0, Math.floor( slicedSeq.length / 3 ) * 3);
+
+                    var translated = "";
+                    var codontable=new CodonTable();
+                    var codons=codontable.generateCodonTable(codontable.defaultCodonTable);
+                    for(var i = 0; i < slicedSeq.length; i += 3) {
+                        var nextCodon = slicedSeq.slice(i, i + 3);
+                        translated = translated + codons[nextCodon];
+                    }
+
+                    return translated;
+                }
+            });
+        });
+     }
 
 
 });
