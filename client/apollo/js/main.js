@@ -642,7 +642,9 @@ return declare( [JBPlugin, HelpMixin],
         $head.prepend(favicon2);
     },
     monkeyPatchRegexPlugin: function() {
-        require(['RegexSequenceSearch/Store/SeqFeature/RegexSearch'], function(RegexSearch) {
+        //use var to avoid optimizer
+        var plugin='RegexSequenceSearch/Store/SeqFeature/RegexSearch';
+        require([plugin], function(RegexSearch) {
             lang.extend(RegexSearch,{
                 translateSequence:function( sequence, frameOffset ) {
                     var slicedSeq = sequence.slice( frameOffset );
