@@ -121,12 +121,6 @@ public class RecentChangeServlet extends HttpServlet {
         } catch (SQLException e) {
             throw new ServletException(e);
         }
-        BufferedReader in = new java.io.BufferedReader(new InputStreamReader(request.getServletContext().getResourceAsStream(serverConfig.getTrackNameComparator())));
-        String line;
-        String lineString = "";
-        while ((line = in.readLine()) != null) {
-            lineString += line + "\n";
-        }
 
         int offset = 0;
         Object offsetString = request.getParameter("offset");
