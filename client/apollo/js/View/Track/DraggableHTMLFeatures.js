@@ -83,12 +83,9 @@ return declare( HTMLFeatureTrack,
         // get a handle to on the main WA object
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
             this.webapollo = p;
+            this.setSelectionManager( this.webapollo.featSelectionManager );
         }));
 
-        // DraggableFeatureTracks all share the same FeatureSelectionManager
-        //    if want subclasses to have different selection manager,
-        //    call this.setSelectionManager in subclass (after calling parent constructor)
-        this.setSelectionManager( this.webapollo.featSelectionManager );
 
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features

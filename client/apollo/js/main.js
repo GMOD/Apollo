@@ -83,18 +83,13 @@ return declare( [JBPlugin, HelpMixin],
         if( browser.cookie("Scheme")=="Dark" ) {
             domClass.add(win.body(), "Dark");
         }
-        if( browser.cookie("colorByCds")=="true" ) {
+        if( browser.cookie("colorCdsByFrame")=="true" ) {
             domClass.add(win.body(), "colorCds");
         }
         if( browser.config.favicon ) {
             this.setFavicon(browser.config.favicon);
         }
-        if( !browser.config.quickHelp ) {
-            browser.config.quickHelp = {
-                "title": "Web Apollo Help",
-                "content": this.defaultHelp()
-            }
-        }
+        
 
 
         // hand the browser object to the feature edge match manager
@@ -116,14 +111,16 @@ return declare( [JBPlugin, HelpMixin],
         this.setupWebapolloTrackTypes();
 
 
+        thisB.createViewMenu();
+        thisB.addStrandFilterOptions();
+        thisB.createHelpMenu();
         browser.afterMilestone( 'initView', function() {
             if (browser.poweredByLink)  {
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
             }
+            var help=dijit.byId("menubar_generalhelp");
+            help.set("label", "Web Apollo Help");
 
-            thisB.createHelpMenu();
-            thisB.createViewMenu();
-            thisB.addStrandFilterOptions();
         });
         this.monkeyPatchRegexPlugin();
 
@@ -193,7 +190,7 @@ return declare( [JBPlugin, HelpMixin],
     
     
         
-    addNavigationOptions: function()  {
+    createNavigationOptions: function()  {
         var browser = this.browser;
         var select_Tracks = new dijitMenuItem(
             {
@@ -202,7 +199,7 @@ return declare( [JBPlugin, HelpMixin],
                     window.open('../sequences', '_blank');
                 }
             });
-        browser.addGlobalMenuItem( 'view', select_Tracks );
+        browser.addGlobalMenuItem( 'tools', select_Tracks );
         var recent_Changes = new dijitMenuItem(
             {
                 label: "Changes",
@@ -210,8 +207,7 @@ return declare( [JBPlugin, HelpMixin],
                     window.open('../changes', '_blank');
                 }
             });
-        browser.addGlobalMenuItem( 'view', recent_Changes );
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+        browser.addGlobalMenuItem( 'tools', recent_Changes );
     },
 
     initSearchMenu: function()  {
@@ -226,6 +222,7 @@ return declare( [JBPlugin, HelpMixin],
                     }
                 })
         );
+        createNavigationOptions();
         this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
 
         // move Tool menu in front of Help menu
@@ -407,11 +404,16 @@ return declare( [JBPlugin, HelpMixin],
 
 
     createHelpMenu: function() {
+        var browser=this.browser;
+        if( !browser.config.quickHelp ) {
+            browser.config.quickHelp = {
+                "title": "Web Apollo Help",
+                "content": this.defaultHelp()
+            }
+        }
         var jbrowseUrl = "http://jbrowse.org";
         var browser=this.browser;
-        var help=dijit.byId("menubar_generalhelp");
-        help.set("label", "Web Apollo Help");
-        help.set("iconClass", null);
+        
         browser.addGlobalMenuItem( 'help',
             new dijitMenuItem(
                 {
@@ -443,7 +445,8 @@ return declare( [JBPlugin, HelpMixin],
 
 
     monkeyPatchRegexPlugin: function() {
-        require(['RegexSequenceSearch/Store/SeqFeature/RegexSearch'], function(RegexSearch) {
+        var plugin='RegexSequenceSearch/Store/SeqFeature/RegexSearch';
+        require([plugin], function(RegexSearch) {
             lang.extend(RegexSearch,{
                 translateSequence:function( sequence, frameOffset ) {
                     var slicedSeq = sequence.slice( frameOffset );
