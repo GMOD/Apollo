@@ -3,8 +3,11 @@
 .Dark div.track  {
     /* based on CoolWorld color palette from kuler.adobe.com */
     /*background-color: #142933;*/
+    border:0px;
 }
-
+.Dark .sequence_blur {
+    background-color: #999;
+}
 .Dark div.pin_underlay {
     background-color: #142933;
 }
@@ -13,7 +16,7 @@
     color: #FAFFF9;
 }
 
-div.outerTrackContainer {
+.Dark div.outerTrackContainer {
 
     background-color: rgb(59, 59, 61);
 }
@@ -176,7 +179,7 @@ div.outerTrackContainer {
     background-color: rgb(0,204,0);
 }
 
-.upd-UTR {
+.Dark .upd-UTR {
     height: 80%;
     top: 10%;
     border-style: solid;
@@ -342,3 +345,7 @@ div.outerTrackContainer {
 }
 
 /* end of MAKER styles */
+.Dark .global_highlight {
+    background: rgba(62,100,150,0.7);
+    border: 0px;
+}

@@ -89,8 +89,8 @@ return declare( [JBPlugin, HelpMixin],
         // Checking for cookie for determining the color scheme of WebApollo
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
-            LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
+
 
         browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
 
@@ -148,7 +148,7 @@ return declare( [JBPlugin, HelpMixin],
                     label: "Light",
                     onClick: function (event) {
                         browser.cookie("Scheme","Light");
-                        window.location.reload();
+                        domClass.remove(win.body(), "Dark");
                     }
                 }
             )
@@ -158,7 +158,7 @@ return declare( [JBPlugin, HelpMixin],
                     label: "Dark",
                     onClick: function (event) {
                         browser.cookie("Scheme","Dark");
-                        window.location.reload();
+                        domClass.add(win.body(), "Dark");
                     }
                 }
             )
