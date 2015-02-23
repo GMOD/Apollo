@@ -10,6 +10,7 @@ class FeatureLocation {
         feature nullable: false
         fmin nullable: false
         fmax nullable: false
+        sequence nullable: false
 
 
         isFminPartial nullable: true
@@ -20,7 +21,6 @@ class FeatureLocation {
         residueInfo nullable: true
         locgroup nullable: true
         rank nullable: true
-        sequence nullable: false
 
     }
 

@@ -167,6 +167,7 @@ log4j.main = {
 //grails.gorm.default.constraints = {
 //    '*'(nullable: true)
 //}
+grails.gorm.failOnError = true
 
 apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
 

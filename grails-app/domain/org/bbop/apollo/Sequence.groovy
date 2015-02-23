@@ -8,6 +8,11 @@ class Sequence {
     static auditable = true
 
     static constraints = {
+        name nullable: false
+        start nullable: false
+        end nullable: false
+
+        
         organism nullable: true
         refSeqFile nullable: true
 //        dataDirectory nullable: true
