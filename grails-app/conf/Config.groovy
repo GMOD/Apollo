@@ -168,6 +168,7 @@ log4j.main = {
 //    '*'(nullable: true)
 //}
 grails.gorm.failOnError = true
+//grails.datastore.gorm.GormInstanceApi.copy = cloneForDomains ;
 
 apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
 

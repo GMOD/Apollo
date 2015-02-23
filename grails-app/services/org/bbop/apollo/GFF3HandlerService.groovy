@@ -69,8 +69,7 @@ public class GFF3HandlerService {
 //    }
 
     public void writeFeaturesToText(String path,Collection<? extends Feature> features, String source) throws IOException {
-        WriteObject writeObject = new WriteObject(
-        )
+        WriteObject writeObject = new WriteObject( )
 
         writeObject.mode= Mode.WRITE
         writeObject.file= new File(path)

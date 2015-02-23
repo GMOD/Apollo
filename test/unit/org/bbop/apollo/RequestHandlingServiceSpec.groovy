@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.test.mixin.TestFor
+import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Specification
 
 /**
@@ -15,6 +17,20 @@ class RequestHandlingServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "test something"() {
+    void "add transcript"() {
+        
+        when: "You add a transcript via JSON"
+//        JSONObject jsonObject = JSON.parse("asdfjklasdfjk") as JSONObject
+//        JSONObject returnObject = service.addTranscript(jsonObject)
+        
+        
+        
+        
+        then: "You should see that transcript"
+        assert true
+//        assert "ADD"==returnObject.getString("operation")
+//        assert Gene.count == 1
+//        assert Gene.first().name=="Bob1"
+        
     }
 }

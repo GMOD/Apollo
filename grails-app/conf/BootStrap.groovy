@@ -7,11 +7,16 @@ class BootStrap {
     def sequenceService
     def configWrapperService
 
-    def init = { servletContext ->
-//        if(User.count==0){
-//
-//        }
+//    def cloneForDomains={
+//        def cloned=delegate.class.newInstance();
+//        cloned.properties=delegate.properties;
+//        return cloned;
+//    }
+    
 
+
+
+    def init = { servletContext ->
 
         mockupService.addUsers()
         mockupService.addDataAdapters()
