@@ -128,15 +128,18 @@ class CdsService {
         String uniqueName = cds.getUniqueName() + FeatureStringEnum.STOP_CODON_READHTHROUGH_SUFFIX.value;
         StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(
                 uniqueName: uniqueName
+                ,name: uniqueName
                 , isAnalysis: cds.isIsAnalysis()
                 , isObsolete: cds.isIsObsolete()
-        )
+        ).save(failOnError: true)
 //        StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(cds.getOrganism(), uniqueName, cds.isAnalysis(),
 //                cds.isObsolete(), null, cds.getConfiguration());
         FeatureLocation featureLocation = new FeatureLocation(
                 sequence: cds.featureLocation.sequence
                 , feature: stopCodonReadThrough
-        ).save()
+                ,fmin: cds.featureLocation.fmin
+                ,fmax: cds.featureLocation.fmax
+        ).save(failOnError: true)
 
         stopCodonReadThrough.addToFeatureLocations(featureLocation)
         stopCodonReadThrough.featureLocation.setStrand(cds.getStrand());
@@ -164,12 +167,12 @@ class CdsService {
                 parentFeature: cds
                 , childFeature: stopCodonReadThrough
                 , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
-        ).save(insert: true)
+        ).save(insert: true,failOnError: true)
         cds.getChildFeatureRelationships().add(fr);
-        stopCodonReadThrough.getParentFeatureRelationships().add(fr);
+        stopCodonReadThrough.addToParentFeatureRelationships(fr)
 
-        stopCodonReadThrough.save()
-        cds.save(flush: true)
+        stopCodonReadThrough.save(failOnError: true)
+        cds.save(flush: true,failOnError: true)
 
     }
 }

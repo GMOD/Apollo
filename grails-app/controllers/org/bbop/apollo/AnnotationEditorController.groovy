@@ -700,7 +700,9 @@ class AnnotationEditorController implements AnnotationListener {
                         if (method.name == operationName) {
                             foundMethod = true
                             println "found the method ${operationName}"
-                            returnString = method.invoke(requestHandlingService, rootElement)
+                            Feature.withNewSession{
+                                returnString = method.invoke(requestHandlingService, rootElement)
+                            }
                             return returnString
                         }
                     }
