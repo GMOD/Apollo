@@ -45,7 +45,7 @@ class RequestHandlingService {
     }
 
 
-    JSONObject updateSymbol(JSONObject inputObject) {
+    JSONObject setSymbol(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -87,7 +87,7 @@ class RequestHandlingService {
         }
     }
 
-    JSONObject updateDescription(JSONObject inputObject) {
+    JSONObject setDescription(JSONObject inputObject) {
 //        println "update descripton #1"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -302,7 +302,7 @@ class RequestHandlingService {
 
     }
 
-    JSONObject updateName(JSONObject inputObject) {
+    JSONObject setName(JSONObject inputObject) {
 //        println "setting name "
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)

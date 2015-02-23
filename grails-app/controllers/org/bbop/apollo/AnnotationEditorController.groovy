@@ -1,7 +1,5 @@
 package org.bbop.apollo
 
-import grails.async.Promise
-import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 
 import java.nio.charset.Charset
@@ -18,7 +16,6 @@ import grails.converters.JSON
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.gmod.gbol.util.SequenceUtil
@@ -182,7 +179,7 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.addFeature(inputObject)
     }
 
-    def setExonBoundaries(){
+    def setExonBoundaries() {
         println "setting exon boundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setExonBoundaries(inputObject)
@@ -207,19 +204,19 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.addTranscript(inputObject)
     }
 
-    def setTranslationStart(){
+    def setTranslationStart() {
         println "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setTranslationStart(inputObject)
     }
 
-    def setTranslationEnd(){
+    def setTranslationEnd() {
         println "AEC::set translation end ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setTranslationEnd(inputObject)
     }
 
-    def setBoundaries(){
+    def setBoundaries() {
         println "AEC::set boundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setBoundaries(inputObject)
@@ -291,11 +288,11 @@ class AnnotationEditorController implements AnnotationListener {
         String trackName = fixTrackHeader(returnObject.track)
         Sequence sequence = Sequence.findByName(trackName)
 
-        def sequenceTypes = [Insertion.class.canonicalName,Deletion.class.canonicalName,Substitution.class.canonicalName]
+        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
         // TODO: get alternations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-                ,[sequence:sequence,sequenceTypes:sequenceTypes])
+                , [sequence: sequence, sequenceTypes: sequenceTypes])
 //        FeatureLocation.findAllBySequence(sequence)
 //        Insertion.findAllByFeatureLocations
 //        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
@@ -319,7 +316,6 @@ class AnnotationEditorController implements AnnotationListener {
         }
         render new JSONObject()
     }
-
 
     /**
      * TODO: link to the database for real config values
@@ -373,12 +369,12 @@ class AnnotationEditorController implements AnnotationListener {
 
     def setDescription() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        return requestHandlingService.updateDescription(inputObject)
+        return requestHandlingService.setDescription(inputObject)
     }
 
     def setSymbol() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        render requestHandlingService.updateSymbol(inputObject)
+        render requestHandlingService.setSymbol(inputObject)
     }
 
     def setReadthroughStopCodon() {
@@ -545,7 +541,7 @@ class AnnotationEditorController implements AnnotationListener {
 
     def getGff3() {
 //        JSONObject featureContainer = createJSONFeatureContainer();
-        File tempFile = File.createTempFile("feature",".gff3");
+        File tempFile = File.createTempFile("feature", ".gff3");
 
         // TODO: use specified metadata?
         Set<String> metaDataToExport = new HashSet<>();
@@ -575,9 +571,9 @@ class AnnotationEditorController implements AnnotationListener {
             featuresToWrite.add(gbolFeature);
         }
 
-        gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,grailsApplication.config.apollo.gff3.source as String)
+        gff3HandlerService.writeFeaturesToText(tempFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
 //        gff3HandlerService.writeFeatures(featuresToWrite,grailsApplication.config.apollo.gff3.source)
-        
+
 //        GFF3Handler gff3Handler = new GFF3Handler(tempFile.getAbsolutePath(),GFF3Handler.Mode.WRITE, GFF3Handler.Format.TEXT,metaDataToExport);
 //        String inputString = ".";
 ////        Node sourceNode = doc.getElementsByTagName("source").item(0);
@@ -669,7 +665,7 @@ class AnnotationEditorController implements AnnotationListener {
 
     @MessageMapping("/hello")
     @SendTo("/topic/hello")
-    protected String hello(String inputString){
+    protected String hello(String inputString) {
         println "hello in the house! ${inputString}"
         return "i[${inputString}]"
     }
@@ -689,74 +685,35 @@ class AnnotationEditorController implements AnnotationListener {
 //        handleOperation(track,operation)
         def p = task {
             switch (operationName) {
-                case "addTranscript": requestHandlingService.addTranscript(rootElement)
+                case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
                     break
-                case "setName":  requestHandlingService.updateName(rootElement)
+                case "setToUpstreamDonor": requestHandlingService.setDonor(rootElement, true)
                     break
-                case "addNonPrimaryDbxrefs":  requestHandlingService.addNonPrimaryDbxrefs(rootElement)
+                case "setToDownstreamAcceptor": requestHandlingService.setAcceptor(rootElement, false)
                     break
-                case "deleteNonPrimaryDbxrefs":  requestHandlingService.deleteNonPrimaryDbxrefs(rootElement)
+                case "setToUpstreamAcceptor": requestHandlingService.setAcceptor(rootElement, true)
                     break
-                case "updateNonPrimaryDbxrefs":  requestHandlingService.updateNonPrimaryDbxrefs(rootElement)
-                    break
-                case "setSymbol":  requestHandlingService.updateSymbol(rootElement)
-                    break
-                case "setDescription":  requestHandlingService.updateDescription(rootElement)
-                    break
-                case "setTranslationStart":  requestHandlingService.setTranslationStart(rootElement)
-                    break
-                case "setTranslationEnd":  requestHandlingService.setTranslationEnd(rootElement)
-                    break
-                case "addExon":  requestHandlingService.addExon(rootElement)
-                    break
-                case "setExonBoundaries":  requestHandlingService.setExonBoundaries(rootElement)
-                    break
-                case "setBoundaries":  requestHandlingService.setBoundaries(rootElement)
-                    break
-                case "setLongestOrf":  requestHandlingService.setLongestOrf(rootElement)
-                    break
-                case "setReadthroughStopCodon":  requestHandlingService.setReadthroughStopCodon(rootElement)
-                    break
-                case "setToDownstreamDonor":  requestHandlingService.setDonor(rootElement,false)
-                    break
-                case "setToUpstreamDonor":  requestHandlingService.setDonor(rootElement,true)
-                    break
-                case "setToDownstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,false)
-                    break
-                case "setToUpstreamAcceptor":  requestHandlingService.setAcceptor(rootElement,true)
-                    break
-                case "addSequenceAlteration":  requestHandlingService.addSequenceAlteration(rootElement)
-                    break
-                case "deleteSequenceAlteration":  requestHandlingService.deleteSequenceAlteration(rootElement)
-                    break
-                case "lockFeature":  requestHandlingService.lockFeature(rootElement)
-                    break
-                case "unlockFeature":  requestHandlingService.unlockFeature(rootElement)
-                    break
-                case "flipStrand":  requestHandlingService.flipStrand(rootElement)
-                    break
-                case "mergeExons":  requestHandlingService.mergeExons(rootElement)
-                    break
-                case "splitExon":  requestHandlingService.splitExons(rootElement)
-                    break
-                case "deleteExon":  requestHandlingService.deleteExon(rootElement)
-                    break
-                case "deleteFeature":  requestHandlingService.deleteFeature(rootElement)
-                    break
-                case "addFeature":  requestHandlingService.addFeature(rootElement)
-                    break
-                case "makeIntron":  requestHandlingService.makeIntron(rootElement)
-                    break
-                case "splitTranscript":  requestHandlingService.splitTranscript(rootElement)
-                    break
-                case "mergeTranscripts":  requestHandlingService.mergeTranscripts(rootElement)
-                    break
-                default: nameService.generateUniqueName()
+                default:
+                    boolean foundMethod = false
+                    String returnString = null
+                    requestHandlingService.getClass().getMethods().each { method ->
+                        if (method.name == operationName) {
+                            foundMethod = true
+                            println "found the method ${operationName}"
+                            returnString = method.invoke(requestHandlingService, rootElement)
+                            return returnString
+                        }
+                    }
+                    if (foundMethod) {
+                        return returnString
+                    } else {
+                        println "METHOD NOT found ${operationName}"
+                        throw new AnnotationException("Operation ${operationName} not found")
+                    }
                     break
             }
         }
         def results = p.get()
-//        println "completling result ${results as JSON}"
         return results
 
 //        p.onComplete([p]){ List results ->
