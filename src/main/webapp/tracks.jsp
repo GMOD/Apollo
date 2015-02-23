@@ -144,7 +144,7 @@
                     offset = offset - ${maximum};
                     if (offset < 0) offset = 0;
                     $("#offset").val(offset);
-                    $('#search-button').click();
+                    $('.search-button').click();
                 }
 
             });
