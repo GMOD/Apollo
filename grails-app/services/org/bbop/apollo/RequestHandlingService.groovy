@@ -1550,54 +1550,62 @@ class RequestHandlingService {
 
     }
 
-    def mergeTranscripts(JSONObject jsonObject) {
-//        Transcript transcript1 = (Transcript) getFeature(editor, jsonTranscript1);
-//        Transcript transcript2 = (Transcript) getFeature(editor, jsonTranscript2);
+    def mergeTranscripts(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject jsonTranscript1 = featuresArray.get(0)
+        JSONObject jsonTranscript2 = featuresArray.get(1)
+        Transcript transcript1 = Transcript.findByUniqueName(jsonTranscript1.getString(FeatureStringEnum.UNIQUENAME.value))
+        Transcript transcript2 = Transcript.findByUniqueName(jsonTranscript2.getString(FeatureStringEnum.UNIQUENAME.value))
 //        // cannot merge transcripts from different strands
-//        if (!transcript1.getStrand().equals(transcript2.getStrand())) {
-//            throw new AnnotationEditorServiceException("You cannot merge transcripts on opposite strands");
-//        }
-//        Gene gene2 = transcript2.getGene();
-//        Transcript oldTranscript1 = cloneTranscript(transcript1, true);
-//        Transcript oldTranscript2 = cloneTranscript(transcript2, true);
+        if (!transcript1.getStrand().equals(transcript2.getStrand())) {
+            throw new AnnotationException("You cannot merge transcripts on opposite strands");
+        }
+        Gene gene2 = transcriptService.getGene(transcript2)
+
 //        editor.mergeTranscripts(transcript1, transcript2);
-//        calculateCDS(editor, transcript1);
-//        findNonCanonicalAcceptorDonorSpliceSites(editor, transcript1);
-//        updateTranscriptAttributes(transcript1);
-//        JSONObject updateFeatureContainer = createJSONFeatureContainer();
-//        JSONObject deleteFeatureContainer = createJSONFeatureContainer();
-//        if (historyStore != null) {
-//            Transaction transaction1 = new Transaction(Transaction.Operation.MERGE_TRANSCRIPTS, transcript1.getUniqueName(), username);
-//            transaction1.addOldFeature(oldTranscript1);
-//            transaction1.addOldFeature(oldTranscript2);
-//            transaction1.addNewFeature(transcript1);
-//            historyStore.addTransaction(transaction1);
-//
-//            Transaction transaction2 = new Transaction(Transaction.Operation.MERGE_TRANSCRIPTS, transcript2.getUniqueName(), username);
-//            transaction2.addOldFeature(oldTranscript1);
-//            transaction2.addOldFeature(oldTranscript2);
-//            transaction2.addNewFeature(transcript1);
-//            historyStore.addTransaction(transaction2);
-//
-//            /*
-//            if (gene2.getTranscripts().size() == 0) {
-//                historyStore.deleteHistoryForFeature(transcript2.getUniqueName());
-//            }
-//            */
-//        }
-//        if (dataStore != null) {
-//            writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(transcript1), track);
-//            if (!transcript1.getGene().equals(gene2)) {
-//                deleteFeatureFromStore(dataStore, gene2);
-//            }
-//        }
+        transcriptService.mergeTranscripts(transcript1,transcript2)
+        
+        featureService.calculateCDS(transcript1)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
+       
+        Gene gene1 = transcriptService.getGene(transcript1)
+        
+        if(gene1!=gene2){
+            Gene.deleteAll(gene2)
+        }
+        
+        
+        transcript1.name  = transcript1.name ?: nameService.generateUniqueName(transcript1)
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject deleteFeatureContainer = createJSONFeatureContainer();
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript1))).toString());
-//        for (Transcript transcript : transcript1.getGene().getTranscripts()) {
-//            updateFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript));
-//        }
-//        deleteFeatureContainer.getJSONArray("features").put(JSONUtil.convertBioFeatureToJSON(transcript2));
-//        fireDataStoreChange(new DataStoreChangeEvent(this, updateFeatureContainer, track, DataStoreChangeEvent.Operation.UPDATE),
-//                new DataStoreChangeEvent(this, deleteFeatureContainer, track, DataStoreChangeEvent.Operation.DELETE));
+        JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
+       
+        List<Transcript> gene1Transcripts = transcriptService.getTranscripts(gene1)
+        for (Transcript transcript : gene1Transcripts) {
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+        }
+        deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript2));
+
+        AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
+                features: deleteFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.DELETE
+        )
+
+        AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+
+        fireAnnotationEvent(deleteAnnotationEvent,updateAnnotationEvent)
+
+        return returnObject
     }
 
     def duplicateTranscript(JSONObject inputObject) {

@@ -305,4 +305,39 @@ class TranscriptService {
         
         return duplicate
     }
+
+    def mergeTranscripts(Transcript transcript1, Transcript transcript2) {
+        // Merging transcripts basically boils down to moving all exons from one transcript to the other
+        
+        for (Exon exon : getExons(transcript2)) {
+            exonService.deleteExon(transcript2,exon)
+            addExon(transcript1,exon)
+        }
+        transcript1.save()
+        Gene gene1 = getGene(transcript1)
+        Gene gene2 = getGene(transcript2)
+        if (gene1) {
+            gene1.save()
+        }
+        // if the parent genes aren't the same, this leads to a merge of the genes
+        if (gene1 && gene2) {
+            if (gene1!=gene2) {
+                List<Transcript> gene2Transcripts = getTranscripts(gene2)
+                for (Transcript transcript : gene2Transcripts) {
+                    if (transcript!=transcript2) {
+                        deleteTranscript(gene2,transcript)
+                        featureService.addTranscriptToGene(gene1,transcript)
+                    }
+                }
+                featureService.deleteFeature(gene2)
+            }
+        }
+        // Delete the empty transcript from the gene
+        if (gene2) {
+            deleteTranscript(gene2, transcript2);
+        } else {
+            featureService.deleteFeature(transcript2);
+        }
+        featureService.removeExonOverlapsAndAdjacencies(transcript1);
+    }
 }
