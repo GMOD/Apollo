@@ -234,7 +234,7 @@ class TranscriptService {
 //        } else {
 //            addFeature(splitTranscript);
 //        }
-        Gene gene = getGene(transcript)
+        Gene gene = getGene(transcrip)
         if(gene){
             featureService.addTranscriptToGene(gene,splitTranscript)
         }
@@ -262,5 +262,48 @@ class TranscriptService {
         }
         
         return splitTranscript
+    }
+
+    /**
+     * Duplicate a transcript.  Adds it to the parent gene if it is set.
+     *
+     * @param transcript - Transcript to be duplicated
+     */
+    public Transcript duplicateTranscript(Transcript transcript) {
+        Transcript duplicate = (Transcript) transcript.generateClone(transcript);
+        duplicate.name = transcript.name+"-copy"
+        duplicate.uniqueName = nameService.generateUniqueName(transcript)
+       
+        Gene gene =  getGene(transcript)
+        if (gene) {
+            featureService.addTranscriptToGene(gene,duplicate)
+            gene.save()
+        }
+        // copy exons
+        for (Exon exon : getExons(transcript)) {
+            Exon duplicateExon = (Exon) exon.generateClone()
+            duplicateExon.name = exon.name + "-copy"
+            duplicateExon.uniqueName = nameService.generateUniqueName(duplicateExon)
+            addExon(duplicate,duplicateExon)
+        }
+        // copy CDS
+        CDS cds = getCDS(transcript)
+        if (cds) {
+            CDS duplicateCDS = (CDS) cds.generateClone()
+            duplicateCDS.name = cds.name + "-copy"
+            duplicateCDS.uniqueName = nameService.generateUniqueName(duplicateCDS)
+            setCDS(duplicate,cds)
+        }
+
+
+        duplicate.save()
+        
+        /*
+        // event fire
+        fireAnnotationChangeEvent(duplicate, transcript.getGene(), AnnotationChangeEvent.Operation.ADD);
+        */
+        
+        return duplicate
+
     }
 }

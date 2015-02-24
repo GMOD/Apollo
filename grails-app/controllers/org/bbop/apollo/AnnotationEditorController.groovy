@@ -204,6 +204,12 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.addTranscript(inputObject)
     }
 
+    def duplicateTranscript() {
+        println "AEC::set translation start ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render requestHandlingService.duplicateTranscript(inputObject)
+    }
+
     def setTranslationStart() {
         println "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)

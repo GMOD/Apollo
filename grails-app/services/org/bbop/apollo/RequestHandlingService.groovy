@@ -1564,4 +1564,21 @@ class RequestHandlingService {
 //        fireDataStoreChange(new DataStoreChangeEvent(this, updateFeatureContainer, track, DataStoreChangeEvent.Operation.UPDATE),
 //                new DataStoreChangeEvent(this, deleteFeatureContainer, track, DataStoreChangeEvent.Operation.DELETE));
     }
+
+    def duplicateTranscript(JSONObject inputObject) {
+        Transcript transcript = Transcript.findByUniqueName(inputObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
+
+        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript))
+//        out.write(featureContainer.toString());
+//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.ADD
+        )
+
+        fireAnnotationEvent(annotationEvent)
+
+        return featureContainer
+    }
 }
