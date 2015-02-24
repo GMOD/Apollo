@@ -430,10 +430,11 @@ class RequestHandlingService {
 
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
-            gsolExon.save(flush: false, insert: true)
+            gsolExon.save(insert: true)
         }
 
-        transcript.save(flush: true, insert: false)
+        transcript.save(insert: false)
+        featureService.getTopLevelFeature(transcript)?.save(flush:true)
 
         // TODO: one of these two versions . . .
         JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))
@@ -603,7 +604,9 @@ class RequestHandlingService {
             fireAnnotationEvent(annotationEvent)
         }
 
-        return featureContainer
+        JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(featureService.getTopLevelFeature(transcript), false));
+
+        return returnObject
     }
 
     def setAcceptor(JSONObject inputObject, boolean upstreamDonor) {
@@ -1519,7 +1522,7 @@ class RequestHandlingService {
 //
         JSONObject updateContainer = createJSONFeatureContainer();
         JSONObject addContainer = createJSONFeatureContainerFromFeatures(splitTranscript);
-//        JSONObject addContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
+//        JSONObject addContainer =createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
         List<Transcript> exon1Transcripts = transcriptService.getTranscripts(transcriptService.getGene(exon1Transcript))
         for (Transcript t : exon1Transcript) {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
