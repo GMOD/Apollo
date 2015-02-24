@@ -123,6 +123,11 @@ class TranscriptService {
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene,ontologyIds as String[])
     }
 
+
+    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene,boolean sortByStrand) {
+        return getTranscripts(gene).sort(true,new FeaturePositionComparator<Transcript>(sortByStrand))
+    }
+
     public void setFmin(Transcript transcript, Integer fmin) {
         transcript.getFeatureLocation().setFmin(fmin);
         Gene gene = getGene(transcript)
@@ -298,12 +303,6 @@ class TranscriptService {
 
         duplicate.save()
         
-        /*
-        // event fire
-        fireAnnotationChangeEvent(duplicate, transcript.getGene(), AnnotationChangeEvent.Operation.ADD);
-        */
-        
         return duplicate
-
     }
 }
