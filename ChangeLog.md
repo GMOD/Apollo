@@ -19,6 +19,8 @@ Bugfixes
 + Added some basic help text for search parameters in the sequences view (#160).
 + Added MIME types for bigwig files (#166).
 + Changed title page to match content (#158).
++ Fixed GFF3 export for non-specified phase, score, and strand (#177).
++ Hitting previous button does not update datagrid (#176).
 
 
 ## 1.0.3 release
