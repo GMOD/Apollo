@@ -404,8 +404,8 @@ return declare( [JBPlugin, HelpMixin],
         var browser=this.browser;
         var thisB = this;
 
-        var strandFilter = function(name,callback) {
-            if(browser.cookie(name)=="true") {
+        var strandFilter = function(name,callback,toggle) {
+            if(toggle||browser.cookie(name)=="true") {
                 browser.addFeatureFilter(callback,name);
             } else {
                 browser.removeFeatureFilter(name);
@@ -427,7 +427,7 @@ return declare( [JBPlugin, HelpMixin],
                     checked: browser.cookie("plusStrandFilter")=="true",
                     onClick: function(event) {
                         browser.cookie("plusStrandFilter",this.get("checked")?"true":"false");
-                        strandFilter("plusStrandFilter",plusStrandFilter);
+                        strandFilter("plusStrandFilter",plusStrandFilter,this.get("checked"));
                         browser.view.redrawTracks();
                     }
                 });
@@ -437,7 +437,7 @@ return declare( [JBPlugin, HelpMixin],
                     checked: browser.cookie("minusStandFilter")=="true",
                     onClick: function(event) {
                         browser.cookie("minusStrandFilter",this.get("checked")?"true":"false");
-                        strandFilter("minusStrandFilter",minusStrandFilter);
+                        strandFilter("minusStrandFilter",minusStrandFilter,this.get("checked"));
                         browser.view.redrawTracks();
                     }
                 });
