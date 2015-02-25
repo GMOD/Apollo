@@ -732,11 +732,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-                // if (tracks[i] instanceof SequenceTrack) {
-                // if (tracks[i].config.type == "WebApollo/View/Track/AnnotSequenceTrack") {
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
-                   // tracks[i].setAnnotTrack(this);
                     break;
                 }
             }
@@ -5483,20 +5480,21 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var browser = this.browser;
         var clabel = this.name+"-collapsed";
         var options = this.inherited(arguments) || [];
-
+        
         options.push({ label: "Collapsed view",
                  title: "Collapsed view",
                  type: 'dijit/CheckedMenuItem',
                  checked: browser.cookie(clabel)=="true",
                  onClick: function(event) {
-                     console.log("Updated collapse");
                      thisB.collapsedMode=this.get("checked");
                      browser.cookie(clabel,this.get("checked")?"true":"false");
                      var temp=thisB.showLabels;
-                     if(this.get("checked")) {thisB.showLabels=false;}
+                     if(this.get("checked")) {thisB.showLabels=false; }
                      else if(thisB.previouslyShowLabels) {thisB.showLabels=true;}
                      thisB.previouslyShowLabels=temp;
-                     thisB.changed();
+                     delete thisB.trackMenu;
+                     thisB.makeTrackMenu();
+                     thisB.redraw();
                  }
                });
 
