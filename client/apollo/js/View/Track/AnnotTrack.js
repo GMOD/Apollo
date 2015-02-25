@@ -5461,7 +5461,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var thisB=this; 
         var browser = this.browser;
         var layout=this.inherited( arguments ); 
-        var clabel = this.label+"-collapsed";
+        var clabel = this.name+"-collapsed";
         return declare.safeMixin( layout, { 
             addRect: function( id, left, right, height, data ) {
                 //store height for collapsed mode
@@ -5472,7 +5472,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                 return browser.cookie(clabel)=="true"?0:this.inherited(arguments);
             },
             getTotalHeight: function() {
-                console.log("here",this.pTotalHeight);
                 return browser.cookie(clabel)=="true"?this.pTotalHeight||30:this.inherited(arguments);
             }
         });
@@ -5481,7 +5480,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     _trackMenuOptions: function() {
         var thisB = this;
         var browser = this.browser;
-        var clabel = this.label+"-collapsed";
+        var clabel = this.name+"-collapsed";
         var options = this.inherited(arguments) || [];
 
         options.push({ label: "Collapsed view",
