@@ -12,7 +12,7 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(FeatureService)
-@Mock([Sequence,FeatureLocation,Feature])
+@Mock([Sequence, FeatureLocation, Feature])
 class FeatureServiceSpec extends Specification {
 
     def setup() {
@@ -20,32 +20,31 @@ class FeatureServiceSpec extends Specification {
 
     def cleanup() {
     }
-    
-    void "convert JSON to Feature Location"(){
-        
+
+    void "convert JSON to Feature Location"() {
+
         when: "We have a valid json object"
         JSONObject jsonObject = new JSONObject()
-        Sequence sequence = new Sequence(name: "Chr3",seqChunkPrefix: "abc",seqChunkSize: 20,start:1,end:100,length:99,sequenceDirectory: "/tmp").save(failOnError: true)
-        jsonObject.put(FeatureStringEnum.FMIN.value,73)
-        jsonObject.put(FeatureStringEnum.FMAX.value,113)
+        Sequence sequence = new Sequence(name: "Chr3", seqChunkPrefix: "abc", seqChunkSize: 20, start: 1, end: 100, length: 99, sequenceDirectory: "/tmp").save(failOnError: true)
+        jsonObject.put(FeatureStringEnum.FMIN.value, 73)
+        jsonObject.put(FeatureStringEnum.FMAX.value, 113)
         jsonObject.put(FeatureStringEnum.STRAND.value, Strand.POSITIVE.value)
 
-        
+
         then: "We should return a valid FeatureLocation"
-        FeatureLocation featureLocation = service.convertJSONToFeatureLocation(jsonObject,sequence)
+        FeatureLocation featureLocation = service.convertJSONToFeatureLocation(jsonObject, sequence)
         assert featureLocation.sequence.name == "Chr3"
         assert featureLocation.fmin == 73
         assert featureLocation.fmax == 113
-        assert featureLocation.strand ==Strand.POSITIVE.value
+        assert featureLocation.strand == Strand.POSITIVE.value
 
-        
+
     }
 
 //    void "convertJSON to Ontology ID"() {
 
 //        when: "We hav a json object of type"
 //        JSONObject json = JSON.parse("[name:exon, cv:[name:sequence]]")
-
 
 //        then: "We should be able to infer the ontology ID"
 //        String ontologyId = service.convertJSONToOntologyId(json)

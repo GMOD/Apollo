@@ -10,7 +10,7 @@ class Feature implements Ontological{
 
     static constraints = {
         name nullable: false
-        uniqueName nullable: true
+        uniqueName nullable: false
         dbxref nullable: true
         sequenceLength nullable: true
         md5checksum nullable: true

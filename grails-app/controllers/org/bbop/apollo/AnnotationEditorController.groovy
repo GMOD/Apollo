@@ -30,15 +30,10 @@ class AnnotationEditorController implements AnnotationListener {
 
 
     def featureService
-    def transcriptService
     def configWrapperService
-    def nonCanonicalSplitSiteService
     def featureRelationshipService
-    def nameService
     def featurePropertyService
     def requestHandlingService
-    def cdsService
-    def exonService
     GFF3HandlerService gff3HandlerService
 
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
@@ -85,7 +80,7 @@ class AnnotationEditorController implements AnnotationListener {
     }
 
     def handleOperation(String track, String operation) {
-        // TODO: this is a hack, but it should come trhough the UrlMapper
+        // TODO: this is a hack, but it should come through the UrlMapper
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
