@@ -15,6 +15,7 @@ define(
            'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
+           'dojo/query',
            'dojo/_base/window',
            'dojo/_base/array',
            'dijit/Menu',
@@ -42,6 +43,7 @@ define(
             lang,
             domConstruct,
             domClass,
+            query,
             win,
             array,
             dijitMenu,
@@ -171,19 +173,21 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
+
+        this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: (browser.cookie("showTrackLabel")||"true")=="true",
+                checked: this._showLabels,
                 onClick: function(event) {
-                    thisB.showLabels(this.get("checked"));
+                    thisB._showLabels=this.get("checked");
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                    thisB.updateLabels();
                 }
             });
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-        this.showLabels(true,true);
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"showLabels",true));
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
 
 
             
@@ -240,7 +244,6 @@ return declare( [JBPlugin, HelpMixin],
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-            // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
@@ -319,6 +322,7 @@ return declare( [JBPlugin, HelpMixin],
                             }
                         })
                 );
+                thisB.updateLabels();
             }
 
 
@@ -328,20 +332,14 @@ return declare( [JBPlugin, HelpMixin],
 
 
     },
-    showLabels: function(show,updating) {
-        var browser=this.browser;
-        var showLabels;
-        if(updating) {
-            showLabels=(browser.cookie("showTrackLabel")||"true")=="true";
-        }
-        else { showLabels=show; }
-
-        if(!showLabels) {
-            $('.track-label').hide();
+    updateLabels: function() {
+        if(!this._showLabels) {
+            query('.track-label').style('visibility','hidden');
         }
         else {
-            $('.track-label').show();
+            query('.track-label').style('visibility','visible');
         }
+        this.browser.view.updateScroll();
     },
 
     /**
