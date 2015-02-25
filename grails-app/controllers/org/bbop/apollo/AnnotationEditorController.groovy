@@ -34,7 +34,7 @@ class AnnotationEditorController implements AnnotationListener {
     def featureRelationshipService
     def featurePropertyService
     def requestHandlingService
-    GFF3HandlerService gff3HandlerService
+    def gff3HandlerService
 
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 

@@ -8,9 +8,9 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.support.GrailsUnitTestMixin} for usage instructions
  */
 //@TestMixin(GrailsUnitTestMixin)
-@TestFor(GFF3HandlerService)
-@Mock([Gene,Feature,NameService])
-class GFF3HandlerServiceSpec extends Specification {
+@TestFor(Gff3HandlerService)
+@Mock([Gene,Feature])
+class Gff3HandlerServiceSpec extends Specification {
     
 
 

@@ -14,8 +14,8 @@ import grails.compiler.GrailsCompileStatic
 //
 //
 //@CompileStatic
-@GrailsCompileStatic
-public class GFF3HandlerService {
+//@GrailsCompileStatic
+public class Gff3HandlerService {
 
 //    private File file;
 //    private boolean firstEntry;
