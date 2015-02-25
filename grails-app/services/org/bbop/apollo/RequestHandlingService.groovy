@@ -434,7 +434,7 @@ class RequestHandlingService {
         }
 
         transcript.save(insert: false)
-        featureService.getTopLevelFeature(transcript)?.save(flush:true)
+        featureService.getTopLevelFeature(transcript)?.save(flush: true)
 
         // TODO: one of these two versions . . .
         JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))
@@ -891,7 +891,7 @@ class RequestHandlingService {
 
     private JSONObject createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
         def jsonObjects = new ArrayList()
-        for(Feature feature in features){
+        for (Feature feature in features) {
             JSONObject featureObject = featureService.convertFeatureToJSON(feature)
             jsonObjects.add(featureObject)
         }
@@ -1316,6 +1316,11 @@ class RequestHandlingService {
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     def deleteFeature(JSONObject inputObject) {
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        
+        JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
@@ -1336,24 +1341,91 @@ class RequestHandlingService {
             }
         }
 
-        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
+//        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
+        for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
+            String uniqueName = entry.getKey();
+            // needed only for managing transaction history
+//            List<Feature> deletedFeatures = entry.getValue();
+            Feature feature = Feature.findByUniqueName(uniqueName);
+            if (feature == null) {
+                log.info("Feature already deleted");
+                continue;
+            }
+//            SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
+//            Feature gsolFeature = (Feature) iterator.next();
+            if (!isUpdateOperation) {
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
+//
+                if (feature instanceof Transcript) {
+                    Transcript transcript = (Transcript) feature;
+                    Gene gene = transcriptService.getGene(transcript)
+                    transcriptService.deleteTranscript(gene, transcript)
+                    int numberTranscripts = transcriptService.getTranscripts(gene).size()
+                    if (numberTranscripts == 0) {
+//                        editor.deleteFeature(gene);
+                        // wouldn't this be a gene?
+                        Feature topLevelFeature = featureService.getTopLevelFeature(gene)
+                        Feature.deleteAll(topLevelFeature)
+
+                        AnnotationEvent annotationEvent = new AnnotationEvent(
+                                features: featureContainer
+                                , sequence: sequence
+                                ,operation: AnnotationEvent.Operation.DELETE
+                        )
+
+                        fireAnnotationEvent(annotationEvent)
+                    }
+
+                    if (numberTranscripts > 0) {
+                        gene.save()
+                    } else {
+                        Gene.deleteAll(gene)
+                    }
+
+                } else {
+                    Feature topLevelFeature = featureService.getTopLevelFeature(feature)
+                    Feature.deleteAll(topLevelFeature)
+
+                    AnnotationEvent annotationEvent = new AnnotationEvent(
+                            features: featureContainer
+                            , sequence: sequence
+                            ,operation: AnnotationEvent.Operation.DELETE
+                    )
+
+                    fireAnnotationEvent(annotationEvent)
+
+                    Feature.deleteAll(feature)
+//
+                }
+            } 
+            else {
+                if (feature instanceof Transcript) {
+                    Transcript transcript = (Transcript) feature;
+                    featureService.calculateCDS(transcript)
+                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                    transcript.name = transcript.name ?: nameService.generateUniqueName(transcript)
+//                    operation = Transaction.Operation.DELETE_EXON;
+                    Gene gene = transcriptService.getGene(transcript)
+                    gene.save()
+                } else {
+//                    operation = Transaction.Operation.DELETE_FEATURE;
+                    feature.save()
+                }
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+            }
+        }
 
 
 
-        JSONObject returnObject = createJSONFeatureContainer()
-
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                features: returnObject
+        AnnotationEvent finalAnnotationEvent = new AnnotationEvent(
+                features: featureContainer
                 , sequence: sequence
-                , operation: AnnotationEvent.Operation.DELETE
         )
 
-        fireAnnotationEvent(annotationEvent)
+        finalAnnotationEvent.operation = isUpdateOperation ? AnnotationEvent.Operation.UPDATE : AnnotationEvent.Operation.DELETE
+        fireAnnotationEvent(finalAnnotationEvent)
 
-        return returnObject
+        return createJSONFeatureContainer()
     }
 
     def makeIntron(JSONObject inputObject) {
@@ -1489,29 +1561,29 @@ class RequestHandlingService {
 //            }
 //            */
             for (Transcript t : gene2Transcripts) {
-                transcriptService.deleteTranscript(gene1,t)
+                transcriptService.deleteTranscript(gene1, t)
             }
-            
+
             for (Transcript t : gene2Transcripts) {
                 if (!t.equals(splitTranscript)) {
                     JSONObject addTranscriptJSONObject = new JSONObject()
                     JSONArray addTranscriptFeaturesArray = new JSONArray()
                     addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
-                    addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value,addTranscriptJSONObject)
-                    addTranscriptJSONObject.put("track",inputObject.track)
+                    addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptJSONObject)
+                    addTranscriptJSONObject.put("track", inputObject.track)
                     addTranscript(addTranscriptJSONObject)
 //                    addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, geneNameAdapter, gene1.isPseudogene());
                 }
             }
-            
+
             JSONObject addSplitTranscriptJSONObject = new JSONObject()
             JSONArray addTranscriptFeaturesArray = new JSONArray()
             addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(splitTranscript))
-            addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value,addSplitTranscriptJSONObject)
-            addSplitTranscriptJSONObject.put("track",inputObject.track)
-            
+            addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addSplitTranscriptJSONObject)
+            addSplitTranscriptJSONObject.put("track", inputObject.track)
+
             addTranscript(addSplitTranscriptJSONObject)
-            
+
 //            splitTranscript = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(splitTranscript), track, geneNameAdapter, gene1.isPseudogene());
 //
         }
@@ -1527,7 +1599,7 @@ class RequestHandlingService {
         for (Transcript t : exon1Transcript) {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
         }
-        
+
         List<Transcript> splitTranscriptSiblings = transcriptService.getTranscripts(transcriptService.getGene(splitTranscript))
         for (Transcript t : splitTranscriptSiblings) {
             if (!t.getUniqueName().equals(splitTranscript.getUniqueName())) {
@@ -1548,7 +1620,7 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.UPDATE
         )
 
-        fireAnnotationEvent(addAnnotationEvent,updateAnnotationEvent)
+        fireAnnotationEvent(addAnnotationEvent, updateAnnotationEvent)
 
 
     }
@@ -1566,19 +1638,19 @@ class RequestHandlingService {
         Gene gene2 = transcriptService.getGene(transcript2)
 
 //        editor.mergeTranscripts(transcript1, transcript2);
-        transcriptService.mergeTranscripts(transcript1,transcript2)
-        
+        transcriptService.mergeTranscripts(transcript1, transcript2)
+
         featureService.calculateCDS(transcript1)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
-       
+
         Gene gene1 = transcriptService.getGene(transcript1)
-        
-        if(gene1!=gene2){
+
+        if (gene1 != gene2) {
             Gene.deleteAll(gene2)
         }
-        
-        
-        transcript1.name  = transcript1.name ?: nameService.generateUniqueName(transcript1)
+
+
+        transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
 
@@ -1587,7 +1659,7 @@ class RequestHandlingService {
 
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript1))).toString());
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
-       
+
         List<Transcript> gene1Transcripts = transcriptService.getTranscripts(gene1)
         for (Transcript transcript : gene1Transcripts) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
@@ -1606,7 +1678,7 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.UPDATE
         )
 
-        fireAnnotationEvent(deleteAnnotationEvent,updateAnnotationEvent)
+        fireAnnotationEvent(deleteAnnotationEvent, updateAnnotationEvent)
 
         return returnObject
     }
