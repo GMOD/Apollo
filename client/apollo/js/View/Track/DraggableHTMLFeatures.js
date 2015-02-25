@@ -1314,7 +1314,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if( ! block || ! this.label )
                 return;
             var viewLeft = 100 * ( (this.label.offsetLeft+(showLabels?this.label.offsetWidth:0)) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
-            console.log(viewLeft);
 
             // if the view start is unknown, or is to the
             // left of this block, we don't have to worry

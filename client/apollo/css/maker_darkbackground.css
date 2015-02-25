@@ -54,8 +54,8 @@
     color: #FAFFF9;
 }
 
-.Dark div.track_annotations {
-    background-color: #70D2D0;
+.Dark .track_annotations .feature-label {
+    color: #000;
 }
 
 /* UI elements */
@@ -345,7 +345,3 @@
 }
 
 /* end of MAKER styles */
-.Dark .global_highlight {
-    background: rgba(62,100,150,0.7);
-    border: 0px;
-}
