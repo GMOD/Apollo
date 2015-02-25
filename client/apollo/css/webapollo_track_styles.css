@@ -111,17 +111,17 @@ div.wa-sequence .aa-residues  {
 /*    outline: 1px solid orange; */
 }
 
-div.wa-sequence .aa-residues.cds-frame0 {
+.aa-residues.cds-frame0 {
     background-color: #999999; 
     z-index: 5;
 }
 
-div.wa-sequence .aa-residues.cds-frame1 {
+.aa-residues.cds-frame1 {
     background-color: #BBBBBB; 
     z-index: 5;
 }
 
-div.wa-sequence .aa-residues.cds-frame2 {
+.aa-residues.cds-frame2 {
     background-color: #DDDDDD; 
     z-index: 5;
 }

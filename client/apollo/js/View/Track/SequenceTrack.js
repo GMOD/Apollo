@@ -537,12 +537,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
                                 frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
                                 var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                if (track.browser.cookie("colorCdsByFrame")=="true") {
-                                    $(transProtein).addClass("cds-frame" + frame);
-                                }
-                                else  {
-                                    $(transProtein).addClass("frame" + frame);
-                                }
+                                $(transProtein).addClass("cds-frame" + frame);
                                 framedivs[frame] = transProtein;
                             }
                             // for (var i=2; i>=0; i--) {
