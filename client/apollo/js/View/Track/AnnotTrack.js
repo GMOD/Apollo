@@ -47,7 +47,7 @@ define( [
             resizable,
             autocomplete,
             dialog,
-            dijitMenm,
+            dijitMenu,
             dijitMenuItem,
             dijitMenuSeparator,
             dijitPopupMenuItem,
