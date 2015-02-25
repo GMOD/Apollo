@@ -5484,7 +5484,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         options.push({ label: "Collapsed view",
                  title: "Collapsed view",
                  type: 'dijit/CheckedMenuItem',
-                 checked: browser.cookie(clabel)=="true",
+                 checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel)=="true"),
                  onClick: function(event) {
                      thisB.collapsedMode=this.get("checked");
                      browser.cookie(clabel,this.get("checked")?"true":"false");
