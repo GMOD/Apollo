@@ -1,6 +1,5 @@
 define( [
             'dojo/_base/declare',
-            'dojo/_base/lang',
             'jquery',
             'jqueryui/draggable',
             'jqueryui/droppable',
@@ -42,45 +41,44 @@ define( [
             'dojo/data/ObjectStore'
         ],
         function( declare,
-            lang,
             $,
-            draggable
-            droppable
-            resizable
-            autocomplete
+            draggable,
+            droppable,
+            resizable,
+            autocomplete,
             dialog,
-            dijitMenu
-            dijitMenuItem
-            dijitMenuSeparator 
-            dijitPopupMenuItem
-            dijitButton
-            dijitDropDownButton
+            dijitMenm,
+            dijitMenuItem,
+            dijitMenuSeparator,
+            dijitPopupMenuItem,
+            dijitButton,
+            dijitDropDownButton,
             dijitDropDownMenu,
-            dijitComboBox
-            dijitTextBox
-            dijitValidationTextBox
+            dijitComboBox,
+            dijitTextBox,
+            dijitValidationTextBox,
             dijitRadioButton,
-            dojoxDialogSimple
-            dojoxDataGrid
-            dojoxCells
-            dojoItemFileWriteStore
-            DraggableFeatureTrack
-            FeatureSelectionManager
-            JSONUtils
-            BioFeatureUtils
-            Permission
-            SequenceSearch
-            EUtils
+            dojoxDialogSimple,
+            dojoxDataGrid,
+            dojoxCell,
+            dojoItemFileWriteStore,
+            DraggableFeatureTrack,
+            FeatureSelectionManager,
+            JSONUtil,
+            BioFeatureUtil,
+            Permission,
+            SequenceSearch,
+            EUtils,
             SequenceOntologyUtils,
-            SimpleFeature
-            Util
-            Layout
-            xhr
-            Standby
-            Tooltip
-            FormatUtils
-            Select
-            Memory
+            SimpleFeature,
+            Util,
+            Layout,
+            xhr,
+            Standby,
+            Tooltip,
+            FormatUtils,
+            Select,
+            Memory,
             ObjectStore ) {
 
 // var listeners = [];
@@ -5461,11 +5459,18 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     // override getLayout to access addRect method
     _getLayout: function( ) {
         var thisB=this; 
+        var browser = this.browser;
         var layout=this.inherited( arguments ); 
-        return lang.safeMixin( layout, { 
+        var clabel = this.label+"-collapsed";
+        return declare.safeMixin( layout, { 
             addRect: function( id, left, right, height, data ) {
-                var top=this.inherited(arguments); 
-                return thisB.browser.cookie(thisB.label+'Collapsed')=="true"?0:top;
+                //store height for collapsed mode
+                this._pHeight=Math.ceil(  height / this.pitchY );
+                return browser.cookie(clabel)=="true"?0:this.inherited(arguments);
+            },
+            getTotalHeight: function() {
+                console.log("here");
+                return browser.cookie(clabel)=="true"?this._pHeight||30:this.inherited(arguments);
             }
         });
     },
@@ -5481,6 +5486,7 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                  type: 'dijit/CheckedMenuItem',
                  checked: browser.cookie(clabel)=="true",
                  onClick: function(event) {
+                     console.log("Updated collapse");
                      browser.cookie(clabel,this.get("checked")?"true":"false");
                      if(this.get("checked")) {thisB.showLabels=false;}
                      thisB.changed();
