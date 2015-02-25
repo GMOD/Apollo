@@ -427,12 +427,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
                                 // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
                                 //    otherwise use more muted "frame" styling
-                                if (track.browser.cookie("colorCdsByFrame")=="true") {
-                                    $(transProtein).addClass("cds-frame" + frame);
-                                }
-                                else  {
-                                    $(transProtein).addClass("frame" + frame);
-                                }
+                                $(transProtein).addClass("cds-frame" + frame);
                                 framedivs[frame] = transProtein;
                             }
                             for (var i=2; i>=0; i--) {

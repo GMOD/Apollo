@@ -90,13 +90,9 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
-
-
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
-
-
-
-
+        if (browser.cookie("colorCdsByFrame")=="true") {
+            domClass.add(win.body(), "colorCds");
+        }
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
@@ -133,10 +129,11 @@ return declare( [JBPlugin, HelpMixin],
         var cds_frame_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="true"?true:false,
+                    checked: browser.cookie("colorCdsByFrame")=="true",
                     onClick: function(event) {
+                        if(this.get("checked")) domClass.add(win.body(), "colorCds");
+                        else domClass.remove(win.body(),"colorCds");
                         browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
-                        browser.view.redrawTracks();
                     }
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
@@ -177,14 +174,17 @@ return declare( [JBPlugin, HelpMixin],
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: browser.cookie("showTrackLabel"),
+                checked: (browser.cookie("showTrackLabel")||"true")=="true",
                 onClick: function(event) {
+                    console.log(this);
+                    thisB.showLabels(this.get("checked"));
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                    thisB.updateLabels()
                 }
             });
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+        this.showLabels(true,true);
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"showLabels",true));
 
 
             
@@ -329,8 +329,15 @@ return declare( [JBPlugin, HelpMixin],
 
 
     },
-    updateLabels: function() {
-        if(this.browser.cookie("showTrackLabel")=="false") {
+    showLabels: function(show,updating) {
+        var browser=this.browser;
+        var showLabels;
+        if(updating) {
+            showLabels=(browser.cookie("showTrackLabel")||"true")=="true";
+        }
+        else { showLabels=show; }
+
+        if(!showLabels) {
             $('.track-label').hide();
         }
         else {

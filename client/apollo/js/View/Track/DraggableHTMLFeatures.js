@@ -664,9 +664,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.browser.cookie("colorCdsByFrame")=="true") {
-                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
-                }
+                dojo.addClass(segDiv, "cds-frame" + cdsFrame);
                 subDiv.appendChild(segDiv);
             }
             priorCdsLength += subLength;

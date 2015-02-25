@@ -1,4 +1,4 @@
-/*
+//*
 *  naming conventions
 
 */
@@ -111,17 +111,17 @@ div.wa-sequence .aa-residues  {
 /*    outline: 1px solid orange; */
 }
 
-div.wa-sequence .aa-residues.frame0 {
+div.wa-sequence .aa-residues.cds-frame0 {
     background-color: #999999; 
     z-index: 5;
 }
 
-div.wa-sequence .aa-residues.frame1 {
+div.wa-sequence .aa-residues.cds-frame1 {
     background-color: #BBBBBB; 
     z-index: 5;
 }
 
-div.wa-sequence .aa-residues.frame2 {
+div.wa-sequence .aa-residues.cds-frame2 {
     background-color: #DDDDDD; 
     z-index: 5;
 }
@@ -621,16 +621,16 @@ div.basic-hist {
     z-index: 15;
 }
 
-.cds-frame0 {
-    background-color: #FF8080 !important;
+.colorCds .cds-frame0 {
+    background-color: #FF8080;
 }
 
-.cds-frame1 {
-    background-color: #80FF80 !important;
+.colorCds .cds-frame1 {
+    background-color: #80FF80;
 }
 
-.cds-frame2 {
-    background-color: #8080FF !important;
+.colorCds .cds-frame2 {
+    background-color: #8080FF;
 }
 
 /**
