@@ -5465,12 +5465,15 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         return declare.safeMixin( layout, { 
             addRect: function( id, left, right, height, data ) {
                 //store height for collapsed mode
-                this._pHeight=Math.ceil(  height / this.pitchY );
+                if( browser.cookie(clabel)=="true") {
+                    var pHeight = Math.ceil(  height / this.pitchY );
+                    this.pTotalHeight = Math.max( this.pTotalHeight||0, pHeight );
+                }
                 return browser.cookie(clabel)=="true"?0:this.inherited(arguments);
             },
             getTotalHeight: function() {
-                console.log("here");
-                return browser.cookie(clabel)=="true"?this._pHeight||30:this.inherited(arguments);
+                console.log("here",this.pTotalHeight);
+                return browser.cookie(clabel)=="true"?this.pTotalHeight||30:this.inherited(arguments);
             }
         });
     },
@@ -5488,7 +5491,11 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                  onClick: function(event) {
                      console.log("Updated collapse");
                      browser.cookie(clabel,this.get("checked")?"true":"false");
+                     var temp=thisB.showLabels;
                      if(this.get("checked")) {thisB.showLabels=false;}
+                     else if(thisB.previouslyShowLabels) {thisB.showLabels=true;}
+                     thisB.previouslyShowLabels=temp;
+                     
                      thisB.changed();
                      thisB.redraw();
                  }
