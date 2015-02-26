@@ -177,6 +177,7 @@ $(function () {
     });
     </c:forEach>
     cleanup_user_item();
+    cleanup_logo();
 });
 
 function change_status_selected_items(updated_status) {
@@ -449,8 +450,7 @@ function open_user_manager_dialog() {
 <body>
 <div id="header">
     <ul id="menu">
-        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"
-                                                                       onload="cleanup_logo()" alt=""/></a></li>
+        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png" alt=""/></a></li>
         <%--<li><a id="file_item">File</a>--%>
             <%--<ul id="file_menu">--%>
                 <%--<li><a id="export_menu">Export</a>--%>
