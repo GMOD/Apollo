@@ -15,6 +15,7 @@ define(
            'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
+           'dojo/query',
            'dojo/_base/window',
            'dojo/_base/array',
            'dijit/Menu',
@@ -42,6 +43,7 @@ define(
             lang,
             domConstruct,
             domClass,
+            query,
             win,
             array,
             dijitMenu,
@@ -89,14 +91,10 @@ return declare( [JBPlugin, HelpMixin],
         // Checking for cookie for determining the color scheme of WebApollo
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
-            LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
         }
-
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
-
-
-
-
+        if (browser.cookie("colorCdsByFrame")=="true") {
+            domClass.add(win.body(), "colorCds");
+        }
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
@@ -133,10 +131,11 @@ return declare( [JBPlugin, HelpMixin],
         var cds_frame_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="true"?true:false,
+                    checked: browser.cookie("colorCdsByFrame")=="true",
                     onClick: function(event) {
+                        if(this.get("checked")) domClass.add(win.body(), "colorCds");
+                        else domClass.remove(win.body(),"colorCds");
                         browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
-                        browser.view.redrawTracks();
                     }
                 });
         browser.addGlobalMenuItem( 'view', cds_frame_toggle );
@@ -148,7 +147,7 @@ return declare( [JBPlugin, HelpMixin],
                     label: "Light",
                     onClick: function (event) {
                         browser.cookie("Scheme","Light");
-                        window.location.reload();
+                        domClass.remove(win.body(), "Dark");
                     }
                 }
             )
@@ -158,7 +157,7 @@ return declare( [JBPlugin, HelpMixin],
                     label: "Dark",
                     onClick: function (event) {
                         browser.cookie("Scheme","Dark");
-                        window.location.reload();
+                        domClass.add(win.body(), "Dark");
                     }
                 }
             )
@@ -174,17 +173,21 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem('view', css_frame_toggle);
 
         this.addStrandFilterOptions();
+
+        this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
         var hide_track_label_toggle = new dijitCheckedMenuItem(
             {
                 label: "Show track label",
-                checked: browser.cookie("showTrackLabel"),
+                checked: this._showLabels,
                 onClick: function(event) {
+                    thisB._showLabels=this.get("checked");
                     browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                    thisB.updateLabels()
+                    thisB.updateLabels();
                 }
             });
         browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
         browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
 
 
             
@@ -241,7 +244,6 @@ return declare( [JBPlugin, HelpMixin],
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-            // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
@@ -320,6 +322,7 @@ return declare( [JBPlugin, HelpMixin],
                             }
                         })
                 );
+                thisB.updateLabels();
             }
 
 
@@ -330,12 +333,13 @@ return declare( [JBPlugin, HelpMixin],
 
     },
     updateLabels: function() {
-        if(this.browser.cookie("showTrackLabel")=="false") {
-            $('.track-label').hide();
+        if(!this._showLabels) {
+            query('.track-label').style('visibility','hidden');
         }
         else {
-            $('.track-label').show();
+            query('.track-label').style('visibility','visible');
         }
+        this.browser.view.updateScroll();
     },
 
     /**
@@ -394,57 +398,72 @@ return declare( [JBPlugin, HelpMixin],
         view.showCoarse();
     },
 
+    plusStrandFilter: function(feature)  {
+        var strand = feature.get('strand');
+        if (strand == 1 || strand == '+' || !strand)  { return true; }
+        else  { return false; }
+    },
+
+    minusStrandFilter: function(feature)  {
+        var strand = feature.get('strand');
+        if (strand == -1 || strand == '-' || !strand)  { return true; }
+        else  { return false; }
+    },
+    passAllFilter: function(feature)  {  return true; },
+    passNoneFilter: function(feature)  { return false; },
 
     addStrandFilterOptions: function()  {
         var thisB = this;
         var browser = this.browser;
-
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
-                    label: "Hide plus strand",
-                    checked: (browser.cookie("plusStrandFilter")||"1")=="1",
+                    label: "Show plus strand",
+                    checked: true,
                     onClick: function(event) {
-                        browser.cookie("plusStrandFilter",this.get("checked")?"1":"0");
-                        thisB.strandFilter("plusStrandFilter",thisB.plusStrandFilter);
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.setFeatureFilter(thisB.passAllFilter);
+                        }
+                        else if (plus)  {
+                            browser.setFeatureFilter(thisB.plusStrandFilter);
+                        }
+                        else if (minus)  {
+                            browser.setFeatureFilter(thisB.minusStrandFilter);
+                        }
+                        else  {
+                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        }
                         browser.view.redrawTracks();
                     }
                 });
         browser.addGlobalMenuItem( 'view', plus_strand_toggle );
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
-                    label: "Hide minus strand",
-                    checked: (browser.cookie("minusStandFilter")||"1")=="1",
+                    label: "Show minus strand",
+                    checked: true,
                     onClick: function(event) {
-                        browser.cookie("minusStrandFilter",this.get("checked")?"1":"0");
-                        thisB.strandFilter("minusStrandFilter",thisB.minusStrandFilter);
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.setFeatureFilter(thisB.passAllFilter);
+                        }
+                        else if (plus)  {
+                            browser.setFeatureFilter(thisB.plusStrandFilter);
+                        }
+                        else if (minus)  {
+                            browser.setFeatureFilter(thisB.minusStrandFilter);
+                        }
+                        else  {
+                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        }
                         browser.view.redrawTracks();
-                    }
+                        }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
-
-        this.strandFilter("minusStrandFilter",this.minusStrandFilter);
-        this.strandFilter("plusStrandFilter",this.plusStrandFilter);
     },
-    strandFilter: function(name,callback) {
-        var browser=this.browser;
-        if(browser.cookie(name)=="1") {
-            browser.addFeatureFilter(callback,name)
-        } else {
-            browser.removeFeatureFilter(name);
-        }
-    },
-    minusStrandFilter: function(feature)  {
-        var strand = feature.get('strand');
-        if (strand == 1 || strand == '+')  { return true; }
-        else  { return false; }
-    },
-
-    plusStrandFilter: function(feature)  {
-        var strand = feature.get('strand');
-        if (strand == -1 || strand == '-')  { return true; }
-        else  { return false; }
-    },
-    
         
     addNavigationOptions: function()  {
         var thisB = this;

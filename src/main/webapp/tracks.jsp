@@ -158,6 +158,7 @@
                 window.open('http://genomearchitect.org/web_apollo_user_guide', '_blank');
             });
             cleanup_user_item();
+            cleanup_logo();
         });
 
         function cleanup_logo() {
@@ -364,8 +365,7 @@
 <body>
 <div id="header">
     <ul id="menu">
-        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"
-                                                                       onload="cleanup_logo()" alt=""/></a></li>
+        <li><a href="http://genomearchitect.org/" target="_blank"><img id="logo" src="images/ApolloLogo_100x36.png"/></a></li>
         <li><a id="file_item">File</a>
             <ul id="file_menu">
                 <li><a id="export_menu">Export</a>

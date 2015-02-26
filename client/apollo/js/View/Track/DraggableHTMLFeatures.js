@@ -664,9 +664,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 segDiv.style.cssText =
                     "left: " + (100 * ((subStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.browser.cookie("colorCdsByFrame")=="true") {
-                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
-                }
+                dojo.addClass(segDiv, "cds-frame" + cdsFrame);
                 subDiv.appendChild(segDiv);
             }
             priorCdsLength += subLength;
@@ -733,9 +731,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 segDiv.style.cssText =
                     "left: " + (100 * ((cdsSegStart - subStart) / subLength)) + "%;"
                     + "width: " + (100 * ((cdsSegEnd - cdsSegStart) / subLength)) + "%;";
-                if (this.config.style.colorCdsFrame || this.browser.cookie("colorCdsByFrame")=="true") {
-                    dojo.addClass(segDiv, "cds-frame" + cdsFrame);
-                }
+                dojo.addClass(segDiv, "cds-frame" + cdsFrame);
                 subDiv.appendChild(segDiv);
             }
             priorCdsLength += (cdsSegEnd - cdsSegStart);
@@ -1303,6 +1299,48 @@ var draggableTrack = declare( HTMLFeatureTrack,
             this.contextMenuItems["create_annotation"].set("disabled", false);
         }
 
+    },
+    updateFeatureLabelPositions: function( coords ) {
+        var showLabels=this.webapollo._showLabels;
+        if( ! 'x' in coords )
+            return;
+
+        array.forEach( this.blocks, function( block, blockIndex ) {
+
+
+            // calculate the view left coord relative to the
+            // block left coord in units of pct of the block
+            // width
+            if( ! block || ! this.label )
+                return;
+            var viewLeft = 100 * ( (this.label.offsetLeft+(showLabels?this.label.offsetWidth:0)) - block.domNode.offsetLeft ) / block.domNode.offsetWidth + 2;
+
+            // if the view start is unknown, or is to the
+            // left of this block, we don't have to worry
+            // about adjusting the feature labels
+            if( ! viewLeft )
+                return;
+
+            var blockWidth = block.endBase - block.startBase;
+
+            array.forEach( block.domNode.childNodes, function( featDiv ) {
+                              if( ! featDiv.label ) return;
+                              var labelDiv = featDiv.label;
+                              var feature = featDiv.feature;
+
+                              // get the feature start and end in terms of block width pct
+                              var minLeft = parseInt( feature.get('start') );
+                              minLeft = 100 * (minLeft - block.startBase) / blockWidth;
+                              var maxLeft = parseInt( feature.get('end') );
+                              maxLeft = 100 * ( (maxLeft - block.startBase) / blockWidth
+                                                - labelDiv.offsetWidth / block.domNode.offsetWidth
+                                              );
+
+                              // move our label div to the view start if the start is between the feature start and end
+                              labelDiv.style.left = Math.max( minLeft, Math.min( viewLeft, maxLeft ) ) + '%';
+
+                          },this);
+        },this);
     }
 
 });
