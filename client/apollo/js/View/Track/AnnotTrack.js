@@ -40,12 +40,46 @@ define( [
             'dojo/store/Memory',
             'dojo/data/ObjectStore'
         ],
-        function( declare, $, draggable, droppable, resizable, autocomplete, dialog,
-          dijitMenu, dijitMenuItem, dijitMenuSeparator , dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
-          dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-          dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore, 
-          DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-          SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore ) {
+        function( declare,
+            $,
+            draggable,
+            droppable,
+            resizable,
+            autocomplete,
+            dialog,
+            dijitMenu,
+            dijitMenuItem,
+            dijitMenuSeparator,
+            dijitPopupMenuItem,
+            dijitButton,
+            dijitDropDownButton,
+            dijitDropDownMenu,
+            dijitComboBox,
+            dijitTextBox,
+            dijitValidationTextBox,
+            dijitRadioButton,
+            dojoxDialogSimple,
+            dojoxDataGrid,
+            dojoxCell,
+            dojoItemFileWriteStore,
+            DraggableFeatureTrack,
+            FeatureSelectionManager,
+            JSONUtil,
+            BioFeatureUtil,
+            Permission,
+            SequenceSearch,
+            EUtils,
+            SequenceOntologyUtils,
+            SimpleFeature,
+            Util,
+            Layout,
+            xhr,
+            Standby,
+            Tooltip,
+            FormatUtils,
+            Select,
+            Memory,
+            ObjectStore ) {
 
 // var listeners = [];
 // var listener;
@@ -698,11 +732,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         else  {
             var tracks = this.gview.tracks;
             for (var i = 0; i < tracks.length; i++)  {
-                // if (tracks[i] instanceof SequenceTrack) {
-                // if (tracks[i].config.type == "WebApollo/View/Track/AnnotSequenceTrack") {
                 if (tracks[i].isWebApolloSequenceTrack)  {
                     this.seqTrack = tracks[i];
-                   // tracks[i].setAnnotTrack(this);
                     break;
                 }
             }
@@ -5418,16 +5449,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
                                if (start1 != start2)  { return start1 - start2; }
                                else if (end1 != end2) { return end1 - end2; }
                                else                   { return annot1.id().localeCompare(annot2.id()); }
-                               /*
-                                 * if (annot1[track.fields["start"]] !=
-                                 * annot2[track.fields["start"]]) { return
-                                 * annot1[track.fields["start"]] -
-                                 * annot2[track.fields["start"]]; } if
-                                 * (annot1[track.fields["end"]] !=
-                                 * annot2[track.fields["end"]]) { return
-                                 * annot1[track.fields["end"]] -
-                                 * annot2[track.fields["end"]]; } return 0;
-                                 */
                            });
     },
 
@@ -5435,25 +5456,41 @@ var AnnotTrack = declare( DraggableFeatureTrack,
     // override getLayout to access addRect method
     _getLayout: function( ) {
         var thisB=this; 
+        var browser = this.browser;
         var layout=this.inherited( arguments ); 
-        return dojo.safeMixin(layout, { 
+        var clabel = this.name+"-collapsed";
+        return declare.safeMixin( layout, { 
             addRect: function( id, left, right, height, data ) {
-                var top=this.inherited(arguments); 
-                return thisB.browser.cookie('Collapsed')=="1"?0:top;
+                var cm = thisB.collapsedMode||browser.cookie(clabel)=="true";
+                //store height for collapsed mode
+                if( cm ) {
+                    var pHeight = Math.ceil(  height / this.pitchY );
+                    this.pTotalHeight = Math.max( this.pTotalHeight||0, pHeight );
+                }
+                return cm?0:this.inherited(arguments);
             }
         });
     },
 
     _trackMenuOptions: function() {
         var thisB = this;
+        var browser = this.browser;
+        var clabel = this.name+"-collapsed";
         var options = this.inherited(arguments) || [];
-
+        
         options.push({ label: "Collapsed view",
                  title: "Collapsed view",
                  type: 'dijit/CheckedMenuItem',
-                 checked: this.browser.cookie('Collapsed')==1,
+                 checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel)=="true"),
                  onClick: function(event) {
-                     thisB.browser.cookie('Collapsed',this.get("checked")?"1":"0");
+                     thisB.collapsedMode=this.get("checked");
+                     browser.cookie(clabel,this.get("checked")?"true":"false");
+                     var temp=thisB.showLabels;
+                     if(this.get("checked")) {thisB.showLabels=false; }
+                     else if(thisB.previouslyShowLabels) {thisB.showLabels=true;}
+                     thisB.previouslyShowLabels=temp;
+                     delete thisB.trackMenu;
+                     thisB.makeTrackMenu();
                      thisB.redraw();
                  }
                });

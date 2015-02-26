@@ -181,7 +181,7 @@ if (username != null) {
                 AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
                 ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
                 for (String s : record) {
-                    out.println("eecent_changes.push(" + s + ");\n");
+                    out.println("recent_changes.push(" + s + ");\n");
                     ++count ;
                 }
             }
