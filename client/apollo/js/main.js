@@ -404,9 +404,9 @@ return declare( [JBPlugin, HelpMixin],
 
         var strandFilter = function(name,callback,toggle) {
             if(toggle||browser.cookie(name)=="true") {
-                browser.addFeatureFilter(callback,name);
-            } else {
                 browser.removeFeatureFilter(name);
+            } else {
+                browser.addFeatureFilter(callback,name);
             }
         };
         var minusStrandFilter = function(feature)  {
@@ -421,7 +421,7 @@ return declare( [JBPlugin, HelpMixin],
 
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
-                    label: "Hide plus strand",
+                    label: "Show plus strand",
                     checked: browser.cookie("plusStrandFilter")=="true",
                     onClick: function(event) {
                         browser.cookie("plusStrandFilter",this.get("checked")?"true":"false");
@@ -431,7 +431,7 @@ return declare( [JBPlugin, HelpMixin],
                 });
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
-                    label: "Hide minus strand",
+                    label: "Show minus strand",
                     checked: browser.cookie("minusStandFilter")=="true",
                     onClick: function(event) {
                         browser.cookie("minusStrandFilter",this.get("checked")?"true":"false");
@@ -439,8 +439,8 @@ return declare( [JBPlugin, HelpMixin],
                         browser.view.redrawTracks();
                     }
                 });
-        browser.addGlobalMenuItem( 'view', minus_strand_toggle );
         browser.addGlobalMenuItem( 'view', plus_strand_toggle );
+        browser.addGlobalMenuItem( 'view', minus_strand_toggle );
 
         strandFilter("minusStrandFilter",minusStrandFilter);
         strandFilter("plusStrandFilter",plusStrandFilter);
