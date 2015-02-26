@@ -1089,6 +1089,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //            gsolFeature.setOrganism(organism);
 
             // TODO: JSON type feature not set
+            println "entering conversion method"
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
             println "JSON FEATURE ${jsonFeature.toString()}"
             println "type ${type}"
@@ -1210,7 +1211,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
         catch (JSONException e) {
-            log.error(e)
+            log.error("Exception creating Feature from JSON ${jsonFeature}",e)
             return null;
         }
         return gsolFeature;
