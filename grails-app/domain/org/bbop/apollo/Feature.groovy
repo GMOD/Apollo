@@ -61,6 +61,11 @@ class Feature implements Ontological{
             ,featureGenotypes: "feature"
             ,featureLocations: "feature"
     ]
+    
+    static mapping = {
+        childFeatureRelationships cascade: 'all-delete-orphan'
+        parentFeatureRelationships cascade: 'all-delete-orphan'
+    }
 
     static belongsTo = [
             User

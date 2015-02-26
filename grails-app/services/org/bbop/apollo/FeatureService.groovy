@@ -409,7 +409,7 @@ class FeatureService {
 
     def removeExonOverlapsAndAdjacencies(Transcript transcript) {
         Collection<Exon> exons = transcriptService.getExons(transcript)
-        if (transcriptService.getExons(transcript).size() <= 1) {
+        if (!exons || exons?.size() <= 1) {
             return;
         }
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
