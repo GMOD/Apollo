@@ -1,3 +1,4 @@
+import grails.util.Environment
 import org.bbop.apollo.Organism
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
@@ -6,6 +7,7 @@ class BootStrap {
     def mockupService
     def sequenceService
     def configWrapperService
+    def grailsApplication
 
 //    def cloneForDomains={
 //        def cloned=delegate.class.newInstance();
@@ -18,7 +20,12 @@ class BootStrap {
 
     def init = { servletContext ->
 
-        mockupService.addUsers()
+        if (Environment.current == Environment.TEST) {
+            // insert Test environment specific code here
+            return
+        } 
+
+            mockupService.addUsers()
         mockupService.addDataAdapters()
         mockupService.addOrganisms()
 //        mockupService.addSequences()  // add tracks

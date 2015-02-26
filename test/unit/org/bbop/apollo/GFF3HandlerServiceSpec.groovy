@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+import spock.lang.Ignore
 import spock.lang.Specification
 
 /**
@@ -20,6 +21,7 @@ class Gff3HandlerServiceSpec extends Specification {
     def cleanup() {
     }
 
+    @Ignore
     void "write a simple exon"() {
 
 

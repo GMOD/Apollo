@@ -177,8 +177,8 @@ class FeatureService {
         Sequence sequence = Sequence.findByName(trackName)
         println "# SEQUENCEs: ${Sequence.count}"
         println "FIRST SEQUENCE: ${Sequence.first().name}"
-        println "FIRST SEQUENCE roganism: ${Sequence.first().organism.commonName}"
-        println "organism name: ${sequence.organism.commonName}"
+//        println "FIRST SEQUENCE roganism: ${Sequence.first()?.organism.commonName}"
+//        println "organism name: ${sequence.organism.commonName}"
 //        Organism organism = sequence.organism
 
 //        FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
@@ -1125,7 +1125,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, sequence)
                 featureLocation.sequence = sequence
                 featureLocation.feature = gsolFeature
-                featureLocation.save(failOnError: true)
+                featureLocation.save()
                 gsolFeature.addToFeatureLocations(featureLocation);
             }
 

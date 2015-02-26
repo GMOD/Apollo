@@ -18,7 +18,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
                 ,start: 5
                 ,end: 8
                 ,sequenceDirectory: "asdfadsf"
-                ,name: "Group-1.10"
+                ,name: "Group1.10"
         ).save(failOnError: true)
     }
 
@@ -42,7 +42,7 @@ class FeatureServiceIntegrationSpec extends IntegrationSpec {
         assert childArray.size()==7
 
         when: "we convert it to a feature"
-        Feature feature = service.convertJSONToFeature(mRNAJsonObject,Sequence.first())
+        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,Sequence.first())
 
         then: "it should convert it to the same feature"
         assert feature!=null

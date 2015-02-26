@@ -460,6 +460,10 @@ class RequestHandlingService {
 
         println "RHS::adding transcript return object ${inputObject?.size()}"
         String trackName = fixTrackHeader(inputObject.track)
+        println "final trackNAme [${trackName}]"
+        Sequence sequence = Sequence.findByName(trackName)
+        println "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
+        println "sequence ${sequence}"
         println "RHS::PRE featuresArray ${featuresArray?.size()}"
         if (featuresArray.size() == 1) {
             JSONObject object = featuresArray.getJSONObject(0)
@@ -467,7 +471,6 @@ class RequestHandlingService {
         } else {
             println "what is going on?"
         }
-        Sequence sequence = Sequence.findByName(trackName)
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
