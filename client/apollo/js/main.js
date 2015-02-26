@@ -403,7 +403,7 @@ return declare( [JBPlugin, HelpMixin],
         var thisB = this;
 
         var strandFilter = function(name,callback,toggle) {
-            if(toggle||browser.cookie(name)=="true") {
+            if(toggle) {
                 browser.removeFeatureFilter(name);
             } else {
                 browser.addFeatureFilter(callback,name);
@@ -422,7 +422,7 @@ return declare( [JBPlugin, HelpMixin],
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Show plus strand",
-                    checked: browser.cookie("plusStrandFilter")=="true",
+                    checked: !(browser.cookie("plusStrandFilter")=="true"),
                     onClick: function(event) {
                         browser.cookie("plusStrandFilter",this.get("checked")?"true":"false");
                         strandFilter("plusStrandFilter",plusStrandFilter,this.get("checked"));
@@ -432,7 +432,7 @@ return declare( [JBPlugin, HelpMixin],
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
                     label: "Show minus strand",
-                    checked: browser.cookie("minusStandFilter")=="true",
+                    checked: !(browser.cookie("minusStrandFilter")=="true"),
                     onClick: function(event) {
                         browser.cookie("minusStrandFilter",this.get("checked")?"true":"false");
                         strandFilter("minusStrandFilter",minusStrandFilter,this.get("checked"));
@@ -442,8 +442,8 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', plus_strand_toggle );
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
 
-        strandFilter("minusStrandFilter",minusStrandFilter);
-        strandFilter("plusStrandFilter",plusStrandFilter);
+        strandFilter("minusStrandFilter",minusStrandFilter, !(browser.cookie("minusStrandFilter")=="true"));
+        strandFilter("plusStrandFilter",plusStrandFilter, !(browser.cookie("plusStrandFilter")=="true"));
     },
         
     addNavigationOptions: function()  {
