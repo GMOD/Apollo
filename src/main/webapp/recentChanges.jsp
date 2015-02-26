@@ -146,7 +146,6 @@ boolean isAdmin = false;
 if (username != null) {
     for (ServerConfiguration.TrackConfiguration track : tracks) {
         Integer permission = permissions.get(track.getName());
-        System.out.println("count ["+count+"] / maximum ["+maximum +"]");
         if (permission == null && count < maximum) {
             permission = 0;
         }
@@ -693,8 +692,6 @@ function open_user_manager_dialog() {
             }
         %>
 
-    </ul>
-    </li>
     <%
 //        }
         if (username != null) {
