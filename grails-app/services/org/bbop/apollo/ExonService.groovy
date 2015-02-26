@@ -118,9 +118,11 @@ class ExonService {
         }
         // update gene boundaries if necessary
         transcriptService.updateGeneBoundaries(transcript);
-       
-        FeatureLocation.deleteAll(exon.featureLocations)
-        Exon.deleteAll(exon)
+
+//        FeatureLocation.deleteAll(exon.featureLocations)
+        exon.featureLocations.clear()
+        Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
+//        Exon.deleteAll(exon)
         transcript.save(flush: true)
 
 //        getSession().unindexFeature(exon);

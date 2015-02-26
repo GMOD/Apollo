@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
@@ -10,13 +11,13 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         Sequence sequence = new Sequence(
-                length: 3
+                length: 123600
                 ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "asdf"
-                ,seqChunkSize: 3
-                ,start: 5
-                ,end: 8
-                ,sequenceDirectory: "asdfadsf"
+                ,seqChunkPrefix: "test-residues1-"
+                ,seqChunkSize: 1000
+                ,start: 0
+                ,end: 123600
+                ,sequenceDirectory: "test/integration/resources/sequences"
                 ,name: "Group1.10"
         ).save()
     }
@@ -37,6 +38,12 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert  Feature.count == 0
         assert  FeatureLocation.count == 0
         assert  Sequence.count == 1
+        JSONArray mrnaArray = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1==mrnaArray.size()
+        JSONArray codingArray = mrnaArray.getJSONObject(0).getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 7==codingArray.size()
+
+
 
         when: "you parse add a transcript"
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
@@ -46,12 +53,13 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         then: "You should see that transcript"
         println "reurn object ${returnObject}"
         assert  Sequence.count == 1
-        assert  Exon.count == 3
+        // there are 6 exons, but 2 of them overlap . . . so this is correct
+        assert  Exon.count == 5
         assert  CDS.count == 1
         assert  MRNA.count == 1
         assert  Gene.count == 1
-        assert  Feature.count == 6
-        assert  FeatureLocation.count == 6
+        assert  Feature.count == 8
+        assert  FeatureLocation.count == 8
 //        assert "ADD"==returnObject.getString("operation")
 //        assert Gene.count == 1
 //        assert Gene.first().name=="Bob1"
