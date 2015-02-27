@@ -53,7 +53,7 @@
 		(login page) -->
 		<authentication_class>org.bbop.apollo.web.user.encryptedlocaldb.EncryptedLocalDbUserAuthentication</authentication_class>
 		<!-- If the database is unencrypted (older default).  -->
-<!--        <authentication_class>org.bbop.apollo.web.user.encryptedlocaldb.LocalDbUserAuthentication</authentication_class>-->
+		<!--<authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>-->
 
 	</user>
 
