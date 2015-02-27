@@ -20,7 +20,7 @@
 }
 
 .Dark div.feature-name {
-    color: #FAFFF9;
+    color: #000000;
 }
 
 .Dark div.outerTrackContainer {
@@ -58,7 +58,7 @@
 
 
 .Dark .feature-label {
-    color: #FAFFF9;
+    color: #000000;
 }
 
 .Dark .track_annotations .feature-label {
