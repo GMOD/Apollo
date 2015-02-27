@@ -25,6 +25,8 @@ Bugfixes
 + Rename "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
 + Fixed mislabeled column in Changes page (#169). 
 + Add sequence search track function is not retrieving amino acid strings (#168).
++ Bad layout on changes page (#180).
++ Plus/minus strand filters make bigwig go to zero (#181).
 
 
 ## 1.0.3 release
