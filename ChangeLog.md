@@ -21,6 +21,10 @@ Bugfixes
 + Changed title page to match content (#158).
 + Fixed GFF3 export for non-specified phase, score, and strand (#177).
 + Hitting previous button does not update datagrid (#176).
++ Show track labels" makes feature labels go offscreen (#179).
++ Rename "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
++ Fixed mislabeled column in Changes page (#169). 
++ Add sequence search track function is not retrieving amino acid strings (#168).
 
 
 ## 1.0.3 release
