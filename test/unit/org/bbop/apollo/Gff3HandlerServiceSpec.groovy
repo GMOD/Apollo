@@ -21,7 +21,7 @@ class Gff3HandlerServiceSpec extends Specification {
     def cleanup() {
     }
 
-    // @Ignore - commenting out to work on the unit test
+    @Ignore // - commenting out to work on the unit test
     void "write a GFF3 of a simple gene model"() {
 
 

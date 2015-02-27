@@ -1,3 +1,2 @@
 language: groovy
-script: ./grailsw refresh-dependencies
-     && ./grailsw test-app 
+script: ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
