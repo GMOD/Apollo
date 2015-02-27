@@ -19,7 +19,7 @@
     background-color: #142933;
 }
 
-.Dark div.feature_name {
+.Dark div.feature-name {
     color: #FAFFF9;
 }
 
@@ -65,6 +65,9 @@
     color: #000;
 }
 
+.Dark div.feature-description {
+    color: #bbb;
+}
 /* UI elements */
 .Dark div.locationTrap {
     background-color: white;
