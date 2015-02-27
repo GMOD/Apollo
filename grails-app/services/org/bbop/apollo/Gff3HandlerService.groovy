@@ -69,7 +69,7 @@ public class Gff3HandlerService {
 //    }
     
     // adding a default attribute list to export when defaultAttributesToExport is null
-    private List<String> defaultAttributesoExport = ["name"]
+    private List<String> defaultAttributesExport = ["name"]
     
     public void writeFeaturesToText(String path,Collection<? extends Feature> features, String source) throws IOException {
         WriteObject writeObject = new WriteObject( )
@@ -78,7 +78,7 @@ public class Gff3HandlerService {
         writeObject.file= new File(path)
         writeObject.format= Format.TEXT
         if(!writeObject.attributesToExport){
-            writeObject.attributesToExport = defaultAttributesoExport;
+            writeObject.attributesToExport = defaultAttributesExport;
         }
         if (!writeObject.file.canWrite()) {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
