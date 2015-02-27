@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.editor.AnnotationEditor
+import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 @GrailsCompileStatic
@@ -55,6 +56,7 @@ class ExonService {
         }
         // need to delete exon2 from transcript
         if (getTranscript(exon2) != null) {
+            println "get exon should be deleted from the transcript !"
             deleteExon(getTranscript(exon2), exon2);
         }
 //        setLongestORF(getTranscript(exon1));
@@ -78,7 +80,9 @@ class ExonService {
      * @param exon - Exon to be deleted from the transcript
      */
     public void deleteExon(Transcript transcript, Exon exon) {
+        println FeatureRelationship.count
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
+        println FeatureRelationship.count
 
 
         // an empty transcript should be removed from gene,  TODO??
@@ -114,6 +118,12 @@ class ExonService {
         }
         // update gene boundaries if necessary
         transcriptService.updateGeneBoundaries(transcript);
+
+//        FeatureLocation.deleteAll(exon.featureLocations)
+        exon.featureLocations.clear()
+        Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
+//        Exon.deleteAll(exon)
+        transcript.save(flush: true)
 
 //        getSession().unindexFeature(exon);
 //        getSession().indexFeature(transcript);

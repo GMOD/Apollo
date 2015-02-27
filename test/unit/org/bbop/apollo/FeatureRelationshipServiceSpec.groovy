@@ -33,16 +33,26 @@ class FeatureRelationshipServiceSpec extends Specification {
         ).save(failOnError: true)
 
         then: "it should have parents"
-        FeatureRelationship.count==1
+        assert FeatureRelationship.count==1
         List<Feature> parents = service.getParentsForFeature(mrna,Gene.ontologyId)
-        parents.size() ==1
+        assert parents.size() ==1
         Feature gene2 = parents.get(0)
         assert gene == gene2
 
         List<Feature> children = service.getChildrenForFeatureAndTypes(gene,MRNA.ontologyId)
-        children.size() ==1
+        assert children.size() ==1
         Feature mrna2= children.get(0)
         assert mrna == mrna2
 
+        // NOTE: can not test hql queries
+//        when: "we delete a relationshp"
+//        service.removeFeatureRelationship(gene,mrna)
+//        parents = service.getParentsForFeature(mrna,Gene.ontologyId)
+//        children = service.getChildrenForFeatureAndTypes(gene,MRNA.ontologyId)
+//
+//        then: "they should both exist, but not be related"
+//        assert parents.size() ==0
+//        assert children.size() == 0
+//        assert FeatureRelationship.count==0
     }
 }

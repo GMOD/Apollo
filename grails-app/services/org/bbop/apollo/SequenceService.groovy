@@ -27,6 +27,7 @@ class SequenceService {
             eq("feature",feature)
             order("fmin","asc")
         }
+        println "# of feature locations ${featureLocationList.size()}"
         String returnResidue = ""
 
         for(FeatureLocation featureLocation in featureLocationList){
@@ -45,6 +46,9 @@ class SequenceService {
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
+
+        println "fmin ${fmin}-${fmax} chuck ${sequence.seqChunkSize}"
+        println "start ${startChunkNumber}-${endChunkNumber}"
 
         for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
             SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)

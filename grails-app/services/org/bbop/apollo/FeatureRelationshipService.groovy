@@ -87,7 +87,7 @@ class FeatureRelationshipService {
         List<String> ontologyIdList = new ArrayList<>()
         ontologyIdList.addAll(ontologyIds)
         return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
-            ontologyIdList.empty || ontologyIdList.contains(it.ontologyId)
+            ontologyIdList.empty || (it && ontologyIdList.contains(it.ontologyId))
         }
     }
 
@@ -206,11 +206,11 @@ class FeatureRelationshipService {
         child.addToParentFeatureRelationships(fr)
     }
 
-    public void removeFeatureRelationship(Transcript transcript, Feature feature) {
+    public void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
 
-        FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(transcript, feature)
+        FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(parentFeature, childFeature)
         if (featureRelationship) {
-            FeatureRelationship.deleteAll()
+            FeatureRelationship.executeUpdate(" delete from FeatureRelationship fr where fr.id = :frid",[frid:featureRelationship.id])
         }
 
 //        CVTerm partOfCvterm = cvTermService.partOf
