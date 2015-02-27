@@ -67,17 +67,24 @@ public class Gff3HandlerService {
 //            out.close();
 //        }
 //    }
-
+    
+    // adding a default attribute list to export when defaultAttributesToExport is null
+    private List<String> defaultAttributesoExport = ["name"]
+    
     public void writeFeaturesToText(String path,Collection<? extends Feature> features, String source) throws IOException {
         WriteObject writeObject = new WriteObject( )
 
         writeObject.mode= Mode.WRITE
         writeObject.file= new File(path)
         writeObject.format= Format.TEXT
+        if(!writeObject.attributesToExport){
+            writeObject.attributesToExport = defaultAttributesoExport;
+        }
         if (!writeObject.file.canWrite()) {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
         }
-        
+
+        println "===> Can I write to ${writeObject.file}?: ${writeObject.file.canWrite()}"
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file)));
         writeObject.out = out
         out.println("##gff-version 3");
@@ -189,7 +196,9 @@ public class Gff3HandlerService {
     private void convertToEntry(WriteObject writeObject,Feature feature, String source, Collection<GFF3Entry> gffEntries) {
         String[] cvterm = feature.cvTerm.split(":");
         String seqId = feature.getFeatureLocation().sequence.name
-        String type = cvterm[1];
+        //String type = cvterm[1];
+        String type = feature.cvTerm;
+        println "===> type in convertToEntry: ${type}"
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = "";
@@ -205,13 +214,21 @@ public class Gff3HandlerService {
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
         entry.setAttributes(extractAttributes(writeObject,feature));
         gffEntries.add(entry);
-        for (Feature child : featureRelationshipService.getChildren(feature)) {
-            if (child instanceof CDS) {
-                convertToEntry(writeObject,(CDS) child, source, gffEntries);
-            } else {
-                convertToEntry(writeObject,child, source, gffEntries);
+        println "===> does feature.getChildFeatureRelationships() look like a null: ${feature.getChildFeatureRelationships()}"
+        if (feature.getChildFeatureRelationships() != null) {
+            for (Feature child : featureRelationshipService.getChildren(feature)) {
+                if (child instanceof CDS) {
+                    convertToEntry(writeObject, (CDS) child, source, gffEntries);
+                } else {
+                    convertToEntry(writeObject, child, source, gffEntries);
+                }
             }
         }
+        else {
+            println "===> WARNING: ${feature} has null ChildFeatureRelationships"
+            
+        }
+        println "===> gff3Entries: ${gffEntries.toString()}"
     }
 
     private void convertToEntry(WriteObject writeObject,CDS cds, String source, Collection<GFF3Entry> gffEntries) {
@@ -263,8 +280,10 @@ public class Gff3HandlerService {
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
+        println "===> feature.getName() in extractAttributes(): ${feature.getName()}"
         if (feature.getName() != null && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
+            println "===> attributes map for feature: ${attributes.toString()}"
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
             Iterator<Synonym> synonymIter = feature.synonyms.iterator();
@@ -292,18 +311,23 @@ public class Gff3HandlerService {
 //            }
 //            attributes.put("Parent", parents.toString());
 //        }
+        println "===> does feature.getParentFeatureRelationships() look like a null: ${feature.getParentFeatureRelationships()}"
+        if (feature.getParentFeatureRelationships() != null) {
 
-        Iterator<FeatureRelationship> frIter = featureRelationshipService.getParentForFeature(feature).iterator();
-        if (frIter.hasNext()) {
-            StringBuilder parents = new StringBuilder();
-            parents.append(encodeString(frIter.next().parentFeature.uniqueName));
-            while (frIter.hasNext()) {
-                parents.append(",");
+            Iterator<FeatureRelationship> frIter = featureRelationshipService.getParentForFeature(feature).iterator();
+            if (frIter.hasNext()) {
+                StringBuilder parents = new StringBuilder();
                 parents.append(encodeString(frIter.next().parentFeature.uniqueName));
+                while (frIter.hasNext()) {
+                    parents.append(",");
+                    parents.append(encodeString(frIter.next().parentFeature.uniqueName));
+                }
+                attributes.put(FeatureStringEnum.EXPORT_PARENT.value, parents.toString());
             }
-            attributes.put(FeatureStringEnum.EXPORT_PARENT.value, parents.toString());
         }
-
+        else {
+            println "===> WARNING: ${feature} has null ParentFeatureRelationships"
+        }
         //TODO: Target
         //TODO: Gap
         if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
