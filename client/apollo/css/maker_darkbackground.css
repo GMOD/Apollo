@@ -1,4 +1,11 @@
 /* styles for MAKER tracks and additional customization of WebApollo */
+.Dark .track_jbrowse_view_track_wiggle_xyplot .canvas-track {
+    background-color: #DDD;
+}
+
+.Dark .track_jbrowse_view_track_wiggle_density .canvas-track {
+    background-color: #DDD;
+}
 
 .Dark div.track  {
     /* based on CoolWorld color palette from kuler.adobe.com */

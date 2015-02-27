@@ -398,52 +398,71 @@ return declare( [JBPlugin, HelpMixin],
         view.showCoarse();
     },
 
+    plusStrandFilter: function(feature)  {
+        var strand = feature.get('strand');
+        if (strand == 1 || strand == '+' || !strand)  { return true; }
+        else  { return false; }
+    },
+
+    minusStrandFilter: function(feature)  {
+        var strand = feature.get('strand');
+        if (strand == -1 || strand == '-' || !strand)  { return true; }
+        else  { return false; }
+    },
+    passAllFilter: function(feature)  {  return true; },
+    passNoneFilter: function(feature)  { return false; },
+
     addStrandFilterOptions: function()  {
-        var browser=this.browser;
         var thisB = this;
-
-        var strandFilter = function(name,callback,toggle) {
-            if(toggle||browser.cookie(name)=="true") {
-                browser.addFeatureFilter(callback,name);
-            } else {
-                browser.removeFeatureFilter(name);
-            }
-        };
-        var minusStrandFilter = function(feature)  {
-            var strand = feature.get('strand');
-            return strand == 1 || strand == '+' || !strand;
-        };
-
-        var plusStrandFilter = function(feature)  {
-            var strand = feature.get('strand');
-            return strand == -1 || strand == '-' || !strand;
-        };
-
+        var browser = this.browser;
         var plus_strand_toggle = new dijitCheckedMenuItem(
                 {
-                    label: "Hide plus strand",
-                    checked: browser.cookie("plusStrandFilter")=="true",
+                    label: "Show plus strand",
+                    checked: true,
                     onClick: function(event) {
-                        browser.cookie("plusStrandFilter",this.get("checked")?"true":"false");
-                        strandFilter("plusStrandFilter",plusStrandFilter,this.get("checked"));
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.setFeatureFilter(thisB.passAllFilter);
+                        }
+                        else if (plus)  {
+                            browser.setFeatureFilter(thisB.plusStrandFilter);
+                        }
+                        else if (minus)  {
+                            browser.setFeatureFilter(thisB.minusStrandFilter);
+                        }
+                        else  {
+                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        }
                         browser.view.redrawTracks();
                     }
                 });
+        browser.addGlobalMenuItem( 'view', plus_strand_toggle );
         var minus_strand_toggle = new dijitCheckedMenuItem(
                 {
-                    label: "Hide minus strand",
-                    checked: browser.cookie("minusStandFilter")=="true",
+                    label: "Show minus strand",
+                    checked: true,
                     onClick: function(event) {
-                        browser.cookie("minusStrandFilter",this.get("checked")?"true":"false");
-                        strandFilter("minusStrandFilter",minusStrandFilter,this.get("checked"));
+                        var plus = plus_strand_toggle.checked;
+                        var minus = minus_strand_toggle.checked;
+                        console.log("plus: ", plus, " minus: ", minus);
+                        if (plus && minus)  {
+                            browser.setFeatureFilter(thisB.passAllFilter);
+                        }
+                        else if (plus)  {
+                            browser.setFeatureFilter(thisB.plusStrandFilter);
+                        }
+                        else if (minus)  {
+                            browser.setFeatureFilter(thisB.minusStrandFilter);
+                        }
+                        else  {
+                            browser.setFeatureFilter(thisB.passNoneFilter);
+                        }
                         browser.view.redrawTracks();
-                    }
+                        }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
-        browser.addGlobalMenuItem( 'view', plus_strand_toggle );
-
-        strandFilter("minusStrandFilter",minusStrandFilter);
-        strandFilter("plusStrandFilter",plusStrandFilter);
     },
         
     addNavigationOptions: function()  {
