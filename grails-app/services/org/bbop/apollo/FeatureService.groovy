@@ -420,6 +420,8 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
+                println "leftExon: ${leftExon}"
+                println "rightExon: ${rightExon}"
                 overlaps(leftExon, rightExon)
                 if (overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
