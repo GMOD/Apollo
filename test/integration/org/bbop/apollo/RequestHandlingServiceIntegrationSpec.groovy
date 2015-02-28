@@ -8,6 +8,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def requestHandlingService
+    def featureRelationshipService
 
     def setup() {
         Sequence sequence = new Sequence(
@@ -24,7 +25,14 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def cleanup() {
         Sequence.deleteAll(Sequence.all)
-        Feature.deleteAll(Feature.all)
+        FeatureRelationship.executeUpdate("delete from FeatureRelationship ")
+        FeatureLocation.executeUpdate("delete from FeatureLocation ")
+        Feature.executeUpdate("delete from Feature ")
+//        Feature.deleteAll(Feature.all)
+//        Exon.deleteAll(Exon.all)
+//        Gene.deleteAll(Gene.all)
+//        MRNA.deleteAll(MRNA.all)
+//        .deleteAll(MRNA.all)
     }
 
     void "add transcript with UTR"() {
@@ -70,7 +78,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     void "add a transcript which is a single exon needs to translate correctly"(){
         
         given: "the input string "
-        String jsonString = "{ \"track\": \"Annotations-Group1.1\", \"features\": [{\"location\":{\"fmin\":565410,\"fmax\":565655,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42152-RA\",\"children\":[{\"location\":{\"fmin\":565410,\"fmax\":565655,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}], \"operation\": \"add_transcript\" }"
+        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":1216824,\"fmax\":1235616,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42152-RA\",\"children\":[{\"location\":{\"fmin\":1216824,\"fmax\":1235616,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}], \"operation\": \"add_transcript\" }"
 
         when: "You add a transcript via JSON"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
@@ -92,12 +100,29 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         println "reurn object ${returnObject}"
         assert  Sequence.count == 1
         // there are 6 exons, but 2 of them overlap . . . so this is correct
-        assert  Exon.count == 0
         assert  CDS.count == 1
         assert  MRNA.count == 1
         assert  Gene.count == 1
-        assert  Feature.count == 3
-        assert  FeatureLocation.count == 3
+        assert  Exon.count == 1
+        assert  Feature.count == 4
+        assert  FeatureLocation.count == 4
+
+        Gene gene = Gene.first()
+        println "gene ${gene.name}"
+        assert featureRelationshipService.getParentForFeature(gene)==null
+        assert featureRelationshipService.getChildren(gene).size()==1
+        MRNA mrna = featureRelationshipService.getChildForFeature(gene,MRNA.ontologyId)
+        assert mrna.id == MRNA.first().id
+        assert featureRelationshipService.getParentForFeature(mrna).id==gene.id
+        // should be an exon and a CDS . . .
+        assert featureRelationshipService.getChildren(mrna).size()==2
+        Exon exon = featureRelationshipService.getChildren(mrna,Exon.ontologyId)
+        CDS cds = featureRelationshipService.getChildren(mrna,CDS.ontologyId)
+        assert exon!=null
+        assert cds!=null
+//        MRNA mrna = featureRelationshipService.getChildForFeature(mrna)
+        
+        
 
     }
 }
