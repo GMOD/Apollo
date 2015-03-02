@@ -124,73 +124,7 @@ return declare( [JBPlugin, HelpMixin],
 
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
-
-        this.addNavigationOptions();
-
-        // add a global menu option for setting CDS color
-        var cds_frame_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "Color by CDS frame",
-                    checked: browser.cookie("colorCdsByFrame")=="true",
-                    onClick: function(event) {
-                        if(this.get("checked")) domClass.add(win.body(), "colorCds");
-                        else domClass.remove(win.body(),"colorCds");
-                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
-                    }
-                });
-        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
-
-        var css_frame_menu = new dijitMenu();
-
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Light",
-                    onClick: function (event) {
-                        browser.cookie("Scheme","Light");
-                        domClass.remove(win.body(), "Dark");
-                    }
-                }
-            )
-        );
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Dark",
-                    onClick: function (event) {
-                        browser.cookie("Scheme","Dark");
-                        domClass.add(win.body(), "Dark");
-                    }
-                }
-            )
-        );
-
-
-        var css_frame_toggle = new dijitPopupMenuItem(
-            {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
-            });
-
-        browser.addGlobalMenuItem('view', css_frame_toggle);
-
-        this.addStrandFilterOptions();
-
-        this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
-        var hide_track_label_toggle = new dijitCheckedMenuItem(
-            {
-                label: "Show track label",
-                checked: this._showLabels,
-                onClick: function(event) {
-                    thisB._showLabels=this.get("checked");
-                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                    thisB.updateLabels();
-                }
-            });
-        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
-
-
-            
+           
         if(!browser.config.quickHelp)
         {
             browser.config.quickHelp = {
@@ -281,14 +215,15 @@ return declare( [JBPlugin, HelpMixin],
                 }
             };
 
-            var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
+            var customGff3Driver = declare(GFF3Driver,   {
                 constructor: function( args ) {
                     this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
                 }
             });
             browser.fileDialog.addFileTypeDriver(new customGff3Driver());
 
-            if(browser.config.show_nav||browser.config.show_menu) {
+            if(browser.config.show_nav&&browser.config.show_menu) {
+                console.log("here");
                 var help=dijit.byId("menubar_generalhelp");
                 help.set("label", "Web Apollo Help");
                 help.set("iconClass", null);
@@ -322,6 +257,73 @@ return declare( [JBPlugin, HelpMixin],
                             }
                         })
                 );
+
+                this.addNavigationOptions();
+
+                // add a global menu option for setting CDS color
+                var cds_frame_toggle = new dijitCheckedMenuItem(
+                        {
+                            label: "Color by CDS frame",
+                            checked: browser.cookie("colorCdsByFrame")=="true",
+                            onClick: function(event) {
+                                if(this.get("checked")) domClass.add(win.body(), "colorCds");
+                                else domClass.remove(win.body(),"colorCds");
+                                browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
+                            }
+                        });
+                browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+                var css_frame_menu = new dijitMenu();
+
+                css_frame_menu.addChild(
+                    new dijitMenuItem({
+                            label: "Light",
+                            onClick: function (event) {
+                                browser.cookie("Scheme","Light");
+                                domClass.remove(win.body(), "Dark");
+                            }
+                        }
+                    )
+                );
+                css_frame_menu.addChild(
+                    new dijitMenuItem({
+                            label: "Dark",
+                            onClick: function (event) {
+                                browser.cookie("Scheme","Dark");
+                                domClass.add(win.body(), "Dark");
+                            }
+                        }
+                    )
+                );
+
+
+                var css_frame_toggle = new dijitPopupMenuItem(
+                    {
+                        label: "Color Scheme"
+                        ,popup: css_frame_menu
+                    });
+
+                browser.addGlobalMenuItem('view', css_frame_toggle);
+
+                this.addStrandFilterOptions();
+
+                this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
+                var hide_track_label_toggle = new dijitCheckedMenuItem(
+                    {
+                        label: "Show track label",
+                        checked: this._showLabels,
+                        onClick: function(event) {
+                            thisB._showLabels=this.get("checked");
+                            browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                            thisB.updateLabels();
+                        }
+                    });
+                browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
+                browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+                browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
+
+
+ 
                 thisB.updateLabels();
             }
 
