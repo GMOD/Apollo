@@ -1,24 +1,30 @@
-git clone https://github.com/GMOD/Apollo.git grails-apollo
-cd grails-apollo
-git checkout grails1
-git status   # should be grails1
-ant debug  # just once
-./copy_client.sh # every time JS code in client changes 
 
 
+## Get The code
+- git clone https://github.com/GMOD/Apollo.git grails-apollo
+- cd grails-apollo
+- git checkout grails1
+- git status   # should be grails1
 
+
+## Install jbrowse
+- ant debug  # just once
+- ./copy_client.sh # every time JS code in client changes 
+
+
+## Run the code
 It runs with H2, postgreSQL, etc.
 
-Configure for H2:
+#### Configure for H2:
 - copy sample-h2-apollo-config.groovy to apollo-config.groovy and update the data directory
 
-Configure for Apollo:
+#### Configure for Apollo:
 - Create a new database (I chose apollo by default)
 - There are no user-level anything yet, so no need to add tracks, users, etc.  those will come later.
 - copy sample-postgres-apollo-config.groovy to apollo-config.groovy and update
 
 
-To run in dev-mode:
+#### To run in dev-mode:
 1 - curl -s get.gvmtool.net | bash
 2 - gvm install grails 2.4.4
 3 - open two terminals A and B
@@ -27,7 +33,7 @@ To run in dev-mode:
 6 - setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
 
 
-To run in production:
+#### To run in production:
 1 - curl -s get.gvmtool.net | bash
 2 - gvm install grails 2.4.4
 3 - ant gwtc
@@ -36,10 +42,10 @@ To run in production:
 6 - setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
 
 
-Note: We will hopefully be wrapping this via the "apollo" binary at some point, but one thing at a time.
+``Note: We will be wrapping these commands in the "apollo" binary at some point.``
 
 
-Architecture notes:
+## Architecture notes:
 - Grails code is in normal grails directories under "grails-app"
 - GWT-only code is under src/gwt except
     - Code shared between the client and the server is under src/gwt/org/bbop/apollo/gwt/shared
@@ -51,19 +57,18 @@ Architecture notes:
 - GWT-specifc CSS can also be found in: src/gwt/org/bbop/apollo/gwt/client/resources/ , but it inherits the CSS on its current page, as well.
 
 
-Testing Notes:
-So, the unit testing framework is defined in better detail than I will describe here: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
+## Testing Notes:
+The unit testing framework is defined in better detail than I will describe here: http://grails.github.io/grails-doc/2.4.3/guide/testing.html
 Spock (what grails uses) is defined here: https://code.google.com/p/spock/wiki/SpockBasics
 
-There is a lot of stuff, so feel free to email me questions after you’ve done some googling. 
 
 My basic methodology is to enter the prompt by typing “grails” and then type
 
-test-app :unit-test
+    test-app :unit-test
 
 This runs ALL of the tests in “test/unit” If you want to test a specific function then write it something like this:
 
-test-app org.bbop.apollo.FeatureService :unit 
+    test-app org.bbop.apollo.FeatureService :unit 
 
 This runs the tests in FeatureServiceSpec . . some of which is below.  Some important points:
 
@@ -72,7 +77,7 @@ This runs the tests in FeatureServiceSpec . . some of which is below.  Some impo
 3 - when: “” then: “”   You have to have both or it is not a test. 
 4 - Notice the valid groovy notation  .name == “Chr3”, it implies the Java .equals() function . . everywhere . . . . groovy rox
 
-
+```
     @TestFor(FeatureService)
     @Mock([Sequence,FeatureLocation,Feature])
       class FeatureServiceSpec extends Specification {
@@ -94,6 +99,7 @@ This runs the tests in FeatureServiceSpec . . some of which is below.  Some impo
       assert featureLocation.fmax == 113
       assert featureLocation.strand ==Strand.POSITIVE.value
     } }
+```
 
 There are 3 “special” types of things to test, which are all important and reflect the grails special functions: Domains, Controllers, Services.  They will all be in the “test” directory and all be suffixed with “Spec” for a Spock test.
 
