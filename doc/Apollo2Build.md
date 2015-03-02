@@ -25,21 +25,21 @@ It runs with H2, postgreSQL, etc.
 
 
 #### To run in dev-mode:
-1 - curl -s get.gvmtool.net | bash
-2 - gvm install grails 2.4.4
-3 - open two terminals A and B
-4 - terminal A (grails run-app)
-5 - terminal B (ant devmode or ant gwtc if not doing any GWT development)
-6 - setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
+1. curl -s get.gvmtool.net | bash
+2. gvm install grails 2.4.4
+3. open two terminals A and B
+4. terminal A (grails run-app)
+5. terminal B (ant devmode or ant gwtc if not doing any GWT development)
+6. setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
 
 
 #### To run in production:
-1 - curl -s get.gvmtool.net | bash
-2 - gvm install grails 2.4.4
-3 - ant gwtc
-4 - grails war
-5 - Copy target/apollo-2.0-SNAPSHOT.war to your tomcat webapps directory
-6 - setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
+1. curl -s get.gvmtool.net | bash
+2. gvm install grails 2.4.4
+3. ant gwtc
+4. grails war
+5. Copy target/apollo-2.0-SNAPSHOT.war to your tomcat webapps directory
+6. setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
 
 
 ``Note: We will be wrapping these commands in the "apollo" binary at some point.``
@@ -72,10 +72,10 @@ This runs ALL of the tests in “test/unit” If you want to test a specific fun
 
 This runs the tests in FeatureServiceSpec . . some of which is below.  Some important points:
 
-1 - @Mock includes any domain objects you’ll use.  Unit tests don’t use the database.
-2 - setup() is run for each test I believe 
-3 - when: “” then: “”   You have to have both or it is not a test. 
-4 - Notice the valid groovy notation  .name == “Chr3”, it implies the Java .equals() function . . everywhere . . . . groovy rox
+1. @Mock includes any domain objects you’ll use.  Unit tests don’t use the database.
+2. setup() is run for each test I believe 
+3. when: “” then: “”   You have to have both or it is not a test. 
+4. Notice the valid groovy notation  .name == “Chr3”, it implies the Java .equals() function . . everywhere . . . . groovy rox
 
 ```
     @TestFor(FeatureService)
