@@ -176,7 +176,7 @@ class FeatureService {
         Sequence sequence = Sequence.findByName(trackName)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
-            println "has a gene! ${gene}"
+            log.debug "has gene: ${gene}"
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
@@ -192,15 +192,14 @@ class FeatureService {
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             transcript.name = nameService.generateUniqueName(transcript)
         } else {
-            println "there IS no gene!"
+            log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
-            println "has a feature location ${featureLocation}"
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
-            println "overlapping features . . . . ${overlappingFeatures.size()}"
+            log.debug "overlapping features: ${overlappingFeatures.size()}"
             for (Feature feature : overlappingFeatures) {
                 if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
                     Gene tmpGene = (Gene) feature;
-                    println "found an overlpaping gene ${tmpGene}"
+                    log.debug "found an overlpaping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript,sequence);
 //                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
@@ -208,6 +207,7 @@ class FeatureService {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
+                    // TODO: make good code
                     String username = null
                     try {
                         username = SecurityUtils?.subject?.principal
@@ -215,17 +215,14 @@ class FeatureService {
                         log.error(e)
                         username = "demo@demo.gov"
                     }
-                    println "username: ${username}"
 //                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
                     featurePropertyService.setOwner(tmpTranscript, username);
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
-//                    tmpTranscript.name = nameService.generateUniqueName(transcript)
                     tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
-//                    updateTranscriptAttributes(tmpTranscript);
                     if (overlaps(tmpTranscript, tmpGene)) {
-                        println "there is an overlap . . . adding to an existing gene? "
+                        log.debug  "There is an overlap, adding to an existing gene"
                         transcript = tmpTranscript;
                         gene = tmpGene;
                         addTranscriptToGene(gene, transcript)
@@ -235,22 +232,17 @@ class FeatureService {
                         gene.save(insert: false, flush: true)
                         break;
                     } else {
-                        println "there is no overlap .  . we are going to return a NULL gene and a NULL transcript "
-//                        editor.getSession().endTransactionForFeature(feature);
+                        log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                     }
                 } else {
-                    println "!!!feature is not an instance of a gene or is a pseudogene or there is no adequate overlapper specified"
-//                    editor.getSession().endTransactionForFeature(feature);
+                    log.erro "Feature is not an instance of a gene or is a pseudogene or there is no adequate overlapper specified"
                 }
             }
         }
-        println "is gene null? ${gene}"
-        println "is transcript null? ${transcript}"
         if (gene == null) {
+            log.debug "gene is null"
             JSONObject jsonGene = new JSONObject();
-            println "JSON TRANSCRIPT: " + jsonTranscript
             jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
-            println "JSON GENE: " + jsonGene
             jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
 //            CVTerm cvTerm = CVTerm.findByName(isPseudogene ? FeatureStringEnum.PSEUDOGENE.value :FeatureStringEnum.GENE.value )
             String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
@@ -266,25 +258,16 @@ class FeatureService {
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-//            featurePropertyService.setOwner(gene, (String) SecurityUtils?.subject?.principal ?: "demo@demo.gov");
-            println "gene ${gene}"
-            println "gene parentFeatureRelationships ${gene.parentFeatureRelationships}"
             transcript = transcriptService.getTranscripts(gene).iterator().next();
-            println "transcript1 ${transcript}"
-            println "transcript childFeature relationships ${featureRelationshipService.getParentsForFeature(transcript)?.size()}"
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
-            println "transcript2 ${transcript}"
-            println "transcript2 childFeature relationships ${featureRelationshipService.getParentsForFeature(transcript)?.size()}"
             // I don't thikn that this does anything
             addFeature(gene)
             transcript.name = nameService.generateUniqueName(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
-            println "transcript3 ${transcript}"
-            println "transcript3 childFeature relationships ${featureRelationshipService.getParentsForFeature(transcript)?.size()}"
         }
         return transcript;
 

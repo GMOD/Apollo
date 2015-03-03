@@ -27,7 +27,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         Sequence.deleteAll(Sequence.all)
         FeatureRelationship.executeUpdate("delete from FeatureRelationship ")
         FeatureLocation.executeUpdate("delete from FeatureLocation ")
-        println "delete Feature: " + Feature.executeUpdate("delete from Feature ")
+        Feature.executeUpdate("delete from Feature ")
 //        Feature.deleteAll(Feature.all)
 //        Exon.deleteAll(Exon.all)
 //        Gene.deleteAll(Gene.all)
@@ -60,7 +60,6 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
 
         then: "You should see that transcript"
-//        println "reurn object ${returnObject}"
         assert  Sequence.count == 1
         // there are 6 exons, but 2 of them overlap . . . so this is correct
         assert  Exon.count == 5
@@ -94,11 +93,9 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         
         when: "it gets added"
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
-//        println "return Object ${returnObject}"
 
         
         then: "we should see the appropriate stuff"
-//        println "reurn object ${returnObject}"
         assert  Sequence.count == 1
         // there are 6 exons, but 2 of them overlap . . . so this is correct
         assert  CDS.count == 1
@@ -110,16 +107,11 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert  FeatureRelationship.count == 3
 
         Gene gene = Gene.first()
-        println "gene ${gene.name}"
         assert featureRelationshipService.getParentForFeature(gene)==null
         assert featureRelationshipService.getChildren(gene).size()==1
         MRNA mrna = featureRelationshipService.getChildForFeature(gene,MRNA.ontologyId)
         assert mrna.id == MRNA.first().id
         List<Feature> childFeatureRelationships =  featureRelationshipService.getParentsForFeature(mrna)
-        println "child feature relationships: ${childFeatureRelationships.size()}"
-        childFeatureRelationships.each {
-            println "parent: ${it.name} ${it.cvTerm} ${it.ontologyId}"
-        }
         assert 1==childFeatureRelationships.size()
         Feature parentFeature = featureRelationshipService.getParentForFeature(mrna)
         assert parentFeature!=null

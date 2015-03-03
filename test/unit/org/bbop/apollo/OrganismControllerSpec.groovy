@@ -95,65 +95,65 @@ class OrganismControllerSpec extends Specification {
             model.organismInstance == organism
     }
 
-    void "Test the update action performs an update on a valid domain instance"() {
-        when:"Update is called for a domain instance that doesn't exist"
-            request.contentType = FORM_CONTENT_TYPE
-            request.method = 'PUT'
-            controller.update(null)
+//    void "Test the update action performs an update on a valid domain instance"() {
+//        when:"Update is called for a domain instance that doesn't exist"
+//            request.contentType = FORM_CONTENT_TYPE
+//            request.method = 'PUT'
+//            controller.update(null)
+//
+//        then:"A 404 error is returned"
+////            response.redirectedUrl == '/organism/index'
+//        response.redirectedUrl == '/'
+//            flash.message != null
+//
+//
+//        when:"An invalid domain instance is passed to the update action"
+//            response.reset()
+//            def organism = new Organism()
+//            organism.validate()
+//            controller.update(organism)
+//
+//        then:"The edit view is rendered again with the invalid instance"
+//            view == 'edit'
+//            model.organismInstance == organism
+//
+//        when:"A valid domain instance is passed to the update action"
+//            response.reset()
+//            populateValidParams(params)
+//            organism = new Organism(params).save(flush: true)
+//            controller.update(organism)
+//
+//        then:"A redirect is issues to the show action"
+//            response.redirectedUrl == "/organism/show/$organism.id"
+//            flash.message != null
+//    }
 
-        then:"A 404 error is returned"
-//            response.redirectedUrl == '/organism/index'
-        response.redirectedUrl == '/'
-            flash.message != null
-
-
-        when:"An invalid domain instance is passed to the update action"
-            response.reset()
-            def organism = new Organism()
-            organism.validate()
-            controller.update(organism)
-
-        then:"The edit view is rendered again with the invalid instance"
-            view == 'edit'
-            model.organismInstance == organism
-
-        when:"A valid domain instance is passed to the update action"
-            response.reset()
-            populateValidParams(params)
-            organism = new Organism(params).save(flush: true)
-            controller.update(organism)
-
-        then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/organism/show/$organism.id"
-            flash.message != null
-    }
-
-    void "Test that the delete action deletes an instance if it exists"() {
-        when:"The delete action is called for a null instance"
-            request.contentType = FORM_CONTENT_TYPE
-            request.method = 'DELETE'
-            controller.delete(null)
-
-        then:"A 404 is returned"
-//            response.redirectedUrl == '/organism/index'
-        response.redirectedUrl == '/'
-            flash.message != null
-
-        when:"A domain instance is created"
-            response.reset()
-            populateValidParams(params)
-            def organism = new Organism(params).save(flush: true)
-
-        then:"It exists"
-            Organism.count() == 1
-
-        when:"The domain instance is passed to the delete action"
-            controller.delete(organism)
-
-        then:"The instance is deleted"
-            Organism.count() == 0
-//            response.redirectedUrl == '/organism/index'
-        response.redirectedUrl == '/'
-            flash.message != null
-    }
+//    void "Test that the delete action deletes an instance if it exists"() {
+//        when:"The delete action is called for a null instance"
+//            request.contentType = FORM_CONTENT_TYPE
+//            request.method = 'DELETE'
+//            controller.delete(null)
+//
+//        then:"A 404 is returned"
+////            response.redirectedUrl == '/organism/index'
+//        response.redirectedUrl == '/'
+//            flash.message != null
+//
+//        when:"A domain instance is created"
+//            response.reset()
+//            populateValidParams(params)
+//            def organism = new Organism(params).save(flush: true)
+//
+//        then:"It exists"
+//            Organism.count() == 1
+//
+//        when:"The domain instance is passed to the delete action"
+//            controller.delete(organism)
+//
+//        then:"The instance is deleted"
+//            Organism.count() == 0
+////            response.redirectedUrl == '/organism/index'
+//        response.redirectedUrl == '/'
+//            flash.message != null
+//    }
 }

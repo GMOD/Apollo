@@ -89,7 +89,6 @@ class RequestHandlingService {
     }
 
     JSONObject setDescription(JSONObject inputObject) {
-//        println "update descripton #1"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = null
@@ -128,7 +127,6 @@ class RequestHandlingService {
 //            fireAnnotationEvent(annotationEvent)
 //        }
 
-//        println "update descripton #2"
         return updateFeatureContainer
     }
 
@@ -200,20 +198,18 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            println "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.OLD_DBXREFS.value)}"
+            log.debug "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.OLD_DBXREFS.value)}"
             JSONObject oldDbXrefJSONObject = jsonFeature.getJSONArray(FeatureStringEnum.OLD_DBXREFS.value).getJSONObject(0)
             JSONObject newDbXrefJSONObject = jsonFeature.getJSONArray(FeatureStringEnum.NEW_DBXREFS.value).getJSONObject(0)
 
             String dbString = oldDbXrefJSONObject.getString(FeatureStringEnum.DB.value)
-            println "dbString: ${dbString}"
+            log.debug "dbString: ${dbString}"
             String accessionString = oldDbXrefJSONObject.getString(FeatureStringEnum.ACCESSION.value)
-            println "accessionString : ${accessionString}"
+            log.debug "accessionString : ${accessionString}"
             DB db = DB.findByName(dbString)
             if (!db) {
                 db = new DB(name: dbString).save()
             }
-//                db.save(flush: true)
-//                println "db2: ${db}"
             DBXref oldDbXref = DBXref.findByAccessionAndDb(accessionString, db)
 
             if (!oldDbXref) {
@@ -253,25 +249,23 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            println "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)}"
+            log.debug "feature: ${jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)}"
             JSONArray dbXrefJSONArray = jsonFeature.getJSONArray(FeatureStringEnum.DBXREFS.value)
 
             for (int j = 0; j < dbXrefJSONArray.size(); j++) {
                 JSONObject dbXfrefJsonObject = dbXrefJSONArray.getJSONObject(j)
-                println "innerArray ${j}: ${dbXfrefJsonObject}"
+                log.debug "innerArray ${j}: ${dbXfrefJsonObject}"
 //                for(int k = 0 ; k < innerArray.size(); k++){
 //                    String jsonString = innerArray.getString(k)
 //                println "string ${k} ${jsonString}"
                 String dbString = dbXfrefJsonObject.getString(FeatureStringEnum.DB.value)
-                println "dbString: ${dbString}"
+                log.debug "dbString: ${dbString}"
                 String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
-                println "accessionString : ${accessionString}"
+                log.debug "accessionString : ${accessionString}"
                 DB db = DB.findByName(dbString)
                 if (!db) {
                     db = new DB(name: dbString).save()
                 }
-//                db.save(flush: true)
-//                println "db2: ${db}"
                 DBXref dbXref = DBXref.findOrSaveByAccessionAndDb(accessionString, db)
                 dbXref.save(flush: true)
 
@@ -304,10 +298,8 @@ class RequestHandlingService {
     }
 
     JSONObject setName(JSONObject inputObject) {
-//        println "setting name "
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-//        println "# of features to addjust ${featuresArray.size()}"
 
         Sequence sequence = null
 
@@ -350,7 +342,7 @@ class RequestHandlingService {
         List<Gene> topLevelGenes = Gene.executeQuery("select f from Gene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
         for (Gene gene : topLevelGenes) {
             for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                println " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
+                log.debug "Getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
 //                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
                 featureSet.add(transcript)
 //                    jsonFeatures.put(transcript as JSON);
@@ -361,21 +353,19 @@ class RequestHandlingService {
         List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
         for (Gene gene : listOfPseudogenes) {
             for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-                println " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-//                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
+                log.debug " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
                 featureSet.add(transcript)
-//                    jsonFeatures.put(transcript as JSON);
             }
         }
 
         // 2. - handle transcripts
         List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-        println "# of top level features ${topLevelTranscripts.size()}"
+        log.debug "# of top level features ${topLevelTranscripts.size()}"
         for (Transcript transcript1 in topLevelTranscripts) {
             featureSet.add(transcript1)
         }
 
-        println "feature set size: ${featureSet.size()}"
+        log.debug "feature set size: ${featureSet.size()}"
 
         JSONArray jsonFeatures = new JSONArray()
         featureSet.each { feature ->
@@ -384,9 +374,6 @@ class RequestHandlingService {
         }
 
         returnObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
-
-//        println "returnObject ${returnObject as JSON}"
-
 
         fireAnnotationEvent(new AnnotationEvent(
                 features: returnObject
@@ -459,42 +446,28 @@ class RequestHandlingService {
 
         JSONObject returnObject = createJSONFeatureContainer()
 
-        println "RHS::adding transcript return object ${inputObject?.size()}"
+        log.info "RHS::adding transcript return object ${inputObject?.size()}"
         String trackName = fixTrackHeader(inputObject.track)
-        println "final trackNAme [${trackName}]"
+        log.info "final trackNAme [${trackName}]"
         Sequence sequence = Sequence.findByName(trackName)
-        println "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
-        println "sequence ${sequence}"
-        println "RHS::PRE featuresArray ${featuresArray?.size()}"
+        log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
+        log.info "sequence ${sequence}"
+        log.info "RHS::PRE featuresArray ${featuresArray?.size()}"
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-//            println "${i} jsonTranscript ${jsonTranscript}"
-//            println "featureService ${featureService} ${trackName}"
-            println "${i} CALLING GENERATE TRANSCRIPT"
             Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
-            println "${i} DONE CALLING GENERATE TRANSCRIPT"
 
             // should automatically write to history
             transcript.save(flush: true)
-//            sequence.addFeatureLotranscript)
             transcriptList.add(transcript)
-
-            List<Feature> childFeatureRelationships =  featureRelationshipService.getParentsForFeature(transcript)
-            println "${i} - 2child feature relationships: ${childFeatureRelationships.size()}"
-            childFeatureRelationships.each {
-                println "${i} - 2parent: ${it.name} ${it.cvTerm} ${it.ontologyId}"
-            }
         }
-        println "exit the app . . . . "
-
+        
 //        sequence.save(flush: true)
         // do I need to put it back in?
-//        returnObject.putJSONArray("features",featuresArray)
         transcriptList.each { transcript ->
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
-//            featuresArray.put(featureService.convertFeatureToJSON(transcript,false))
         }
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
