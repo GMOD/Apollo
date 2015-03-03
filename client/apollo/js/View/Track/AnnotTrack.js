@@ -280,11 +280,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         standby.startup();
         standby.show();
 
-
-        if (!this.webapollo.loginMenuInitialized&&this.browser.show_nav&&this.browser.show_menu) {
+        if (!this.webapollo.loginMenuInitialized&&this.browser.config.show_nav&&this.browser.config.show_menu) {
             this.webapollo.initLoginMenu(this.username);
         }
-        if (! this.webapollo.searchMenuInitialized && this.permission&&this.browser.show_nav&&this.browser.show_menu)  {
+        if (! this.webapollo.searchMenuInitialized && this.permission&&this.browser.config.show_nav&&this.browser.config.show_menu)  {
             this.webapollo.initSearchMenu();
         }
         this.initSaveMenu();
