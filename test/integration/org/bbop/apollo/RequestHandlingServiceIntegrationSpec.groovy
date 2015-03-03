@@ -94,7 +94,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         
         when: "it gets added"
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
-        println "return Object ${returnObject}"
+//        println "return Object ${returnObject}"
 
         
         then: "we should see the appropriate stuff"

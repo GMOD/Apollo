@@ -102,7 +102,7 @@ class FeatureRelationshipService {
 //        def results = criteria{
 //            eq("parentFeature", parentFeature)
 //            eq("childFeature.ontologyId", childFeature.ontologyId)
-//        }
+//        }  find the same type . . .
         List<FeatureRelationship> results = FeatureRelationship.findAllByParentFeature(parentFeature).findAll() {
             println "evaluating: ${it.childFeature.ontologyId} vs ${childFeature.ontologyId}"
             it.childFeature.ontologyId == childFeature.ontologyId
@@ -114,10 +114,10 @@ class FeatureRelationshipService {
             return true
         } else {
             if (results.size() == 0) {
-                log.error "No feature relationships exist for parent ${parentFeature} and child ${childFeature}"
+                log.info "No feature relationships exist for parent ${parentFeature} and child ${childFeature}"
             }
             if (results.size() > 1) {
-                log.error "${results.size()} feature relationships exist for parent ${parentFeature} and child ${childFeature}"
+                log.warn "${results.size()} feature relationships exist for parent ${parentFeature} and child ${childFeature}"
             }
             return false
         }
