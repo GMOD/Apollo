@@ -104,7 +104,7 @@ grails.project.dependency.resolution = {
         //compile ":coffee-asset-pipeline:1.8.0"
         //compile ":handlebars-asset-pipeline:1.3.0.3"
 
-        compile ":spring-websocket:1.1.0"
+        compile ":spring-websocket:1.2.0"
         compile ":shiro:1.2.1"
 
         runtime ":jquery:1.11.1"
@@ -129,7 +129,7 @@ grails.project.dependency.resolution = {
 
         //compile ":kickstart-with-bootstrap:1.1.0"
 //        compile ":twitter-bootstrap:3.1.1.3"
-        compile ":audit-logging:1.0.0"
+        compile ":audit-logging:1.0.3"
 //        compile ":jasypt-encryption:1.1.0"
 //        compile ":joda-time:1.4"
 

@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+import grails.test.mixin.support.SkipMethod
 import spock.lang.Ignore
 import spock.lang.Specification
 
@@ -15,19 +16,6 @@ class Gff3HandlerServiceSpec extends Specification {
     
 
     def setup() {
-    }
-
-    def cleanup() {
-    }
-   
-    void "write a simple gene"() {
-        
-        when: "we create a new gene"
-        Gene gene = new Gene(
-                name: "Bob"
-                ,uniqueName: "abc123"
-        ).save()
-
         Sequence refSequence = new Sequence(
                 length: 3
                 ,refSeqFile: "adsf"
@@ -38,7 +26,25 @@ class Gff3HandlerServiceSpec extends Specification {
                 ,sequenceDirectory: "asdfadsf"
                 ,name: "Group-1.10"
         ).save()
-        
+    }
+
+    def cleanup() {
+        println "deleting sequence: ${Sequence.deleteAll(Sequence.all)}"
+        println "deleting feature Relationships: ${FeatureRelationship.deleteAll(FeatureRelationship.all)}"
+        println "deleting feature locations: ${FeatureLocation.deleteAll(FeatureLocation.all)}"
+        println "deleting features: ${Feature.deleteAll(Feature.all)}"
+    }
+  
+    void "write a simple gene"() {
+
+        when: "we create a new gene"
+        Sequence refSequence = Sequence.first()
+        Gene gene = new Gene(
+                name: "Bob"
+                ,uniqueName: "abc123"
+        ).save()
+
+
         FeatureLocation geneFeatureLocation = new FeatureLocation(
                 feature: gene,
                 fmin: 200,
@@ -49,45 +55,37 @@ class Gff3HandlerServiceSpec extends Specification {
 
         gene.addToFeatureLocations(geneFeatureLocation)
         gene.save()
-        
+
         List<Feature> featuresToWrite = new ArrayList<>()
         featuresToWrite.add(gene)
 
         File tempFile = File.createTempFile("asdf",".gff3")
-        
+
         then: "We should have at least one new gene"
         assert Gene.count == 1
         println "${tempFile.absolutePath}"
         service.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
         //println "===> Finally the output: ${tempFileText}"
-       
+
         assert tempFileText.length()>0
         println tempFileText
-        
+
         assert tempFileText == "##gff-version 3\n##sequence-region Group-1.10 201 1000\nGroup-1.10\t.\tGene\t201\t1000\t\t+\t\tName=Bob;ID=abc123\n###\n"
     }
     
-    @Ignore
+//    @Ignore
     void "write a GFF3 of a simple gene model"() {
 
 
         when: "we create a new gene"
+        Sequence refSequence = Sequence.first()
         Gene gene = new Gene(
                 name: "Bob"
                 ,uniqueName: "abc123"
-        ).save()
+                ,id: 1001
+        ).save(flush: true)
         
-        Sequence refSequence = new Sequence(
-                length: 3
-                ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "asdf"
-                ,seqChunkSize: 3
-                ,start: 5
-                ,end: 8
-                ,sequenceDirectory: "asdfadsf"
-                ,name: "Group-1.10"
-        ).save()
         
         FeatureLocation geneFeatureLocation = new FeatureLocation(
                 feature: gene,
@@ -98,13 +96,22 @@ class Gff3HandlerServiceSpec extends Specification {
         ).save()
         
         gene.addToFeatureLocations(geneFeatureLocation)
-        gene.save()
-        println gene.toString()
+//        gene.save()
+//        println gene.toString()
         
         MRNA mrna = new MRNA(
                 name: "Bob-mRNA",
                 uniqueName: "abc123-mRNA"
+                ,id: 100
+        ).save(flush: true,failOnError: true)
+
+
+        // connecting gene structure heirarchy
+        FeatureRelationship mrnaFeatureRelationship = new FeatureRelationship(
+                childFeature: mrna,
+                parentFeature: gene
         ).save()
+
         FeatureLocation mrnaFeatureLocation = new FeatureLocation(
                 fmin: 200,
                 fmax: 1000,
@@ -192,11 +199,6 @@ class Gff3HandlerServiceSpec extends Specification {
         ).save()
         cdsThree.addToFeatureLocations(cdsThreeFeatureLocation)
         
-        // connecting gene structure heirarchy
-        FeatureRelationship mrnaFeatureRelationship = new FeatureRelationship(
-                parentFeature: gene,
-                childFeature: mrna
-        ).save()
         
         FeatureRelationship exonOneFeatureRelationship = new FeatureRelationship(
                 parentFeature: mrna,
@@ -261,13 +263,36 @@ class Gff3HandlerServiceSpec extends Specification {
         
         then: "We should have at least one new gene"
         assert Gene.count == 1
-        println "${tempFile.absolutePath}"
-        service.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
+        assert MRNA.count == 1
+        assert Exon.count == 3
+        assert CDS.count == 3
+        assert FeatureRelationship.count == 7
+        assert FeatureLocation.count == 8
+        Gene thisGene = Gene.first()
+        assert thisGene.parentFeatureRelationships.size()==1
+        assert !thisGene.childFeatureRelationships
 
-        String tempFileText = tempFile.text
-        println "===> Finally the output: ${tempFileText}"
-        assert tempFileText.length()>0
-        println tempFileText
+        MRNA thisMRNA = MRNA.first()
+        assert thisMRNA.childFeatureRelationships.size()==1
+      
+        int count = 0 
+        for(FeatureRelationship featureRelationship in thisMRNA.parentFeatureRelationships){
+            println "${count} parent: ${featureRelationship.parentFeature}"
+            println "${count} child: ${featureRelationship.childFeature}"
+            ++count
+        }
+        
+        assert thisMRNA.parentFeatureRelationships.size()==6
+
+//        when: "we write the feature to test"
+//        println "${tempFile.absolutePath}"
+//        service.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
+//        String tempFileText = tempFile.text
+//
+//        then: "we should get a valid gff3 file"
+//        println "===> Finally the output: ${tempFileText}"
+//        assert tempFileText.length()>0
+//        println tempFileText
 
     }
 }

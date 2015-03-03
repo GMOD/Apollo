@@ -53,7 +53,7 @@ class FeatureRelationship implements  Ontological{
 
     public FeatureRelationship generateClone() {
         FeatureRelationship cloned = new FeatureRelationship();
-        cloned.type = this.type;
+//        cloned.type = this.type;
         cloned.parentFeature = this.parentFeature;
         cloned.childFeature = this.childFeature;
         cloned.value = this.value;
