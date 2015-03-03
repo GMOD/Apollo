@@ -173,28 +173,15 @@ class FeatureService {
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
-        // TODO: not sure if this is a good idea or not
         Sequence sequence = Sequence.findByName(trackName)
-        println "# SEQUENCEs: ${Sequence.count}"
-        println "FIRST SEQUENCE: ${Sequence.first().name}"
-//        println "FIRST SEQUENCE roganism: ${Sequence.first()?.organism.commonName}"
-//        println "organism name: ${sequence.organism.commonName}"
-//        Organism organism = sequence.organism
-
-//        FeatureLazyResidues featureLazyResidues = FeatureLazyResidues.findByName(trackName)
-//        println "featureLazyResidues ${featureLazyResidues}"
         // if the gene is set, then don't process, just set the transcript for the found gene
-        if (gene != null) {
+        if (gene) {
             println "has a gene! ${gene}"
-//            Feature gsolTranscript = convertJSONToFeature(jsonTranscript, featureLazyResidues);
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
-//            transcript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
-//                throw new AnnotationEditorServiceException("Feature cannot have negative coordinates");
             }
 
-//            setOwner(transcript, (String) session.getAttribute("username"));
             featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
@@ -204,9 +191,8 @@ class FeatureService {
             addTranscriptToGene(gene, transcript);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             transcript.name = nameService.generateUniqueName(transcript)
-//            transcriptService.updateTranscriptAttributes(transcript);
         } else {
-            println "there IS no gene! ${gene}"
+            println "there IS no gene!"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
             println "has a feature location ${featureLocation}"
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
@@ -282,17 +268,23 @@ class FeatureService {
             }
 //            featurePropertyService.setOwner(gene, (String) SecurityUtils?.subject?.principal ?: "demo@demo.gov");
             println "gene ${gene}"
-            println "gene ${gene.parentFeatureRelationships}"
+            println "gene parentFeatureRelationships ${gene.parentFeatureRelationships}"
             transcript = transcriptService.getTranscripts(gene).iterator().next();
+            println "transcript1 ${transcript}"
+            println "transcript childFeature relationships ${featureRelationshipService.getParentsForFeature(transcript)?.size()}"
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
+            println "transcript2 ${transcript}"
+            println "transcript2 childFeature relationships ${featureRelationshipService.getParentsForFeature(transcript)?.size()}"
             // I don't thikn that this does anything
             addFeature(gene)
             transcript.name = nameService.generateUniqueName(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
+            println "transcript3 ${transcript}"
+            println "transcript3 childFeature relationships ${featureRelationshipService.getParentsForFeature(transcript)?.size()}"
         }
         return transcript;
 

@@ -44,6 +44,18 @@ class FeatureRelationshipServiceSpec extends Specification {
         Feature mrna2= children.get(0)
         assert mrna == mrna2
 
+        when: "we get a single parent for an ontology id"
+        Feature parent = service.getParentForFeature(mrna,Gene.ontologyId)
+        
+        then: "we should find a valid parent"
+        assert parent !=null
+
+        when: "we get a single parent for NO ontology id"
+        Feature parent2 = service.getParentForFeature(mrna)
+
+        then: "we should *STILL* find a valid parent"
+        assert parent2 !=null
+
         // NOTE: can not test hql queries
 //        when: "we delete a relationshp"
 //        service.removeFeatureRelationship(gene,mrna)

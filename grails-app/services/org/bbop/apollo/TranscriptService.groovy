@@ -189,6 +189,7 @@ class TranscriptService {
      */
     public void setCDS(Feature feature,CDS cds,boolean replace = true) {
         if(replace){
+            println "replacing CDS on feature"
             if(featureRelationshipService.setChildForType(feature,cds)){
                 return
             }

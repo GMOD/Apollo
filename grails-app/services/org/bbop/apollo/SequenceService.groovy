@@ -67,14 +67,14 @@ class SequenceService {
         SequenceChunk sequenceChunk = SequenceChunk.findBySequenceAndChunkNumber(sequence,i)
         if(!sequenceChunk){
             String residue = loadResidueForSequence(sequence,i)
-            println "RESIDUE load: ${residue?.size()}"
+            log.debug "RESIDUE load: ${residue?.size()}"
             sequenceChunk = new SequenceChunk(
                     sequence: sequence
                     ,chunkNumber: i
                     ,residue: residue
             ).save(flush:true)
         }
-        println "RESIDUE loaded from DB: ${sequenceChunk.residue?.size()}"
+        log.debug "RESIDUE loaded from DB: ${sequenceChunk.residue?.size()}"
         return sequenceChunk
     }
 

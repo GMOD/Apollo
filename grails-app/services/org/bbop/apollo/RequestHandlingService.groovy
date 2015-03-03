@@ -2,6 +2,7 @@ package org.bbop.apollo
 //import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bouncycastle.jce.provider.AnnotatedException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -465,29 +466,30 @@ class RequestHandlingService {
         println "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
         println "sequence ${sequence}"
         println "RHS::PRE featuresArray ${featuresArray?.size()}"
-        if (featuresArray.size() == 1) {
-            JSONObject object = featuresArray.getJSONObject(0)
-//            println "object ${object}"
-        } else {
-            println "what is going on?"
-        }
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
 //            println "${i} jsonTranscript ${jsonTranscript}"
 //            println "featureService ${featureService} ${trackName}"
+            println "${i} CALLING GENERATE TRANSCRIPT"
             Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
+            println "${i} DONE CALLING GENERATE TRANSCRIPT"
 
             // should automatically write to history
             transcript.save(flush: true)
 //            sequence.addFeatureLotranscript)
             transcriptList.add(transcript)
 
-
+            List<Feature> childFeatureRelationships =  featureRelationshipService.getParentsForFeature(transcript)
+            println "${i} - 2child feature relationships: ${childFeatureRelationships.size()}"
+            childFeatureRelationships.each {
+                println "${i} - 2parent: ${it.name} ${it.cvTerm} ${it.ontologyId}"
+            }
         }
+        println "exit the app . . . . "
 
-        sequence.save(flush: true)
+//        sequence.save(flush: true)
         // do I need to put it back in?
 //        returnObject.putJSONArray("features",featuresArray)
         transcriptList.each { transcript ->

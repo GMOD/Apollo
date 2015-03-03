@@ -266,7 +266,7 @@ class ExonService {
         int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
         String residues = sequenceService.getResiduesFromFeature(gene)
         println "coordinate: "+coordinate
-        println "residues: "+residues.size()
+//        println "residues: "+residues.size()
         while (coordinate < residues.length()) {
 //            int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
             int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
@@ -300,7 +300,7 @@ class ExonService {
         String residues = sequenceService.getResiduesFromFeature(gene)
         println "exonStart [${exonStart}] coordinate [${coordinate}]"
         println "coordinate: "+coordinate
-        println "residues: "+residues.size()
+//        println "residues: "+residues.size()
         while (coordinate > 0 ) {
 
             if (coordinate <= exonStart) {

@@ -157,7 +157,7 @@ class AnnotatorController {
 
         dataObject.result = result
 
-        println "return object ${dataObject} vs ${dataObject as JSON}"
+//        println "return object ${dataObject} vs ${dataObject as JSON}"
 
         render dataObject as JSON
     }

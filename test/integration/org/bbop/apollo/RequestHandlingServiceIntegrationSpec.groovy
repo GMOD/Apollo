@@ -27,7 +27,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         Sequence.deleteAll(Sequence.all)
         FeatureRelationship.executeUpdate("delete from FeatureRelationship ")
         FeatureLocation.executeUpdate("delete from FeatureLocation ")
-        Feature.executeUpdate("delete from Feature ")
+        println "delete Feature: " + Feature.executeUpdate("delete from Feature ")
 //        Feature.deleteAll(Feature.all)
 //        Exon.deleteAll(Exon.all)
 //        Gene.deleteAll(Gene.all)
@@ -60,7 +60,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
 
         then: "You should see that transcript"
-        println "reurn object ${returnObject}"
+//        println "reurn object ${returnObject}"
         assert  Sequence.count == 1
         // there are 6 exons, but 2 of them overlap . . . so this is correct
         assert  Exon.count == 5
@@ -94,10 +94,11 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         
         when: "it gets added"
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+        println "return Object ${returnObject}"
 
         
         then: "we should see the appropriate stuff"
-        println "reurn object ${returnObject}"
+//        println "reurn object ${returnObject}"
         assert  Sequence.count == 1
         // there are 6 exons, but 2 of them overlap . . . so this is correct
         assert  CDS.count == 1
@@ -106,6 +107,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert  Exon.count == 1
         assert  Feature.count == 4
         assert  FeatureLocation.count == 4
+        assert  FeatureRelationship.count == 3
 
         Gene gene = Gene.first()
         println "gene ${gene.name}"
@@ -113,11 +115,19 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert featureRelationshipService.getChildren(gene).size()==1
         MRNA mrna = featureRelationshipService.getChildForFeature(gene,MRNA.ontologyId)
         assert mrna.id == MRNA.first().id
+        List<Feature> childFeatureRelationships =  featureRelationshipService.getParentsForFeature(mrna)
+        println "child feature relationships: ${childFeatureRelationships.size()}"
+        childFeatureRelationships.each {
+            println "parent: ${it.name} ${it.cvTerm} ${it.ontologyId}"
+        }
+        assert 1==childFeatureRelationships.size()
+        Feature parentFeature = featureRelationshipService.getParentForFeature(mrna)
+        assert parentFeature!=null
         assert featureRelationshipService.getParentForFeature(mrna).id==gene.id
         // should be an exon and a CDS . . .
         assert featureRelationshipService.getChildren(mrna).size()==2
-        Exon exon = featureRelationshipService.getChildren(mrna,Exon.ontologyId)
-        CDS cds = featureRelationshipService.getChildren(mrna,CDS.ontologyId)
+        Exon exon = featureRelationshipService.getChildForFeature(mrna,Exon.ontologyId)
+        CDS cds = featureRelationshipService.getChildForFeature(mrna,CDS.ontologyId)
         assert exon!=null
         assert cds!=null
 //        MRNA mrna = featureRelationshipService.getChildForFeature(mrna)
