@@ -27,6 +27,8 @@ Bugfixes
 + Add sequence search track function is not retrieving amino acid strings (#168).
 + Bad layout on changes page (#180).
 + Plus/minus strand filters make bigwig go to zero (#181).
++ Fixed embedded mode nav option (#183).
++ Add user popup uses outdated server configuration (#182).
 
 
 ## 1.0.3 release
