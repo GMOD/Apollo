@@ -30,6 +30,7 @@ public class Gff3HandlerService {
     FeatureService featureService
     FeaturePropertyService featurePropertyService
 
+
 //    public GFF3HandlerService(String path, Mode mode, Set<String> attributesToExport) throws IOException {
 //        this(path, mode, Format.TEXT, attributesToExport);
 //    }
@@ -90,7 +91,7 @@ public class Gff3HandlerService {
         out.println("##gff-version 3");
        
         writeFeatures(writeObject,features,source)
-        
+        out.close()
     }
 
 
@@ -215,7 +216,7 @@ public class Gff3HandlerService {
         entry.setAttributes(extractAttributes(writeObject,feature));
         gffEntries.add(entry);
         println "===> does feature.getChildFeatureRelationships() look like a null: ${feature.getChildFeatureRelationships()}"
-        if (feature.getChildFeatureRelationships() != null) {
+//        if (feature.getChildFeatureRelationships() != null) {
             for (Feature child : featureRelationshipService.getChildren(feature)) {
                 if (child instanceof CDS) {
                     convertToEntry(writeObject, (CDS) child, source, gffEntries);
@@ -223,11 +224,11 @@ public class Gff3HandlerService {
                     convertToEntry(writeObject, child, source, gffEntries);
                 }
             }
-        }
-        else {
-            println "===> WARNING: ${feature} has null ChildFeatureRelationships"
-            
-        }
+//        }
+//        else {
+//            println "===> WARNING: ${feature} has null ChildFeatureRelationships"
+//
+//        }
         println "===> gff3Entries: ${gffEntries.toString()}"
     }
 
@@ -312,8 +313,10 @@ public class Gff3HandlerService {
 //            attributes.put("Parent", parents.toString());
 //        }
         println "===> does feature.getParentFeatureRelationships() look like a null: ${feature.getParentFeatureRelationships()}"
-        if (feature.getParentFeatureRelationships() != null) {
-
+        println "===> getParentForFeature: ${feature.getParentFeatureRelationships()}"
+        println "===> getChildForFeature: ${feature.getChildFeatureRelationships()}"
+//        if (feature.getParentFeatureRelationships() != null) {
+        //println "===> ${featureRelationshipService}"
             Iterator<FeatureRelationship> frIter = featureRelationshipService.getParentForFeature(feature).iterator();
             if (frIter.hasNext()) {
                 StringBuilder parents = new StringBuilder();
@@ -324,10 +327,10 @@ public class Gff3HandlerService {
                 }
                 attributes.put(FeatureStringEnum.EXPORT_PARENT.value, parents.toString());
             }
-        }
-        else {
-            println "===> WARNING: ${feature} has null ParentFeatureRelationships"
-        }
+//        }
+////        else {
+////            println "===> WARNING: ${feature} has null ParentFeatureRelationships"
+////        }
         //TODO: Target
         //TODO: Gap
         if (writeObject.attributesToExport.contains(FeatureStringEnum.COMMENTS.value)) {
