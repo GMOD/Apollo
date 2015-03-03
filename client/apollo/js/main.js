@@ -176,6 +176,12 @@ return declare( [JBPlugin, HelpMixin],
             browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
         }
 
+
+        if(browser.config.show_nav&&browser.config.show_menu) {
+            this.createMenus();
+        }
+                
+
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             if (browser.poweredByLink)  {
@@ -184,6 +190,17 @@ return declare( [JBPlugin, HelpMixin],
                 browser.poweredByLink.href = 'http://genomearchitect.org/';
                 browser.poweredByLink.target = "_blank";
             }
+            if(browser.config.show_nav&&browser.config.show_menu) {
+                var customGff3Driver = declare(GFF3Driver,   {
+                    constructor: function( args ) {
+                        this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
+                    }
+                });
+                browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+                thisB.postCreateMenus();
+            }
+
+
 
             // Initialize information editor with similar style to track selector
             var view = browser.view;
@@ -214,117 +231,7 @@ return declare( [JBPlugin, HelpMixin],
                     view.oldOnResize();
                 }
             };
-            if(browser.config.show_nav&&browser.config.show_menu) {
-                var customGff3Driver = declare(GFF3Driver,   {
-                    constructor: function( args ) {
-                        this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
-                    }
-                });
-                browser.fileDialog.addFileTypeDriver(new customGff3Driver());
-
-
-                var help=dijit.byId("menubar_generalhelp");
-                help.set("label", "Web Apollo Help");
-                help.set("iconClass", null);
-                var jbrowseUrl = "http://jbrowse.org";
-                browser.addGlobalMenuItem( 'help',
-                                        new dijitMenuItem(
-                                            {
-                                                id: 'menubar_powered_by_jbrowse',
-                                                label: 'Powered by JBrowse',
-                                                // iconClass: 'jbrowseIconHelp', 
-                                                onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                            })
-                                      );
-                browser.addGlobalMenuItem( 'help',
-                    new dijitMenuItem(
-                        {
-                            id: 'menubar_web_service_api',
-                            label: 'Web Service API',
-                            // iconClass: 'jbrowseIconHelp',
-                            onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-                        })
-                );
-                browser.addGlobalMenuItem( 'help',
-                    new dijitMenuItem(
-                        {
-                            id: 'menubar_apollo_version',
-                            label: 'Get Version',
-                            // iconClass: 'jbrowseIconHelp',
-                            onClick: function()  {
-                                window.open("../version.jsp",'help_window').focus();
-                            }
-                        })
-                );
-
-                this.addNavigationOptions();
-
-                // add a global menu option for setting CDS color
-                var cds_frame_toggle = new dijitCheckedMenuItem(
-                        {
-                            label: "Color by CDS frame",
-                            checked: browser.cookie("colorCdsByFrame")=="true",
-                            onClick: function(event) {
-                                if(this.get("checked")) domClass.add(win.body(), "colorCds");
-                                else domClass.remove(win.body(),"colorCds");
-                                browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
-                            }
-                        });
-                browser.addGlobalMenuItem( 'view', cds_frame_toggle );
-
-                var css_frame_menu = new dijitMenu();
-
-                css_frame_menu.addChild(
-                    new dijitMenuItem({
-                            label: "Light",
-                            onClick: function (event) {
-                                browser.cookie("Scheme","Light");
-                                domClass.remove(win.body(), "Dark");
-                            }
-                        }
-                    )
-                );
-                css_frame_menu.addChild(
-                    new dijitMenuItem({
-                            label: "Dark",
-                            onClick: function (event) {
-                                browser.cookie("Scheme","Dark");
-                                domClass.add(win.body(), "Dark");
-                            }
-                        }
-                    )
-                );
-
-
-                var css_frame_toggle = new dijitPopupMenuItem(
-                    {
-                        label: "Color Scheme"
-                        ,popup: css_frame_menu
-                    });
-
-                browser.addGlobalMenuItem('view', css_frame_toggle);
-
-                this.addStrandFilterOptions();
-
-                this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
-                var hide_track_label_toggle = new dijitCheckedMenuItem(
-                    {
-                        label: "Show track label",
-                        checked: this._showLabels,
-                        onClick: function(event) {
-                            thisB._showLabels=this.get("checked");
-                            browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
-                            thisB.updateLabels();
-                        }
-                    });
-                browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
-                browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-                browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
-
-
- 
-                thisB.updateLabels();
-            }
+            
 
 
 
@@ -423,7 +330,6 @@ return declare( [JBPlugin, HelpMixin],
                     onClick: function(event) {
                         var plus = plus_strand_toggle.checked;
                         var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
                         if (plus && minus)  {
                             browser.setFeatureFilter(thisB.passAllFilter);
                         }
@@ -447,7 +353,6 @@ return declare( [JBPlugin, HelpMixin],
                     onClick: function(event) {
                         var plus = plus_strand_toggle.checked;
                         var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
                         if (plus && minus)  {
                             browser.setFeatureFilter(thisB.passAllFilter);
                         }
@@ -682,7 +587,116 @@ return declare( [JBPlugin, HelpMixin],
                 }
             });
         });
-     }
+    },
+    // createMenus adds new menu items and is run before the initView milestone
+    createMenus: function() {
+        var browser=this.browser;
+        var thisB=this;
+        
+        this.addNavigationOptions();
+
+                // add a global menu option for setting CDS color
+        var cds_frame_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Color by CDS frame",
+                    checked: browser.cookie("colorCdsByFrame")=="true",
+                    onClick: function(event) {
+                        if(this.get("checked")) domClass.add(win.body(), "colorCds");
+                        else domClass.remove(win.body(),"colorCds");
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
+                    }
+                });
+        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Light");
+                        domClass.remove(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Dark");
+                        domClass.add(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
+
+        this.addStrandFilterOptions();
+
+        this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
+        var hide_track_label_toggle = new dijitCheckedMenuItem(
+            {
+                label: "Show track label",
+                checked: this._showLabels,
+                onClick: function(event) {
+                    thisB._showLabels=this.get("checked");
+                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                    thisB.updateLabels();
+                }
+            });
+        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
+
+    },
+    // postCreateMenu is run after initView for convenience of ordering new items
+    postCreateMenus: function() {
+        var browser=this.browser;
+        var help=dijit.byId("menubar_generalhelp");
+
+        help.set("label", "Web Apollo Help");
+        help.set("iconClass", null);
+        var jbrowseUrl = "http://jbrowse.org";
+        browser.addGlobalMenuItem( 'help',
+                                new dijitMenuItem(
+                                    {
+                                        id: 'menubar_powered_by_jbrowse',
+                                        label: 'Powered by JBrowse',
+                                        // iconClass: 'jbrowseIconHelp', 
+                                        onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                    })
+                              );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_web_service_api',
+                    label: 'Web Service API',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
+                })
+        );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_version',
+                    label: 'Get Version',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  {
+                        window.open("../version.jsp",'help_window').focus();
+                    }
+                })
+        );
+        this.updateLabels();
+    }
 
 
 });
