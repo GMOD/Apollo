@@ -165,11 +165,10 @@ class FeatureService {
      */
     def generateTranscript(JSONObject jsonTranscript, String trackName, boolean isPseudogene = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
-        println "JSON transcript ${jsonTranscript}"
-        println "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
-        println "gene ${gene}"
+        log.debug "JSON transcript ${jsonTranscript}"
+        log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
+        log.debug "gene ${gene}"
         trackName = trackName.startsWith("Annotations-") ? trackName.substring("Annotations-".size()) : trackName
-        println "sequence ${trackName}"
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
@@ -395,8 +394,6 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
-                println "leftExon: ${leftExon}"
-                println "rightExon: ${rightExon}"
                 overlaps(leftExon, rightExon)
                 if (overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
@@ -1066,20 +1063,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //            gsolFeature.setOrganism(organism);
 
             // TODO: JSON type feature not set
-            println "entering conversion method"
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
-            println "JSON FEATURE ${jsonFeature.toString()}"
-            println "type ${type}"
             String ontologyId = convertJSONToOntologyId(type)
-            println "ontology Id ${ontologyId}"
             gsolFeature = generateFeatureForType(ontologyId)
-            println "Created feature: ${gsolFeature}"
-//            println "source feature: ${sourceFeature}"
-//            Sequence sequence = Sequence.findByName(jsonFeature.get(AnnotationEditorController.REST_TRACK).toString())
-            println "found sequnce: ${sequence}"
-//            gsolFeature.setType(cvTermService.convertJSONToCVTerm(type));
-//            gsolFeature.ontologyId = (cvTermService.convertJSONToCVTerm(type));
-//            gsolFeature.ontologyId = convertJSONToOntologyId(type)
 
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
@@ -1087,10 +1073,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setUniqueName(nameService.generateUniqueName());
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
-                println "HAS name ${jsonFeature.getString(FeatureStringEnum.NAME.value)}"
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
-                println "NO name using unique name"
+                log.debug "NO name using unique name"
                 gsolFeature.name = gsolFeature.uniqueName
             }
 
@@ -1117,10 +1102,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);
-                println "jsonFeature ${jsonFeature} has ${children?.size()} children"
+                log.debug "jsonFeature ${jsonFeature} has ${children?.size()} children"
                 for (int i = 0; i < children.length(); ++i) {
                     JSONObject childObject = children.getJSONObject(i)
-                    println "child object ${childObject}"
+                    log.debug "child object ${childObject}"
                     Feature child = convertJSONToFeature(childObject, sequence);
                     child.save(failOnError: true)
                     FeatureRelationship fr = new FeatureRelationship();

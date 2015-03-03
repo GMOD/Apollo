@@ -123,8 +123,31 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert exon!=null
         assert cds!=null
 //        MRNA mrna = featureRelationshipService.getChildForFeature(mrna)
-        
-        
 
     }
+    
+    void "add another transcript with UTR"(){
+        
+        given: "a JSON string"
+        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":976735,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42183-RA\",\"children\":[{\"location\":{\"fmin\":995216,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":976735,\"fmax\":976888,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":992139,\"fmax\":992559,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":992748,\"fmax\":993041,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":993307,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":976735,\"fmax\":995216,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        
+        when: "we parse the string"
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        
+        then: "we get a valid json object and no features"
+        assert Feature.count == 0
+        
+        when: "we add it to a UTR"
+        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+        
+        
+        
+        
+        then: "we should get a transcript back" // we currently get nothing
+        assert Feature.count == 7
+        println returnObject
+        // {"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":976735,"strand":1,"fmax":995721},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"GB42183-RA","children":[{"location":{"fmin":992748,"strand":1,"fmax":993041},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"5807B2589E93113D6FB49FE4AA2AF11D","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1425357407881,"parent_id":"B51BF1DE748FC5FABAC47D759FCE0DF3"},{"location":{"fmin":976735,"strand":1,"fmax":976888},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC3BC0CF58FA06FF08619FAA35967424","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1425357407882,"parent_id":"B51BF1DE748FC5FABAC47D759FCE0DF3"},{"location":{"fmin":993307,"strand":1,"fmax":995721},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D46C599B882B4512E23D570FB4D3D455","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1425357407884,"parent_id":"B51BF1DE748FC5FABAC47D759FCE0DF3"},{"location":{"fmin":992139,"strand":1,"fmax":992559},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6F713782F4B4C5B269D7098968F1F1DD","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1425357407882,"parent_id":"B51BF1DE748FC5FABAC47D759FCE0DF3"},{"location":{"fmin":976735,"strand":1,"fmax":995216},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D794C0CF8189A7276323B29DF3E1D707","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1425357407882,"parent_id":"B51BF1DE748FC5FABAC47D759FCE0DF3"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"B51BF1DE748FC5FABAC47D759FCE0DF3","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1425357407954,"parent_id":"6C1521C86A71B3C32564F92C66B92DC8"}]}
+        
+    }
+    
 }

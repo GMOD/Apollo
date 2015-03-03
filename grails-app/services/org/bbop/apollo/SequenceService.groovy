@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.util.Pair
+import org.apache.commons.lang.RandomStringUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -78,29 +79,20 @@ class SequenceService {
         return sequenceChunk
     }
 
+    private static String generatorSampleDNA(int size){
+        return RandomStringUtils.random(size,['A','T','C','G'] as char[])
+    }
+    
+
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
-//        for (Pair<Integer, String> data : cache) {
-//            if (data.getFirst().equals(chunkNumber)) {
-//                return data.getSecond();
-//            }
-//        }
+      
+        if(grails.util.Environment.current == grails.util.Environment.TEST){
+            return generatorSampleDNA(chunkNumber)
+        }
+        
         String filePath = sequence.sequenceDirectory + "/" + sequence.seqChunkPrefix + chunkNumber + ".txt"
-//        BufferedReader br = new BufferedReader(new FileReader(sequenceDirectory + "/" + chunkPrefix + chunkNumber + ".txt"));
-//        BufferedReader br = new BufferedReader(new FileReader(filePath));
 
         return new File(filePath).getText().toUpperCase()
-//        String line;
-//        StringBuilder sb = new StringBuilder();
-//        while ((line = br.readLine()) != null) {
-//            sb.append(line.toUpperCase());
-//        }
-//        String sequence = sb.toString();
-//        if (cache.size() >= cacheSize) {
-//            cache.remove();
-//        }
-//        cache.add(new Pair<Integer, String>(chunkNumber, sequence));
-//        br.close();
-//        return sequence;
     }
 
     private String[] splitStringByNumberOfCharacters(String str, int numOfChars) {
