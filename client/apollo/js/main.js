@@ -214,16 +214,15 @@ return declare( [JBPlugin, HelpMixin],
                     view.oldOnResize();
                 }
             };
-
-            var customGff3Driver = declare(GFF3Driver,   {
-                constructor: function( args ) {
-                    this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
-                }
-            });
-            browser.fileDialog.addFileTypeDriver(new customGff3Driver());
-
             if(browser.config.show_nav&&browser.config.show_menu) {
-                console.log("here");
+                var customGff3Driver = declare(GFF3Driver,   {
+                    constructor: function( args ) {
+                        this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
+                    }
+                });
+                browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+
+
                 var help=dijit.byId("menubar_generalhelp");
                 help.set("label", "Web Apollo Help");
                 help.set("iconClass", null);

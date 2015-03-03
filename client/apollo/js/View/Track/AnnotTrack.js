@@ -274,7 +274,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
          * getPermission call is synchronous, so login initialization etc. can
          * be called anytime after getPermission call
          */
-        // track.initLoginMenu();
 
         var standby = new Standby({target: track.div, color: "transparent",image: "plugins/WebApollo/img/loading.gif"});
         document.body.appendChild(standby.domNode);
@@ -282,10 +281,10 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         standby.show();
 
 
-        if (!this.webapollo.loginMenuInitialized) {
+        if (!this.webapollo.loginMenuInitialized&&this.browser.show_nav&&this.browser.show_menu) {
             this.webapollo.initLoginMenu(this.username);
         }
-        if (! this.webapollo.searchMenuInitialized && this.permission)  {
+        if (! this.webapollo.searchMenuInitialized && this.permission&&this.browser.show_nav&&this.browser.show_menu)  {
             this.webapollo.initSearchMenu();
         }
         this.initSaveMenu();
