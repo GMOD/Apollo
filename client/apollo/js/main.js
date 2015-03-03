@@ -191,6 +191,7 @@ return declare( [JBPlugin, HelpMixin],
                 browser.poweredByLink.target = "_blank";
             }
             if(browser.config.show_nav&&browser.config.show_menu) {
+                // the fileDialog element is only initialized if the navigation bar exists
                 var customGff3Driver = declare(GFF3Driver,   {
                     constructor: function( args ) {
                         this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
