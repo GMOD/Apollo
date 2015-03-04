@@ -36,6 +36,13 @@ class TranscriptService {
         return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,Exon.ontologyId)
     }
 
+    public Collection<Exon> getSortedExons(Transcript transcript) {
+        Collection<Exon> exons = getExons(transcript)
+        List<Exon> sortedExons = new LinkedList<Exon>(exons);
+        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
+        return sortedExons
+    }
+
     /** Retrieve the gene that this transcript is associated with.  Uses the configuration to
      * determine which parent is a gene.  The gene object is generated on the fly.  Returns
      * <code>null</code> if this transcript is not associated with any gene.

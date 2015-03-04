@@ -56,7 +56,6 @@ class ExonService {
         }
         // need to delete exon2 from transcript
         if (getTranscript(exon2) != null) {
-            println "get exon should be deleted from the transcript !"
             deleteExon(getTranscript(exon2), exon2);
         }
         
@@ -81,9 +80,7 @@ class ExonService {
      * @param exon - Exon to be deleted from the transcript
      */
     public void deleteExon(Transcript transcript, Exon exon) {
-        println FeatureRelationship.count
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
-        println FeatureRelationship.count
 
 
         // an empty transcript should be removed from gene,  TODO??
@@ -133,6 +130,7 @@ class ExonService {
 
         // event fire?? TODO: not really active?
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationEditor.AnnotationChangeEvent.Operation.UPDATE);
+
 
     }
 

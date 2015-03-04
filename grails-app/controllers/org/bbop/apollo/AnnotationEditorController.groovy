@@ -678,7 +678,7 @@ class AnnotationEditorController implements AnnotationListener {
         println "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
 
-        println "AEC::root element: ${rootElement}"
+        println "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)

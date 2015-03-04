@@ -143,8 +143,6 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should get a transcript back" // we currently get nothing
         assert Feature.count == 7
-        println "=========="
-        println returnObject as JSON
         assert returnObject.getString('operation')=="ADD"
         assert returnObject.getBoolean('sequenceAlterationEvent')==false
         JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -154,14 +152,44 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
         assert 5==children.size()
         for(int i = 0 ; i < 5 ; i++){
-            println "i: ${i}"
             JSONObject codingObject = children.get(i)
             JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
             assert locationObject!=null
         }
-        
-        println "=========="
 
     }
+    
+    void "adding another transcript with UTR fails to add GB42152-RA"(){
+        given: "a input JSON string"
+        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":561645,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42152-RA\",\"children\":[{\"location\":{\"fmin\":566169,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561645,\"fmax\":562692,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561645,\"fmax\":564771,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":564936,\"fmax\":565087,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":565410,\"fmax\":565655,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":566040,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":562692,\"fmax\":566169,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+
+        when: "we parse the string"
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+
+        then: "we get a valid json object and no features"
+        assert Feature.count == 0
+
+        when: "we add it to a UTR"
+        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+
+        then: "we should get a transcript back" // we currently get nothing
+        assert Feature.count == 7
+//        println returnObject as JSON
+        assert returnObject.getString('operation')=="ADD"
+        assert returnObject.getBoolean('sequenceAlterationEvent')==false
+        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1==featuresArray.size()
+        JSONObject mrna = featuresArray.getJSONObject(0)
+        assert "GB42152-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
+        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 5==children.size()
+        for(int i = 0 ; i < 5 ; i++){
+            JSONObject codingObject = children.get(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject!=null
+        }
+
+    }
+    
     
 }

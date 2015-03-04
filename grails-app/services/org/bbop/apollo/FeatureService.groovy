@@ -385,12 +385,11 @@ class FeatureService {
      * @param transcript
      * @return
      */
-    def removeExonOverlapsAndAdjacencies(Transcript transcript) {
-        Collection<Exon> exons = transcriptService.getExons(transcript)
-        if (!exons || exons?.size() <= 1) {
+    def removeExonOverlapsAndAdjacencies(Transcript transcript)throws AnnotationException {
+        List<Exon> sortedExons = transcriptService.getSortedExons(transcript)
+        if (!sortedExons || sortedExons ?.size() <= 1) {
             return;
         }
-        List<Exon> sortedExons = new LinkedList<Exon>(exons);
         Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
         int inc = 1;
         for (int i = 0; i < sortedExons.size() - 1; i += inc) {
@@ -398,13 +397,19 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
+                println "line i${i} j${j} inc${inc}"
                 if (overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
                         exonService.mergeExons(leftExon, rightExon);
+                        sortedExons = transcriptService.getSortedExons(transcript)
+                        // we have to reload the sortedExons again and start over
+                        ++inc;
                     } catch (AnnotationException e) {
+                        // we should probably just re-throw this
                         log.error(e)
+                        throw e
+//                        return
                     }
-                    ++inc;
                 }
             }
         }
@@ -1621,8 +1626,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (sequenceAlteration.alterationResidue) {
                     jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
                 }
-            } 
-            else 
+            }
+            else
             if (includeSequence) {
                 // don't think we handle this case
 //                else{
