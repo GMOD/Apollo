@@ -88,7 +88,7 @@ class FeatureRelationshipService {
         ontologyIdList.addAll(ontologyIds)
         return FeatureRelationship.findAllByChildFeature(feature)*.parentFeature.findAll() {
             ontologyIdList.empty || (it && ontologyIdList.contains(it.ontologyId))
-        }
+        }.unique()
     }
 
     def deleteRelationships(Feature feature, String parentOntologyId, String childOntologyId) {
@@ -173,6 +173,8 @@ class FeatureRelationshipService {
         // replace if of the same type
 
         if (replace) {
+            
+            boolean found = false 
             def criteria = FeatureRelationship.createCriteria()
             criteria {
                 eq("parentFeature", parent)
@@ -182,8 +184,15 @@ class FeatureRelationshipService {
                 it.childFeature.ontologyId == child.ontologyId
             }
             .each {
+                found = true 
                 it.childFeature = child
+                it.save()
+                return 
 //                feature.removeFromParentFeatureRelationships(it)
+            }
+           
+            if(found){
+                return
             }
 
 //            for (FeatureRelationship fr : parent.getChildFeatureRelationships()) {
@@ -194,16 +203,20 @@ class FeatureRelationshipService {
 //                }
 //            }
         }
+        
+        
 
         FeatureRelationship fr = new FeatureRelationship(
                 parentFeature: parent
                 , childFeature: child
                 , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
-        );
+        ).save(flush: true);
 //        parent.getChildFeatureRelationships().add(fr);
         parent.addToParentFeatureRelationships(fr)
 //        child.getParentFeatureRelationships().add(fr);
         child.addToChildFeatureRelationships(fr)
+        child.save(flush: true)
+        parent.save(flush: true )
     }
 
     public void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
@@ -211,10 +224,13 @@ class FeatureRelationshipService {
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(parentFeature, childFeature)
         if (featureRelationship) {
 //            parentFeature.removeFromParentFeatureRelationships(featureRelationship)
-            parentFeature.parentFeatureRelationships.remove(featureRelationship)
-            childFeature.childFeatureRelationships.remove(featureRelationship)
+            parentFeature.parentFeatureRelationships?.remove(featureRelationship)
+            childFeature.childFeatureRelationships?.remove(featureRelationship)
+//            featureRelationship.delete(flush:true)
             parentFeature.save(flush: true)
             childFeature.save(flush: true)
+            
+//            featureRelationship.delete(flush: true)
 //            FeatureRelationship.executeUpdate(" delete from FeatureRelationship fr where fr.id = :frid",[frid:featureRelationship.id])
         }
 

@@ -168,8 +168,8 @@ class CdsService {
                 , childFeature: stopCodonReadThrough
                 , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         ).save(insert: true,failOnError: true)
-        cds.getChildFeatureRelationships().add(fr);
-        stopCodonReadThrough.addToParentFeatureRelationships(fr)
+        cds.addToParentFeatureRelationships(fr);
+        stopCodonReadThrough.addToChildFeatureRelationships(fr)
 
         stopCodonReadThrough.save(failOnError: true)
         cds.save(flush: true,failOnError: true)

@@ -61,6 +61,10 @@ class SequenceService {
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
 
+        if(grails.util.Environment.current == grails.util.Environment.TEST){
+            return sequenceString
+        }
+
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
 

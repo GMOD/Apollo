@@ -294,7 +294,7 @@ class FeatureService {
      */
     Feature getTopLevelFeature(Feature feature) {
         Collection<Feature> parents = feature?.childFeatureRelationships*.parentFeature
-        if (parents.size() > 0) {
+        if (parents) {
             return getTopLevelFeature(parents.iterator().next());
         } else {
             return feature;
@@ -1120,8 +1120,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     fr.setParentFeature(gsolFeature);
                     fr.setChildFeature(child);
                     fr.save(failOnError: true)
-                    child.addToChildFeatureRelationships(fr);
                     gsolFeature.addToParentFeatureRelationships(fr);
+                    child.addToChildFeatureRelationships(fr);
                     child.save()
                     gsolFeature.save()
                     println "child ${childObject}"

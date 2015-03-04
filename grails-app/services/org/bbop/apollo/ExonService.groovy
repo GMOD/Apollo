@@ -118,7 +118,24 @@ class ExonService {
         transcriptService.updateGeneBoundaries(transcript);
 
 //        FeatureLocation.deleteAll(exon.featureLocations)
+        exon.save(flush: true)
         exon.featureLocations.clear()
+        exon.parentFeatureRelationships?.clear()
+        exon.childFeatureRelationships?.clear()
+        List<FeatureRelationship> parentFeatures = FeatureRelationship.findAllByChildFeature(exon)
+        def childFeatures = FeatureRelationship.findAllByParentFeature(exon)
+        println "parentFeatures ${parentFeatures} for ${exon}"
+        println "childFeatures ${childFeatures} for ${exon}"
+        if(parentFeatures){
+            parentFeatures.each { FeatureRelationship it ->
+                println "parent: ${it.parentFeature}"
+                FeatureRelationship.executeUpdate("delete from FeatureRelationship fr where fr.id = :frid",[frid:it.id])
+//                it.delete(flush: true)
+//                exon.removeFromChildFeatureRelationships(it)
+//                exon.save(flush: true)
+            }
+        }
+        
         Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
 //        Exon.deleteAll(exon)
         transcript.save(flush: true)
