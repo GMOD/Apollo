@@ -21,6 +21,8 @@ class FeatureRelationship implements  Ontological{
     String value; // unused, but could be used like metadata (strength / quality of connection)
     int rank;
     static String ontologyId = "part_of"
+    
+//    static belongsTo = [parentFeature: Feature]
 
     static hasMany = [
             featureRelationshipProperties : FeatureProperty

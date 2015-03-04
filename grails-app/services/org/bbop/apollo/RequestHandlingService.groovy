@@ -841,7 +841,11 @@ class RequestHandlingService {
         if (returnString.startsWith("[")) {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
-        brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification", returnString
+        try {
+            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification", returnString
+        } catch (e) {
+            log.error("problem sending message: ${e}")
+        }
     }
 
     synchronized void handleChangeEvent(AnnotationEvent... events) {

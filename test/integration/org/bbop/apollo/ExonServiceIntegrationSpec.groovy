@@ -88,7 +88,9 @@ class ExonServiceIntegrationSpec extends IntegrationSpec {
         exonService.deleteExon(mrna,rightExon)
         
         then: "there should be only one exon left"
-        Exon.count==1
+        assert Exon.count==1
+        assert FeatureRelationship.count==1
+        assert mrna.parentFeatureRelationships.size()==1
         
 //        when: "we merge the exons we should still have 2"
 //        exonService.mergeExons(leftExon,rightExon)

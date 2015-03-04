@@ -59,6 +59,7 @@ class ExonService {
             println "get exon should be deleted from the transcript !"
             deleteExon(getTranscript(exon2), exon2);
         }
+        
 //        setLongestORF(getTranscript(exon1));
         featureService.removeExonOverlapsAndAdjacencies(transcript);
 

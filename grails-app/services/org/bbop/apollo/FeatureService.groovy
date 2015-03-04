@@ -380,7 +380,11 @@ class FeatureService {
 //        fireAnnotationChangeEvent(transcript, gene, AnnotationChangeEvent.Operation.ADD);
     }
 
-
+    /**
+     * TODO:  this is an N^2  search of overlapping exons
+     * @param transcript
+     * @return
+     */
     def removeExonOverlapsAndAdjacencies(Transcript transcript) {
         Collection<Exon> exons = transcriptService.getExons(transcript)
         if (!exons || exons?.size() <= 1) {
@@ -394,7 +398,6 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
-                overlaps(leftExon, rightExon)
                 if (overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
                         exonService.mergeExons(leftExon, rightExon);
@@ -1593,7 +1596,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonFeature.put(FeatureStringEnum.CHILDREN.value, children);
                 for (FeatureRelationship fr : parentRelationships) {
                     Feature childFeature = fr.childFeature
-                    children.put(convertFeatureToJSON(childFeature));
+                    children.put(convertFeatureToJSON(childFeature,includeSequence));
                 }
             }
 //            Collection<FeatureRelationship> parentRelationships = gsolFeature.getParentFeatureRelationships();
@@ -1618,7 +1621,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (sequenceAlteration.alterationResidue) {
                     jsonFeature.put(FeatureStringEnum.RESIDUES.value, sequenceAlteration.alterationResidue);
                 }
-            } else if (includeSequence) {
+            } 
+            else 
+            if (includeSequence) {
                 // don't think we handle this case
 //                else{
                 String residues = sequenceService.getResiduesFromFeature(gsolFeature)

@@ -25,7 +25,7 @@ class FeatureRelationshipService {
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
         List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
         List<Feature> returnFeatures = new ArrayList<>()
-        if(childFeatures) {
+        if (childFeatures) {
             returnFeatures.addAll(
                     childFeatures.findAll() {
                         it?.ontologyId in ontologyIds
@@ -201,16 +201,21 @@ class FeatureRelationshipService {
                 , rank: 0 // TODO: Do we need to rank the order of any other transcripts?
         );
 //        parent.getChildFeatureRelationships().add(fr);
-        parent.addToChildFeatureRelationships(fr)
+        parent.addToParentFeatureRelationships(fr)
 //        child.getParentFeatureRelationships().add(fr);
-        child.addToParentFeatureRelationships(fr)
+        child.addToChildFeatureRelationships(fr)
     }
 
     public void removeFeatureRelationship(Feature parentFeature, Feature childFeature) {
 
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(parentFeature, childFeature)
         if (featureRelationship) {
-            FeatureRelationship.executeUpdate(" delete from FeatureRelationship fr where fr.id = :frid",[frid:featureRelationship.id])
+//            parentFeature.removeFromParentFeatureRelationships(featureRelationship)
+            parentFeature.parentFeatureRelationships.remove(featureRelationship)
+            childFeature.childFeatureRelationships.remove(featureRelationship)
+            parentFeature.save(flush: true)
+            childFeature.save(flush: true)
+//            FeatureRelationship.executeUpdate(" delete from FeatureRelationship fr where fr.id = :frid",[frid:featureRelationship.id])
         }
 
 //        CVTerm partOfCvterm = cvTermService.partOf
