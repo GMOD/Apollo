@@ -418,11 +418,11 @@ class RequestHandlingService {
 
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
-            gsolExon.save(insert: true)
+            gsolExon.save()
         }
 
-        transcript.save(insert: false)
-        featureService.getTopLevelFeature(transcript)?.save(flush: true)
+        transcript.save(flush: true)
+//        featureService.getTopLevelFeature(transcript)?.save(flush: true)
 
         // TODO: one of these two versions . . .
         JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))

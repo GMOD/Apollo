@@ -223,7 +223,12 @@ class TranscriptService {
 
     def addExon(Transcript transcript, Exon exon) {
 
-        featureRelationshipService.addChildFeature(transcript,exon)
+        int initialSize = transcript.parentFeatureRelationships?.size()
+        println "initial size: ${initialSize}"
+        featureRelationshipService.addChildFeature(transcript,exon,false)
+        int finalSize = transcript.parentFeatureRelationships?.size()
+        println "final size: ${finalSize}"
+
 
         featureService.removeExonOverlapsAndAdjacencies(transcript)
 //
