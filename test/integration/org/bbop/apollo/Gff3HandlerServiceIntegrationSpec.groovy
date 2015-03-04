@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
+import spock.lang.Ignore
 
 class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
    
@@ -26,6 +27,7 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         Feature.executeUpdate("delete from Feature ")
     }
 
+    @Ignore
     void "write a GFF3 of a simple gene model"() {
 
 
