@@ -8,6 +8,8 @@ import java.util.Set;
 
 /** Different methods for dealing with sequence data.
  * 
+ * @deprecated  Use SequenceTranslationHandler
+ * 
  * @author elee
  *
  */

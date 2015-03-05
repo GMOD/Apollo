@@ -20,19 +20,20 @@ class BootStrap {
 
     def init = { servletContext ->
 
+        SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
+        SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
+
         if (Environment.current == Environment.TEST) {
             // insert Test environment specific code here
             return
         } 
 
-            mockupService.addUsers()
+        mockupService.addUsers()
         mockupService.addDataAdapters()
         mockupService.addOrganisms()
 //        mockupService.addSequences()  // add tracks
 //        mockupService.addFeatureWithLocations()  // add tracks
 
-        SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
-        SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
 
 //        sequenceService.parseRefSeqs()
 //        sequenceService.parseAllRefSeqs()

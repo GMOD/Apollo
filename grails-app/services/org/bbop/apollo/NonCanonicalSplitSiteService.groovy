@@ -2,7 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
-import org.gmod.gbol.util.SequenceUtil
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 @GrailsCompileStatic
 @Transactional
@@ -12,6 +12,7 @@ class NonCanonicalSplitSiteService {
     FeatureRelationshipService featureRelationshipService
     ExonService exonService
     FeatureService featureService
+    NameService nameService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.
@@ -107,8 +108,11 @@ class NonCanonicalSplitSiteService {
             int threePrimeSpliceSitePosition = -1;
             boolean validFivePrimeSplice = false;
             boolean validThreePrimeSplice = false;
-            for (String donor : SequenceUtil.getSpliceDonorSites()) {
-                for (String acceptor : SequenceUtil.getSpliceAcceptorSites()) {
+            println "donor sites: ${SequenceTranslationHandler.spliceDonorSites}"
+            println "acceptor sites: ${SequenceTranslationHandler.spliceAcceptorSites}"
+            
+            for (String donor : SequenceTranslationHandler.getSpliceDonorSites()) {
+                for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
                     FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmin() - donor.length(), exon.getFmin());
                     FlankingRegion spliceDonorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmax(), exon.getFmax() + donor.length());
                     if (exon.featureLocation.getStrand() == -1) {
@@ -152,7 +156,7 @@ class NonCanonicalSplitSiteService {
             }
         }
 
-        transcript.setLastUpdated(new Date());
+//        transcript.setLastUpdated(new Date());
 
 
 //        editor.findNonCanonicalAcceptorDonorSpliceSites(transcript);
@@ -190,9 +194,9 @@ class NonCanonicalSplitSiteService {
                 parentFeature: transcript
                 , childFeature: nonCanonicalFivePrimeSpliceSite
                 ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
-        );
-        transcript.getChildFeatureRelationships().add(fr);
-        nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().add(fr);
+        ).save();
+        transcript.addToParentFeatureRelationships(fr);
+        nonCanonicalFivePrimeSpliceSite.addToChildFeatureRelationships(fr);
     }
 
     /** Add a non canonical 3' splice site.  Sets the splice site's transcript to this transcript object.
@@ -207,9 +211,9 @@ class NonCanonicalSplitSiteService {
                 parentFeature: transcript
                 , childFeature: nonCanonicalThreePrimeSpliceSite
                 ,rank:0 // TODO: Do we need to rank the order of any other transcripts?
-        );
-        transcript.getChildFeatureRelationships().add(fr);
-        nonCanonicalThreePrimeSpliceSite.getParentFeatureRelationships().add(fr);
+        ).save();
+        transcript.addToParentFeatureRelationships(fr);
+        nonCanonicalThreePrimeSpliceSite.addToChildFeatureRelationships(fr);
     }
 
     private NonCanonicalFivePrimeSpliceSite createNonCanonicalFivePrimeSpliceSite(Transcript transcript, int position) {
@@ -218,8 +222,9 @@ class NonCanonicalSplitSiteService {
                 uniqueName: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
+                ,name: uniqueName
 //                ,timeAccessioned: new Date()
-                );
+                ).save()
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
                 ,sequence: transcript.featureLocation.sequence
@@ -240,10 +245,11 @@ class NonCanonicalSplitSiteService {
         String uniqueName = transcript.getUniqueName() + "-non_canonical_three_prive_splice_site-" + position;
         NonCanonicalThreePrimeSpliceSite spliceSite = new NonCanonicalThreePrimeSpliceSite(
                 uniqueName: uniqueName
+                ,name: uniqueName
                 ,isAnalysis: transcript.isAnalysis
                 ,isObsolete: transcript.isObsolete
 //                ,timeAccessioned: new Date()
-        );
+        ).save()
         spliceSite.addToFeatureLocations(new FeatureLocation(
                 strand: transcript.strand
                 ,sequence: transcript.featureLocation.sequence
@@ -264,6 +270,9 @@ class NonCanonicalSplitSiteService {
         FlankingRegion flankingRegion = new FlankingRegion();
         flankingRegion.setIsAnalysis(false)
         flankingRegion.setIsObsolete(false)
+        flankingRegion.setName(nameService.generateUniqueName())
+        flankingRegion.setUniqueName(flankingRegion.name)
+        flankingRegion.save()
 
         flankingRegion.addToFeatureLocations(new FeatureLocation(
                 strand: feature.strand

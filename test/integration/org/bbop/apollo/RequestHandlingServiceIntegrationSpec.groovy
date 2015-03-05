@@ -21,6 +21,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
                 ,sequenceDirectory: "test/integration/resources/sequences"
                 ,name: "Group1.10"
         ).save()
+        
+        
     }
 
     def cleanup() {
@@ -253,6 +255,12 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert returnedAfterExonObject!=null
         println Feature.count
         assert Feature.count > 5
+        JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert returnFeaturesArray.size()==1
+        JSONObject mRNAObject = returnFeaturesArray.get(0)
+        assert mRNAObject.getString(FeatureStringEnum.NAME.value)=="GB40772-RA-00001"
+        JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert childrenArray.size()==6
 
 
     }

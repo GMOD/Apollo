@@ -1238,6 +1238,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Insertion.ontologyId: return new Insertion()
             case Deletion.ontologyId: return new Deletion()
             case Substitution.ontologyId: return new Substitution()
+            case NonCanonicalFivePrimeSpliceSite.ontologyId: return new NonCanonicalFivePrimeSpliceSite()
+            case NonCanonicalThreePrimeSpliceSite.ontologyId: return new NonCanonicalThreePrimeSpliceSite()
             default:
                 log.error("No feature type exists for ${ontologyId}")
                 return null
