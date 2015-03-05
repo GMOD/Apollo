@@ -224,16 +224,18 @@ class TranscriptService {
     def addExon(Transcript transcript, Exon exon) {
 
         int initialSize = transcript.parentFeatureRelationships?.size()
-        println "initial size: ${initialSize}"
+        println "initial size: ${initialSize}" // 3
         featureRelationshipService.addChildFeature(transcript,exon,false)
         int finalSize = transcript.parentFeatureRelationships?.size()
-        println "final size: ${finalSize}"
+        println "final size: ${finalSize}" // 4 (+1 exon)
 
 
         featureService.removeExonOverlapsAndAdjacencies(transcript)
+        println "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
-        updateGeneBoundaries(transcript);
+        updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
+        println "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
     }
 
     Transcript getParentTranscriptForFeature(Feature feature) {

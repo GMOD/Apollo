@@ -59,9 +59,10 @@ class MockupService {
 
     def addOrganisms() {
         if (Organism.count > 0) return
-        new Organism(abbreviation: "HB",commonName: "Honey Bee", genus: "Amel",species: "dsomething",directory: "/opt/another.apollo/jbrowse/data").save(failOnError: true)
+        new Organism(abbreviation: "HB",commonName: "Honey Bee", genus: "Amel",species: "dsomething",directory: "/opt/apollo/honeybee/data").save(failOnError: true)
 //        new Organism(abbreviation: "ZF",commonName: "Zebrafish", genus: "Danio",species: "rerio",directory: "/opt/zebrafish/jbrowse/data").save(failOnError: true)
-        new Organism(abbreviation: "HM",commonName: "Human", genus: "Homo",species: "sapiens",directory: "/opt/another.apollo/jbrowse/human_data").save(failOnError: true)
+        new Organism(abbreviation: "HM",commonName: "Human", genus: "Homo",species: "sapiens",directory: "/opt/apollo/human/data").save(failOnError: true)
+        new Organism(abbreviation: "YS",commonName: "Yeast", genus: "Saccharomyces",species: "cerevisiae",directory: "/opt/apollo/yeast/data").save(failOnError: true)
 //        new Organism(abbreviation: "PIPE",commonName: "Alligator Pipefish", genus: "Syngnathoides",species: "biaculeatus").save(failOnError: true)
 //        new Organism(abbreviation: "BloodSD",commonName: "Bloody Stickleback", genus: "Apeltes",species: "quadracus").save(failOnError: true)
 //        new Organism(abbreviation: "BrookSD",commonName: "Brook Stickleback", genus: "Culaea",species: "inconstans").save(failOnError: true)

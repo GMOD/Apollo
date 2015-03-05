@@ -12,13 +12,14 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         Sequence sequence = new Sequence(
-                length: 1123600
+                length: 1405242
                 ,refSeqFile: "adsf"
-                ,seqChunkPrefix: "test-residues1-"
-                ,seqChunkSize: 1000
+                ,seqChunkPrefix: "Group1.10-"
+                ,seqChunkSize: 20000
                 ,start: 0
-                ,end: 123600
-                ,sequenceDirectory: "test/integration/resources/sequences"
+                ,end: 1405242
+                // from (honeybee f78/c6f/0c
+                ,sequenceDirectory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 ,name: "Group1.10"
         ).save()
         
@@ -53,9 +54,13 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         given: "a transcript with a UTR"
         String jsonString = " { \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":1216824,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40856-RA\",\"children\":[{\"location\":{\"fmin\":1235534,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1216824,\"fmax\":1216850,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1224676,\"fmax\":1224823,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1228682,\"fmax\":1228825,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1235237,\"fmax\":1235396,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1235487,\"fmax\":1235616,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1216824,\"fmax\":1235534,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        
+        String validJSONString = "{\"features\":[{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1235616},\"parent_type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}},\"name\":\"GB40856-RA\",\"children\":[{\"location\":{\"fmin\":1235237,\"strand\":1,\"fmax\":1235396},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"@TRANSCRIPT_NAME@\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209540,\"parent_id\":\"5A8C864885BC71606E120322CE0EC28C\"},{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1216850},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"0992325F0DD2290AB58EA37ECF2DA2E7\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209540,\"parent_id\":\"5A8C864885BC71606E120322CE0EC28C\"},{\"location\":{\"fmin\":1235487,\"strand\":1,\"fmax\":1235616},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"1C091FE87A8133803A69887F38FBDC4C\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209542,\"parent_id\":\"5A8C864885BC71606E120322CE0EC28C\"},{\"location\":{\"fmin\":1224676,\"strand\":1,\"fmax\":1224823},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"6D2E15D6DA759C523B79B96795927CAF\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209540,\"parent_id\":\"5A8C864885BC71606E120322CE0EC28C\"},{\"location\":{\"fmin\":1228682,\"strand\":1,\"fmax\":1228825},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"99C2A027C87DBDBC5536503D5C38F21C\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209540,\"parent_id\":\"5A8C864885BC71606E120322CE0EC28C\"},{\"location\":{\"fmin\":1216824,\"strand\":1,\"fmax\":1235534},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"994B96C6594F5DB1B6C836E6E0EDE2A6\",\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209540,\"parent_id\":\"5A8C864885BC71606E120322CE0EC28C\"}],\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"5A8C864885BC71606E120322CE0EC28C\",\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425583209602,\"parent_id\":\"8B9E9AC4D0DB90464F26B2F77A1E09B4\"}]}"
+                
 
         when: "You add a transcript via JSON"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        JSONObject correctJsonReturnObject = JSON.parse(validJSONString) as JSONObject
 
         then: "there should be no features"
         assert  Feature.count == 0
@@ -63,8 +68,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert  Sequence.count == 1
         JSONArray mrnaArray = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert 1==mrnaArray.size()
-        JSONArray codingArray = mrnaArray.getJSONObject(0).getJSONArray(FeatureStringEnum.CHILDREN.value)
-        assert 7==codingArray.size()
+        assert 7==getCodingArray(jsonObject).size()
 
 
 
@@ -80,14 +84,30 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert  CDS.count == 1
         assert  MRNA.count == 1
         assert  Gene.count == 1
-        assert  Feature.count == 8
-        assert  FeatureLocation.count == 8
+        def allFeatures = Feature.all
+       
+        // this is the new part
+        assert FlankingRegion.count==10
+        assert  FeatureLocation.count == 18
+        assert  Feature.count == 18
+
+
+        JSONArray returnedCodingArray = getCodingArray(returnObject)
+        JSONArray validCodingArray = getCodingArray(correctJsonReturnObject)
+        assert returnedCodingArray.size()==validCodingArray.size()
+        
 //        assert "ADD"==returnObject.getString("operation")
 //        assert Gene.count == 1
 //        assert Gene.first().name=="Bob1"
 
     }
-    
+
+    JSONArray getCodingArray(JSONObject jsonObject) {
+        JSONArray mrnaArray = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1==mrnaArray.size()
+        return mrnaArray.getJSONObject(0).getJSONArray(FeatureStringEnum.CHILDREN.value)
+    }
+
     void "add a transcript which is a single exon needs to translate correctly"(){
         
         given: "the input string "
@@ -116,8 +136,9 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert  MRNA.count == 1
         assert  Gene.count == 1
         assert  Exon.count == 1
-        assert  Feature.count == 4
-        assert  FeatureLocation.count == 4
+        int flankingCount = FlankingRegion.count
+        assert  Feature.count == 4+flankingCount
+        assert  FeatureLocation.count == 4+flankingCount
         assert  FeatureRelationship.count == 3
 
         Gene gene = Gene.first()
@@ -139,70 +160,116 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 //        MRNA mrna = featureRelationshipService.getChildForFeature(mrna)
 
     }
-    
 
-    void "adding a transcript that returns a missing feature location in the mRNA"(){
+    /**
+     * TODO: note, this sequence is for 1.1
+     */
+//    void "adding a transcript that returns a missing feature location in the mRNA"(){
+//
+//        given: "a input JSON string"
+//        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":976735,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42183-RA\",\"children\":[{\"location\":{\"fmin\":995216,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":976735,\"fmax\":976888,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":992139,\"fmax\":992559,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":992748,\"fmax\":993041,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":993307,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":976735,\"fmax\":995216,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+//
+//        when: "we parse the string"
+//        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+//
+//        then: "we get a valid json object and no features"
+//        assert Feature.count == 0
+//
+//        when: "we add it to a UTR"
+//        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+//
+//        then: "we should get a transcript back" // we currently get nothing
+//
+////        def allFeatures = Feature.all
+////        int flankingRegionCount = FlankingRegion.count
+////        assert Feature.count == 7 + flankingRegionCount
+//        assert returnObject.getString('operation')=="ADD"
+//        assert returnObject.getBoolean('sequenceAlterationEvent')==false
+//        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        assert 1==featuresArray.size()
+//        JSONObject mrna = featuresArray.getJSONObject(0)
+//        assert "GB42183-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
+//        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+//        assert 5==children.size()
+//        for(int i = 0 ; i < 5 ; i++){
+//            JSONObject codingObject = children.get(i)
+//            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+//            assert locationObject!=null
+//        }
+//
+//    }
+
+    /**
+     * TODO: note, this sequence is for 1.1
+     */
+//    void "adding another transcript with UTR fails to add GB42152-RA"(){
+//        given: "a input JSON string"
+//        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":561645,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42152-RA\",\"children\":[{\"location\":{\"fmin\":566169,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561645,\"fmax\":562692,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561645,\"fmax\":564771,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":564936,\"fmax\":565087,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":565410,\"fmax\":565655,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":566040,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":562692,\"fmax\":566169,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+//
+//        when: "we parse the string"
+//        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+//
+//        then: "we get a valid json object and no features"
+//        assert Feature.count == 0
+//
+//        when: "we add it to a UTR"
+//        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+//
+//        then: "we should get a transcript back" // we currently get nothing
+//        int flankingRegionCount = FlankingRegion.count
+//        assert Feature.count == 7 + flankingRegionCount
+////        println returnObject as JSON
+//        assert returnObject.getString('operation')=="ADD"
+//        assert returnObject.getBoolean('sequenceAlterationEvent')==false
+//        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        assert 1==featuresArray.size()
+//        JSONObject mrna = featuresArray.getJSONObject(0)
+//        assert "GB42152-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
+//        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+//        assert 5==children.size()
+//        for(int i = 0 ; i < 5 ; i++){
+//            JSONObject codingObject = children.get(i)
+//            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+//            assert locationObject!=null
+//        }
+//
+//    }
+    
+    void "add a transcript with UTR"(){
         
-        given: "a input JSON string"
-        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":976735,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42183-RA\",\"children\":[{\"location\":{\"fmin\":995216,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":976735,\"fmax\":976888,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":992139,\"fmax\":992559,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":992748,\"fmax\":993041,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":993307,\"fmax\":995721,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":976735,\"fmax\":995216,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        given: "a valid JSON gtring"
+//        String validInputString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":1287738,\"fmax\":1289338,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40717-RA\",\"children\":[{\"location\":{\"fmin\":1289034,\"fmax\":1289338,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1287738,\"fmax\":1288189,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1287738,\"fmax\":1288308,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1288385,\"fmax\":1288491,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1288554,\"fmax\":1288630,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1288942,\"fmax\":1289338,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1288189,\"fmax\":1289034,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String apollo2InputString = "{\"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1289338},\"name\":\"GB40717-RA\",\"children\":[{\"location\":{\"fmin\":1289034,\"strand\":-1,\"fmax\":1289338},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1288189},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1288308},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1288385,\"strand\":-1,\"fmax\":1288491},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1288554,\"strand\":-1,\"fmax\":1288630},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1288942,\"strand\":-1,\"fmax\":1289338},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1288189,\"strand\":-1,\"fmax\":1289034},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Annotations-Group1.10\"}"
+
+        String validResponseString ="{\"operation\":\"ADD\",\"sequenceAlterationEvent\":false,\"features\":[{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1289338},\"parent_type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}},\"name\":\"GB40717-RA\",\"children\":[{\"location\":{\"fmin\":1288942,\"strand\":-1,\"fmax\":1289338},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"57ED4B570156EED14312AFB1DC306F2B\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720165,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1288554,\"strand\":-1,\"fmax\":1288630},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"47FBDA96DC15CE1E17E27BD31FB22FE1\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720162,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1288308},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"CBDF08580305EE5199AA49E1B69283FC\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720164,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1288189,\"strand\":-1,\"fmax\":1289034},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"8673F11418891E01DF749A5607D5AE36\",\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720162,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1288385,\"strand\":-1,\"fmax\":1288491},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"30D14467AF67DCBD987DC99B6400F171\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720162,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"}],\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"15495DE1AEB1F224FD04CDB1AF67C166\",\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720165,\"parent_id\":\"B74B31812E992AB75B5E741AC6A3158A\"}]}"
+        
+        String validFeatureString = "{\"features\":[{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1289338},\"parent_type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}},\"name\":\"GB40717-RA\",\"children\":[{\"location\":{\"fmin\":1288942,\"strand\":-1,\"fmax\":1289338},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"57ED4B570156EED14312AFB1DC306F2B\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720165,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1288554,\"strand\":-1,\"fmax\":1288630},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"47FBDA96DC15CE1E17E27BD31FB22FE1\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720162,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1287738,\"strand\":-1,\"fmax\":1288308},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"CBDF08580305EE5199AA49E1B69283FC\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720164,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1288189,\"strand\":-1,\"fmax\":1289034},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"8673F11418891E01DF749A5607D5AE36\",\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720162,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"},{\"location\":{\"fmin\":1288385,\"strand\":-1,\"fmax\":1288491},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"30D14467AF67DCBD987DC99B6400F171\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720162,\"parent_id\":\"15495DE1AEB1F224FD04CDB1AF67C166\"}],\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"15495DE1AEB1F224FD04CDB1AF67C166\",\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1425585720165,\"parent_id\":\"B74B31812E992AB75B5E741AC6A3158A\"}]}"
+
 
         when: "we parse the string"
-        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
-
+        JSONObject jsonObject = JSON.parse(apollo2InputString) as JSONObject
+        JSONObject validJsonObject = JSON.parse(validResponseString) as JSONObject
+        JSONArray validCodingArray = getCodingArray(validJsonObject)
+//
         then: "we get a valid json object and no features"
         assert Feature.count == 0
-
-        when: "we add it to a UTR"
+//
+        when: "add UTR transcript"
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+        JSONArray returnCodingArray = getCodingArray(returnObject)
+        
+        then: "we should get no noncanonical splice sites"
+        def allFeatures = Feature.all
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 4
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert validCodingArray.size() == returnCodingArray.size()
+        
 
-        then: "we should get a transcript back" // we currently get nothing
-        assert Feature.count == 7
-        assert returnObject.getString('operation')=="ADD"
-        assert returnObject.getBoolean('sequenceAlterationEvent')==false
-        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        assert 1==featuresArray.size()
-        JSONObject mrna = featuresArray.getJSONObject(0)
-        assert "GB42183-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
-        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
-        assert 5==children.size()
-        for(int i = 0 ; i < 5 ; i++){
-            JSONObject codingObject = children.get(i)
-            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
-            assert locationObject!=null
-        }
-
-    }
-    
-    void "adding another transcript with UTR fails to add GB42152-RA"(){
-        given: "a input JSON string"
-        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":561645,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB42152-RA\",\"children\":[{\"location\":{\"fmin\":566169,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561645,\"fmax\":562692,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":561645,\"fmax\":564771,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":564936,\"fmax\":565087,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":565410,\"fmax\":565655,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":566040,\"fmax\":566383,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":562692,\"fmax\":566169,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
-
-        when: "we parse the string"
-        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
-
-        then: "we get a valid json object and no features"
-        assert Feature.count == 0
-
-        when: "we add it to a UTR"
-        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
-
-        then: "we should get a transcript back" // we currently get nothing
-        assert Feature.count == 7
-//        println returnObject as JSON
-        assert returnObject.getString('operation')=="ADD"
-        assert returnObject.getBoolean('sequenceAlterationEvent')==false
-        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        assert 1==featuresArray.size()
-        JSONObject mrna = featuresArray.getJSONObject(0)
-        assert "GB42152-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
-        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
-        assert 5==children.size()
-        for(int i = 0 ; i < 5 ; i++){
-            JSONObject codingObject = children.get(i)
-            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
-            assert locationObject!=null
-        }
-
+        
+        
     }
 
     void "adding an exon to an existing transcript"() {
@@ -231,7 +298,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert Gene.count==1
         assert MRNA.count==1
         // we are losing an exon somewhere!
-        assert Exon.count==3
+        assert Exon.count==2
         assert CDS.count==1
         assert NonCanonicalFivePrimeSpliceSite.count==1
         assert NonCanonicalThreePrimeSpliceSite.count==1
@@ -239,8 +306,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert "GB40772-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
         String transcriptUniqueName = mrna.getString(FeatureStringEnum.UNIQUENAME.value)
         JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
-        assert 3==children.size()
-        for(int i = 0 ; i < 3 ; i++){
+        assert 5==children.size()
+        for(int i = 0 ; i < 5 ; i++){
             JSONObject codingObject = children.get(i)
             JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
             assert locationObject!=null
@@ -251,11 +318,11 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         exonString = exonString.replaceAll("@TRANSCRIPT_NAME@",transcriptUniqueName)
         JSONObject exonJsonObject = JSON.parse(exonString) as JSONObject
         JSONObject validExonJsonObject = JSON.parse(validExonString) as JSONObject
-
-        then: "we get a valid json object and no features"
-        assert Feature.count == 5
+//
+//        then: "we get a valid json object and no features"
+//        assert Feature.count == 7
         
-        when: "we add the exon explicitly"
+//        when: "we add the exon explicitly"
         JSONObject returnedAfterExonObject = requestHandlingService.addExon(exonJsonObject)
 
         then: "we should see an exon added"
@@ -267,6 +334,13 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject mRNAObject = returnFeaturesArray.get(0)
         assert mRNAObject.getString(FeatureStringEnum.NAME.value)=="GB40772-RA-00001"
         JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert Gene.count==1
+        assert MRNA.count==1
+        // we are losing an exon somewhere!
+        assert Exon.count==3
+        assert CDS.count==1
+        assert NonCanonicalFivePrimeSpliceSite.count==1
+        assert NonCanonicalThreePrimeSpliceSite.count==1
         assert childrenArray.size()==6
 
 

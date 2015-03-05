@@ -61,9 +61,9 @@ class SequenceService {
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
 
-        if(grails.util.Environment.current == grails.util.Environment.TEST){
-            return sequenceString
-        }
+//        if(grails.util.Environment.current == grails.util.Environment.TEST){
+//            return sequenceString
+//        }
 
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
@@ -90,9 +90,9 @@ class SequenceService {
 
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
       
-        if(grails.util.Environment.current == grails.util.Environment.TEST){
-            return generatorSampleDNA(chunkNumber)
-        }
+//        if(grails.util.Environment.current == grails.util.Environment.TEST){
+//            return generatorSampleDNA(chunkNumber)
+//        }
         
         String filePath = sequence.sequenceDirectory + "/" + sequence.seqChunkPrefix + chunkNumber + ".txt"
 
