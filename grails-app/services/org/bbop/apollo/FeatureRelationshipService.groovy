@@ -134,13 +134,20 @@ class FeatureRelationshipService {
         // delete transcript -> non canonical 3' splice site child relationship
         def criteria = FeatureRelationship.createCriteria()
 
-        criteria {
+        def featureRelationships = criteria {
             eq("parentFeature", feature)
         }.findAll() {
             it.childFeature.ontologyId in ontologyIds
-        }.each {
-            feature.removeFromChildFeatureRelationships(it)
         }
+       
+        int numRelationships = featureRelationships.size()
+        for(int i = 0 ; i < numRelationships ; i++){
+            FeatureRelationship featureRelationship = featureRelationships.get(i)
+            removeFeatureRelationship(featureRelationship.parentFeature,featureRelationship.childFeature)
+        }
+//        .each {
+//            feature.removeFromChildFeatureRelationships(it)
+//        }
 
 //        for (FeatureRelationship fr : feature.getChildFeatureRelationships()) {
 //            if ( ontologyId == fr.childFeature.ontologyId
@@ -159,7 +166,7 @@ class FeatureRelationshipService {
         }.findAll() {
             it.parentFeature.ontologyId in ontologyIds
         }.each {
-            feature.removeFromParentFeatureRelationships(it)
+            feature.removeFromChildFeatureRelationships(it)
         }
 
     }

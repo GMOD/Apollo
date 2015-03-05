@@ -130,7 +130,7 @@ class NonCanonicalSplitSiteService {
                             featureService.getResiduesWithAlterations(spliceAcceptorSiteFlankingRegion) : null;
                     if (exonNum < exons.size()) {
                         if (!validFivePrimeSplice) {
-                            if (!donorSpliceSiteSequence.equals(donor)) {
+                            if (donorSpliceSiteSequence!=donor) {
                                 fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceDonorSiteFlankingRegion.getFmax() : spliceDonorSiteFlankingRegion.getFmin();
                             } else {
                                 validFivePrimeSplice = true;
@@ -139,7 +139,7 @@ class NonCanonicalSplitSiteService {
                     }
                     if (exonNum > 1) {
                         if (!validThreePrimeSplice) {
-                            if (!acceptorSpliceSiteSequence.equals(acceptor)) {
+                            if (acceptorSpliceSiteSequence!=acceptor) {
                                 threePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceAcceptorSiteFlankingRegion.getFmin() : spliceAcceptorSiteFlankingRegion.getFmax();
                             } else {
                                 validThreePrimeSplice = true;

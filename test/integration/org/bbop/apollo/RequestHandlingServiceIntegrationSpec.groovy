@@ -12,7 +12,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         Sequence sequence = new Sequence(
-                length: 123600
+                length: 1123600
                 ,refSeqFile: "adsf"
                 ,seqChunkPrefix: "test-residues1-"
                 ,seqChunkSize: 1000

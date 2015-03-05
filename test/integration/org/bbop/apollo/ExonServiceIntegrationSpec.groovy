@@ -9,7 +9,7 @@ class ExonServiceIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         Sequence sequence = new Sequence(
-                length: 3
+                length: 300000
                 ,refSeqFile: "adsf"
                 ,seqChunkPrefix: "asdf"
                 ,seqChunkSize: 3
