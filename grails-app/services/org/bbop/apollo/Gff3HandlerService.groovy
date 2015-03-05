@@ -201,16 +201,16 @@ public class Gff3HandlerService {
         String type = featureService.getCvTermFromFeature(feature);
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
-        String score = "";
+        String score = ".";
         String strand;
         if (feature.getStrand() == 1) {
             strand = "+";
         } else if (feature.getStrand() == -1) {
             strand = "-";
         } else {
-            strand = "";
+            strand = ".";
         }
-        String phase = "";
+        String phase = ".";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
         entry.setAttributes(extractAttributes(writeObject,feature));
         gffEntries.add(entry);
@@ -228,14 +228,14 @@ public class Gff3HandlerService {
         String seqId = cds.getFeatureLocation().sequence.name
 //        String type = cvterm[1];
         String type = cds.cvTerm
-        String score = "";
+        String score = ".";
         String strand;
         if (cds.getStrand() == 1) {
             strand = "+";
         } else if (cds.getStrand() == -1) {
             strand = "-";
         } else {
-            strand = "";
+            strand = ".";
         }
 //        featureRelationshipService.getParentForFeature(cds,transcriptService.ontologyIds)
 
