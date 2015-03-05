@@ -19,17 +19,17 @@ Bugfixes
 + Fixed bug where the dark theme made the reference sequence too dark (#119).
 + Added some basic help text for search parameters in the sequences view (#160).
 + Added MIME types for bigwig files (#166).
-+ Changed title page to match content (#158).
++ Added labels to sequence page search boxes to match content (#158).
 + Fixed GFF3 export for non-specified phase, score, and strand (#177).
-+ Hitting previous button does not update datagrid (#176).
-+ Show track labels" makes feature labels go offscreen (#179).
-+ Rename "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
++ Fixed "previous" button on sequence page not updating datagrid (#176).
++ Fixed "Show track labels" makes feature labels go offscreen (#179).
++ Renamed "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
 + Fixed mislabeled column in Changes page (#169). 
-+ Add sequence search track function is not retrieving amino acid strings (#168).
-+ Bad layout on changes page (#180).
-+ Plus/minus strand filters make bigwig go to zero (#181).
-+ Fixed embedded mode nav option (#183).
-+ Add user popup uses outdated server configuration (#182).
++ Fixed sequence search track function not matching amino acid (#168).
++ Fixed bad layout on changes page (#180).
++ Fixed plus/minus strand filters making bigwig score go to zero (#181).
++ Fixed problem encountered with using iframe embedded mode options (#183).
++ Fixed problem with add user popup using outdated server configuration (#182).
 
 
 ## 1.0.3 release
