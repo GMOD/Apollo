@@ -242,18 +242,6 @@ var AnnotTrack = declare( DraggableFeatureTrack,
 
     },
 
-    /**
-     * removing "Pin to top" menuitem, so SequenceTrack is always pinned and
-     * "Delete track" menuitem, so can't be deleted (very hacky since depends on
-     * label property of menuitem config)
-     */
-   _trackMenuOptions: function() {
-       var options = this.inherited( arguments );
-       options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-       options = this.webapollo.removeItemWithLabel(options, "Delete track");
-       return options;
-   }, 
-    
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
                            widthPct, widthPx, scale ) {
@@ -5476,6 +5464,8 @@ var AnnotTrack = declare( DraggableFeatureTrack,
         var browser = this.browser;
         var clabel = this.name+"-collapsed";
         var options = this.inherited(arguments) || [];
+        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+        options = this.webapollo.removeItemWithLabel(options, "Delete track");
         
         options.push({ label: "Collapsed view",
                  title: "Collapsed view",
