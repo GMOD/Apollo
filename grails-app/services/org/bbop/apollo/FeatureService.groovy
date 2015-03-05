@@ -234,7 +234,7 @@ class FeatureService {
                         log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                     }
                 } else {
-                    log.erro "Feature is not an instance of a gene or is a pseudogene or there is no adequate overlapper specified"
+                    log.error "Feature is not an instance of a gene or is a pseudogene or there is no adequate overlapper specified"
                 }
             }
         }
