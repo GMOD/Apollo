@@ -223,6 +223,26 @@ class TranscriptService {
 
     def addExon(Transcript transcript, Exon exon) {
 
+        if (exon.getFeatureLocation().getFmin() < transcript.getFeatureLocation().getFmin()) {
+            transcript.getFeatureLocation().setFmin(exon.getFeatureLocation().getFmin());
+        }
+        if (exon.getFeatureLocation().getFmax() > transcript.getFeatureLocation().getFmax()) {
+            transcript.getFeatureLocation().setFmax(exon.getFeatureLocation().getFmax());
+        }
+        transcript.save()
+
+        // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
+        Gene gene = getGene(transcript)
+        if (gene) {
+            if (transcript.featureLocation.getFmin() < gene.featureLocation.getFmin()) {
+                gene.featureLocation.setFmin(transcript.featureLocation.getFmin());
+            }
+            if (transcript.featureLocation.getFmax() > gene.featureLocation.getFmax()) {
+                gene.featureLocation.setFmax(transcript.getFmax());
+            }
+        }
+        gene.save()
+
         int initialSize = transcript.parentFeatureRelationships?.size()
         println "initial size: ${initialSize}" // 3
         featureRelationshipService.addChildFeature(transcript,exon,false)
