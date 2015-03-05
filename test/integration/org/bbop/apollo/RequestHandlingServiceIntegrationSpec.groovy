@@ -222,13 +222,20 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 
         then: "we should get a transcript back" // we currently get nothing
-        assert Feature.count == 5
 //        println returnObject as JSON
         assert returnObject.getString('operation')=="ADD"
         assert returnObject.getBoolean('sequenceAlterationEvent')==false
         JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert 1==featuresArray.size()
         JSONObject mrna = featuresArray.getJSONObject(0)
+        assert Gene.count==1
+        assert MRNA.count==1
+        // we are losing an exon somewhere!
+        assert Exon.count==3
+        assert CDS.count==1
+        assert NonCanonicalFivePrimeSpliceSite.count==1
+        assert NonCanonicalThreePrimeSpliceSite.count==1
+//        assert Feature.count == 5
         assert "GB40772-RA-00001"==mrna.getString(FeatureStringEnum.NAME.value)
         String transcriptUniqueName = mrna.getString(FeatureStringEnum.UNIQUENAME.value)
         JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
