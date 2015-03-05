@@ -22,7 +22,7 @@ Bugfixes
 + Added labels to sequence page search boxes to match content (#158).
 + Fixed GFF3 export for non-specified phase, score, and strand (#177).
 + Fixed "previous" button on sequence page not updating datagrid (#176).
-+ Fixed "Show track labels" makes feature labels go offscreen (#179).
++ Fixed "Show track labels" causing feature labels go offscreen (#179).
 + Renamed "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
 + Fixed mislabeled column in Changes page (#169). 
 + Fixed sequence search track function not matching amino acid (#168).
