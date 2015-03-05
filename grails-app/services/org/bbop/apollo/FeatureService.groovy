@@ -1195,6 +1195,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return generateFeatureForType(ontologyId).cvTerm.toLowerCase()
     }
 
+    String getCvTermFromFeature(Feature feature) {
+        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
+        return cvTerm
+    }
     String generateFeaturePropertyStringForType(String ontologyId) {
         return generateFeaturePropertyForType(ontologyId)?.cvTerm?.toLowerCase() ?: ontologyId
     }

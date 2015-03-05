@@ -197,7 +197,8 @@ public class Gff3HandlerService {
         String[] cvterm = feature.cvTerm.split(":");
         String seqId = feature.getFeatureLocation().sequence.name
         //String type = cvterm[1];
-        String type = feature.cvTerm;
+        //String type = feature.cvTerm;
+        String type = featureService.getCvTermFromFeature(feature);
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = "";
@@ -303,8 +304,8 @@ public class Gff3HandlerService {
         
         int count = 0;
         StringBuilder parents = new StringBuilder();
-        if (feature.class == 'org.bbop.apollo.Gene') {
-            println "${feature.class} is a gene and hence doesn't have a parent"
+        if (feature.ontologyId == Gene.ontologyId) {
+            println "${feature.name} is a gene and hence doesn't have a parent"
         }
         else {
             for (Feature parentFeature in featureRelationshipService.getParentForFeature(feature)) {
