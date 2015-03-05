@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+// TODO: remove from persistence?
 class FlankingRegion extends Region{
 
 

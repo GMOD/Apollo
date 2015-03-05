@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.Strand
 
 @GrailsCompileStatic
 @Transactional

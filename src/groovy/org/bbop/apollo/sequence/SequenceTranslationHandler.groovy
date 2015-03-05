@@ -22,16 +22,16 @@ class SequenceTranslationHandler {
         for (int i = 0; i < buffer.length(); ++i) {
             switch (buffer.charAt(i)) {
                 case 'A':
-                    buffer.setCharAt(i, 'T');
+                    buffer.setCharAt(i, 'T' as char);
                     break;
                 case 'C':
-                    buffer.setCharAt(i, 'G');
+                    buffer.setCharAt(i, 'G' as char);
                     break;
                 case 'G':
-                    buffer.setCharAt(i, 'C');
+                    buffer.setCharAt(i, 'C' as char);
                     break;
                 case 'T':
-                    buffer.setCharAt(i, 'A');
+                    buffer.setCharAt(i, 'A' as char);
                     break;
             }
         }
