@@ -7,6 +7,7 @@ Features
 + Made "Show track labels" and "Color by CDS" more persistent (#120).
 + Added a "collapse" option to the User-created annotations track (#155).
 + Changed maxHeight on User-create annotations track to prevent overflow (#124).
++ Allow single-level features to be annotated (#81).
 
 Bugfixes
 
@@ -30,7 +31,7 @@ Bugfixes
 + Fixed plus/minus strand filters making bigwig score go to zero (#181).
 + Fixed problem encountered with using iframe embedded mode options (#183).
 + Fixed problem with add user popup using outdated server configuration (#182).
-
++ Fixed minor issue with retrieving non-existant peptides from untranslated regions (#157).
 
 ## 1.0.3 release
 
