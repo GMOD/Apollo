@@ -197,7 +197,8 @@ public class Gff3HandlerService {
         String[] cvterm = feature.cvTerm.split(":");
         String seqId = feature.getFeatureLocation().sequence.name
         //String type = cvterm[1];
-        String type = feature.cvTerm;
+        //String type = feature.cvTerm;
+        String type = featureService.getCvTermFromFeature(feature);
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = "";
