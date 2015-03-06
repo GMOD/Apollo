@@ -389,6 +389,7 @@ class TranscriptService {
 //            featureService.deleteFeature(oldGene)
 //        }
         oldTranscript = featureService.flipStrand(oldTranscript)
+        oldTranscript.save(flush: true)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript)
         oldTranscript.save(flush: true)
 

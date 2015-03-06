@@ -28,6 +28,39 @@ class NonCanonicalSplitSiteService {
 
         featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
         featureRelationshipService.deleteParentForTypes(nonCanonicalFivePrimeSpliceSite,Transcript.ontologyId)
+        nonCanonicalFivePrimeSpliceSite.delete()
+
+//        // delete transcript -> non canonical 5' splice site child relationship
+//        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
+//            if (partOfCvterms == fr.type
+//                    && nonCanonicalFivePrimeSpliceSiteCvterms == fr.childFeature.type
+//                    && fr.getSubjectFeature().equals(nonCanonicalFivePrimeSpliceSite)) {
+//                boolean ok = transcript.getChildFeatureRelationships().remove(fr);
+////                break;
+//            }
+//        }
+//
+//
+//        // delete transcript -> non canonical 5' splice site parent relationship
+//        for (FeatureRelationship fr : nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships()) {
+//            if (partOfCvterms == fr.type
+//                    && transcriptCvTerm == fr.parentFeature.type
+//                    && fr.childFeature == nonCanonicalFivePrimeSpliceSite) {
+//                boolean ok = nonCanonicalFivePrimeSpliceSite.getParentFeatureRelationships().remove(fr);
+//            }
+//        }
+
+    }
+
+    public void deleteNonCanonicalThreePrimeSpliceSite(Transcript transcript, NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
+//        CVTerm partOfCvterms = cvTermService.partOf
+//        CVTerm nonCanonicalFivePrimeSpliceSiteCvterms = cvTermService.getTerm(FeatureStringEnum.NONCANONICALFIVEPRIMESPLICESITE)
+//        CVTerm transcriptCvTerm = cvTermService.transcript
+//        Collection<CVTerm> nonCanonicalFivePrimeSpliceSiteCvterms = conf.getCVTermsForClass("NonCanonicalFivePrimeSpliceSite");
+
+        featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
+        featureRelationshipService.deleteParentForTypes(nonCanonicalThreePrimeSpliceSite,Transcript.ontologyId)
+        nonCanonicalThreePrimeSpliceSite.delete()
 
 //        // delete transcript -> non canonical 5' splice site child relationship
 //        for (FeatureRelationship fr : transcript.getChildFeatureRelationships()) {
@@ -88,7 +121,8 @@ class NonCanonicalSplitSiteService {
      */
     public void deleteAllNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
-            featureRelationshipService.deleteRelationships(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId,Transcript.ontologyId)
+//            featureRelationshipService.deleteRelationships(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId,Transcript.ontologyId)
+            deleteNonCanonicalThreePrimeSpliceSite(transcript,spliceSite)
         }
     }
 

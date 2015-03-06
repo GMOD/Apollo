@@ -346,6 +346,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count==2
         assert NonCanonicalThreePrimeSpliceSite.count==0
         assert childrenArray.size()==6
+        
 
 
     }
@@ -418,5 +419,25 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
         assert childrenArray.size() == 5
+
+        when: "we flip it back the other way"
+        returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
+        returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        mRNAObject = returnFeaturesArray.get(0)
+        childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+
+        then: "we should have no splice sites"
+        println Feature.count
+        assert Feature.count > 5
+        assert returnFeaturesArray.size() == 1
+        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        // we are losing an exon somewhere!
+        assert childrenArray.size() == 3
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
     }
 }
