@@ -1,21 +1,24 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-//import grails.compiler.GrailsCompileStatic
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
+//import grails.compiler.GrailsCompileStatic
 
 //@GrailsCompileStatic
 @Transactional
 class TranscriptService {
 
     List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
-    
-   
+
     // services
     def featureService
     def featureRelationshipService
     def exonService
     def nameService
+    def requestHandlingService
+    def nonCanonicalSplitSiteService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -25,7 +28,7 @@ class TranscriptService {
      */
     public CDS getCDS(Transcript transcript) {
 
-        return (CDS) featureRelationshipService.getChildForFeature(transcript,CDS.ontologyId)
+        return (CDS) featureRelationshipService.getChildForFeature(transcript, CDS.ontologyId)
 
     }
 
@@ -36,7 +39,7 @@ class TranscriptService {
      * @return Collection of exons associated with this transcript
      */
     public Collection<Exon> getExons(Transcript transcript) {
-        return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,Exon.ontologyId)
+        return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
     public Collection<Exon> getSortedExons(Transcript transcript) {
@@ -53,11 +56,11 @@ class TranscriptService {
      * @return Gene that this Transcript is associated with
      */
     public Gene getGene(Transcript transcript) {
-        return (Gene) featureRelationshipService.getParentForFeature(transcript,Gene.ontologyId)
+        return (Gene) featureRelationshipService.getParentForFeature(transcript, Gene.ontologyId)
     }
 
     public Pseudogene getPseudogene(Transcript transcript) {
-        return (Pseudogene) featureRelationshipService.getParentForFeature(transcript,Pseudogene.ontologyId)
+        return (Pseudogene) featureRelationshipService.getParentForFeature(transcript, Pseudogene.ontologyId)
     }
 
 
@@ -75,7 +78,7 @@ class TranscriptService {
                 uniqueName: uniqueName
                 , isAnalysis: transcript.isAnalysis
                 , isObsolete: transcript.isObsolete
-                ,name: uniqueName
+                , name: uniqueName
         ).save(failOnError: true)
 
         FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
@@ -83,15 +86,14 @@ class TranscriptService {
         FeatureLocation featureLocation = new FeatureLocation(
                 strand: transcriptFeatureLocation.strand
                 , sequence: transcriptFeatureLocation.sequence
-                ,fmin: transcriptFeatureLocation.fmin
-                ,fmax: transcriptFeatureLocation.fmax
+                , fmin: transcriptFeatureLocation.fmin
+                , fmax: transcriptFeatureLocation.fmax
                 , feature: cds
-        ).save(insert: true,failOnError: true)
+        ).save(insert: true, failOnError: true)
         cds.addToFeatureLocations(featureLocation);
         cds.save(flush: true, insert: true)
         return cds;
     }
-
 
     /** Delete a transcript.  Deletes both the gene -> transcript and transcript -> gene
      *  relationships.
@@ -99,8 +101,9 @@ class TranscriptService {
      * @param transcript - Transcript to be deleted
      */
     public void deleteTranscript(Gene gene, Transcript transcript) {
-        featureRelationshipService.deleteChildrenForTypes(gene,ontologyIds as String[])
-        featureRelationshipService.deleteParentForTypes(transcript,Gene.ontologyId,Pseudogene.ontologyId)
+        featureRelationshipService.removeFeatureRelationship(gene,transcript)
+//        featureRelationshipService.deleteChildrenForTypes(gene, ontologyIds as String[])
+//        featureRelationshipService.deleteParentForTypes(transcript, Gene.ontologyId, Pseudogene.ontologyId)
 
         // update bounds
         Integer fmin = null;
@@ -122,7 +125,6 @@ class TranscriptService {
 
     }
 
-
     /** Retrieve all the transcripts associated with this gene.  Uses the configuration to determine
      *  which children are transcripts.  Transcript objects are generated on the fly.  The collection
      *  will be empty if there are no transcripts associated with the gene.
@@ -130,12 +132,12 @@ class TranscriptService {
      * @return Collection of transcripts associated with this gene
      */
     public Collection<Transcript> getTranscripts(Gene gene) {
-        return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene,ontologyIds as String[])
+        return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene, ontologyIds as String[])
     }
 
 
-    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene,boolean sortByStrand) {
-        return getTranscripts(gene).sort(true,new FeaturePositionComparator<Transcript>(sortByStrand))
+    List<Transcript> getTranscriptsSortedByFeatureLocation(Gene gene, boolean sortByStrand) {
+        return getTranscripts(gene).sort(true, new FeaturePositionComparator<Transcript>(sortByStrand))
     }
 
     public void setFmin(Transcript transcript, Integer fmin) {
@@ -176,7 +178,7 @@ class TranscriptService {
 //        gene.setLastUpdated(new Date());
     }
 
-    List<String> getFrameShiftOntologyIds(){
+    List<String> getFrameShiftOntologyIds() {
         List<String> frameshiftOntologyIds = new ArrayList<>()
 
         frameShiftOntologyIds.add(Plus1Frameshift.ontologyId)
@@ -189,7 +191,7 @@ class TranscriptService {
     }
 
     List<Frameshift> getFrameshifts(Transcript transcript) {
-        return featureRelationshipService.getFeaturePropertyForTypes(transcript,frameShiftOntologyIds)
+        return featureRelationshipService.getFeaturePropertyForTypes(transcript, frameShiftOntologyIds)
     }
 
     /** Set the CDS associated with this transcript.  Uses the configuration to determine
@@ -197,10 +199,10 @@ class TranscriptService {
      *
      * @param cds - CDS to be set to this transcript
      */
-    public void setCDS(Feature feature,CDS cds,boolean replace = true) {
-        if(replace){
+    public void setCDS(Feature feature, CDS cds, boolean replace = true) {
+        if (replace) {
             println "replacing CDS on feature"
-            if(featureRelationshipService.setChildForType(feature,cds)){
+            if (featureRelationshipService.setChildForType(feature, cds)) {
                 println "returning "
                 return
             }
@@ -210,8 +212,8 @@ class TranscriptService {
 //                type:partOfCvTerm
                 parentFeature: feature
                 , childFeature: cds
-                ,rank: 0
-        ).save(insert:true,failOnError: true)
+                , rank: 0
+        ).save(insert: true, failOnError: true)
 
 
         println "fr: ${fr}"
@@ -248,7 +250,7 @@ class TranscriptService {
 
         int initialSize = transcript.parentFeatureRelationships?.size()
         println "initial size: ${initialSize}" // 3
-        featureRelationshipService.addChildFeature(transcript,exon,false)
+        featureRelationshipService.addChildFeature(transcript, exon, false)
         int finalSize = transcript.parentFeatureRelationships?.size()
         println "final size: ${finalSize}" // 4 (+1 exon)
 
@@ -262,16 +264,15 @@ class TranscriptService {
     }
 
     Transcript getParentTranscriptForFeature(Feature feature) {
-        return (Transcript) featureRelationshipService.getParentForFeature(feature,ontologyIds as String[])
+        return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
 
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
 //        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons());
         List<Exon> exons = exonService.getSortedExons(transcript)
 //        Transcript splitTranscript = (Transcript) transcript.cloneFeature(splitTranscriptUniqueName);
-        Transcript splitTranscript = new Transcript( transcript.properties )
+        Transcript splitTranscript = new Transcript(transcript.properties)
         splitTranscript.uniqueName = nameService.generateUniqueName()
-
 
 //        if (transcript.getGene() != null) {
 //            addTranscript(transcript.getGene(), splitTranscript);
@@ -279,13 +280,12 @@ class TranscriptService {
 //            addFeature(splitTranscript);
 //        }
         Gene gene = getGene(transcrip)
-        if(gene){
-            featureService.addTranscriptToGene(gene,splitTranscript)
-        }
-        else{
+        if (gene) {
+            featureService.addTranscriptToGene(gene, splitTranscript)
+        } else {
             featureService.addFeature(splitTranscript)
         }
-      
+
         FeatureLocation transcriptFeatureLocation = transcript.featureLocation
 //        transcript.setFmax(leftExon.getFmax());
         transcriptFeatureLocation.fmax = leftExon.fmax
@@ -304,7 +304,7 @@ class TranscriptService {
                 }
             }
         }
-        
+
         return splitTranscript
     }
 
@@ -315,12 +315,12 @@ class TranscriptService {
      */
     public Transcript duplicateTranscript(Transcript transcript) {
         Transcript duplicate = (Transcript) transcript.generateClone(transcript);
-        duplicate.name = transcript.name+"-copy"
+        duplicate.name = transcript.name + "-copy"
         duplicate.uniqueName = nameService.generateUniqueName(transcript)
-       
-        Gene gene =  getGene(transcript)
+
+        Gene gene = getGene(transcript)
         if (gene) {
-            featureService.addTranscriptToGene(gene,duplicate)
+            featureService.addTranscriptToGene(gene, duplicate)
             gene.save()
         }
         // copy exons
@@ -328,7 +328,7 @@ class TranscriptService {
             Exon duplicateExon = (Exon) exon.generateClone()
             duplicateExon.name = exon.name + "-copy"
             duplicateExon.uniqueName = nameService.generateUniqueName(duplicateExon)
-            addExon(duplicate,duplicateExon)
+            addExon(duplicate, duplicateExon)
         }
         // copy CDS
         CDS cds = getCDS(transcript)
@@ -336,21 +336,21 @@ class TranscriptService {
             CDS duplicateCDS = (CDS) cds.generateClone()
             duplicateCDS.name = cds.name + "-copy"
             duplicateCDS.uniqueName = nameService.generateUniqueName(duplicateCDS)
-            setCDS(duplicate,cds)
+            setCDS(duplicate, cds)
         }
 
 
         duplicate.save()
-        
+
         return duplicate
     }
 
     def mergeTranscripts(Transcript transcript1, Transcript transcript2) {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
-        
+
         for (Exon exon : getExons(transcript2)) {
-            exonService.deleteExon(transcript2,exon)
-            addExon(transcript1,exon)
+            exonService.deleteExon(transcript2, exon)
+            addExon(transcript1, exon)
         }
         transcript1.save()
         Gene gene1 = getGene(transcript1)
@@ -360,12 +360,12 @@ class TranscriptService {
         }
         // if the parent genes aren't the same, this leads to a merge of the genes
         if (gene1 && gene2) {
-            if (gene1!=gene2) {
+            if (gene1 != gene2) {
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
                 for (Transcript transcript : gene2Transcripts) {
-                    if (transcript!=transcript2) {
-                        deleteTranscript(gene2,transcript)
-                        featureService.addTranscriptToGene(gene1,transcript)
+                    if (transcript != transcript2) {
+                        deleteTranscript(gene2, transcript)
+                        featureService.addTranscriptToGene(gene1, transcript)
                     }
                 }
                 featureService.deleteFeature(gene2)
@@ -378,5 +378,50 @@ class TranscriptService {
             featureService.deleteFeature(transcript2);
         }
         featureService.removeExonOverlapsAndAdjacencies(transcript1);
+    }
+
+    Transcript flipTranscriptStrand(Transcript oldTranscript) {
+        Gene oldGene = getGene(oldTranscript)
+        boolean isPseudogene = oldGene instanceof Pseudogene
+//        featureRelationshipService.removeFeatureRelationship(oldGene, oldTranscript)
+
+//        if (getTranscripts(oldGene)?.size() == 0) {
+//            featureService.deleteFeature(oldGene)
+//        }
+        oldTranscript = featureService.flipStrand(oldTranscript)
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript)
+        oldTranscript.save(flush: true)
+
+//        String oldGeneName = oldGene.name
+//        String oldTranscriptName = oldTranscript.name
+//        JSONObject jsonTranscript = featureService.convertFeatureToJSON(oldTranscript, false)
+//        JSONObject requestJSONObject = requestHandlingService.createJSONFeatureContainer(jsonTranscript)
+//        requestJSONObject.put(FeatureStringEnum.TRACK.value,oldTranscript.featureLocation.sequence.name)
+       
+//        String sequenceName = oldTranscript.featureLocation.sequence.name
+//        Transcript newTranscript = featureService.generateTranscript(jsonTranscript,sequenceName)
+//        newTranscript.name = oldTranscriptName
+//        newTranscript.save()
+
+
+//        JSONObject newJsonTranscript = requestHandlingService.addTranscript(requestJSONObject)
+//        if (getTranscripts(oldGene).size() == 0) {
+//            oldGene.delete(flush: true)
+//        } else {
+//            oldGene.save(flush: true )
+//        }
+//        deleteTranscript(oldGene,oldTranscript)
+//        oldTranscript.delete(flush: true )
+//        writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(newTranscript), track);
+//        if (historyStore != null) {
+//            Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
+//            transaction.addNewFeature(newTranscript);
+//            writeHistoryToStore(historyStore, transaction);
+//        }
+//        JSONArray features = newJsonTranscript.getJSONArray(FeatureStringEnum.FEATURES.value)
+//        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value)
+//        Transcript newTranscript = Transcript.findByUniqueName(uniqueName)
+        
+        return oldTranscript;
     }
 }

@@ -45,6 +45,7 @@ enum FeatureStringEnum {
     VALUE,
     CV,
     SEQUENCE,
+    TRACK,
     DB,
     DBXREFS,
     ACCESSION,

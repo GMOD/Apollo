@@ -1864,11 +1864,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             featureLocation.save()
         }
 
-        for (Feature childFeature : feature.parentFeatureRelationships.childFeature) {
+        for (Feature childFeature : feature?.parentFeatureRelationships?.childFeature) {
             flipStrand(childFeature);
         }
 
         feature.save()
+        return feature
 
     }
 }

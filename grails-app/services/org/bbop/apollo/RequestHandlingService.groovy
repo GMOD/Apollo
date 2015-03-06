@@ -424,6 +424,9 @@ class RequestHandlingService {
         transcript.save(flush: true)
 //        featureService.getTopLevelFeature(transcript)?.save(flush: true)
         transcript.attach()
+        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+        transcript.save(flush: true)
+        transcript.attach()
 
         // TODO: one of these two versions . . .
         JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))
@@ -881,7 +884,7 @@ class RequestHandlingService {
         return createJSONFeatureContainer(jsonObjects as JSONObject[])
     }
 
-    private static JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
+    JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
         jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
@@ -1109,13 +1112,13 @@ class RequestHandlingService {
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
 
-//            if (feature instanceof Transcript) {
-//                feature = transcriptService.flipTranscriptStrand((Transcript) feature);
-//            } else {
+            if (feature instanceof Transcript) {
+                feature = transcriptService.flipTranscriptStrand((Transcript) feature);
+            } else {
 //                feature = featureService.flipFeatureStrand(feature);
-//            }
-            featureService.flipStrand(feature)
-            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+                feature = featureService.flipStrand(feature)
+            }
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false));
         }
 
         String trackName = fixTrackHeader(inputObject.track)

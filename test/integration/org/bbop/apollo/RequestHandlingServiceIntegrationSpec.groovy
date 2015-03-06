@@ -337,16 +337,86 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject mRNAObject = returnFeaturesArray.get(0)
         assert mRNAObject.getString(FeatureStringEnum.NAME.value)=="GB40772-RA-00001"
         JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        def allFeatures = Feature.all
         assert Gene.count==1
         assert MRNA.count==1
         // we are losing an exon somewhere!
         assert Exon.count==3
         assert CDS.count==1
-        assert NonCanonicalFivePrimeSpliceSite.count==1
-        assert NonCanonicalThreePrimeSpliceSite.count==1
+        assert NonCanonicalFivePrimeSpliceSite.count==2
+        assert NonCanonicalThreePrimeSpliceSite.count==0
         assert childrenArray.size()==6
 
 
     }
-    
+
+    void "flip strand on an existing transcript"() {
+
+        given: "a input JSON string"
+        String jsonString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":219994,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":222109,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":220044,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":222081,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":222109,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String commandString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_NAME@\" } ], \"operation\": \"flip_strand\" }"
+
+        when: "we parse the string"
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+
+        then: "we get a valid json object and no features"
+        assert Feature.count == 0
+
+        when: "we add the first transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
+
+        then: "we should get a transcript back" // we currently get nothing
+//        println returnObject as JSON
+        assert returnObject.getString('operation') == "ADD"
+        assert returnObject.getBoolean('sequenceAlterationEvent') == false
+        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == featuresArray.size()
+        JSONObject mrna = featuresArray.getJSONObject(0)
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        // we are losing an exon somewhere!
+        assert Exon.count == 2
+        assert CDS.count == 1
+//        assert NonCanonicalFivePrimeSpliceSite.count==1
+//        assert NonCanonicalThreePrimeSpliceSite.count==1
+//        assert Feature.count == 5
+        assert "GB40772-RA-00001" == mrna.getString(FeatureStringEnum.NAME.value)
+        String transcriptUniqueName = mrna.getString(FeatureStringEnum.UNIQUENAME.value)
+        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 3 == children.size()
+        for (int i = 0; i < 3; i++) {
+            JSONObject codingObject = children.get(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject != null
+        }
+
+
+        when: "we parse the string"
+        commandString = commandString.replaceAll("@TRANSCRIPT_NAME@", transcriptUniqueName)
+        JSONObject commandObject = JSON.parse(commandString) as JSONObject
+//
+//        then: "we get a valid json object and no features"
+//        assert Feature.count == 7
+
+//        when: "we add the exon explicitly"
+        JSONObject returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
+
+        then: "we should see that we flipped the tstand "
+        assert returnedAfterExonObject != null
+        println Feature.count
+        assert Feature.count > 5
+        JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert returnFeaturesArray.size() == 1
+        JSONObject mRNAObject = returnFeaturesArray.get(0)
+        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
+        JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        // we are losing an exon somewhere!
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert childrenArray.size() == 5
+    }
 }

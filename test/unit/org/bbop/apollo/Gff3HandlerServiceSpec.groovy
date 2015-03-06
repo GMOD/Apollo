@@ -34,7 +34,8 @@ class Gff3HandlerServiceSpec extends Specification {
         println "deleting feature locations: ${FeatureLocation.deleteAll(FeatureLocation.all)}"
         println "deleting features: ${Feature.deleteAll(Feature.all)}"
     }
-  
+ 
+    @Ignore // moved to a integration test
     void "write a simple gene"() {
 
         when: "we create a new gene"

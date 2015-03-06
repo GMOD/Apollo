@@ -22,13 +22,13 @@ class BootStrap {
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
+        mockupService.addUsers()
 
         if (Environment.current == Environment.TEST) {
             // insert Test environment specific code here
             return
         } 
 
-        mockupService.addUsers()
         mockupService.addDataAdapters()
         mockupService.addOrganisms()
 //        mockupService.addSequences()  // add tracks
