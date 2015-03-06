@@ -23,12 +23,12 @@ public class Gff3HandlerService {
 //    private Mode mode;
 //    private Set<String> attributesToExport;
 
-    SequenceService sequenceService
-    FeatureRelationshipService featureRelationshipService
-    TranscriptService transcriptService
-    ExonService exonService
-    FeatureService featureService
-    FeaturePropertyService featurePropertyService
+    def sequenceService
+    def featureRelationshipService
+    def transcriptService
+    def exonService
+    def featureService
+    def featurePropertyService
 
 
 //    public GFF3HandlerService(String path, Mode mode, Set<String> attributesToExport) throws IOException {

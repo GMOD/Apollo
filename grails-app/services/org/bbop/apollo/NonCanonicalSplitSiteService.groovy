@@ -5,15 +5,15 @@ import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class NonCanonicalSplitSiteService {
 
 //    CvTermService cvTermService
-    FeatureRelationshipService featureRelationshipService
-    ExonService exonService
-    FeatureService featureService
-    NameService nameService
+    def featureRelationshipService
+    def exonService
+    def featureService
+    def nameService
 
     /** Delete an non canonical 5' splice site.  Deletes both the transcript -> non canonical 5' splice site and
      *  non canonical 5' splice site -> transcript relationships.

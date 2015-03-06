@@ -9,10 +9,13 @@ import grails.transaction.Transactional
 class TranscriptService {
 
     List<String> ontologyIds = [Transcript.ontologyId, SnRNA.ontologyId, MRNA.ontologyId, SnoRNA.ontologyId, MiRNA.ontologyId, TRNA.ontologyId, NcRNA.ontologyId, RRNA.ontologyId]
-    FeatureService featureService
-    FeatureRelationshipService featureRelationshipService
-    ExonService exonService
-    NameService nameService
+    
+   
+    // services
+    def featureService
+    def featureRelationshipService
+    def exonService
+    def nameService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>

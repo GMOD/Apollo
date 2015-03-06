@@ -3,15 +3,15 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
 
-@GrailsCompileStatic
+//@GrailsCompileStatic
 @Transactional
 class CdsService {
 
     public static final String MANUALLY_SET_TRANSLATION_START = "Manually set translation start";
     public static final String MANUALLY_SET_TRANSLATION_END = "Manually set translation end";
 
-    FeatureRelationshipService featureRelationshipService
-    FeaturePropertyService featurePropertyService
+    def featureRelationshipService
+    def featurePropertyService
 
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {

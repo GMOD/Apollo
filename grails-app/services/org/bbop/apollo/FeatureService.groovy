@@ -23,16 +23,16 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class FeatureService {
 
 
-    NameService nameService
-    ConfigWrapperService configWrapperService
-    TranscriptService transcriptService
+    def nameService
+    def configWrapperService
+    def transcriptService
 //    CvTermService cvTermService
-    ExonService exonService
-    CdsService cdsService
-    NonCanonicalSplitSiteService nonCanonicalSplitSiteService
-    FeatureRelationshipService featureRelationshipService
-    FeaturePropertyService featurePropertyService
-    SequenceService sequenceService
+    def exonService
+    def cdsService
+    def nonCanonicalSplitSiteService
+    def featureRelationshipService
+    def featurePropertyService
+    def sequenceService
 
 
     public

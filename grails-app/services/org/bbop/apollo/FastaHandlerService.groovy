@@ -19,8 +19,8 @@ public class FastaHandlerService {
     private Mode mode;
     private int numResiduesPerLine;
 
-    SequenceService sequenceService
-    FeaturePropertyService featurePropertyService
+    def sequenceService
+    def featurePropertyService
 
     public enum Mode {
         READ,
