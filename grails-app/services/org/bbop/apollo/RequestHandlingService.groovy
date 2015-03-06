@@ -423,6 +423,7 @@ class RequestHandlingService {
 
         transcript.save(flush: true)
 //        featureService.getTopLevelFeature(transcript)?.save(flush: true)
+        transcript.attach()
 
         // TODO: one of these two versions . . .
         JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))
@@ -432,7 +433,7 @@ class RequestHandlingService {
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
                 , sequence: sequence
-                , operation: AnnotationEvent.Operation.ADD
+                , operation: AnnotationEvent.Operation.UPDATE
         )
 
         fireAnnotationEvent(annotationEvent)
