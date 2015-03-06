@@ -426,7 +426,7 @@ class RequestHandlingService {
         transcript.attach()
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
         transcript.save(flush: true)
-        transcript.attach()
+//        transcript.attach()
 
         // TODO: one of these two versions . . .
         JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))

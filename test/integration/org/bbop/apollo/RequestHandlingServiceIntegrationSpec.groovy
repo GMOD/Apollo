@@ -343,8 +343,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         // we are losing an exon somewhere!
         assert Exon.count==3
         assert CDS.count==1
-        assert NonCanonicalFivePrimeSpliceSite.count==2
-        assert NonCanonicalThreePrimeSpliceSite.count==0
+        assert NonCanonicalFivePrimeSpliceSite.count==1
+        assert NonCanonicalThreePrimeSpliceSite.count==1
         assert childrenArray.size()==6
         
 

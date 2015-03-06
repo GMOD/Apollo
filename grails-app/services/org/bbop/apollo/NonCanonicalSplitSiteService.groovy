@@ -169,8 +169,8 @@ class NonCanonicalSplitSiteService {
                                 fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceDonorSiteFlankingRegion.getFmax() : spliceDonorSiteFlankingRegion.getFmin();
 
                                 // TODO: is this correct?
-                                if(exon.strand == -1 && fivePrimeSpliceSitePosition==transcript.featureLocation.fmin) validFivePrimeSplice = true
-                                if(exon.strand == 1 && fivePrimeSpliceSitePosition==transcript.featureLocation.fmax) validFivePrimeSplice = true
+//                                if(exon.strand == -1 && fivePrimeSpliceSitePosition==transcript.featureLocation.fmin) validFivePrimeSplice = true
+//                                if(exon.strand == 1 && fivePrimeSpliceSitePosition==transcript.featureLocation.fmax) validFivePrimeSplice = true
                             } else {
                                 validFivePrimeSplice = true;
                             }
@@ -182,8 +182,8 @@ class NonCanonicalSplitSiteService {
                                 threePrimeSpliceSitePosition = exon.getStrand() == -1 ? spliceAcceptorSiteFlankingRegion.getFmin() : spliceAcceptorSiteFlankingRegion.getFmax();
                                 
                                 // TODO: is this correct?
-                                if(exon.strand == -1 && threePrimeSpliceSitePosition==transcript.featureLocation.fmax) validThreePrimeSplice = true
-                                if(exon.strand == 1 && threePrimeSpliceSitePosition==transcript.featureLocation.fmin) validThreePrimeSplice = true
+//                                if(exon.strand == -1 && threePrimeSpliceSitePosition==transcript.featureLocation.fmin) validThreePrimeSplice = true
+//                                if(exon.strand == 1 && threePrimeSpliceSitePosition==transcript.featureLocation.fmax) validThreePrimeSplice = true
                             } else {
                                 validThreePrimeSplice = true;
                             }

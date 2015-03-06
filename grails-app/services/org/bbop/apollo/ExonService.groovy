@@ -234,7 +234,7 @@ class ExonService {
     }
 //
 
-    List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = false ) {
+    List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = true ) {
         List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
         Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand))
         return sortedExons
