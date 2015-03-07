@@ -2967,7 +2967,7 @@ define([
                                                     }
                                                 });
                                                 //var gserv = 'http://golr.berkeleybop.org/';
-                                                var gserv = 'http://golr.geneontology.org/';
+                                                var gserv = 'http://golr.geneontology.org/solr/';
                                                 var gconf = new bbop.golr.conf(amigo.data.golr);
                                                 var args = {
                                                     label_template: '{{annotation_class_label}} [{{annotation_class}}]',
