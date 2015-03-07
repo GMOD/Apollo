@@ -1318,12 +1318,13 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             if (feature) {
                 // is this a bug?
-                isUpdateOperation = isUpdateOperation || featureService.deleteFeature(feature);
+                isUpdateOperation = isUpdateOperation || featureService.deleteFeature(feature,modifiedFeaturesUniqueNames);
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
                 if (modifiedFeaturesList == null) {
                     modifiedFeaturesList = new ArrayList<>()
                 }
                 modifiedFeaturesList.add(feature)
+                modifiedFeaturesUniqueNames.put(uniqueName,modifiedFeaturesList)
             }
         }
 
@@ -1345,13 +1346,14 @@ class RequestHandlingService {
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
                     Gene gene = transcriptService.getGene(transcript)
-                    transcriptService.deleteTranscript(gene, transcript)
+//                    transcriptService.deleteTranscript(gene, transcript)
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
-                    if (numberTranscripts == 0) {
+                    if (numberTranscripts == 1) {
 //                        editor.deleteFeature(gene);
                         // wouldn't this be a gene?
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
-                        Feature.deleteAll(topLevelFeature)
+                        featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
+//                        Feature.deleteAll(topLevelFeature)
 
                         AnnotationEvent annotationEvent = new AnnotationEvent(
                                 features: featureContainer
@@ -1361,16 +1363,31 @@ class RequestHandlingService {
 
                         fireAnnotationEvent(annotationEvent)
                     }
-
-                    if (numberTranscripts > 0) {
+                    else{
+                        featureRelationshipService.deleteFeatureAndChildren(transcript)
                         gene.save()
-                    } else {
-                        Gene.deleteAll(gene)
+                        AnnotationEvent annotationEvent = new AnnotationEvent(
+                                features: featureContainer
+                                , sequence: sequence
+                                ,operation: AnnotationEvent.Operation.UPDATE
+                        )
+
+                        fireAnnotationEvent(annotationEvent)
                     }
+
+//                    if (numberTranscripts > 1) {
+//                        gene.save()
+//                    } else {
+//                        featureService.deleteFeatureAndChildren(gene)
+////                        gene.delete(flush: true )
+////                        Gene.deleteAll(gene)
+//                    }
 
                 } else {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
-                    Feature.deleteAll(topLevelFeature)
+                    featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
+//                    topLevelFeature.delete(flush: true)
+//                    Feature.deleteAll(topLevelFeature)
 
                     AnnotationEvent annotationEvent = new AnnotationEvent(
                             features: featureContainer
@@ -1380,7 +1397,8 @@ class RequestHandlingService {
 
                     fireAnnotationEvent(annotationEvent)
 
-                    Feature.deleteAll(feature)
+//                    feature.delete(flush: true )
+//                    Feature.deleteAll(feature)
 //
                 }
             } 

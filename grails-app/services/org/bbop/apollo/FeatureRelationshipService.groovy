@@ -137,7 +137,7 @@ class FeatureRelationshipService {
         def featureRelationships = criteria {
             eq("parentFeature", feature)
         }.findAll() {
-            it.childFeature.ontologyId in ontologyIds
+            ontologyIds.length==0 || it.childFeature.ontologyId in ontologyIds
         }
        
         int numRelationships = featureRelationships.size()
@@ -291,5 +291,31 @@ class FeatureRelationshipService {
 
     List<Feature> getChildren(Feature feature) {
         return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
+    }
+
+    def deleteFeatureAndChildren(Feature feature) {
+        
+        println "feature deleting from ${feature}"
+
+        if(feature.parentFeatureRelationships){
+            def parentFeatureRelationships = feature.parentFeatureRelationships
+            Iterator<FeatureRelationship> featureRelationshipIterator = parentFeatureRelationships.iterator()
+            while(featureRelationshipIterator.hasNext()){
+                FeatureRelationship featureRelationship = featureRelationshipIterator.next()
+                deleteFeatureAndChildren(featureRelationship.childFeature)
+            }
+//            for(FeatureRelationship parentFeatureRelationship in  feature.parentFeatureRelationships){
+//            }
+        }
+        else{
+            // only has child feature relationships
+            for(FeatureRelationship childFeatureRelationship in  feature.childFeatureRelationships){
+                removeFeatureRelationship(childFeatureRelationship.parentFeature,childFeatureRelationship.childFeature)
+            }
+        }
+        feature.delete()
+
+
+
     }
 }
