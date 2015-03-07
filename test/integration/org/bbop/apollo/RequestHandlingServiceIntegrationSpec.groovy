@@ -474,8 +474,10 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject returnedAfterExonObject = requestHandlingService.deleteFeature(commandObject)
 
         then: "we should see that it is removed"
+        def allFeatures = Feature.all
         assert returnedAfterExonObject != null
-        assert Feature.count == 0
+        // there are just the flanng regions
+        assert Feature.count == 4
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 0
 

@@ -307,12 +307,12 @@ class FeatureRelationshipService {
 //            for(FeatureRelationship parentFeatureRelationship in  feature.parentFeatureRelationships){
 //            }
         }
-        else{
-            // only has child feature relationships
-            for(FeatureRelationship childFeatureRelationship in  feature.childFeatureRelationships){
-                removeFeatureRelationship(childFeatureRelationship.parentFeature,childFeatureRelationship.childFeature)
-            }
-        }
+//        else{
+//            // only has child feature relationships
+//            for(FeatureRelationship childFeatureRelationship in  feature.childFeatureRelationships){
+//                removeFeatureRelationship(childFeatureRelationship.parentFeature,childFeatureRelationship.childFeature)
+//            }
+//        }
         feature.delete()
 
 
