@@ -11,6 +11,7 @@ Features
 
 Bugfixes
 
++ Updated the GOLR URL for new server (#190).  
 + Fixed an issue where the API could be used to create random berkeley DBs (#152).
 + Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151).
 + Fixed an issue where the config files were readable by the outside world in previous 1.x versions.
