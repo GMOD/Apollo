@@ -23,15 +23,16 @@ This guide will cover the following steps:
 
 First set some environmental variables. These are simply used for the proceeding steps and don't require anything to be already setup.
 
-    export PGUSER=web_apollo_users_admin
-    export PGPASSWORD=password
-    export WEBAPOLLO_USER=web_apollo_admin
-    export WEBAPOLLO_PASSWORD=web_apollo_admin
-    export WEBAPOLLO_DATABASE=web_apollo_users
+    export WEB_APOLLO_DB_USER=web_apollo_users_admin
+    export WEB_APOLLO_DB_PASS=password
+    export WEB_APOLLO_USER=web_apollo_admin
+    export WEB_APOLLO_PASS=password
+    export WEB_APOLLO_DB=web_apollo_users
     export ORGANISM="Pythium ultimum"
     export JBROWSE_DATA_DIR=/opt/apollo/data
-    export WEBAPOLLO_DATA_DIR=/opt/apollo/annotations
+    export WEB_APOLLO_DATA_DIR=/opt/apollo/annotations
 
+Note that WEB_APOLLO_DB* is for the database credentials, and the other settings are for the website login.
 
 #### Get prerequisites
 
@@ -82,12 +83,12 @@ For more details on setting up postgres in Homebrew refer to [https://wiki.postg
 After starting postgres, you can create a new database for managing login and track information.
 
     # On debian/ubuntu/redhat/centOS, typically requires "postgres" user to execute commands
-    sudo su - postgres -c "createuser -RDIElPS $PGUSER"
-    sudo su - postgres -c "createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE"
+    sudo su - postgres -c "createuser -RDIElPS $WEB_APOLLO_DB_USER"
+    sudo su - postgres -c "createdb -E UTF-8 -O $WEB_APOLLO_DB_USER $WEB_APOLLO_DB"
 
-    # On macOSX/homebrew there is no need login as the postgres user but use "whoami" since PGUSER is changed
-    createuser -RDIElPS $PGUSER -U `whoami`
-    createdb -E UTF-8 -O $PGUSER $WEBAPOLLO_DATABASE -U `whoami`
+    # On macOSX/homebrew there is no need login as the "postgres" user
+    createuser -RDIElPS $WEB_APOLLO_DB_USER
+    createdb -E UTF-8 -O $WEB_APOLLO_DB_USER $WEB_APOLLO_DB
 
 Note: see [database setup](Database_setup.md#authentication) for more details about the database setup.
  
@@ -116,15 +117,15 @@ If there are any errors during this build step, you can check setup.log. See the
 
 Initialize the database for logging into WebApollo as follows:
 
-    psql -U $PGUSER $WEBAPOLLO_DATABASE -h localhost < tools/user/user_database_postgresql.sql
-    tools/user/add_user.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -p $WEBAPOLLO_PASSWORD
+    psql -U $WEB_APOLLO_DB_USER $WEB_APOLLO_DB -h localhost < tools/user/user_database_postgresql.sql
+    tools/user/add_user.pl -D $WEB_APOLLO_DB -U $WEB_APOLLO_DB_USER -P $WEB_APOLLO_DB_PASS -u $WEB_APOLLO_USER -p $WEB_APOLLO_PASS
 
 
 Then we will add permissions on a track-by-track basis by first extracting the seqids from a FASTA file and adding them to the database. Carefully observe the arguments to these functions (particularly, adding the -a option to set_track_permissions.pl allows "all" or "admin" access, and the -p option for extract_seqids_from_fasta is called the Annotation prefix).
 
     tools/user/extract_seqids_from_fasta.pl -p Annotations- -i pyu_data/scf1117875582023.fa -o seqids.txt
-    tools/user/add_tracks.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -t seqids.txt
-    tools/user/set_track_permissions.pl -D $WEBAPOLLO_DATABASE -U $PGUSER -P $PGPASSWORD -u $WEBAPOLLO_USER -t seqids.txt -a
+    tools/user/add_tracks.pl -D $WEB_APOLLO_DB -U $WEB_APOLLO_DB_USER -P $WEB_APOLLO_DB_PASS -t seqids.txt
+    tools/user/set_track_permissions.pl -D $WEB_APOLLO_DB -U $WEB_APOLLO_DB_USER -P $WEB_APOLLO_DB_PASS -u $WEB_APOLLO_USER -t seqids.txt -a
 
 Note: the reason we use psql with "-h localhost" is to force password-based host authentication instead of peer authentication.
 
@@ -140,7 +141,7 @@ First initialize the directories for storing JBrowse and Annotation data:
     sudo chown 755 -R $JBROWSE_DATA_DIR
 
 
-Then you can output some data for the JBrowse data directory with prepare-refseqs.pl and flatfile-to-json.pl. We use split_gff_by_source.pl to make the gff file we have more manageable:
+Then you can output some data for the JBrowse data directory with prepare-refseqs.pl and flatfile-to-json.pl. The split_gff_by_source.pl script is used to make the example GFF file separate into sources, so that we can load just the MAKER annotations:
 
     mkdir temp
     tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d temp
@@ -150,10 +151,10 @@ Then you can output some data for the JBrowse data directory with prepare-refseq
         --className container-16px --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
 
     
-For more info on adding genome browser tracks, see the [configuration guide](Configure.md) guide.
+For more info on loading data, see the [configuration guide](Configure.md) guide.
 
 
-##### Add webapollo plugin to the genome browser
+##### Add the plugin
 
 Once the tracks are initialized, the plugin needs to be added to the JBrowse configuration using the add-webapollo-plugin.pl script, which takes as input a trackList.json file.
 
@@ -166,9 +167,9 @@ Once we have our data directories and database configuration setup, we can put t
 
     echo jbrowse.data=$JBROWSE_DATA_DIR > config.properties
     echo datastore.directory=$WEBAPOLLO_DATA_DIR >> config.properties
-    echo database.url=jdbc:postgresql:$WEBAPOLLO_DATABASE >> config.properties
-    echo database.username=$PGUSER >> config.properties
-    echo database.password=$PGPASSWORD >> config.properties
+    echo database.url=jdbc:postgresql:$WEB_APOLLO_DB >> config.properties
+    echo database.username=$WEB_APOLLO_DB_USER >> config.properties
+    echo database.password=$WEB_APOLLO_DB_PASS >> config.properties
     echo organism=$ORGANISM >> config.properties
 
 
@@ -180,7 +181,7 @@ After this setup, you are ready to deploy a new instance.
 
     ./apollo run
 
-This will launch a temporary tomcat instance that you will be able to access from http://localhost:8080/apollo/ and login with your $WEBAPOLLO_USER and $WEBAPOLLO_PASSWORD information.
+This will launch a temporary tomcat instance that you will be able to access from http://localhost:8080/apollo/ and login with your $WEB_APOLLO_USER and $WEB_APOLLO_PASS information.
 
 #### Congratulations
 
