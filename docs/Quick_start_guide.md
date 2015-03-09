@@ -42,7 +42,7 @@ Example:
 
     # clone the latest webapollo from GitHub and use the latest release tag
     git clone https://github.com/GMOD/Apollo.git
-    git checkout 1.0.3
+    git checkout 1.0.4
 
 
 #### Get prerequisites
