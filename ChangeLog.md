@@ -7,7 +7,7 @@ Features
 + Made "Show track labels" and "Color by CDS" more persistent (#120).
 + Added a "collapse" option to the User-created annotations track (#155).
 + Changed maxHeight on User-create annotations track to prevent overflow (#124).
-+ Allow single-level features to be annotated (#81).
++ Allow single-level features to be annotated (#193).
 
 Bugfixes
 
