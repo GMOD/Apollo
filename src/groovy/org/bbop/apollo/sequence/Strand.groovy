@@ -16,6 +16,15 @@ enum Strand {
         this.display = display
     }
 
+    static Strand getStrandForValue(int i) {
+        for(strand in values()){
+            if(strand.value==i) {
+                return strand
+            }
+        }
+        return null
+    }
+
     public getValue() {
         return this.value
     }
