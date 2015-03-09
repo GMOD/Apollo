@@ -135,18 +135,10 @@ class ExonService {
 //                exon.save(flush: true)
             }
         }
-        
+
         Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
 //        Exon.deleteAll(exon)
         transcript.save(flush: true)
-
-//        getSession().unindexFeature(exon);
-//        getSession().indexFeature(transcript);
-
-//        transcript.setTimeLastModified(new Date());
-
-        // event fire?? TODO: not really active?
-//        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationEditor.AnnotationChangeEvent.Operation.UPDATE);
 
 
     }
@@ -207,25 +199,7 @@ class ExonService {
         } else {
             acceptorCoordinate += acceptorSite.length();
         }
-//        Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate,splitExonUniqueName));
         Exon splitExon = splitExon(exon, featureService.convertLocalCoordinateToSourceCoordinate(exon,donorCoordinate) , featureService.convertLocalCoordinateToSourceCoordinate(exon,acceptorCoordinate));
-//        /*
-//        if (exon.getLength() == 0) {
-//            deleteExon(exon.getTranscript(), exon);
-//        }
-//        if (splitExon.getLength() == 0) {
-//            deleteExon(splitExon.getTranscript(), splitExon);
-//        }
-//        */
-//
-//        // event fire
-//        fireAnnotationChangeEvent(exon.getTranscript(), exon.getTranscript().getGene(), AnnotationChangeEvent.Operation.UPDATE);
-//
-//        Date date = new Date();
-//        exon.setTimeLastModified(date);
-//        splitExon.setTimeAccessioned(date);
-//        splitExon.setTimeLastModified(date);
-//        exon.getTranscript().setTimeLastModified(date);
 
         exon.save()
         splitExon.save()
@@ -277,27 +251,20 @@ class ExonService {
                 }
             }
         }
-//        int coordinate = exon.getStrand() == -1 ? gene.convertSourceCoordinateToLocalCoordinate(exon.getFmin()) + 2 : gene.convertSourceCoordinateToLocalCoordinate(exon.getFmax()) + 1;
         FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
         int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
         String residues = sequenceService.getResiduesFromFeature(gene)
-        println "coordinate: "+coordinate
-//        println "residues: "+residues.size()
         while (coordinate < residues.length()) {
-//            int c = gene.convertLocalCoordinateToSourceCoordinate(coordinate);
             int c = featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate);
             if (nextExonFmin != null && (c >= nextExonFmin && c <= nextExonFmax + 1)) {
                 throw new AnnotationException("Cannot set to downstream donor - will overlap next exon");
             }
             String seq = residues.substring(coordinate, coordinate + 2);
 
-//            if (SequenceUtil.getSpliceDonorSites().contains(seq)) {
             if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
                 if (exon.getFeatureLocation().getStrand() == -1) {
-//                    setExonBoundaries(exon, gene.convertLocalCoordinateToSourceCoordinate(coordinate) + 1, exon.getFmax());
                     setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFeatureLocation().getFmax())
                 } else {
-//                    setExonBoundaries(exon, exon.getFmin(), gene.convertLocalCoordinateToSourceCoordinate(coordinate));
                     setExonBoundaries(exon,exon.getFeatureLocation().getFmin(),featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate))
                 }
                 return;
@@ -314,9 +281,6 @@ class ExonService {
         int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
         int exonStart = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
         String residues = sequenceService.getResiduesFromFeature(gene)
-        println "exonStart [${exonStart}] coordinate [${coordinate}]"
-        println "coordinate: "+coordinate
-//        println "residues: "+residues.size()
         while (coordinate > 0 ) {
 
             if (coordinate <= exonStart) {
@@ -432,23 +396,14 @@ class ExonService {
         rightExon.addToFeatureLocations(rightFeatureLocation)
 
         leftFeatureLocation.fmax = newLeftMax
-//        leftExon.setFmax(newLeftMax);
         rightFeatureLocation.fmin = newRightMin
-//        rightExon.setFmin(newRightMin);
 
 ///
-//        addExon(exon.getTranscript(), rightExon);
-        println "GETTING TRANSCRIPT from Exon: ${leftExon.parentFeatureRelationships}"
         Transcript transcript = getTranscript(leftExon)
-        println "GOT TRANSCRIPT"
         transcriptService.addExon(transcript,rightExon)
-        println "ADDED EXON"
 
-        transcript.save(failOnError: true)
-
-        println "SAVE !"
-        rightExon.save(failOnError: true)
-        println "DONE SPLITTING EXON ${rightExon}"
+        transcript.save()
+        rightExon.save()
 
         return rightExon
 

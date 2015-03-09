@@ -24,7 +24,6 @@ class FeatureLocation {
 
     }
 
-//    Feature sourceFeature;
     Feature feature;
     Integer fmin;
     boolean isFminPartial;
@@ -36,6 +35,8 @@ class FeatureLocation {
     int locgroup;
     int rank;
     Sequence sequence
+    
+    static belongsTo = [Feature]
 
 
     static hasMany = [
