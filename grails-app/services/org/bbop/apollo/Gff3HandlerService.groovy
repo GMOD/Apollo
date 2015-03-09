@@ -1,4 +1,6 @@
-package org.bbop.apollo;
+package org.bbop.apollo
+
+import org.bbop.apollo.sequence.Strand;
 
 //import *;
 //import util.BioObjectUtil;
@@ -99,7 +101,7 @@ public class Gff3HandlerService {
         for (Feature feature : features) {
             Sequence sourceFeature = feature.getFeatureLocation().sequence
             Collection<Feature> featureList = featuresBySource.get(sourceFeature);
-            if (featureList == null) {
+            if (!featureList) {
                 featureList = new ArrayList<Feature>();
                 featuresBySource.put(sourceFeature, featureList);
             }
@@ -203,12 +205,12 @@ public class Gff3HandlerService {
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = ".";
         String strand;
-        if (feature.getStrand() == 1) {
-            strand = "+";
-        } else if (feature.getStrand() == -1) {
-            strand = "-";
+        if (feature.getStrand() == Strand.POSITIVE.getValue()) {
+            strand = Strand.POSITIVE.getDisplay()
+        } else if (feature.getStrand() == Strand.POSITIVE.getValue()) {
+            strand = Strand.POSITIVE.getDisplay()
         } else {
-            strand = ".";
+            strand = "."
         }
         String phase = ".";
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
@@ -406,6 +408,7 @@ public class Gff3HandlerService {
     }
 
     static private String encodeString(String str) {
+        
         return str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09");
     }
 
