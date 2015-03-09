@@ -29,20 +29,8 @@ First set some environmental variables. These are simply used for the proceed
     export WEBAPOLLO_PASSWORD=web_apollo_admin
     export WEBAPOLLO_DATABASE=web_apollo_users
     export ORGANISM="Pythium ultimum"
-    export JBROWSE_DATA_DIR=`pwd`/data
-    export WEBAPOLLO_DATA_DIR=`pwd`/annotations
-
-
-#### Download webapollo
-
-You can download the latest Web Apollo release from [GitHub](https://github.com/gmod/Apollo.git) or from
-[genomearchitect.org](http://genomearchitect.org) (the 1.x release branch is not available from genomearchitect yet).
-
-Example:
-
-    # clone the latest webapollo from GitHub and use the latest release tag
-    git clone https://github.com/GMOD/Apollo.git
-    git checkout 1.0.3
+    export JBROWSE_DATA_DIR=/opt/apollo/data
+    export WEBAPOLLO_DATA_DIR=/opt/apollo/annotations
 
 
 #### Get prerequisites
@@ -58,6 +46,18 @@ Then get some system pre-requisites. These commands will try to get everything i
 
 
 See [prerequisites](Prerequisites.md) for more details on the pre-requisites if you think something isn't working with these.
+
+#### Download webapollo
+
+You can download the latest Web Apollo release from [GitHub](https://github.com/gmod/Apollo.git). We recommend cloning the repo so that it is easy to
+receive upstream changes.
+
+Example:
+
+    # clone the latest webapollo from GitHub and use the latest release tag
+    git clone https://github.com/GMOD/Apollo.git
+    git checkout 1.0.3
+
 
 #### Kickstart postgres (not needed for ubuntu)
 
@@ -132,8 +132,16 @@ Note: the reason we use psql with "-h localhost" is to force password-based host
 
 Setup the JBrowse data directory with some of the sample data for Pythium ultimum. Here, the split_gff.pl script will separate the example GFF based on source types, and then the JBROWSE_DATA_DIR will be initialized with prepare-refseqs.pl and flatfile-to-json.pl.
 
-    mkdir $WEBAPOLLO_DATA_DIR
-    mkdir $JBROWSE_DATA_DIR
+First initialize the directories for storing JBrowse and Annotation data:
+
+    sudo mkdir -p $WEBAPOLLO_DATA_DIR
+    sudo mkdir -p $JBROWSE_DATA_DIR
+    sudo chown 755 -R $WEBAPOLLO_DATA_DIR
+    sudo chown 755 -R $JBROWSE_DATA_DIR
+
+
+Then you can output some data for the JBrowse data directory with prepare-refseqs.pl and flatfile-to-json.pl. We use split_gff_by_source.pl to make the gff file we have more manageable:
+
     mkdir temp
     tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d temp
     bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out data
@@ -146,7 +154,8 @@ For more info on adding genome browser tracks, see the [configuration guide](Con
 
 
 ##### Add webapollo plugin to the genome browser
-Once the tracks are initialized, the webapollo plugin needs to be added to the JBrowse configuration using the add-webapollo-plugin.pl script.
+
+Once the tracks are initialized, the plugin needs to be added to the JBrowse configuration using the add-webapollo-plugin.pl script, which takes as input a trackList.json file.
 
     client/apollo/bin/add-webapollo-plugin.pl -i $JBROWSE_DATA_DIR/trackList.json
 
@@ -171,9 +180,7 @@ After this setup, you are ready to deploy a new instance.
 
     ./apollo run
 
-This will launch a temporary tomcat instances that you will be able to access from http://localhost:8080/apollo/ and login with your $WEBAPOLLO_USER and $WEBAPOLLO_PASSWORD information.
-
-Note: if you already have a tomcat instance running, you may have to shut it down to launch the test server.
+This will launch a temporary tomcat instance that you will be able to access from http://localhost:8080/apollo/ and login with your $WEBAPOLLO_USER and $WEBAPOLLO_PASSWORD information.
 
 #### Congratulations
 
