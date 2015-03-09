@@ -177,11 +177,7 @@ Setup genome browser data
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Setup the JBrowse data directory with some of the sample data for
-Pythium ultimum. Here, the split\_gff.pl script will separate the
-example GFF based on source types, and then the JBROWSE\_DATA\_DIR will
-be initialized with prepare-refseqs.pl and flatfile-to-json.pl.
-
-First initialize the directories for storing JBrowse and Annotation
+Pythium ultimum. First initialize the directories for storing JBrowse and Annotation
 data:
 
 ::
@@ -192,8 +188,7 @@ data:
     sudo chown 755 -R $JBROWSE_DATA_DIR
 
 Then you can output some data for the JBrowse data directory with
-prepare-refseqs.pl and flatfile-to-json.pl. The
-split\_gff\_by\_source.pl script is used to make the example GFF file
+prepare-refseqs.pl and flatfile-to-json.pl. The split_gff_by_source.pl script is used to make the example GFF file
 separate into sources, so that we can load just the MAKER annotations:
 
 ::
