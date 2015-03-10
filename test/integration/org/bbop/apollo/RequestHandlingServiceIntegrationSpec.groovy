@@ -535,6 +535,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnMRNA = returnFeaturesArray.getJSONObject(0)
         JSONArray returnedChildren = returnMRNA.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        List<Exon> finalSortedExons = exonService.getSortedExons(MRNA.first())
+        Exon lastExon = finalSortedExons.get(2)
 
         then: "we should see that it is removed"
         def allFeatures = Feature.all
@@ -556,8 +558,14 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
             JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
             assert locationObject != null
         }
+        assert finalSortedExons.size() == 3
         assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
         assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+        
+        // the end of the CDS should be on the last exon
+        assert CDS.first().featureLocation.fmax < lastExon.featureLocation.fmax
+        assert CDS.first().featureLocation.fmax > lastExon.featureLocation.fmin
 
 
     }

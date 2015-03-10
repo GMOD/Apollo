@@ -439,4 +439,8 @@ class TranscriptService {
         }
         return residues.size()>0 ? residues.toString() : null
     }
+
+    Transcript getTranscript(CDS cds) {
+        return featureRelationshipService.getParentForFeature(cds,ontologyIds)
+    }
 }
