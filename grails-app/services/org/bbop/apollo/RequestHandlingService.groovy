@@ -1473,7 +1473,7 @@ class RequestHandlingService {
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
                 , sequence: sequence
-                , operation: AnnotationEvent.Operation.ADD
+                , operation: AnnotationEvent.Operation.UPDATE
         )
 
         fireAnnotationEvent(annotationEvent)

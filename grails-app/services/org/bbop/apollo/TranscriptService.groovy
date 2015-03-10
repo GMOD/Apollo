@@ -280,7 +280,7 @@ class TranscriptService {
 //        } else {
 //            addFeature(splitTranscript);
 //        }
-        Gene gene = getGene(transcrip)
+        Gene gene = getGene(transcript)
         if (gene) {
             featureService.addTranscriptToGene(gene, splitTranscript)
         } else {
@@ -315,7 +315,7 @@ class TranscriptService {
      * @param transcript - Transcript to be duplicated
      */
     public Transcript duplicateTranscript(Transcript transcript) {
-        Transcript duplicate = (Transcript) transcript.generateClone(transcript);
+        Transcript duplicate = (Transcript) transcript.generateClone();
         duplicate.name = transcript.name + "-copy"
         duplicate.uniqueName = nameService.generateUniqueName(transcript)
 
