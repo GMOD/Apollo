@@ -462,6 +462,14 @@
     <table class="table">
         <thead>
         <tr>
+            <th colspan="3"  style="color: darkgoldenrod; text-align: center;">
+            To begin annotating, search for one of these example groups in the "Search by Name" box: Group16.4
+                Group1.37
+                Group1.10
+                Group1.33
+            </th>
+        </tr>
+        <tr>
             <td>
                 <div class="col-2-lg">Show</div>
                 <select name="maximum" class="col-2-lg">
@@ -474,7 +482,8 @@
 
             </td>
             <%--<th><input type="text" name="organism" value="${organism}"/></th>--%>
-            <th><input type="text" name="name" value="${name}" placeholder="Search by Name"></th>
+            <th>
+                <input type="text" name="name" value="${name}" placeholder="Search by Name"></th>
             <th><input type="text" name="minLength" value="${minLength}" placeholder="Minimum Length">-<input type="text" name="maxLength"
                                                                                  value="${maxLength}" placeholder="Maximum Length"></th>
         </tr>
