@@ -12,7 +12,7 @@ Features
 
 Bugfixes
 
-+ Updated ULR to new server to access Gene Ontology terms (GOLR) (#190).  
++ Updated URL to new server to access Gene Ontology terms (GOLR) (#190).
 + Fixed an issue where the API could be used to create random berkeley DBs (#152).
 + Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151).
 + Fixed an issue where the config files were readable by the outside world in previous 1.x versions.
