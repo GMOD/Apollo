@@ -461,14 +461,14 @@
     </div>
     <table class="table">
         <thead>
-        <tr>
-            <th colspan="3"  style="color: darkgoldenrod; text-align: center;">
-            To begin annotating, search for one of these example groups in the "Search by Name" box: Group16.4
-                Group1.37
-                Group1.10
-                Group1.33
-            </th>
-        </tr>
+        <%--<tr>--%>
+            <%--<th colspan="3"  style="color: darkgoldenrod; text-align: center;">--%>
+            <%--To begin annotating, search for one of these example groups in the "Search by Name" box: Group16.4--%>
+                <%--Group1.37--%>
+                <%--Group1.10--%>
+                <%--Group1.33--%>
+            <%--</th>--%>
+        <%--</tr>--%>
         <tr>
             <td>
                 <div class="col-2-lg">Show</div>
