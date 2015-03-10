@@ -752,19 +752,20 @@ class RequestHandlingService {
             Exon exon = Exon.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             println "exon: ${exon}"
             Transcript transcript = exonService.getTranscript(exon)
+            
+            
             FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
             FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
-
-            if (transcriptFeatureLocation.fmin == transcriptFeatureLocation.fmax) {
-                transcript.featureLocation.fmin = fmin
+            if (transcriptFeatureLocation.fmin == exonFeatureLocation.fmin) {
+                transcriptFeatureLocation.fmin = fmin
             }
-            if (transcriptFeatureLocation.fmax == transcriptFeatureLocation.fmax) {
+            if (transcriptFeatureLocation.fmax == exonFeatureLocation.fmax) {
                 transcriptFeatureLocation.fmax = fmax
             }
 
 
-            exonFeatureLocation.fmin = transcriptFeatureLocation.fmin
-            exonFeatureLocation.fmax = transcriptFeatureLocation.fmax
+            exonFeatureLocation.fmin = fmin
+            exonFeatureLocation.fmax = fmax
             featureService.removeExonOverlapsAndAdjacencies(transcript)
             transcriptService.updateGeneBoundaries(transcript)
 
@@ -777,7 +778,7 @@ class RequestHandlingService {
             transcript.save()
 
 
-            returnObject.getJSONArray("features").put(featureService.convertFeatureToJSON(transcript));
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
 
         }
 
