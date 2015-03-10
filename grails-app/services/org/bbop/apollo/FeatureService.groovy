@@ -1005,59 +1005,61 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-        CDS cds = transcriptService.getCDS(transcript)
+        if(transcript instanceof MRNA) {
+            CDS cds = transcriptService.getCDS(transcript)
 //        boolean needCdsIndex = cds == null;
-        if (cds == null) {
-            cds = transcriptService.createCDS(transcript);
-            transcriptService.setCDS(transcript, cds);
-        }
-        if (bestStartIndex >= 0) {
-            int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex);
-            int fmax = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex);
-            if (cds.getStrand().equals(-1)) {
-                int tmp = fmin;
-                fmin = fmax + 1;
-                fmax = tmp + 1;
+            if (cds == null) {
+                cds = transcriptService.createCDS(transcript);
+                transcriptService.setCDS(transcript, cds);
             }
-            setFmin(cds, fmin);
-            cds.featureLocation.setIsFminPartial(false);
-            setFmax(cds, fmax);
-            cds.featureLocation.setIsFmaxPartial(partialStop);
-        } else {
-            setFmin(cds, transcript.getFmin());
-            cds.featureLocation.setIsFminPartial(true);
-            String aa = SequenceTranslationHandler.translateSequence(mrna, translationTable, true, readThroughStopCodon);
-            if (aa.substring(aa.length() - 1).equals(TranslationTable.STOP)) {
-                setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3));
-                cds.featureLocation.setIsFmaxPartial(false);
+            if (bestStartIndex >= 0) {
+                int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex);
+                int fmax = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex);
+                if (cds.getStrand().equals(-1)) {
+                    int tmp = fmin;
+                    fmin = fmax + 1;
+                    fmax = tmp + 1;
+                }
+                setFmin(cds, fmin);
+                cds.featureLocation.setIsFminPartial(false);
+                setFmax(cds, fmax);
+                cds.featureLocation.setIsFmaxPartial(partialStop);
             } else {
-                setFmax(cds, transcript.getFmax());
-                cds.featureLocation.setIsFmaxPartial(true);
+                setFmin(cds, transcript.getFmin());
+                cds.featureLocation.setIsFminPartial(true);
+                String aa = SequenceTranslationHandler.translateSequence(mrna, translationTable, true, readThroughStopCodon);
+                if (aa.substring(aa.length() - 1).equals(TranslationTable.STOP)) {
+                    setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3));
+                    cds.featureLocation.setIsFmaxPartial(false);
+                } else {
+                    setFmax(cds, transcript.getFmax());
+                    cds.featureLocation.setIsFmaxPartial(true);
+                }
             }
-        }
-        if (readThroughStopCodon) {
-            String aa = SequenceTranslationHandler.translateSequence(getResiduesWithAlterationsAndFrameshifts(cds), translationTable, true, true);
-            int firstStopIndex = aa.indexOf(TranslationTable.STOP);
-            if (firstStopIndex < aa.length() - 1) {
-                StopCodonReadThrough stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
-                cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough);
-                int offset = transcript.getStrand() == -1 ? -2 : 0;
-                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset);
-                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset);
+            if (readThroughStopCodon) {
+                String aa = SequenceTranslationHandler.translateSequence(getResiduesWithAlterationsAndFrameshifts(cds), translationTable, true, true);
+                int firstStopIndex = aa.indexOf(TranslationTable.STOP);
+                if (firstStopIndex < aa.length() - 1) {
+                    StopCodonReadThrough stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
+                    cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough);
+                    int offset = transcript.getStrand() == -1 ? -2 : 0;
+                    setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + offset);
+                    setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(cds, firstStopIndex * 3) + 3 + offset);
+                }
+            } else {
+                cdsService.deleteStopCodonReadThrough(cds);
             }
-        } else {
-            cdsService.deleteStopCodonReadThrough(cds);
+            cdsService.setManuallySetTranslationStart(cds, false);
+            cdsService.setManuallySetTranslationEnd(cds, false);
         }
-        cdsService.setManuallySetTranslationStart(cds, false);
-        cdsService.setManuallySetTranslationEnd(cds, false);
 
 //        if (needCdsIndex) {
 //            getSession().indexFeature(cds);
 //        }
 
-        Date date = new Date();
-        cds.setLastUpdated(date);
-        transcript.setLastUpdated(date);
+//        Date date = new Date();
+//        cds.setLastUpdated(date);
+//        transcript.setLastUpdated(date);
 
         // event fire
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationEditor.AnnotationChangeEvent.Operation.UPDATE);
@@ -1244,6 +1246,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Substitution.ontologyId: return new Substitution()
             case NonCanonicalFivePrimeSpliceSite.ontologyId: return new NonCanonicalFivePrimeSpliceSite()
             case NonCanonicalThreePrimeSpliceSite.ontologyId: return new NonCanonicalThreePrimeSpliceSite()
+            case StopCodonReadThrough.ontologyId: return new StopCodonReadThrough()
             default:
                 log.error("No feature type exists for ${ontologyId}")
                 return null
@@ -1690,6 +1693,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
+        println "feature ${feature} from ${ontologyId}"
 
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
 

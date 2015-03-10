@@ -403,10 +403,11 @@ class AnnotationEditorController implements AnnotationListener {
         render requestHandlingService.mergeExons(inputObject)
     }
 
-    def splitExons() {
+    def splitExon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        render requestHandlingService.splitExons(inputObject)
+        render requestHandlingService.splitExon(inputObject)
     }
+    
 
     def deleteFeature() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)

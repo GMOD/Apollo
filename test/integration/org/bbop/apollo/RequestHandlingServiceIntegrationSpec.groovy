@@ -9,6 +9,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     def requestHandlingService
     def featureRelationshipService
+    def exonService
 
     def setup() {
         Sequence sequence = new Sequence(
@@ -480,7 +481,83 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert Feature.count == 4
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 0
+    }
 
+
+    void "splitting an exon should work and handle CDS calculations properly"(){
+
+        given: "a input JSON string"
+        String jsonAddTranscriptString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":202764,\"fmax\":205331,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40806-RA\",\"children\":[{\"location\":{\"fmin\":202764,\"fmax\":203242,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":204576,\"fmax\":205331,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":202764,\"fmax\":205331,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String commandString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_NAME@\", \"location\": { \"fmax\": 204749, \"fmin\": 204750 } } ], \"operation\": \"split_exon\" }"
+        JSONObject jsonAddTranscriptObject = JSON.parse(jsonAddTranscriptString) as JSONObject
+//        String validResponseString = "{\"features\":[{\"location\":{\"fmin\":202764,\"strand\":1,\"fmax\":205331},\"parent_type\":{\"name\":\"gene\",\"cv\":{\"name\":\"sequence\"}},\"name\":\"GB40806-RA\",\"children\":[{\"location\":{\"fmin\":204750,\"strand\":1,\"fmax\":205331},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"uniquename\":\"A183623EE72EA859B745AF2349E8740E\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004351236,\"parent_id\":\"926D93FC00DE8F9350AF62A41BA0B3CD\"},{\"location\":{\"fmin\":204576,\"strand\":1,\"fmax\":204749},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"D5B021BFDD01D3D14E78157E4E850267\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004351236,\"parent_id\":\"926D93FC00DE8F9350AF62A41BA0B3CD\"},{\"location\":{\"fmin\":204750,\"strand\":1,\"fmax\":204750},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"926D93FC00DE8F9350AF62A41BA0B3CD-non_canonical_three_prive_splice_site-204750\",\"type\":{\"name\":\"non_canonical_three_prime_splice_site\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004351237,\"parent_id\":\"926D93FC00DE8F9350AF62A41BA0B3CD\"},{\"location\":{\"fmin\":204749,\"strand\":1,\"fmax\":204749},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"926D93FC00DE8F9350AF62A41BA0B3CD-non_canonical_five_prive_splice_site-204749\",\"type\":{\"name\":\"non_canonical_five_prime_splice_site\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004351237,\"parent_id\":\"926D93FC00DE8F9350AF62A41BA0B3CD\"},{\"location\":{\"fmin\":202764,\"strand\":1,\"fmax\":204756},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"42043B4EE8A57AF22BECE7682665DB9A\",\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004351237,\"parent_id\":\"926D93FC00DE8F9350AF62A41BA0B3CD\"},{\"location\":{\"fmin\":202764,\"strand\":1,\"fmax\":203242},\"parent_type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"CB50327870DCD2B3DBE8CF26F9A9400E\",\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004313199,\"parent_id\":\"926D93FC00DE8F9350AF62A41BA0B3CD\"}],\"properties\":[{\"value\":\"demo\",\"type\":{\"name\":\"owner\",\"cv\":{\"name\":\"feature_property\"}}}],\"uniquename\":\"926D93FC00DE8F9350AF62A41BA0B3CD\",\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}},\"date_last_modified\":1426004351237,\"parent_id\":\"1A3B547A870C12D9BEE39F9CDAEB8EE7\"}]}"
+
+        when: "we add the first transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(jsonAddTranscriptObject)
+
+        then: "we should get a transcript back"
+        assert returnObject.getString('operation') == "ADD"
+        assert returnObject.getBoolean('sequenceAlterationEvent') == false
+        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == featuresArray.size()
+        JSONObject mrna = featuresArray.getJSONObject(0)
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert "GB40806-RA-00001" == mrna.getString(FeatureStringEnum.NAME.value)
+//        String transcriptUniqueName = mrna.getString(FeatureStringEnum.UNIQUENAME.value)
+        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 3 == children.size()
+        for (int i = 0; i < 3; i++) {
+            JSONObject codingObject = children.getJSONObject(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject != null
+        }
+      
+        when: "we get the sorted exons"
+        List<Exon> sortedExons = exonService.getSortedExons(MRNA.first())
         
+        then: "there should be 2 and in the right order"
+        assert sortedExons.size()==2
+        assert sortedExons.get(0).featureLocation.fmax < sortedExons.get(1).featureLocation.fmin
+        String exonToSplitUniqueName = sortedExons.get(1).uniqueName
+        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
+        assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
+
+
+
+        when: "we split an exon"
+        commandString = commandString.replaceAll("@EXON_NAME@", exonToSplitUniqueName)
+        JSONObject commandObject = JSON.parse(commandString) as JSONObject
+        JSONObject returnedAfterExonObject = requestHandlingService.splitExon(commandObject)
+        JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject returnMRNA = returnFeaturesArray.getJSONObject(0)
+        JSONArray returnedChildren = returnMRNA.getJSONArray(FeatureStringEnum.CHILDREN.value)
+
+        then: "we should see that it is removed"
+        def allFeatures = Feature.all
+        assert returnFeaturesArray.size() == 1
+        assert returnedAfterExonObject != null
+        assert 3 == returnedAfterExonObject.size() // operation update, features, sequence_alt_event, etc.
+        assert Gene.count == 1
+        assert MRNA.count == 1
+
+        // the 6 children
+        assert Exon.count == 3
+        assert CDS.count == 1
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert "GB40806-RA-00001" == returnMRNA.getString(FeatureStringEnum.NAME.value)
+        assert 6 == returnedChildren.size()
+        for (int i = 0; i < 6; i++) {
+            JSONObject codingObject = returnedChildren.getJSONObject(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject != null
+        }
+        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
+        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+
+
     }
 }

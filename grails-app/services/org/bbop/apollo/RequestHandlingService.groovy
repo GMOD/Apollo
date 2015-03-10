@@ -1171,7 +1171,7 @@ class RequestHandlingService {
         return featureContainer
     }
 
-    def splitExons(JSONObject inputObject) {
+    def splitExon(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject jsonExon = features.getJSONObject(0)
         Exon exon = (Exon) Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
@@ -1180,21 +1180,16 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
-
-//        Exon splitExon = editor.splitExon(exon, exonLocation.getInt("fmax"), exonLocation.getInt("fmin"), nameAdapter.generateUniqueName());
-        println "TRYING TO SPLIT ${exon}"
+        
+        
         Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
-//        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
-        println "SPLITEXON: ${splitExon} - ${sequence}"
         updateNewGsolFeatureAttributes(splitExon, sequence)
-        println "ATTRIBUTES . . . "
-//        calculateCDS(editor, exon.getTranscript());
-        featureService.calculateCDS(transcript)
-//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
+//        transcript.attach()
+        featureService.calculateCDS(transcript,true)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-//        updateTranscriptAttributes(exon.getTranscript());
 
-        exon.save(flush: true, failOnError: true)
+        exon.save()
+        transcript.save(flush:true)
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript));
 
 

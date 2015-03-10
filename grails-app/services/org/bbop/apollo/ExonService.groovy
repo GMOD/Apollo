@@ -368,17 +368,18 @@ class ExonService {
     }
 
     Exon splitExon(Exon exon, int newLeftMax, int newRightMin) {
-        println "SPLITTING EXON ${exon.name} ${newLeftMax} - ${newRightMin} "
         Exon leftExon = exon;
+        FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()
+
         String uniqueName = nameService.generateUniqueName(exon)
         Exon rightExon = new Exon(
                 uniqueName: uniqueName
                 ,name: uniqueName
                 ,isAnalysis: leftExon.isAnalysis
                 ,isObsolete: leftExon.isObsolete
-        ).save(insert:true,failOnError: true)
+        ).save(insert:true)
 
-        FeatureLocation leftFeatureLocation = leftExon.getFeatureLocation()
+        
         FeatureLocation rightFeatureLocation = new FeatureLocation(
                 feature: rightExon
                 ,fmin: leftFeatureLocation.fmin
@@ -391,12 +392,14 @@ class ExonService {
                 ,locgroup: leftFeatureLocation.locgroup
                 ,rank: leftFeatureLocation.rank
                 ,sequence: leftFeatureLocation.sequence
-        ).save(insert:true,flush:true,failOnError: true)
-
+        ).save(insert:true)
         rightExon.addToFeatureLocations(rightFeatureLocation)
 
         leftFeatureLocation.fmax = newLeftMax
         rightFeatureLocation.fmin = newRightMin
+        
+        leftFeatureLocation.save()
+        rightFeatureLocation.save()
 
 ///
         Transcript transcript = getTranscript(leftExon)
