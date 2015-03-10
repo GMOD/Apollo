@@ -2,37 +2,37 @@
 
 Features
 
-+ Using JBrowse 1.11.6
++ Update to JBrowse 1.11.6 (http://jbrowse.org/jbrowse-1-11-6/)
++ Added new Help page with Web Apollo specific content (#153).
 + Added Drupal authentication module to share authentication with an existing Drupal DB (#117).
 + Made "Show track labels" and "Color by CDS" more persistent (#120).
-+ Added a "collapse" option to the User-created annotations track (#155).
-+ Changed maxHeight on User-create annotations track to prevent overflow (#124).
-+ Allow single-level features to be annotated (#193).
++ Added a "Collapse" option to the "User-created Annotations" track. The track labels are automatically removed when selecting to "Collapse" the track, but can be shown again. (#155).
++ Changed maxHeight on "User-created Annotations" track to prevent overflow (#124).
++ Allow single-level features to be dragged to the "User-created Annotations" track for editing (#193).
 
 Bugfixes
 
-+ Updated the GOLR URL for new server (#190).  
++ Updated ULR to new server to access Gene Ontology terms (GOLR) (#190).  
 + Fixed an issue where the API could be used to create random berkeley DBs (#152).
 + Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151).
 + Fixed an issue where the config files were readable by the outside world in previous 1.x versions.
 + Changed default user database to be encrypted. Unencrypted options are still available via command line scripts for people with older configurations (#147).
-+ Added new Help page with WebApollo specific content (#153).
 + Fixed bug where Tomcat could report "Too many open files error" (#162).
 + Fixed bug where the dark theme made the reference sequence too dark (#119).
 + Added some basic help text for search parameters in the sequences view (#160).
 + Added MIME types for bigwig files (#166).
-+ Added labels to sequence page search boxes to match content (#158).
-+ Fixed GFF3 export for non-specified phase, score, and strand (#177).
-+ Fixed "previous" button on sequence page not updating datagrid (#176).
-+ Fixed "Show track labels" causing feature labels go offscreen (#179).
++ Added labels to the boxes in the Sequence Search page to inform user of acceptable query options (#158).
++ Fixed GFF3 export to update fileds with non-specified phase, score, and strand (#177).
++ Fixed "Previous" button on sequence page to update datagrid appropriately (#176).
++ Fixed "Show track labels" feature that was causing feature labels to go offscreen (#179).
 + Renamed "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
-+ Fixed mislabeled column in Changes page (#169). 
-+ Fixed sequence search track function not matching amino acid (#168).
-+ Fixed bad layout on changes page (#180).
++ Fixed mislabeled column in "Changes" page (#169). 
++ Fixed "Add sequence search track" function not matching amino acid queries (#168).
++ Fixed bad layout on "Changes" page (#180).
 + Fixed plus/minus strand filters making bigwig score go to zero (#181).
 + Fixed problem encountered with using iframe embedded mode options (#183).
-+ Fixed problem with add user popup using outdated server configuration (#182).
-+ Fixed minor issue with retrieving non-existant peptides from untranslated regions (#157).
++ Fixed problem with "Add user" popup using outdated server configuration (#182).
++ Fixed minor issue raised when attempting to retrieve (non-existent) peptides from untranslated regions (#157).
 
 ## 1.0.3 release
 
