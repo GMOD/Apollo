@@ -1,15 +1,12 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import grails.util.Pair
 import org.apache.commons.lang.RandomStringUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
-import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.gmod.gbol.util.SequenceUtil
 
 import java.util.zip.CRC32
 
@@ -205,4 +202,5 @@ class SequenceService {
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
         println "residues? ${deletion.alterationResidue}"
     }
+
 }

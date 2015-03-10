@@ -1347,7 +1347,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     String getResiduesWithAlterations(Feature feature,
                                       Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
-        String residueString = sequenceService.getResiduesFromFeature(feature)
+        String residueString = null 
+        
+        if(feature instanceof Transcript){
+            residueString = transcriptService.getResiduesFromTranscript(feature)
+        }
+        else{
+            residueString = sequenceService.getResiduesFromFeature(feature)
+        }
         if (sequenceAlterations.size() == 0) {
             return residueString
         }

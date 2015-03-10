@@ -19,6 +19,13 @@ class RequestHandlingServiceSpec extends Specification {
 
     def "something to test"(){
         
+       given: "a valid sequence to translate"
+        
+        String sequenceString = "MDSSAFEMKQVVLRDLESVLKIEDQMIVENYTTKSLLPPGENYGSTIFSVHVELKNKITEKKEDLHVIAKMCPPTEYQKELFNSSRTFIKEIFMYETIMPAYNKLELECGLRKNEVFELLPKFYGARLSLQPDGEFDEDAVLLMENLKIKGYYSADRATGYDLDHAGEAVKAMARFHSLGIAMKQKRPGIFEMFKMYAKPLQHVQNTSKEMFGLILEQIKKDPEISPHFDKCNKILSELKLEELWADSYREPWISIIHCDFWVNNVMFHCNDKGKIDNVKFVDFQIYLYGSPVRDLLFFLFPV*"
+        
+        when: "the sequence string gets here"
+        
+        then: "it should be good"
         
     }
 }

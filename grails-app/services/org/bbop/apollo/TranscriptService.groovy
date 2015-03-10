@@ -19,6 +19,7 @@ class TranscriptService {
     def nameService
     def requestHandlingService
     def nonCanonicalSplitSiteService
+    def sequenceService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -424,5 +425,18 @@ class TranscriptService {
 //        Transcript newTranscript = Transcript.findByUniqueName(uniqueName)
         
         return oldTranscript;
+    }
+
+    String getResiduesFromTranscript(Transcript transcript) {
+        def exons = exonService.getSortedExons(transcript)
+        if(!exons){
+            return null
+        }
+        
+        StringBuilder residues = new StringBuilder()
+        for(Exon exon in exons){
+            residues.append(sequenceService.getResiduesFromFeature(exon))
+        }
+        return residues.size()>0 ? residues.toString() : null
     }
 }

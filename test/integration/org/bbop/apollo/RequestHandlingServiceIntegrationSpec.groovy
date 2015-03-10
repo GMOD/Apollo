@@ -484,6 +484,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     }
 
 
+    
     void "splitting an exon should work and handle CDS calculations properly"(){
 
         given: "a input JSON string"

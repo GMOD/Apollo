@@ -1185,7 +1185,7 @@ class RequestHandlingService {
         Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
         updateNewGsolFeatureAttributes(splitExon, sequence)
 //        transcript.attach()
-        featureService.calculateCDS(transcript,true)
+        featureService.calculateCDS(transcript)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
         exon.save()
