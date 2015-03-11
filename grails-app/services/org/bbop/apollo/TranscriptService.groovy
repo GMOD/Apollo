@@ -229,6 +229,8 @@ class TranscriptService {
 
     def addExon(Transcript transcript, Exon exon) {
 
+        println "exon feature lcoations ${exon.featureLocation}"
+        println "transcript feature lcoations ${transcript.featureLocation}"
         if (exon.getFeatureLocation().getFmin() < transcript.getFeatureLocation().getFmin()) {
             transcript.getFeatureLocation().setFmin(exon.getFeatureLocation().getFmin());
         }
@@ -249,7 +251,7 @@ class TranscriptService {
         }
         gene.save()
 
-        int initialSize = transcript.parentFeatureRelationships?.size()
+        int initialSize = transcript.parentFeatureRelationships?.size() ?: 0
         println "initial size: ${initialSize}" // 3
         featureRelationshipService.addChildFeature(transcript, exon, false)
         int finalSize = transcript.parentFeatureRelationships?.size()
@@ -263,23 +265,33 @@ class TranscriptService {
         updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
         println "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
     }
-
+    
     Transcript getParentTranscriptForFeature(Feature feature) {
         return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
 
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
-//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons());
         List<Exon> exons = exonService.getSortedExons(transcript)
-//        Transcript splitTranscript = (Transcript) transcript.cloneFeature(splitTranscriptUniqueName);
-        Transcript splitTranscript = new Transcript(transcript.properties)
+        Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
         splitTranscript.uniqueName = nameService.generateUniqueName()
+        splitTranscript.name = nameService.generateUniqueName(transcript)
+        splitTranscript.save()
+        
+        // copy feature locations if right of right exon
+        transcript.featureLocations.each { featureLocation -> 
+            FeatureLocation newFeatureLocation = new FeatureLocation(
+                    fmin: featureLocation.fmin
+                    ,fmax: featureLocation.fmax
+                    ,rank: featureLocation.rank
+                    ,sequence: featureLocation.sequence
+                    ,strand: featureLocation.strand
+                    
+                    ,feature: splitTranscript
+            ).save()
+            splitTranscript.addToFeatureLocations(newFeatureLocation)
+        }
+        splitTranscript.save(flush: true)
 
-//        if (transcript.getGene() != null) {
-//            addTranscript(transcript.getGene(), splitTranscript);
-//        } else {
-//            addFeature(splitTranscript);
-//        }
         Gene gene = getGene(transcript)
         if (gene) {
             featureService.addTranscriptToGene(gene, splitTranscript)
@@ -288,19 +300,25 @@ class TranscriptService {
         }
 
         FeatureLocation transcriptFeatureLocation = transcript.featureLocation
-//        transcript.setFmax(leftExon.getFmax());
         transcriptFeatureLocation.fmax = leftExon.fmax
-//        splitTranscript.setFmin(rightExon.getFmin());
         FeatureLocation splitFeatureLocation = splitTranscript.featureLocation
-        splitFeatureLocation.fmin = rightExon.fmin
+        println "right1: ${rightExon.featureLocation}"
+        splitFeatureLocation.fmin = rightExon.featureLocation.fmin
+        println "right2: ${rightExon.featureLocation}"
         for (Exon exon : exons) {
             FeatureLocation exonFeatureLocation = exon.featureLocation
-            FeatureLocation leftFeatureLoocaiton = leftExon.featureLocation
-            if (exonFeatureLocation.fmin > leftFeatureLoocaiton.getFmin()) {
-                exonService.deleteExon(transcript, exon);
+            FeatureLocation leftFeatureLocation = leftExon.featureLocation
+            if (exonFeatureLocation.fmin > leftFeatureLocation.getFmin()) {
+                println "right3: ${rightExon.featureLocation}"
+//                featureRelationshipService.removeFeatureRelationship()
+//                exonService.deleteExon(transcript, exon);
                 if (exon.equals(rightExon)) {
+                    featureRelationshipService.removeFeatureRelationship(transcript,rightExon)
+                    println "right4: ${rightExon.featureLocation}"
                     addExon(splitTranscript, rightExon);
                 } else {
+                    featureRelationshipService.removeFeatureRelationship(transcript,exon)
+                    println "right5: ${rightExon.featureLocation}"
                     addExon(splitTranscript, exon);
                 }
             }

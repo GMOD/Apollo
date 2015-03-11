@@ -1405,7 +1405,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (feature instanceof Transcript) {
             residueString = transcriptService.getResiduesFromTranscript(feature)
-        } else {
+        }
+        else {
             residueString = sequenceService.getResiduesFromFeature(feature)
         }
         if (sequenceAlterations.size() == 0) {

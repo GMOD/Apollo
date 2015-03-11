@@ -2,11 +2,9 @@ package org.bbop.apollo
 //import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
-import org.bouncycastle.jce.provider.AnnotatedException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.gmod.gbol.bioObject.util.BioObjectUtil
 
 /**
  * This class is responsible for handling JSON requests from the AnnotationEditorController and routing
@@ -26,10 +24,13 @@ class RequestHandlingService {
     def transcriptService
     def cdsService
     def exonService
-    def brokerMessagingTemplate
     def nonCanonicalSplitSiteService
     def configWrapperService
     def nameService
+    def overlapperService
+
+
+    def brokerMessagingTemplate
 
     // TODO: make a grails singleton
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
@@ -1483,36 +1484,29 @@ class RequestHandlingService {
 
     def splitTranscript(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-//        Exon exon1 = (Exon) getFeature(editor, features.getJSONObject(0));
-//        Exon exon2 = (Exon) getFeature(editor, features.getJSONObject(1));
-        Exon exon1 = Exon.findByUniqueName(featuresArray.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
-        Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
-//        Transcript oldTranscript = cloneTranscript(exon1.getTranscript(), true);
-
-//        Transcript splitTranscript = editor.splitTranscript(exon1.getTranscript(), exon1, exon2, transcriptNameAdapter.generateUniqueName());
-        Transcript transcript1 = exonService.getTranscript(exon1)
-        Transcript transcript2 = exonService.getTranscript(exon2)
-
-        Transcript splitTranscript = transcriptService.splitTranscript(transcript1, exon1, exon2)
-//        updateNewGbolFeatureAttributes(splitTranscript, trackToSourceFeature.get(track));
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
-        featureService.updateNewGsolFeatureAttributes(splitTranscript, sequence);
-//        calculateCDS(editor, exon1.getTranscript());
+
+        Exon exon1 = Exon.findByUniqueName(featuresArray.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
+        Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
+
+        Transcript transcript1 = exonService.getTranscript(exon1)
+        Transcript transcript2 = transcriptService.splitTranscript(transcript1, exon1, exon2)
+        
+        featureService.updateNewGsolFeatureAttributes(transcript2, sequence);
+        
         featureService.calculateCDS(transcript1)
-//        calculateCDS(editor, exon2.getTranscript());
         featureService.calculateCDS(transcript2)
 
-//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon1.getTranscript());
-//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon2.getTranscript());
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript2);
-//        updateTranscriptAttributes(exon1.getTranscript());
-//        updateTranscriptAttributes(exon2.getTranscript());
+        
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
         transcript2.name = transcript2.name ?: nameService.generateUniqueName(transcript2)
-//        exon2.getTranscript().setOwner(exon1.getTranscript().getOwner());
-//        Gene gene1 = exon1.getTranscript().getGene();
+       
+        transcript1.owners.each { transcript2.addToOwners(it)}
+
+        
         Gene gene1 = transcriptService.getGene(transcript1)
 //
         if (gene1) {
@@ -1531,8 +1525,8 @@ class RequestHandlingService {
                     if (gene1Transcripts.contains(t2) || gene2Transcripts.contains(t2)) {
                         continue;
                     }
-                    if (t1.getFmin() < splitTranscript.featureLocation.getFmin()) {
-                        if (configWrapperService.overlapper.overlaps(t1, t2)) {
+                    if (t1.getFmin() < transcript2.featureLocation.getFmin()) {
+                        if (overlapperService.overlaps(t1, t2)) {
                             gene1Transcripts.add(t2);
                         } else {
                             gene2Transcripts.add(t2);
@@ -1541,7 +1535,7 @@ class RequestHandlingService {
                         gene2Transcripts.add(t2);
                     }
                 }
-                if (t1.featureLocation.getFmin() > splitTranscript.featureLocation.getFmin()) {
+                if (t1.featureLocation.getFmin() > transcript2.featureLocation.getFmin()) {
                     break;
                 }
             }
@@ -1565,7 +1559,7 @@ class RequestHandlingService {
             }
 
             for (Transcript t : gene2Transcripts) {
-                if (!t.equals(splitTranscript)) {
+                if (!t.equals(transcript2)) {
                     JSONObject addTranscriptJSONObject = new JSONObject()
                     JSONArray addTranscriptFeaturesArray = new JSONArray()
                     addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
@@ -1578,7 +1572,7 @@ class RequestHandlingService {
 
             JSONObject addSplitTranscriptJSONObject = new JSONObject()
             JSONArray addTranscriptFeaturesArray = new JSONArray()
-            addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(splitTranscript))
+            addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(transcript2))
             addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addSplitTranscriptJSONObject)
             addSplitTranscriptJSONObject.put("track", inputObject.track)
 
@@ -1587,22 +1581,26 @@ class RequestHandlingService {
 //            splitTranscript = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(splitTranscript), track, geneNameAdapter, gene1.isPseudogene());
 //
         }
-        Transcript exon1Transcript = exonService.getTranscript(exon1)
-        Feature topLevelExonFeature = featureService.getTopLevelFeature(exonService.getTranscript(exon1))
+        transcript1.save()
+        transcript2.save()
+        
+//        Transcript exon1Transcript = exonService.getTranscript(exon1)
+        Feature topLevelExonFeature = featureService.getTopLevelFeature(transcript1)
         JSONObject returnContainer = createJSONFeatureContainerFromFeatures(topLevelExonFeature)
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(exon1.getTranscript()))).toString());
 //
         JSONObject updateContainer = createJSONFeatureContainer();
-        JSONObject addContainer = createJSONFeatureContainerFromFeatures(splitTranscript);
+        JSONObject addContainer = createJSONFeatureContainerFromFeatures(transcript2);
 //        JSONObject addContainer =createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
-        List<Transcript> exon1Transcripts = transcriptService.getTranscripts(transcriptService.getGene(exon1Transcript))
-        for (Transcript t : exon1Transcript) {
+        
+        List<Transcript> exon1Transcripts = transcriptService.getTranscripts(transcriptService.getGene(transcript1))
+        for (Transcript t : exon1Transcripts) {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
         }
 
-        List<Transcript> splitTranscriptSiblings = transcriptService.getTranscripts(transcriptService.getGene(splitTranscript))
+        List<Transcript> splitTranscriptSiblings = transcriptService.getTranscripts(transcriptService.getGene(transcript2))
         for (Transcript t : splitTranscriptSiblings) {
-            if (!t.getUniqueName().equals(splitTranscript.getUniqueName())) {
+            if (!t.getUniqueName().equals(transcript2.getUniqueName())) {
                 updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
             }
         }
@@ -1623,6 +1621,7 @@ class RequestHandlingService {
         fireAnnotationEvent(addAnnotationEvent, updateAnnotationEvent)
 
 
+        return returnContainer
     }
 
     def mergeTranscripts(JSONObject inputObject) {

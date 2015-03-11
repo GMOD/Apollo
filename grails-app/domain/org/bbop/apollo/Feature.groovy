@@ -106,7 +106,8 @@ class Feature implements Ontological{
     }
 
     public Feature generateClone() {
-        Feature cloned = new Feature();
+//        Feature cloned = new Feature();
+        Feature cloned = this.getClass().newInstance()
 //        cloned.type = this.type;
         cloned.dbxref = this.dbxref;
 //        cloned.organism = this.organism;
