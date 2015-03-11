@@ -1404,7 +1404,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String residueString = null
 
         if (feature instanceof Transcript) {
-            residueString = transcriptService.getResiduesFromTranscript(feature)
+            residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
+        } else if (feature instanceof CDS) {
+            residueString = cdsService.getResiduesFromCDS((CDS) feature)
         }
         else {
             residueString = sequenceService.getResiduesFromFeature(feature)

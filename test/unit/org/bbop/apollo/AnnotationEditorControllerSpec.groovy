@@ -92,6 +92,4 @@ class AnnotationEditorControllerSpec extends Specification {
 
 
     }
-
-
 }

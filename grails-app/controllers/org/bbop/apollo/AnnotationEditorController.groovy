@@ -455,7 +455,7 @@ class AnnotationEditorController implements AnnotationListener {
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
             String sequence = null
             if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
-                // incomplete
+                // incomplete - works for feature with a single CDS
                 if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                     CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
                     String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
@@ -476,6 +476,11 @@ class AnnotationEditorController implements AnnotationListener {
                         }
                     }
                     println "===> TRANSLATED (postprocess) @getSequence(): ${sequence}"
+                } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
+                    // need advice
+                    println "trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
+                } else {
+                    sequence = ""
                 }
             } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
                 if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
@@ -484,11 +489,21 @@ class AnnotationEditorController implements AnnotationListener {
                     sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
                     println "===> CDS SEQUENCE @getSequence(): ${sequence}"
                 } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
-                    // what is the utility of this block ?
+                    // need advice
+                    // sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                    println "trying to fetch CDS sequence of selected exon: ${gbolFeature}"
+                } else {
+                    sequence = ""
+                }
+            
+            } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
+                // works perfectly
+                if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
                     sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
                 } else {
                     sequence = ""
                 }
+                println "===> CDNA SEQUENCE @getSequence(): ${sequence}"
             } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
                 // incomplete
                 int flank = 0 // temporary workaround for testing
@@ -507,13 +522,6 @@ class AnnotationEditorController implements AnnotationListener {
                 }
                 
                 
-            } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
-                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
-                    //sequence = featureService.getResiduesWithAlterationsAndFrameshifts(((Transcript) gbolFeature).getCDS())
-                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
-                } else {
-                    sequence = ""
-                }
             }
 //            JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature);
 //            outFeature.put("residues", sequence);

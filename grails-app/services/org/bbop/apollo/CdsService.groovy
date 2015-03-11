@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import grails.compiler.GrailsCompileStatic
+import org.bbop.apollo.sequence.Strand
 
 //@GrailsCompileStatic
 @Transactional
@@ -12,7 +13,9 @@ class CdsService {
 
     def featureRelationshipService
     def featurePropertyService
-
+    def transcriptService
+    def featureService
+    
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
             return;
@@ -175,5 +178,40 @@ class CdsService {
         cds.save(flush: true,failOnError: true)
 
     }
-
+    
+    def getResiduesFromCDS(CDS cds) {
+        Transcript transcript = transcriptService.getTranscript(cds)
+        String residues = transcriptService.getResiduesFromTranscript(transcript)
+        int begin
+        int end
+        if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
+            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin + 1)
+            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax + 1)
+        }
+        else {
+            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin)
+            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax)
+        }
+        return residues.substring(begin,end)
+//        Legacy code
+//        if (getTranscript() == null) {
+//            return super.getResidues();
+//        }
+//        Transcript transcript = getTranscript();
+//        String residues = transcript.getResidues();
+//        int begin;
+//        int end;
+//        transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmax());
+//        if (getFeatureLocation().getStrand() == -1) {
+//            end = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmin()) + 1;
+//            begin = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmax()) + 1;
+//        }
+//        else {
+//            begin = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmin());
+//            end = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmax());
+//
+//        }
+//        return residues.substring(begin, end);
+        
+    }
 }
