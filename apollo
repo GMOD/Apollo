@@ -110,7 +110,7 @@ elif [[ $1 == "debug" ]];then
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    mvn tomcat7:run
+    #mvn tomcat7:run
 	grails -reloading debug 
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
