@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 
 import java.nio.charset.Charset
@@ -18,6 +19,7 @@ import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.bbop.apollo.web.util.JSONUtil
 import org.gmod.gbol.util.SequenceUtil
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
@@ -35,7 +37,9 @@ class AnnotationEditorController implements AnnotationListener {
     def featurePropertyService
     def requestHandlingService
     def gff3HandlerService
-
+    def transcriptService
+    def exonService
+    def cdsService
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
     public static String REST_OPERATION = "operation"
@@ -439,12 +443,86 @@ class AnnotationEditorController implements AnnotationListener {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-
+        
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sourceSequence = Sequence.findByName(trackName)
-
+        
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            String sequence = null
+            if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
+                // incomplete
+                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+                    CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
+                    String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
+                    println "===> RAW SEQUENCE @getSequence(): ${rawSequence}"
+                    sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
+                    println "===> TRANSLATED @getSequence(): ${sequence}"
+                    if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                        sequence = sequence.substring(0, sequence.size() - 1)
+                        // removing the last character from the sequence, most likely a '*' indicating a stop codon
+                    }
+                    int idx;
+                    if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
+                        String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
+                        // for scenario where there is still a stop in the AA sequence, fetch alternate translation table
+                        if (aa != null) {
+                            sequence = sequence.replace(StandardTranslationTable.STOP, aa)
+                        }
+                    }
+                    println "===> TRANSLATED (postprocess) @getSequence(): ${sequence}"
+                }
+            } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
+                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+                    println "===> GET CDS for Transcript: ${transcriptService.getCDS((Transcript) gbolFeature)}"
+                    // but there seems to be only one CDS fetched even if a gene has more than 1 CDS
+                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                    println "===> CDS SEQUENCE @getSequence(): ${sequence}"
+                } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
+                    // what is the utility of this block ?
+                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                } else {
+                    sequence = ""
+                }
+            } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
+                // incomplete
+                int flank = 0 // temporary workaround for testing
+                
+                if (flank > 0) {
+                    int fmin = gbolFeature.getFmin() - flank
+                    if (fmin < 0) {
+                        fmin = 0
+                    }
+                    if (fmin < gbolFeature.getFmin()) {
+                        fmin = gbolFeature.getFmin()
+                    }
+                    int fmax = gbolFeature.getFmax() + flank
+                    FeatureRelationship gbolFeatureRelationship = gbolFeature.getParentFeatureRelationships()
+                    gbolFeatureRelationship = featureRelationshipService.getChildForFeature(gbolFeature, gbolFeature.ontologyId)
+                }
+                
+                
+            } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
+                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+                    //sequence = featureService.getResiduesWithAlterationsAndFrameshifts(((Transcript) gbolFeature).getCDS())
+                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                } else {
+                    sequence = ""
+                }
+            }
+//            JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature);
+//            outFeature.put("residues", sequence);
+//            outFeature.put("uniquename", uniqueName);
+//            outFeature.put("residues", sequence);
+//            featureContainer.getJSONArray("features").put(outFeature);
+        }
+//        out.write(featureContainer.toString());
+        render featureContainer
 //        for (int i = 0; i < featuresArray.length(); ++i) {
 //            JSONObject jsonFeature = featuresArray.getJSONObject(i);
 //            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
@@ -537,8 +615,6 @@ class AnnotationEditorController implements AnnotationListener {
 //            featureContainer.getJSONArray("features").put(outFeature);
 //        }
 //        out.write(featureContainer.toString());
-
-        render featureContainer
     }
 
     def getGff3() {
