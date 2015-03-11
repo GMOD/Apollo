@@ -411,4 +411,77 @@ class ExonService {
         return rightExon
 
     }
+    
+    // added while working on getSequence() on 03.11.15 by D.U.
+//    String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
+//        Transcript transcript = getTranscript(exon)
+//        CDS cds = transcriptService.getCDS(transcript)
+//        if (cds == null || !exon.overlaps(cds)) {
+//            return ""
+//        }
+//        int length = 0
+//        FlankingRegion flankingRegion = new FlankingRegion(
+//                uniqueName: "tmpFlankRegion"
+//                ,isAnalysis: false
+//                ,isObsolete: false
+//                ,dateCreated: null
+//        )
+//
+//        List <Exon> exons = transcriptService.getSortedExons(transcriptService.getExons(transcript))
+//        for (Exon e in exons) {
+//            if (e.equals(exon)) {
+//                break // WHAT?
+//            }
+//            if (!e.overlaps(cds)) {
+//                continue
+//            }
+//            int fmin = e.getFmin() < cds.getFmin() ? cds.getFmin() : e.getFmin()
+//            int fmax = e.getFmax() > cds.getFmax() ? cds.getFmax() : e.getFmax()
+//
+//            FeatureLocation flankingRegionLocation = new FeatureLocation(
+//                    feature: flankingRegion
+//                    ,fmin: fmin
+//                    ,fmax: fmax
+//                    ,
+//
+//            )
+//        }
+//    }
+    
+    // Legacy code
+//    private String getCodingSequenceInPhase(AnnotationEditor editor, Exon exon, boolean removePartialCodons) {
+//        Transcript transcript = exon.getTranscript();
+//        CDS cds = transcript.getCDS();
+//        if (cds == null || !exon.overlaps(cds)) {
+//            return "";
+//        }
+//        int length = 0;
+//        FlankingRegion flankingRegion = new FlankingRegion(null, null, false, false, null, exon.getConfiguration());
+//        flankingRegion.setFeatureLocation(new FeatureLocation());
+//        flankingRegion.getFeatureLocation().setSourceFeature(exon.getFeatureLocation().getSourceFeature());
+//        flankingRegion.setStrand(exon.getStrand());
+//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true);
+//        for (Exon e : exons) {
+//            if (e.equals(exon)) {
+//                break;
+//            }
+//            if (!e.overlaps(cds)) {
+//                continue;
+//            }
+//            int fmin = e.getFmin() < cds.getFmin() ? cds.getFmin() : e.getFmin();
+//            int fmax = e.getFmax() > cds.getFmax() ? cds.getFmax() : e.getFmax();
+//            flankingRegion.setFmin(fmin);
+//            flankingRegion.setFmax(fmax);
+//            length += editor.getSession().getResiduesWithAlterationsAndFrameshifts(flankingRegion).length();
+//        }
+//        flankingRegion.setFmin(exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin());
+//        flankingRegion.setFmax(exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax());
+//        String residues = editor.getSession().getResiduesWithAlterationsAndFrameshifts(flankingRegion);
+//        if (removePartialCodons) {
+//            int phase = length % 3 == 0 ? 0 : 3 - (length % 3);
+//            residues = residues.substring(phase);
+//            residues = residues.substring(0, residues.length() - (residues.length() % 3));
+//        }
+//        return residues;
+//    }
 }
