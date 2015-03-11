@@ -98,10 +98,6 @@
                     <gwt:HTML text="tracks I've annotated"/>
                 </gwt:tab>
                 <gwt:tab>
-                    <gwt:header>Sequences</gwt:header>
-                    <gwt:HTML text="sequence permissions"/>
-                </gwt:tab>
-                <gwt:tab>
                     <gwt:header>Organisms</gwt:header>
                     <gwt:HTML text="organism permissions"/>
                 </gwt:tab>
