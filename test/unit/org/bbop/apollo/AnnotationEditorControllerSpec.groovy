@@ -63,7 +63,7 @@ class AnnotationEditorControllerSpec extends Specification {
     }
 
     // TODO: move this to an integration test
-    //@Ignore
+    @Ignore
     void "get_features"() {
 
         when: "converts properly"
