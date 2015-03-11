@@ -368,7 +368,9 @@ class TranscriptService {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
         for (Exon exon : getExons(transcript2)) {
-            exonService.deleteExon(transcript2, exon)
+//            exonService.deleteExon(transcript2, exon)
+            featureRelationshipService.removeFeatureRelationship(transcript2,exon)
+//            featureRelationshipService.addChildFeature(transcript2,exon)
             addExon(transcript1, exon)
         }
         transcript1.save()
