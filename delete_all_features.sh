@@ -1,8 +1,17 @@
 #!/bin/bash
 
-psql apollo -c  "delete from feature_dbxref";
-psql apollo -c  "delete from feature_property";
-psql apollo -c  "delete from feature_relationship";
-psql apollo -c  "delete from feature_location";
-psql apollo -c  "delete from feature";
+DBARG=apollo
+
+if [ $# -ge 1 ]
+then
+DBARG=$1
+fi
+
+echo "Deleting features from $DBARG"
+
+psql $DBARG -c  "delete from feature_dbxref";
+psql $DBARG -c  "delete from feature_property";
+psql $DBARG -c  "delete from feature_relationship";
+psql $DBARG -c  "delete from feature_location";
+psql $DBARG -c  "delete from feature";
 

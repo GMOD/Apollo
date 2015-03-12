@@ -632,22 +632,16 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count ==2
         assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert NonCanonicalFivePrimeSpliceSite.count == 0
-//        assert "GB40806-RA-00001" == mrna1.getString(FeatureStringEnum.NAME.value)
-//        assert 6 == returnedChildren.size()
-//        for (int i = 0; i < 6; i++) {
-//            JSONObject codingObject = returnedChildren.getJSONObject(i)
-//            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
-//            assert locationObject != null
-//        }
-//        assert finalSortedExons.size() == 3
-//        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
-//        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
-//        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
-//
-//        // the end of the CDS should be on the last exon
-//        assert CDS.first().featureLocation.fmax < lastExon.featureLocation.fmax
-//        assert CDS.first().featureLocation.fmax > lastExon.featureLocation.fmin
-
-
     }
+
+    void "adding overlapping transcripts on opposite strands fails"(){
+        
+        
+//        given: ""
+        
+        
+        
+        
+    }
+    
 }

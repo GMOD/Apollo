@@ -81,7 +81,7 @@ class JbrowseController {
 //        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
-        println "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
+        log.debug "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");

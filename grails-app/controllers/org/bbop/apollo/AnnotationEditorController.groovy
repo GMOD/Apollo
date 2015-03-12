@@ -760,14 +760,14 @@ class AnnotationEditorController implements AnnotationListener {
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
     protected String annotationEditor(String inputString) {
-        println "Input String:  annotation editor service ${inputString}"
+        log.debug "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
 
-        println "AEC::root element: ${rootElement as JSON}"
+        log.debug "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
-        println "operationName: ${operationName}"
+        log.debug "operationName: ${operationName}"
 //        handleOperation(track,operation)
         def p = task {
             switch (operationName) {
