@@ -569,4 +569,85 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
 
     }
+
+
+    void "splitting a transcript should work properly"(){
+
+        given: "a input JSON string"
+        String jsonAddTranscriptString = "{\"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":202764,\"fmax\":205331,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40806-RA\",\"children\":[{\"location\":{\"fmin\":202764,\"fmax\":203242,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":204576,\"fmax\":205331,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":202764,\"fmax\":205331,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String commandString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@EXON1_UNIQUENAME@\" }, { \"uniquename\": \"@EXON2_UNIQUENAME@\" } ], \"operation\": \"split_transcript\" }"
+        JSONObject jsonAddTranscriptObject = JSON.parse(jsonAddTranscriptString) as JSONObject
+
+        when: "we add the first transcript"
+        JSONObject returnObject = requestHandlingService.addTranscript(jsonAddTranscriptObject)
+
+        then: "we should get a transcript back"
+        assert returnObject.getString('operation') == "ADD"
+        assert returnObject.getBoolean('sequenceAlterationEvent') == false
+        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == featuresArray.size()
+        JSONObject mrna = featuresArray.getJSONObject(0)
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert "GB40806-RA-00001" == mrna.getString(FeatureStringEnum.NAME.value)
+//        String transcriptUniqueName = mrna.getString(FeatureStringEnum.UNIQUENAME.value)
+        JSONArray children = mrna.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 3 == children.size()
+        for (int i = 0; i < 3; i++) {
+            JSONObject codingObject = children.getJSONObject(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject != null
+        }
+
+        when: "we get the sorted exons"
+        List<Exon> sortedExons = exonService.getSortedExons(MRNA.first())
+
+        then: "there should be 2 and in the right order"
+        assert sortedExons.size()==2
+        assert sortedExons.get(0).featureLocation.fmax < sortedExons.get(1).featureLocation.fmin
+//        String exonToSplitUniqueName = sortedExons.get(1).uniqueName
+        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
+        assert CDS.first().featureLocation.fmax == MRNA.first().featureLocation.fmax
+
+
+
+        when: "we split a transcript "
+        String uniqueName1 = sortedExons.get(0).uniqueName
+        String uniqueName2 = sortedExons.get(1).uniqueName
+        commandString = commandString.replaceAll("@EXON1_UNIQUENAME@",uniqueName1)
+        commandString = commandString.replaceAll("@EXON2_UNIQUENAME@",uniqueName2)
+        
+        JSONObject commandObject = JSON.parse(commandString) as JSONObject
+        JSONObject returnedAfterExonObject = requestHandlingService.splitTranscript(commandObject)
+        JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        
+
+        then: "we should see 2 genes, each belonging to a transcript and having a single gene and exon"
+        def allFeatures = Feature.all
+        assert MRNA.count ==2
+        assert Exon.count ==2
+        assert Gene.count ==2
+        assert CDS.count ==2
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+//        assert "GB40806-RA-00001" == mrna1.getString(FeatureStringEnum.NAME.value)
+//        assert 6 == returnedChildren.size()
+//        for (int i = 0; i < 6; i++) {
+//            JSONObject codingObject = returnedChildren.getJSONObject(i)
+//            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+//            assert locationObject != null
+//        }
+//        assert finalSortedExons.size() == 3
+//        assert CDS.first().featureLocation.fmin == MRNA.first().featureLocation.fmin
+//        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+//        assert CDS.first().featureLocation.fmax < MRNA.first().featureLocation.fmax
+//
+//        // the end of the CDS should be on the last exon
+//        assert CDS.first().featureLocation.fmax < lastExon.featureLocation.fmax
+//        assert CDS.first().featureLocation.fmax > lastExon.featureLocation.fmin
+
+
+    }
 }

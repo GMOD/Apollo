@@ -68,7 +68,6 @@ class FeatureRelationshipService {
 
     def setChildForType(Feature parentFeature, Feature childFeature) {
         List<FeatureRelationship> results = FeatureRelationship.findAllByParentFeature(parentFeature).findAll() {
-            println "evaluating: ${it.childFeature.ontologyId} vs ${childFeature.ontologyId}"
             it.childFeature.ontologyId == childFeature.ontologyId
         }
 

@@ -143,9 +143,7 @@ class NonCanonicalSplitSiteService {
             int threePrimeSpliceSitePosition = -1;
             boolean validFivePrimeSplice = false;
             boolean validThreePrimeSplice = false;
-            println "donor sites: ${SequenceTranslationHandler.spliceDonorSites}"
-            println "acceptor sites: ${SequenceTranslationHandler.spliceAcceptorSites}"
-            
+
             for (String donor : SequenceTranslationHandler.getSpliceDonorSites()) {
                 for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
                     FlankingRegion spliceAcceptorSiteFlankingRegion = createFlankingRegion(exon, exon.getFmin() - donor.length(), exon.getFmin());

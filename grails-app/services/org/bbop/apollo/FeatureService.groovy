@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import groovy.transform.CompileStatic
+import org.apache.catalina.security.SecurityUtil
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
@@ -152,7 +153,6 @@ class FeatureService {
         // you are iterating through all of the children in order to set the SourceFeature and analsysis
 //        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
         for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
-            println "gsolFeature ${gsolFeature} - ${fr.childFeature}"
             updateNewGsolFeatureAttributes(fr.getChildFeature(), sequence);
         }
     }
@@ -182,7 +182,15 @@ class FeatureService {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
 
-            featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
+            // todo, make work
+            String username = null
+            try {
+                username =  SecurityUtils?.subject?.principal;
+            } catch (e) {
+                log.error(e)
+                username = "demo@demo.gov"
+            }
+            featurePropertyService.setOwner(transcript, username );
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -197,7 +205,7 @@ class FeatureService {
             Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
             log.debug "overlapping features: ${overlappingFeatures.size()}"
             for (Feature feature : overlappingFeatures) {
-                if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene) && configWrapperService.overlapper != null) {
+                if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlpaping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
@@ -235,7 +243,7 @@ class FeatureService {
                         log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                     }
                 } else {
-                    log.error "Feature is not an instance of a gene or is a pseudogene or there is no adequate overlapper specified"
+                    log.error "Feature is not an instance of a gene or is a pseudogene"
                 }
             }
         }
@@ -333,7 +341,6 @@ class FeatureService {
     }
 
     def addTranscriptToGene(Gene gene, Transcript transcript) {
-        println "transcript exists ${transcript}"
         removeExonOverlapsAndAdjacencies(transcript);
 //        gene.addTranscript(transcript);
 //        CVTerm partOfCvterm = cvTermService.partOf
@@ -395,7 +402,6 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
-                println "line i${i} j${j} inc${inc}"
                 if (overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
                         exonService.mergeExons(leftExon, rightExon);
@@ -567,7 +573,7 @@ class FeatureService {
         List<Exon> exons = exonService.getSortedExons(transcript)
         int sourceCoordinate = -1;
         if (exons.size() == 0) {
-            return convertLocalCoordinateToSourceCoordinate(transcript,localCoordinate);
+            return convertLocalCoordinateToSourceCoordinate(transcript, localCoordinate);
         }
         int currentLength = 0;
         int currentCoordinate = localCoordinate;
@@ -576,8 +582,7 @@ class FeatureService {
             if (currentLength + exonLength >= localCoordinate) {
                 if (transcript.getFeatureLocation().getStrand() == Strand.NEGATIVE.value) {
                     sourceCoordinate = exon.getFeatureLocation().getFmax() - currentCoordinate - 1;
-                }
-                else {
+                } else {
                     sourceCoordinate = exon.getFeatureLocation().getFmin() + currentCoordinate;
                 }
                 break;
@@ -591,23 +596,22 @@ class FeatureService {
     int convertLocalCoordinateToSourceCoordinateForCDS(CDS cds, int localCoordinate) {
         Transcript transcript = transcriptService.getTranscript(cds)
         if (!transcript) {
-            return convertLocalCoordinateToSourceCoordinate(cds,localCoordinate);
+            return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate);
         }
         int currentOffset = 0;
         for (Exon exon : exonService.getSortedExons(transcript)) {
-            if (!overlaps(cds,exon)) {
+            if (!overlaps(cds, exon)) {
                 currentOffset += exon.getLength();
                 continue;
             }
             if (exon.getFeatureLocation().getStrand() == Strand.NEGATIVE.value) {
                 currentOffset += exon.getFeatureLocation().getFmax() - exon.getFeatureLocation().getFmax();
-            }
-            else {
+            } else {
                 currentOffset += exon.getFeatureLocation().getFmin() - exon.getFeatureLocation().getFmin();
             }
             break;
         }
-        return convertLocalCoordinateToSourceCoordinateForTranscript(transcript,localCoordinate + currentOffset);
+        return convertLocalCoordinateToSourceCoordinateForTranscript(transcript, localCoordinate + currentOffset);
     }
 
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature,
@@ -623,8 +627,7 @@ class FeatureService {
                 return convertLocalCoordinateToSourceCoordinateForCDS((CDS) feature, localCoordinate);
             } else if (feature instanceof Transcript) {
                 return convertLocalCoordinateToSourceCoordinateForTranscript((Transcript) feature, localCoordinate);
-            }
-            else{
+            } else {
                 return convertLocalCoordinateToSourceCoordinate(feature, localCoordinate);
             }
         }
@@ -1179,8 +1182,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     child.addToChildFeatureRelationships(fr);
                     child.save()
                     gsolFeature.save()
-                    println "child ${childObject}"
-                    println "fr ${fr}"
                 }
             }
             if (jsonFeature.has(FeatureStringEnum.TIMEACCESSION.value)) {
@@ -1313,8 +1314,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        CV cv = CV.findOrSaveByName(jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
 //        CVTerm cvTerm = CVTerm.findOrSaveByNameAndCv(jsonCVTerm.getString(FeatureStringEnum.NAME.value),cv)
         String cvTermString = jsonCVTerm.getString(FeatureStringEnum.NAME.value)
-        println "cvString ${cvString}"
-        println "cvTermString ${cvTermString}"
 
         if (cvString.equalsIgnoreCase(FeatureStringEnum.CV.value) || cvString.equalsIgnoreCase(FeatureStringEnum.SEQUENCE.value)) {
             switch (cvTermString.toUpperCase()) {
@@ -1407,8 +1406,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
         } else if (feature instanceof CDS) {
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
-        }
-        else {
+        } else {
             residueString = sequenceService.getResiduesFromFeature(feature)
         }
         if (sequenceAlterations.size() == 0) {
@@ -1630,7 +1628,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @return
      */
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = true) {
-        println "converting feature: ${gsolFeature}"
         JSONObject jsonFeature = new JSONObject();
         try {
 //            jsonFeature.put("type", convertCVTermToJSON(gsolFeature.getType()));
@@ -1721,8 +1718,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                     jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
 
-                    println "jsonPropertyType ${jsonPropertyType}"
-
                     jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
 //                    jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
@@ -1754,7 +1749,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
-        println "feature ${feature} from ${ontologyId}"
 
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
 

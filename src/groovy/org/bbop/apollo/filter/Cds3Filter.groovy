@@ -17,7 +17,6 @@ class Cds3Filter implements FeatureFilter<List<String>,Feature>{
     List<String> filterFeature(Feature feature){
         List<String> errorList = new ArrayList<>()
         if(feature.ontologyId == CDS.ontologyId){
-            println "evaluating CDS: " + feature.name
             if(feature.getLength()%3!=0){
                 errorList.add("Error::CDS/3")
             }

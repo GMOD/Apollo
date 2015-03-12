@@ -72,7 +72,6 @@
                     <b:Column size="MD_2" styleName="{style.widgetPanel}">
                         <b:Label ui:field="viewableLabel"/>
                     </b:Column>
-
                 </b:Row>
                 <b:Row>
                     <b:Column size="MD_2">

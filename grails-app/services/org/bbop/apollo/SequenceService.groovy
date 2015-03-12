@@ -29,7 +29,6 @@ class SequenceService {
             eq("feature",feature)
             order("fmin","asc")
         }
-        println "# of feature locations ${featureLocationList.size()}"
         String returnResidue = ""
 
         for(FeatureLocation featureLocation in featureLocationList){
@@ -52,9 +51,6 @@ class SequenceService {
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
-
-        println "fmin ${fmin}-${fmax} chuck ${sequence.seqChunkSize}"
-        println "start ${startChunkNumber}-${endChunkNumber}"
 
         for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
             SequenceChunk sequenceChunk = getSequenceChunkForChunk(sequence,i)
@@ -131,15 +127,15 @@ class SequenceService {
     }
 
     def loadRefSeqs(Organism organism ) {
-        println "loading refseq ${organism.refseqFile}"
+        log.info "loading refseq ${organism.refseqFile}"
         organism.valid = false ;
         organism.save(flush: true, failOnError: true,insert:false)
 
         File refSeqsFile = new File(organism.refseqFile);
-        println " file exists ${refSeqsFile.exists()}"
+        log.info " file exists ${refSeqsFile.exists()}"
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(refSeqsFile));
         JSONArray refSeqs = convertJBrowseJSON(bufferedInputStream);
-        println "freseq length ${refSeqs.size()}"
+        log.debug "freseq length ${refSeqs.size()}"
         // delete all sequence for the organism
         Sequence.deleteAll(Sequence.findAllByOrganism(organism))
         for (int i = 0; i < refSeqs.length(); ++i) {
@@ -198,9 +194,7 @@ class SequenceService {
 
     def setResiduesForFeatureFromLocation(Deletion deletion) {
         FeatureLocation featureLocation = deletion.featureLocation
-        println " feature min: ${featureLocation.fmin} - ${featureLocation.fmax}"
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
-        println "residues? ${deletion.alterationResidue}"
     }
 
 }
