@@ -304,7 +304,7 @@ class AnnotationEditorController implements AnnotationListener {
 //            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
 //        }
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration,true));
         }
 
         render returnObject

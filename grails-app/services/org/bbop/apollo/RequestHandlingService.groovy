@@ -770,7 +770,7 @@ class RequestHandlingService {
             transcript.save()
 
 
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false));
 
         }
 
@@ -813,7 +813,7 @@ class RequestHandlingService {
             featureLocation.fmax = fmax
             feature.save()
 
-            returnObject.getJSONArray("features").put(featureService.convertFeatureToJSON(feature));
+            returnObject.getJSONArray("features").put(featureService.convertFeatureToJSON(feature,false));
         }
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -870,7 +870,7 @@ class RequestHandlingService {
     private JSONObject createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
         def jsonObjects = new ArrayList()
         for (Feature feature in features) {
-            JSONObject featureObject = featureService.convertFeatureToJSON(feature)
+            JSONObject featureObject = featureService.convertFeatureToJSON(feature,false)
             jsonObjects.add(featureObject)
         }
         return createJSONFeatureContainer(jsonObjects as JSONObject[])
@@ -912,14 +912,14 @@ class RequestHandlingService {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript)
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+                        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,true));
                     }
                     feature.save()
                 }
             }
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
             sequenceAlteration.delete()
-            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration));
+            deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration,true));
         }
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer
@@ -987,7 +987,7 @@ class RequestHandlingService {
                 }
             }
 //            addFeatureContainer.getJSONArray("features").put(JSONUtil.convertFeatureToJSON(gsolFeature));
-            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration));
+            addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration,true));
         }
 
 
@@ -1022,7 +1022,7 @@ class RequestHandlingService {
                 ).save()
                 feature.addToFeatureProperties(featureProperty)
                 feature.save()
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
+                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature,false));
             }
         }
 
@@ -1536,7 +1536,7 @@ class RequestHandlingService {
             JSONObject addSplitTranscriptJSONObject = new JSONObject()
             JSONArray addTranscriptFeaturesArray = new JSONArray()
             transcript2.featureLocation.fmin = exon2.featureLocation.fmin
-            JSONObject transcript2Object = featureService.convertFeatureToJSON(transcript2,false)
+            JSONObject transcript2Object = featureService.convertFeatureToJSON(transcript2)
             transcript2Object.put(FeatureStringEnum.NAME.value,gene1.name)
             transcript2Object.remove(FeatureStringEnum.PARENT_ID.value)
             transcript2Object.remove(FeatureStringEnum.UNIQUENAME.value)

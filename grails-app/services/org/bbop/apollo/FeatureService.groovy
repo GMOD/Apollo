@@ -1627,7 +1627,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param includeSequence
      * @return
      */
-    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = true) {
+    JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         try {
 //            jsonFeature.put("type", convertCVTermToJSON(gsolFeature.getType()));
