@@ -1555,7 +1555,8 @@ class RequestHandlingService {
 //            }
 //            */
             for (Transcript t : gene2Transcripts) {
-                transcriptService.deleteTranscript(gene1, t)
+                featureRelationshipService.removeFeatureRelationship(gene1,t)
+//                transcriptService.deleteTranscript(gene1, t)
             }
 
             for (Transcript t : gene2Transcripts) {
@@ -1563,7 +1564,7 @@ class RequestHandlingService {
                     JSONObject addTranscriptJSONObject = new JSONObject()
                     JSONArray addTranscriptFeaturesArray = new JSONArray()
                     addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(t))
-                    addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptJSONObject)
+                    addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
                     addTranscriptJSONObject.put("track", inputObject.track)
                     addTranscript(addTranscriptJSONObject)
 //                    addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, geneNameAdapter, gene1.isPseudogene());
@@ -1573,7 +1574,7 @@ class RequestHandlingService {
             JSONObject addSplitTranscriptJSONObject = new JSONObject()
             JSONArray addTranscriptFeaturesArray = new JSONArray()
             addTranscriptFeaturesArray.add(featureService.convertFeatureToJSON(transcript2))
-            addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addSplitTranscriptJSONObject)
+            addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
             addSplitTranscriptJSONObject.put("track", inputObject.track)
 
             addTranscript(addSplitTranscriptJSONObject)
@@ -1606,11 +1607,11 @@ class RequestHandlingService {
         }
 //
 //        fireDataStoreChange(new DataStoreChangeEvent(this, updateContainer, track, DataStoreChangeEvent.Operation.UPDATE), new DataStoreChangeEvent(this, addContainer, track, DataStoreChangeEvent.Operation.ADD));
-        AnnotationEvent addAnnotationEvent = new AnnotationEvent(
-                features: addContainer
-                , sequence: sequence
-                , operation: AnnotationEvent.Operation.ADD
-        )
+//        AnnotationEvent addAnnotationEvent = new AnnotationEvent(
+//                features: addContainer
+//                , sequence: sequence
+//                , operation: AnnotationEvent.Operation.ADD
+//        )
 
         AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
                 features: updateContainer
@@ -1618,7 +1619,8 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.UPDATE
         )
 
-        fireAnnotationEvent(addAnnotationEvent, updateAnnotationEvent)
+//        fireAnnotationEvent(addAnnotationEvent, updateAnnotationEvent)
+        fireAnnotationEvent( updateAnnotationEvent)
 
 
         return returnContainer
