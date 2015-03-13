@@ -1633,6 +1633,7 @@ class RequestHandlingService {
         JSONObject jsonTranscript2 = featuresArray.get(1)
         Transcript transcript1 = Transcript.findByUniqueName(jsonTranscript1.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript2 = Transcript.findByUniqueName(jsonTranscript2.getString(FeatureStringEnum.UNIQUENAME.value))
+        JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
 //        // cannot merge transcripts from different strands
         if (!transcript1.getStrand().equals(transcript2.getStrand())) {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
@@ -1648,7 +1649,15 @@ class RequestHandlingService {
         Gene gene1 = transcriptService.getGene(transcript1)
 
         if (gene1 != gene2) {
-            Gene.deleteAll(gene2)
+//            JSONObject deleteObject = new JSONObject()
+//            deleteObject.put("track",inputObject.track)
+//            JSONArray deleteFeaturesArray = new JSONArray()
+//            JSONObject gene2JsonObject = new JSONObject()
+//            gene2JsonObject.put(FeatureStringEnum.UNIQUENAME.value,gene2.uniqueName)
+//            deleteFeaturesArray.add(gene2JsonObject)
+//            deleteObject.put(FeatureStringEnum.FEATURES.value,deleteFeaturesArray)
+//            deleteFeature(deleteObject)
+            gene2.delete()
         }
 
 
@@ -1666,7 +1675,7 @@ class RequestHandlingService {
         for (Transcript transcript : gene1Transcripts) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
         }
-        deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript2));
+        deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(transcript2JSONObject);
 
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer

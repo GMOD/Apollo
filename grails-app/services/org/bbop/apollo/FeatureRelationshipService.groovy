@@ -100,6 +100,7 @@ class FeatureRelationshipService {
         for(int i = 0 ; i < numRelationships ; i++){
             FeatureRelationship featureRelationship = featureRelationships.get(i)
             removeFeatureRelationship(featureRelationship.parentFeature,featureRelationship.childFeature)
+//            featureRelationship.childFeature.delete()
         }
     }
 
