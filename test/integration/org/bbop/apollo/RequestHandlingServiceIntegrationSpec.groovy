@@ -632,6 +632,10 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert CDS.count ==2
         assert NonCanonicalThreePrimeSpliceSite.count == 0
         assert NonCanonicalFivePrimeSpliceSite.count == 0
+        
+        List<Gene> allGenes = Gene.all
+        assert allGenes.get(0).name != allGenes.get(1).name 
+        
     }
 
     void "adding overlapping transcripts on opposite strands fails"(){

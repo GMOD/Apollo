@@ -42,6 +42,9 @@ class NameService {
                 if(!principalName){
                     principalName = ((Gene) thisFeature).name
                 }
+                if(Gene.countByName(principalName.trim())==0){
+                    return principalName
+                }
                 char transcriptLetter = 'a'
                 String newGeneName = principalName.trim() + transcriptLetter
                 Gene gene = Gene.findByName(newGeneName)
@@ -83,4 +86,15 @@ class NameService {
 //    String generateUniqueNameFromSource(Feature sourceFeature,Feature thisFeature) {
 //        UUID.fromString(thisFeature.name.replaceFirst("\\W","")+"::"+sourceFeature.name.replaceFirst("\\W","")).toString()
 //    }
+    String generateUniqueGeneName(String newGeneName) {
+        String originalName  = newGeneName
+        Gene gene = Gene.findByName(originalName)
+        char transcriptLetter = 'a'
+        while (gene != null) {
+            ++transcriptLetter
+            newGeneName = originalName.trim() + transcriptLetter
+            gene = Gene.findByName(newGeneName)
+        }
+        return newGeneName
+    }
 }

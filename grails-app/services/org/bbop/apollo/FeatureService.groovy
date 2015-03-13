@@ -185,12 +185,12 @@ class FeatureService {
             // todo, make work
             String username = null
             try {
-                username =  SecurityUtils?.subject?.principal;
+                username = SecurityUtils?.subject?.principal;
             } catch (e) {
                 log.error(e)
                 username = "demo@demo.gov"
             }
-            featurePropertyService.setOwner(transcript, username );
+            featurePropertyService.setOwner(transcript, username);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -257,7 +257,11 @@ class FeatureService {
 //            CVTerm cvTerm = new CVTerm()
 //            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
-            jsonGene.put(FeatureStringEnum.NAME.value, jsonTranscript.getString(FeatureStringEnum.NAME.value))
+            String geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
+            if (Gene.countByName(geneName) > 0) {
+                geneName = nameService.generateUniqueGeneName(geneName)
+            }
+            jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
