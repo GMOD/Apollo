@@ -203,5 +203,28 @@ grails.tomcat.nio = true
 grails.tomcat.scan.enabled = true
 
 
-
-
+// from: http://grails.org/plugin/audit-logging
+auditLog {
+//    // note, this disables the audit log
+    disabled = true
+//    verbose = true // verbosely log all changed values to db
+//    logIds = true  // log db-ids of associated objects.
+//    // Note: if you change next 2 properties, you must update your database schema!
+////    tablename = 'my_audit' // table name for audit logs.
+//    largeValueColumnTypes = true // use large column db types for oldValue/newValue.
+////    TRUNCATE_LENGTH = 1000
+//    cacheDisabled = true
+//    logFullClassName = true
+////    replacementPatterns = ["local.example.xyz.":""] // replace with empty string.
+////    actorClosure = { request, session ->
+////        // SpringSecurity Core 1.1.2
+////        if (request.applicationContext.springSecurityService.principal instanceof java.lang.String){
+////            return request.applicationContext.springSecurityService.principal
+////        }
+////        def username = request.applicationContext.springSecurityService.principal?.username
+////        if (SpringSecurityUtils.isSwitched()){
+////            username = SpringSecurityUtils.switchedUserOriginalUsername+" AS "+username
+////        }
+////        return username
+////    }
+}
