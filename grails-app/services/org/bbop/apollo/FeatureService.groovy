@@ -77,10 +77,16 @@ class FeatureService {
                 and {
                     le("fmin", location.fmin)
                     gt("fmax", location.fmin)
+                    if(compareStrands){
+                        eq("strand", location.strand)
+                    }
                 }
                 and {
                     lt("fmin", location.fmax)
                     ge("fmax", location.fmax)
+                    if(compareStrands){
+                        eq("strand", location.strand)
+                    }
                 }
             }
         }
@@ -216,15 +222,15 @@ class FeatureService {
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
                     // TODO: make good code
-                    String username = null
-                    try {
-                        username = SecurityUtils?.subject?.principal
-                    } catch (e) {
-                        log.error(e)
-                        username = "demo@demo.gov"
-                    }
+//                    String username = null
+//                    try {
+//                        username = SecurityUtils?.subject?.principal
+//                    } catch (e) {
+//                        log.error(e)
+//                        username = "demo@demo.gov"
+//
 //                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
-                    featurePropertyService.setOwner(tmpTranscript, username);
+//                    featurePropertyService.setOwner(tmpTranscript, username ?: "demo@gemo.gov");
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
