@@ -179,14 +179,6 @@ public class MainPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                if (loadFirstSequence && array.size() > 0) {
-                    currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
-                    String url = rootUrl + "/jbrowse/?loc=" + currentSequenceId;
-                    if (!showFrame) {
-                        url += "&tracklist=0";
-                    }
-                    frame.setUrl(url);
-                }
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
@@ -195,18 +187,36 @@ public class MainPanel extends Composite {
                     sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
                     sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
 //                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+                    GWT.log("is default set?  " + object.get("default"));
                     if (object.get("default") != null) {
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }
                     sequenceOracle.add(sequenceInfo.getName());
-                    if (currentSequenceId != null && sequenceInfo.getName().equals(currentSequenceId)) {
+                    if (sequenceInfo.isDefault()) {
+                        GWT.log("setting name to default: " + sequenceInfo.getName());
+                        sequenceList.setText(sequenceInfo.getName());
+                        currentSequenceId = sequenceInfo.getName();
+                    } else if (sequenceList.getText().isEmpty() && currentSequenceId != null && sequenceInfo.getName().equals(currentSequenceId)) {
                         GWT.log("setting name: " + currentSequenceId);
                         sequenceList.setText(sequenceInfo.getName());
+                        currentSequenceId = sequenceInfo.getName();
                     }
 //                    else
 //                      if(sequenceList.getText().length()==0 && sequenceInfo.isDefault()) {
 //                          sequenceList.setText(sequenceInfo.getName());
 //                      }
+                }
+
+
+                if (array.size() > 0) {
+                    if (currentSequenceId == null) {
+                        currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
+                    }
+                    String url = rootUrl + "/jbrowse/?loc=" + currentSequenceId;
+                    if (!showFrame) {
+                        url += "&tracklist=0";
+                    }
+                    frame.setUrl(url);
                 }
 //                if(sequenceList.getText().trim().length()==0){
 //                    sequenceList.setText(array.get(0).object.get("name").isString().stringValue());
@@ -270,7 +280,7 @@ public class MainPanel extends Composite {
 //                    }
                 }
 
-                if(currentOrganismId==null && array.size()>0){
+                if (currentOrganismId == null && array.size() > 0) {
                     JSONObject rootObject = array.get(0).isObject();
 //                    String name = rootObject.get("commonName").isString().stringValue();
                     currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();

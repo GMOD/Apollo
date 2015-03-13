@@ -59,15 +59,14 @@ class SequenceController {
         request.session.setAttribute("defaultSequenceName",sequenceName)
     }
 
-    @Transactional
     def loadSequences(Organism organism) {
-        println "loading sequences for organism ${organism}"
+        log.info "loading sequences for organism ${organism}"
         if(!organism.sequences){
             sequenceService.loadRefSeqs(organism)
         }
 
         String defaultName = request.session.getAttribute("defaultSequenceName")
-        println "defaultName retrieved? ${defaultName}"
+        log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
         for(Sequence sequence in organism.sequences){
             JSONObject jsonObject = new JSONObject()
@@ -77,6 +76,9 @@ class SequenceController {
             jsonObject.put("start",sequence.start)
             jsonObject.put("end",sequence.end)
             jsonObject.put("default",defaultName && defaultName==sequence.name)
+            if(defaultName==sequence.name){
+                log.info "setting the default sequence: ${jsonObject.get("default")}"
+            }
             sequenceArray.put(jsonObject)
         }
 
