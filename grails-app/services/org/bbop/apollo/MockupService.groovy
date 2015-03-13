@@ -20,6 +20,10 @@ class MockupService {
 
 //        CVTerm userCvTerm = cvTermService.getTerm(FeatureStringEnum.OWNER.value)
 
+        UserGroup bbopGroup = new UserGroup(name: "BBOP Group").save()
+        UserGroup elsikLabGroup = new UserGroup(name: "Elsik Lab").save()
+        UserGroup usdaGroup = new UserGroup(name: "USDA").save()
+        UserGroup vectorBaseGroup = new UserGroup(name: "Vector Base").save()
 
         User demoUser = new User(
                 username: "demo@demo.gov"
@@ -28,6 +32,20 @@ class MockupService {
 //                ,type: userCvTerm
         ).save(failOnError: true)
         demoUser.addToRoles(userRole)
+        bbopGroup.addToUsers(demoUser)
+
+        User nathan = new User(
+                username: "nathandunn@lbl.gov"
+                , passwordHash: new Sha256Hash("agreatpassword").toHex()
+        ).save(failOnError: true)
+        nathan.addToRoles(adminRole)
+        bbopGroup.addToUsers(nathan)
+
+//        User moni = new User(
+//                username: "nathandunn@lbl.gov"
+//                , passwordHash: new Sha256Hash("agreatpassword").toHex()
+//        ).save(failOnError: true)
+//        moni.addToRoles(adminRole)
 
         User adminUser = new User(
                 username: "admin@admin.gov"
@@ -36,6 +54,12 @@ class MockupService {
 //                ,type: userCvTerm
         ).save(failOnError: true)
         adminUser.addToRoles(userRole)
+        bbopGroup.addToUsers(adminUser)
+        
+        
+
+
+
     }
 
 //    /**
@@ -59,22 +83,9 @@ class MockupService {
 
     def addOrganisms() {
         if (Organism.count > 0) return
-        new Organism(abbreviation: "HB",commonName: "Honey Bee", genus: "Amel",species: "dsomething",directory: "/opt/apollo/honeybee/data").save(failOnError: true)
-//        new Organism(abbreviation: "ZF",commonName: "Zebrafish", genus: "Danio",species: "rerio",directory: "/opt/zebrafish/jbrowse/data").save(failOnError: true)
-        new Organism(abbreviation: "HM",commonName: "Human", genus: "Homo",species: "sapiens",directory: "/opt/apollo/human/data").save(failOnError: true)
-        new Organism(abbreviation: "YS",commonName: "Yeast", genus: "Saccharomyces",species: "cerevisiae",directory: "/opt/apollo/yeast/data").save(failOnError: true)
-//        new Organism(abbreviation: "PIPE",commonName: "Alligator Pipefish", genus: "Syngnathoides",species: "biaculeatus").save(failOnError: true)
-//        new Organism(abbreviation: "BloodSD",commonName: "Bloody Stickleback", genus: "Apeltes",species: "quadracus").save(failOnError: true)
-//        new Organism(abbreviation: "BrookSD",commonName: "Brook Stickleback", genus: "Culaea",species: "inconstans").save(failOnError: true)
-//        new Organism(abbreviation: "3SD",commonName: "Three-spined Stickleback", genus: "Gasterosteus",species: "aculeatus").save(failOnError: true)
-//        new Organism(abbreviation: "ASD",commonName: "Amur Stickleback", genus: "Pungitius",species: "sinensis").save(failOnError: true)
-//        new Organism(abbreviation: "SPINSB",commonName: "Spinach Stickleback", genus: "Spinachia",species: "spinachia").save(failOnError: true)
-//        Sequence track1 = new Sequence(name: "Annotations-Group1.1", organism: organism
-////                , sequenceCV: "sequence", sequenceType: "mRNA"
-//                , refSeqFile: "/opt/apollo/jbrowse/data/seq/refSeqs.json"
-//                , dataDirectory: "/opt/apollo/jbrowse/data"
-////                ,translationTableLocation:
-//        ).save(failOnError: true)
+        Organism honeyBee = new Organism(abbreviation: "HB",commonName: "Honey Bee", genus: "Amel",species: "dsomething",directory: "/opt/apollo/honeybee/data").save(failOnError: true)
+        Organism human = new Organism(abbreviation: "HM",commonName: "Human", genus: "Homo",species: "sapiens",directory: "/opt/apollo/human/data").save(failOnError: true)
+        Organism yeast = new Organism(abbreviation: "YS",commonName: "Yeast", genus: "Saccharomyces",species: "cerevisiae",directory: "/opt/apollo/yeast/data").save(failOnError: true)
 
 
         // in the config
