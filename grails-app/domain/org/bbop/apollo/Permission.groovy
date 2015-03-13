@@ -8,6 +8,7 @@ abstract class Permission {
     String trackNames
 
     static constraints = {
+        
     }
 
     static mapping = {
