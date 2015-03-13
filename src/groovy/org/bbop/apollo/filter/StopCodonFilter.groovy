@@ -16,7 +16,7 @@ class StopCodonFilter implements FeatureFilter<List<String>,Feature>{
         List<String> errorList = new ArrayList<>()
 
         if(random.nextFloat()<0.2){
-            errorList.add("Error::Stop Codon")
+            errorList.add("Stop Codon")
         }
 
         return errorList

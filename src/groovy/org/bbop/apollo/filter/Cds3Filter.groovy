@@ -18,7 +18,7 @@ class Cds3Filter implements FeatureFilter<List<String>,Feature>{
         List<String> errorList = new ArrayList<>()
         if(feature.ontologyId == CDS.ontologyId){
             if(feature.getLength()%3!=0){
-                errorList.add("Error::CDS/3")
+                errorList.add("CDS/3")
             }
         }
         return errorList

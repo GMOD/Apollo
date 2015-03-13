@@ -145,7 +145,7 @@
                     </b:Column>
                     <b:Column size="MD_2">
                         <b:InputGroup>
-                            <b:Button size="EXTRA_SMALL" icon="BAN" text="Stop Codons" ui:field="stopCodonButton"/>
+                            <b:Button size="EXTRA_SMALL" icon="BAN" text="Stop Codon Readthrough" ui:field="stopCodonButton"/>
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
@@ -177,7 +177,7 @@
                     </gwt:HTMLPanel>
                 </gwt:north>
                 <gwt:center>
-                    <cellview:DataGrid ui:field="dataGrid"/>
+                    <cellview:DataGrid ui:field="dataGrid" />
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
