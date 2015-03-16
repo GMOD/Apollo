@@ -15,10 +15,14 @@ class PermissionServiceSpec extends Specification {
         
         User bobUser = new User(
                 username: 'bob@bob.com'
+                ,firstName: "Bob"
+                ,lastName: "Jones"
                 ,passwordHash: "asdfasdf"
         ).save()
         User user2 = new User(
                 username: 'test@test.com'
+                ,firstName: "Test"
+                ,lastName: "Case"
                 ,passwordHash: "asdfasdf"
         ).save()
 
