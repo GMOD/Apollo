@@ -28,7 +28,6 @@ class Sequence {
     // feature locations instead of features
     static hasMany = [
             users:User
-            ,groups:GroupAnnotation
             , featureLocations: FeatureLocation
             , sequenceChunks: SequenceChunk
     ]

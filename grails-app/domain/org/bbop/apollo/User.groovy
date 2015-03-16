@@ -15,7 +15,7 @@ class User implements Ontological{
     static String cvTerm = "Owner"
     static String ontologyId = "Owner"
 
-    static hasMany = [ roles: Role, permissions: String , sequences: Sequence,groupAnnotations: GroupAnnotation, userGroups:UserGroup]
+    static hasMany = [ roles: Role,  userGroups:UserGroup]
 
     static belongsTo = [
             UserGroup
