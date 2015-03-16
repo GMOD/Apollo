@@ -155,7 +155,7 @@ class PermissionService {
         for (UserOrganismPermission userPermission in userPermissionList) {
             JSONArray jsonArray = JSON.parse(userPermission.permissions) as JSONArray
             for (int i = 0; i < jsonArray.size(); i++) {
-                String permission = jsonArray.getJSONObject(i).toString()
+                String permission = jsonArray.getString(i)
                 PermissionEnum permissionEnum = PermissionEnum.getValueForString(permission)
                 permissions.add(permissionEnum)
             }
@@ -176,7 +176,8 @@ class PermissionService {
         for (GroupOrganismPermission groupPermission in groupPermissionList) {
             JSONArray jsonArray = JSON.parse(groupPermission.permissions) as JSONArray
             for (int i = 0; i < jsonArray.size(); i++) {
-                String permission = jsonArray.getJSONObject(i).toString()
+//                String permission = jsonArray.getJSONObject(i).toString()
+                String permission = jsonArray.getString(i)
                 PermissionEnum permissionEnum = PermissionEnum.getValueForString(permission)
                 permissions.add(permissionEnum)
             }
@@ -186,19 +187,51 @@ class PermissionService {
 
 
     public void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user) {
+        
+        UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism,user)
+        if(!userOrganismPermission){
+            userOrganismPermission = new UserOrganismPermission(
+                    organism: organism
+                    ,permissions: generatePermissionString(permissions)
+                    ,user: user
+            ).save(insert: true)
+        }
+        else{
+            userOrganismPermission.permissions = generatePermissionString(permissions)
+            userOrganismPermission.save()
+        }
 
     }
 
-    public void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup userGroup) {
-
+    public void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group) {
+        
+        GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism,group)
+        if(!groupOrganismPermission){
+            groupOrganismPermission = new GroupOrganismPermission(
+                    organism: organism
+                    ,permissions : generatePermissionString(permissions)
+                    ,group: group
+            ).save(insert: true)
+        }
+        else{
+            groupOrganismPermission.permissions = generatePermissionString(permissions)
+            groupOrganismPermission.save()
+        }
     }
-    
+
+    private String generatePermissionString(List<PermissionEnum> permissionEnums) {
+        JSONArray jsonArray = new JSONArray()
+        for(PermissionEnum permissionEnum in permissionEnums){
+            jsonArray.add(permissionEnum.name())
+        }
+        return jsonArray.toString()
+    }
+
     private String convertHashMapToJsonString(Map map){
         JSONObject jsonObject = new JSONObject()
         map.keySet().each {
             jsonObject.put(it,map.get(it))
         }
-
         return jsonObject.toString()
     }
 
