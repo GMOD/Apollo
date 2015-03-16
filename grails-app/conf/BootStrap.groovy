@@ -1,5 +1,7 @@
+import grails.converters.JSON
 import grails.util.Environment
 import org.bbop.apollo.Organism
+import org.bbop.apollo.User
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
@@ -7,7 +9,7 @@ class BootStrap {
     def mockupService
     def sequenceService
     def configWrapperService
-    def grailsApplication
+//    def grailsApplication
 
 //    def cloneForDomains={
 //        def cloned=delegate.class.newInstance();
@@ -19,6 +21,14 @@ class BootStrap {
 
 
     def init = { servletContext ->
+
+        JSON.registerObjectMarshaller(User){
+            def returnArray = [:]
+            returnArray['username']=it.username
+            returnArray['firstName']=it.firstName
+            returnArray['lastName']=it.lastName
+            return returnArray
+        }
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)

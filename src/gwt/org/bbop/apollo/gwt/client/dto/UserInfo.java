@@ -6,23 +6,35 @@ import java.util.List;
  * Created by ndunn on 12/18/14.
  */
 public class UserInfo {
-    String name ;
+    String firstName;
+    String lastName;
     String email;
     Integer numberUserGroups ;
+    
+    public UserInfo(){}
+    
 
-    public UserInfo(String name){
-        this.name = name ;
-        this.email = (name.replace(" ","_")+"@place.gov").toLowerCase();
+    public UserInfo(String firstName){
+        this.firstName = firstName ;
+        this.email = (firstName.replace(" ","_")+"@place.gov").toLowerCase();
         this.numberUserGroups = (int) Math.round(Math.random()*100);
     }
 
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -39,5 +51,9 @@ public class UserInfo {
 
     public void setNumberUserGroups(Integer numberUserGroups) {
         this.numberUserGroups = numberUserGroups;
+    }
+    
+    public String getName(){
+        return firstName +" " + lastName ;
     }
 }

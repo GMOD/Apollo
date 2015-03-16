@@ -19,6 +19,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -40,6 +41,11 @@ public class UserPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided=true) DataGrid<UserInfo> dataGrid = new DataGrid<UserInfo>( 10, tablecss );
+
+
+    private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
+    private List<UserInfo> userInfoList = dataProvider.getList();
+    
 
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -87,16 +93,11 @@ public class UserPanel extends Composite {
         dataGrid.addColumn(thirdNameColumn, "Email");
 
 
-        ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(dataGrid);
 
-        List<UserInfo> trackInfoList = dataProvider.getList();
 
-        for(String user : DataGenerator.getUsers()){
-            trackInfoList.add(new UserInfo(user));
-        }
 
-        ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(trackInfoList);
+        ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(userInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(firstNameColumn, new Comparator<UserInfo>() {
             @Override
@@ -110,9 +111,16 @@ public class UserPanel extends Composite {
                 return o1.getEmail().compareTo(o2.getEmail());
             }
         });
+
+
     }
 
     public void reload(){
+        UserRestService.loadUsers(userInfoList);
+//        for(String user : DataGenerator.getUsers()){
+//            userInfoList.add(new UserInfo(user));
+//        }
+        
         dataGrid.redraw();
     }
 }

@@ -30,6 +30,8 @@ class MockupService {
         User demoUser = new User(
                 username: "demo@demo.gov"
                 , passwordHash: new Sha256Hash("demo").toHex()
+                ,firstName: "Bob"
+                ,lastName: "Smith"
 //                ,value: "demo@demo.gov"
 //                ,type: userCvTerm
         ).save(failOnError: true)
@@ -48,6 +50,8 @@ class MockupService {
         User nathan = new User(
                 username: "nathandunn@lbl.gov"
                 , passwordHash: new Sha256Hash("agreatpassword").toHex()
+                ,firstName: "Nathan"
+                ,lastName: "Dunn"
         ).save(failOnError: true)
         nathan.addToRoles(adminRole)
         bbopGroup.addToUsers(nathan)
@@ -61,6 +65,8 @@ class MockupService {
         User adminUser = new User(
                 username: "admin@admin.gov"
                 , passwordHash: new Sha256Hash("admin").toHex()
+                ,firstName: "Super"
+                ,lastName: "Admin"
 //                ,value: "admin@admin.gov"
 //                ,type: userCvTerm
         ).save(failOnError: true)
