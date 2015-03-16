@@ -10,4 +10,5 @@ class UserGroup {
     ]
 
     String name
+    boolean publicGroup = false
 }

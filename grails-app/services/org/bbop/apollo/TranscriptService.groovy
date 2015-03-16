@@ -470,6 +470,6 @@ class TranscriptService {
     }
 
     Transcript getTranscript(CDS cds) {
-        return featureRelationshipService.getParentForFeature(cds,ontologyIds)
+        return (Transcript) featureRelationshipService.getParentForFeature(cds,ontologyIds as String[])
     }
 }

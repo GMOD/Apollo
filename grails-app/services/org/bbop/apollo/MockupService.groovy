@@ -20,10 +20,12 @@ class MockupService {
 
 //        CVTerm userCvTerm = cvTermService.getTerm(FeatureStringEnum.OWNER.value)
 
+        UserGroup publicGroup = new UserGroup(name: "Public").save()
         UserGroup bbopGroup = new UserGroup(name: "BBOP Group").save()
         UserGroup elsikLabGroup = new UserGroup(name: "Elsik Lab").save()
         UserGroup usdaGroup = new UserGroup(name: "USDA").save()
         UserGroup vectorBaseGroup = new UserGroup(name: "Vector Base").save()
+
 
         User demoUser = new User(
                 username: "demo@demo.gov"
@@ -31,6 +33,15 @@ class MockupService {
 //                ,value: "demo@demo.gov"
 //                ,type: userCvTerm
         ).save(failOnError: true)
+
+//        User demoUser = new User(
+//                username: "demo@demo.gov"
+//                , passwordHash: new Sha256Hash("demo").toHex()
+////                ,value: "demo@demo.gov"
+////                ,type: userCvTerm
+//        ).save(failOnError: true)
+        
+        
         demoUser.addToRoles(userRole)
         bbopGroup.addToUsers(demoUser)
 
