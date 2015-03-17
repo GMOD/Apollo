@@ -14,8 +14,7 @@ public class LoginDialog extends DialogBox {
     // TODO: move to UIBinder
     private VerticalPanel panel = new VerticalPanel();
     private Grid grid = new Grid(2,2);
-    private Button ok = new Button("Login");
-    private Button cancel = new Button("Cancel");
+    private Button okButton = new Button("Login");
     private TextBox username = new TextBox();
     private PasswordTextBox passwordTextBox = new PasswordTextBox();
     private HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -38,21 +37,14 @@ public class LoginDialog extends DialogBox {
         panel.add(grid);
         
 
-        horizontalPanel.add(ok);
-        horizontalPanel.add(cancel);
+        horizontalPanel.add(okButton);
         panel.add(horizontalPanel);
 //
 //            // DialogBox is a SimplePanel, so you have to set its widget property to
 //            // whatever you want its contents to be.
        
 
-        cancel.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                LoginDialog.this.hide();
-            }
-        });
-        ok.addClickHandler(new ClickHandler() {
+        okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 doLogin(username.getText().trim(),passwordTextBox.getText());
