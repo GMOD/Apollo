@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
@@ -14,6 +15,7 @@ class OrganismController {
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def sequenceService
+    def permissionService
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
@@ -225,8 +227,12 @@ class OrganismController {
     }
 
     def findAllOrganisms() {
+       
+        def organismList = permissionService.getOrganismsForCurrentUser()
+        println "organism list: ${organismList}"
+
         println "finding all organisms: ${Organism.count}"
-        def organismList = Organism.listOrderByCommonName()
+//        def organismList = Organism.listOrderByCommonName()
 //        Organism.metaClass.annotationCount = 0
         JSONArray jsonArray = new JSONArray()
         for (def organism in organismList) {

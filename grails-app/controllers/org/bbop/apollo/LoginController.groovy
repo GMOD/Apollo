@@ -60,6 +60,7 @@ class LoginController extends AbstractApolloController {
             log.error("Error sending error: ${e2}")
         }
     }
+    
 
     /**
      * Merging Login.java (old) and  AuthController.groovy

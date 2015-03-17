@@ -6,6 +6,7 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.EventBus;
@@ -28,7 +29,9 @@ import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
@@ -105,7 +108,6 @@ public class MainPanel extends Composite {
 //        userId = dictionary.get("userId");
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
-        loadOrganisms(organismList);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -118,8 +120,39 @@ public class MainPanel extends Composite {
             }
         });
 
+        loginUser();
 //        detailTabs.selectTab(3);
 //                detailTabs.selectTab(0);
+    }
+
+    private void loginUser() {
+        String url = rootUrl + "/user/checkLogin";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                if(returnValue.isObject().size()>0){
+                    loadOrganisms(organismList);
+                }
+                else{
+                    new LoginDialog().show();
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("User not there");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
 
     }
 
@@ -341,6 +374,15 @@ public class MainPanel extends Composite {
         }
     }
 
+    private void closePanel(){
+        mainSplitPanel.setWidgetSize(eastDockPanel, 20);
+        dockOpenClose.setIcon(IconType.CARET_LEFT);
+    }
+
+    private void openPanel(){
+        mainSplitPanel.setWidgetSize(eastDockPanel, 550);
+        dockOpenClose.setIcon(IconType.CARET_RIGHT);
+    }
 
     private void toggleOpen() {
         if (mainSplitPanel.getWidgetSize(eastDockPanel) < 100) {
@@ -349,12 +391,10 @@ public class MainPanel extends Composite {
 
         if (toggleOpen) {
             // close
-            mainSplitPanel.setWidgetSize(eastDockPanel, 20);
-            dockOpenClose.setIcon(IconType.CARET_LEFT);
+            closePanel();
         } else {
             // open
-            mainSplitPanel.setWidgetSize(eastDockPanel, 550);
-            dockOpenClose.setIcon(IconType.CARET_RIGHT);
+            openPanel();
         }
 
         mainSplitPanel.animate(400);
@@ -450,5 +490,57 @@ public class MainPanel extends Composite {
         );
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
+
+    private class LoginDialog extends DialogBox {
+
+       // TODO: move to UIBinder 
+        private VerticalPanel panel = new VerticalPanel();
+        private Grid grid = new Grid(2,2);
+        private Button ok = new Button("Login");
+        private Button cancel = new Button("Cancel");
+        private TextBox username = new TextBox();
+        private PasswordTextBox passwordTextBox = new PasswordTextBox();
+        private HorizontalPanel horizontalPanel = new HorizontalPanel();
+
+//
+        public LoginDialog() {
+//            // Set the dialog box's caption.
+            setText("Login");
+//
+//            // Enable animation.
+            setAnimationEnabled(true);
+//
+//            // Enable glass background.
+            setGlassEnabled(true);
+
+            grid.setHTML(0,0,"Username");
+            grid.setWidget(0, 1, username);
+            grid.setHTML(1, 0, "Password");
+            grid.setWidget(1, 1, passwordTextBox);
+            panel.add(grid);
+            
+            horizontalPanel.add(ok);
+            horizontalPanel.add(cancel);
+            panel.add(horizontalPanel);
+//
+//            // DialogBox is a SimplePanel, so you have to set its widget property to
+//            // whatever you want its contents to be.
+
+            cancel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    LoginDialog.this.hide();
+                }
+            });
+            ok.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    LoginDialog.this.hide();
+                }
+            });
+            setWidget(panel);
+        }
+    }
+
 
 }

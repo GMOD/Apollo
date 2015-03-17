@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -47,7 +48,7 @@ class PermissionService {
         List<Organism> organismList = new ArrayList<>()
         for (GroupOrganismPermission groupPermission in GroupOrganismPermission.findAllByGroup(group)) {
             // minimally, you should have at least one permission
-            if(groupPermission.permissions){
+            if (groupPermission.permissions) {
                 organismList.add(groupPermission.organism)
             }
         }
@@ -76,7 +77,7 @@ class PermissionService {
 
     static Map<String, Boolean> mergeTrackVisibilityMaps(Map<String, Boolean> mapA, Map<String, Boolean> mapB) {
         Map<String, Boolean> returnMap = new HashMap<>()
-        mapA.keySet().each{ it ->
+        mapA.keySet().each { it ->
             returnMap.put(it, mapA.get(it))
         }
 
@@ -91,7 +92,7 @@ class PermissionService {
     }
 
 
-    static  Collection<PermissionEnum> mergeOrganismPermissions(Collection<PermissionEnum> permissionsA, Collection<PermissionEnum> permissionsB) {
+    static Collection<PermissionEnum> mergeOrganismPermissions(Collection<PermissionEnum> permissionsA, Collection<PermissionEnum> permissionsB) {
         Set<PermissionEnum> permissionEnums = new HashSet<>()
         permissionEnums.addAll(permissionsA)
 
@@ -109,11 +110,11 @@ class PermissionService {
         for (UserTrackPermission userPermission in userPermissionList) {
             JSONObject jsonObject = JSON.parse(userPermission.trackVisibilities) as JSONObject
 
-            jsonObject.keySet().each{
+            jsonObject.keySet().each {
                 Boolean visible = trackVisibilityMap.get(it)
                 // if null or false, can over-ride to true
-                if(!visible){
-                    trackVisibilityMap.put(it,jsonObject.get(it))
+                if (!visible) {
+                    trackVisibilityMap.put(it, jsonObject.get(it))
                 }
             }
         }
@@ -133,13 +134,13 @@ class PermissionService {
         List<GroupTrackPermission> groupPermissions = GroupTrackPermission.findAllByOrganismAndGroup(organism, userGroup)
         for (GroupTrackPermission groupPermission in groupPermissions) {
             JSONObject jsonObject = JSON.parse(groupPermission.trackVisibilities) as JSONObject
-            
+
             // this should make it default to true if a true is ever given
-            jsonObject.keySet().each{
+            jsonObject.keySet().each {
                 Boolean visible = trackVisibilityMap.get(it)
                 // if null or false, can over-ride to true
-                if(!visible){
-                    trackVisibilityMap.put(it,jsonObject.get(it))
+                if (!visible) {
+                    trackVisibilityMap.put(it, jsonObject.get(it))
                 }
             }
         }
@@ -187,16 +188,15 @@ class PermissionService {
 
 
     public void setOrganismPermissionsForUser(List<PermissionEnum> permissions, Organism organism, User user) {
-        
-        UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism,user)
-        if(!userOrganismPermission){
+
+        UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism, user)
+        if (!userOrganismPermission) {
             userOrganismPermission = new UserOrganismPermission(
                     organism: organism
-                    ,permissions: generatePermissionString(permissions)
-                    ,user: user
+                    , permissions: generatePermissionString(permissions)
+                    , user: user
             ).save(insert: true)
-        }
-        else{
+        } else {
             userOrganismPermission.permissions = generatePermissionString(permissions)
             userOrganismPermission.save()
         }
@@ -204,16 +204,15 @@ class PermissionService {
     }
 
     public void setOrganismPermissionsForUserGroup(List<PermissionEnum> permissions, Organism organism, UserGroup group) {
-        
-        GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism,group)
-        if(!groupOrganismPermission){
+
+        GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism, group)
+        if (!groupOrganismPermission) {
             groupOrganismPermission = new GroupOrganismPermission(
                     organism: organism
-                    ,permissions : generatePermissionString(permissions)
-                    ,group: group
+                    , permissions: generatePermissionString(permissions)
+                    , group: group
             ).save(insert: true)
-        }
-        else{
+        } else {
             groupOrganismPermission.permissions = generatePermissionString(permissions)
             groupOrganismPermission.save()
         }
@@ -221,16 +220,16 @@ class PermissionService {
 
     private String generatePermissionString(List<PermissionEnum> permissionEnums) {
         JSONArray jsonArray = new JSONArray()
-        for(PermissionEnum permissionEnum in permissionEnums){
+        for (PermissionEnum permissionEnum in permissionEnums) {
             jsonArray.add(permissionEnum.name())
         }
         return jsonArray.toString()
     }
 
-    private String convertHashMapToJsonString(Map map){
+    private String convertHashMapToJsonString(Map map) {
         JSONObject jsonObject = new JSONObject()
         map.keySet().each {
-            jsonObject.put(it,map.get(it))
+            jsonObject.put(it, map.get(it))
         }
         return jsonObject.toString()
     }
@@ -242,16 +241,15 @@ class PermissionService {
      * @param organism
      */
     public void setTracksVisibleForOrganismAndUser(Map<String, Boolean> trackVisibilityMap, Organism organism, User user) {
-        UserTrackPermission userTrackPermission = UserTrackPermission.findByOrganismAndUser(organism,user)
+        UserTrackPermission userTrackPermission = UserTrackPermission.findByOrganismAndUser(organism, user)
         String jsonString = convertHashMapToJsonString(trackVisibilityMap)
-        if(!userTrackPermission){
+        if (!userTrackPermission) {
             userTrackPermission = new UserTrackPermission(
                     user: user
-                    ,organism: organism
-                    ,trackVisibilities: jsonString
+                    , organism: organism
+                    , trackVisibilities: jsonString
             ).save(insert: true)
-        }
-        else{
+        } else {
             userTrackPermission.trackVisibilities = jsonString
             userTrackPermission.save()
         }
@@ -264,21 +262,20 @@ class PermissionService {
      * @param organism
      */
     public void setTracksVisibleForOrganismAndGroup(Map<String, Boolean> trackVisibilityMap, Organism organism, UserGroup group) {
-        
-        GroupTrackPermission groupTrackPermission = GroupTrackPermission.findByOrganismAndGroup(organism,group)
+
+        GroupTrackPermission groupTrackPermission = GroupTrackPermission.findByOrganismAndGroup(organism, group)
         String jsonString = convertHashMapToJsonString(trackVisibilityMap)
-        if(!groupTrackPermission){
+        if (!groupTrackPermission) {
             groupTrackPermission = new GroupTrackPermission(
                     group: group
-                    ,organism: organism
-                    ,trackVisibilities: jsonString
+                    , organism: organism
+                    , trackVisibilities: jsonString
             ).save(insert: true)
-        }
-        else{
+        } else {
             groupTrackPermission.trackVisibilities = jsonString
             groupTrackPermission.save()
         }
-        
+
 
     }
 
@@ -289,25 +286,45 @@ class PermissionService {
      * @return
      */
     Map<String, Integer> getPermissionsForUser(User user) {
-        Map<String,Integer> returnMap = new HashMap<>()
-        returnMap.put(user.username,0)
-        Organism.all.each{ organism -> 
-             List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism,user)
-             int highestValue = findHighestEnumValue(permissionEnums)
-             if(highestValue>returnMap.get(user.username)){
-                 returnMap.put(user.username,highestValue)
-             }
+        Map<String, Integer> returnMap = new HashMap<>()
+        returnMap.put(user.username, 0)
+        Organism.all.each { organism ->
+            List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+            int highestValue = findHighestEnumValue(permissionEnums)
+            if (highestValue > returnMap.get(user.username)) {
+                returnMap.put(user.username, highestValue)
+            }
         }
-        
+
         return returnMap
     }
 
+    User getCurrentUser() {
+        String currentUserName = SecurityUtils?.subject?.principal
+        def subject = SecurityUtils.subject
+        if (currentUserName) {
+            User user = User.findByUsername(currentUserName)
+            if (user) {
+                return user
+            }
+        }
+        return null
+    }
+
     int findHighestEnumValue(List<PermissionEnum> permissionEnums) {
-        int highestValue = -1 
-        permissionEnums.each{ it ->
+        int highestValue = -1
+        permissionEnums.each { it ->
             highestValue = it.value > highestValue ? it.value : highestValue
         }
-        
-        return highestValue 
+
+        return highestValue
+    }
+
+    def getOrganismsForCurrentUser() {
+        User currentUser = currentUser
+        if(currentUser){
+            return getOrganisms(currentUser)
+        }
+        return []
     }
 }
