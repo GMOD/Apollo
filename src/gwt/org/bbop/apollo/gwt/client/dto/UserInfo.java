@@ -6,6 +6,7 @@ import java.util.List;
  * Created by ndunn on 12/18/14.
  */
 public class UserInfo {
+    Long userId ;
     String firstName;
     String lastName;
     String email;
@@ -20,6 +21,13 @@ public class UserInfo {
         this.numberUserGroups = (int) Math.round(Math.random()*100);
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public String getFirstName() {
         return firstName;

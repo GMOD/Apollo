@@ -55,6 +55,7 @@ public class UserRestService {
                     JSONObject object = array.get(i).isObject();
 
                     UserInfo userInfo = new UserInfo();
+                    userInfo.setUserId((long) object.get("userId").isNumber().doubleValue());
                     userInfo.setFirstName(object.get("firstName").isString().stringValue());
                     userInfo.setLastName(object.get("lastName").isString().stringValue());
                     userInfo.setEmail(object.get("username").isString().stringValue());
@@ -90,5 +91,17 @@ public class UserRestService {
             }
         };
         logout(requestCallback);
+    }
+
+    public static void updateUser(UserInfo selectedUserInfo) {
+        Window.alert("updated user info for " + selectedUserInfo.getEmail());
+    }
+
+    public static void deleteUser(UserInfo selectedUserInfo) {
+        Window.alert("deleteing user "+selectedUserInfo.getEmail());
+    }
+
+    public static void createUser(UserInfo selectedUserInfo) {
+        Window.alert("creating user with email "+selectedUserInfo.getEmail());
     }
 }

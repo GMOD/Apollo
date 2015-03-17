@@ -61,30 +61,34 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Name
-                                </gwt:HTML>
+                                <gwt:HTML styleName="{style.tableKeyName}" text="First Name"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:HTML ui:field="name" styleName="{style.tableValue}"/>
+                                <gwt:TextBox ui:field="firstName" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_2">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                   Email
-                                </gwt:HTML>
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Last Name"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:HTML ui:field="email" styleName="{style.tableValue}"/>
+                                <gwt:TextBox ui:field="lastName" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_2">
-                                <gwt:HTML text="UserGroups" styleName="{style.tableKeyName}"/>
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:HTML ui:field="userGroupHTML" styleName="{style.tableValue}"/>
+                                <gwt:TextBox ui:field="email" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_6">
+                                <gwt:Button text="Create" ui:field="createButton"/>
+                                <gwt:Button text="Cancel" ui:field="cancelButton" enabled="false"/>
+                                <gwt:Button text="Delete" ui:field="deleteButton"  enabled="false"/>
+                                <gwt:Button text="Save" ui:field="saveButton"  visible="false"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>
