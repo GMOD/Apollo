@@ -42,8 +42,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def transcriptService
     def exonService
     def cdsService
+    def permissionService
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
-
 
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
     public AnnotationEditorController() {
@@ -70,7 +70,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
-
 //    def handleOperation(String track, String operation) {
 //        // TODO: this is a hack, but it should come through the UrlMapper
 //        JSONObject postObject = findPost()
@@ -92,19 +91,45 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getUserPermission() {
         log.debug "gettinguser permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        
 
         // TODO: wire into actual user table
-        String username = session.getAttribute("username")
-        println "input username ${username}"
-       
-        String user = User.findByUsername(username)
+        println "principal:: " + SecurityUtils?.subject?.principal
+        String username = SecurityUtils?.subject?.principal
+        int permission = PermissionEnum.NONE.value
+        if(username) {
 
+            println "input username ${username}"
+
+            User user = User.findByUsername(username)
+
+            println "attrbiute names: "
+            session.attributeNames.each { println it }
+            Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
+            Map<String, Integer> permissions 
+            if(organismId){
+                Organism organism = Organism.findById(organismId)
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,user)
+                println " permission list size: "+permissionEnumList
+                 permission = permissionService.findHighestEnumValue(permissionEnumList)
+                permissions = new HashMap<>()
+                permissions.put(username,permission)
+            }
+            else{
+                log.error "somehow no organism shown, getting for all"
+                permissions = permissionService.getPermissionsForUser(user)
+            }
+            if (permissions) {
+                session.setAttribute("permissions", permissions);
+            }
+            if (permissions.values().size() > 0) {
+                permission = permissions.values().iterator().next();
+            }
+        }
 //        SecurityUtils.subject.authenticated
 
 //        log.debug "user from ${username}"
 //        username = "demo@demo.gov"
-        returnObject.put(REST_PERMISSION, 3)
+        returnObject.put(REST_PERMISSION, permission)
         returnObject.put(REST_USERNAME, username)
 
         render returnObject
@@ -156,7 +181,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         returnObject.put(REST_TRANSLATION_TABLE, ttable);
         render returnObject
     }
-
 
 
     def addFeature() {
@@ -290,7 +314,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
 //        }
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration,true));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
 
         render returnObject
@@ -397,7 +421,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.splitExon(inputObject)
     }
-    
+
 
     def deleteFeature() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
@@ -429,12 +453,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        
+
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sourceSequence = Sequence.findByName(trackName)
-        
+
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
@@ -481,7 +505,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 } else {
                     sequence = ""
                 }
-            
+
             } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
                 // works perfectly
                 if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
@@ -493,7 +517,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
                 // incomplete
                 int flank = 0 // temporary workaround for testing
-                
+
                 if (flank > 0) {
                     int fmin = gbolFeature.getFmin() - flank
                     if (fmin < 0) {
@@ -506,8 +530,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     FeatureRelationship gbolFeatureRelationship = gbolFeature.getParentFeatureRelationships()
                     gbolFeatureRelationship = featureRelationshipService.getChildForFeature(gbolFeature, gbolFeature.ontologyId)
                 }
-                
-                
+
+
             }
 //            JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature);
 //            outFeature.put("residues", sequence);
@@ -772,7 +796,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                         if (method.name == operationName) {
                             foundMethod = true
                             println "found the method ${operationName}"
-                            Feature.withNewSession{
+                            Feature.withNewSession {
                                 returnString = method.invoke(requestHandlingService, rootElement)
                             }
                             return returnString

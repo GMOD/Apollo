@@ -53,7 +53,7 @@ class JbrowseController {
     private String getJBrowseDirectoryForSession() {
         // TODO: move to shiro
         HttpSession session = request.session
-        String organismJBrowseDirectory = session.getAttribute("organismJBrowseDirectory")
+        String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         if(!organismJBrowseDirectory ){
             // TODO: lookup based on user name
             for(Organism organism in Organism.all){
@@ -65,8 +65,9 @@ class JbrowseController {
                 if(organism.sequences){
                     Sequence sequence = organism?.sequences?.first()
                     organismJBrowseDirectory = organism.directory
-                    session.setAttribute("organismJBrowseDirectory",organismJBrowseDirectory)
-                    session.setAttribute("sequenceName",sequence.name)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organismJBrowseDirectory)
+                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value,sequence.name)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,sequence.organismId)
                     return organismJBrowseDirectory
                 }
             }

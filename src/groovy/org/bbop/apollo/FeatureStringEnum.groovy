@@ -76,7 +76,7 @@ enum FeatureStringEnum {
     SYNONYMS,
     UNIQUENAME,
     // TODO: move these to a SequenceTypeEnum
-            TYPE_PEPTIDE("peptide"),
+    TYPE_PEPTIDE("peptide"),
     TYPE_CDS("cds"),
     TYPE_CDNA("cdna"),
     TYPE_GENOMIC("genomic"),
@@ -86,6 +86,9 @@ enum FeatureStringEnum {
     EXPORT_ALIAS("Alias"),
     EXPORT_NOTE("Note"),
     EXPORT_PARENT("Parent"),
+    ORGANISM_JBROWSE_DIRECTORY("organismJBrowseDirectory"),
+    ORGANISM_ID("organismId"),
+    SEQUENCE_NAME("sequenceName"),
     LOCKED
 
 

@@ -4,10 +4,18 @@ package org.bbop.apollo
  * Created by ndunn on 3/13/15.
  */
 enum PermissionEnum implements Comparable{
-    
+    // from here:
+//    public final static int NONE = 0x0;
+//    public final static int READ = 0x1;
+//    public final static int WRITE = 0x2;
+//    public final static int PUBLISH = 0x4;
+//    public final static int USER_MANAGER = 0x8;
+//    public final static int ADMIN = USER_MANAGER;
+
+    NONE(0),
     READ(1),
-    WRITE(3),
-    EXPORT(8), // doesn't map, but we can create a scope this way
+    EXPORT(3), // doesn't map, but we can create a scope this way
+    WRITE(8),
     ADMINISTRATE(15),
   
     private Integer value 
