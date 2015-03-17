@@ -74,8 +74,26 @@ class MockupService {
         ).save(failOnError: true)
         adminUser.addToRoles(userRole)
         bbopGroup.addToUsers(adminUser)
-        
-        
+
+
+        User honeyBeeAdmin = new User(
+                username: "admin@honeybee.org"
+                , passwordHash: new Sha256Hash("buzz").toHex()
+                ,firstName: "Buzz"
+                ,lastName: "Smith"
+        ).save()
+        User humanAdmin = new User(
+                username: "admin@human.org"
+                , passwordHash: new Sha256Hash("sapien").toHex()
+                ,firstName: "Human"
+                ,lastName: "Smith"
+        ).save()
+        User yeastAdmin = new User(
+                username: "admin@yeast.org"
+                , passwordHash: new Sha256Hash("beer").toHex()
+                ,firstName: "Yeast"
+                ,lastName: "Smith"
+        ).save()
 
 
 
@@ -106,7 +124,16 @@ class MockupService {
         Organism human = new Organism(abbreviation: "HM",commonName: "Human", genus: "Homo",species: "sapiens",directory: "/opt/apollo/human/data").save(failOnError: true)
         Organism yeast = new Organism(abbreviation: "YS",commonName: "Yeast", genus: "Saccharomyces",species: "cerevisiae",directory: "/opt/apollo/yeast/data").save(failOnError: true)
 
-        
+        User honeyBeeAdmin = User.findByUsername("admin@honeybee.org")
+        User humanAdmin = User.findByUsername("admin@human.org")
+        User yeastAdmin = User.findByUsername("admin@yeast.org")
+       
+        List<PermissionEnum> adminPermissions = new ArrayList<>()
+        adminPermissions.add(PermissionEnum.ADMINISTRATE)
+        permissionService.setOrganismPermissionsForUser(adminPermissions,honeyBee,honeyBeeAdmin)
+        permissionService.setOrganismPermissionsForUser(adminPermissions,human,humanAdmin)
+        permissionService.setOrganismPermissionsForUser(adminPermissions,yeast,yeastAdmin)
+
 
         // in the config
 //        sourceFeature = new SourceFeatureConfiguration(sequenceDirectory, sequenceChunkSize, sequenceChunkPrefix, sequenceLength, uniqueName, type, start, end);
