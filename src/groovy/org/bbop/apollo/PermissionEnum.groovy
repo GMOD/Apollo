@@ -14,10 +14,11 @@ enum PermissionEnum implements Comparable{
 
     NONE(0),
     READ(1),
-    EXPORT(3), // doesn't map, but we can create a scope this way
-    WRITE(8),
+    WRITE(3),
+    EXPORT(7),
     ADMINISTRATE(15),
-  
+    ALL_ORGANISM_ADMIN(100),
+
     private Integer value 
 
     

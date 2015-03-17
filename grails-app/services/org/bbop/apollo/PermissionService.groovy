@@ -31,7 +31,24 @@ class PermissionService {
         return trackList.trim()
     }
 
+    boolean isAdmin() {
+        String currentUserName = SecurityUtils?.subject?.principal
+        if (currentUserName) {
+            User researcher = User.findByUsername(currentUserName)
+            for (Role role in researcher.roles) {
+                println "researcher roles? ${role.name}"
+                if (role.name == UserService.ADMIN) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     Set<Organism> getOrganisms(User user) {
+        if(isAdmin()){
+            return Organism.listOrderByCommonName()
+        }
         Set<Organism> organismList = new HashSet<>()
         for (UserPermission userPermission in UserPermission.findAllByUser(user)) {
             if (userPermission.permissions) {

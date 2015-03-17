@@ -33,7 +33,6 @@ class UrlMappings {
         }
 
         "/Login"(controller:"login",action: "handleOperation",params:params){
-
         }
         // In UrlMappings.groovy
     }

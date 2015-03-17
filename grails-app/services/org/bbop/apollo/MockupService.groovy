@@ -9,6 +9,8 @@ import org.apache.shiro.crypto.hash.Sha256Hash
 class MockupService {
 
 //    CvTermService cvTermService
+    
+    def permissionService
 
 
     def addUsers() {
@@ -104,6 +106,7 @@ class MockupService {
         Organism human = new Organism(abbreviation: "HM",commonName: "Human", genus: "Homo",species: "sapiens",directory: "/opt/apollo/human/data").save(failOnError: true)
         Organism yeast = new Organism(abbreviation: "YS",commonName: "Yeast", genus: "Saccharomyces",species: "cerevisiae",directory: "/opt/apollo/yeast/data").save(failOnError: true)
 
+        
 
         // in the config
 //        sourceFeature = new SourceFeatureConfiguration(sequenceDirectory, sequenceChunkSize, sequenceChunkPrefix, sequenceLength, uniqueName, type, start, end);

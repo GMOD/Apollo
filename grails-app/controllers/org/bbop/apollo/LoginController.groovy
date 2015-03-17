@@ -69,6 +69,10 @@ class LoginController extends AbstractApolloController {
     def login(){
         println "doing the login ${params}"
         def jsonObj = request.JSON
+        if(!jsonObj){
+            jsonObj = JSON.parse(params.data)
+            println "jsonObj ${jsonObj}"
+        }
         println "login -> the jsonObj ${jsonObj}"
         String username = jsonObj.username
         String password = jsonObj.password

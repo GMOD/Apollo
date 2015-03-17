@@ -29,6 +29,7 @@ import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -490,7 +491,9 @@ public class MainPanel extends Composite {
         );
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
+    
 
+    //  TODO: this needs to be moved into UIBinder into its own class
     private class LoginDialog extends DialogBox {
 
        // TODO: move to UIBinder 
@@ -535,10 +538,14 @@ public class MainPanel extends Composite {
             ok.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    LoginDialog.this.hide();
+                    doLogin(username.getText().trim(),passwordTextBox.getText());
                 }
             });
             setWidget(panel);
+        }
+        
+        public void doLogin(String username,String password){
+            UserRestService.login(username,password);
         }
     }
 
