@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
+import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
+import org.bbop.apollo.sequence.TranslationTable
 
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -28,7 +30,7 @@ import org.springframework.messaging.handler.annotation.SendTo
  * From the AnnotationEditorService
  */
 //@GrailsCompileStatic
-class AnnotationEditorController implements AnnotationListener {
+class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
     def featureService
@@ -42,17 +44,6 @@ class AnnotationEditorController implements AnnotationListener {
     def cdsService
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
-    public static String REST_OPERATION = "operation"
-    public static String REST_TRACK = "track"
-    public static String REST_FEATURES = "features"
-
-    String REST_USERNAME = "username"
-    String REST_PERMISSION = "permission"
-    String REST_DATA_ADAPTER = "data_adapter"
-    String REST_DATA_ADAPTERS = "data_adapters"
-    String REST_KEY = "key"
-    String REST_OPTIONS = "options"
-    String REST_TRANSLATION_TABLE = "translation_table"
 
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
     public AnnotationEditorController() {
@@ -63,25 +54,6 @@ class AnnotationEditorController implements AnnotationListener {
         log.debug "bang "
     }
 
-    private String underscoreToCamelCase(String underscore) {
-        if (!underscore || underscore.isAllWhitespace()) {
-            return ''
-        }
-        return underscore.replaceAll(/_\w/) { it[1].toUpperCase() }
-    }
-
-    private def findPost() {
-        for (p in params) {
-            String key = p.key
-            if (key.contains("operation")) {
-                return (JSONObject) JSON.parse(key)
-            }
-        }
-    }
-
-    private String fixTrackHeader(String trackInput) {
-        return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
-    }
 
     def handleOperation(String track, String operation) {
         // TODO: this is a hack, but it should come through the UrlMapper
@@ -93,9 +65,25 @@ class AnnotationEditorController implements AnnotationListener {
 
         // TODO: hack needs to be fixed
 //        track = fixTrackHeader(track)
+        println "Controller: " + params.controller
 
         forward action: "${mappedAction}", params: [data: postObject]
     }
+
+
+//    def handleOperation(String track, String operation) {
+//        // TODO: this is a hack, but it should come through the UrlMapper
+//        JSONObject postObject = findPost()
+//        operation = postObject.get(REST_OPERATION)
+//        def mappedAction = underscoreToCamelCase(operation)
+//        log.debug "${operation} -> ${mappedAction}"
+//        track = postObject.get(REST_TRACK)
+//
+//        // TODO: hack needs to be fixed
+////        track = fixTrackHeader(track)
+//
+//        forward action: "${mappedAction}", params: [data: postObject]
+//    }
 
     /**
      * TODO: Integrate with SHIRO
@@ -104,11 +92,18 @@ class AnnotationEditorController implements AnnotationListener {
     def getUserPermission() {
         log.debug "gettinguser permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        
 
         // TODO: wire into actual user table
         String username = session.getAttribute("username")
-        log.debug "user from ${username}"
-        username = "demo@demo.gov"
+        println "input username ${username}"
+       
+        String user = User.findByUsername(username)
+
+//        SecurityUtils.subject.authenticated
+
+//        log.debug "user from ${username}"
+//        username = "demo@demo.gov"
         returnObject.put(REST_PERMISSION, 3)
         returnObject.put(REST_USERNAME, username)
 
@@ -153,7 +148,7 @@ class AnnotationEditorController implements AnnotationListener {
     def getTranslationTable() {
         log.debug "get translation table!! ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        SequenceUtil.TranslationTable translationTable = SequenceUtil.getDefaultTranslationTable()
+        TranslationTable translationTable = SequenceTranslationHandler.getDefaultTranslationTable()
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue());
@@ -162,15 +157,6 @@ class AnnotationEditorController implements AnnotationListener {
         render returnObject
     }
 
-    private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
-        JSONObject jsonFeatureContainer = new JSONObject();
-        JSONArray jsonFeatures = new JSONArray();
-        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
-        for (JSONObject feature : features) {
-            jsonFeatures.put(feature);
-        }
-        return jsonFeatureContainer;
-    }
 
 
     def addFeature() {
@@ -554,7 +540,7 @@ class AnnotationEditorController implements AnnotationListener {
 //                    }
 //                } else if (gbolFeature instanceof Exon && ((Exon) gbolFeature).getTranscript().isProteinCoding()) {
 //                    String rawSequence = getCodingSequenceInPhase(editor, (Exon) gbolFeature, true);
-//                    sequence = SequenceUtil.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Exon) gbolFeature).getTranscript().getCDS().getStopCodonReadThrough() != null);
+//                    sequence = TranslationHandler.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Exon) gbolFeature).getTranscript().getCDS().getStopCodonReadThrough() != null);
 //                    if (sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
 //                        sequence = sequence.substring(0, sequence.length() - 1);
 //                    }

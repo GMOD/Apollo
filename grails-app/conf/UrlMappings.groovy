@@ -31,6 +31,10 @@ class UrlMappings {
         "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params){
 
         }
+
+        "/Login"(controller:"login",action: "handleOperation",params:params){
+
+        }
         // In UrlMappings.groovy
     }
 }
