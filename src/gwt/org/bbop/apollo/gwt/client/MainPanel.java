@@ -187,7 +187,7 @@ public class MainPanel extends Composite {
                     sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
                     sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
 //                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-                    GWT.log("is default set?  " + object.get("default"));
+//                    GWT.log("is default set?  " + object.get("default"));
                     if (object.get("default") != null) {
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }

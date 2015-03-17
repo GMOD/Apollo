@@ -282,4 +282,32 @@ class PermissionService {
 
     }
 
+    /**
+     * This maps between the two permission schemas.
+     * Here we get all of the highest permissions
+     * @param user
+     * @return
+     */
+    Map<String, Integer> getPermissionsForUser(User user) {
+        Map<String,Integer> returnMap = new HashMap<>()
+        returnMap.put(user.username,0)
+        Organism.all.each{ organism -> 
+             List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism,user)
+             int highestValue = findHighestEnumValue(permissionEnums)
+             if(highestValue>returnMap.get(user.username)){
+                 returnMap.put(user.username,highestValue)
+             }
+        }
+        
+        return returnMap
+    }
+
+    int findHighestEnumValue(List<PermissionEnum> permissionEnums) {
+        int highestValue = -1 
+        permissionEnums.each{ it ->
+            highestValue = it.value > highestValue ? it.value : highestValue
+        }
+        
+        return highestValue 
+    }
 }

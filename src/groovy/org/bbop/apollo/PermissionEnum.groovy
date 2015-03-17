@@ -3,13 +3,23 @@ package org.bbop.apollo
 /**
  * Created by ndunn on 3/13/15.
  */
-enum PermissionEnum {
+enum PermissionEnum implements Comparable{
     
-    READ,
-    WRITE,
-    EXPORT,
-    ADMINISTRATE,
+    READ(1),
+    WRITE(3),
+    EXPORT(8), // doesn't map, but we can create a scope this way
+    ADMINISTRATE(15),
+  
+    private Integer value 
+
     
+//    public PermissionEnum(){
+//        this.value = null
+//    }
+    
+    public PermissionEnum(int oldValue){
+        this.value = oldValue
+    }
    
     public static getDisplay(){
         return this.getSimpleName().toLowerCase()
@@ -31,5 +41,4 @@ enum PermissionEnum {
         }
         return permissionEnumList
     }
-        
 }
