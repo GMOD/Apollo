@@ -67,6 +67,11 @@
         .inline {
             display: inline-table;
         }
+
+        .logout-button{
+            margin-left: 10px;
+        }
+
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -84,6 +89,9 @@
                         <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
                         <!--<gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>-->
                         <gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>
+                        
+                        <!--<gwt:Button ui:field="loginButton" text="Login"/>-->
+                        <b:Button ui:field="logoutButton" text="Logout" styleName="{style.logout-button}"/>
                         <!--<gwt:HTML styleName="{style.inline}">-->
                         <!--<div style="display:inline-table;">-->
                         <!--Drrr . .-->

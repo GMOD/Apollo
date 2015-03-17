@@ -91,6 +91,8 @@ public class MainPanel extends Composite {
     FlowPanel westPanel;
     @UiField
     PreferencePanel preferencePanel;
+    @UiField
+    Button logoutButton;
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
@@ -134,17 +136,20 @@ public class MainPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                if(returnValue.isObject().size()>0){
+                if (returnValue.isObject().size() > 0) {
                     loadOrganisms(organismList);
-                }
-                else{
-                    new LoginDialog().show();
+                    logoutButton.setVisible(true);
+                } else {
+                    logoutButton.setVisible(false);
+                    LoginDialog loginDialog = new LoginDialog();
+                    loginDialog.center();
+                    loginDialog.show();
                 }
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("User not there");
+                Window.alert("User not there: "+exception);
             }
         };
         try {
@@ -375,12 +380,12 @@ public class MainPanel extends Composite {
         }
     }
 
-    private void closePanel(){
+    private void closePanel() {
         mainSplitPanel.setWidgetSize(eastDockPanel, 20);
         dockOpenClose.setIcon(IconType.CARET_LEFT);
     }
 
-    private void openPanel(){
+    private void openPanel() {
         mainSplitPanel.setWidgetSize(eastDockPanel, 550);
         dockOpenClose.setIcon(IconType.CARET_RIGHT);
     }
@@ -416,6 +421,10 @@ public class MainPanel extends Composite {
 
     }
 
+    @UiHandler("logoutButton")
+    public void logout(ClickEvent clickEvent) {
+        UserRestService.logout();
+    }
 
     /*
      * Takes in a JSON String and evals it.
@@ -491,63 +500,6 @@ public class MainPanel extends Composite {
         );
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
-    
-
-    //  TODO: this needs to be moved into UIBinder into its own class
-    private class LoginDialog extends DialogBox {
-
-       // TODO: move to UIBinder 
-        private VerticalPanel panel = new VerticalPanel();
-        private Grid grid = new Grid(2,2);
-        private Button ok = new Button("Login");
-        private Button cancel = new Button("Cancel");
-        private TextBox username = new TextBox();
-        private PasswordTextBox passwordTextBox = new PasswordTextBox();
-        private HorizontalPanel horizontalPanel = new HorizontalPanel();
-
-//
-        public LoginDialog() {
-//            // Set the dialog box's caption.
-            setText("Login");
-//
-//            // Enable animation.
-            setAnimationEnabled(true);
-//
-//            // Enable glass background.
-            setGlassEnabled(true);
-
-            grid.setHTML(0,0,"Username");
-            grid.setWidget(0, 1, username);
-            grid.setHTML(1, 0, "Password");
-            grid.setWidget(1, 1, passwordTextBox);
-            panel.add(grid);
-            
-            horizontalPanel.add(ok);
-            horizontalPanel.add(cancel);
-            panel.add(horizontalPanel);
-//
-//            // DialogBox is a SimplePanel, so you have to set its widget property to
-//            // whatever you want its contents to be.
-
-            cancel.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    LoginDialog.this.hide();
-                }
-            });
-            ok.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    doLogin(username.getText().trim(),passwordTextBox.getText());
-                }
-            });
-            setWidget(panel);
-        }
-        
-        public void doLogin(String username,String password){
-            UserRestService.login(username,password);
-        }
-    }
 
 
 }
