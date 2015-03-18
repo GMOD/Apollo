@@ -49,7 +49,6 @@ Alternatively, developers or user's with custom builds are advised to review the
 You can copy additional configuration files as needed for customization:
 
     cp sample_blat_config.xml blat_config.xml
-    cp sample_canned_comments_config.xml canned_comments_config.xml
     cp sample_chado.xml chado.xml
     cp sample_hibernate.xml hibernate.xml
     cp sample_drupal.xml drupal.xml
@@ -57,6 +56,7 @@ You can copy additional configuration files as needed for customization:
     
 You can also provide your own fasta and config as follows.  Otherwise the defaults will be used. 
    
-    cp sample_gff3_config.xml gff3_config.xml
-    cp sample_fasta_config.xml fasta_config.xml
+    cp default_canned_comments_config.xml canned_comments_config.xml
+    cp default_gff3_config.xml gff3_config.xml
+    cp default_fasta_config.xml fasta_config.xml
     

@@ -247,21 +247,26 @@
         <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml"/>
         <copy failonerror="false" file="config.properties"
               tofile="${apollo.webapp.directory}/config/config.properties"/>
-        <copy failonerror="false" file="canned_comments.xml"
-              tofile="${apollo.webapp.directory}/config/canned_comments.xml"/>
         <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml"/>
+        
         <copy failonerror="false" file="chado.xml" tofile="${apollo.webapp.directory}/config/chado.xml"/>
         <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml"/>
         <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json"/>
         <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>
         <copy failonerror="false" file="drupal.xml" tofile="${apollo.webapp.directory}/config/drupal.xml"/>
         <copy failonerror="false" file="oauth.xml" tofile="${apollo.webapp.directory}/config/oauth.xml"/>
-        
+
+
         <copy failonerror="true" file="default_gff3_config.xml" tofile="${apollo.webapp.directory}/config/gff3_config.xml"/>
         <copy failonerror="false" file="gff3_config.xml" tofile="${apollo.webapp.directory}/config/gff3_config.xml"/>
 
         <copy failonerror="true" file="default_fasta_config.xml" tofile="${apollo.webapp.directory}/config/fasta_config.xml"/>
         <copy failonerror="false" file="fasta_config.xml" tofile="${apollo.webapp.directory}/config/fasta_config.xml"/>
+
+        <copy failonerror="true" file="default_canned_comments.xml"
+              tofile="${apollo.webapp.directory}/config/canned_comments.xml"/>
+        <copy failonerror="false" file="canned_comments.xml"
+              tofile="${apollo.webapp.directory}/config/canned_comments.xml"/>
     </target>
 
 
