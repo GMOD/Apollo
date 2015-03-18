@@ -8,6 +8,9 @@ src/main/webapp/config.properties
 src/main/webapp/config.xml
 src/main/webapp/canned_comments.xml
 src/main/webapp/config/oauth.xml
+src/main/webapp/config/hibernate.xml
+src/main/webapp/config/fasta_config.xml
+src/main/webapp/config/gff3_config.xml
 drupal.xml
 config.xml
 blat_config.xml

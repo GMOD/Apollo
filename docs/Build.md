@@ -45,3 +45,18 @@ Web Apollo uses maven to create a WAR package which bundles your config files. A
 This will produce the a WAR file in WEB\_APOLLO\_DIR/target/ (e.g. target/apollo-1.0-SNAPSHOT.war) that is ready to deploy. See [deploying webapollo](Deploy.md) for the next steps for deploying.
 
 Alternatively, developers or user's with custom builds are advised to review the [developer's guide](Developer.md) for further instructions on creating their own builds.
+
+You can copy additional configuration files as needed for customization:
+
+    cp sample_blat_config.xml blat_config.xml
+    cp sample_canned_comments_config.xml canned_comments_config.xml
+    cp sample_chado.xml chado.xml
+    cp sample_hibernate.xml hibernate.xml
+    cp sample_drupal.xml drupal.xml
+    cp sample_oauth.xml oauth.xml
+    
+You can also provide your own fasta and config as follows.  Otherwise the defaults will be used. 
+   
+    cp sample_gff3_config.xml gff3_config.xml
+    cp sample_fasta_config.xml fasta_config.xml
+    
