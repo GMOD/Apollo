@@ -3,9 +3,6 @@ package org.bbop.apollo.gwt.client.dto;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import grails.converters.JSON;
-
-import java.util.List;
 
 /**
  * Created by ndunn on 12/18/14.
