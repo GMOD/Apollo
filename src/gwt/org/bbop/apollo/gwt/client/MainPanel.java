@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
@@ -93,7 +94,10 @@ public class MainPanel extends Composite {
     PreferencePanel preferencePanel;
     @UiField
     Button logoutButton;
-
+    @UiField
+    HTML userName;
+    
+    public static UserInfo currentUser ; // the current logged-in user
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
     public MainPanel() {
@@ -135,11 +139,25 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.isObject().size() > 0) {
                     loadOrganisms(organismList);
                     logoutButton.setVisible(true);
+                    currentUser = new UserInfo();
+                    String username = returnValue.get("username").isString().stringValue();
+                    currentUser.setEmail(username);
+                    currentUser.setFirstName(returnValue.get("firstName").isString().stringValue());
+                    currentUser.setLastName(returnValue.get("lastName").isString().stringValue());
+
+
+                    int maxLength = 15 ;
+                    if (username.length() > maxLength) {
+                        username = username.substring(0, maxLength-1) + "...";
+                    }
+
+                    userName.setHTML(username);
                 } else {
+                    currentUser = null ; 
                     logoutButton.setVisible(false);
                     LoginDialog loginDialog = new LoginDialog();
                     loginDialog.center();
@@ -149,7 +167,7 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("User not there: "+exception);
+                Window.alert("User not there: " + exception);
             }
         };
         try {

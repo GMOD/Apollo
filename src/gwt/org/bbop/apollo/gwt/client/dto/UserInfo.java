@@ -85,7 +85,7 @@ public class UserInfo {
         jsonObject.put("lastName",new JSONString(lastName));
         jsonObject.put("email",new JSONString(email));
         if(password!=null){
-            jsonObject.put("passwordHash",new JSONString(password));
+            jsonObject.put("password",new JSONString(password));
         }
 
         return jsonObject;

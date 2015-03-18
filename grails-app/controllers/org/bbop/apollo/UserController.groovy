@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
+import org.apache.shiro.crypto.hash.Sha256Hash
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.util.StringUtil
@@ -32,7 +33,7 @@ class UserController {
                 firstName: dataObject.firstName
                 , lastName: dataObject.lastName
                 , username: dataObject.email
-                , passwordHash: dataObject.passwordHash
+                 ,passwordHash : new Sha256Hash(dataObject.password).toHex()
         )
         user.save(flush: true, insert: true)
         render new JSONObject() as JSON
@@ -56,7 +57,9 @@ class UserController {
         user.firstName = dataObject.firstName
         user.lastName = dataObject.lastName
         user.username = dataObject.email
-        user.passwordHash = dataObject.passwordHash ?: user.passwordHash
+        if(dataObject.password){
+            user.passwordHash = new Sha256Hash(dataObject.password).toHex()
+        }
         user.save(flush: true)
     }
 }

@@ -25,7 +25,6 @@
 
     <!--from https://github.com/sksamuel/gwt-websockets-->
     <!--<inherits name="org.realityforge.gwt.websockets.WebSockets"/>-->
-    <inherits name="com.googlecode.gwt.crypto.Crypto"/>
 
 
 

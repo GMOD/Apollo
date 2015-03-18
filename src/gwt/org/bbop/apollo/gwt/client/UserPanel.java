@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -145,7 +146,7 @@ public class UserPanel extends Composite {
         selectedUserInfo.setPassword(passwordTextBox.getText());
     }
 
-    @UiHandler(value = {"firstName", "lastName", "email"})
+    @UiHandler(value = {"firstName", "lastName", "email","passwordTextBox"})
     public void updateName(ChangeEvent changeHandler) {
         // assume an edit operation
         if (selectedUserInfo != null) {
@@ -177,7 +178,7 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        UserRestService.deleteUser(userInfoList,selectedUserInfo);
+        UserRestService.deleteUser(userInfoList, selectedUserInfo);
         selectedUserInfo = null ;
         updateUserInfo();
     }
@@ -209,6 +210,7 @@ public class UserPanel extends Composite {
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
             deleteButton.setEnabled(true);
+            passwordRow.setVisible(selectedUserInfo.getEmail().equals(MainPanel.currentUser.getEmail()));
         }
 
     }

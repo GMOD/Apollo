@@ -68,11 +68,15 @@
             display: inline-table;
         }
 
-        .logout-button{
+        .logout-button {
             margin-left: 10px;
         }
 
-    </ui:style>
+        .username {
+            display: inline-table;
+            font-size: smaller;
+
+        }</ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
             <!--<gwt:Frame ui:field="frame" width="100%" height="100%" visible="false"/>-->
@@ -83,7 +87,6 @@
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
-                        <gwt:HTML text="Active" styleName="{style.active-piece}" />
                         <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
                         <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
@@ -91,7 +94,8 @@
                         <gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>
                         
                         <!--<gwt:Button ui:field="loginButton" text="Login"/>-->
-                        <b:Button ui:field="logoutButton" text="Logout" styleName="{style.logout-button}"/>
+                        <gwt:HTML ui:field="userName" styleName="{style.username}"/>
+                        <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                         <!--<gwt:HTML styleName="{style.inline}">-->
                         <!--<div style="display:inline-table;">-->
                         <!--Drrr . .-->

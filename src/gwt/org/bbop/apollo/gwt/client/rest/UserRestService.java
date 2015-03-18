@@ -94,7 +94,6 @@ public class UserRestService {
     }
 
     public static void updateUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
-        Window.alert("updated user info for " + selectedUserInfo.getEmail());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -111,7 +110,6 @@ public class UserRestService {
     }
 
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
-        Window.alert("deleteing user " + selectedUserInfo.getEmail());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -128,7 +126,6 @@ public class UserRestService {
     }
 
     public static void createUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
-        Window.alert("creating user with email "+selectedUserInfo.getEmail());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
