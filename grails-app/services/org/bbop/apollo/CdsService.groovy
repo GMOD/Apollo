@@ -181,17 +181,29 @@ class CdsService {
     
     def getResiduesFromCDS(CDS cds) {
         Transcript transcript = transcriptService.getTranscript(cds)
+        println "===> Fetched transcript(): ${transcript}"
         String residues = transcriptService.getResiduesFromTranscript(transcript)
+        println "===> CDS in getResiduesFromCDS(): ${cds}"
+        println "===> Transcript in getResiduesFromCDS(): ${transcript}"
+        println "===> residues in getResiduesFromCDS(): ${residues}"
         int begin
         int end
+        println "===> input featureLocation: ${cds.featureLocations}"
+        println "===> ${cds.getFeatureLocations().fmin}"
+        println "===> ${cds.getFeatureLocations().fmax}"
         if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
-            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin + 1)
-            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax + 1)
+            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin)
+            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax - 1)
         }
         else {
             begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin)
             end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax)
         }
+        println "===> CDS STRAND: ${cds.getFeatureLocations().strand}"
+        println "===> CDS BEGIN: ${begin}"
+        println "===> CDS END: ${end}"
+        println "===> RESIDUE: ${residues}"
+        println "===> RESIDUE length: ${residues.length()}"
         return residues.substring(begin,end)
 //        Legacy code
 //        if (getTranscript() == null) {
