@@ -25,17 +25,25 @@ class UserController {
     
     def createUser(){
         println "creating user ${request.JSON} -> ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+        User user = new User(
+                firstName: dataObject.firstName
+                ,lastName: dataObject.lastName
+                ,username: dataObject.email
+        )
+        user.save(flush: true,insert:true)
     }
 
     def deleteUser(){
         println "deleting user ${request.JSON} -> ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+        User user = User.findById(dataObject.userId)
+        user.delete(flush: true)
     }
 
     def updateUser(){
-        println "updating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
-        println "firstName -> ${params.firstName}"
-        User user = User.findById(params.userId)
+        User user = User.findById(dataObject.userId)
         user.firstName = dataObject.firstName
         user.lastName = dataObject.lastName
         user.username = dataObject.email

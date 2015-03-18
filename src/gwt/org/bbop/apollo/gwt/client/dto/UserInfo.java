@@ -69,7 +69,9 @@ public class UserInfo {
     
     public JSONObject toJSON(){
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("userId",new JSONNumber(userId));
+        if(userId!=null){
+            jsonObject.put("userId",new JSONNumber(userId));
+        }
         jsonObject.put("firstName",new JSONString(firstName));
         jsonObject.put("lastName",new JSONString(lastName));
         jsonObject.put("email",new JSONString(email));
