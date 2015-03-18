@@ -59,6 +59,7 @@ class SequenceController {
         request.session.setAttribute("defaultSequenceName",sequenceName)
     }
 
+    @Transactional
     def loadSequences(Organism organism) {
         log.info "loading sequences for organism ${organism}"
         if(!organism.sequences){
