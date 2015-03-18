@@ -76,6 +76,8 @@ class LoginController extends AbstractApolloController {
         println "login -> the jsonObj ${jsonObj}"
         String username = jsonObj.username
         String password = jsonObj.password
+        Boolean rememberMe = jsonObj.rememberMe
+        
         def authToken = new UsernamePasswordToken(username, password as String)
 
         // Support for "remember me"
@@ -111,6 +113,8 @@ class LoginController extends AbstractApolloController {
 //            response.sendRedirect("/apollo/annotator/index")
             
             User user = User.findByUsername(username)
+
+
 //            int permission = 0
 //            // TODO: should be per organism
             Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)

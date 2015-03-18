@@ -19,7 +19,7 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "/Login", data.toString());
     }
 
-    public static void login(String username, String password) {
+    public static void login(String username, String password,Boolean rememberMe) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -35,6 +35,7 @@ public class UserRestService {
         jsonObject.put("operation", new JSONString("login"));
         jsonObject.put("username", new JSONString(username));
         jsonObject.put("password", new JSONString(password));
+        jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
         login(requestCallback, jsonObject);
     }
 
@@ -106,7 +107,7 @@ public class UserRestService {
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
-        RestService.sendRequest(requestCallback, "/user/updateUser","data="+jsonObject.toString());
+        RestService.sendRequest(requestCallback, "/user/updateUser", "data=" + jsonObject.toString());
     }
 
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
@@ -122,7 +123,7 @@ public class UserRestService {
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
-        RestService.sendRequest(requestCallback, "/user/deleteUser","data="+jsonObject.toString());
+        RestService.sendRequest(requestCallback, "/user/deleteUser", "data=" + jsonObject.toString());
     }
 
     public static void createUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {

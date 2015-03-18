@@ -148,6 +148,7 @@ public class MainPanel extends Composite {
                     currentUser.setEmail(username);
                     currentUser.setFirstName(returnValue.get("firstName").isString().stringValue());
                     currentUser.setLastName(returnValue.get("lastName").isString().stringValue());
+                    currentUser.setUserId((long) returnValue.get("userId").isNumber().doubleValue());
 
 
                     int maxLength = 15 ;

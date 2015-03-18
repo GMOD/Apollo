@@ -18,6 +18,7 @@ public class LoginDialog extends DialogBox {
     private TextBox username = new TextBox();
     private PasswordTextBox passwordTextBox = new PasswordTextBox();
     private HorizontalPanel horizontalPanel = new HorizontalPanel();
+    private CheckBox rememberMeCheckBox = new CheckBox("Remember me");
 
     //
     public LoginDialog() {
@@ -30,13 +31,15 @@ public class LoginDialog extends DialogBox {
 //            // Enable glass background.
         setGlassEnabled(true);
 
-        grid.setHTML(0,0,"Username");
+        grid.setHTML(0, 0, "Username");
         grid.setWidget(0, 1, username);
         grid.setHTML(1, 0, "Password");
         grid.setWidget(1, 1, passwordTextBox);
         panel.add(grid);
         
 
+        horizontalPanel.add(rememberMeCheckBox);
+        horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));
         horizontalPanel.add(okButton);
         panel.add(horizontalPanel);
 //
@@ -47,14 +50,14 @@ public class LoginDialog extends DialogBox {
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                doLogin(username.getText().trim(),passwordTextBox.getText());
+                doLogin(username.getText().trim(),passwordTextBox.getText(),rememberMeCheckBox.getValue());
             }
         });
         setWidget(panel);
     }
 
-    public void doLogin(String username,String password){
-        UserRestService.login(username, password);
+    public void doLogin(String username,String password,Boolean rememberMe){
+        UserRestService.login(username, password,rememberMe);
     }
 }
 
