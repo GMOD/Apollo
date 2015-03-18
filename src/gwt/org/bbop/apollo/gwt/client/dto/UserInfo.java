@@ -1,5 +1,10 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import grails.converters.JSON;
+
 import java.util.List;
 
 /**
@@ -63,5 +68,15 @@ public class UserInfo {
     
     public String getName(){
         return firstName +" " + lastName ;
+    }
+    
+    public JSONObject toJSON(){
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("userId",new JSONNumber(userId));
+        jsonObject.put("firstName",new JSONString(firstName));
+        jsonObject.put("lastName",new JSONString(lastName));
+        jsonObject.put("email",new JSONString(email));
+
+        return jsonObject;
     }
 }

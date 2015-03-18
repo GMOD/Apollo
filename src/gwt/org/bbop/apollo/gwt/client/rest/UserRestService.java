@@ -93,15 +93,55 @@ public class UserRestService {
         logout(requestCallback);
     }
 
-    public static void updateUser(UserInfo selectedUserInfo) {
+    public static void updateUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
         Window.alert("updated user info for " + selectedUserInfo.getEmail());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                loadUsers(userInfoList);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error updating user: "+exception);
+            }
+        };
+        JSONObject jsonObject = selectedUserInfo.toJSON();
+        RestService.sendRequest(requestCallback, "/user/updateUser","data="+jsonObject.toString());
     }
 
-    public static void deleteUser(UserInfo selectedUserInfo) {
-        Window.alert("deleteing user "+selectedUserInfo.getEmail());
+    public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
+        Window.alert("deleteing user " + selectedUserInfo.getEmail());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                loadUsers(userInfoList);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error deleting user: "+exception);
+            }
+        };
+        JSONObject jsonObject = selectedUserInfo.toJSON();
+        RestService.sendRequest(requestCallback, "/user/deleteUser","data="+jsonObject.toString());
     }
 
-    public static void createUser(UserInfo selectedUserInfo) {
+    public static void createUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
         Window.alert("creating user with email "+selectedUserInfo.getEmail());
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                loadUsers(userInfoList); 
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding user: "+exception);
+            }
+        };
+        JSONObject jsonObject = selectedUserInfo.toJSON();
+        RestService.sendRequest(requestCallback, "/user/createUser","data="+jsonObject.toString());
+
     }
 }

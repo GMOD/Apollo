@@ -144,7 +144,7 @@ public class UserPanel extends Composite {
         // assume an edit operation
         if (selectedUserInfo != null) {
             setCurrentUserInfoFromUI();
-            UserRestService.updateUser(selectedUserInfo);
+            UserRestService.updateUser(userInfoList,selectedUserInfo);
         }
         // if it is to be created then we don't care
     }
@@ -170,14 +170,14 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        UserRestService.deleteUser(selectedUserInfo);
+        UserRestService.deleteUser(userInfoList,selectedUserInfo);
     }
 
     @UiHandler("saveButton")
     public void save(ClickEvent clickEvent) {
         selectedUserInfo = new UserInfo();
         setCurrentUserInfoFromUI();
-        UserRestService.createUser(selectedUserInfo);
+        UserRestService.createUser(userInfoList,selectedUserInfo);
         createButton.setEnabled(true);
        
         selectedUserInfo = null ; 
