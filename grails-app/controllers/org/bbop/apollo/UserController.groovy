@@ -8,52 +8,55 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.util.StringUtil
 
 class UserController {
-    
+
     def permissionService
 
     def index() {}
-    
-    def loadUsers(){
+
+    def loadUsers() {
         render User.all as JSON
     }
 
-    def checkLogin(){
-        if(permissionService.currentUser){
+    def checkLogin() {
+        if (permissionService.currentUser) {
             render permissionService.currentUser as JSON
-        }
-        else{
+        } else {
             render new JSONObject() as JSON
         }
     }
-    
-    def createUser(){
+
+    def createUser() {
         println "creating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         User user = new User(
                 firstName: dataObject.firstName
-                ,lastName: dataObject.lastName
-                ,username: dataObject.email
-                ,passwordHash: RandomStringUtils.random(20)
+                , lastName: dataObject.lastName
+                , username: dataObject.email
+                , passwordHash: dataObject.passwordHash
         )
-        user.save(flush: true,insert:true)
+        user.save(flush: true, insert: true)
+        render new JSONObject() as JSON
     }
 
-    def deleteUser(){
+    def deleteUser() {
         println "deleting user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         User user = User.findById(dataObject.userId)
-        user.userGroups.clear()
+        user.userGroups.each { it ->
+            it.removeFromUsers(user)
+        }
         UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
         UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
         user.delete(flush: true)
     }
 
-    def updateUser(){
+    def updateUser() {
         JSONObject dataObject = JSON.parse(params.data)
         User user = User.findById(dataObject.userId)
         user.firstName = dataObject.firstName
         user.lastName = dataObject.lastName
         user.username = dataObject.email
+        user.passwordHash = dataObject.passwordHash ?: user.passwordHash
         user.save(flush: true)
     }
 }

@@ -13,7 +13,8 @@ public class UserInfo {
     String lastName;
     String email;
     Integer numberUserGroups ;
-    
+    private String password;
+
     public UserInfo(){}
     
 
@@ -66,7 +67,15 @@ public class UserInfo {
     public String getName(){
         return firstName +" " + lastName ;
     }
-    
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
     public JSONObject toJSON(){
         JSONObject jsonObject = new JSONObject();
         if(userId!=null){
@@ -75,7 +84,11 @@ public class UserInfo {
         jsonObject.put("firstName",new JSONString(firstName));
         jsonObject.put("lastName",new JSONString(lastName));
         jsonObject.put("email",new JSONString(email));
+        if(password!=null){
+            jsonObject.put("passwordHash",new JSONString(password));
+        }
 
         return jsonObject;
     }
+
 }

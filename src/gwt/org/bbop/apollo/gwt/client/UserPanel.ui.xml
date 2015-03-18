@@ -83,6 +83,14 @@
                                 <gwt:TextBox ui:field="email" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
+                        <b:Row ui:field="passwordRow" visible="false">
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Password"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <gwt:PasswordTextBox ui:field="passwordTextBox" styleName="{style.tableValue}"/>
+                            </b:Column>
+                        </b:Row>
                         <b:Row>
                             <b:Column size="MD_6">
                                 <gwt:Button text="Create" ui:field="createButton"/>

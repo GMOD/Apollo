@@ -22,6 +22,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.gwtbootstrap3.client.ui.Row;
 
 import java.util.Comparator;
 import java.util.List;
@@ -54,6 +55,10 @@ public class UserPanel extends Composite {
     Button deleteButton;
     @UiField
     Button saveButton;
+    @UiField
+    PasswordTextBox passwordTextBox;
+    @UiField
+    Row passwordRow;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -137,6 +142,7 @@ public class UserPanel extends Composite {
         selectedUserInfo.setEmail(email.getText());
         selectedUserInfo.setFirstName(firstName.getText());
         selectedUserInfo.setLastName(lastName.getText());
+        selectedUserInfo.setPassword(passwordTextBox.getText());
     }
 
     @UiHandler(value = {"firstName", "lastName", "email"})
@@ -157,7 +163,7 @@ public class UserPanel extends Composite {
         saveButton.setVisible(true);
         cancelButton.setEnabled(true);
         createButton.setEnabled(false);
-
+        passwordRow.setVisible(true);
     }
 
     @UiHandler("cancelButton")
@@ -166,18 +172,21 @@ public class UserPanel extends Composite {
         saveButton.setVisible(false);
         cancelButton.setEnabled(false);
         createButton.setEnabled(true);
+        passwordRow.setVisible(false);
     }
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
         UserRestService.deleteUser(userInfoList,selectedUserInfo);
+        selectedUserInfo = null ;
+        updateUserInfo();
     }
 
     @UiHandler("saveButton")
     public void save(ClickEvent clickEvent) {
         selectedUserInfo = new UserInfo();
         setCurrentUserInfoFromUI();
-        UserRestService.createUser(userInfoList,selectedUserInfo);
+        UserRestService.createUser(userInfoList, selectedUserInfo);
         createButton.setEnabled(true);
        
         selectedUserInfo = null ; 
@@ -185,9 +194,11 @@ public class UserPanel extends Composite {
         updateUserInfo();
         saveButton.setVisible(false);
         cancelButton.setEnabled(false);
+        passwordRow.setVisible(false);
     }
 
     private void updateUserInfo() {
+        passwordTextBox.setText("");
         if (selectedUserInfo == null) {
             firstName.setText("");
             lastName.setText("");
