@@ -11,11 +11,27 @@ import org.codehaus.groovy.util.StringUtil
 class UserController {
 
     def permissionService
+    def userService
 
     def index() {}
 
     def loadUsers() {
-        render User.all as JSON
+        JSONArray returnArray = new JSONArray()
+        
+        User.all.each{
+            def userObject = new JSONObject()
+//            userObject.putAll(it.properties)
+            userObject.userId = it.id
+            userObject.username = it.username
+            userObject.firstName = it.firstName
+            userObject.lastName = it.lastName
+            Role role = userService.getHighestRole(it)
+            userObject.role = role?.name
+
+            returnArray.put(userObject)
+        }
+        
+        render returnArray as JSON
     }
 
     def checkLogin() {

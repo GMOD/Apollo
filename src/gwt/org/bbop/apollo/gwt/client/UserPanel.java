@@ -82,14 +82,6 @@ public class UserPanel extends Composite {
         };
         firstNameColumn.setSortable(true);
 
-//        Column<UserInfo,Number> secondNameColumn = new Column<UserInfo,Number>(new NumberCell()) {
-//            @Override
-//            public Integer getValue(UserInfo object) {
-//                return object.getNumberUserGroups();
-//            }
-//        };
-//        secondNameColumn.setSortable(true);
-
         SafeHtmlRenderer<String> anchorRenderer = new AbstractSafeHtmlRenderer<String>() {
             @Override
             public SafeHtml render(String object) {
@@ -108,8 +100,17 @@ public class UserPanel extends Composite {
         };
         secondNameColumn.setSortable(true);
 
+        TextColumn<UserInfo> thirdNameColumn = new TextColumn<UserInfo>() {
+            @Override
+            public String getValue(UserInfo employee) {
+                return employee.getRole();
+            }
+        };
+        thirdNameColumn.setSortable(true);
+
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(secondNameColumn, "Email");
+        dataGrid.addColumn(thirdNameColumn, "Global Role");
 
         dataGrid.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -135,6 +136,12 @@ public class UserPanel extends Composite {
             @Override
             public int compare(UserInfo o1, UserInfo o2) {
                 return o1.getEmail().compareTo(o2.getEmail());
+            }
+        });
+        sortHandler.setComparator(thirdNameColumn, new Comparator<UserInfo>() {
+            @Override
+            public int compare(UserInfo o1, UserInfo o2) {
+                return o1.getRole().compareTo(o2.getRole());
             }
         });
     }

@@ -12,6 +12,7 @@ public class UserInfo {
     String firstName;
     String lastName;
     String email;
+    String role;
     Integer numberUserGroups ;
     private String password;
 
@@ -76,6 +77,14 @@ public class UserInfo {
         return password;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public JSONObject toJSON(){
         JSONObject jsonObject = new JSONObject();
         if(userId!=null){
@@ -84,6 +93,7 @@ public class UserInfo {
         jsonObject.put("firstName",new JSONString(firstName));
         jsonObject.put("lastName",new JSONString(lastName));
         jsonObject.put("email",new JSONString(email));
+        jsonObject.put("role",new JSONString(role));
         if(password!=null){
             jsonObject.put("password",new JSONString(password));
         }

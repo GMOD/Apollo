@@ -81,9 +81,11 @@ class LoginController extends AbstractApolloController {
         def authToken = new UsernamePasswordToken(username, password as String)
 
         // Support for "remember me"
-        if (params.rememberMe) {
+        if (rememberMe) {
             authToken.rememberMe = true
         }
+        println "remembmerMe: ${rememberMe}"
+        println "authToken : ${authToken.rememberMe}"
 
         // If a controller redirected to this page, redirect back
         // to it. Otherwise redirect to the root URI.
@@ -138,14 +140,14 @@ class LoginController extends AbstractApolloController {
 
             // Keep the username and "remember me" setting so that the
             // user doesn't have to enter them again.
-            def m = [ username: params.username ]
-            if (params.rememberMe) {
+            def m = [ username: jsonObj.username ]
+            if (jsonObj.rememberMe) {
                 m["rememberMe"] = true
             }
 
             // Remember the target URI too.
-            if (params.targetUri) {
-                m["targetUri"] = params.targetUri
+            if (jsonObj.targetUri) {
+                m["targetUri"] = jsonObj.targetUri
             }
 
             // Now redirect back to the login page.

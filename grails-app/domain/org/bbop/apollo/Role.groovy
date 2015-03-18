@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+/**
+ * These are global roles.
+ */
 class Role {
     String name
 

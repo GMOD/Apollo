@@ -146,6 +146,7 @@ public class MainPanel extends Composite {
                     currentUser = new UserInfo();
                     String username = returnValue.get("username").isString().stringValue();
                     currentUser.setEmail(username);
+                    currentUser.setRole(returnValue.get("role").isString().stringValue());
                     currentUser.setFirstName(returnValue.get("firstName").isString().stringValue());
                     currentUser.setLastName(returnValue.get("lastName").isString().stringValue());
                     currentUser.setUserId((long) returnValue.get("userId").isNumber().doubleValue());
