@@ -1306,6 +1306,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
             case RepeatRegion.ontologyId: return new RepeatRegion()
+            case FlankingRegion.ontologyId : return new FlankingRegion()
             case Insertion.ontologyId: return new Insertion()
             case Deletion.ontologyId: return new Deletion()
             case Substitution.ontologyId: return new Substitution()
@@ -1759,7 +1760,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
         JSONObject jSONObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
-
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
 
         jSONObject.put(FeatureStringEnum.NAME.value, cvTerm)

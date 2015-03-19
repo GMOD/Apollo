@@ -473,20 +473,31 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
                     if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                         sequence = sequence.substring(0, sequence.size() - 1)
-                        // removing the last character from the sequence, most likely a '*' indicating a stop codon
                     }
                     int idx;
                     if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
                         String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
                         String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
-                        // for scenario where there is still a stop in the AA sequence, fetch alternate translation table
                         if (aa != null) {
                             sequence = sequence.replace(StandardTranslationTable.STOP, aa)
                         }
                     }
                 } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
-                    // need advice
-                    println "trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
+                    println "===> trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
+                    String rawSequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true) 
+                    // concerns associated with ExonService.getCodingSequenceInPhase()
+                    sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough( transcriptService.getCDS( exonService.getTranscript((Exon) gbolFeature) ) ) != null)
+                    if (sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                        sequence = sequence.substring(0, sequence.length() - 1)
+                    }
+                    int idx
+                    if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
+                        String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
+                        if(aa != null) {
+                            sequence = sequence.replace(StandardTranslationTable.STOP, aa)
+                        }
+                    }
                 } else {
                     sequence = ""
                 }
@@ -495,9 +506,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     // but there seems to be only one CDS fetched even if a gene has more than 1 CDS
                     sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
                 } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
-                    // need advice
-                    // sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
                     println "trying to fetch CDS sequence of selected exon: ${gbolFeature}"
+                    sequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
                 } else {
                     sequence = ""
                 }
@@ -510,6 +520,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     sequence = ""
                 }
             } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
+                // works perfectly, but the featureContainer generated for genomic region with flank isn't rendered
                 int flank
                 if (inputObject.has('flank')) {
                     flank = inputObject.getInt("flank")
@@ -551,7 +562,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
             }
-            //JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature)
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
             outFeature.put("residues", sequence)
             outFeature.put("uniquename", uniqueName)
@@ -559,8 +569,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             println "FEATURECONTAINER: ${featureContainer}"
             render featureContainer
         }
-//        out.write(featureContainer.toString());
-        // render featureContainer
+
+//        legacy code        
 //        for (int i = 0; i < featuresArray.length(); ++i) {
 //            JSONObject jsonFeature = featuresArray.getJSONObject(i);
 //            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)

@@ -406,41 +406,57 @@ class ExonService {
 
     }
     
-    // added while working on getSequence() on 03.11.15 by D.U.
-//    String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
-//        Transcript transcript = getTranscript(exon)
-//        CDS cds = transcriptService.getCDS(transcript)
-//        if (cds == null || !exon.overlaps(cds)) {
-//            return ""
-//        }
-//        int length = 0
-//        FlankingRegion flankingRegion = new FlankingRegion(
-//                uniqueName: "tmpFlankRegion"
-//                ,isAnalysis: false
-//                ,isObsolete: false
-//                ,dateCreated: null
-//        )
-//
-//        List <Exon> exons = transcriptService.getSortedExons(transcriptService.getExons(transcript))
-//        for (Exon e in exons) {
+    //added while working on getSequence() on 03.19.15 by D.U.
+    String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
+        Transcript transcript = getTranscript(exon)
+        CDS cds = transcriptService.getCDS(transcript)
+        println "===> CDS @getCodingSequenceInPhase: ${cds}"
+        if (cds == null || !featureService.overlaps(exon, cds, true)) {
+            return ""
+        }
+        int length = 0
+        FlankingRegion flankingRegion = new FlankingRegion(
+                name: cds.name
+                ,uniqueName: cds.uniqueName + "_tmpFlankRegion"
+        ).save()
+
+
+
+        List <Exon> exons = transcriptService.getSortedExons(transcript)
+        for (Exon e in exons) {
+            // why bother through this loop if, right after this loop, the fmin and fmax are altered according to cds fmin and fmax
 //            if (e.equals(exon)) {
 //                break // WHAT?
 //            }
-//            if (!e.overlaps(cds)) {
-//                continue
-//            }
-//            int fmin = e.getFmin() < cds.getFmin() ? cds.getFmin() : e.getFmin()
-//            int fmax = e.getFmax() > cds.getFmax() ? cds.getFmax() : e.getFmax()
-//
-//            FeatureLocation flankingRegionLocation = new FeatureLocation(
-//                    feature: flankingRegion
-//                    ,fmin: fmin
-//                    ,fmax: fmax
-//                    ,
-//
-//            )
-//        }
-//    }
+            if (!featureService.overlaps(e, cds, true)) {
+                continue
+            }
+            int fmin = e.fmin < cds.fmin ? cds.fmin : e.fmin
+            int fmax = e.fmax > cds.fmax ? cds.fmax : e.fmax
+            length = fmin < fmax ? fmax - fmin : fmin - fmax
+            println "===> fmin of Exon: ${fmin}"
+            println "===> fmax of Exon: ${fmax}"
+            println "===> length of Exon: ${length}"
+        }
+        
+        FeatureLocation flankingRegionLocation = new FeatureLocation(
+                feature : flankingRegion
+                ,fmin : exon.fmin < cds.fmin ? cds.fmin : exon.fmin
+                ,fmax : exon.fmax > cds.fmax ? cds.fmax : exon.fmax
+                ,strand : exon.getFeatureLocation().strand
+                ,sequence : exon.getFeatureLocation().sequence
+        ).save()
+        String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
+        println "===> RESIDUES from flankingRegion : ${residues}"
+        if (removePartialCodons) {
+            int phase = length % 3 == 0 ? 0 : 3 - (length % 3)
+            residues = residues.substring(phase)
+            println "===> RESIDUES from flankingRegion (phase style1) : ${residues}"
+            residues = residues.substring(0, residues.length() - (residues.length() % 3))
+            println "===> RESIDUES from flankingRegion (phase style2) : ${residues}"
+        }
+        return residues
+    }
     
     // Legacy code
 //    private String getCodingSequenceInPhase(AnnotationEditor editor, Exon exon, boolean removePartialCodons) {
@@ -450,17 +466,17 @@ class ExonService {
 //            return "";
 //        }
 //        int length = 0;
-//        FlankingRegion flankingRegion = new FlankingRegion(null, null, false, false, null, exon.getConfiguration());
-//        flankingRegion.setFeatureLocation(new FeatureLocation());
-//        flankingRegion.getFeatureLocation().setSourceFeature(exon.getFeatureLocation().getSourceFeature());
-//        flankingRegion.setStrand(exon.getStrand());
-//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true);
-//        for (Exon e : exons) {
+//        FlankingRegion flankingRegion = new FlankingRegion(null, null, false, false, null, exon.getConfiguration()); - create FR
+//        flankingRegion.setFeatureLocation(new FeatureLocation()); - set new Feature Location for FR
+//        flankingRegion.getFeatureLocation().setSourceFeature(exon.getFeatureLocation().getSourceFeature()); - set sequence source as that of exon
+//        flankingRegion.setStrand(exon.getStrand()); - set strand as that of exon
+//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true); - get all exons for transcript
+//        for (Exon e : exons) { for each exon
 //            if (e.equals(exon)) {
-//                break;
+//                break; - if exon is equal to exon, break? but why?
 //            }
 //            if (!e.overlaps(cds)) {
-//                continue;
+//                continue; if exon doesn't overlaps CDS feature then continue iteration
 //            }
 //            int fmin = e.getFmin() < cds.getFmin() ? cds.getFmin() : e.getFmin();
 //            int fmax = e.getFmax() > cds.getFmax() ? cds.getFmax() : e.getFmax();
