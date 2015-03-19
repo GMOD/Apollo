@@ -121,6 +121,9 @@ elif [[ $1 == "test" ]];then
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
+	# this makes it globally availab le
+	rm -f src/java/apollo-config.groovy
+    cp apollo-config.groovy src/java/apollo-config.groovy
     ant gwtc &&  grails war 
 #    mvn package
 elif [[ $1 == "release" ]];then
