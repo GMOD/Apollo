@@ -108,7 +108,7 @@ As a first step, use some of the default config files and run apollo deploy. Thi
     cp sample_canned_comments.xml canned_comments.xml
     ./apollo deploy
 
-If there are any errors during this build step, you can check setup.log. See the [troubleshooting guide](Troubleshooting.md) for common issues.
+If there are any errors during this build step, you can check setup.log. See the [troubleshooting guide](Troubleshooting.md) for common issues.   Additional options are detailed in our [configuration guide](Configure.md). 
 
 
 #### Initialize Web Apollo logins and permissions
