@@ -378,7 +378,7 @@ define([
                     //this.listener = new SockJS(context_path, this);
                     //console.log('creating change listener: ' + numTry);
                     // https://github.com/zyro23/grails-spring-websocket
-                    this.listener = new SockJS("/apollo/stomp");
+                    this.listener = new SockJS(context_path+"/stomp");
                     this.client = Stomp.over(this.listener);
                     this.client.debug = function(str){
                         if(this.verbose_server_notification){
