@@ -34,6 +34,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def featureService
+    def sequenceService
     def configWrapperService
     def featureRelationshipService
     def featurePropertyService
@@ -449,11 +450,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getSequence() {
+        println "REQUEST TO ACE: ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
 
         String trackName = fixTrackHeader(inputObject.track)
@@ -469,9 +470,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                     CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
                     String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
-                    println "===> RAW SEQUENCE @getSequence(): ${rawSequence}"
                     sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
-                    println "===> TRANSLATED @getSequence(): ${sequence}"
                     if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                         sequence = sequence.substring(0, sequence.size() - 1)
                         // removing the last character from the sequence, most likely a '*' indicating a stop codon
@@ -485,7 +484,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                             sequence = sequence.replace(StandardTranslationTable.STOP, aa)
                         }
                     }
-                    println "===> TRANSLATED (postprocess) @getSequence(): ${sequence}"
                 } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                     // need advice
                     println "trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
@@ -494,10 +492,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
             } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
                 if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
-                    println "===> GET CDS for Transcript: ${transcriptService.getCDS((Transcript) gbolFeature)}"
                     // but there seems to be only one CDS fetched even if a gene has more than 1 CDS
                     sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
-                    println "===> CDS SEQUENCE @getSequence(): ${sequence}"
                 } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                     // need advice
                     // sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
@@ -513,34 +509,58 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 } else {
                     sequence = ""
                 }
-                println "===> CDNA SEQUENCE @getSequence(): ${sequence}"
             } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
-                // incomplete
-                int flank = 0 // temporary workaround for testing
+                int flank
+                if (inputObject.has('flank')) {
+                    flank = inputObject.getInt("flank")
+                    println "FLANK from request object: ${flank}"
+                }
+                else {
+                    flank = 0
+                }
 
                 if (flank > 0) {
                     int fmin = gbolFeature.getFmin() - flank
                     if (fmin < 0) {
                         fmin = 0
                     }
-                    if (fmin < gbolFeature.getFmin()) {
-                        fmin = gbolFeature.getFmin()
+                    if (fmin < gbolFeature.getFeatureLocation().sequence.start) {
+                        fmin = gbolFeature.getFeatureLocation().sequence.start
                     }
                     int fmax = gbolFeature.getFmax() + flank
-                    FeatureRelationship gbolFeatureRelationship = gbolFeature.getParentFeatureRelationships()
-                    gbolFeatureRelationship = featureRelationshipService.getChildForFeature(gbolFeature, gbolFeature.ontologyId)
+                    if (fmax > gbolFeature.getFeatureLocation().sequence.length) {
+                        fmax = gbolFeature.getFeatureLocation().sequence.length
+                    }
+                    if (fmax > gbolFeature.getFeatureLocation().sequence.end) {
+                        fmax = gbolFeature.getFeatureLocation().sequence.end
+                    }
+
+                    FlankingRegion genomicRegion = new FlankingRegion(
+                            name: gbolFeature.name
+                            ,uniqueName: gbolFeature.uniqueName + "_flank"
+                    ).save()
+                    FeatureLocation genomicRegionLocation = new FeatureLocation(
+                            feature: genomicRegion
+                            ,fmin: fmin // fmin with the flank
+                            ,fmax: fmax // fmax with the flank
+                            ,strand: gbolFeature.strand
+                            ,sequence: gbolFeature.getFeatureLocation().sequence
+                    ).save()
+                    // since we are saving the genomicFeature object, the backend database will have these entities
+                    gbolFeature = genomicRegion
                 }
-
-
+                sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
             }
-//            JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature);
-//            outFeature.put("residues", sequence);
-//            outFeature.put("uniquename", uniqueName);
-//            outFeature.put("residues", sequence);
-//            featureContainer.getJSONArray("features").put(outFeature);
+            //JSONObject outFeature = JSONUtil.convertBioFeatureToJSON(gbolFeature)
+            JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
+            outFeature.put("residues", sequence)
+            outFeature.put("uniquename", uniqueName)
+            featureContainer.getJSONArray("features").put(outFeature)
+            println "FEATURECONTAINER: ${featureContainer}"
+            render featureContainer
         }
 //        out.write(featureContainer.toString());
-        render featureContainer
+        // render featureContainer
 //        for (int i = 0; i < featuresArray.length(); ++i) {
 //            JSONObject jsonFeature = featuresArray.getJSONObject(i);
 //            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
