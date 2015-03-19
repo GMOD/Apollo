@@ -77,8 +77,7 @@ Defines the strategy to be used for deciding whether overlapping transcripts sho
     -   Only transcripts that overlap within the coding region and within frame are considered part of the same gene
 
 
-#### Track name comparator (unused in 1.x
-)
+#### Track name comparator (unused in 1.0.x)
 ``` xml
 <!-- javascript file for comparing track names (refseqs) (used for sorting in selection table) -->
 <track_name_comparator>/config/track_name_comparator.js</track_name_comparator>
