@@ -6,7 +6,7 @@ WebApollo's basic configuration is simply giving it parameters in the config.pro
 
 The available configuration files include
 
-- config.properies - basic configuration options for startup
+- config.properties - basic configuration options for startup
 - config.xml - general configuration options for running webapollo
 - blat_config.xml - basic blat plugin setup for searching blat in the browser
 - hibernate.xml - basic hibernate database parameters for chado export
