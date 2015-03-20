@@ -113,19 +113,19 @@ public class DrupalUserAuthentication implements UserAuthentication {
     /**
      * Overrides the generateUserLoginPage() function.
      */
-    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                response.getOutputStream().println(line);
-            }
-            in.close();
-        } catch (IOException e) {
-            throw new ServletException(e);
-        }
-    }
+//    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request, HttpServletResponse response) throws ServletException {
+//        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//        String line;
+//        try {
+//            while ((line = reader.readLine()) != null) {
+//                response.getOutputStream().println(line);
+//            }
+//            in.close();
+//        } catch (IOException e) {
+//            throw new ServletException(e);
+//        }
+//    }
 
     /**
      * Overrides the validateUser() function.
@@ -181,20 +181,19 @@ public class DrupalUserAuthentication implements UserAuthentication {
      * Overrides the getUserLoginPageURL() function.
      */
     public String getUserLoginPageURL() {
-        return "user_interfaces/drupal/login.html";
+        return "/WEB-INF/jsp/user_interfaces/drupal/login.jsp";
     }
 
     /**
      * Overrides the getAddUserURL() function.
      */
     public String getAddUserURL() {
-        return "user_interfaces/localdb/addUser.jsp";
+        return "/WEB-INF/jsp/user_interfaces/localdb/addUser.jsp";
     }
     
     /**
      * Performs user authentication using the Drupal Session ID
      * 
-     * @param HttpServletRequest request
      *   The request object
      *
      * @return

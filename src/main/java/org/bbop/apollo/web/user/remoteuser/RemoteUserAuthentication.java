@@ -25,21 +25,21 @@ import org.json.JSONObject;
 
 public class RemoteUserAuthentication implements UserAuthentication {
 
-    @Override
-    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException {
-        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/remoteuser/login.html");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                response.getOutputStream().println(line);
-            }
-            in.close();
-        } catch (IOException e) {
-            throw new ServletException(e);
-        }
-    }
+//    @Override
+//    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
+//            HttpServletResponse response) throws ServletException {
+//        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/remoteuser/login.html");
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//        String line;
+//        try {
+//            while ((line = reader.readLine()) != null) {
+//                response.getOutputStream().println(line);
+//            }
+//            in.close();
+//        } catch (IOException e) {
+//            throw new ServletException(e);
+//        }
+//    }
 
     @Override
     public String validateUser(HttpServletRequest request,
@@ -54,11 +54,11 @@ public class RemoteUserAuthentication implements UserAuthentication {
 
     @Override
     public String getUserLoginPageURL() {
-        return "user_interfaces/remoteuser/login.html";
+        return "/WEB-INF/jsp/user_interfaces/remoteuser/login.jsp";
     }
 
     @Override
     public String getAddUserURL() {
-        return "user_interfaces/remoteuser/addUser.jsp";
+        return "/WEB-INF/jsp/user_interfaces/remoteuser/addUser.jsp";
     }
 }
