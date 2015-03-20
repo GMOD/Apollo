@@ -60,7 +60,7 @@ public class UserRestService {
                     userInfo.setFirstName(object.get("firstName").isString().stringValue());
                     userInfo.setLastName(object.get("lastName").isString().stringValue());
                     userInfo.setEmail(object.get("username").isString().stringValue());
-                    if(object.get("role")!=null){
+                    if(object.get("role")!=null  && object.get("role").isString()!=null){
                         userInfo.setRole(object.get("role").isString().stringValue().toLowerCase());
                     }
                     else{

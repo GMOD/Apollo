@@ -32,8 +32,10 @@
             /*font-weight: bolder;*/
         }
 
+        .details-list {
+            font-size: smaller;
 
-    </ui:style>
+        }</ui:style>
     <gwt:SplitLayoutPanel>
         <!--<gwt:north size="80">-->
             <!--<b:Container fluid="true" styleName="{style.northPanel}">-->
@@ -66,8 +68,6 @@
                             <b:Column size="MD_4">
                                 <gwt:TextBox ui:field="firstName" styleName="{style.tableValue}"/>
                             </b:Column>
-                        </b:Row>
-                        <b:Row>
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Last Name"/>
                             </b:Column>
@@ -81,6 +81,12 @@
                             </b:Column>
                             <b:Column size="MD_4">
                                 <gwt:TextBox ui:field="email" styleName="{style.tableValue}"/>
+                            </b:Column>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Role"/>
+                            </b:Column>
+                            <b:Column size="MD_4">
+                                <gwt:ListBox ui:field="roleList" styleName="{style.details-list}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row ui:field="passwordRow" visible="false">

@@ -36,7 +36,16 @@ class UserController {
 
     def checkLogin() {
         if (permissionService.currentUser) {
-            render permissionService.currentUser as JSON
+            def it = permissionService.currentUser
+            def userObject = new JSONObject()
+//            userObject.putAll(it.properties)
+            userObject.userId = it.id
+            userObject.username = it.username
+            userObject.firstName = it.firstName
+            userObject.lastName = it.lastName
+            Role role = userService.getHighestRole(it)
+            userObject.role = role?.name
+            render userObject as JSON
         } else {
             render new JSONObject() as JSON
         }
@@ -73,9 +82,25 @@ class UserController {
         user.firstName = dataObject.firstName
         user.lastName = dataObject.lastName
         user.username = dataObject.email
+
         if(dataObject.password){
             user.passwordHash = new Sha256Hash(dataObject.password).toHex()
         }
+
+        String roleString = dataObject.role
+        Role currentRole = userService.getHighestRole(user)
+
+        if(!currentRole || !roleString.equalsIgnoreCase(currentRole.name)){
+            if(currentRole){
+                user.removeFromRoles(currentRole)
+            }
+            println "trying to add role ${roleString}"
+            Role role = Role.findByName(roleString.toUpperCase())
+            user.addToRoles(role)
+//            user.save()
+        }
+
         user.save(flush: true)
+
     }
 }
