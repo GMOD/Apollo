@@ -97,8 +97,9 @@ public class MainPanel extends Composite {
     @UiField
     HTML userName;
     
-    public static UserInfo currentUser ; // the current logged-in user
+    private static UserInfo currentUser ; // the current logged-in user
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
+
 
     public MainPanel() {
         exportStaticMethod();
@@ -448,6 +449,9 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
+    public static UserInfo getCurrentUser() {
+        return currentUser;
+    }
     /*
      * Takes in a JSON String and evals it.
      * @param JSON String that you trust

@@ -76,7 +76,7 @@ public class UserPanel extends Composite {
 //        userGroupHTML.setHTML("<div class='label label-default'>USDA i5K</div>");
 
         // TODO: grab from server or use constants
-        if(roleList.getItemCount()==0){
+        if (roleList.getItemCount() == 0) {
             roleList.addItem("user");
             roleList.addItem("admin");
         }
@@ -162,16 +162,15 @@ public class UserPanel extends Composite {
         selectedUserInfo.setRole(roleList.getSelectedItemText());
     }
 
-    @UiHandler(value = {"firstName", "lastName", "email","passwordTextBox","roleList"})
+    @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox", "roleList"})
     public void updateName(ChangeEvent changeHandler) {
         // assume an edit operation
         if (selectedUserInfo != null) {
             setCurrentUserInfoFromUI();
-            UserRestService.updateUser(userInfoList,selectedUserInfo);
+            UserRestService.updateUser(userInfoList, selectedUserInfo);
         }
         // if it is to be created then we don't care
     }
-
 
 
     @UiHandler("createButton")
@@ -183,7 +182,10 @@ public class UserPanel extends Composite {
         cancelButton.setEnabled(true);
         createButton.setEnabled(false);
         passwordRow.setVisible(true);
+
+
     }
+
 
     @UiHandler("cancelButton")
     public void cancel(ClickEvent clickEvent) {
@@ -197,7 +199,7 @@ public class UserPanel extends Composite {
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
         UserRestService.deleteUser(userInfoList, selectedUserInfo);
-        selectedUserInfo = null ;
+        selectedUserInfo = null;
         updateUserInfo();
     }
 
@@ -208,7 +210,7 @@ public class UserPanel extends Composite {
         UserRestService.createUser(userInfoList, selectedUserInfo);
         createButton.setEnabled(true);
 
-        selectedUserInfo = null ;
+        selectedUserInfo = null;
         selectionModel.clear();
         updateUserInfo();
         saveButton.setVisible(false);
@@ -224,24 +226,35 @@ public class UserPanel extends Composite {
             email.setText("");
             deleteButton.setEnabled(false);
             roleList.setVisible(false);
+
+
+            if(saveButton.isVisible()){
+                roleList.setVisible(true);
+                UserInfo currentUser = MainPanel.getCurrentUser();
+                roleList.setSelectedIndex(0);
+                roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin"));
+            }
+
         } else {
             firstName.setText(selectedUserInfo.getFirstName());
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
             deleteButton.setEnabled(true);
-            passwordRow.setVisible(selectedUserInfo.getEmail().equals(MainPanel.currentUser.getEmail()));
+
+            UserInfo currentUser = MainPanel.getCurrentUser();
+
+            passwordRow.setVisible(selectedUserInfo.getEmail().equals(currentUser.getEmail()));
 
             roleList.setVisible(true);
 
-            for(int i =0 ; i < roleList.getItemCount() ; i++){
-                roleList.setItemSelected(i,selectedUserInfo.getRole().equals(roleList.getItemText(i)));
+            for (int i = 0; i < roleList.getItemCount(); i++) {
+                roleList.setItemSelected(i, selectedUserInfo.getRole().equals(roleList.getItemText(i)));
             }
 
             // if user is "user" then make uneditable
             // if user is admin AND self then make uneditable
             // if user is admin, but not self, then make editable
-            UserInfo currentUser = MainPanel.currentUser;
-            roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId()!=selectedUserInfo.getUserId());
+            roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId() != selectedUserInfo.getUserId());
 
 
         }

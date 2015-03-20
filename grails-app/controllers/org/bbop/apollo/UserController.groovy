@@ -17,8 +17,8 @@ class UserController {
 
     def loadUsers() {
         JSONArray returnArray = new JSONArray()
-        
-        User.all.each{
+
+        User.all.each {
             def userObject = new JSONObject()
 //            userObject.putAll(it.properties)
             userObject.userId = it.id
@@ -30,7 +30,7 @@ class UserController {
 
             returnArray.put(userObject)
         }
-        
+
         render returnArray as JSON
     }
 
@@ -58,9 +58,18 @@ class UserController {
                 firstName: dataObject.firstName
                 , lastName: dataObject.lastName
                 , username: dataObject.email
-                 ,passwordHash : new Sha256Hash(dataObject.password).toHex()
+                , passwordHash: new Sha256Hash(dataObject.password).toHex()
         )
-        user.save(flush: true, insert: true)
+        user.save(insert: true)
+
+        String roleString = dataObject.role
+        Role role = Role.findByName(roleString.toUpperCase())
+        println "adding role: ${role}"
+        user.addToRoles(role)
+        role.addToUsers(user)
+        role.save()
+        user.save(flush:true)
+
         render new JSONObject() as JSON
     }
 
@@ -83,18 +92,17 @@ class UserController {
         user.lastName = dataObject.lastName
         user.username = dataObject.email
 
-        if(dataObject.password){
+        if (dataObject.password) {
             user.passwordHash = new Sha256Hash(dataObject.password).toHex()
         }
 
         String roleString = dataObject.role
         Role currentRole = userService.getHighestRole(user)
 
-        if(!currentRole || !roleString.equalsIgnoreCase(currentRole.name)){
-            if(currentRole){
+        if (!currentRole || !roleString.equalsIgnoreCase(currentRole.name)) {
+            if (currentRole) {
                 user.removeFromRoles(currentRole)
             }
-            println "trying to add role ${roleString}"
             Role role = Role.findByName(roleString.toUpperCase())
             user.addToRoles(role)
 //            user.save()
