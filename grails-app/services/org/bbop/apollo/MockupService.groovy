@@ -13,6 +13,10 @@ class MockupService {
     def permissionService
 
 
+    private String generatePassword(){
+        return "demo"
+    }
+
     def addUsers() {
         if (User.count > 0) return
         def userRole = new Role(name: UserService.USER).save()
@@ -31,7 +35,7 @@ class MockupService {
 
         User demoUser = new User(
                 username: "demo@demo.gov"
-                , passwordHash: new Sha256Hash("demo").toHex()
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Bob"
                 ,lastName: "Smith"
 //                ,value: "demo@demo.gov"
@@ -51,12 +55,22 @@ class MockupService {
 
         User nathan = new User(
                 username: "nathandunn@lbl.gov"
-                , passwordHash: new Sha256Hash("agreatpassword").toHex()
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Nathan"
                 ,lastName: "Dunn"
         ).save(failOnError: true)
         nathan.addToRoles(adminRole)
         bbopGroup.addToUsers(nathan)
+
+
+        User moni = new User(
+                username: "McMunozT@lbl.gov"
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
+                ,firstName: "Moni"
+                ,lastName: "Dunn"
+        ).save(failOnError: true)
+        moni.addToRoles(adminRole)
+        bbopGroup.addToUsers(moni)
 
 //        User moni = new User(
 //                username: "nathandunn@lbl.gov"
@@ -66,7 +80,7 @@ class MockupService {
 
         User adminUser = new User(
                 username: "admin@admin.gov"
-                , passwordHash: new Sha256Hash("admin").toHex()
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Super"
                 ,lastName: "Admin"
 //                ,value: "admin@admin.gov"
@@ -78,19 +92,19 @@ class MockupService {
 
         User honeyBeeAdmin = new User(
                 username: "admin@honeybee.org"
-                , passwordHash: new Sha256Hash("buzz").toHex()
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Buzz"
                 ,lastName: "Smith"
         ).save()
         User humanAdmin = new User(
                 username: "admin@human.org"
-                , passwordHash: new Sha256Hash("sapien").toHex()
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Human"
                 ,lastName: "Smith"
         ).save()
         User yeastAdmin = new User(
                 username: "admin@yeast.org"
-                , passwordHash: new Sha256Hash("beer").toHex()
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Yeast"
                 ,lastName: "Smith"
         ).save()

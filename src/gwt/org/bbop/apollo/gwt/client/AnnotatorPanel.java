@@ -99,6 +99,11 @@ public class AnnotatorPanel extends Composite {
     Button cdsButton;
     @UiField
     Button stopCodonButton;
+    @UiField
+    ListBox userField;
+    @UiField
+    ListBox groupField;
+
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
@@ -140,6 +145,8 @@ public class AnnotatorPanel extends Composite {
 
 
         initializeTypes();
+        initializeUsers();
+        initializeGroups();
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
             @Override
@@ -157,6 +164,14 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
+    }
+
+    private void initializeGroups() {
+        userField.addItem("All Groups");
+    }
+
+    private void initializeUsers() {
+        userField.addItem("All Users");
     }
 
     private void initializeTypes() {
@@ -322,7 +337,7 @@ public class AnnotatorPanel extends Composite {
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
-        dataGrid.addColumn(filterColumn, "Warnings");
+//        dataGrid.addColumn(filterColumn, "Warnings");
 
         dataGrid.setColumnWidth(0, "50%");
 
@@ -498,6 +513,9 @@ public class AnnotatorPanel extends Composite {
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
         annotationInfo.setSequence(object.get("sequence").isString().stringValue());
+        if(object.get("owner")!=null){
+            annotationInfo.setOwner(object.get("owner").isString().stringValue());
+        }
 
         List<String> noteList = new ArrayList<>();
         if(object.get("notes")!=null){

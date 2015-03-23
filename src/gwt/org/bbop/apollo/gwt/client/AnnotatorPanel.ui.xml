@@ -85,6 +85,12 @@
 
         .rowPadding {
             margin-bottom: 40px;
+        }
+
+        .rowSpacing {
+            margin-top: 10px;
+            margin-left: 0;
+            padding-left: 0;
         }</ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:north size="180">
@@ -130,14 +136,22 @@
                 <!--<gwt:HTML>-->
                 <!--<hr/>-->
                 <!--</gwt:HTML>-->
-                <b:Row>
+                <b:Row styleName="{style.rowSpacing}">
+                    <b:Column size="MD_4">
+                        <b:ListBox ui:field="userField"/>
+                    </b:Column>
+                    <b:Column size="MD_4">
+                        <b:ListBox ui:field="groupField"/>
+                    </b:Column>
+                </b:Row>
+                <b:Row visible="false">
                     <b:Column size="MD_4">
                         <gwt:HTML styleName="{style.internalHeader}">
                             Checks
                         </gwt:HTML>
                     </b:Column>
                 </b:Row>
-                <b:Row>
+                <b:Row visible="false">
                     <b:Column size="MD_2">
                         <b:InputGroup>
                             <b:Button size="EXTRA_SMALL" icon="BAN" text="CDS/3" ui:field="cdsButton"/>
@@ -199,26 +213,27 @@
                     <apollo:ExonDetailPanel ui:field="exonDetailPanel" />
                 </gwt:tab>
 
-                <gwt:tab>
-                    <gwt:header>DbXref</gwt:header>
-                    <gwt:HTML text="dbxref"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>PubMed</gwt:header>
-                    <gwt:HTML text="pubmed stuf"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Attributes</gwt:header>
-                    <gwt:HTML text="attributes"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>GO Evidence</gwt:header>
-                    <gwt:HTML text="go evidence"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Comments</gwt:header>
-                    <gwt:HTML text="comments"/>
-                </gwt:tab>
+                <!--TODO: 2.1-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>DbXref</gwt:header>-->
+                    <!--<gwt:HTML text="dbxref"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>PubMed</gwt:header>-->
+                    <!--<gwt:HTML text="pubmed stuf"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>Attributes</gwt:header>-->
+                    <!--<gwt:HTML text="attributes"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>GO Evidence</gwt:header>-->
+                    <!--<gwt:HTML text="go evidence"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>Comments</gwt:header>-->
+                    <!--<gwt:HTML text="comments"/>-->
+                <!--</gwt:tab>-->
 
             </gwt:TabLayoutPanel>
             <!--</gwt:VerticalPanel>-->
