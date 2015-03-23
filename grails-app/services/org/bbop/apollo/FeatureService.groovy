@@ -1343,6 +1343,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
+                case FlankingRegion.cvTerm.toUpperCase(): return FlankingRegion.ontologyId
                 case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
                 case Deletion.cvTerm.toUpperCase(): return Deletion.ontologyId
                 case Substitution.cvTerm.toUpperCase(): return Substitution.ontologyId
@@ -1414,10 +1415,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String residueString = null
 
         if (feature instanceof Transcript) {
+            println "===> in getResiduesWithAlterations() feature is of type Transcript; calling getResiduesFromTranscript()"
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
         } else if (feature instanceof CDS) {
+            println "===> in getResiduesWithAlterations() feature is of type CDS; calling getResiduesFromCDS()"
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
         } else {
+            println "===> in getResiduesWithAlterations() feature is of type ${feature.class}; calling getResiduesFromFeature()"
             residueString = sequenceService.getResiduesFromFeature(feature)
         }
         if (sequenceAlterations.size() == 0) {

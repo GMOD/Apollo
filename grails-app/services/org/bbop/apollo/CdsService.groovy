@@ -15,6 +15,7 @@ class CdsService {
     def featurePropertyService
     def transcriptService
     def featureService
+    def exonService
     
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
@@ -180,38 +181,39 @@ class CdsService {
     }
     
     def getResiduesFromCDS(CDS cds) {
+        // New implementation that infers CDS based on overlappng exons
+        println "===> in getResiduesFromCDS()"
         Transcript transcript = transcriptService.getTranscript(cds)
-        String residues = transcriptService.getResiduesFromTranscript(transcript)
-        int begin
-        int end
-        if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
-            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin) + 1
-            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax) + 1
+        List <Exon> exons = exonService.getSortedExons(transcript)
+        int length = 0
+        String residues = ""
+        for(Exon exon : exons) {
+            if (!featureService.overlaps(exon,cds)) {
+                continue
+            }
+            println "===> Exons getResiduesFromCDS: ${exon.uniqueName}"
+            int fmin = exon.fmin < cds.fmin ? cds.fmin : exon.fmin
+            int fmax = exon.fmax > cds.fmax ? cds.fmax : exon.fmax
+            int exon_length = fmin < fmax ? fmax - fmin : fmin - fmax
+            length += exon_length
+            residues += featureService.getResiduesWithAlterationsAndFrameshifts((Feature) exon)
         }
-        else {
-            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin)
-            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax)
-        }
-        return residues.substring(begin,end)
-//        Legacy code
-//        if (getTranscript() == null) {
-//            return super.getResidues();
-//        }
-//        Transcript transcript = getTranscript();
-//        String residues = transcript.getResidues();
-//        int begin;
-//        int end;
-//        transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmax());
-//        if (getFeatureLocation().getStrand() == -1) {
-//            end = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmin()) + 1;
-//            begin = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmax()) + 1;
-//        }
-//        else {
-//            begin = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmin());
-//            end = transcript.convertSourceCoordinateToLocalCoordinate(getFeatureLocation().getFmax());
-//
-//        }
-//        return residues.substring(begin, end);
-        
+        return residues
     }
+
+//    def getResiduesFromCDS(CDS cds) {
+//        Previous implementation
+//        Transcript transcript = transcriptService.getTranscript(cds)
+//        String residues = transcriptService.getResiduesFromTranscript(transcript)
+//        int begin
+//        int end
+//        if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
+//            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin) + 1
+//            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax) + 1
+//        } else {
+//            begin = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmin)
+//            end = featureService.convertSourceCoordinateToLocalCoordinate((Feature) cds, cds.getFeatureLocation().fmax)
+//        }
+//        return residues.substring(begin, end)
+//    }
 }
