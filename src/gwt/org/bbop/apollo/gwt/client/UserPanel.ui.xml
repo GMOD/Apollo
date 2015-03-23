@@ -109,7 +109,8 @@
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Groups</gwt:header>
-                    <gwt:HTML text="add / remove from all visible groups as admin"/>
+                    <!--<gwt:HTML text="add / remove from all visible groups as admin"/>-->
+                    <gwt:FlexTable ui:field="groupTable"/>
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Organisms</gwt:header>

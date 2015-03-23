@@ -62,6 +62,8 @@ public class UserPanel extends Composite {
     Row passwordRow;
     @UiField
     ListBox roleList;
+    @UiField
+    FlexTable groupTable;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();

@@ -1,20 +1,25 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ndunn on 12/18/14.
  */
 public class UserInfo {
-    Long userId ;
-    String firstName;
-    String lastName;
-    String email;
-    String role;
-    Integer numberUserGroups ;
+    private Long userId ;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String role;
+    private Integer numberUserGroups ;
     private String password;
+    private List<String> groupList = new ArrayList<>();
 
     public UserInfo(){}
     
@@ -85,6 +90,14 @@ public class UserInfo {
         this.role = role;
     }
 
+    public List<String> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(List<String> groupList) {
+        this.groupList = groupList;
+    }
+
     public JSONObject toJSON(){
         JSONObject jsonObject = new JSONObject();
         if(userId!=null){
@@ -94,6 +107,13 @@ public class UserInfo {
         jsonObject.put("lastName",new JSONString(lastName));
         jsonObject.put("email",new JSONString(email));
         jsonObject.put("role",new JSONString(role));
+
+        JSONArray groupArray = new JSONArray();
+        for(int i =0  ; i < groupList.size() ; i++){
+            groupArray.set(i,new JSONString(groupList.get(i)));
+        }
+        jsonObject.put("groups",groupArray);
+
         if(password!=null){
             jsonObject.put("password",new JSONString(password));
         }
