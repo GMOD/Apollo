@@ -38,18 +38,7 @@ class MockupService {
                 , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Bob"
                 ,lastName: "Smith"
-//                ,value: "demo@demo.gov"
-//                ,type: userCvTerm
         ).save(failOnError: true)
-
-//        User demoUser = new User(
-//                username: "demo@demo.gov"
-//                , passwordHash: new Sha256Hash("demo").toHex()
-////                ,value: "demo@demo.gov"
-////                ,type: userCvTerm
-//        ).save(failOnError: true)
-        
-        
         demoUser.addToRoles(userRole)
         bbopGroup.addToUsers(demoUser)
 
@@ -101,8 +90,6 @@ class MockupService {
                 , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Super"
                 ,lastName: "Admin"
-//                ,value: "admin@admin.gov"
-//                ,type: userCvTerm
         ).save(failOnError: true)
         adminUser.addToRoles(userRole)
         bbopGroup.addToUsers(adminUser)
@@ -132,7 +119,7 @@ class MockupService {
     }
 
 //    /**
-//     * Repalce stuff in mapping.xml
+//     * Replace stuff in mapping.xml
 //     */
 //    def addTerms() {
 //        if (Term.count > 0) return
