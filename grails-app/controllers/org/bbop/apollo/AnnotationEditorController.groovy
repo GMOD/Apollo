@@ -557,6 +557,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                             ,strand: gbolFeature.strand
                             ,sequence: gbolFeature.getFeatureLocation().sequence
                     ).save()
+                    genomicRegion.addToFeatureLocations(genomicRegionLocation)
                     // since we are saving the genomicFeature object, the backend database will have these entities
                     gbolFeature = genomicRegion
                 }
