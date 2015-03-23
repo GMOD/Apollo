@@ -309,8 +309,10 @@ class FeatureService {
             gene.save(insert: true)
             transcript.save(flush: true)
 
-            setOwner(gene, SecurityUtils?.subject?.principal?.toString());
-            setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+            if(!grails.util.Environment.TEST){
+                setOwner(gene, SecurityUtils?.subject?.principal?.toString());
+                setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+            }
 //            String username = null
 //            try {
 //                username = SecurityUtils?.subject?.principal
