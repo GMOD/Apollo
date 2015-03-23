@@ -507,7 +507,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
                 } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                     println "trying to fetch CDS sequence of selected exon: ${gbolFeature}"
-                    sequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
+                    sequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, false)
                 } else {
                     sequence = ""
                 }
@@ -560,7 +560,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     // since we are saving the genomicFeature object, the backend database will have these entities
                     gbolFeature = genomicRegion
                 }
-                sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                sequence = sequenceService.getResiduesFromFeature(gbolFeature)
             }
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
             outFeature.put("residues", sequence)
