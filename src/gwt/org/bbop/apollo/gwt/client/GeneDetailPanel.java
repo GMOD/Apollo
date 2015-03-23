@@ -40,6 +40,8 @@ public class GeneDetailPanel extends Composite {
     InputGroupAddon locationField;
     @UiField
     InputGroupAddon sequenceField;
+    @UiField
+    InputGroupAddon userField;
 
 //    private SharedStuff sharedStuff = new SharedStuff();
 //    private JSONObject internalData ;
@@ -129,6 +131,7 @@ public class GeneDetailPanel extends Composite {
         symbolField.setText(internalAnnotationInfo.getSymbol());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
+        userField.setText(internalAnnotationInfo.getOwner());
 
 //        if(this.internalData.get("name") instanceof JSONString){
 //            nameField.setText(internalData.get("name").isString().stringValue());

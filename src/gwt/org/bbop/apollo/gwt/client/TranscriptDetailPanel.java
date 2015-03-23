@@ -42,6 +42,8 @@ public class TranscriptDetailPanel extends Composite {
     org.gwtbootstrap3.client.ui.TextBox descriptionField;
     @UiField
     InputGroupAddon locationField;
+    @UiField
+    InputGroupAddon userField;
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
@@ -82,6 +84,7 @@ public class TranscriptDetailPanel extends Composite {
 //        descriptionField.setText(internalData.containsKey("description") ? internalData.get("description").isString().stringValue() : "");
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
+        userField.setText(internalAnnotationInfo.getOwner());
 
 //        JSONObject locationObject = internalData.get("location").isObject();
 //        String locationText = locationObject.get("fmin").isNumber().toString();

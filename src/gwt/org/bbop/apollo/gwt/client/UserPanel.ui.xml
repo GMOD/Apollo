@@ -38,13 +38,13 @@
         }</ui:style>
     <gwt:SplitLayoutPanel>
         <!--<gwt:north size="80">-->
-            <!--<b:Container fluid="true" styleName="{style.northPanel}">-->
-                <!--<b:Row>-->
-                    <!--<b:Column size="MD_6" styleName="{style.widgetPanel}">-->
-                        <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
-                    <!--</b:Column>-->
-                <!--</b:Row>-->
-            <!--</b:Container>-->
+        <!--<b:Container fluid="true" styleName="{style.northPanel}">-->
+        <!--<b:Row>-->
+        <!--<b:Column size="MD_6" styleName="{style.widgetPanel}">-->
+        <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
+        <!--</b:Column>-->
+        <!--</b:Row>-->
+        <!--</b:Container>-->
         <!--</gwt:north>-->
         <gwt:center>
             <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
@@ -101,28 +101,24 @@
                             <b:Column size="MD_6">
                                 <gwt:Button text="Create" ui:field="createButton"/>
                                 <gwt:Button text="Cancel" ui:field="cancelButton" enabled="false"/>
-                                <gwt:Button text="Delete" ui:field="deleteButton"  enabled="false"/>
-                                <gwt:Button text="Save" ui:field="saveButton"  visible="false"/>
+                                <gwt:Button text="Delete" ui:field="deleteButton" enabled="false"/>
+                                <gwt:Button text="Save" ui:field="saveButton" visible="false"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
                 <gwt:tab>
-                <gwt:header>Groups</gwt:header>
-                <gwt:HTML text="add / remove from all visible groups as admin"/>
+                    <gwt:header>Groups</gwt:header>
+                    <gwt:HTML text="add / remove from all visible groups as admin"/>
                 </gwt:tab>
-                <!--<gwt:tab>-->
-                    <!--<gwt:header>Annotations</gwt:header>-->
-                    <!--<gwt:HTML text="annotation I've annotated"/>-->
-                <!--</gwt:tab>-->
                 <gwt:tab>
                     <gwt:header>Organisms</gwt:header>
                     <gwt:HTML text="organism permissions"/>
                 </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Tracks</gwt:header>
-                    <gwt:HTML text="list tracks per organism"/>
-                </gwt:tab>
+                <!--<gwt:tab>-->
+                <!--<gwt:header>Tracks</gwt:header>-->
+                <!--<gwt:HTML text="list tracks per organism"/>-->
+                <!--</gwt:tab>-->
             </gwt:TabLayoutPanel>
         </gwt:south>
 

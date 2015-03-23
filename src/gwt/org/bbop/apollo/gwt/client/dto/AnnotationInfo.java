@@ -20,6 +20,15 @@ public class AnnotationInfo {
     private Integer strand;
     private List<String> noteList = new ArrayList<>();
     private String sequence;
+    private String owner;
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
     public String getName() {
         return name;

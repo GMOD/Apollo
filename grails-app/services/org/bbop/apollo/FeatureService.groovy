@@ -163,6 +163,24 @@ class FeatureService {
         }
     }
 
+    private setOwner(Feature feature,String owner){
+        println "looking for owner ${owner}"
+        User user = User.findByUsername(owner)
+        println "owner ${owner} found ${user}"
+        println "feature ${feature}"
+
+        if (user) {
+            setOwner(feature, user)
+        } else {
+            log.error("User ${owner} not found, just adding")
+        }
+
+    }
+
+    private setOwner(Feature feature,User owner){
+        feature.addToOwners(owner)
+    }
+
     /**
      * From Gene.addTranscript
      * @param jsonTranscript
@@ -189,14 +207,14 @@ class FeatureService {
             }
 
             // todo, make work
-            String username = null
-            try {
-                username = SecurityUtils?.subject?.principal;
-            } catch (e) {
-                log.error(e)
-                username = "demo@demo.gov"
-            }
-            featurePropertyService.setOwner(transcript, username);
+            setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+//            String username = null
+//            try {
+//                username = SecurityUtils?.subject?.principal;
+//                featurePropertyService.setOwner(transcript, username);
+//            } catch (e) {
+//                log.error(e)
+//            }
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -221,16 +239,16 @@ class FeatureService {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    // TODO: make good code
+                    setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+//                    // TODO: make good code
 //                    String username = null
 //                    try {
 //                        username = SecurityUtils?.subject?.principal
+//                        featurePropertyService.setOwner(transcript, username);
 //                    } catch (e) {
 //                        log.error(e)
-//                        username = "demo@demo.gov"
-//
-//                    featurePropertyService.setOwner(transcript, (String) SecurityUtils?.subject?.principal);
-//                    featurePropertyService.setOwner(tmpTranscript, username ?: "demo@gemo.gov");
+//                    }
+
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
@@ -269,8 +287,12 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
+
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
+
+
+
             updateNewGsolFeatureAttributes(gene, sequence);
 //            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
@@ -286,6 +308,19 @@ class FeatureService {
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
+
+            setOwner(gene, SecurityUtils?.subject?.principal?.toString());
+            setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+//            String username = null
+//            try {
+//                username = SecurityUtils?.subject?.principal
+//                featurePropertyService.setOwner(gene, username);
+//                featurePropertyService.setOwner(transcript, username);
+//            } catch (e) {
+//                log.error(e)
+//            }
+
+
         }
         return transcript;
 
@@ -1659,6 +1694,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             gsolFeature.attach()
+
+            if(gsolFeature.owners){
+                String ownerString =""
+                for(owner in gsolFeature.owners){
+                    ownerString +=  gsolFeature.owner.username + " "
+                }
+                jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), ownerString?.trim());
+            }
+            else
+            if(gsolFeature.owner){
+                jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), gsolFeature.owner.username);
+            }
+            else{
+                jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), "None");
+            }
 //            gsolFeature.featureLocations.each {
 //                it.attach()
 //            }
