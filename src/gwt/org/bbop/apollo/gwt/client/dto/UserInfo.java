@@ -6,7 +6,9 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -21,6 +23,7 @@ public class UserInfo {
     private String password;
     private List<String> groupList = new ArrayList<>();
     private List<String> availableGroupList = new ArrayList<>();
+    private Map<String,String> organismPermissionMap = new HashMap<>();
 
     public UserInfo(){}
     
@@ -107,6 +110,15 @@ public class UserInfo {
         this.availableGroupList = availableGroupList;
     }
 
+
+    public Map<String, String> getOrganismPermissionMap() {
+        return organismPermissionMap;
+    }
+
+    public void setOrganismPermissions(Map<String,String> organismPermissions) {
+        this.organismPermissionMap = organismPermissions;
+    }
+
     public JSONObject toJSON(){
         JSONObject jsonObject = new JSONObject();
         if(userId!=null){
@@ -132,6 +144,17 @@ public class UserInfo {
         if(password!=null){
             jsonObject.put("password",new JSONString(password));
         }
+
+        JSONArray organismPermissions = new JSONArray();
+        int index = 0 ;
+        for(String organism : organismPermissionMap.keySet()){
+            JSONObject orgPermission = new JSONObject();
+            orgPermission.put(organism,new JSONString(organismPermissionMap.get(organism)));
+            organismPermissions.set(index,orgPermission);
+            ++index ;
+        }
+        jsonObject.put("organismPermissions",organismPermissions);
+
 
         return jsonObject;
     }

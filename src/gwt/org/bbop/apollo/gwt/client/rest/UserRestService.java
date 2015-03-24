@@ -4,6 +4,8 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
@@ -11,6 +13,8 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by ndunn on 1/14/15.
@@ -85,6 +89,17 @@ public class UserRestService {
                         availableGroupList.add(availableGroupValue);
                     }
                     userInfo.setAvailableGroupList(availableGroupList);
+
+
+                    JSONArray organismArray = object.get("organismPermissions").isArray();
+                    Map<String,String> organismPermissionMap = new TreeMap<>();
+                    for(int j =0 ; j < organismArray.size() ;j++){
+                        JSONObject organismPermissionJsonObject = organismArray.get(j).isObject();
+                        String organismName = organismPermissionJsonObject.get("organism").isString().stringValue();
+                        String permissions = organismPermissionJsonObject.get("permissions").isString().stringValue();
+                        organismPermissionMap.put(organismName,permissions);
+                    }
+                    userInfo.setOrganismPermissions(organismPermissionMap);
 
                     userInfoList.add(userInfo);
                 }

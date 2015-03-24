@@ -38,10 +38,12 @@
         }
 
         /*.rowStyle {*/
-            /*padding-bottom: 10px;*/
+        /*padding-bottom: 10px;*/
         /*}*/
 
-    </ui:style>
+        .center-table {
+            margin: 10px;
+        }</ui:style>
     <gwt:SplitLayoutPanel>
         <!--<gwt:north size="80">-->
         <!--<b:Container fluid="true" styleName="{style.northPanel}">-->
@@ -135,7 +137,8 @@
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Organisms</gwt:header>
-                    <gwt:HTML text="organism permissions"/>
+                    <!--<gwt:HTML text="organism permissions"/>-->
+                    <gwt:FlexTable ui:field="organismPermissions" width="90%" styleName="{style.center-table}"/>
                 </gwt:tab>
                 <!--<gwt:tab>-->
                 <!--<gwt:header>Tracks</gwt:header>-->

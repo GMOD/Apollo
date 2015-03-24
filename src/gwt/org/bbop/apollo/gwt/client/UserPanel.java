@@ -34,6 +34,7 @@ import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -78,6 +79,8 @@ public class UserPanel extends Composite {
     org.gwtbootstrap3.client.ui.Button addGroupButton;
     @UiField
     TabLayoutPanel userDetailTab;
+    @UiField
+    FlexTable organismPermissions;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -313,6 +316,16 @@ public class UserPanel extends Composite {
             for (int i = 0; i < localAvailableGroupList.size(); i++) {
                 String availableGroup = localAvailableGroupList.get(i);
                 availableGroupList.addItem(availableGroup);
+            }
+
+            organismPermissions.removeAllRows();
+            Map<String,String> organsimPermissionMap = selectedUserInfo.getOrganismPermissionMap();
+            int count = 0 ;
+//            Window.alert("# permissions: "+organsimPermissionMap.size());
+            for(String organism : organsimPermissionMap.keySet()){
+                organismPermissions.setHTML(count,0,organism);
+                organismPermissions.setHTML(count,1,organsimPermissionMap.get(organism));
+                ++count ;
             }
         }
     }
