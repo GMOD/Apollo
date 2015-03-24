@@ -239,7 +239,7 @@ class FeatureService {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+                    setOwner(tmpTranscript, SecurityUtils?.subject?.principal?.toString());
 //                    // TODO: make good code
 //                    String username = null
 //                    try {

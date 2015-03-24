@@ -28,7 +28,6 @@ class TranscriptService {
      * @return CDS associated with this transcript
      */
     public CDS getCDS(Transcript transcript) {
-
         return (CDS) featureRelationshipService.getChildForFeature(transcript, CDS.ontologyId)
 
     }
