@@ -112,14 +112,14 @@
                     <!--<gwt:header>Sequences</gwt:header>-->
                     <!--<gwt:HTML text="sequence table"/>-->
                 <!--</gwt:tab>-->
-                <gwt:tab>
-                    <gwt:header>Users</gwt:header>
-                    <gwt:HTML text="user persmissions"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>UserGroups</gwt:header>
-                    <gwt:HTML text="usergroup persmissions"/>
-                </gwt:tab>
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>Users</gwt:header>-->
+                    <!--<gwt:HTML text="user persmissions"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>UserGroups</gwt:header>-->
+                    <!--<gwt:HTML text="usergroup persmissions"/>-->
+                <!--</gwt:tab>-->
             </gwt:TabLayoutPanel>
         </gwt:south>
 

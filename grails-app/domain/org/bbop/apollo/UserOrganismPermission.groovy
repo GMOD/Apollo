@@ -10,6 +10,6 @@ class UserOrganismPermission extends UserPermission{
     static mapping = {
     }
     
-    
+
 
 }

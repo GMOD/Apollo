@@ -167,7 +167,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     private void initializeGroups() {
-        userField.addItem("All Groups");
+        groupField.addItem("All Groups");
     }
 
     private void initializeUsers() {
