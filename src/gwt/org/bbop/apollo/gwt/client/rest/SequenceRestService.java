@@ -21,7 +21,7 @@ public class SequenceRestService {
 
     public static void loadSequences(RequestCallback requestCallback,Long organismId){
         if(MainPanel.currentOrganismId==null){
-            GWT.log("organism not set . . returrning ");
+            GWT.log("organism not set...returning ");
             return ;
         }
         RestService.sendRequest(requestCallback,"/sequence/loadSequences/"+ organismId);
@@ -37,13 +37,12 @@ public class SequenceRestService {
 
                 for(int i = 0 ; i < array.size() ; i++){
                     JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
                     SequenceInfo sequenceInfo = new SequenceInfo();
                     sequenceInfo.setId((long) object.get("id").isNumber().doubleValue());
                     sequenceInfo.setName(object.get("name").isString().stringValue());
-                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-                    sequenceInfo.setStart((int) object.get("start").isNumber().isNumber().doubleValue());
-                    sequenceInfo.setEnd((int) object.get("end").isNumber().isNumber().doubleValue());
+                    sequenceInfo.setLength((int) object.get("length").isNumber().doubleValue());
+                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
+                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
                     GWT.log("get default: "+object.get("default"));
                     if(object.get("default")!=null){
                         GWT.log("setting default to "+ sequenceInfo.getName());
