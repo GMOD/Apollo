@@ -64,6 +64,10 @@ public class UserPanel extends Composite {
     ListBox roleList;
     @UiField
     FlexTable groupTable;
+    @UiField
+    ListBox availableGroupList;
+    @UiField
+    Button addGroupButton;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -257,6 +261,15 @@ public class UserPanel extends Composite {
             // if user is admin AND self then make uneditable
             // if user is admin, but not self, then make editable
             roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId() != selectedUserInfo.getUserId());
+
+            groupTable.clear();
+
+            List<String> groupList = selectedUserInfo.getGroupList();
+            for(int i = 0 ; i < groupList.size(); i++){
+                String group = groupList.get(i);
+                groupTable.setWidget(i,0,new HTML(group));
+                groupTable.setWidget(i,1,new Button("X"));
+            }
 
 
         }
