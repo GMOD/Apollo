@@ -20,6 +20,7 @@ public class UserInfo {
     private Integer numberUserGroups ;
     private String password;
     private List<String> groupList = new ArrayList<>();
+    private List<String> availableGroupList = new ArrayList<>();
 
     public UserInfo(){}
     
@@ -98,6 +99,14 @@ public class UserInfo {
         this.groupList = groupList;
     }
 
+    public List<String> getAvailableGroupList() {
+        return availableGroupList;
+    }
+
+    public void setAvailableGroupList(List<String> availableGroupList) {
+        this.availableGroupList = availableGroupList;
+    }
+
     public JSONObject toJSON(){
         JSONObject jsonObject = new JSONObject();
         if(userId!=null){
@@ -113,6 +122,12 @@ public class UserInfo {
             groupArray.set(i,new JSONString(groupList.get(i)));
         }
         jsonObject.put("groups",groupArray);
+
+        JSONArray availableGroupArray = new JSONArray();
+        for(int i =0  ; i < availableGroupList.size() ; i++){
+            availableGroupArray.set(i,new JSONString(availableGroupList.get(i)));
+        }
+        jsonObject.put("availableGroups",availableGroupArray);
 
         if(password!=null){
             jsonObject.put("password",new JSONString(password));

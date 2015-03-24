@@ -5,7 +5,12 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.client.UserPanel;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +80,14 @@ public class UserRestService {
                         groupList.add(groupValue);
                     }
                     userInfo.setGroupList(groupList);
+
+                    JSONArray availableGroupArray = object.get("availableGroups").isArray();
+                    List<String> availableGroupList = new ArrayList<>();
+                    for(int j =0 ; j < availableGroupArray.size() ;j++){
+                        String availableGroupValue = availableGroupArray.get(j).isObject().get("name").isString().stringValue();
+                        availableGroupList.add(availableGroupValue);
+                    }
+                    userInfo.setAvailableGroupList(availableGroupList);
 
                     userInfoList.add(userInfo);
                 }
@@ -156,5 +169,44 @@ public class UserRestService {
         JSONObject jsonObject = selectedUserInfo.toJSON();
         RestService.sendRequest(requestCallback, "/user/createUser","data="+jsonObject.toString());
 
+    }
+
+    public static void removeUserFromGroup(final List<UserInfo> userInfoList,final String groupName, UserInfo selectedUserInfo) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                loadUsers(userInfoList);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error removing group from user: "+exception);
+            }
+        };
+        JSONObject jsonObject = selectedUserInfo.toJSON();
+        jsonObject.put("group",new JSONString(groupName));
+        RestService.sendRequest(requestCallback, "/user/removeUserFromGroup","data="+jsonObject.toString());
+    }
+
+    public static void addUserToGroup(final String groupName, final UserInfo selectedUserInfo) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+
+
+                List<UserInfo> userInfoList = new ArrayList<>();
+                userInfoList.add(selectedUserInfo);
+                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.RELOAD_USERS));
+                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.ADD_GROUP,groupName));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding group to user: "+exception);
+            }
+        };
+        JSONObject jsonObject = selectedUserInfo.toJSON();
+        jsonObject.put("group",new JSONString(groupName));
+        RestService.sendRequest(requestCallback, "/user/addUserToGroup","data="+jsonObject.toString());
     }
 }

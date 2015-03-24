@@ -18,6 +18,7 @@ class UserController {
     def loadUsers() {
         JSONArray returnArray = new JSONArray()
 
+        List<String> allUserGroups = UserGroup.all.name
         User.all.each {
             def userObject = new JSONObject()
 //            userObject.putAll(it.properties)
@@ -29,14 +30,28 @@ class UserController {
             userObject.role = role?.name
 
             println "groups ${it.userGroups} for ${it.username}"
+
+
             JSONArray groupsArray = new JSONArray()
+            List<String> groupsForUser = new ArrayList<>()
             for(group in it.userGroups){
                 JSONObject groupJson = new JSONObject()
+                groupsForUser.add(group.name)
                 groupJson.put("name",group.name)
                 groupsArray.add(groupJson)
             }
-
             userObject.groups = groupsArray
+
+
+            List<String> availableGroups = new ArrayList<>()
+            JSONArray availableGroupsArray = new JSONArray()
+            availableGroups = allUserGroups-groupsForUser
+            for(group in availableGroups){
+                JSONObject groupJson = new JSONObject()
+                groupJson.put("name",group)
+                availableGroupsArray.add(groupJson)
+            }
+            userObject.availableGroups = availableGroupsArray
 
             returnArray.put(userObject)
         }
@@ -59,6 +74,16 @@ class UserController {
         } else {
             render new JSONObject() as JSON
         }
+    }
+
+    def addUserToGroup(){
+        println "adding user to group ${request.JSON} -> ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+        UserGroup userGroup = UserGroup.findByName(dataObject.group)
+        User user = User.findById(dataObject.userId)
+        user.addToUserGroups(userGroup)
+        user.save(flush: true)
+        render new JSONObject() as JSON
     }
 
     def createUser() {

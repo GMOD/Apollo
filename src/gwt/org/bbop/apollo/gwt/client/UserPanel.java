@@ -21,6 +21,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.Row;
@@ -32,6 +34,7 @@ import java.util.List;
  * Created by ndunn on 12/17/14.
  */
 public class UserPanel extends Composite {
+
     interface UserBrowserPanelUiBinder extends UiBinder<Widget, UserPanel> {
     }
 
@@ -68,6 +71,8 @@ public class UserPanel extends Composite {
     ListBox availableGroupList;
     @UiField
     Button addGroupButton;
+    @UiField
+    TabLayoutPanel userDetailTab;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -158,7 +163,33 @@ public class UserPanel extends Composite {
                 return o1.getRole().compareTo(o2.getRole());
             }
         });
+
+        Annotator.eventBus.addHandler(UserChangeEvent.TYPE, new UserChangeEventHandler() {
+            @Override
+            public void onUserChanged(UserChangeEvent userChangeEvent) {
+                switch (userChangeEvent.getAction()) {
+                    case ADD_GROUP:
+                        availableGroupList.removeItem(availableGroupList.getSelectedIndex());
+                        if(availableGroupList.getItemCount()>0){
+                            availableGroupList.setSelectedIndex(0);
+                        }
+                        String group = userChangeEvent.getGroup() ;
+                        addGroupToUi(group);
+                        break;
+                    case RELOAD_USERS:
+                        reload();
+                        break;
+                    case REMOVE_GROUP:
+                        Window.alert("removing group ");
+                        selectionModel.setSelected(userChangeEvent.getUserInfoList().get(0), true);
+                        userDetailTab.selectTab(1);
+                        break;
+
+                }
+            }
+        });
     }
+
 
     private void setCurrentUserInfoFromUI() {
         selectedUserInfo.setEmail(email.getText());
@@ -188,8 +219,12 @@ public class UserPanel extends Composite {
         cancelButton.setEnabled(true);
         createButton.setEnabled(false);
         passwordRow.setVisible(true);
+    }
 
-
+    @UiHandler("addGroupButton")
+    public void addGroupToUser(ClickEvent clickEvent) {
+        String selectedGroup = availableGroupList.getSelectedItemText();
+        UserRestService.addUserToGroup(selectedGroup, selectedUserInfo);
     }
 
 
@@ -234,7 +269,7 @@ public class UserPanel extends Composite {
             roleList.setVisible(false);
 
 
-            if(saveButton.isVisible()){
+            if (saveButton.isVisible()) {
                 roleList.setVisible(true);
                 UserInfo currentUser = MainPanel.getCurrentUser();
                 roleList.setSelectedIndex(0);
@@ -263,21 +298,30 @@ public class UserPanel extends Composite {
             roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId() != selectedUserInfo.getUserId());
 
             groupTable.clear();
-
             List<String> groupList = selectedUserInfo.getGroupList();
-            for(int i = 0 ; i < groupList.size(); i++){
+            for (int i = 0; i < groupList.size(); i++) {
                 String group = groupList.get(i);
-                groupTable.setWidget(i,0,new HTML(group));
-                groupTable.setWidget(i,1,new Button("X"));
+                addGroupToUi(group);
             }
 
-
+            availableGroupList.clear();
+            List<String> localAvailableGroupList = selectedUserInfo.getAvailableGroupList();
+            for (int i = 0; i < localAvailableGroupList.size(); i++) {
+                String availableGroup = localAvailableGroupList.get(i);
+                availableGroupList.addItem(availableGroup);
+            }
         }
+    }
 
+    private void addGroupToUi(String group) {
+        int i = groupTable.getRowCount()+1 ;
+        groupTable.setWidget(i, 0, new HTML(group));
+        groupTable.setWidget(i, 1, new Button("X"));
     }
 
     public void reload() {
         UserRestService.loadUsers(userInfoList);
         dataGrid.redraw();
     }
+
 }
