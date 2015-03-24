@@ -18,6 +18,9 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -26,7 +29,8 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
-import org.gwtbootstrap3.client.ui.Row;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.Comparator;
 import java.util.List;
@@ -71,7 +75,7 @@ public class UserPanel extends Composite {
     @UiField
     ListBox availableGroupList;
     @UiField
-    Button addGroupButton;
+    org.gwtbootstrap3.client.ui.Button addGroupButton;
     @UiField
     TabLayoutPanel userDetailTab;
 
@@ -315,8 +319,8 @@ public class UserPanel extends Composite {
 
     private void addGroupToUi(String group) {
         int i = groupTable.getRowCount() ;
-        groupTable.setWidget(i, 0, new HTML(group));
-        groupTable.setWidget(i, 1, new RemoveGroupButton(group));
+        groupTable.setWidget(i, 0, new RemoveGroupButton(group));
+        groupTable.setWidget(i, 1, new HTML(group));
     }
 
     public void reload() {
@@ -330,7 +334,7 @@ public class UserPanel extends Composite {
         for (int row = 0; rowToRemove < 0 && row < groupTable.getRowCount(); ++row) {
 //            Window.alert("cell count for row: "+row+ " -> "+groupTable.getCellCount(row));
 //            if(groupTable.getCellCount(row)>1){
-                RemoveGroupButton removeGroupButton = (RemoveGroupButton) groupTable.getWidget(row, 1);
+                RemoveGroupButton removeGroupButton = (RemoveGroupButton) groupTable.getWidget(row, 0);
                 if(removeGroupButton.getGroupName().equals(group)){
                     rowToRemove = row ;
                 }
@@ -341,13 +345,14 @@ public class UserPanel extends Composite {
         }
     }
 
-    class RemoveGroupButton extends Button{
+    private class RemoveGroupButton extends org.gwtbootstrap3.client.ui.Button{
 
         private String groupName  ;
 
         public RemoveGroupButton(final String groupName){
             this.groupName = groupName ;
-            setText("X");
+            setIcon(IconType.REMOVE);
+//            setText("X");
             addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
