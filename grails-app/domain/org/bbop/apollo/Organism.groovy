@@ -26,6 +26,8 @@ class Organism {
             organismProperties: OrganismProperty
             ,organismDBXrefs: OrganismDBXref
             ,sequences: Sequence
+            ,userPermissions: UserOrganismPermission
+            ,groupPermissions: GroupOrganismPermission
     ]
 
     public String getTrackList(){
