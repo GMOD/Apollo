@@ -64,7 +64,7 @@ public class AnnotatorPanel extends Composite {
     private String selectedSequenceName = null;
 
     private Column<AnnotationInfo, String> nameColumn;
-    private TextColumn<AnnotationInfo> filterColumn;
+//    private TextColumn<AnnotationInfo> filterColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
 
@@ -286,33 +286,33 @@ public class AnnotatorPanel extends Composite {
 
 
 //        final SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
-        filterColumn = new TextColumn<AnnotationInfo>() {
-            @Override
-            public String getValue(AnnotationInfo object) {
-                return "Bob";
-            }
-
-            //            @Override
+//        filterColumn = new TextColumn<AnnotationInfo>() {
+//            @Override
 //            public String getValue(AnnotationInfo object) {
-//                Random random = new Random();
-//                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
-//
-////                if(random.nextBoolean()){
-////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>CDS-3</div>");
-////                }
-////                else
-////                if(random.nextBoolean()){
-////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>Stop Codon</div>");
-////                }
-////                else{
-////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
-////                }
-//                safeHtmlBuilder.appendHtmlConstant("<pre>BOO</pre>");
-//
-//
-//                return safeHtmlBuilder.toSafeHtml().to;
+//                return "Bob";
 //            }
-        };
+//
+//            //            @Override
+////            public String getValue(AnnotationInfo object) {
+////                Random random = new Random();
+////                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+////
+//////                if(random.nextBoolean()){
+//////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>CDS-3</div>");
+//////                }
+//////                else
+//////                if(random.nextBoolean()){
+//////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>Stop Codon</div>");
+//////                }
+//////                else{
+//////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
+//////                }
+////                safeHtmlBuilder.appendHtmlConstant("<pre>BOO</pre>");
+////
+////
+////                return safeHtmlBuilder.toSafeHtml().to;
+////            }
+//        };
 //        filterColumn.setSortable(false);
 
 

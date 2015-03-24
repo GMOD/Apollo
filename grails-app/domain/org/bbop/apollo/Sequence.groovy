@@ -27,8 +27,8 @@ class Sequence {
 
     // feature locations instead of features
     static hasMany = [
-            users:User
-            , featureLocations: FeatureLocation
+//            users:User
+            featureLocations: FeatureLocation
             , sequenceChunks: SequenceChunk
     ]
 
@@ -42,7 +42,7 @@ class Sequence {
 //        password column: "grails_password"
     }
 
-    static belongsTo = [User]
+    static belongsTo = [Organism]
 
 
     String name
