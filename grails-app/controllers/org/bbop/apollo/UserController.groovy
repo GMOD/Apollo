@@ -156,4 +156,15 @@ class UserController {
         user.save(flush: true)
 
     }
+
+    def getOrganismPermissionsForUser(){
+        JSONObject dataObject = JSON.parse(params.data)
+        User user = User.findById(dataObject.userId)
+
+        List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(user)
+
+        render userOrganismPermissionList as JSON
+    }
+
+
 }
