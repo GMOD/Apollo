@@ -1,2 +1,2 @@
 language: groovy
-script: ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
+script: ant gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
