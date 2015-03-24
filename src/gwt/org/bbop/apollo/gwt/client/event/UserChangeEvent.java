@@ -56,7 +56,8 @@ public class UserChangeEvent extends GwtEvent<UserChangeEventHandler>{
     }
 
     public enum Action{
-        ADD_GROUP,
-        REMOVE_GROUP, RELOAD_USERS,
+        ADD_USER_TO_GROUP,
+        REMOVE_USER_FROM_GROUP,
+        RELOAD_USERS,
     }
 }

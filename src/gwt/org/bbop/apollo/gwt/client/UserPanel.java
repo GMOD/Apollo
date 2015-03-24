@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -20,6 +21,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.UserGroup;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
@@ -168,7 +170,7 @@ public class UserPanel extends Composite {
             @Override
             public void onUserChanged(UserChangeEvent userChangeEvent) {
                 switch (userChangeEvent.getAction()) {
-                    case ADD_GROUP:
+                    case ADD_USER_TO_GROUP:
                         availableGroupList.removeItem(availableGroupList.getSelectedIndex());
                         if(availableGroupList.getItemCount()>0){
                             availableGroupList.setSelectedIndex(0);
@@ -179,10 +181,8 @@ public class UserPanel extends Composite {
                     case RELOAD_USERS:
                         reload();
                         break;
-                    case REMOVE_GROUP:
-                        Window.alert("removing group ");
-                        selectionModel.setSelected(userChangeEvent.getUserInfoList().get(0), true);
-                        userDetailTab.selectTab(1);
+                    case REMOVE_USER_FROM_GROUP:
+                        removeGroupFromUI(userChangeEvent.getGroup());
                         break;
 
                 }
@@ -297,7 +297,8 @@ public class UserPanel extends Composite {
             // if user is admin, but not self, then make editable
             roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId() != selectedUserInfo.getUserId());
 
-            groupTable.clear();
+//            groupTable.clear();
+            groupTable.removeAllRows();
             List<String> groupList = selectedUserInfo.getGroupList();
             for (int i = 0; i < groupList.size(); i++) {
                 String group = groupList.get(i);
@@ -314,14 +315,51 @@ public class UserPanel extends Composite {
     }
 
     private void addGroupToUi(String group) {
-        int i = groupTable.getRowCount()+1 ;
+        int i = groupTable.getRowCount() ;
         groupTable.setWidget(i, 0, new HTML(group));
-        groupTable.setWidget(i, 1, new Button("X"));
+        groupTable.setWidget(i, 1, new RemoveGroupButton(group));
     }
 
     public void reload() {
         UserRestService.loadUsers(userInfoList);
         dataGrid.redraw();
+    }
+
+    private void removeGroupFromUI(String group) {
+        int rowToRemove = -1 ;
+//        Window.alert("row count: "+groupTable.getRowCount());
+        for (int row = 0; rowToRemove < 0 && row < groupTable.getRowCount(); ++row) {
+//            Window.alert("cell count for row: "+row+ " -> "+groupTable.getCellCount(row));
+//            if(groupTable.getCellCount(row)>1){
+                RemoveGroupButton removeGroupButton = (RemoveGroupButton) groupTable.getWidget(row, 1);
+                if(removeGroupButton.getGroupName().equals(group)){
+                    rowToRemove = row ;
+                }
+//            }
+        }
+        if(rowToRemove>=0){
+            groupTable.removeRow(rowToRemove);
+        }
+    }
+
+    class RemoveGroupButton extends Button{
+
+        private String groupName  ;
+
+        public RemoveGroupButton(final String groupName){
+            this.groupName = groupName ;
+            setText("X");
+            addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    UserRestService.removeUserFromGroup(groupName,userInfoList,selectedUserInfo);
+                }
+            });
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
     }
 
 }

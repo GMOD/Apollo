@@ -5,10 +5,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.Annotator;
-import org.bbop.apollo.gwt.client.UserPanel;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 
@@ -171,11 +168,14 @@ public class UserRestService {
 
     }
 
-    public static void removeUserFromGroup(final List<UserInfo> userInfoList,final String groupName, UserInfo selectedUserInfo) {
+    public static void removeUserFromGroup(final String groupName, final List<UserInfo> userInfoList,final UserInfo selectedUserInfo) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                loadUsers(userInfoList);
+                List<UserInfo> userInfoList = new ArrayList<>();
+                userInfoList.add(selectedUserInfo);
+                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.RELOAD_USERS));
+                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.REMOVE_USER_FROM_GROUP, groupName));
             }
 
             @Override
@@ -192,12 +192,10 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-
-
                 List<UserInfo> userInfoList = new ArrayList<>();
                 userInfoList.add(selectedUserInfo);
                 Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.RELOAD_USERS));
-                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.ADD_GROUP,groupName));
+                Annotator.eventBus.fireEvent(new UserChangeEvent(userInfoList, UserChangeEvent.Action.ADD_USER_TO_GROUP,groupName));
             }
 
             @Override

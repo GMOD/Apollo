@@ -86,6 +86,16 @@ class UserController {
         render new JSONObject() as JSON
     }
 
+    def removeUserFromGroup(){
+        println "removing user from group ${request.JSON} -> ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+        UserGroup userGroup = UserGroup.findByName(dataObject.group)
+        User user = User.findById(dataObject.userId)
+        user.removeFromUserGroups(userGroup)
+        user.save(flush: true)
+        render new JSONObject() as JSON
+    }
+
     def createUser() {
         println "creating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
