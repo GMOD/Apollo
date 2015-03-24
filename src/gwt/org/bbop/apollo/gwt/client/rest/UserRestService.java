@@ -7,6 +7,7 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,6 +67,14 @@ public class UserRestService {
                     else{
                         userInfo.setRole("user");
                     }
+
+                    JSONArray groupArray = object.get("groups").isArray();
+                    List<String> groupList = new ArrayList<>();
+                    for(int j =0 ; j < groupArray.size() ;j++){
+                        String groupValue = groupArray.get(j).isObject().get("name").isString().stringValue();
+                        groupList.add(groupValue);
+                    }
+                    userInfo.setGroupList(groupList);
 
                     userInfoList.add(userInfo);
                 }

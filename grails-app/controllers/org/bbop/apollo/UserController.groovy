@@ -28,6 +28,16 @@ class UserController {
             Role role = userService.getHighestRole(it)
             userObject.role = role?.name
 
+            println "groups ${it.userGroups} for ${it.username}"
+            JSONArray groupsArray = new JSONArray()
+            for(group in it.userGroups){
+                JSONObject groupJson = new JSONObject()
+                groupJson.put("name",group.name)
+                groupsArray.add(groupJson)
+            }
+
+            userObject.groups = groupsArray
+
             returnArray.put(userObject)
         }
 
