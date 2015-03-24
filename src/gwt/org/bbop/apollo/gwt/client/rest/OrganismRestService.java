@@ -100,7 +100,7 @@ public class OrganismRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("error updating organism inof: "+exception);
+                Window.alert("error updating organism info: "+exception);
             }
         };
         RestService.sendRequest(requestCallback, "/organism/updateOrganismInfo", "data=" + organismInfoObject.toString());

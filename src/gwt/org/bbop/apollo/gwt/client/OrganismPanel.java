@@ -211,9 +211,9 @@ public class OrganismPanel extends Composite {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
-            GWT.log("recived response: "+response.getText());
+            GWT.log("received response: "+response.getText());
             List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
-            GWT.log("converted responsde : " + organismInfoList.size());
+            GWT.log("converted response : " + organismInfoList.size());
             dataGrid.setSelectionModel(singleSelectionModel);
             GWT.log("clearing selection") ;
             if(clearSelections){
@@ -350,7 +350,6 @@ public class OrganismPanel extends Composite {
         organismName.setEnabled(true);
         sequenceFile.setEnabled(true);
     }
-
     public void setThinkingInterface(){
     }
 

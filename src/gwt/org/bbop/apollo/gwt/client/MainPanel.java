@@ -440,7 +440,7 @@ public class MainPanel extends Composite {
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         GWT.log("should be registering function: " + name);
         annotrackFunctionMap.put(name, javaScriptObject);
-        GWT.log("regiested teh function: " + name);
+        GWT.log("regiested the function: " + name);
 
     }
 
