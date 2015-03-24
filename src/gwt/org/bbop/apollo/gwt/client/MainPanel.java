@@ -467,9 +467,8 @@ public class MainPanel extends Composite {
     }
 
     public static String executeFunction(String name, JavaScriptObject dataObject) {
-        GWT.log("should be executing a function of some sortL " + annotrackFunctionMap + " for name: " + name);
+        GWT.log("should be executing a function of some sort " + annotrackFunctionMap + " for name: " + name);
         JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
-        GWT.log("target function was null?: " + targetFunction);
         if (targetFunction == null) {
             return "function " + name + " not found";
         }

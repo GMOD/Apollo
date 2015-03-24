@@ -39,7 +39,6 @@ class JbrowseController {
     // is typically checking for trackData.json
     def tracks(String jsonFile, String trackName, String groupName) {
         String filename = getJBrowseDirectoryForSession()
-//        String filename = configWrapperService.getJBrowseDirectory()
         filename += "/tracks/${trackName}/${groupName}/${jsonFile}.json"
         File file = new File(filename);
         if (!file.exists()) {
@@ -55,7 +54,6 @@ class JbrowseController {
         HttpSession session = request.session
         String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         if(!organismJBrowseDirectory ){
-            // TODO: lookup based on user name
             for(Organism organism in Organism.all){
                 // load if not
                 if(!organism.sequences){

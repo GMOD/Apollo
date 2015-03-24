@@ -135,7 +135,7 @@ class OrganismController {
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
         println "jsonObject ${organismJson}"
         Organism organism = Organism.findById(organismJson.id)
-        println "found an orgnaism ${organism}"
+        println "found an organism ${organism}"
         if (organism) {
             organism.commonName = organismJson.name
 
@@ -153,10 +153,7 @@ class OrganismController {
             } catch (e) {
                 log.error("Problem updating organism info: ${e}")
             }
-
-
             render findAllOrganisms()
-//            render { text: 'updated' } as JSON
         } else {
             println "organism not found ${organismJson}"
             render { text: 'NOT updated' } as JSON
@@ -172,14 +169,12 @@ class OrganismController {
         Organism organism = Organism.findById(organismId as Long)
         if (organism) {
             println "found the organism ${organism}"
-            // make not a magic string
             request.session.setAttribute("organismJBrowseDirectory", organism.directory)
-//            request.session.setAttribute("organismJBrowseDirectory",organism.directory)
         } else {
-            println "not found organism "
+            println "no organism found"
         }
 
-        println "updating organism "
+        println "updating organism"
         println params.data
         render { text: 'changed' } as JSON
     }
@@ -232,10 +227,9 @@ class OrganismController {
         println "organism list: ${organismList}"
 
         println "finding all organisms: ${Organism.count}"
-//        def organismList = Organism.listOrderByCommonName()
-//        Organism.metaClass.annotationCount = 0
         JSONArray jsonArray = new JSONArray()
         for (def organism in organismList) {
+            println organism
             Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId", ["organismId": organism.id])[0]
             JSONObject jsonObject = new JSONObject()
             jsonObject.put("id", organism.id)
@@ -247,13 +241,9 @@ class OrganismController {
                 jsonObject.put("valid", organism.valid)
             }
             jsonObject.put("currentOrganism",request.session.getAttribute("organismJBrowseDirectory")==organism.directory)
-
             jsonArray.add(jsonObject)
         }
-//        def organsimJSON = organismList as JSON
-//        println "json product: ${organsimJSON}"
         render jsonArray as JSON
-
     }
 
     protected void notFound() {

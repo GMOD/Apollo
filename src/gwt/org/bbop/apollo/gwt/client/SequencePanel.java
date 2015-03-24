@@ -405,7 +405,6 @@ public class SequencePanel extends Composite {
                 trackInfoList.clear();
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
                     OrganismInfo organismInfo = new OrganismInfo();
                     organismInfo.setId(object.get("id").isNumber().toString());
                     organismInfo.setName(object.get("commonName").isString().stringValue());
@@ -413,7 +412,6 @@ public class SequencePanel extends Composite {
                     organismInfo.setDirectory(object.get("directory").isString().stringValue());
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
-//                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                 }
             }

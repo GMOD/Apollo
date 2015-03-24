@@ -21,7 +21,7 @@ public class SequenceRestService {
 
     public static void loadSequences(RequestCallback requestCallback,Long organismId){
         if(MainPanel.currentOrganismId==null){
-            GWT.log("organism not set...returning ");
+            GWT.log("organism not set...returning");
             return ;
         }
         RestService.sendRequest(requestCallback,"/sequence/loadSequences/"+ organismId);
@@ -62,7 +62,7 @@ public class SequenceRestService {
             }
         };
         if(MainPanel.currentOrganismId==null){
-            GWT.log("organism not set . . returrning ");
+            GWT.log("organism not set...returning");
             sequenceInfoList.clear();
             return ;
         }
