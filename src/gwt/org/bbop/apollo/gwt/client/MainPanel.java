@@ -113,7 +113,6 @@ public class MainPanel extends Composite {
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         rootUrl = dictionary.get("rootUrl");
-//        userId = dictionary.get("userId");
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
 
@@ -129,8 +128,6 @@ public class MainPanel extends Composite {
         });
 
         loginUser();
-//        detailTabs.selectTab(3);
-//                detailTabs.selectTab(0);
     }
 
     private void loginUser() {
@@ -221,7 +218,6 @@ public class MainPanel extends Composite {
         trackListString = trackListString.substring(0, trackListString.length() - 1);
         trackListString += "&highlight=&tracklist=0";
         GWT.log("set string: " + trackListString);
-//        frame.setUrl(rootUrl + "/jbrowse/?loc=Group1.3%3A14865..15198&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2%2CGeneID%2CCflo_OGSv3.3&highlight=&tracklist=0");
         frame.setUrl(trackListString);
     }
 
@@ -248,8 +244,6 @@ public class MainPanel extends Composite {
                     sequenceInfo.setName(object.get("name").isString().stringValue());
                     sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
                     sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-//                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-//                    GWT.log("is default set?  " + object.get("default"));
                     if (object.get("default") != null) {
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }
