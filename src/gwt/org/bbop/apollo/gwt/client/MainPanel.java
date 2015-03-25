@@ -438,10 +438,7 @@ public class MainPanel extends Composite {
 
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
-        GWT.log("should be registering function: " + name);
         annotrackFunctionMap.put(name, javaScriptObject);
-        GWT.log("regiested the function: " + name);
-
     }
 
     @UiHandler("logoutButton")
@@ -458,8 +455,7 @@ public class MainPanel extends Composite {
      * @return JavaScriptObject that you can cast to an Overlay Type
      */
     public static <T extends JavaScriptObject> T parseJson(String jsonStr) {
-//        return JsonUtils.safeEval(jsonStr);
-        return JsonUtils.unsafeEval(jsonStr);
+        return JsonUtils.safeEval(jsonStr);
     }
 
     public static String executeFunction(String name) {
