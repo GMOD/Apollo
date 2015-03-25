@@ -79,7 +79,6 @@
         }</ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
-            <!--<gwt:Frame ui:field="frame" width="100%" height="100%" visible="false"/>-->
             <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
         </gwt:center>
         <gwt:east size="550">
@@ -90,21 +89,10 @@
                         <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
                         <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
-                        <!--<gwt:ListBox ui:field="sequenceList" styleName="{style.details-list}"/>-->
                         <gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>
                         
-                        <!--<gwt:Button ui:field="loginButton" text="Login"/>-->
                         <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                         <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
-                        <!--<gwt:HTML styleName="{style.inline}">-->
-                        <!--<div style="display:inline-table;">-->
-                        <!--Drrr . .-->
-                        <!--<script>-->
-                        <!--alert('bob') ;-->
-                        <!--</script>-->
-                        <!--</div>-->
-                        <!--</gwt:HTML>-->
-
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:west size="20">
