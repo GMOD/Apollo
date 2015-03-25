@@ -35,6 +35,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.Comparator;
@@ -53,14 +54,11 @@ public class OrganismPanel extends Composite {
 
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox organismName;
-//    @UiField
-//    InputGroupAddon trackCount;
+    TextBox organismName;
     @UiField
     InputGroupAddon annotationCount;
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox sequenceFile;
-
+    TextBox sequenceFile;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
@@ -123,10 +121,10 @@ public class OrganismPanel extends Composite {
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                selectedOrganismInfo = singleSelectionModel.getSelectedObject();
-                setSelectedInfo(selectedOrganismInfo);
-                cancelButton.setVisible(false);
-                createButton.setVisible(false);
+            selectedOrganismInfo = singleSelectionModel.getSelectedObject();
+            setSelectedInfo(selectedOrganismInfo);
+            cancelButton.setVisible(false);
+            createButton.setVisible(false);
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
@@ -160,7 +158,7 @@ public class OrganismPanel extends Composite {
 
     public void setSelectedInfo(OrganismInfo organismInfo){
         if(organismInfo==null) {
-           setNoSelection()   ;
+            setNoSelection();
             return;
         }
         organismName.setText(organismInfo.getName());
@@ -174,8 +172,7 @@ public class OrganismPanel extends Composite {
             validDirectory.setIcon(IconType.QUESTION);
             validDirectory.setColor("Red");
         }
-        else
-        if(organismInfo.getValid()){
+        else if(organismInfo.getValid()){
             validDirectory.setIcon(IconType.CHECK);
             validDirectory.setColor("Green");
         }
@@ -211,11 +208,8 @@ public class OrganismPanel extends Composite {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
-            GWT.log("received response: "+response.getText());
             List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
-            GWT.log("converted response : " + organismInfoList.size());
             dataGrid.setSelectionModel(singleSelectionModel);
-            GWT.log("clearing selection") ;
             if(clearSelections){
                 clearSelections();
             }
@@ -241,8 +235,9 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
-//        clearSelections();
-//        dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
+        ///clearSelections();
+        //singleSelectionModel.clear();
+        //dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
         setNewOrganismButtonState();
 //        selectedOrganismInfo.setName(organismName.getText());
 //        updateOrganismInfo();
@@ -336,6 +331,7 @@ public class OrganismPanel extends Composite {
 
     public void setNewOrganismButtonState(){
         createButton.setText("Create Organism");
+        singleSelectionModel.clear();
         newButton.setEnabled(false);
         newButton.setVisible(true);
         createButton.setVisible(true);
