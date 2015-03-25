@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,30 +26,26 @@ import org.json.JSONObject;
 
 public class RemoteUserAuthentication implements UserAuthentication {
 
-//    @Override
-//    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
-//            HttpServletResponse response) throws ServletException {
-//        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/remoteuser/login.html");
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-//        String line;
-//        try {
-//            while ((line = reader.readLine()) != null) {
-//                response.getOutputStream().println(line);
-//            }
-//            in.close();
-//        } catch (IOException e) {
-//            throw new ServletException(e);
-//        }
-//    }
-
     @Override
     public String validateUser(HttpServletRequest request,
             HttpServletResponse response) throws UserAuthenticationException {
         String username = request.getHeader("REMOTE_USER");
         if(username == null){
+            // If the header isn't provided, it's actually a server
+            // configuration error
             throw new UserAuthenticationException("Invalid login");
+        } else {
+            UserManager umi = UserManager.getInstance();
+            try {
+                Set<String> users = umi.getUserNames();
+                if(!users.contains(username)){
+                    umi.addUser(username);
+                }
+            } catch(SQLException sqle) {
+                // Handle this?
+            }
+            return username;
         }
-        return username;
     }
 
 
