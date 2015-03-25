@@ -515,11 +515,8 @@ define([
                             }
 
                         });
-                        //console.log('connected . .. trying to send');
-                        //client.send("/app/hello", {}, JSON.stringify("world"));
-                        //console.log('sent mesage ');
                     });
-                    console.log('stuff sent established');
+                    console.log('connection established');
                 },
 
                 /**
