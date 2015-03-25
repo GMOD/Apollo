@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.bbop.apollo.web.user.Permission;
 
 import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -33,6 +34,7 @@ public class ServerConfiguration {
     private String trackNameComparator;
     private UserDatabaseConfiguration userDatabase;
     private String userAuthenticationClass;
+    private boolean autoCreateUsers;
     private Map<String, TrackConfiguration> tracks;
     private String cannedComments;
     private Collection<SequenceSearchToolConfiguration> sequenceSearchTools;
@@ -80,11 +82,11 @@ public class ServerConfiguration {
     public String getGBOLMappingFile() {
         return gbolMappingFile;
     }
-    
+
     public void setGBOLMappingFile(String gbolMappingFile) {
         this.gbolMappingFile = gbolMappingFile;
     }
-    
+
     public String getDataStoreDirectory() {
         return dataStoreDirectory;
     }
@@ -92,23 +94,23 @@ public class ServerConfiguration {
     public void setDataStoreDirectory(String dataStoreDirectory) {
         this.dataStoreDirectory = dataStoreDirectory;
     }
-    
+
     public int getDefaultMinimumIntronSize() {
         return defaultMinimumIntronSize;
     }
-    
+
     public void setDefaultMinimumIntronSize(int defaultMinimumIntronSize) {
         this.defaultMinimumIntronSize = defaultMinimumIntronSize;
     }
-    
+
     public int getHistorySize() {
         return historySize;
     }
-    
+
     public void setHistorySize(int historySize) {
         this.historySize = historySize;
     }
-    
+
     public String getOverlapperClass() {
         return overlapperClass;
     }
@@ -134,7 +136,7 @@ public class ServerConfiguration {
     public void setTrackNameComparator(String trackNameComparator) {
         this.trackNameComparator = trackNameComparator;
     }
-    
+
     public UserDatabaseConfiguration getUserDatabase() {
         return userDatabase;
     }
@@ -142,13 +144,21 @@ public class ServerConfiguration {
     public void setUserDatabase(UserDatabaseConfiguration userDatabase) {
         this.userDatabase = userDatabase;
     }
-    
+
     public String getUserAuthenticationClass() {
         return userAuthenticationClass;
     }
 
     public void setUserAuthenticationClass(String userAuthenticationClass) {
         this.userAuthenticationClass = userAuthenticationClass;
+    }
+
+    public boolean getAutoCreateUsers() {
+        return autoCreateUsers;
+    }
+
+    public void setAutoCreateUsers(boolean autoCreateUsers){
+        this.autoCreateUsers = autoCreateUsers;
     }
 
     public Map<String, TrackConfiguration> getTracks() {
@@ -170,7 +180,7 @@ public class ServerConfiguration {
     public Collection<SequenceSearchToolConfiguration> getSequenceSearchTools() {
         return sequenceSearchTools;
     }
-    
+
     public void setSequenceSearchTool(Collection<SequenceSearchToolConfiguration> sequenceSearchTools) {
         this.sequenceSearchTools = sequenceSearchTools;
     }
@@ -178,11 +188,11 @@ public class ServerConfiguration {
     public Map<String, DataAdapterGroupConfiguration> getDataAdapters() {
         return dataAdapters;
     }
-    
+
     public void setDataAdapters(Map<String, DataAdapterGroupConfiguration> dataAdapters) {
         this.dataAdapters = dataAdapters;
     }
-    
+
     public boolean getUseCDS() {
         return useCDS;
     }
@@ -190,7 +200,7 @@ public class ServerConfiguration {
     public void setUseCDS(boolean useCDS) {
         this.useCDS = useCDS;
     }
-    
+
     public boolean getUseMemoryStore() {
         return useMemoryStore;
     }
@@ -202,7 +212,7 @@ public class ServerConfiguration {
     public Map<String, AnnotationInfoEditorConfiguration> getAnnotationInfoEditor() {
         return annotationInfoEditors;
     }
-    
+
     public void setAnnotationInfoEditor(Map<String, AnnotationInfoEditorConfiguration> annotationInfoEditors) {
         this.annotationInfoEditors = annotationInfoEditors;
     }
@@ -335,6 +345,12 @@ public class ServerConfiguration {
             if (authenticationClassNode != null) {
                 userAuthenticationClass = authenticationClassNode.getTextContent();
             }
+
+            Element authenticationAutoAddUsers = (Element)userNode.getElementsByTagName("auto_add_users").item(0);
+            if (authenticationAutoAddUsers!= null) {
+                autoCreateUsers = Boolean.parseBoolean(authenticationAutoAddUsers.getTextContent());
+            }
+
         }
         tracks = new HashMap<String, TrackConfiguration>();
         Element tracksNode = (Element)doc.getElementsByTagName("tracks").item(0);
@@ -362,10 +378,20 @@ public class ServerConfiguration {
                         translationTable = translationTableNode.getTextContent();
                     }
 
+                    Set<TrackAutoPermissionsGroup> trackPermissions;
+                    Element defaultPermissionsNode = (Element)tracksNode.getElementsByTagName("default_permissions").item(0);
+                    if (defaultPermissionsNode != null) {
+                        NodeList autoGrants = defaultPermissionsNode.getElementsByTagName("auto_grant");
+                        trackPermissions = parsePermissions(autoGrants);
+                    }else{
+                        trackPermissions = new HashSet<TrackAutoPermissionsGroup>();
+                    }
+                    System.out.println("Track permissions " + trackPermissions.size());
+
                     Node spliceSitesNode = tracksNode.getElementsByTagName("splice_sites").item(0);
                     Set<String> spliceDonorSites = parseSpliceDonorSites((Element)spliceSitesNode);
                     Set<String> spliceAcceptorSites = parseSpliceAcceptorSites((Element)spliceSitesNode);
-                    
+
                     SourceFeatureConfiguration sourceFeature = null;
                     Element sourceFeatureNode = (Element)trackNode.getElementsByTagName("source_feature").item(0);
                     if (sourceFeatureNode != null) {
@@ -383,7 +409,7 @@ public class ServerConfiguration {
                         }
                         sourceFeature = new SourceFeatureConfiguration(sequenceDirectory, sequenceChunkSize, sequenceChunkPrefix, sequenceLength, uniqueName, type, start, end);
                     }
-                    tracks.put(name, new TrackConfiguration(name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites));
+                    tracks.put(name, new TrackConfiguration(name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites, trackPermissions));
                 }
             }
 //            Node refSeqsNode = tracksNode.getElementsByTagName("refseqs").item(0);
@@ -392,6 +418,15 @@ public class ServerConfiguration {
             Node sequenceTypeNode = tracksNode.getElementsByTagName("sequence_type").item(0);
             Node translationTableNode = tracksNode.getElementsByTagName("translation_table").item(0);
             Node spliceSitesNode = tracksNode.getElementsByTagName("splice_sites").item(0);
+
+            Set<TrackAutoPermissionsGroup> trackPermissions;
+            Element defaultPermissionsNode = (Element)tracksNode.getElementsByTagName("default_permissions").item(0);
+            if (defaultPermissionsNode != null) {
+                trackPermissions = parsePermissions(defaultPermissionsNode.getElementsByTagName("auto_grant"));
+            } else {
+                trackPermissions = new HashSet<TrackAutoPermissionsGroup>();
+            }
+            System.out.println("Track permissions " + trackPermissions.size());
 //            if (refSeqsNode != null && annotationTrackNameNode != null && organismNode != null && sequenceTypeNode != null) {
                 Set<String> spliceDonorSites = parseSpliceDonorSites((Element)spliceSitesNode);
                 Set<String> spliceAcceptorSites = parseSpliceAcceptorSites((Element)spliceSitesNode);
@@ -401,7 +436,7 @@ public class ServerConfiguration {
 //                    parseRefSeqs(refSeqsNode.getTextContent(), annotationTrackNameNode.getTextContent(), organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
 //                            translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
                     parseRefSeqs(refSeqFile, annotationTrackNameNode.getTextContent(), organismOverride!=null ? organismOverride : organismNode.getTextContent(), sequenceTypeNode.getTextContent(),
-                            translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks);
+                            translationTableNode != null ? translationTableNode.getTextContent() : null, spliceDonorSites, spliceAcceptorSites, tracks, trackPermissions);
                 }
                 catch (Exception e) {
                     logger.debug("ERROR loading seq data:");
@@ -571,8 +606,8 @@ public class ServerConfiguration {
             }
         }
     }
-    
-    private void parseRefSeqs(String refSeqsFileName, String annotationTrackName, String organism, String sequenceType, String translationTable, Set<String> spliceDonorSites, Set<String> spliceAcceptorSites, Map<String, TrackConfiguration> tracks) throws FileNotFoundException, IOException, JSONException {
+
+    private void parseRefSeqs(String refSeqsFileName, String annotationTrackName, String organism, String sequenceType, String translationTable, Set<String> spliceDonorSites, Set<String> spliceAcceptorSites, Map<String, TrackConfiguration> tracks, Set<TrackAutoPermissionsGroup> trackPermissions) throws FileNotFoundException, IOException, JSONException {
         File refSeqsFile = new File(refSeqsFileName);
         BufferedInputStream in = new BufferedInputStream(new FileInputStream(refSeqsFile));
         JSONArray refSeqs = convertJBrowseJSON(in);
@@ -597,14 +632,14 @@ public class ServerConfiguration {
             int start = refSeq.getInt("start");
             int end = refSeq.getInt("end");
             SourceFeatureConfiguration sourceFeature = new SourceFeatureConfiguration(seqDir, seqChunkSize, seqChunkPrefix, length, name, sequenceType, start, end);
-            
-            TrackConfiguration c = new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites);
+
+            TrackConfiguration c = new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites, trackPermissions);
             tracks.put(name, c);
 //            tracks.put(name, new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature));
         }
         in.close();
     }
-    
+
     private String[] splitStringByNumberOfCharacters(String str, int numOfChars) {
         int numTokens = str.length() / numOfChars;
         if (str.length() % numOfChars != 0) {
@@ -617,7 +652,7 @@ public class ServerConfiguration {
         }
         return tokens;
     }
-    
+
     private JSONArray convertJBrowseJSON(InputStream inputStream) throws IOException, JSONException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder buffer = new StringBuilder();
@@ -628,7 +663,7 @@ public class ServerConfiguration {
         }
         return new JSONArray(buffer.toString());
     }
-    
+
     private Set<String> parseSpliceDonorSites(Element spliceSitesNode) {
         Set<String> donorSites = new HashSet<String>();
         if (spliceSitesNode != null) {
@@ -641,6 +676,54 @@ public class ServerConfiguration {
             donorSites.add("GT");
         }
         return donorSites;
+    }
+
+    private Set<TrackAutoPermissionsGroup> parsePermissions(NodeList permissionGroupList) {
+        System.out.println("parsePermissions()");
+        Set<TrackAutoPermissionsGroup> trackPermissions = new HashSet<TrackAutoPermissionsGroup>();
+        if (permissionGroupList != null) {
+            System.out.println("(has)permissionGroupList");
+            for (int j = 0; j < permissionGroupList.getLength(); ++j) {
+                System.out.println("(" + j + ")");
+                Element grantNode = (Element)permissionGroupList.item(j);
+
+                NodeList usersList = grantNode.getElementsByTagName("users");
+                Set<String> users = new HashSet<String>();
+                if (usersList != null) {
+                    for (int k = 0; k < usersList.getLength(); ++k) {
+                        users.add(usersList.item(k).getTextContent().trim());
+                        System.out.println("(pP)user: " + usersList.item(k).getTextContent().trim());
+                    }
+                }
+
+                NodeList domainsList = grantNode.getElementsByTagName("domains");
+                Set<String> domains = new HashSet<String>();
+                if (domainsList != null) {
+                    for (int k = 0; k < domainsList.getLength(); ++k) {
+                        domains.add(domainsList.item(k).getTextContent().trim());
+                        System.out.println("(pP)domain: " + domainsList.item(k).getTextContent().trim());
+                    }
+                }
+
+                boolean read = false;
+                boolean write = false;
+                boolean publish = false;
+
+                if (grantNode.getElementsByTagName("read").getLength() > 0){
+                    read = true;
+                }
+                if (grantNode.getElementsByTagName("write").getLength() > 0){
+                    write = true;
+                }
+                if (grantNode.getElementsByTagName("publish").getLength() > 0){
+                    publish = true;
+                }
+                System.out.println(read +" " + write +" " + publish);
+
+                trackPermissions.add(new TrackAutoPermissionsGroup(users, domains, read, write, publish));
+            }
+        }
+        return trackPermissions;
     }
 
     private Set<String> parseSpliceAcceptorSites(Element spliceSitesNode) {
@@ -656,7 +739,7 @@ public class ServerConfiguration {
         }
         return acceptorSites;
     }
-    
+
     private DataAdapterConfiguration processDataAdapterConfiguration(Element dataAdapterNode) {
         String dataAdapterKey = null;
         String dataAdapterClass = null;
@@ -687,7 +770,7 @@ public class ServerConfiguration {
     }
 
     public class SourceFeatureConfiguration {
-        
+
         private String sequenceDirectory;
         private int sequenceChunkSize;
         private String sequenceChunkPrefix;
@@ -711,19 +794,19 @@ public class ServerConfiguration {
         public String getSequenceDirectory() {
             return sequenceDirectory;
         }
-        
+
         public int getSequenceChunkSize() {
             return sequenceChunkSize;
         }
-        
+
         public String getSequenceChunkPrefix() {
             return sequenceChunkPrefix;
         }
-        
+
         public int getSequenceLength() {
             return sequenceLength;
         }
-        
+
         public String getUniqueName() {
             return uniqueName;
         }
@@ -731,19 +814,19 @@ public class ServerConfiguration {
         public String getType() {
             return type;
         }
-        
+
         public int getStart() {
             return start;
         }
-        
+
         public int getEnd() {
             return end;
         }
 
     }
-    
+
     public class UserDatabaseConfiguration {
-        
+
         private String driver;
         private String url;
         private String userName;
@@ -771,25 +854,27 @@ public class ServerConfiguration {
         public String getPassword() {
             return password;
         }
-        
+
     }
-    
+
     public class TrackConfiguration {
-        
+
         private String name;
         private String organism;
         private SourceFeatureConfiguration sourceFeature;
         private String translationTable;
         private Set<String> spliceDonorSites;
         private Set<String> spliceAcceptorSites;
+        private Set<TrackAutoPermissionsGroup> autoPermissions;
 
-        public TrackConfiguration(String name, String organism, String translationTable, SourceFeatureConfiguration sourceFeature, Set<String> spliceDonorSites, Set<String> spliceAcceptorSites) {
+        public TrackConfiguration(String name, String organism, String translationTable, SourceFeatureConfiguration sourceFeature, Set<String> spliceDonorSites, Set<String> spliceAcceptorSites, Set<TrackAutoPermissionsGroup> autoPermissions) {
             this.name = name;
             this.organism = organism;
             this.sourceFeature = sourceFeature;
             this.translationTable = translationTable;
             this.spliceDonorSites = spliceDonorSites;
             this.spliceAcceptorSites = spliceAcceptorSites;
+            this.autoPermissions = autoPermissions;
         }
 
         public String getName() {
@@ -803,90 +888,171 @@ public class ServerConfiguration {
         public SourceFeatureConfiguration getSourceFeature() {
             return sourceFeature;
         }
-        
+
         public String getTranslationTable() {
             return translationTable;
         }
-        
+
         public Set<String> getSpliceDonorSites() {
             return spliceDonorSites;
         }
-        
+
         public Set<String> getSpliceAcceptorSites() {
             return spliceAcceptorSites;
         }
 
+        public Set<TrackAutoPermissionsGroup> getAutoPermissions() {
+            return autoPermissions;
+        }
+
     }
-    
+
+    public class TrackAutoPermissionsGroup {
+        private Set<String> users;
+        private Set<String> domains;
+        private boolean read;
+        private boolean write;
+        private boolean publish;
+
+        public TrackAutoPermissionsGroup(Set<String> users, Set<String> domains, boolean read, boolean write, boolean publish) {
+            this.users = users;
+            this.domains = domains;
+            this.read = read;
+            this.write = write;
+            this.publish = publish;
+        }
+
+        public Set<String> getUsers() {
+            return users;
+        }
+
+        public Set<String> getDomains() {
+            return domains;
+        }
+
+        public boolean canRead() {
+            return read;
+        }
+
+        public boolean canWrite() {
+            return write;
+        }
+
+        public boolean canPublish() {
+            return publish;
+        }
+
+        /**
+         * Calculate numerical permission value for track permission group.
+         * Current implementation is only aware of read/write/publish.
+         *
+         * @return integer value representing permission
+         */
+        public int getPermissionValue() {
+            int value = 0;
+            if (read) {
+                value |= Permission.READ;
+            }
+            if (write) {
+                value |= Permission.WRITE;
+            }
+            if (publish) {
+                value |= Permission.PUBLISH;
+            }
+            return value;
+        }
+
+        /**
+         * Validate a username against this permission set.
+         *
+         * @param username The user's username (including domain name if available)
+         * @return True if the username is acceptable/matched by the criteria of this category
+         */
+        public boolean validateUser(String username) {
+            // If they're specifically whitelisted, OK
+            if(users.contains(username)){
+                return true;
+            }
+            // If they have an @domain ending, and their domain is whitelisted
+            if (username.contains("@")) {
+                String domain = username.substring(username.indexOf("@"));
+                if (domains.contains(domain)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     public class SequenceSearchToolConfiguration {
-        
+
         private String key;
         private String className;
         private String configFileName;
-        
+
         public SequenceSearchToolConfiguration(String key, String className, String configFile) {
             this.key = key;
             this.className = className;
             this.configFileName = configFile;
         }
-        
+
         public String getKey() {
             return key;
         }
-        
+
         public String getClassName() {
             return className;
         }
-        
+
         public String getConfigFilename() {
             return configFileName;
         }
     }
-    
+
     public class DataAdapterGroupConfiguration {
-        
+
         private Collection<DataAdapterConfiguration> dataAdapters;
         private boolean isGroup;
         private String key;
         private String permission;
-        
+
         public DataAdapterGroupConfiguration(String key, boolean isGroup, String permission) {
             this.isGroup = isGroup;
             this.key = key;
             this.permission = permission;
             dataAdapters = new ArrayList<DataAdapterConfiguration>();
         }
-        
+
         public Collection<DataAdapterConfiguration> getDataAdapters() {
             return dataAdapters;
         }
-        
+
         public boolean isGroup() {
             return isGroup;
         }
-        
+
         public String getKey() {
             return key;
         }
-        
+
         public String getPermission() {
             return permission;
         }
-        
+
         public void addDataAdapter(DataAdapterConfiguration dataAdapter) {
             dataAdapters.add(dataAdapter);
         }
-        
+
     }
-    
+
     public class DataAdapterConfiguration {
-        
+
         private String key;
         private String className;
         private String permission;
         private String configFileName;
         private String options;
-        
+
         public DataAdapterConfiguration(String key, String className, String permission, String configFile, String options) {
             this.key = key;
             this.className = className;
@@ -894,19 +1060,19 @@ public class ServerConfiguration {
             this.configFileName = configFile;
             this.options = options;
         }
-        
+
         public String getKey() {
             return key;
         }
-        
+
         public String getClassName() {
             return className;
         }
-        
+
         public String getPermission() {
             return permission;
         }
-        
+
         public String getConfigFileName() {
             return configFileName;
         }
@@ -916,9 +1082,9 @@ public class ServerConfiguration {
         }
 
     }
-    
+
     public class AnnotationInfoEditorConfiguration {
-        
+
         private List<String> status;
         private boolean hasDbxrefs;
         private boolean hasAttributes;
@@ -927,29 +1093,29 @@ public class ServerConfiguration {
         private boolean hasComments;
 //        private Map<String, Set<String>> supportedFeatureTypes;
         private Collection<String> supportedFeatureTypes;
-        
+
         public AnnotationInfoEditorConfiguration() {
             status = new ArrayList<String>();
 //            supportedFeatureTypes = new HashMap<String, Set<String>>();
             supportedFeatureTypes = new ArrayList<String>();
         }
-        
+
         public List<String> getStatus() {
             return status;
         }
-        
+
         public void addStatus(String status) {
             this.status.add(status);
         }
-        
+
         public boolean hasStatus() {
             return status.size() > 0;
         }
-        
+
         public void setHasDbxrefs(boolean hasDbxrefs) {
             this.hasDbxrefs = hasDbxrefs;
         }
-        
+
         public boolean hasDbxrefs() {
             return hasDbxrefs;
         }
@@ -957,7 +1123,7 @@ public class ServerConfiguration {
         public void setHasAttributes(boolean hasAttributes) {
             this.hasAttributes = hasAttributes;
         }
-        
+
         public boolean hasAttributes() {
             return hasAttributes;
         }
@@ -965,7 +1131,7 @@ public class ServerConfiguration {
         public void setHasPubmedIds(boolean hasPubmedIds) {
             this.hasPubmedIds = hasPubmedIds;
         }
-        
+
         public boolean hasPubmedIds() {
             return hasPubmedIds;
         }
@@ -973,7 +1139,7 @@ public class ServerConfiguration {
         public void setHasGoIds(boolean hasGoIds) {
             this.hasGoIds = hasGoIds;
         }
-        
+
         public boolean hasGoIds() {
             return hasGoIds;
         }
@@ -981,21 +1147,21 @@ public class ServerConfiguration {
         public void setHasComments(boolean hasComments) {
             this.hasComments = hasComments;
         }
-        
+
         public boolean hasComments() {
             return hasComments;
         }
-        
+
         public void addFeatureTypes(String ... types) {
             for (String type : types) {
                 supportedFeatureTypes.add(type);
             }
         }
-        
+
         public Collection<String> getSupportedFeatureTypes() {
             return supportedFeatureTypes;
         }
-        
+
         /*
         public void addFeatureType(String type, String featureType) {
             Set<String> featureTypes = supportedFeatureTypes.get(type);
@@ -1011,7 +1177,7 @@ public class ServerConfiguration {
             return featureTypes == null ? true : featureTypes.contains(featureType);
         }
         */
-        
+
     }
-    
+
 }
