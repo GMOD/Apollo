@@ -97,7 +97,7 @@ public class UserRestService {
                         JSONObject organismPermissionJsonObject = organismArray.get(j).isObject();
                         String organismName = organismPermissionJsonObject.get("organism").isString().stringValue();
                         String permissions = organismPermissionJsonObject.get("permissions").isString().stringValue();
-                        organismPermissionMap.put(organismName,permissions);
+                        organismPermissionMap.put(organismName, permissions);
                     }
                     userInfo.setOrganismPermissions(organismPermissionMap);
 

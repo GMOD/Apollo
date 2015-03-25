@@ -19,15 +19,20 @@ class UserController {
         JSONArray returnArray = new JSONArray()
 
         List<String> allUserGroups = UserGroup.all.name
-        Map<User,List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
+        Map<String,List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.all
+        println "total permission list ${userOrganismPermissionList.size()}"
         for(UserOrganismPermission userOrganismPermission in userOrganismPermissionList){
             List<UserOrganismPermission> userOrganismPermissionListTemp =  userOrganismPermissionMap.get(userOrganismPermission.user)
-            if(!userOrganismPermissionListTemp){
+            if(userOrganismPermissionListTemp==null){
                 userOrganismPermissionListTemp = new ArrayList<>()
             }
             userOrganismPermissionListTemp.add(userOrganismPermission)
-            userOrganismPermissionMap.put(userOrganismPermission.user,userOrganismPermissionListTemp)
+            userOrganismPermissionMap.put(userOrganismPermission.user.username,userOrganismPermissionListTemp)
+        }
+        println "org permission map ${userOrganismPermissionMap.size()}"
+        for(v in userOrganismPermissionMap){
+            println "${v.key} ${v.value}"
         }
 
         User.all.each {
@@ -66,15 +71,16 @@ class UserController {
 
             // organism permissions
             JSONArray organismPermissionsArray = new JSONArray()
-            for(UserOrganismPermission userOrganismPermission in userOrganismPermissionMap.get(it)){
+            def  userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
+            println "lsit retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
+            for(UserOrganismPermission userOrganismPermission in userOrganismPermissionList3){
                 JSONObject organismJSON = new JSONObject()
 //                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                 organismJSON.put("organism", userOrganismPermission.organism.commonName)
-                organismJSON.put("permission",userOrganismPermission.permissions)
+                organismJSON.put("permissions",userOrganismPermission.permissions)
                 organismPermissionsArray.add(organismJSON)
             }
             userObject.organismPermissions = organismPermissionsArray
-
 
             returnArray.put(userObject)
         }
