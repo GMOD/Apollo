@@ -90,11 +90,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * @return
      */
     def getUserPermission() {
-        log.debug "gettinguser permission !! ${params.data}"
+        log.debug "getting user permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: wire into actual user table
-        println "principal:: " + SecurityUtils?.subject?.principal
+        println "principal: " + SecurityUtils?.subject?.principal
         String username = SecurityUtils?.subject?.principal
         int permission = PermissionEnum.NONE.value
         if(username) {
@@ -103,7 +103,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             User user = User.findByUsername(username)
 
-            println "attrbiute names: "
+            println "attribute names: "
             session.attributeNames.each { println it }
             Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
             Map<String, Integer> permissions 
@@ -126,10 +126,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 permission = permissions.values().iterator().next();
             }
         }
-//        SecurityUtils.subject.authenticated
-
-//        log.debug "user from ${username}"
-//        username = "demo@demo.gov"
         returnObject.put(REST_PERMISSION, permission)
         returnObject.put(REST_USERNAME, username)
 
