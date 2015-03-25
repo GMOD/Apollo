@@ -67,10 +67,28 @@ class MockupService {
                 username: "McMunozT@lbl.gov"
                 , passwordHash: new Sha256Hash(generatePassword()).toHex()
                 ,firstName: "Moni"
-                ,lastName: "Dunn"
+                ,lastName: "Munoz-Torrez"
         ).save(failOnError: true)
         moni.addToRoles(adminRole)
         bbopGroup.addToUsers(moni)
+
+        User colin = new User(
+                username: "colin.diesh@gmail.com"
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
+                ,firstName: "Colin"
+                ,lastName: "Diesh"
+        ).save(failOnError: true)
+        colin.addToRoles(adminRole)
+        elsikLabGroup.addToUsers(moni)
+
+        User deepak = new User(
+                username: "deepak.unni3@gmail.com"
+                , passwordHash: new Sha256Hash(generatePassword()).toHex()
+                ,firstName: "Deepak"
+                ,lastName: "Unni"
+        ).save(failOnError: true)
+        deepak.addToRoles(adminRole)
+        elsikLabGroup.addToUsers(moni)
 
 //        User moni = new User(
 //                username: "nathandunn@lbl.gov"
