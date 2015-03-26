@@ -386,7 +386,6 @@ public class ServerConfiguration {
                     }else{
                         trackPermissions = new HashSet<TrackAutoPermissionsGroup>();
                     }
-                    System.out.println("Track permissions " + trackPermissions.size());
 
                     Node spliceSitesNode = tracksNode.getElementsByTagName("splice_sites").item(0);
                     Set<String> spliceDonorSites = parseSpliceDonorSites((Element)spliceSitesNode);
@@ -426,7 +425,6 @@ public class ServerConfiguration {
             } else {
                 trackPermissions = new HashSet<TrackAutoPermissionsGroup>();
             }
-            System.out.println("Track permissions " + trackPermissions.size());
 //            if (refSeqsNode != null && annotationTrackNameNode != null && organismNode != null && sequenceTypeNode != null) {
                 Set<String> spliceDonorSites = parseSpliceDonorSites((Element)spliceSitesNode);
                 Set<String> spliceAcceptorSites = parseSpliceAcceptorSites((Element)spliceSitesNode);
@@ -679,12 +677,9 @@ public class ServerConfiguration {
     }
 
     private Set<TrackAutoPermissionsGroup> parsePermissions(NodeList permissionGroupList) {
-        System.out.println("parsePermissions()");
         Set<TrackAutoPermissionsGroup> trackPermissions = new HashSet<TrackAutoPermissionsGroup>();
         if (permissionGroupList != null) {
-            System.out.println("(has)permissionGroupList");
             for (int j = 0; j < permissionGroupList.getLength(); ++j) {
-                System.out.println("(" + j + ")");
                 Element grantNode = (Element)permissionGroupList.item(j);
 
                 NodeList usersList = grantNode.getElementsByTagName("users");
@@ -692,7 +687,6 @@ public class ServerConfiguration {
                 if (usersList != null) {
                     for (int k = 0; k < usersList.getLength(); ++k) {
                         users.add(usersList.item(k).getTextContent().trim());
-                        System.out.println("(pP)user: " + usersList.item(k).getTextContent().trim());
                     }
                 }
 
@@ -701,7 +695,6 @@ public class ServerConfiguration {
                 if (domainsList != null) {
                     for (int k = 0; k < domainsList.getLength(); ++k) {
                         domains.add(domainsList.item(k).getTextContent().trim());
-                        System.out.println("(pP)domain: " + domainsList.item(k).getTextContent().trim());
                     }
                 }
 
@@ -718,7 +711,6 @@ public class ServerConfiguration {
                 if (grantNode.getElementsByTagName("publish").getLength() > 0){
                     publish = true;
                 }
-                System.out.println(read +" " + write +" " + publish);
 
                 trackPermissions.add(new TrackAutoPermissionsGroup(users, domains, read, write, publish));
             }
