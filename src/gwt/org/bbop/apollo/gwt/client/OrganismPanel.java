@@ -5,14 +5,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
-import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -22,8 +17,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -50,7 +43,6 @@ public class OrganismPanel extends Composite {
     interface OrganismBrowserPanelUiBinder extends UiBinder<Widget, OrganismPanel> {
     }
 
-    private OrganismInfo selectedOrganismInfo;
 
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
     @UiField
@@ -121,10 +113,10 @@ public class OrganismPanel extends Composite {
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-            selectedOrganismInfo = singleSelectionModel.getSelectedObject();
-            setSelectedInfo(selectedOrganismInfo);
-            cancelButton.setVisible(false);
-            createButton.setVisible(false);
+                if(singleSelectionModel.getSelectedObject()!=null) {
+                    setSelectedInfo(singleSelectionModel.getSelectedObject());
+                    setDefaultButtonState();
+                }
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
@@ -225,7 +217,6 @@ public class OrganismPanel extends Composite {
     }
 
     public void clearSelections(){
-        selectedOrganismInfo = null ;
         singleSelectionModel.clear();
         organismName.setText("");
         sequenceFile.setText("");
@@ -235,12 +226,8 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
-        ///clearSelections();
-        //singleSelectionModel.clear();
-        //dataGrid.setSelectionModel(new NoSelectionModel<OrganismInfo>());
+        singleSelectionModel.clear();
         setNewOrganismButtonState();
-//        selectedOrganismInfo.setName(organismName.getText());
-//        updateOrganismInfo();
     }
 
     @UiHandler("createButton")
@@ -260,39 +247,37 @@ public class OrganismPanel extends Composite {
         sequenceFile.setText("");
         dataGrid.setSelectionModel(singleSelectionModel);
         newButton.setEnabled(true);
-        setSelectedInfo(selectedOrganismInfo);
+        setSelectedInfo(singleSelectionModel.getSelectedObject());
         setDefaultButtonState();
     }
 
     @UiHandler("deleteButton")
     public void handleDeleteOrganism(ClickEvent clickEvent) {
-        if(selectedOrganismInfo==null) return ;
-
-        if(Window.confirm("Delete organism: "+selectedOrganismInfo.getName())){
+        if(Window.confirm("Delete organism: "+singleSelectionModel.getSelectedObject().getName())){
             deleteButton.setEnabled(false);
-            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),selectedOrganismInfo);
+            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),singleSelectionModel.getSelectedObject());
         }
     }
 
 
     @UiHandler("organismName")
     public void handleOrganismNameChange(ChangeEvent changeEvent) {
-        if(selectedOrganismInfo==null) return ;
-        selectedOrganismInfo.setName(organismName.getText());
-        updateOrganismInfo();
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setName(organismName.getText());
+            updateOrganismInfo();
+        }
     }
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
-        if(selectedOrganismInfo==null) return ;
-        selectedOrganismInfo.setDirectory(sequenceFile.getText());
-        updateOrganismInfo();
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setDirectory(sequenceFile.getText());
+            updateOrganismInfo();
+        }
     }
 
     @UiHandler("reloadButton")
     public void handleReloadButton(ClickEvent clickEvent) {
-        if(selectedOrganismInfo==null) return ;
-        GWT.log("reloading "+selectedOrganismInfo.getName());
         updateOrganismInfo(true);
     }
 
@@ -301,7 +286,7 @@ public class OrganismPanel extends Composite {
     }
 
     private void updateOrganismInfo(boolean forceReload) {
-        OrganismRestService.updateOrganismInfo(selectedOrganismInfo,forceReload);
+        OrganismRestService.updateOrganismInfo(singleSelectionModel.getSelectedObject(),forceReload);
     }
 
 
@@ -313,7 +298,7 @@ public class OrganismPanel extends Composite {
     }
 
     public void setDefaultButtonState(){
-        if(singleSelectionModel.getSelectedSet().size()>0){
+        if(singleSelectionModel.getSelectedObject()!=null){
             newButton.setEnabled(true);
             newButton.setVisible(true);
             createButton.setVisible(false);
