@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +22,6 @@ import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.bbop.apollo.web.config.ServerConfiguration;
-import org.bbop.apollo.web.config.ServerConfiguration.TrackConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,7 +45,7 @@ public class RemoteUserAuthentication implements UserAuthentication {
             UserManager umi = UserManager.getInstance();
             try {
                 Set<String> users = umi.getUserNames();
-                if(!users.contains(username) && serverConfig.getAutoCreateUsers()){
+                if(serverConfig.getAutoCreateUsers() && !users.contains(username) ){
                     umi.addUser(username);
                     umi.setDefaultUserTrackPermissions(username, serverConfig.getTracks());
                 }
