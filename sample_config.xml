@@ -132,6 +132,7 @@
                 <read />
                 <publish />
             </auto_grant>
+        </default_permissions>
         -->
 
 	</tracks>
