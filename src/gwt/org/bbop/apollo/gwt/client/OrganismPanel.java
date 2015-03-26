@@ -115,7 +115,7 @@ public class OrganismPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 if(singleSelectionModel.getSelectedObject()!=null) {
                     setSelectedInfo(singleSelectionModel.getSelectedObject());
-                    setDefaultButtonState();
+                    setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
                 }
             }
         });
@@ -175,17 +175,6 @@ public class OrganismPanel extends Composite {
         validDirectory.setVisible(true);
     }
 
-    private void setNoSelection() {
-        organismName.setText("");
-        organismName.setEnabled(false);
-        sequenceFile.setText("");
-        sequenceFile.setEnabled(false);
-        annotationCount.setText("");
-        validDirectory.setVisible(false);
-        deleteButton.setVisible(false);
-    }
-
-
     private class UpdateInfoListCallback implements  RequestCallback{
 
         private boolean clearSelections = false ;
@@ -205,7 +194,7 @@ public class OrganismPanel extends Composite {
             if(clearSelections){
                 clearSelections();
             }
-            setDefaultButtonState();
+            setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             Annotator.eventBus.fireEvent(organismChangeEvent);
         }
@@ -232,7 +221,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
-        setDefaultButtonState();
+        setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -248,7 +237,7 @@ public class OrganismPanel extends Composite {
         dataGrid.setSelectionModel(singleSelectionModel);
         newButton.setEnabled(true);
         setSelectedInfo(singleSelectionModel.getSelectedObject());
-        setDefaultButtonState();
+        setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
     }
 
     @UiHandler("deleteButton")
@@ -256,6 +245,7 @@ public class OrganismPanel extends Composite {
         if(Window.confirm("Delete organism: "+singleSelectionModel.getSelectedObject().getName())){
             deleteButton.setEnabled(false);
             OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),singleSelectionModel.getSelectedObject());
+            setNoSelection();
         }
     }
 
@@ -296,9 +286,20 @@ public class OrganismPanel extends Composite {
 
         return trackInfoList;
     }
+    // Clear textboxes and make them unselectable
+    private void setNoSelection() {
+        organismName.setText("");
+        organismName.setEnabled(false);
+        sequenceFile.setText("");
+        sequenceFile.setEnabled(false);
+        annotationCount.setText("");
+        validDirectory.setVisible(false);
+        deleteButton.setVisible(false);
+    }
 
-    public void setDefaultButtonState(){
-        if(singleSelectionModel.getSelectedObject()!=null){
+    // Set the button states/visibility depending on whether there is a selection or not
+    public void setDefaultButtonState(boolean selection){
+        if(selection){
             newButton.setEnabled(true);
             newButton.setVisible(true);
             createButton.setVisible(false);
