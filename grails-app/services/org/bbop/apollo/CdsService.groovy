@@ -181,8 +181,7 @@ class CdsService {
     }
     
     def getResiduesFromCDS(CDS cds) {
-        // New implementation that infers CDS based on overlappng exons
-        println "===> in getResiduesFromCDS()"
+        // New implementation that infers CDS based on overlapping exons
         Transcript transcript = transcriptService.getTranscript(cds)
         List <Exon> exons = exonService.getSortedExons(transcript)
         int length = 0
@@ -191,12 +190,19 @@ class CdsService {
             if (!featureService.overlaps(exon,cds)) {
                 continue
             }
-            println "===> Exons getResiduesFromCDS: ${exon.uniqueName}"
             int fmin = exon.fmin < cds.fmin ? cds.fmin : exon.fmin
             int fmax = exon.fmax > cds.fmax ? cds.fmax : exon.fmax
-            int exon_length = fmin < fmax ? fmax - fmin : fmin - fmax
-            length += exon_length
-            residues += featureService.getResiduesWithAlterationsAndFrameshifts((Feature) exon)
+            int localStart
+            int localEnd
+            if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
+                localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin) + 1
+                localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax) + 1
+            } 
+            else {
+                localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin)
+                localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax)
+            }
+            residues += featureService.getResiduesWithAlterationsAndFrameshifts((Feature) exon).substring(localStart, localEnd)
         }
         return residues
     }
