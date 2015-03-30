@@ -1,10 +1,12 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -16,7 +18,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
@@ -25,6 +26,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -32,6 +34,7 @@ import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +82,11 @@ public class UserPanel extends Composite {
     org.gwtbootstrap3.client.ui.Button addGroupButton;
     @UiField
     TabLayoutPanel userDetailTab;
-    @UiField
-    FlexTable organismPermissions;
+    //    @UiField(provided = true)
+//    com.google.gwt.user.client.ui.DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid;
+//    @UiField FlexTable organismPermissions;
+    @UiField(provided = true)
+    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4);
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -88,6 +94,8 @@ public class UserPanel extends Composite {
     private SingleSelectionModel<UserInfo> selectionModel = new SingleSelectionModel<>();
     private UserInfo selectedUserInfo;
 
+    private ListDataProvider<UserOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
+    private List<UserOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
 
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -151,6 +159,9 @@ public class UserPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
 
 
+        createOrganismPermissionsTable();
+
+
         ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(userInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(firstNameColumn, new Comparator<UserInfo>() {
@@ -178,10 +189,10 @@ public class UserPanel extends Composite {
                 switch (userChangeEvent.getAction()) {
                     case ADD_USER_TO_GROUP:
                         availableGroupList.removeItem(availableGroupList.getSelectedIndex());
-                        if(availableGroupList.getItemCount()>0){
+                        if (availableGroupList.getItemCount() > 0) {
                             availableGroupList.setSelectedIndex(0);
                         }
-                        String group = userChangeEvent.getGroup() ;
+                        String group = userChangeEvent.getGroup();
                         addGroupToUi(group);
                         break;
                     case RELOAD_USERS:
@@ -194,6 +205,87 @@ public class UserPanel extends Composite {
                 }
             }
         });
+    }
+
+    private void createOrganismPermissionsTable() {
+        TextColumn<UserOrganismPermissionInfo> organismNameColumn = new TextColumn<UserOrganismPermissionInfo>() {
+            @Override
+            public String getValue(UserOrganismPermissionInfo userOrganismPermissionInfo) {
+                return userOrganismPermissionInfo.getOrganismName();
+            }
+        };
+        organismNameColumn.setSortable(true);
+
+
+        Column<UserOrganismPermissionInfo, Boolean> adminColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
+            @Override
+            public Boolean getValue(UserOrganismPermissionInfo object) {
+                return object.isAdmin();
+            }
+        };
+        adminColumn.setSortable(true);
+        adminColumn.setFieldUpdater(new FieldUpdater<UserOrganismPermissionInfo, Boolean>() {
+            @Override
+            public void update(int index, UserOrganismPermissionInfo object, Boolean value) {
+                object.setAdmin(value);
+                UserRestService.updateOrganismPermission(object);
+            }
+        });
+
+        Column<UserOrganismPermissionInfo, Boolean> writeColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
+            @Override
+            public Boolean getValue(UserOrganismPermissionInfo object) {
+                return object.isWrite();
+            }
+        };
+        writeColumn.setSortable(true);
+        writeColumn.setFieldUpdater(new FieldUpdater<UserOrganismPermissionInfo, Boolean>() {
+            @Override
+            public void update(int index, UserOrganismPermissionInfo object, Boolean value) {
+                object.setWrite(value);
+                object.setUserId(selectedUserInfo.getUserId());
+                UserRestService.updateOrganismPermission(object);
+            }
+        });
+
+        Column<UserOrganismPermissionInfo, Boolean> exportColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
+            @Override
+            public Boolean getValue(UserOrganismPermissionInfo object) {
+                return object.isExport();
+            }
+        };
+        exportColumn.setSortable(true);
+        exportColumn.setFieldUpdater(new FieldUpdater<UserOrganismPermissionInfo, Boolean>() {
+            @Override
+            public void update(int index, UserOrganismPermissionInfo object, Boolean value) {
+                object.setExport(value);
+                UserRestService.updateOrganismPermission(object);
+            }
+        });
+
+        Column<UserOrganismPermissionInfo, Boolean> readColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
+            @Override
+            public Boolean getValue(UserOrganismPermissionInfo object) {
+                return object.isRead();
+            }
+        };
+        readColumn.setSortable(true);
+        readColumn.setFieldUpdater(new FieldUpdater<UserOrganismPermissionInfo, Boolean>() {
+            @Override
+            public void update(int index, UserOrganismPermissionInfo object, Boolean value) {
+                object.setRead(value);
+                UserRestService.updateOrganismPermission(object);
+            }
+        });
+
+
+        organismPermissionsGrid.addColumn(organismNameColumn, "Name");
+        organismPermissionsGrid.addColumn(adminColumn, "Admin");
+        organismPermissionsGrid.addColumn(writeColumn, "Write");
+        organismPermissionsGrid.addColumn(exportColumn, "Export");
+        organismPermissionsGrid.addColumn(readColumn, "Read");
+        permissionProvider.addDataDisplay(organismPermissionsGrid);
+
     }
 
 
@@ -273,6 +365,7 @@ public class UserPanel extends Composite {
             email.setText("");
             deleteButton.setEnabled(false);
             roleList.setVisible(false);
+            permissionProviderList.clear();
 
 
             if (saveButton.isVisible()) {
@@ -311,6 +404,7 @@ public class UserPanel extends Composite {
                 addGroupToUi(group);
             }
 
+
             availableGroupList.clear();
             List<String> localAvailableGroupList = selectedUserInfo.getAvailableGroupList();
             for (int i = 0; i < localAvailableGroupList.size(); i++) {
@@ -318,20 +412,14 @@ public class UserPanel extends Composite {
                 availableGroupList.addItem(availableGroup);
             }
 
-            organismPermissions.removeAllRows();
-            Map<String,String> organsimPermissionMap = selectedUserInfo.getOrganismPermissionMap();
-            int count = 0 ;
-//            Window.alert("# permissions: "+organsimPermissionMap.size());
-            for(String organism : organsimPermissionMap.keySet()){
-                organismPermissions.setHTML(count,0,organism);
-                organismPermissions.setHTML(count,1,organsimPermissionMap.get(organism));
-                ++count ;
-            }
+            permissionProviderList.clear();
+            permissionProviderList.addAll(selectedUserInfo.getOrganismPermissionMap().values());
         }
     }
 
+
     private void addGroupToUi(String group) {
-        int i = groupTable.getRowCount() ;
+        int i = groupTable.getRowCount();
         groupTable.setWidget(i, 0, new RemoveGroupButton(group));
         groupTable.setWidget(i, 1, new HTML(group));
     }
@@ -342,35 +430,35 @@ public class UserPanel extends Composite {
     }
 
     private void removeGroupFromUI(String group) {
-        int rowToRemove = -1 ;
+        int rowToRemove = -1;
 //        Window.alert("row count: "+groupTable.getRowCount());
         for (int row = 0; rowToRemove < 0 && row < groupTable.getRowCount(); ++row) {
 //            Window.alert("cell count for row: "+row+ " -> "+groupTable.getCellCount(row));
 //            if(groupTable.getCellCount(row)>1){
-                RemoveGroupButton removeGroupButton = (RemoveGroupButton) groupTable.getWidget(row, 0);
-                if(removeGroupButton.getGroupName().equals(group)){
-                    rowToRemove = row ;
-                }
+            RemoveGroupButton removeGroupButton = (RemoveGroupButton) groupTable.getWidget(row, 0);
+            if (removeGroupButton.getGroupName().equals(group)) {
+                rowToRemove = row;
+            }
 //            }
         }
-        if(rowToRemove>=0){
+        if (rowToRemove >= 0) {
             groupTable.removeRow(rowToRemove);
             availableGroupList.addItem(group);
         }
     }
 
-    private class RemoveGroupButton extends org.gwtbootstrap3.client.ui.Button{
+    private class RemoveGroupButton extends org.gwtbootstrap3.client.ui.Button {
 
-        private String groupName  ;
+        private String groupName;
 
-        public RemoveGroupButton(final String groupName){
-            this.groupName = groupName ;
+        public RemoveGroupButton(final String groupName) {
+            this.groupName = groupName;
             setIcon(IconType.REMOVE);
 //            setText("X");
             addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    UserRestService.removeUserFromGroup(groupName,userInfoList,selectedUserInfo);
+                    UserRestService.removeUserFromGroup(groupName, userInfoList, selectedUserInfo);
                 }
             });
         }

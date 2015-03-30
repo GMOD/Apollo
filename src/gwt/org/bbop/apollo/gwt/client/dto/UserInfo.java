@@ -23,7 +23,7 @@ public class UserInfo {
     private String password;
     private List<String> groupList = new ArrayList<>();
     private List<String> availableGroupList = new ArrayList<>();
-    private Map<String,String> organismPermissionMap = new HashMap<>();
+    private Map<String,UserOrganismPermissionInfo> organismPermissionMap = new HashMap<>();
 
     public UserInfo(){}
     
@@ -110,13 +110,12 @@ public class UserInfo {
         this.availableGroupList = availableGroupList;
     }
 
-
-    public Map<String, String> getOrganismPermissionMap() {
+    public Map<String, UserOrganismPermissionInfo> getOrganismPermissionMap() {
         return organismPermissionMap;
     }
 
-    public void setOrganismPermissions(Map<String,String> organismPermissions) {
-        this.organismPermissionMap = organismPermissions;
+    public void setOrganismPermissionMap(Map<String, UserOrganismPermissionInfo> organismPermissionMap) {
+        this.organismPermissionMap = organismPermissionMap;
     }
 
     public JSONObject toJSON(){
@@ -149,7 +148,7 @@ public class UserInfo {
         int index = 0 ;
         for(String organism : organismPermissionMap.keySet()){
             JSONObject orgPermission = new JSONObject();
-            orgPermission.put(organism,new JSONString(organismPermissionMap.get(organism)));
+            orgPermission.put(organism,new JSONString(organismPermissionMap.get(organism).toJSON()));
             organismPermissions.set(index,orgPermission);
             ++index ;
         }

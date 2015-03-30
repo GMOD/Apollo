@@ -34,51 +34,51 @@ public class GroupPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided=true) DataGrid<UserGroupInfo> dataGrid = new DataGrid<UserGroupInfo>( 10, tablecss );
 
-    @UiField
-    FlexTable trackPermissions;
+//    @UiField
+//    FlexTable trackPermissions;
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         name.setHTML("USDA #1");
 
-        trackPermissions.setHTML(0, 0, "<b>Track</b>");
-        trackPermissions.setHTML(0, 1, "<b>Admin</b>");
-        trackPermissions.setHTML(0, 2, "<b>Write</b>");
-        trackPermissions.setHTML(0, 3, "<b>Export</b>");
-        trackPermissions.setHTML(0, 4, "<b>Read</b>");
-
-
-        String removeString = "<span class=\"glyphicon glyphicon-remove red\" aria-hidden=\"true\"></span>";
-        String addString = "<span class=\"glyphicon glyphicon-ok green\" aria-hidden=\"true\"></span>";
-        trackPermissions.setHTML(1, 0, "GeneID");
-        trackPermissions.setHTML(1, 1, removeString);
-
-        trackPermissions.setHTML(1, 2, addString);
-        trackPermissions.setHTML(1, 3, removeString);
-        trackPermissions.setHTML(1, 4, addString);
-
-        trackPermissions.setHTML(2, 0, "Fgenesh");
-        trackPermissions.setHTML(2, 1, addString);
-        trackPermissions.setHTML(2, 2, addString);
-        trackPermissions.setHTML(2, 3, removeString);
-        trackPermissions.setHTML(2, 4, removeString);
-
-
-        for (int i = 0; i < 5; i++) {
-            trackPermissions.getCellFormatter().addStyleName(0, i, "detail-table-header1");
-            if(i>0) trackPermissions.getCellFormatter().addStyleName(0, i, "detail-table-cell");
-        }
-        for (int i = 1; i < 3; i++) {
-            trackPermissions.getCellFormatter().addStyleName(i, 0, "detail-table-header1");
-        }
-
-
-        for (int i = 1; i < 5; i++) {
-            for (int j = 1; j < 3; j++) {
-                trackPermissions.getCellFormatter().addStyleName(j, i, "detail-table-cell");
-            }
-        }
+//        trackPermissions.setHTML(0, 0, "<b>Track</b>");
+//        trackPermissions.setHTML(0, 1, "<b>Admin</b>");
+//        trackPermissions.setHTML(0, 2, "<b>Write</b>");
+//        trackPermissions.setHTML(0, 3, "<b>Export</b>");
+//        trackPermissions.setHTML(0, 4, "<b>Read</b>");
+//
+//
+//        String removeString = "<span class=\"glyphicon glyphicon-remove red\" aria-hidden=\"true\"></span>";
+//        String addString = "<span class=\"glyphicon glyphicon-ok green\" aria-hidden=\"true\"></span>";
+//        trackPermissions.setHTML(1, 0, "GeneID");
+//        trackPermissions.setHTML(1, 1, removeString);
+//
+//        trackPermissions.setHTML(1, 2, addString);
+//        trackPermissions.setHTML(1, 3, removeString);
+//        trackPermissions.setHTML(1, 4, addString);
+//
+//        trackPermissions.setHTML(2, 0, "Fgenesh");
+//        trackPermissions.setHTML(2, 1, addString);
+//        trackPermissions.setHTML(2, 2, addString);
+//        trackPermissions.setHTML(2, 3, removeString);
+//        trackPermissions.setHTML(2, 4, removeString);
+//
+//
+//        for (int i = 0; i < 5; i++) {
+//            trackPermissions.getCellFormatter().addStyleName(0, i, "detail-table-header1");
+//            if(i>0) trackPermissions.getCellFormatter().addStyleName(0, i, "detail-table-cell");
+//        }
+//        for (int i = 1; i < 3; i++) {
+//            trackPermissions.getCellFormatter().addStyleName(i, 0, "detail-table-header1");
+//        }
+//
+//
+//        for (int i = 1; i < 5; i++) {
+//            for (int j = 1; j < 3; j++) {
+//                trackPermissions.getCellFormatter().addStyleName(j, i, "detail-table-cell");
+//            }
+//        }
 
 
 

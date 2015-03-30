@@ -134,14 +134,15 @@
                     <!--<gwt:header>Configuration</gwt:header>-->
                     <!--<gwt:FlexTable ui:field="configurationTable"/>-->
                 <!--</gwt:tab>-->
-                <gwt:tab>
-                    <gwt:header>Users</gwt:header>
-                    <gwt:HTML text="user permissions on table"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Groups</gwt:header>
-                    <gwt:HTML text="group permissions on table"/>
-                </gwt:tab>
+                <!--TODO: add back for 2.0-alpha2 or 2.1-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>Users</gwt:header>-->
+                    <!--<gwt:HTML text="user permissions on table"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                    <!--<gwt:header>Groups</gwt:header>-->
+                    <!--<gwt:HTML text="group permissions on table"/>-->
+                <!--</gwt:tab>-->
             </gwt:TabLayoutPanel>
         </gwt:south>
 

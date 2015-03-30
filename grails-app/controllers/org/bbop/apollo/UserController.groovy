@@ -78,6 +78,8 @@ class UserController {
 //                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                 organismJSON.put("organism", userOrganismPermission.organism.commonName)
                 organismJSON.put("permissions",userOrganismPermission.permissions)
+                organismJSON.put("userId",userOrganismPermission.userId)
+                organismJSON.put("id",userOrganismPermission.id)
                 organismPermissionsArray.add(organismJSON)
             }
             userObject.organismPermissions = organismPermissionsArray
@@ -195,5 +197,38 @@ class UserController {
         render userOrganismPermissionList as JSON
     }
 
+    /**
+     * Only changing one of the boolean permissions
+     * @return
+     */
+    def updateOrganismPermission(){
+        JSONObject dataObject = JSON.parse(params.data)
+        println "finding by id ${dataObject.id}"
+        UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
+        println "found ${userOrganismPermission}"
+
+
+
+        JSONArray permissionsArray = new JSONArray()
+        if(dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())){
+            permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
+        }
+        if(dataObject.getBoolean(PermissionEnum.WRITE.name())){
+            permissionsArray.add(PermissionEnum.WRITE.name())
+        }
+        if(dataObject.getBoolean(PermissionEnum.EXPORT.name())){
+            permissionsArray.add(PermissionEnum.EXPORT.name())
+        }
+        if(dataObject.getBoolean(PermissionEnum.READ.name())){
+            permissionsArray.add(PermissionEnum.READ.name())
+        }
+
+
+        userOrganismPermission.permissions = permissionsArray.toString()
+        userOrganismPermission.save(flush: true)
+
+        render userOrganismPermission as JSON
+
+    }
 
 }
