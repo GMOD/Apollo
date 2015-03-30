@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -22,6 +23,7 @@ import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.client.event.GroupChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GroupRestService;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 
 import java.util.Comparator;
@@ -41,6 +43,14 @@ public class GroupPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<GroupInfo> dataGrid = new DataGrid<GroupInfo>(10, tablecss);
+    @UiField
+    Button deleteButton;
+    @UiField
+    Button saveButton;
+    @UiField
+    Button cancelButton;
+    @UiField
+    Button createButton;
 
     //    @UiField
 //    FlexTable trackPermissions;
@@ -117,7 +127,19 @@ public class GroupPanel extends Composite {
 //                        addGroupToUi(group);
 //                        break;
                     case RELOAD_GROUPS:
+                        selectedGroupInfo = null ;
+                        selectionModel.clear();
+                        setSelectedGroup();
                         reload();
+                        break;
+                    case ADD_GROUP:
+                        selectedGroupInfo = null ;
+                        selectionModel.clear();
+                        setSelectedGroup();
+                        reload();
+                        saveButton.setVisible(false);
+                        cancelButton.setVisible(false);
+                        createButton.setEnabled(true);
                         break;
 //                    case REMOVE_USER_FROM_GROUP:
 //                        removeGroupFromUI(userChangeEvent.getGroup());
@@ -126,14 +148,51 @@ public class GroupPanel extends Composite {
                 }
             }
         });
+    }
 
+    @UiHandler("deleteButton")
+    public void deleteGroup(ClickEvent clickEvent){
+        GroupRestService.deleteGroup(selectedGroupInfo);
+        selectionModel.clear();
+    }
 
+    @UiHandler("saveButton")
+    public void saveGroup(ClickEvent clickEvent){
+        GroupInfo groupInfo = getGroupFromUI();
+        GroupRestService.addNewGroup(groupInfo);
+    }
+
+    private GroupInfo getGroupFromUI() {
+        GroupInfo groupInfo = new GroupInfo();
+        groupInfo.setName(name.getText());
+        return groupInfo ;
+    }
+
+    @UiHandler("createButton")
+    public void createGroup(ClickEvent clickEvent){
+        selectedGroupInfo = null;
+        selectionModel.clear();
+
+        cancelButton.setVisible(true);
+        deleteButton.setVisible(false);
+        saveButton.setVisible(true);
+        createButton.setEnabled(false);
+    }
+
+    @UiHandler("cancelButton")
+    public void cancelCreate(ClickEvent clickEvent){
+        name.setText("");
+        cancelButton.setVisible(false);
+        saveButton.setVisible(false);
+        createButton.setEnabled(true);
     }
 
     @UiHandler("name")
     public void handleNameChange(ChangeEvent changeEvent){
-        selectedGroupInfo.setName(name.getText());
-        GroupRestService.updateGroup(selectedGroupInfo);
+        if(selectedGroupInfo!=null && selectedGroupInfo.getId()!=null){
+            selectedGroupInfo.setName(name.getText());
+            GroupRestService.updateGroup(selectedGroupInfo);
+        }
     }
 
     private void setSelectedGroup() {
@@ -141,9 +200,11 @@ public class GroupPanel extends Composite {
 
         if(selectedGroupInfo!=null){
             name.setText(selectedGroupInfo.getName());
+            deleteButton.setVisible(true);
         }
         else{
             name.setText("");
+            deleteButton.setVisible(false);
         }
     }
 

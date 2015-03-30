@@ -36,36 +36,29 @@ class GroupController {
     def createGroup(){
         println "creating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
-//        User user = new User(
-//                firstName: dataObject.firstName
-//                , lastName: dataObject.lastName
-//                , username: dataObject.email
-//                , passwordHash: new Sha256Hash(dataObject.password).toHex()
-//        )
-//        user.save(insert: true)
-//
-//        String roleString = dataObject.role
-//        Role role = Role.findByName(roleString.toUpperCase())
-//        println "adding role: ${role}"
-//        user.addToRoles(role)
-//        role.addToUsers(user)
-//        role.save()
-//        user.save(flush:true)
+        println "dataObject ${dataObject}"
 
-        render new JSONObject() as JSON
+        UserGroup group = new UserGroup(
+                name: dataObject.name
+        ).save(flush: true)
+
+
+        render group as JSON
 
     }
 
     def deleteGroup(){
         println "deleting user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
-        UserGroup group = UserGroup.findById(dataObject.groupId)
+        UserGroup group = UserGroup.findById(dataObject.id)
         group.users.each { it ->
             it.removeFromUserGroups(group)
         }
 //        UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
 //        UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
         group.delete(flush: true)
+
+        render new JSONObject() as JSON
     }
 
     def updateGroup(){

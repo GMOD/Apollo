@@ -9,11 +9,11 @@ import com.google.gwt.json.client.JSONString;
  */
 public class GroupInfo {
 
-    String name ;
-    Integer numberOfUsers;
-    Integer numberOrganisms;
-    Integer numberSequences;
-    private long id;
+    private String name ;
+    private Integer numberOfUsers;
+    private Integer numberOrganisms;
+    private Integer numberSequences;
+    private Long id;
 
 //    public GroupInfo(String name){
 //        this.name = name ;
@@ -54,20 +54,25 @@ public class GroupInfo {
         this.numberSequences = numberSequences;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public Long getId() {
+        return id;
     }
 
-    public long getId() {
-        return id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("id",new JSONNumber(id));
+        if(id!=null){
+            jsonObject.put("id",new JSONNumber(id));
+        }
         jsonObject.put("name",new JSONString(name));
-        jsonObject.put("numberOfUsers",new JSONNumber(numberOfUsers));
+
+        if(numberOfUsers!=null){
+            jsonObject.put("numberOfUsers",new JSONNumber(numberOfUsers));
+        }
 
         return jsonObject;
     }

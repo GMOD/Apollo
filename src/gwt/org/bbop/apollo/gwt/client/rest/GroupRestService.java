@@ -67,4 +67,34 @@ public class GroupRestService {
         };
         RestService.sendRequest(requestCallback, "/group/updateGroup/", "data="+selectedGroupInfo.toJSON().toString());
     }
+
+    public static void deleteGroup(final GroupInfo selectedGroupInfo) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Annotator.eventBus.fireEvent(new GroupChangeEvent(GroupChangeEvent.Action.RELOAD_GROUPS));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
+            }
+        };
+        RestService.sendRequest(requestCallback, "/group/deleteGroup/", "data="+selectedGroupInfo.toJSON().toString());
+    }
+
+    public static void addNewGroup(final GroupInfo selectedGroupInfo) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Annotator.eventBus.fireEvent(new GroupChangeEvent(GroupChangeEvent.Action.ADD_GROUP));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
+            }
+        };
+        RestService.sendRequest(requestCallback, "/group/createGroup/", "data="+selectedGroupInfo.toJSON().toString());
+    }
 }
