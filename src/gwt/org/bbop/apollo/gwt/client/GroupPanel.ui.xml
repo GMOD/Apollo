@@ -65,32 +65,32 @@
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
                         <b:Row>
-                            <b:Column size="MD_2">
+                            <b:Column size="MD_1">
                                 <gwt:HTML styleName="{style.tableKeyName}">
                                     Name
                                 </gwt:HTML>
                             </b:Column>
-                            <b:Column size="MD_4">
+                            <b:Column size="MD_3">
                                 <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
                                 <b:TextBox ui:field="name" styleName="{style.tableValue}" />
                             </b:Column>
                             <b:Column size="MD_1">
                                 <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
-                                <b:Button ui:field="deleteButton" icon="REMOVE" visible="false"/>
+                                <b:Button ui:field="deleteButton" icon="REMOVE" color="RED" visible="false"/>
                             </b:Column>
-                        </b:Row>
-                        <b:Row styleName="{style.rowPadding}">
-                            <b:Column size="MD_6"></b:Column>
-                        </b:Row>
-                        <b:Row>
+                        <!--</b:Row>-->
+                        <!--<b:Row styleName="{style.rowPadding}">-->
+                            <!--<b:Column size="MD_6"></b:Column>-->
+                        <!--</b:Row>-->
+                        <!--<b:Row>-->
                             <b:Column size="MD_1">
-                                <b:Button ui:field="createButton" icon="PLUS"/>
+                                <b:Button ui:field="createButton" icon="PLUS" color="BLUE"  />
                             </b:Column>
                             <b:Column size="MD_2">
                                 <b:Button ui:field="cancelButton" text="Cancel" visible="false"/>
                             </b:Column>
                             <b:Column size="MD_2">
-                                <b:Button ui:field="saveButton" icon="SAVE" text="Save" visible="false"/>
+                                <b:Button ui:field="saveButton" icon="SAVE" text="Save" visible="false" />
                             </b:Column>
                         </b:Row>
                     </b:Container>
