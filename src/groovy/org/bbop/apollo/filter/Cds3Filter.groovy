@@ -10,14 +10,15 @@ import org.bbop.apollo.Feature
  *
  * If any CDS is not exactly divisible 3, put error on feature
  */
-class Cds3Filter implements FeatureFilter<List<String>,Feature>{
-
+class Cds3Filter implements FeatureFilter<List<String>, Feature> {
 
     // TODO: need a unit test for this
-    List<String> filterFeature(Feature feature){
+    List<String> filterFeature(Feature feature) {
         List<String> errorList = new ArrayList<>()
-        if(feature.ontologyId == CDS.ontologyId){
-            if(feature.getLength()%3!=0){
+        if (feature.ontologyId == CDS.ontologyId) {
+//            if(feature.getLength()%3!=0){
+            // TODO: do an actual search at some point
+            if (false) {
                 errorList.add("CDS/3")
             }
         }

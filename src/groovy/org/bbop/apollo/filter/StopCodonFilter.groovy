@@ -7,15 +7,17 @@ import org.bbop.apollo.Feature
  * @E is E-type
  * @T is T-type
  */
-class StopCodonFilter implements FeatureFilter<List<String>,Feature>{
+class StopCodonFilter implements FeatureFilter<List<String>, Feature> {
 
     Random random = new Random()
 
-    List<String> filterFeature(Feature feature){
+    List<String> filterFeature(Feature feature) {
 
         List<String> errorList = new ArrayList<>()
 
-        if(random.nextFloat()<0.2){
+//        if(random.nextFloat()<0.2){
+        // TODO: do an actual search at some point
+        if (false) {
             errorList.add("Stop Codon")
         }
 
