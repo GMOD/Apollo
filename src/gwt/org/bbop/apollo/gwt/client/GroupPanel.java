@@ -9,13 +9,15 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
-import org.bbop.apollo.gwt.client.dto.UserGroupInfo;
+import org.bbop.apollo.gwt.client.dto.GroupInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.GroupRestService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -32,15 +34,21 @@ public class GroupPanel extends Composite {
     HTML name;
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-    @UiField(provided=true) DataGrid<UserGroupInfo> dataGrid = new DataGrid<UserGroupInfo>( 10, tablecss );
+    @UiField(provided = true)
+    DataGrid<GroupInfo> dataGrid = new DataGrid<GroupInfo>(10, tablecss);
 
-//    @UiField
+    //    @UiField
 //    FlexTable trackPermissions;
+    private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
+    private List<GroupInfo> groupInfoList = dataProvider.getList();
+    private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
+    private GroupInfo selectedGroupInfo;
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         name.setHTML("USDA #1");
+        GroupRestService.loadGroups(groupInfoList);
 
 //        trackPermissions.setHTML(0, 0, "<b>Track</b>");
 //        trackPermissions.setHTML(0, 1, "<b>Admin</b>");
@@ -81,19 +89,17 @@ public class GroupPanel extends Composite {
 //        }
 
 
-
-
-        TextColumn<UserGroupInfo> firstNameColumn = new TextColumn<UserGroupInfo>() {
+        TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override
-            public String getValue(UserGroupInfo employee) {
+            public String getValue(GroupInfo employee) {
                 return employee.getName();
             }
         };
         firstNameColumn.setSortable(true);
 
-        Column<UserGroupInfo, Number> secondNameColumn = new Column<UserGroupInfo, Number>(new NumberCell()) {
+        Column<GroupInfo, Number> secondNameColumn = new Column<GroupInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(UserGroupInfo object) {
+            public Integer getValue(GroupInfo object) {
                 return object.getNumberOfUsers();
             }
         };
@@ -102,32 +108,50 @@ public class GroupPanel extends Composite {
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(secondNameColumn, "Users");
 
-        ListDataProvider<UserGroupInfo> dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(dataGrid);
-
-        List<UserGroupInfo> trackInfoList = dataProvider.getList();
-
-        for (String user : DataGenerator.getGroups()) {
-            trackInfoList.add(new UserGroupInfo(user));
-        }
-
-        ColumnSortEvent.ListHandler<UserGroupInfo> sortHandler = new ColumnSortEvent.ListHandler<UserGroupInfo>(trackInfoList);
-        dataGrid.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(firstNameColumn, new Comparator<UserGroupInfo>() {
+        dataGrid.setSelectionModel(selectionModel);
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
-            public int compare(UserGroupInfo o1, UserGroupInfo o2) {
+            public void onSelectionChange(SelectionChangeEvent event) {
+                setSelectedGroup();
+            }
+        });
+
+//        List<GroupInfo> trackInfoList = dataProvider.getList();
+//
+//        for (String user : DataGenerator.getGroups()) {
+//            trackInfoList.add(new GroupInfo(user));
+//        }
+
+        ColumnSortEvent.ListHandler<GroupInfo> sortHandler = new ColumnSortEvent.ListHandler<GroupInfo>(groupInfoList);
+        dataGrid.addColumnSortHandler(sortHandler);
+        sortHandler.setComparator(firstNameColumn, new Comparator<GroupInfo>() {
+            @Override
+            public int compare(GroupInfo o1, GroupInfo o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
-        sortHandler.setComparator(secondNameColumn, new Comparator<UserGroupInfo>() {
+        sortHandler.setComparator(secondNameColumn, new Comparator<GroupInfo>() {
             @Override
-            public int compare(UserGroupInfo o1, UserGroupInfo o2) {
+            public int compare(GroupInfo o1, GroupInfo o2) {
                 return o1.getNumberOfUsers() - o2.getNumberOfUsers();
             }
         });
     }
 
-    public void reload(){
+    private void setSelectedGroup() {
+        selectedGroupInfo = selectionModel.getSelectedObject();
+
+        if(selectedGroupInfo!=null){
+            name.setHTML(selectedGroupInfo.getName());
+        }
+        else{
+            name.setHTML("");
+        }
+    }
+
+    public void reload() {
+        GroupRestService.loadGroups(groupInfoList);
         dataGrid.redraw();
     }
 }

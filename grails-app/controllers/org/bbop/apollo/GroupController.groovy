@@ -22,6 +22,7 @@ class GroupController {
             groupObject.groupId = it.id
             groupObject.name = it.name
             groupObject.public = it.isPublicGroup()
+            groupObject.numberOfUsers = it.users?.size()
 
 
             returnArray.put(groupObject)

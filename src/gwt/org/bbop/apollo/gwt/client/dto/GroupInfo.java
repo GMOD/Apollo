@@ -3,18 +3,19 @@ package org.bbop.apollo.gwt.client.dto;
 /**
  * Created by ndunn on 12/18/14.
  */
-public class UserGroupInfo {
+public class GroupInfo {
+
     String name ;
     Integer numberOfUsers;
     Integer numberOrganisms;
     Integer numberSequences;
 
-    public UserGroupInfo(String name){
-        this.name = name ;
-        this.numberOfUsers = (int) Math.round(Math.random()*100);
-        this.numberOrganisms = (int) Math.round(Math.random()*100);
-        this.numberSequences = (int) Math.round(Math.random()*100);
-    }
+//    public GroupInfo(String name){
+//        this.name = name ;
+//        this.numberOfUsers = (int) Math.round(Math.random()*100);
+//        this.numberOrganisms = (int) Math.round(Math.random()*100);
+//        this.numberSequences = (int) Math.round(Math.random()*100);
+//    }
 
     public Integer getNumberOfUsers() {
         return numberOfUsers;
