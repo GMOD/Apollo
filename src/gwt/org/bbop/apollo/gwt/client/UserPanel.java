@@ -74,7 +74,7 @@ public class UserPanel extends Composite {
     @UiField
     FlexTable groupTable;
     @UiField
-    ListBox availableGroupList;
+    org.gwtbootstrap3.client.ui.ListBox availableGroupList;
     @UiField
     org.gwtbootstrap3.client.ui.Button addGroupButton;
     @UiField
@@ -355,6 +355,7 @@ public class UserPanel extends Composite {
         }
         if(rowToRemove>=0){
             groupTable.removeRow(rowToRemove);
+            availableGroupList.addItem(group);
         }
     }
 

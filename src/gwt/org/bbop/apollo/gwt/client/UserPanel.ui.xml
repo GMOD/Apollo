@@ -43,6 +43,15 @@
 
         .center-table {
             margin: 10px;
+        }
+
+        .groupList td {
+            padding-right: 5px;
+            padding-top: 5px;
+        }
+
+        .divider {
+            padding-bottom: 10px;
         }</ui:style>
     <gwt:SplitLayoutPanel>
         <!--<gwt:north size="80">-->
@@ -120,17 +129,22 @@
                     <!--<gwt:HTML text="add / remove from all visible groups as admin"/>-->
                     <b:Container>
                         <b:Row>
-                            <b:Column size="MD_4">
-                                <gwt:ListBox ui:field="availableGroupList"/>
+                            <b:Column size="MD_2">
+                                <b:ListBox ui:field="availableGroupList"/>
                                 <!--</b:Column>-->
                                 <!--<b:Column size="MD_2">-->
+                            </b:Column>
+                            <b:Column size="MD_1">
                                 <b:Button ui:field="addGroupButton" text="Add"/>
                             </b:Column>
-                        </b:Row>
-                        <b:Row><b:Column size="MD_6"></b:Column> </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_6">
-                                <gwt:FlexTable ui:field="groupTable" />
+                            <!--</b:Row>-->
+                            <!--<b:Row>-->
+                            <!--<b:Column size="MD_6" styleName="{style.divider}">-->
+                            <!--</b:Column>-->
+                            <!--</b:Row>-->
+                            <!--<b:Row>-->
+                            <b:Column size="MD_3">
+                                <gwt:FlexTable ui:field="groupTable" styleName="{style.groupList}"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>

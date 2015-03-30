@@ -4,13 +4,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
@@ -31,9 +26,7 @@ import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
@@ -77,7 +70,7 @@ public class MainPanel extends Composite {
     @UiField
     static UserPanel userPanel;
     @UiField
-    static UserGroupPanel userGroupPanel;
+    static GroupPanel userGroupPanel;
     @UiField
     static DockLayoutPanel eastDockPanel;
     @UiField

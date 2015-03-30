@@ -23,8 +23,8 @@ import java.util.List;
 /**
  * Created by ndunn on 12/17/14.
  */
-public class UserGroupPanel extends Composite {
-    interface UserGroupBrowserPanelUiBinder extends UiBinder<Widget, UserGroupPanel> {
+public class GroupPanel extends Composite {
+    interface UserGroupBrowserPanelUiBinder extends UiBinder<Widget, GroupPanel> {
     }
 
     private static UserGroupBrowserPanelUiBinder ourUiBinder = GWT.create(UserGroupBrowserPanelUiBinder.class);
@@ -37,7 +37,7 @@ public class UserGroupPanel extends Composite {
     @UiField
     FlexTable trackPermissions;
 
-    public UserGroupPanel() {
+    public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
         name.setHTML("USDA #1");

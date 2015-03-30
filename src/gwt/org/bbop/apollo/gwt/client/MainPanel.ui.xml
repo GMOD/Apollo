@@ -124,7 +124,7 @@
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Groups</gwt:header>
-                            <apollo:UserGroupPanel ui:field="userGroupPanel"/>
+                            <apollo:GroupPanel ui:field="userGroupPanel"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Preferences</gwt:header>
