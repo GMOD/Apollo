@@ -34,6 +34,19 @@ public class UserInfo {
         this.numberUserGroups = (int) Math.round(Math.random()*100);
     }
 
+    public UserInfo(JSONObject userObject) {
+        setEmail(userObject.get("email").isString().stringValue());
+        setFirstName(userObject.get("firstName").isString().stringValue());
+        setLastName(userObject.get("lastName").isString().stringValue());
+        if(userObject.get("userId")!=null) {
+            setUserId((long) userObject.get("userId").isNumber().doubleValue());
+        }
+        else
+        if(userObject.get("id")!=null) {
+            setUserId((long) userObject.get("id").isNumber().doubleValue());
+        }
+    }
+
     public Long getUserId() {
         return userId;
     }

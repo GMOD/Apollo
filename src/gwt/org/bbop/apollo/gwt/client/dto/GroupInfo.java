@@ -1,19 +1,23 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+
+import java.util.List;
 
 /**
  * Created by ndunn on 12/18/14.
  */
 public class GroupInfo {
 
-    private String name ;
+    private String name;
     private Integer numberOfUsers;
     private Integer numberOrganisms;
     private Integer numberSequences;
     private Long id;
+    private List<UserInfo> userInfoList;
 
 //    public GroupInfo(String name){
 //        this.name = name ;
@@ -62,17 +66,31 @@ public class GroupInfo {
         this.id = id;
     }
 
+    public List<UserInfo> getUserInfoList() {
+        return userInfoList;
+    }
+
+    public void setUserInfoList(List<UserInfo> userInfoList) {
+        this.userInfoList = userInfoList;
+    }
+
     public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
 
-        if(id!=null){
-            jsonObject.put("id",new JSONNumber(id));
+        if (id != null) {
+            jsonObject.put("id", new JSONNumber(id));
         }
-        jsonObject.put("name",new JSONString(name));
+        jsonObject.put("name", new JSONString(name));
 
-        if(numberOfUsers!=null){
-            jsonObject.put("numberOfUsers",new JSONNumber(numberOfUsers));
+        if (numberOfUsers != null) {
+            jsonObject.put("numberOfUsers", new JSONNumber(numberOfUsers));
         }
+
+        JSONArray userInfoArray = new JSONArray();
+        for (int i = 0; userInfoList != null && i < userInfoList.size(); i++) {
+            userInfoArray.set(i,userInfoList.get(i).toJSON());
+        }
+        jsonObject.put("users",userInfoArray);
 
         return jsonObject;
     }

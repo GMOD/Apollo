@@ -70,9 +70,9 @@
                                     Name
                                 </gwt:HTML>
                             </b:Column>
-                            <b:Column size="MD_3">
+                            <b:Column size="MD_4">
                                 <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
-                                <b:TextBox ui:field="name" styleName="{style.tableValue}" />
+                                <b:TextBox ui:field="name"  />
                             </b:Column>
                             <b:Column size="MD_1">
                                 <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
@@ -91,6 +91,11 @@
                             </b:Column>
                             <b:Column size="MD_2">
                                 <b:Button ui:field="saveButton" icon="SAVE" text="Save" visible="false" />
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_6">
+                                <cellview:DataGrid ui:field="userData" />
                             </b:Column>
                         </b:Row>
                     </b:Container>

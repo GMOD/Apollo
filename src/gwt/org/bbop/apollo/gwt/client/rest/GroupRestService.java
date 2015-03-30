@@ -12,8 +12,10 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.AnnotatorPanel;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +40,21 @@ public class GroupRestService {
                     groupInfo.setId((long) object.get("id").isNumber().doubleValue());
                     groupInfo.setName(object.get("name").isString().stringValue());
                     groupInfo.setNumberOfUsers((int) object.get("numberOfUsers").isNumber().doubleValue());
+
+                    List<UserInfo> userInfoList = new ArrayList<>();
+
+
+                    if(object.get("users")!=null){
+                        JSONArray usersArray = object.get("users").isArray() ;
+                        for(int j =0 ; j < usersArray.size() ; j++){
+                            JSONObject userObject = usersArray.get(j).isObject();
+                            UserInfo userInfo = new UserInfo(userObject);
+                            userInfoList.add(userInfo);
+                        }
+                    }
+
+
+                    groupInfo.setUserInfoList(userInfoList);
 
 
                     groupInfoList.add(groupInfo);

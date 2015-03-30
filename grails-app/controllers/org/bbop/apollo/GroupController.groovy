@@ -24,8 +24,17 @@ class GroupController {
             groupObject.public = it.isPublicGroup()
             groupObject.numberOfUsers = it.users?.size()
 
+            JSONArray userArray = new JSONArray()
+            it.users.each{ user ->
+                JSONObject userObject = new JSONObject()
+                userObject.id=user.id
+                userObject.email=user.username
+                userObject.firstName=user.firstName
+                userObject.lastName=user.lastName
 
-
+                userArray.add(userObject)
+            }
+            groupObject.users = userArray
 
             returnArray.put(groupObject)
         }

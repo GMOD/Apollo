@@ -52,6 +52,8 @@ public class GroupPanel extends Composite {
     Button cancelButton;
     @UiField
     Button createButton;
+    @UiField
+    DataGrid userData;
 
     //    @UiField
 //    FlexTable trackPermissions;
