@@ -151,14 +151,9 @@
                 </gwt:tab>
                 <gwt:tab>
                     <gwt:header>Organisms</gwt:header>
-                    <!--<gwt:HTML text="organism permissions"/>-->
-                    <!--<gwt:FlexTable ui:field="organismPermissions" width="90%" styleName="{style.center-table}"/>-->
-                    <cellview:DataGrid ui:field="organismPermissionsGrid" width="90%" styleName="{style.center-table}"/>
+                    <cellview:DataGrid ui:field="organismPermissionsGrid" width="90%"
+                                       styleName="{style.center-table}"/>
                 </gwt:tab>
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Tracks</gwt:header>-->
-                <!--<gwt:HTML text="list tracks per organism"/>-->
-                <!--</gwt:tab>-->
             </gwt:TabLayoutPanel>
         </gwt:south>
 

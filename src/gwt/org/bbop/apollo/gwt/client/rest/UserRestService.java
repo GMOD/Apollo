@@ -98,28 +98,32 @@ public class UserRestService {
                     for (int j = 0; j < organismArray.size(); j++) {
                         JSONObject organismPermissionJsonObject = organismArray.get(j).isObject();
                         UserOrganismPermissionInfo userOrganismPermissionInfo = new UserOrganismPermissionInfo();
-                        userOrganismPermissionInfo.setId((long) organismPermissionJsonObject.get("id").isNumber().doubleValue());
+                        if(organismPermissionJsonObject.get("id")!=null){
+                            userOrganismPermissionInfo.setId((long) organismPermissionJsonObject.get("id").isNumber().doubleValue());
+                        }
                         userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get("userId").isNumber().doubleValue());
                         userOrganismPermissionInfo.setOrganismName(organismPermissionJsonObject.get("organism").isString().stringValue());
-                        JSONArray permissionsArray = JSONParser.parseStrict(organismPermissionJsonObject.get("permissions").isString().stringValue()).isArray();
-                        for (int permissionIndex = 0; permissionIndex < permissionsArray.size(); ++permissionIndex) {
-                            String permission = permissionsArray.get(permissionIndex).isString().stringValue();
-                            switch (permission) {
-                                case "ADMINISTRATE":
-                                    userOrganismPermissionInfo.setAdmin(true);
-                                    break;
-                                case "WRITE":
-                                    userOrganismPermissionInfo.setWrite(true);
-                                    break;
-                                case "EXPORT":
-                                    userOrganismPermissionInfo.setExport(true);
-                                    break;
-                                case "READ":
-                                    userOrganismPermissionInfo.setRead(true);
-                                    break;
+                        if(organismPermissionJsonObject.get("permissions")!=null) {
+                            JSONArray permissionsArray = JSONParser.parseStrict(organismPermissionJsonObject.get("permissions").isString().stringValue()).isArray();
+                            for (int permissionIndex = 0; permissionIndex < permissionsArray.size(); ++permissionIndex) {
+                                String permission = permissionsArray.get(permissionIndex).isString().stringValue();
+                                switch (permission) {
+                                    case "ADMINISTRATE":
+                                        userOrganismPermissionInfo.setAdmin(true);
+                                        break;
+                                    case "WRITE":
+                                        userOrganismPermissionInfo.setWrite(true);
+                                        break;
+                                    case "EXPORT":
+                                        userOrganismPermissionInfo.setExport(true);
+                                        break;
+                                    case "READ":
+                                        userOrganismPermissionInfo.setRead(true);
+                                        break;
 
-                                default:
-                                    Window.alert("not sure what to do wtih this: " + permission);
+                                    default:
+                                        Window.alert("not sure what to do wtih this: " + permission);
+                                }
                             }
                         }
 

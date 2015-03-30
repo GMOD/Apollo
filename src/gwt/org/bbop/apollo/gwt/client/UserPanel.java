@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
@@ -86,7 +87,7 @@ public class UserPanel extends Composite {
 //    com.google.gwt.user.client.ui.DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid;
 //    @UiField FlexTable organismPermissions;
     @UiField(provided = true)
-    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4);
+    DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -96,6 +97,7 @@ public class UserPanel extends Composite {
 
     private ListDataProvider<UserOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
     private List<UserOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
+    private ColumnSortEvent.ListHandler<UserOrganismPermissionInfo> sortHandler = new ColumnSortEvent.ListHandler<UserOrganismPermissionInfo>(permissionProviderList);
 
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -215,6 +217,7 @@ public class UserPanel extends Composite {
             }
         };
         organismNameColumn.setSortable(true);
+        organismNameColumn.setDefaultSortAscending(true);
 
 
         Column<UserOrganismPermissionInfo, Boolean> adminColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
@@ -229,6 +232,20 @@ public class UserPanel extends Composite {
             public void update(int index, UserOrganismPermissionInfo object, Boolean value) {
                 object.setAdmin(value);
                 UserRestService.updateOrganismPermission(object);
+            }
+        });
+        sortHandler.setComparator(adminColumn, new Comparator<UserOrganismPermissionInfo>() {
+            @Override
+            public int compare(UserOrganismPermissionInfo o1, UserOrganismPermissionInfo o2) {
+                return o1.isAdmin().compareTo(o2.isAdmin());
+            }
+        });
+
+        organismPermissionsGrid.addColumnSortHandler(sortHandler);
+        sortHandler.setComparator(organismNameColumn, new Comparator<UserOrganismPermissionInfo>() {
+            @Override
+            public int compare(UserOrganismPermissionInfo o1, UserOrganismPermissionInfo o2) {
+                return o1.getOrganismName().compareTo(o2.getOrganismName());
             }
         });
 
@@ -247,6 +264,12 @@ public class UserPanel extends Composite {
                 UserRestService.updateOrganismPermission(object);
             }
         });
+        sortHandler.setComparator(writeColumn, new Comparator<UserOrganismPermissionInfo>() {
+            @Override
+            public int compare(UserOrganismPermissionInfo o1, UserOrganismPermissionInfo o2) {
+                return o1.isWrite().compareTo(o2.isWrite());
+            }
+        });
 
         Column<UserOrganismPermissionInfo, Boolean> exportColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
             @Override
@@ -262,6 +285,12 @@ public class UserPanel extends Composite {
                 UserRestService.updateOrganismPermission(object);
             }
         });
+        sortHandler.setComparator(exportColumn, new Comparator<UserOrganismPermissionInfo>() {
+            @Override
+            public int compare(UserOrganismPermissionInfo o1, UserOrganismPermissionInfo o2) {
+                return o1.isExport().compareTo(o2.isExport());
+            }
+        });
 
         Column<UserOrganismPermissionInfo, Boolean> readColumn = new Column<UserOrganismPermissionInfo, Boolean>(new CheckboxCell(true, true)) {
             @Override
@@ -275,6 +304,12 @@ public class UserPanel extends Composite {
             public void update(int index, UserOrganismPermissionInfo object, Boolean value) {
                 object.setRead(value);
                 UserRestService.updateOrganismPermission(object);
+            }
+        });
+        sortHandler.setComparator(readColumn, new Comparator<UserOrganismPermissionInfo>() {
+            @Override
+            public int compare(UserOrganismPermissionInfo o1, UserOrganismPermissionInfo o2) {
+                return o1.isRead().compareTo(o2.isRead());
             }
         });
 
