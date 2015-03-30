@@ -68,7 +68,8 @@
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <gwt:HTML ui:field="name" styleName="{style.tableValue}"/>
+                                <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
+                                <b:TextBox ui:field="name" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>

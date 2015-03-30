@@ -19,10 +19,12 @@ class GroupController {
 
         UserGroup.all.each {
             def groupObject = new JSONObject()
-            groupObject.groupId = it.id
+            groupObject.id = it.id
             groupObject.name = it.name
             groupObject.public = it.isPublicGroup()
             groupObject.numberOfUsers = it.users?.size()
+
+
 
 
             returnArray.put(groupObject)
@@ -68,28 +70,13 @@ class GroupController {
 
     def updateGroup(){
 
+        println "json: ${request.JSON}"
+        println "params: ${params}"
+        println "params.data: ${params.data}"
         JSONObject dataObject = JSON.parse(params.data)
-        UserGroup group = UserGroup.findById(dataObject.groupId)
-//        User user = User.findById(dataObject.userId)
-//        user.firstName = dataObject.firstName
-//        user.lastName = dataObject.lastName
-//        user.username = dataObject.email
-//
-//        if (dataObject.password) {
-//            user.passwordHash = new Sha256Hash(dataObject.password).toHex()
-//        }
-//
-//        String roleString = dataObject.role
-//        Role currentRole = userService.getHighestRole(user)
-//
-//        if (!currentRole || !roleString.equalsIgnoreCase(currentRole.name)) {
-//            if (currentRole) {
-//                user.removeFromRoles(currentRole)
-//            }
-//            Role role = Role.findByName(roleString.toUpperCase())
-//            user.addToRoles(role)
-////            user.save()
-//        }
+        UserGroup group = UserGroup.findById(dataObject.id)
+        // the only thing that can really change
+        group.name = dataObject.name
 
         group.save(flush: true)
     }

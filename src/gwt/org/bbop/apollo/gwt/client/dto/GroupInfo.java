@@ -1,5 +1,9 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -9,6 +13,7 @@ public class GroupInfo {
     Integer numberOfUsers;
     Integer numberOrganisms;
     Integer numberSequences;
+    private long id;
 
 //    public GroupInfo(String name){
 //        this.name = name ;
@@ -47,5 +52,23 @@ public class GroupInfo {
 
     public void setNumberSequences(Integer numberSequences) {
         this.numberSequences = numberSequences;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("id",new JSONNumber(id));
+        jsonObject.put("name",new JSONString(name));
+        jsonObject.put("numberOfUsers",new JSONNumber(numberOfUsers));
+
+        return jsonObject;
     }
 }
