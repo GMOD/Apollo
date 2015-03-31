@@ -178,7 +178,12 @@ class OrganismController {
 
         println "updating organism"
         println params.data
-        render { text: 'changed' } as JSON
+
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put("id",organism.id)
+        jsonObject.put("commonName",organism.commonName)
+
+        render jsonObject as JSON
     }
 
     @Transactional

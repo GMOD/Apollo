@@ -137,6 +137,10 @@ public class MainPanel extends Composite {
 
     private void updatePermissionsForOrganism() {
 
+        GWT.log("updating permissions for current organism");
+        Window.alert((currentOrganism!=null)+"");
+        Window.alert(currentOrganism.toJSON());
+        Window.alert(currentUser.getOrganismPermissionMap().keySet().toString());
 
 //        currentUser.getOrganismPermissionMap();
 
@@ -316,15 +320,8 @@ public class MainPanel extends Composite {
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
+                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
 //                    GWT.log(object.toString());
-                    OrganismInfo organismInfo = new OrganismInfo();
-                    organismInfo.setId(object.get("id").isNumber().toString());
-                    organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
-                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
-                    organismInfo.setCurrent(object.get("currentOrganism").isBoolean().booleanValue());
-                    organismInfo.setNumFeatures(0);
-                    organismInfo.setNumTracks(0);
 //                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (organismInfo.isCurrent()) {
@@ -345,6 +342,7 @@ public class MainPanel extends Composite {
                     JSONObject rootObject = array.get(0).isObject();
 //                    String name = rootObject.get("commonName").isString().stringValue();
                     currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
+                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
                     trackInfoList.setSelectedIndex(0);
                 }
 

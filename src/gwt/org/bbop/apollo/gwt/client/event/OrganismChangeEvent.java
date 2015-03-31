@@ -52,7 +52,5 @@ public class OrganismChangeEvent extends GwtEvent<OrganismChangeEventHandler>{
 
     public enum Action {
         CHANGED_ORGANISM, LOADED_ORGANISMS
-
-
     }
 }

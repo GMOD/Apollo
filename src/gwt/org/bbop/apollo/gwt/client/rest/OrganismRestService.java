@@ -118,7 +118,17 @@ public class OrganismRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+//                Window.alert(response.getText());
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+//                Window.alert(returnValue.toString());
+                OrganismInfo organismInfo = new OrganismInfo();
+//                organismInfo.setId(returnValue.get("id").isString().stringValue());
+//                organismInfo.setName(returnValue.get("commonName").isString().stringValue());
+
                 OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.CHANGED_ORGANISM);
+                List<OrganismInfo> organismInfoList = new ArrayList<>();
+                organismInfoList.add(organismInfo);
+                organismChangeEvent.setOrganismInfoList(organismInfoList);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
             }
 

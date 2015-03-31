@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
@@ -122,15 +123,27 @@ public class OrganismInfo {
 
     public String toJSON() {
         JSONObject payload = new JSONObject();
+        GWT.log("paylout in");
         payload.put("id",new JSONString(id));
+        GWT.log("A");
         payload.put("name",new JSONString(name));
+        GWT.log("B");
         payload.put("directory",new JSONString(directory));
+        GWT.log("C");
         payload.put("current",JSONBoolean.getInstance(current));
-        payload.put("genus",new JSONString(genus));
-        payload.put("species",new JSONString(species));
+        GWT.log("D");
+        if(genus!=null){
+            payload.put("genus",new JSONString(genus));
+        }
+        GWT.log("E");
+        if(species!=null){
+            payload.put("species",new JSONString(species));
+        }
+        GWT.log("F");
         if(valid!=null){
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
+        GWT.log("paylout out!");
 
         return payload.toString();
     }
