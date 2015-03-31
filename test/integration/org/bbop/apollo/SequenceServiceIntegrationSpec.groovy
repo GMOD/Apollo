@@ -8,7 +8,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class SequenceServiceIntegrationSpec extends IntegrationSpec {
     
     def requestHandlingService
-    def SequenceService
+    def sequenceService
     
     def setup() {
         Sequence sequence = new Sequence(
@@ -53,7 +53,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getSequenceString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Annotations-Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String uniqueName = MRNA.findByName("GB40722-RA-00001").uniqueName
         getSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
-        getSequenceString = getSequenceString.replaceAll("@SEQUENCE_TYPE@", "PEPTIDE")
+        getSequenceString = getSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         JSONObject commandObject = JSON.parse(getSequenceString) as JSONObject
         JSONObject getSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
         
