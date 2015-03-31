@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.apache.commons.lang.RandomStringUtils
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -12,8 +13,14 @@ import java.util.zip.CRC32
 
 @Transactional
 class SequenceService {
-
-//    def configWrapperService
+    
+    def configWrapperService
+    def grailsApplication
+    def featureService
+    def transcriptService
+    def exonService
+    def cdsService
+    def Gff3HandlerService
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
@@ -196,5 +203,141 @@ class SequenceService {
         FeatureLocation featureLocation = deletion.featureLocation
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
     }
+    
+    def getSequenceForFeature(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
 
+        for (int i = 0; i < featuresArray.length(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            String sequence = null
+            if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
+                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+                    CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
+                    String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
+                    sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
+                    if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                        sequence = sequence.substring(0, sequence.size() - 1)
+                    }
+                    int idx;
+                    if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
+                        String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
+                        if (aa != null) {
+                            sequence = sequence.replace(StandardTranslationTable.STOP, aa)
+                        }
+                    }
+                } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
+                    println "===> trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
+                    String rawSequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
+                    sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))) != null)
+                    if (sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                        sequence = sequence.substring(0, sequence.length() - 1)
+                    }
+                    int idx
+                    if ((idx = sequence.indexOf(StandardTranslationTable.STOP)) != -1) {
+                        String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
+                        String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
+                        if (aa != null) {
+                            sequence = sequence.replace(StandardTranslationTable.STOP, aa)
+                        }
+                    }
+                } else {
+                    sequence = ""
+                }
+            } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
+                if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
+                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
+                    println "trying to fetch CDS sequence of selected exon: ${gbolFeature}"
+                    sequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, false)
+                } else {
+                    sequence = ""
+                }
+
+            } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
+                if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
+                    sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                } else {
+                    sequence = ""
+                }
+            } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
+                int flank
+                if (inputObject.has('flank')) {
+                    flank = inputObject.getInt("flank")
+                    println "FLANK from request object: ${flank}"
+                } else {
+                    flank = 0
+                }
+
+                if (flank > 0) {
+                    int fmin = gbolFeature.getFmin() - flank
+                    if (fmin < 0) {
+                        fmin = 0
+                    }
+                    if (fmin < gbolFeature.getFeatureLocation().sequence.start) {
+                        fmin = gbolFeature.getFeatureLocation().sequence.start
+                    }
+                    int fmax = gbolFeature.getFmax() + flank
+                    if (fmax > gbolFeature.getFeatureLocation().sequence.length) {
+                        fmax = gbolFeature.getFeatureLocation().sequence.length
+                    }
+                    if (fmax > gbolFeature.getFeatureLocation().sequence.end) {
+                        fmax = gbolFeature.getFeatureLocation().sequence.end
+                    }
+
+                    FlankingRegion genomicRegion = new FlankingRegion(
+                            name: gbolFeature.name
+                            , uniqueName: gbolFeature.uniqueName + "_flank"
+                    ).save()
+                    FeatureLocation genomicRegionLocation = new FeatureLocation(
+                            feature: genomicRegion
+                            , fmin: fmin // fmin with the flank
+                            , fmax: fmax // fmax with the flank
+                            , strand: gbolFeature.strand
+                            , sequence: gbolFeature.getFeatureLocation().sequence
+                    ).save()
+                    genomicRegion.addToFeatureLocations(genomicRegionLocation)
+                    // since we are saving the genomicFeature object, the backend database will have these entities
+                    gbolFeature = genomicRegion
+                }
+                sequence = getResiduesFromFeature(gbolFeature)
+            }
+            JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
+            outFeature.put("residues", sequence)
+            outFeature.put("uniquename", uniqueName)
+            return outFeature
+
+        }
+    }
+    
+    def getGff3ForFeature(inputObject) {
+        File tempFile = File.createTempFile("feature", ".gff3");
+        // TODO: use specified metadata?
+        Set<String> metaDataToExport = new HashSet<>();
+        metaDataToExport.add(FeatureStringEnum.NAME.value);
+        metaDataToExport.add(FeatureStringEnum.SYMBOL.value);
+        metaDataToExport.add(FeatureStringEnum.DESCRIPTION.value);
+        metaDataToExport.add(FeatureStringEnum.STATUS.value);
+        metaDataToExport.add(FeatureStringEnum.DBXREFS.value);
+        metaDataToExport.add(FeatureStringEnum.ATTRIBUTES.value);
+        metaDataToExport.add(FeatureStringEnum.PUBMEDIDS.value);
+        metaDataToExport.add(FeatureStringEnum.GOIDS.value);
+        metaDataToExport.add(FeatureStringEnum.COMMENTS.value);
+        
+        List<Feature> featuresToWrite = new ArrayList<>();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i);
+            String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
+            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            gbolFeature = featureService.getTopLevelFeature(gbolFeature)
+            featuresToWrite.add(gbolFeature);
+        }
+        gff3HandlerService.writeFeaturesToText(tempFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
+        return tempFile
+    }
 }
