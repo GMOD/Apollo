@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class ExportPanel extends DialogBox{
 
     private OrganismInfo organismInfo ;
     private List<SequenceInfo> sequenceList ;
+
 
     interface ExportPanelUiBinder extends UiBinder<Widget, ExportPanel> {
     }
@@ -40,7 +42,7 @@ public class ExportPanel extends DialogBox{
         setText("Export");
         setGlassEnabled(true);
         center();
-//        initWidget(ourUiBinder.createAndBindUi(this));
+
     }
 
     public void setOrganismInfo(OrganismInfo organismInfo) {
@@ -68,4 +70,12 @@ public class ExportPanel extends DialogBox{
         hide();
     }
 
+
+    public void generateLink() {
+        SequenceRestService.generateLink(this);
+    }
+
+    public List<SequenceInfo> getSequenceList() {
+        return sequenceList;
+    }
 }

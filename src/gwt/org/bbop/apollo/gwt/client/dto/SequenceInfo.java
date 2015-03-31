@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.comparators.AlphanumericSorter;
 
 /**
@@ -82,5 +84,14 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
     @Override
     public int compareTo(SequenceInfo o) {
         return alphanumericSorter.compare(name,o.getName());
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", new JSONNumber(id));
+
+
+        return jsonObject;
+
     }
 }

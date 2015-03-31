@@ -176,4 +176,17 @@ class SequenceController {
             '*' { render status: NOT_FOUND }
         }
     }
+
+    def exportSequences() {
+        println "export sequences ${request.JSON} -> ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+
+        // TODO: call methods here and generate url
+        // use sequenceServices to export the object and then generate a URL
+
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put("url","someurl")
+
+        render jsonObject as JSON
+    }
 }

@@ -321,6 +321,7 @@ public class SequencePanel extends Composite {
         exportPanel.setSequenceList(sequenceInfoList);
         exportPanel.setType(type);
         exportPanel.show();
+        exportPanel.generateLink();
     }
 
     @UiHandler("exportSelectedButton")
