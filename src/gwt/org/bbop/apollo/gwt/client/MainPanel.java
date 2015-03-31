@@ -18,7 +18,6 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
-import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
