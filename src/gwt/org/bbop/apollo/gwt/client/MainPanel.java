@@ -49,6 +49,7 @@ public class MainPanel extends Composite {
     public static String currentSequenceId = null;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
+
     // debug
     private Boolean showFrame = false;
 
@@ -132,6 +133,10 @@ public class MainPanel extends Composite {
                     loadOrganisms(organismList);
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
+
+                    // let's set the view
+                    detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(currentUser.getRole()!=null && currentUser.getRole().equals("admin"));
+
                     String username = currentUser.getEmail();
 
                     int maxLength = 15 ;
@@ -499,5 +504,24 @@ public class MainPanel extends Composite {
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 
+    private enum TabPanelIndex{
+        ANNOTATIONS(0),
+        TRACKS(1),
+        SEQUENCES(2),
+        ORGANISM(3),
+        USERS(4),
+        GROUPS(5),
+        PREFERENCES(6),
+        ;
+
+        private int index ;
+        TabPanelIndex(int index){
+            this.index = index ;
+        }
+
+//        public int getIndex() {
+//            return index;
+//        }
+    }
 
 }

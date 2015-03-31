@@ -4,6 +4,7 @@ import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 
 /**
  * Created by ndunn on 3/24/15.
@@ -65,4 +66,11 @@ abstract class OrganismPermissionInfo {
         this.read = read;
     }
 
+    public PermissionEnum getHighestPermission() {
+        if(admin) return PermissionEnum.ADMINISTRATE;
+        if(write) return PermissionEnum.WRITE;
+        if(export) return PermissionEnum.EXPORT;
+        if(read) return PermissionEnum.READ ;
+        return PermissionEnum.NONE;
+    }
 }
