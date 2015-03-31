@@ -6,6 +6,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpSession
 
 @Transactional(readOnly = true)
 class SequenceController {
@@ -56,7 +58,17 @@ class SequenceController {
 
     def setDefaultSequence(String sequenceName){
         println "setting default sequences: ${params}"
-        request.session.setAttribute("defaultSequenceName",sequenceName)
+        Sequence sequence = Sequence.findByName(sequenceName)
+        if(!sequence){
+            log.error "default sequence not found ${sequenceName}"
+            return
+        }
+        Organism organism = sequence.organism
+        HttpSession session = request.session
+        session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,sequence.name)
+        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value,sequence.name)
+        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+        session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,sequence.organismId)
     }
 
     @Transactional

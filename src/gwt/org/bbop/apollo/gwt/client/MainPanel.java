@@ -137,8 +137,11 @@ public class MainPanel extends Composite {
                     currentUser = new UserInfo();
                     String username = returnValue.get("username").isString().stringValue();
                     currentUser.setEmail(username);
-                    if(returnValue.get("role")!=null){
+                    if(returnValue.get("role")!=null && returnValue.get("role").isString()!=null){
                         currentUser.setRole(returnValue.get("role").isString().stringValue());
+                    }
+                    else{
+                        currentUser.setRole("user");
                     }
                     currentUser.setFirstName(returnValue.get("firstName").isString().stringValue());
                     currentUser.setLastName(returnValue.get("lastName").isString().stringValue());
@@ -256,6 +259,7 @@ public class MainPanel extends Composite {
 //                      }
                 }
 
+//                updateGenomicViewer();
 
                 if (array.size() > 0) {
                     if (currentSequenceId == null) {

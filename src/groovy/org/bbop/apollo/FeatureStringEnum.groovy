@@ -89,6 +89,7 @@ enum FeatureStringEnum {
     ORGANISM_JBROWSE_DIRECTORY("organismJBrowseDirectory"),
     ORGANISM_ID("organismId"),
     SEQUENCE_NAME("sequenceName"),
+    DEFAULT_SEQUENCE_NAME("defaultSequenceName"),
     LOCKED
 
 
