@@ -62,6 +62,9 @@ class PermissionService {
     }
 
     List<Organism> getOrganisms(UserGroup group) {
+        if(isAdmin()){
+            return Organism.listOrderByCommonName()
+        }
         List<Organism> organismList = new ArrayList<>()
         for (GroupOrganismPermission groupPermission in GroupOrganismPermission.findAllByGroup(group)) {
             // minimally, you should have at least one permission

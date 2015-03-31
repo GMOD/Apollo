@@ -8,16 +8,17 @@ import com.google.gwt.json.client.JSONString;
 /**
  * Created by ndunn on 3/24/15.
  */
-public class UserOrganismPermissionInfo extends OrganismPermissionInfo{
+public class GroupOrganismPermissionInfo extends OrganismPermissionInfo{
 
-    Long userId ;
+    Long groupId ;
 
-    public Long getUserId() {
-        return userId;
+
+    public Long getGroupId() {
+        return groupId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 
     public String toJSON() {
@@ -27,8 +28,8 @@ public class UserOrganismPermissionInfo extends OrganismPermissionInfo{
         payload.put("WRITE",JSONBoolean.getInstance(write));
         payload.put("EXPORT",JSONBoolean.getInstance(export));
         payload.put("READ",JSONBoolean.getInstance(read));
-        if(userId!=null){
-            payload.put("userId",new JSONNumber(userId));
+        if(groupId!=null){
+            payload.put("groupId",new JSONNumber(groupId));
         }
         if(id!=null){
             payload.put("id",new JSONNumber(id));
