@@ -131,21 +131,8 @@ public class MainPanel extends Composite {
                 if (returnValue.isObject().size() > 0) {
                     loadOrganisms(organismList);
                     logoutButton.setVisible(true);
-//                    currentUser = new UserInfo();
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
                     String username = currentUser.getEmail();
-//                    String username = returnValue.get("username").isString().stringValue();
-//                    currentUser.setEmail(username);
-//                    if(returnValue.get("role")!=null && returnValue.get("role").isString()!=null){
-//                        currentUser.setRole(returnValue.get("role").isString().stringValue());
-//                    }
-//                    else{
-//                        currentUser.setRole("user");
-//                    }
-//                    currentUser.setFirstName(returnValue.get("firstName").isString().stringValue());
-//                    currentUser.setLastName(returnValue.get("lastName").isString().stringValue());
-//                    currentUser.setUserId((long) returnValue.get("userId").isNumber().doubleValue());
-
 
                     int maxLength = 15 ;
                     if (username.length() > maxLength) {

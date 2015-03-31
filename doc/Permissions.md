@@ -31,8 +31,8 @@ JBrowse: enable UcA track
 * **admin**: access to everything for that organism
 ```
  Organism: show
- User: show
+ User: show 
  Group: show
- Preferences: show
+ Preferences: (still hide)
 ```
 
