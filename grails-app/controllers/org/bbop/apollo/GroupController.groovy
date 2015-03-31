@@ -6,6 +6,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 class GroupController {
 
+    def permissionService
+
     def getOrganismPermissionsForGroup(){
         JSONObject dataObject = JSON.parse(params.data)
         UserGroup group = UserGroup.findById(dataObject.userId)
@@ -16,6 +18,25 @@ class GroupController {
 
     def loadGroups() {
         JSONArray returnArray = new JSONArray()
+        def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+
+        Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
+
+        List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
+        println "total permission list ${groupOrganismPermissionList.size()}"
+        for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList){
+            List<GroupOrganismPermission> groupOrganismPermissionListTemp =  groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
+            if(groupOrganismPermissionListTemp==null){
+                groupOrganismPermissionListTemp = new ArrayList<>()
+            }
+            groupOrganismPermissionListTemp.add(groupOrganismPermission)
+            groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
+        }
+        println "org permission map ${groupOrganismPermissionMap.size()}"
+        for(v in groupOrganismPermissionMap){
+            println "${v.key} ${v.value}"
+        }
+
 
         UserGroup.all.each {
             def groupObject = new JSONObject()
@@ -35,6 +56,46 @@ class GroupController {
                 userArray.add(userObject)
             }
             groupObject.users = userArray
+
+
+            // add organism permissions
+            JSONArray organismPermissionsArray = new JSONArray()
+            def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
+            List<Long> organismsWithPermissions = new ArrayList<>()
+            println "lsit retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
+            for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
+                if(groupOrganismPermission.organism in allowableOrganisms){
+                    JSONObject organismJSON = new JSONObject()
+//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
+                    organismJSON.put("organism", groupOrganismPermission.organism.commonName)
+                    organismJSON.put("permissions",groupOrganismPermission.permissions)
+                    organismJSON.put("groupId",groupOrganismPermission.groupId)
+                    organismJSON.put("id",groupOrganismPermission.id)
+                    organismPermissionsArray.add(organismJSON)
+                    organismsWithPermissions.add(groupOrganismPermission.organism.id)
+                }
+            }
+
+//            Set<Organism> organismList = permissionService.getOrganisms(it).findAll(){
+            Set<Organism> organismList = allowableOrganisms.findAll(){
+                !organismsWithPermissions.contains(it.id)
+            }
+            println "organisms with permissions ${organismsWithPermissions.size()}"
+            println "organisms list ${organismList.size()}"
+
+            for(Organism organism in organismList){
+                JSONObject organismJSON = new JSONObject()
+//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
+                organismJSON.put("organism", organism.commonName)
+                organismJSON.put("permissions","[]")
+                organismJSON.put("groupId",it.id)
+//                organismJSON.put("id",null)
+                organismPermissionsArray.add(organismJSON)
+            }
+
+
+            groupObject.organismPermissions = organismPermissionsArray
+            
 
             returnArray.put(groupObject)
         }
@@ -81,5 +142,56 @@ class GroupController {
         group.name = dataObject.name
 
         group.save(flush: true)
+    }
+
+    /**
+     * Only changing one of the boolean permissions
+     * @return
+     */
+    def updateOrganismPermission(){
+        JSONObject dataObject = JSON.parse(params.data)
+        println "json data ${dataObject}"
+        GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
+
+
+        UserGroup group = UserGroup.findById(dataObject.groupId)
+        Organism organism =  Organism.findByCommonName(dataObject.organism)
+        println "found ${groupOrganismPermission}"
+        if(!groupOrganismPermission){
+            groupOrganismPermission = GroupOrganismPermission.findByGroupAndOrganism(group,organism)
+        }
+
+        if(!groupOrganismPermission){
+            println "creating new permissions! "
+            groupOrganismPermission = new GroupOrganismPermission(
+                    group: UserGroup.findById(dataObject.groupId)
+                    ,organism: Organism.findByCommonName(dataObject.organism)
+                    ,permissions: "[]"
+            ).save(insert: true)
+            println "created new permissions! "
+        }
+
+
+
+        JSONArray permissionsArray = new JSONArray()
+        if(dataObject.getBoolean(PermissionEnum.ADMINISTRATE.name())){
+            permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
+        }
+        if(dataObject.getBoolean(PermissionEnum.WRITE.name())){
+            permissionsArray.add(PermissionEnum.WRITE.name())
+        }
+        if(dataObject.getBoolean(PermissionEnum.EXPORT.name())){
+            permissionsArray.add(PermissionEnum.EXPORT.name())
+        }
+        if(dataObject.getBoolean(PermissionEnum.READ.name())){
+            permissionsArray.add(PermissionEnum.READ.name())
+        }
+
+
+        groupOrganismPermission.permissions = permissionsArray.toString()
+        groupOrganismPermission.save(flush: true)
+
+        render groupOrganismPermission as JSON
+
     }
 }

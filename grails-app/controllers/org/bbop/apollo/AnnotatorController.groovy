@@ -7,6 +7,8 @@ import org.bbop.apollo.gwt.shared.SharedStuff
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpSession
 
 class AnnotatorController {
 
@@ -119,7 +121,19 @@ class AnnotatorController {
         // TODO: should only be returning the top-level features
         List<Feature> allFeatures
         if(!sequence){
-            allFeatures = Feature.executeQuery("select f from Feature f join f.parentFeatureRelationships pfr where f.childFeatureRelationships is empty")
+            // find all features for current organism
+            HttpSession session = request.session
+            String organismIdString = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value)
+            Long organismId
+            try {
+                organismId = Long.parseLong(organismIdString?.trim())
+                allFeatures = Feature.executeQuery("select f from Feature f join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o.id = :organismId",[organismId:organismId])
+            } catch (e) {
+                log.error "error parsing ${organismIdString}, returning no features ${e}"
+                allFeatures = new ArrayList<>()
+            }
+
+
         }
         else{
             allFeatures = Feature.executeQuery("select f from Feature f join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s where s.name = :sequenceName and f.childFeatureRelationships is empty",[sequenceName: sequenceName])

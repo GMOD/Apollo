@@ -18,10 +18,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
-import org.bbop.apollo.gwt.client.dto.OrganismInfo;
-import org.bbop.apollo.gwt.client.dto.SequenceInfo;
-import org.bbop.apollo.gwt.client.dto.TrackInfo;
-import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
@@ -51,6 +48,7 @@ public class MainPanel extends Composite {
     public static Long currentOrganismId = null;
     public static String currentSequenceId = null;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
+
 
     // debug
     private Boolean showFrame = false;
@@ -134,16 +132,12 @@ public class MainPanel extends Composite {
                 if (returnValue.isObject().size() > 0) {
                     loadOrganisms(organismList);
                     logoutButton.setVisible(true);
-                    currentUser = new UserInfo();
-                    String username = returnValue.get("username").isString().stringValue();
-                    currentUser.setEmail(username);
-                    if(returnValue.get("role")!=null){
-                        currentUser.setRole(returnValue.get("role").isString().stringValue());
-                    }
-                    currentUser.setFirstName(returnValue.get("firstName").isString().stringValue());
-                    currentUser.setLastName(returnValue.get("lastName").isString().stringValue());
-                    currentUser.setUserId((long) returnValue.get("userId").isNumber().doubleValue());
+                    currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
+                    // let's set the view
+                    detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(currentUser.getRole()!=null && currentUser.getRole().equals("admin"));
+
+                    String username = currentUser.getEmail();
 
                     int maxLength = 15 ;
                     if (username.length() > maxLength) {
@@ -256,6 +250,7 @@ public class MainPanel extends Composite {
 //                      }
                 }
 
+//                updateGenomicViewer();
 
                 if (array.size() > 0) {
                     if (currentSequenceId == null) {
@@ -509,5 +504,24 @@ public class MainPanel extends Composite {
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 
+    private enum TabPanelIndex{
+        ANNOTATIONS(0),
+        TRACKS(1),
+        SEQUENCES(2),
+        ORGANISM(3),
+        USERS(4),
+        GROUPS(5),
+        PREFERENCES(6),
+        ;
+
+        private int index ;
+        TabPanelIndex(int index){
+            this.index = index ;
+        }
+
+//        public int getIndex() {
+//            return index;
+//        }
+    }
 
 }

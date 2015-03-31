@@ -12,11 +12,14 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.AnnotatorPanel;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
+import org.bbop.apollo.gwt.client.dto.GroupOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by ndunn on 3/30/15.
@@ -55,6 +58,49 @@ public class GroupRestService {
 
 
                     groupInfo.setUserInfoList(userInfoList);
+
+
+
+                    // TODO: use shared permission enums
+                    JSONArray organismArray = object.get("organismPermissions").isArray();
+                    Map<String, GroupOrganismPermissionInfo> organismPermissionMap = new TreeMap<>();
+                    for (int j = 0; j < organismArray.size(); j++) {
+                        JSONObject organismPermissionJsonObject = organismArray.get(j).isObject();
+                        GroupOrganismPermissionInfo groupOrganismPermissionInfo = new GroupOrganismPermissionInfo();
+                        if(organismPermissionJsonObject.get("id")!=null){
+                            groupOrganismPermissionInfo.setId((long) organismPermissionJsonObject.get("id").isNumber().doubleValue());
+                        }
+                        groupOrganismPermissionInfo.setGroupId((long) organismPermissionJsonObject.get("groupId").isNumber().doubleValue());
+                        groupOrganismPermissionInfo.setOrganismName(organismPermissionJsonObject.get("organism").isString().stringValue());
+                        if(organismPermissionJsonObject.get("permissions")!=null) {
+                            JSONArray permissionsArray = JSONParser.parseStrict(organismPermissionJsonObject.get("permissions").isString().stringValue()).isArray();
+                            for (int permissionIndex = 0; permissionIndex < permissionsArray.size(); ++permissionIndex) {
+                                String permission = permissionsArray.get(permissionIndex).isString().stringValue();
+                                switch (permission) {
+                                    case "ADMINISTRATE":
+                                        groupOrganismPermissionInfo.setAdmin(true);
+                                        break;
+                                    case "WRITE":
+                                        groupOrganismPermissionInfo.setWrite(true);
+                                        break;
+                                    case "EXPORT":
+                                        groupOrganismPermissionInfo.setExport(true);
+                                        break;
+                                    case "READ":
+                                        groupOrganismPermissionInfo.setRead(true);
+                                        break;
+
+                                    default:
+                                        Window.alert("not sure what to do wtih this: " + permission);
+                                }
+                            }
+                        }
+
+
+                        organismPermissionMap.put(groupOrganismPermissionInfo.getOrganismName(), groupOrganismPermissionInfo);
+                    }
+                    groupInfo.setOrganismPermissionMap(organismPermissionMap);
+
 
 
                     groupInfoList.add(groupInfo);
@@ -113,5 +159,21 @@ public class GroupRestService {
             }
         };
         RestService.sendRequest(requestCallback, "/group/createGroup/", "data="+selectedGroupInfo.toJSON().toString());
+    }
+
+    public static void updateOrganismPermission(GroupOrganismPermissionInfo object) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                GWT.log("success");
+//                loadUsers(userInfoList);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error updating permissions: " + exception);
+            }
+        };
+        RestService.sendRequest(requestCallback, "/group/updateOrganismPermission", "data=" + object.toJSON());
     }
 }

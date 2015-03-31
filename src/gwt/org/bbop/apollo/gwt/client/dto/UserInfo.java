@@ -4,6 +4,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -169,6 +170,20 @@ public class UserInfo {
 
 
         return jsonObject;
+    }
+
+    PermissionEnum findHighestPermission(){
+        if(organismPermissionMap==null ) return null ;
+        PermissionEnum highestPermission = PermissionEnum.NONE ;
+
+        for(UserOrganismPermissionInfo userOrganismPermissionInfo : organismPermissionMap.values()){
+            PermissionEnum thisHighestPermission = userOrganismPermissionInfo.getHighestPermission();
+            if(thisHighestPermission.getValue()>highestPermission.getValue()){
+                highestPermission = thisHighestPermission ;
+            }
+        }
+
+        return highestPermission ;
     }
 
 }
