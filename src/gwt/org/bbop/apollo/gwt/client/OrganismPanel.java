@@ -48,6 +48,10 @@ public class OrganismPanel extends Composite {
     @UiField
     TextBox organismName;
     @UiField
+    TextBox genus;
+    @UiField
+    TextBox species;
+    @UiField
     InputGroupAddon annotationCount;
     @UiField
     TextBox sequenceFile;
@@ -155,6 +159,10 @@ public class OrganismPanel extends Composite {
         }
         organismName.setText(organismInfo.getName());
         organismName.setEnabled(true);
+        genus.setText(organismInfo.getGenus());
+        genus.setEnabled(true);
+        species.setText(organismInfo.getSpecies());
+        species.setEnabled(true);
         sequenceFile.setText(organismInfo.getDirectory());
         sequenceFile.setEnabled(true);
         annotationCount.setText(organismInfo.getNumFeatures().toString());
@@ -208,6 +216,8 @@ public class OrganismPanel extends Composite {
     public void clearSelections(){
         singleSelectionModel.clear();
         organismName.setText("");
+        genus.setText("");
+        species.setText("");
         sequenceFile.setText("");
         validDirectory.setVisible(false);
         newButton.setEnabled(false);
@@ -225,6 +235,8 @@ public class OrganismPanel extends Composite {
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
+        organismInfo.setGenus(genus.getText());
+        organismInfo.setSpecies(species.getText());
         createButton.setEnabled(false);
         createButton.setText("Processing");
         OrganismRestService.createOrganism(new UpdateInfoListCallback(true), organismInfo);
@@ -234,6 +246,8 @@ public class OrganismPanel extends Composite {
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
         organismName.setText("");
         sequenceFile.setText("");
+        species.setText("");
+        genus.setText("");
         dataGrid.setSelectionModel(singleSelectionModel);
         newButton.setEnabled(true);
         setSelectedInfo(singleSelectionModel.getSelectedObject());
@@ -289,9 +303,15 @@ public class OrganismPanel extends Composite {
     // Clear textboxes and make them unselectable
     private void setNoSelection() {
         organismName.setText("");
-        organismName.setEnabled(false);
         sequenceFile.setText("");
+        species.setText("");
+        genus.setText("");
+
         sequenceFile.setEnabled(false);
+        organismName.setEnabled(false);
+        genus.setEnabled(false);
+        species.setEnabled(false);
+
         annotationCount.setText("");
         validDirectory.setVisible(false);
         deleteButton.setVisible(false);
@@ -328,9 +348,13 @@ public class OrganismPanel extends Composite {
 
         organismName.setText("");
         sequenceFile.setText("");
+        genus.setText("");
+        species.setText("");
         validDirectory.setVisible(false);
         organismName.setEnabled(true);
         sequenceFile.setEnabled(true);
+        genus.setEnabled(true);
+        species.setEnabled(true);
     }
     public void setThinkingInterface(){
     }

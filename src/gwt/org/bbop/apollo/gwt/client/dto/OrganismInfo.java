@@ -15,6 +15,9 @@ public class OrganismInfo {
 
     // writeable fields
     private String name ;
+
+    private String genus ;
+    private String species ;
     private String directory ;
 
     private Integer numFeatures ;
@@ -33,6 +36,24 @@ public class OrganismInfo {
         this.numFeatures = (int) Math.round(Math.random()*200) ;
         this.numSequences = (int) Math.round(Math.random()*200) ;
         this.numTracks = (int) Math.round(Math.random()*200) ;
+        this.genus="";
+        this.species="";
+    }
+
+    public String getGenus() {
+        return genus;
+    }
+
+    public void setGenus(String genus) {
+        this.genus = genus;
+    }
+
+    public String getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(String species) {
+        this.species = species;
     }
 
     public String getId() {
@@ -105,6 +126,8 @@ public class OrganismInfo {
         payload.put("name",new JSONString(name));
         payload.put("directory",new JSONString(directory));
         payload.put("current",JSONBoolean.getInstance(current));
+        payload.put("genus",new JSONString(genus));
+        payload.put("species",new JSONString(species));
         if(valid!=null){
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
