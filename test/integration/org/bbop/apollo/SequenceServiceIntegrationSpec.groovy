@@ -59,6 +59,6 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         
         then: "we should get back the proper CDS sequence"
         println "===> return Object: ${getSequenceReturnObject}"
-        // there is more steps needed to add a sequence to the backend
+        assert getSequenceReturnObject.residues != null
     }
 }
