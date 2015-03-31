@@ -1,11 +1,11 @@
 
-2. Global
+### Global
 
 * **admin**: access to everything
 * **user**: only guarantees a login
 
 
-2. Organism
+### Organism
 
 Can only view things related to that organism.
 
