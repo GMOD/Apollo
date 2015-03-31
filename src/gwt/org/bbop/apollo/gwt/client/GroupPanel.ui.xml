@@ -38,16 +38,21 @@
 
         .rowPadding {
             padding-bottom: 10px;
+        }
+
+        .paddedTable {
+            padding-left: 30px;
+            padding-top: 10px;
         }</ui:style>
     <gwt:SplitLayoutPanel>
         <!--<gwt:north size="80">-->
-            <!--<b:Container fluid="true" styleName="{style.northPanel}" >-->
-                <!--<b:Row>-->
-                    <!--<b:Column size="MD_6" styleName="{style.widgetPanel}">-->
-                        <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
-                    <!--</b:Column>-->
-                <!--</b:Row>-->
-            <!--</b:Container>-->
+        <!--<b:Container fluid="true" styleName="{style.northPanel}" >-->
+        <!--<b:Row>-->
+        <!--<b:Column size="MD_6" styleName="{style.widgetPanel}">-->
+        <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
+        <!--</b:Column>-->
+        <!--</b:Row>-->
+        <!--</b:Container>-->
         <!--</gwt:north>-->
         <gwt:center>
             <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
@@ -72,38 +77,42 @@
                             </b:Column>
                             <b:Column size="MD_4">
                                 <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
-                                <b:TextBox ui:field="name"  />
+                                <b:TextBox ui:field="name"/>
                             </b:Column>
                             <b:Column size="MD_1">
                                 <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
                                 <b:Button ui:field="deleteButton" icon="REMOVE" color="RED" visible="false"/>
                             </b:Column>
-                        <!--</b:Row>-->
-                        <!--<b:Row styleName="{style.rowPadding}">-->
+                            <!--</b:Row>-->
+                            <!--<b:Row styleName="{style.rowPadding}">-->
                             <!--<b:Column size="MD_6"></b:Column>-->
-                        <!--</b:Row>-->
-                        <!--<b:Row>-->
+                            <!--</b:Row>-->
+                            <!--<b:Row>-->
                             <b:Column size="MD_1">
-                                <b:Button ui:field="createButton" icon="PLUS" color="BLUE"  />
+                                <b:Button ui:field="createButton" icon="PLUS" color="BLUE"/>
                             </b:Column>
                             <b:Column size="MD_2">
                                 <b:Button ui:field="cancelButton" text="Cancel" visible="false"/>
                             </b:Column>
                             <b:Column size="MD_2">
-                                <b:Button ui:field="saveButton" icon="SAVE" text="Save" visible="false" />
+                                <b:Button ui:field="saveButton" icon="SAVE" text="Save" visible="false"/>
                             </b:Column>
                         </b:Row>
                         <b:Row>
-                            <b:Column size="MD_6">
-                                <cellview:DataGrid ui:field="userData" />
+                            <b:Column size="MD_6" styleName="{style.paddedTable}">
+                                    <gwt:FlexTable ui:field="userData"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>Tracks</gwt:header>-->
-                    <!--&lt;!&ndash;<gwt:HTML text="track permissions"/>&ndash;&gt;-->
-                    <!--<gwt:FlexTable ui:field="trackPermissions" width="90%" styleName="{style.center-table}"/>-->
+                <!--<gwt:header>Users</gwt:header>-->
+                <!--<cellview:DataGrid ui:field="userData" styleName="{style.trackTable}"/>-->
+                <!--</gwt:tab>-->
+                <!--<gwt:tab>-->
+                <!--<gwt:header>Tracks</gwt:header>-->
+                <!--&lt;!&ndash;<gwt:HTML text="track permissions"/>&ndash;&gt;-->
+                <!--<gwt:FlexTable ui:field="trackPermissions" width="90%" styleName="{style.center-table}"/>-->
                 <!--</gwt:tab>-->
                 <gwt:tab>
                     <gwt:header>Organisms</gwt:header>

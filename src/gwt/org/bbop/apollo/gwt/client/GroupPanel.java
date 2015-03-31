@@ -7,12 +7,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -20,6 +18,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.demo.DataGenerator;
 import org.bbop.apollo.gwt.client.dto.GroupInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.client.event.GroupChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -52,8 +51,10 @@ public class GroupPanel extends Composite {
     Button cancelButton;
     @UiField
     Button createButton;
+    //    @UiField(provided = true)
+//    FlexTable userData = new DataGrid<UserInfo>(10,tablecss);
     @UiField
-    DataGrid userData;
+    FlexTable userData;
 
     //    @UiField
 //    FlexTable trackPermissions;
@@ -61,12 +62,15 @@ public class GroupPanel extends Composite {
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
     private GroupInfo selectedGroupInfo;
-    ColumnSortEvent.ListHandler<GroupInfo> sortHandler = new ColumnSortEvent.ListHandler<GroupInfo>(groupInfoList);
+    private ColumnSortEvent.ListHandler<GroupInfo> sortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
+
+//    private ListDataProvider<UserInfo> userDataProvider = new ListDataProvider<>();
+//    private List<UserInfo> userInfoList = userDataProvider.getList();
+//    private ColumnSortEvent.ListHandler<UserInfo> userSortHandler = new ColumnSortEvent.ListHandler<>(userInfoList);
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        GroupRestService.loadGroups(groupInfoList);
 
         TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override
@@ -89,6 +93,8 @@ public class GroupPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
+
+
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -117,6 +123,29 @@ public class GroupPanel extends Composite {
 
         });
 
+
+//        TextColumn<UserInfo> usernameColumn = new TextColumn<UserInfo>() {
+//            @Override
+//            public String getValue(UserInfo employee) {
+//                return "Bob";
+//            }
+//        };
+//        usernameColumn.setSortable(true);
+
+
+//        userSortHandler.setComparator(usernameColumn, new Comparator<UserInfo>() {
+//            @Override
+//            public int compare(UserInfo o1, UserInfo o2) {
+//                return o1.getName().compareToIgnoreCase(o2.getEmail());
+//            }
+//        });
+
+//        userData.addColumn(usernameColumn, "User");
+//        userData.addColumnSortHandler(userSortHandler);
+//
+//        userDataProvider.addDataDisplay(userData);
+
+
         Annotator.eventBus.addHandler(GroupChangeEvent.TYPE, new GroupChangeEventHandler() {
             @Override
             public void onGroupChanged(GroupChangeEvent userChangeEvent) {
@@ -130,13 +159,13 @@ public class GroupPanel extends Composite {
 //                        addGroupToUi(group);
 //                        break;
                     case RELOAD_GROUPS:
-                        selectedGroupInfo = null ;
+                        selectedGroupInfo = null;
                         selectionModel.clear();
                         setSelectedGroup();
                         reload();
                         break;
                     case ADD_GROUP:
-                        selectedGroupInfo = null ;
+                        selectedGroupInfo = null;
                         selectionModel.clear();
                         setSelectedGroup();
                         reload();
@@ -151,18 +180,20 @@ public class GroupPanel extends Composite {
                 }
             }
         });
+
+        GroupRestService.loadGroups(groupInfoList);
     }
 
     @UiHandler("deleteButton")
-    public void deleteGroup(ClickEvent clickEvent){
-        if(Window.confirm("Delete group "+selectedGroupInfo.getName()+"?")){
+    public void deleteGroup(ClickEvent clickEvent) {
+        if (Window.confirm("Delete group " + selectedGroupInfo.getName() + "?")) {
             GroupRestService.deleteGroup(selectedGroupInfo);
             selectionModel.clear();
         }
     }
 
     @UiHandler("saveButton")
-    public void saveGroup(ClickEvent clickEvent){
+    public void saveGroup(ClickEvent clickEvent) {
         GroupInfo groupInfo = getGroupFromUI();
         GroupRestService.addNewGroup(groupInfo);
     }
@@ -170,11 +201,11 @@ public class GroupPanel extends Composite {
     private GroupInfo getGroupFromUI() {
         GroupInfo groupInfo = new GroupInfo();
         groupInfo.setName(name.getText());
-        return groupInfo ;
+        return groupInfo;
     }
 
     @UiHandler("createButton")
-    public void createGroup(ClickEvent clickEvent){
+    public void createGroup(ClickEvent clickEvent) {
         selectedGroupInfo = null;
         selectionModel.clear();
 
@@ -185,7 +216,7 @@ public class GroupPanel extends Composite {
     }
 
     @UiHandler("cancelButton")
-    public void cancelCreate(ClickEvent clickEvent){
+    public void cancelCreate(ClickEvent clickEvent) {
         name.setText("");
         cancelButton.setVisible(false);
         saveButton.setVisible(false);
@@ -193,8 +224,8 @@ public class GroupPanel extends Composite {
     }
 
     @UiHandler("name")
-    public void handleNameChange(ChangeEvent changeEvent){
-        if(selectedGroupInfo!=null && selectedGroupInfo.getId()!=null){
+    public void handleNameChange(ChangeEvent changeEvent) {
+        if (selectedGroupInfo != null && selectedGroupInfo.getId() != null) {
             selectedGroupInfo.setName(name.getText());
             GroupRestService.updateGroup(selectedGroupInfo);
         }
@@ -203,13 +234,21 @@ public class GroupPanel extends Composite {
     private void setSelectedGroup() {
         selectedGroupInfo = selectionModel.getSelectedObject();
 
-        if(selectedGroupInfo!=null){
+        if (selectedGroupInfo != null) {
             name.setText(selectedGroupInfo.getName());
             deleteButton.setVisible(true);
-        }
-        else{
+
+
+            userData.removeAllRows();
+
+            for(UserInfo userInfo : selectedGroupInfo.getUserInfoList()){
+                int rowCount = userData.getRowCount() ;
+                userData.setHTML(rowCount,0,userInfo.getName());
+            }
+        } else {
             name.setText("");
             deleteButton.setVisible(false);
+            userData.removeAllRows();
         }
     }
 
