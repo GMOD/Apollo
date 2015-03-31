@@ -40,6 +40,7 @@ class UserController {
 
         User.all.each {
             def userObject = new JSONObject()
+
 //            userObject.putAll(it.properties)
             userObject.userId = it.id
             userObject.username = it.username
@@ -117,16 +118,31 @@ class UserController {
     }
 
     def checkLogin() {
-        if (permissionService.currentUser) {
-            def it = permissionService.currentUser
+        def currentUser = permissionService.currentUser
+        if (currentUser) {
             def userObject = new JSONObject()
 //            userObject.putAll(it.properties)
-            userObject.userId = it.id
-            userObject.username = it.username
-            userObject.firstName = it.firstName
-            userObject.lastName = it.lastName
-            Role role = userService.getHighestRole(it)
+            userObject.userId = currentUser.id
+            userObject.username = currentUser.username
+            userObject.firstName = currentUser.firstName
+            userObject.lastName = currentUser.lastName
+            Role role = userService.getHighestRole(currentUser)
             userObject.role = role?.name
+
+
+            List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(currentUser)
+            JSONArray organismPermissionsArray = new JSONArray()
+            for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
+                JSONObject organismJSON = new JSONObject()
+//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
+                organismJSON.put("organism", userOrganismPermission.organism.commonName)
+                organismJSON.put("permissions", userOrganismPermission.permissions)
+                organismJSON.put("userId", userOrganismPermission.userId)
+                organismJSON.put("id", userOrganismPermission.id)
+                organismPermissionsArray.add(organismJSON)
+            }
+            userObject.organismPermissions = organismPermissionsArray
+
             render userObject as JSON
         } else {
             render new JSONObject() as JSON
