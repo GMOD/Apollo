@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -124,6 +125,7 @@ public class MainPanel extends Composite {
                         }
                         break;
                     case CHANGED_ORGANISM:
+                        currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
                         updateGenomicViewer();
                         loadReferenceSequences(true);
                         updatePermissionsForOrganism();
@@ -137,10 +139,15 @@ public class MainPanel extends Composite {
 
     private void updatePermissionsForOrganism() {
 
-        GWT.log("updating permissions for current organism");
-        Window.alert((currentOrganism!=null)+"");
-        Window.alert(currentOrganism.toJSON());
+        GWT.log("updating permissions for current organism: " + currentOrganism.toJSON().toString());
+//        Window.alert((currentOrganism!=null)+"");
+//        Window.alert(currentOrganism.toJSON());
         Window.alert(currentUser.getOrganismPermissionMap().keySet().toString());
+
+        String role = currentUser.getRole();
+        UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
+        Window.alert("global: "+role);
+        Window.alert("organism: "+userOrganismPermissionInfo.toJSON().toString());
 
 //        currentUser.getOrganismPermissionMap();
 

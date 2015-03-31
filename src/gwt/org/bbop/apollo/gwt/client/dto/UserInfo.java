@@ -162,7 +162,7 @@ public class UserInfo {
         int index = 0 ;
         for(String organism : organismPermissionMap.keySet()){
             JSONObject orgPermission = new JSONObject();
-            orgPermission.put(organism,new JSONString(organismPermissionMap.get(organism).toJSON()));
+            orgPermission.put(organism,organismPermissionMap.get(organism).toJSON());
             organismPermissions.set(index,orgPermission);
             ++index ;
         }

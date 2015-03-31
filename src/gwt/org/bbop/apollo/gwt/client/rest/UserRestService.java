@@ -200,6 +200,6 @@ public class UserRestService {
                 Window.alert("Error updating permissions: " + exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/user/updateOrganismPermission", "data=" + object.toJSON());
+        RestService.sendRequest(requestCallback, "/user/updateOrganismPermission", "data=" + object.toJSON().toString());
     }
 }

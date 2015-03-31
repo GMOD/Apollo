@@ -11,6 +11,7 @@ import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.OrganismPanel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 
 import java.util.ArrayList;
@@ -96,7 +97,7 @@ public class OrganismRestService {
     }
 
     public static void updateOrganismInfo(final OrganismInfo organismInfo,boolean forceReload) {
-        JSONObject organismInfoObject = JSONParser.parseStrict(organismInfo.toJSON()).isObject();
+        JSONObject organismInfoObject = organismInfo.toJSON();
         organismInfoObject.put("forceReload",JSONBoolean.getInstance(forceReload));
 
         RequestCallback requestCallback = new RequestCallback() {
@@ -118,12 +119,8 @@ public class OrganismRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                Window.alert(response.getText());
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-//                Window.alert(returnValue.toString());
-                OrganismInfo organismInfo = new OrganismInfo();
-//                organismInfo.setId(returnValue.get("id").isString().stringValue());
-//                organismInfo.setName(returnValue.get("commonName").isString().stringValue());
+                OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
 
                 OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.CHANGED_ORGANISM);
                 List<OrganismInfo> organismInfoList = new ArrayList<>();

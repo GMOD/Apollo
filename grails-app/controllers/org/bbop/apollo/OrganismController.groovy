@@ -179,11 +179,7 @@ class OrganismController {
         println "updating organism"
         println params.data
 
-        JSONObject jsonObject = new JSONObject()
-        jsonObject.put("id",organism.id)
-        jsonObject.put("commonName",organism.commonName)
-
-        render jsonObject as JSON
+        render organism as JSON
     }
 
     @Transactional

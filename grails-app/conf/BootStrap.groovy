@@ -31,6 +31,16 @@ class BootStrap {
             return returnArray
         }
 
+        JSON.registerObjectMarshaller(Organism){
+            def returnArray = [:]
+            returnArray['id']=it.id
+            returnArray['commonName']=it.commonName
+            returnArray['genus']=it.genus
+            returnArray['species']=it.species
+            returnArray['directory']=it.directory
+            return returnArray
+        }
+
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
         mockupService.addUsers()

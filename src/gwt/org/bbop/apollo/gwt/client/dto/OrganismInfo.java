@@ -121,7 +121,7 @@ public class OrganismInfo {
         return current;
     }
 
-    public String toJSON() {
+    public JSONObject toJSON() {
         JSONObject payload = new JSONObject();
         GWT.log("paylout in");
         payload.put("id",new JSONString(id));
@@ -145,7 +145,7 @@ public class OrganismInfo {
         }
         GWT.log("paylout out!");
 
-        return payload.toString();
+        return payload;
     }
 
 }

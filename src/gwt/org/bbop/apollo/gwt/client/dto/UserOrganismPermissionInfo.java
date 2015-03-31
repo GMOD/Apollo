@@ -20,7 +20,7 @@ public class UserOrganismPermissionInfo extends OrganismPermissionInfo{
         this.userId = userId;
     }
 
-    public String toJSON() {
+    public JSONObject toJSON() {
         JSONObject payload = new JSONObject();
         payload.put("organism",new JSONString(organismName));
         payload.put("ADMINISTRATE",JSONBoolean.getInstance(admin));
@@ -33,6 +33,6 @@ public class UserOrganismPermissionInfo extends OrganismPermissionInfo{
         if(id!=null){
             payload.put("id",new JSONNumber(id));
         }
-        return payload.toString();
+        return payload;
     }
 }
