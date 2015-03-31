@@ -40,7 +40,7 @@ class OrganismController {
 
     @Transactional
     def deleteOrganism() {
-        println "savingparams: ${params.data}"
+        println "saving params: ${params.data}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
         println "organismJSON ${organismJson}"
         println "id: ${organismJson.id}"
@@ -53,13 +53,15 @@ class OrganismController {
 
     @Transactional
     def saveOrganism() {
-        println "savingparams: ${params.data}"
+        println "saving params: ${params.data}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
         println "organismJSON ${organismJson}"
         println "id: ${organismJson.id}"
         Organism organism = new Organism(
                 commonName: organismJson.commonName
                 , directory: organismJson.directory
+                , species: organismJson.species
+                , genus: organismJson.genus
         )
         println "organism ${organism as JSON}"
 
@@ -237,6 +239,8 @@ class OrganismController {
             jsonObject.put("directory", organism.directory)
             jsonObject.put("annotationCount", geneCount)
             jsonObject.put("sequences", organism.sequences?.size())
+            jsonObject.put("genus",organism.genus)
+            jsonObject.put("species",organism.species)
             if (organism.valid) {
                 jsonObject.put("valid", organism.valid)
             }

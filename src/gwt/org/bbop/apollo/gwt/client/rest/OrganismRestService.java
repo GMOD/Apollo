@@ -32,6 +32,8 @@ public class OrganismRestService {
         }
         object.put("commonName",new JSONString(organismInfo.getName()));
         object.put("directory",new JSONString(organismInfo.getDirectory()));
+        object.put("genus",new JSONString(organismInfo.getGenus()));
+        object.put("species",new JSONString(organismInfo.getSpecies()));
         if(organismInfo.getNumSequences()!=null){
             object.put("sequences",new JSONNumber(organismInfo.getNumFeatures()));
         }
@@ -65,6 +67,12 @@ public class OrganismRestService {
             organismInfo.setDirectory(object.get("directory").isString().stringValue());
             if(object.get("valid")!=null){
                 organismInfo.setValid(object.get("valid").isBoolean().booleanValue());
+            }
+            if(object.get("genus")!=null){
+                organismInfo.setGenus(object.get("genus").isString().stringValue());
+            }
+            if(object.get("species")!=null){
+                organismInfo.setSpecies(object.get("species").isString().stringValue());
             }
             organismInfoList.add(organismInfo);
         }
