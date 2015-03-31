@@ -45,10 +45,13 @@ public class MainPanel extends Composite {
 
     private boolean toggleOpen = true;
     private String rootUrl;
-    public static Long currentOrganismId = null;
-    public static String currentSequenceId = null;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
+    // state info
+    private static UserInfo currentUser; // the current logged-in user
+    private static OrganismInfo currentOrganism; // the current logged-in user
+    public static Long currentOrganismId = null;
+    public static String currentSequenceId = null;
 
     // debug
     private Boolean showFrame = false;
@@ -87,8 +90,10 @@ public class MainPanel extends Composite {
     Button logoutButton;
     @UiField
     HTML userName;
-    
-    private static UserInfo currentUser ; // the current logged-in user
+
+
+
+
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
 
@@ -110,15 +115,32 @@ public class MainPanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
-                organismList.clear();
-                for (OrganismInfo organismInfo : organismInfoList) {
-                    organismList.addItem(organismInfo.getName(), organismInfo.getId());
+                switch (organismChangeEvent.getAction()) {
+                    case LOADED_ORGANISMS:
+                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
+                        organismList.clear();
+                        for (OrganismInfo organismInfo : organismInfoList) {
+                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
+                        }
+                        break;
+                    case CHANGED_ORGANISM:
+                        updateGenomicViewer();
+                        loadReferenceSequences(true);
+                        updatePermissionsForOrganism();
+                        break;
                 }
             }
         });
 
         loginUser();
+    }
+
+    private void updatePermissionsForOrganism() {
+
+
+//        currentUser.getOrganismPermissionMap();
+
+
     }
 
     private void loginUser() {
@@ -135,18 +157,18 @@ public class MainPanel extends Composite {
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
                     // let's set the view
-                    detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(currentUser.getRole()!=null && currentUser.getRole().equals("admin"));
+                    detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(currentUser.getRole() != null && currentUser.getRole().equals("admin"));
 
                     String username = currentUser.getEmail();
 
-                    int maxLength = 15 ;
+                    int maxLength = 15;
                     if (username.length() > maxLength) {
-                        username = username.substring(0, maxLength-1) + "...";
+                        username = username.substring(0, maxLength - 1) + "...";
                     }
 
                     userName.setHTML(username);
                 } else {
-                    currentUser = null ; 
+                    currentUser = null;
                     logoutButton.setVisible(false);
                     LoginDialog loginDialog = new LoginDialog();
                     loginDialog.center();
@@ -169,12 +191,6 @@ public class MainPanel extends Composite {
 
     }
 
-    public void handleOrganismChange() {
-        updateGenomicViewer();
-        loadReferenceSequences(true);
-
-
-    }
 
     @UiHandler("organismList")
     public void changeOrganism(ChangeEvent event) {
@@ -182,7 +198,7 @@ public class MainPanel extends Composite {
         currentOrganismId = Long.parseLong(selectedValue);
         sequenceList.setText("");
         sequenceOracle.clear();
-        OrganismRestService.changeOrganism(this, selectedValue);
+        OrganismRestService.changeOrganism(selectedValue);
     }
 
     @UiHandler("sequenceList")
@@ -313,6 +329,7 @@ public class MainPanel extends Composite {
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (organismInfo.isCurrent()) {
                         currentOrganismId = Long.parseLong(organismInfo.getId());
+                        currentOrganism = organismInfo ;
                         trackInfoList.setSelectedIndex(i);
                     }
 //                    if (currentOrganismId != null) {
@@ -431,6 +448,7 @@ public class MainPanel extends Composite {
     public static UserInfo getCurrentUser() {
         return currentUser;
     }
+
     /*
      * Takes in a JSON String and evals it.
      * @param JSON String that you trust
@@ -504,24 +522,21 @@ public class MainPanel extends Composite {
         //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 
-    private enum TabPanelIndex{
+    private enum TabPanelIndex {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
         ORGANISM(3),
         USERS(4),
         GROUPS(5),
-        PREFERENCES(6),
-        ;
+        PREFERENCES(6),;
 
-        private int index ;
-        TabPanelIndex(int index){
-            this.index = index ;
+        private int index;
+
+        TabPanelIndex(int index) {
+            this.index = index;
         }
 
-//        public int getIndex() {
-//            return index;
-//        }
     }
 
 }

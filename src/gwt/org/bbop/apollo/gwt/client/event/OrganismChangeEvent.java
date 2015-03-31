@@ -13,10 +13,15 @@ public class OrganismChangeEvent extends GwtEvent<OrganismChangeEventHandler>{
     public static Type<OrganismChangeEventHandler> TYPE = new Type<OrganismChangeEventHandler>();
 
     public List<OrganismInfo> organismInfoList;
+    private Action action;
 
     public OrganismChangeEvent(){}
     public OrganismChangeEvent(List<OrganismInfo> organismInfoList){
         this.organismInfoList = organismInfoList ;
+    }
+
+    public OrganismChangeEvent(Action action) {
+        this.action = action;
     }
 
     public List<OrganismInfo> getOrganismInfoList() {
@@ -35,5 +40,19 @@ public class OrganismChangeEvent extends GwtEvent<OrganismChangeEventHandler>{
     @Override
     protected void dispatch(OrganismChangeEventHandler handler) {
         handler.onOrganismChanged(this);
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public enum Action {
+        CHANGED_ORGANISM, LOADED_ORGANISMS
+
+
     }
 }

@@ -114,11 +114,12 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback, "/organism/updateOrganismInfo", "data=" + organismInfoObject.toString());
     }
 
-    public static void changeOrganism(final MainPanel mainPanel, String newOrganismId) {
+    public static void changeOrganism(String newOrganismId) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                mainPanel.handleOrganismChange();
+                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.CHANGED_ORGANISM);
+                Annotator.eventBus.fireEvent(organismChangeEvent);
             }
 
             @Override
