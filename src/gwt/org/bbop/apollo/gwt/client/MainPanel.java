@@ -23,6 +23,7 @@ import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -137,20 +138,46 @@ public class MainPanel extends Composite {
     }
 
     private void updatePermissionsForOrganism() {
-
-        GWT.log("updating permissions for current organism: " + currentOrganism.toJSON().toString());
-//        Window.alert((currentOrganism!=null)+"");
-//        Window.alert(currentOrganism.toJSON());
         GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
 
-        String role = currentUser.getRole();
+        String globalRole = currentUser.getRole();
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
-        GWT.log("global: "+role);
+        GWT.log("global: "+globalRole);
         GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
+        PermissionEnum highestPermission = userOrganismPermissionInfo.getHighestPermission();
+        if(globalRole.equals("admin")){
+            highestPermission = PermissionEnum.ADMINISTRATE;
+        }
 
-//        currentUser.getOrganismPermissionMap();
+        switch(highestPermission){
+            case ADMINISTRATE:
+                GWT.log("setting to ADMINISTRATE permissions");
+                detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
+                detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(true);
+                detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(true);
+                detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(true);
+                break ;
+            case WRITE:
+                GWT.log("setting to WRITE permissions");
+            // same permissions
+            case EXPORT:
+                GWT.log("setting to EXPORT permissions");
+            case READ:
+                GWT.log("setting to READ permissions");
+            case NONE:
+            default:
+                GWT.log("setting to no permissions");
+                // let's set the view
+                detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
+                detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(false);
+                detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(false);
+                detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(false);
 
+                break ;
+        }
 
+        UserChangeEvent userChangeEvent = new UserChangeEvent(UserChangeEvent.Action.PERMISSION_CHANGED,highestPermission);
+        Annotator.eventBus.fireEvent(userChangeEvent);
     }
 
     private void loginUser() {
@@ -166,8 +193,7 @@ public class MainPanel extends Composite {
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
-                    // let's set the view
-                    detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(currentUser.getRole() != null && currentUser.getRole().equals("admin"));
+
 
                     String username = currentUser.getEmail();
 
@@ -351,6 +377,7 @@ public class MainPanel extends Composite {
                     currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
                     trackInfoList.setSelectedIndex(0);
                 }
+                updatePermissionsForOrganism();
 
                 loadReferenceSequences(true);
             }
