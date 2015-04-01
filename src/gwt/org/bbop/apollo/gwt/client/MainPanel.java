@@ -37,6 +37,7 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
+
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
@@ -568,6 +569,10 @@ public class MainPanel extends Composite {
             this.index = index;
         }
 
+    }
+
+    public static boolean isCurrentUserAdmin() {
+        return (currentUser != null && currentUser.getRole().equals("admin"));
     }
 
 }

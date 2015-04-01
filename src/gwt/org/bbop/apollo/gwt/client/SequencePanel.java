@@ -25,9 +25,12 @@ import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEventHandler;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -92,7 +95,8 @@ public class SequencePanel extends Composite {
     private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
-    private Integer selectedCount = 0 ;
+    private Integer selectedCount = 0;
+    private PermissionEnum highestPermission = PermissionEnum.NONE;
 
     public SequencePanel() {
         pager = new SimplePager(SimplePager.TextLocation.CENTER);
@@ -112,11 +116,10 @@ public class SequencePanel extends Composite {
         selectColumn.setFieldUpdater(new FieldUpdater<SequenceInfo, Boolean>() {
             @Override
             public void update(int index, SequenceInfo object, Boolean value) {
-                selectedCount += value ? 1 : -1 ;
-                if(selectedCount>0){
-                }
-                else{
-                    selectedCount=0;
+                selectedCount += value ? 1 : -1;
+                if (selectedCount > 0) {
+                } else {
+                    selectedCount = 0;
                 }
                 object.setSelected(value);
                 updatedExportSelectedButton();
@@ -151,15 +154,14 @@ public class SequencePanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 Set<SequenceInfo> selectedSequenceInfo = multiSelectionModel.getSelectedSet();
-                if(selectedSequenceInfo.size()==1){
+                if (selectedSequenceInfo.size() == 1) {
                     setSequenceInfo(selectedSequenceInfo.iterator().next());
                     selectSelectedButton.setEnabled(true);
-                }
-                else {
+                } else {
                     setSequenceInfo(null);
                 }
 
-                selectSelectedButton.setEnabled(selectedSequenceInfo.size()>0);
+                selectSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
             }
         });
 
@@ -201,11 +203,10 @@ public class SequencePanel extends Composite {
                     @Override
                     public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
                         filterSequences();
-                        if(sequenceInfoList.size()>0){
-                            exportAllButton.setEnabled(true);
-                            exportAllButton.setText("All ("+sequenceInfoList.size()+")");
-                        }
-                        else{
+                        if (sequenceInfoList.size() > 0) {
+                            exportAllButton.setEnabled(highestPermission.getValue()>=PermissionEnum.EXPORT.getValue());
+                            exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
+                        } else {
                             exportAllButton.setEnabled(false);
                             exportAllButton.setText("None Available");
                         }
@@ -213,14 +214,40 @@ public class SequencePanel extends Composite {
                 }
         );
 
+        Annotator.eventBus.addHandler(UserChangeEvent.TYPE,
+                new UserChangeEventHandler() {
+                    @Override
+                    public void onUserChanged(UserChangeEvent authenticationEvent) {
+                        switch(authenticationEvent.getAction()){
+                            case PERMISSION_CHANGED:
+                                PermissionEnum hiPermissionEnum = authenticationEvent.getHighestPermission();
+                                if(MainPanel.isCurrentUserAdmin()){
+                                    hiPermissionEnum = PermissionEnum.ADMINISTRATE;
+                                }
+                                boolean allowExport = false;
+                                switch(hiPermissionEnum){
+                                    case ADMINISTRATE:
+                                    case WRITE:
+                                    case EXPORT:
+                                        allowExport= true ;
+                                        break;
+                                    // default is false
+                                }
+                                exportAllButton.setEnabled(allowExport);
+                                exportSingleButton.setEnabled(allowExport);
+                                exportSelectedButton.setEnabled(allowExport);
+                                break;
+                        }
+                    }
+                }
+        );
     }
 
     private void updatedExportSelectedButton() {
-        if(selectedCount>0){
+        if (selectedCount > 0) {
             exportSelectedButton.setEnabled(true);
-            exportSelectedButton.setText("Selected ("+selectedCount+")");
-        }
-        else{
+            exportSelectedButton.setText("Selected (" + selectedCount + ")");
+        } else {
             exportSelectedButton.setEnabled(false);
             exportSelectedButton.setText("None Selected");
         }
@@ -252,10 +279,16 @@ public class SequencePanel extends Composite {
         exportFastaButton.setType(ButtonType.DEFAULT);
         exportChadoButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
-        switch (selectedButton.getText()){
-            case "GFF3":  exportGff3Button.setType(ButtonType.PRIMARY); break ;
-            case "FASTA":  exportFastaButton.setType(ButtonType.PRIMARY); break ;
-            case "CHADO":  exportChadoButton.setType(ButtonType.PRIMARY); break ;
+        switch (selectedButton.getText()) {
+            case "GFF3":
+                exportGff3Button.setType(ButtonType.PRIMARY);
+                break;
+            case "FASTA":
+                exportFastaButton.setType(ButtonType.PRIMARY);
+                break;
+            case "CHADO":
+                exportChadoButton.setType(ButtonType.PRIMARY);
+                break;
         }
     }
 
@@ -266,21 +299,20 @@ public class SequencePanel extends Composite {
 
 
     @UiHandler("selectSelectedButton")
-    public void handleSetSelections(ClickEvent clickEvent){
+    public void handleSetSelections(ClickEvent clickEvent) {
         GWT.log("selecting selected?");
 
         boolean allSelectionsSelected = findAllSelectionsSelected();
 
-        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
-            if(allSelectionsSelected){
-                if(sequenceInfo.getSelected()){
-                    --selectedCount ;
+        for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
+            if (allSelectionsSelected) {
+                if (sequenceInfo.getSelected()) {
+                    --selectedCount;
                 }
                 sequenceInfo.setSelected(false);
-            }
-            else{
-                if(!sequenceInfo.getSelected()){
-                    ++selectedCount ;
+            } else {
+                if (!sequenceInfo.getSelected()) {
+                    ++selectedCount;
                 }
                 sequenceInfo.setSelected(true);
             }
@@ -290,29 +322,25 @@ public class SequencePanel extends Composite {
     }
 
     private boolean findAllSelectionsSelected() {
-        for(SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()){
-            if(!sequenceInfo.getSelected()) return false ;
+        for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
+            if (!sequenceInfo.getSelected()) return false;
         }
-        return true ;
+        return true;
     }
 
-    private void exportValues(List<SequenceInfo> sequenceInfoList){
+    private void exportValues(List<SequenceInfo> sequenceInfoList) {
         Integer organismId = Integer.parseInt(organismList.getSelectedValue());
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setId(organismId.toString());
         organismInfo.setName(organismList.getSelectedItemText());
 
         // get the type based on the active button
-        String type = null  ;
-        if(exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)){
+        String type = null;
+        if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportGff3Button.getText();
-        }
-        else
-        if(exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)){
+        } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
-        }
-        else
-        if(exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)){
+        } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportChadoButton.getText();
         }
 
@@ -327,19 +355,19 @@ public class SequencePanel extends Composite {
     @UiHandler("exportSelectedButton")
     public void exportSelectedHandler(ClickEvent clickEvent) {
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
-        for(SequenceInfo sequenceInfo : sequenceInfoList){
-            if(sequenceInfo.getSelected()){
+        for (SequenceInfo sequenceInfo : sequenceInfoList) {
+            if (sequenceInfo.getSelected()) {
                 sequenceInfoList1.add(sequenceInfo);
             }
         }
 
-        GWT.log("adding selected: "+sequenceInfoList1.size());
+        GWT.log("adding selected: " + sequenceInfoList1.size());
         exportValues(sequenceInfoList1);
     }
 
     @UiHandler("exportSingleButton")
     public void exportSingleHandler(ClickEvent clickEvent) {
-        SequenceInfo sequenceInfo= multiSelectionModel.getSelectedSet().iterator().next();
+        SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
         sequenceInfoList1.add(sequenceInfo);
         exportValues(sequenceInfoList1);
