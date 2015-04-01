@@ -148,12 +148,15 @@ public class MainPanel extends Composite {
         PermissionEnum highestPermission = userOrganismPermissionInfo.getHighestPermission();
         if(globalRole.equals("admin")){
             highestPermission = PermissionEnum.ADMINISTRATE;
+            detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
+        }
+        else{
+            detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
         }
 
         switch(highestPermission){
             case ADMINISTRATE:
                 GWT.log("setting to ADMINISTRATE permissions");
-                detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(true);
@@ -169,7 +172,6 @@ public class MainPanel extends Composite {
             default:
                 GWT.log("setting to no permissions");
                 // let's set the view
-                detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(false);
