@@ -60,8 +60,8 @@
                         <b:InputGroup>
                             <b:InputGroupAddon>Strand</b:InputGroupAddon>
                             <b:ButtonGroup dataToggle="BUTTONS" ui:field="strand">
-                                <b:Button ui:field="negativeStrandValue">-</b:Button>
-                                <b:Button ui:field="positiveStrandValue">+</b:Button>
+                                <b:Button ui:field="negativeStrandValue" enabled="false" icon="MINUS"/>
+                                <b:Button ui:field="positiveStrandValue"  enabled="false" icon="PLUS"/>
                             </b:ButtonGroup>
                         </b:InputGroup>
                     </b:Column>

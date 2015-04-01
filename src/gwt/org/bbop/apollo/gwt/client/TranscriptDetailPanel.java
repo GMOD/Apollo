@@ -27,6 +27,7 @@ public class TranscriptDetailPanel extends Composite {
 
     private AnnotationInfo internalAnnotationInfo;
 
+
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> { }
 
     Dictionary dictionary = Dictionary.getDictionary("Options");
@@ -44,6 +45,8 @@ public class TranscriptDetailPanel extends Composite {
     InputGroupAddon locationField;
     @UiField
     InputGroupAddon userField;
+
+    private Boolean editable = false ;
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
@@ -68,37 +71,14 @@ public class TranscriptDetailPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
     }
 
-    private void enableFields(boolean enabled){
-        nameField.setEnabled(enabled);
-//        symbolField.setEnabled(enabled);
-        descriptionField.setEnabled(enabled);
-    }
 
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo ;
-//        this.internalData = internalData ;
-        GWT.log("updating transcript detail panel");
-//        GWT.log(internalData.toString());
-//        nameField.setText(internalData.get("name").isString().stringValue());
-//        symbolField.setText(internalData.containsKey("symbol") ? internalData.get("symbol").isString().stringValue(): "");
-//        descriptionField.setText(internalData.containsKey("description") ? internalData.get("description").isString().stringValue() : "");
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
 
-//        JSONObject locationObject = internalData.get("location").isObject();
-//        String locationText = locationObject.get("fmin").isNumber().toString();
-//        locationText += " - ";
-//        locationText += locationObject.get("fmax").isNumber().toString();
-//        locationText += " strand(";
-//        locationText += locationObject.get("strand").isNumber().doubleValue() > 0 ? "+" : "-";
-//        locationText += ")";
-//
-//        locationField.setText(locationText);
-
-//        JSONObject locationObject = internalData.get("location").isObject();
         if (internalAnnotationInfo.getMin() != null) {
-            GWT.log("C");
             String locationText = internalAnnotationInfo.getMin().toString();
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();
@@ -107,10 +87,8 @@ public class TranscriptDetailPanel extends Composite {
             locationText += ")";
             locationField.setText(locationText);
             locationField.setVisible(true);
-            GWT.log("D");
         }
         else{
-            GWT.log("E");
             locationField.setVisible(false);
         }
 
@@ -129,9 +107,7 @@ public class TranscriptDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
-//                Window.alert("successful update: "+returnValue);
                 enableFields(true);
             }
 
@@ -150,5 +126,16 @@ public class TranscriptDetailPanel extends Composite {
             Window.alert(e.getMessage());
         }
 
+    }
+
+    private void enableFields(boolean enabled){
+        nameField.setEnabled(enabled && editable);
+        descriptionField.setEnabled(enabled && editable);
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable ;
+        nameField.setEnabled(this.editable);
+        descriptionField.setEnabled(this.editable);
     }
 }

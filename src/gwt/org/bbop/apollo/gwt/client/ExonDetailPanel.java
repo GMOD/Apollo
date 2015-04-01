@@ -28,6 +28,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.List;
  * Created by ndunn on 1/9/15.
  */
 public class ExonDetailPanel extends Composite {
+
 
     interface ExonDetailPanelUiBinder extends UiBinder<Widget, ExonDetailPanel> {
     }
@@ -69,6 +71,7 @@ public class ExonDetailPanel extends Composite {
     private Column<AnnotationInfo, Number> stopColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
 
+    private Boolean editable = false ;
 
     public ExonDetailPanel() {
         dataGrid.setWidth("100%");
@@ -156,12 +159,6 @@ public class ExonDetailPanel extends Composite {
         });
     }
 
-    private void enableFields(boolean enabled) {
-        minField.setEnabled(enabled);
-        maxField.setEnabled(enabled);
-        positiveStrandValue.setEnabled(enabled);
-        negativeStrandValue.setEnabled(enabled);
-    }
 
     public void updateData(AnnotationInfo annotationInfo){
         GWT.log("updating data: " + annotationInfo.getName());
@@ -173,7 +170,7 @@ public class ExonDetailPanel extends Composite {
             annotationInfoList.add(annotationInfo1);
         }
 
-        GWT.log("should be showing: "+annotationInfoList.size());
+        GWT.log("should be showing: " + annotationInfoList.size());
 
         if(annotationInfoList.size()>0){
             updateDetailData(annotationInfoList.get(0));
@@ -192,16 +189,16 @@ public class ExonDetailPanel extends Composite {
         maxField.setText(internalAnnotationInfo.getMax().toString());
 
         if (internalAnnotationInfo.getStrand() > 0) {
-            positiveStrandValue.setActive(true);
-            negativeStrandValue.setActive(false);
+            positiveStrandValue.setType(ButtonType.PRIMARY);
+            negativeStrandValue.setType(ButtonType.DEFAULT);
         } else {
-            positiveStrandValue.setActive(false);
-            negativeStrandValue.setActive(true);
+            positiveStrandValue.setType(ButtonType.DEFAULT);
+            negativeStrandValue.setType(ButtonType.PRIMARY);
         }
 
         SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
         for(String note : annotationInfo.getNoteList()){
-            safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>"+note+"</div>");
+            safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>" + note + "</div>");
         }
         notePanel.setHTML(safeHtmlBuilder.toSafeHtml());
 
@@ -223,7 +220,8 @@ public class ExonDetailPanel extends Composite {
         updateFeatureLocation();
     }
 
-    @UiHandler("positiveStrandValue")
+    // we would only ever enable these for the gene . . . not sure if we want this here
+//    @UiHandler("positiveStrandValue")
     void handlePositiveStrand(ClickEvent e) {
         if (negativeStrandValue.isActive()) {
             internalAnnotationInfo.setStrand(1);
@@ -233,7 +231,7 @@ public class ExonDetailPanel extends Composite {
         }
     }
 
-    @UiHandler("negativeStrandValue")
+//    @UiHandler("negativeStrandValue")
     void handleNegativeStrand(ClickEvent e) {
         if (positiveStrandValue.isActive()) {
             internalAnnotationInfo.setStrand(-1);
@@ -280,5 +278,20 @@ public class ExonDetailPanel extends Composite {
             enableFields(true);
         }
 
+    }
+
+    private void enableFields(boolean enabled) {
+        minField.setEnabled(enabled && editable);
+        maxField.setEnabled(enabled && editable);
+//        positiveStrandValue.setEnabled(enabled);
+//        negativeStrandValue.setEnabled(enabled);
+    }
+
+
+    public void setEditable(boolean editable) {
+        this.editable = editable ;
+
+        maxField.setEnabled(this.editable);
+        minField.setEnabled(this.editable);
     }
 }

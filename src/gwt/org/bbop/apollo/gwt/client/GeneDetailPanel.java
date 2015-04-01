@@ -23,6 +23,7 @@ public class GeneDetailPanel extends Composite {
 
     private AnnotationInfo internalAnnotationInfo;
 
+
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, GeneDetailPanel> {
     }
 
@@ -154,14 +155,19 @@ public class GeneDetailPanel extends Composite {
             locationText += ")";
             locationField.setText(locationText);
             locationField.setVisible(true);
-            GWT.log("D");
         }
         else{
-            GWT.log("E");
             locationField.setVisible(false);
         }
 
 
         setVisible(true);
+    }
+
+    public void setEditable(boolean editable) {
+        nameField.setEnabled(editable);
+        symbolField.setEnabled(editable);
+        descriptionField.setEnabled(editable);
+
     }
 }

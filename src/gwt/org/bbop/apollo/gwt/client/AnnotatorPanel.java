@@ -33,12 +33,10 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
-import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
-import org.bbop.apollo.gwt.client.event.ContextSwitchEventHandler;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.shared.event.TabEvent;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
@@ -164,6 +162,33 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
+        Annotator.eventBus.addHandler(UserChangeEvent.TYPE,
+                new UserChangeEventHandler() {
+                    @Override
+                    public void onUserChanged(UserChangeEvent authenticationEvent) {
+                        switch(authenticationEvent.getAction()){
+                            case PERMISSION_CHANGED:
+                                PermissionEnum hiPermissionEnum = authenticationEvent.getHighestPermission();
+                                if(MainPanel.isCurrentUserAdmin()){
+                                    hiPermissionEnum = PermissionEnum.ADMINISTRATE;
+                                }
+                                boolean editable = false;
+                                switch(hiPermissionEnum){
+                                    case ADMINISTRATE:
+                                    case WRITE:
+                                        editable = true ;
+                                        break;
+                                    // default is false
+                                }
+                                transcriptDetailPanel.setEditable(editable);
+                                geneDetailPanel.setEditable(editable);
+                                exonDetailPanel.setEditable(editable);
+                                reload();
+                                break;
+                        }
+                    }
+                }
+        );
     }
 
     private void initializeGroups() {
@@ -285,35 +310,6 @@ public class AnnotatorPanel extends Composite {
         nameColumn.setSortable(true);
 
 
-//        final SafeHtmlCell safeHtmlCell = new SafeHtmlCell();
-//        filterColumn = new TextColumn<AnnotationInfo>() {
-//            @Override
-//            public String getValue(AnnotationInfo object) {
-//                return "Bob";
-//            }
-//
-//            //            @Override
-////            public String getValue(AnnotationInfo object) {
-////                Random random = new Random();
-////                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
-////
-//////                if(random.nextBoolean()){
-//////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>CDS-3</div>");
-//////                }
-//////                else
-//////                if(random.nextBoolean()){
-//////                    safeHtmlBuilder.appendHtmlConstant("<div class='alert alert-warning'>Stop Codon</div>");
-//////                }
-//////                else{
-//////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
-//////                }
-////                safeHtmlBuilder.appendHtmlConstant("<pre>BOO</pre>");
-////
-////
-////                return safeHtmlBuilder.toSafeHtml().to;
-////            }
-//        };
-//        filterColumn.setSortable(false);
 
 
         typeColumn = new TextColumn<AnnotationInfo>() {
