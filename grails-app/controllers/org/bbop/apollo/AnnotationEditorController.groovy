@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.TranslationTable

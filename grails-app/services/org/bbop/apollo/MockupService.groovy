@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
+import org.bbop.apollo.gwt.shared.PermissionEnum
+
 //import grails.compiler.GrailsCompileStatic
 
 //@GrailsCompileStatic

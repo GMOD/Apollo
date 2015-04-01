@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 
 class UserController {
 
