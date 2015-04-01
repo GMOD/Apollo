@@ -1,12 +1,9 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import org.apache.commons.lang.RandomStringUtils
-import org.apache.commons.lang.StringUtils
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.util.StringUtil
 
 class UserController {
 
@@ -130,18 +127,41 @@ class UserController {
             userObject.role = role?.name
 
 
-            List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(currentUser)
-            JSONArray organismPermissionsArray = new JSONArray()
-            for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
+            Map<String,JSONObject> organismMap = new HashMap<>()
+            for (UserOrganismPermission userOrganismPermission in UserOrganismPermission.findAllByUser(currentUser)) {
                 JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                 organismJSON.put("organism", userOrganismPermission.organism.commonName)
                 organismJSON.put("permissions", userOrganismPermission.permissions)
                 organismJSON.put("userId", userOrganismPermission.userId)
                 organismJSON.put("id", userOrganismPermission.id)
-                organismPermissionsArray.add(organismJSON)
+
+                organismMap.put(userOrganismPermission.organism.commonName,organismJSON)
             }
+
+            // TODO: not sure if these are automatically integrated or not
+//            for (GroupOrganismPermission groupOrganismPermission in GroupOrganismPermission.findAllByGroupInList(currentUser.userGroups as List)) {
+//
+//                JSONObject organismJSON = organismMap.get(groupOrganismPermission.organism.commonName)
+//                if(!organismJSON){
+//                    organismJSON = new JSONObject()
+//                    organismJSON.put("organism", groupOrganismPermission.organism.commonName)
+//                    organismJSON.put("permissions", groupOrganismPermission.permissions)
+//                    organismJSON.put("groupId", groupOrganismPermission.groupId)
+//                    organismJSON.put("id", groupOrganismPermission.id)
+//                }
+//                else{
+//                    organismJSON.get("")
+//                }
+//
+//
+//                organismMap.put(groupOrganismPermission.organism.commonName,organismJSON)
+//            }
+
+            JSONArray organismPermissionsArray = new JSONArray()
+            organismPermissionsArray.addAll(organismMap.values())
+
             userObject.organismPermissions = organismPermissionsArray
+
 
             render userObject as JSON
         } else {

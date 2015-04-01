@@ -128,6 +128,7 @@ class AnnotatorController {
             try {
                 organismId = Long.parseLong(organismIdString?.trim())
                 allFeatures = Feature.executeQuery("select f from Feature f join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o.id = :organismId",[organismId:organismId])
+                println "found features ${allFeatures.size()} -> ${organismId}"
             } catch (e) {
                 log.error "error parsing ${organismIdString}, returning no features ${e}"
                 allFeatures = new ArrayList<>()

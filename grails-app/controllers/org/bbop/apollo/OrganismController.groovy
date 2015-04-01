@@ -6,6 +6,8 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
 
+import javax.servlet.http.HttpSession
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
@@ -167,11 +169,15 @@ class OrganismController {
         println "changing organism ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         String organismId = dataObject.organismId
+        HttpSession session = request.session
         println "organismId ${organismId}"
         Organism organism = Organism.findById(organismId as Long)
         if (organism) {
             println "found the organism ${organism}"
-            request.session.setAttribute("organismJBrowseDirectory", organism.directory)
+//            request.session.setAttribute("organismJBrowseDirectory", organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+//            session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value,sequence.name)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
         } else {
             println "no organism found"
         }
