@@ -127,7 +127,7 @@ class UserController {
             userObject.role = role?.name
 
 
-            Map<String,JSONObject> organismMap = new HashMap<>()
+            Map<String, JSONObject> organismMap = new HashMap<>()
             for (UserOrganismPermission userOrganismPermission in UserOrganismPermission.findAllByUser(currentUser)) {
                 JSONObject organismJSON = new JSONObject()
                 organismJSON.put("organism", userOrganismPermission.organism.commonName)
@@ -135,27 +135,27 @@ class UserController {
                 organismJSON.put("userId", userOrganismPermission.userId)
                 organismJSON.put("id", userOrganismPermission.id)
 
-                organismMap.put(userOrganismPermission.organism.commonName,organismJSON)
+                organismMap.put(userOrganismPermission.organism.commonName, organismJSON)
             }
 
             // TODO: not sure if these are automatically integrated or not
-//            for (GroupOrganismPermission groupOrganismPermission in GroupOrganismPermission.findAllByGroupInList(currentUser.userGroups as List)) {
-//
-//                JSONObject organismJSON = organismMap.get(groupOrganismPermission.organism.commonName)
-//                if(!organismJSON){
-//                    organismJSON = new JSONObject()
-//                    organismJSON.put("organism", groupOrganismPermission.organism.commonName)
-//                    organismJSON.put("permissions", groupOrganismPermission.permissions)
-//                    organismJSON.put("groupId", groupOrganismPermission.groupId)
-//                    organismJSON.put("id", groupOrganismPermission.id)
-//                }
-//                else{
-//                    organismJSON.get("")
-//                }
-//
-//
-//                organismMap.put(groupOrganismPermission.organism.commonName,organismJSON)
-//            }
+            for (GroupOrganismPermission groupOrganismPermission in GroupOrganismPermission.findAllByGroupInList(currentUser.userGroups as List)) {
+
+                JSONObject organismJSON = organismMap.get(groupOrganismPermission.organism.commonName)
+                if (!organismJSON) {
+                    organismJSON = new JSONObject()
+                    organismJSON.put("organism", groupOrganismPermission.organism.commonName)
+                    organismJSON.put("permissions", groupOrganismPermission.permissions)
+                    organismJSON.put("id", groupOrganismPermission.id)
+                } else {
+                    String permissions = mergePermissions(organismJSON.getString("permissions"), groupOrganismPermission.permissions)
+                    organismJSON.put("permissions", permissions)
+                }
+                organismJSON.put("groupId", groupOrganismPermission.groupId)
+
+
+                organismMap.put(groupOrganismPermission.organism.commonName, organismJSON)
+            }
 
             JSONArray organismPermissionsArray = new JSONArray()
             organismPermissionsArray.addAll(organismMap.values())
@@ -167,6 +167,32 @@ class UserController {
         } else {
             render new JSONObject() as JSON
         }
+    }
+
+    String mergePermissions(String permissions1, String permissions2) {
+        println "permissions1: ${permissions1}"
+        println "permissions2: ${permissions2}"
+        JSONArray permissions1Array = JSON.parse(permissions1) as JSONArray
+        JSONArray permissions2Array = JSON.parse(permissions2) as JSONArray
+
+        Set<String> finalPermissions = new HashSet<>()
+        for(int i =0 ; i < permissions1Array.size() ; i++){
+            finalPermissions.add(permissions1Array.getString(i))
+        }
+        for(int i =0 ; i < permissions2Array.size() ; i++){
+            finalPermissions.add(permissions2Array.getString(i))
+        }
+
+        JSONArray returnArray = new JSONArray()
+        for(String permission in finalPermissions){
+            returnArray.add(permission)
+        }
+
+        String finalPermissionsString = returnArray.toString()
+
+        println "final permission string ${finalPermissionsString}"
+
+        return finalPermissionsString
     }
 
     def addUserToGroup() {

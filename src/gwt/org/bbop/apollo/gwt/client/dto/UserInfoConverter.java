@@ -59,7 +59,12 @@ public class UserInfoConverter {
                 if (organismPermissionJsonObject.get("id") != null) {
                     userOrganismPermissionInfo.setId((long) organismPermissionJsonObject.get("id").isNumber().doubleValue());
                 }
-                userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get("userId").isNumber().doubleValue());
+                if (organismPermissionJsonObject.get("userId") != null) {
+                    userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get("userId").isNumber().doubleValue());
+                }
+//                if (organismPermissionJsonObject.get("groupId") != null) {
+//                    userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get("userId").isNumber().doubleValue());
+//                }
                 userOrganismPermissionInfo.setOrganismName(organismPermissionJsonObject.get("organism").isString().stringValue());
                 if (organismPermissionJsonObject.get("permissions") != null) {
                     JSONArray permissionsArray = JSONParser.parseStrict(organismPermissionJsonObject.get("permissions").isString().stringValue()).isArray();
