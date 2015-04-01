@@ -35,6 +35,14 @@ public enum PermissionEnum implements Comparable<PermissionEnum>{
         return null;
     }
 
+    public static PermissionEnum getValueForInteger(Integer input){
+        for(PermissionEnum permissionEnum : values()){
+            if(permissionEnum.value.equals(input))
+                return permissionEnum;
+        }
+        return null;
+    }
+
     public static List<PermissionEnum> getValueForArray(List<String> inputs){
         List<PermissionEnum> permissionEnumList = new ArrayList<>();
         for(String input : inputs){

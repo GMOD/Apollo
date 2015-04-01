@@ -6,6 +6,8 @@ import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.springframework.web.context.request.RequestContextHolder;
+
 
 @Transactional
 class PermissionService {
@@ -347,5 +349,25 @@ class PermissionService {
             return getOrganisms(currentUser)
         }
         return []
+    }
+
+    def checkPermissions(PermissionEnum permissionEnum){
+        println "checking permission: ${permissionEnum}"
+
+//        def session = RequestContextHolder.currentRequestAttributes().getSession()
+//
+////        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+////        int highestValue = findHighestEnumValue(permissionEnums)
+//        Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.value);
+//        String organism = session.getAttribute(FeatureStringEnum.ORGANISM.value);
+//        PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForInteger(permissions.get(organism))
+//        println "vs sessionPErmision enum: ${sessionPermissionsEnum}"
+//        if(sessionPermissionsEnum!=null && sessionPermissionsEnum.value>=permissionEnum.value){
+//            return true
+//        }
+//        else{
+//            throw new AnnotationException("You do not have ${permissionEnum.display}")
+//        }
+//        return false
     }
 }

@@ -5,6 +5,7 @@ import grails.converters.JSON
 //import grails.compiler.GrailsCompileStatic
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -31,6 +32,7 @@ class RequestHandlingService {
     def configWrapperService
     def nameService
     def overlapperService
+    def permissionService
 
 
     def brokerMessagingTemplate
@@ -450,6 +452,7 @@ class RequestHandlingService {
     }
 
     JSONObject addTranscript(JSONObject inputObject) {
+        permissionService.checkPermissions(PermissionEnum.WRITE)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         JSONObject returnObject = createJSONFeatureContainer()

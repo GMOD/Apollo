@@ -90,6 +90,7 @@ enum FeatureStringEnum {
     ORGANISM_ID("organismId"),
     SEQUENCE_NAME("sequenceName"),
     DEFAULT_SEQUENCE_NAME("defaultSequenceName"),
+    PERMISSIONS,
     LOCKED
 
 

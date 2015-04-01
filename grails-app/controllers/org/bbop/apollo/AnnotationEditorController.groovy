@@ -72,22 +72,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
-//    def handleOperation(String track, String operation) {
-//        // TODO: this is a hack, but it should come through the UrlMapper
-//        JSONObject postObject = findPost()
-//        operation = postObject.get(REST_OPERATION)
-//        def mappedAction = underscoreToCamelCase(operation)
-//        log.debug "${operation} -> ${mappedAction}"
-//        track = postObject.get(REST_TRACK)
-//
-//        // TODO: hack needs to be fixed
-////        track = fixTrackHeader(track)
-//
-//        forward action: "${mappedAction}", params: [data: postObject]
-//    }
 
     /**
-     * TODO: Integrate with SHIRO
      * @return
      */
     def getUserPermission() {
