@@ -476,6 +476,12 @@ define([
                                     console.log(JSON.stringify(changeData));
                                 }
 
+
+                                // TODO: handle errors without broadcasting
+                                if (changeData.operation == "ERROR" && changeData.username == track.username) {
+                                    alert(changeData.error_message);
+                                }
+
                                 if (changeData.operation == "ADD") {
                                     if (changeData.sequenceAlterationEvent) {
                                         track.getSequenceTrack().annotationsAddedNotification(changeData.features);

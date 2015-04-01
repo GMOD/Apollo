@@ -6,7 +6,6 @@ import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.springframework.web.context.request.RequestContextHolder;
 
 
 @Transactional
@@ -34,22 +33,29 @@ class PermissionService {
         return trackList.trim()
     }
 
+    boolean isUserAdmin(User user ){
+        for (Role role in user.roles) {
+            println "researcher roles? ${role.name}"
+            if (role.name == UserService.ADMIN) {
+                return true
+            }
+        }
+        return false
+    }
+
     boolean isAdmin() {
         String currentUserName = SecurityUtils?.subject?.principal
         if (currentUserName) {
             User researcher = User.findByUsername(currentUserName)
-            for (Role role in researcher.roles) {
-                println "researcher roles? ${role.name}"
-                if (role.name == UserService.ADMIN) {
-                    return true
-                }
+            if(isUserAdmin(researcher)){
+                return true
             }
         }
         return false
     }
 
     Set<Organism> getOrganisms(User user) {
-        if(isAdmin()){
+        if (isAdmin()) {
             return Organism.listOrderByCommonName()
         }
         Set<Organism> organismList = new HashSet<>()
@@ -65,7 +71,7 @@ class PermissionService {
     }
 
     List<Organism> getOrganisms(UserGroup group) {
-        if(isAdmin()){
+        if (isAdmin()) {
             return Organism.listOrderByCommonName()
         }
         List<Organism> organismList = new ArrayList<>()
@@ -334,6 +340,15 @@ class PermissionService {
         return null
     }
 
+    PermissionEnum findHighestEnum(List<PermissionEnum> permissionEnums) {
+        PermissionEnum highestValue  = PermissionEnum.NONE
+        permissionEnums.each { it ->
+            highestValue = it.value > highestValue.value ? it : highestValue
+        }
+
+        return highestValue
+    }
+
     int findHighestEnumValue(List<PermissionEnum> permissionEnums) {
         int highestValue = -1
         permissionEnums.each { it ->
@@ -345,19 +360,31 @@ class PermissionService {
 
     def getOrganismsForCurrentUser() {
         User currentUser = currentUser
-        if(currentUser){
+        if (currentUser) {
             return getOrganisms(currentUser)
         }
         return []
     }
 
-    def checkPermissions(PermissionEnum permissionEnum){
-        println "checking permission: ${permissionEnum}"
+
+//    def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){
+    def checkPermissions(JSONObject jsonObject,Organism organism,PermissionEnum requiredPermissionEnum) {
 
 //        def session = RequestContextHolder.currentRequestAttributes().getSession()
-//
-////        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-////        int highestValue = findHighestEnumValue(permissionEnums)
+        String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
+        User user = User.findByUsername(username)
+
+        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+       PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+
+        if(highestValue.value<requiredPermissionEnum.value){
+//            return false
+            throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+        }
+//        else{
+//            return true
+//        }
+
 //        Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.value);
 //        String organism = session.getAttribute(FeatureStringEnum.ORGANISM.value);
 //        PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForInteger(permissions.get(organism))

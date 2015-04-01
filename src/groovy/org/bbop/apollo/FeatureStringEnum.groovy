@@ -91,6 +91,8 @@ enum FeatureStringEnum {
     SEQUENCE_NAME("sequenceName"),
     DEFAULT_SEQUENCE_NAME("defaultSequenceName"),
     PERMISSIONS,
+    ERROR,
+    ERROR_MESSAGE,
     LOCKED
 
 

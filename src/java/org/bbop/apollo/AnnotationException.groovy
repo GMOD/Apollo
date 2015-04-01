@@ -5,6 +5,6 @@ package org.bbop.apollo
  */
 class AnnotationException extends Exception{
     def AnnotationException(String gString) {
-
+        super(gString)
     }
 }

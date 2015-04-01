@@ -19,7 +19,7 @@ class GroupController {
 
     def loadGroups() {
         JSONArray returnArray = new JSONArray()
-        def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+        def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
         Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 

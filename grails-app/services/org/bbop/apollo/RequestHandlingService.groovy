@@ -452,7 +452,6 @@ class RequestHandlingService {
     }
 
     JSONObject addTranscript(JSONObject inputObject) {
-        permissionService.checkPermissions(PermissionEnum.WRITE)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         JSONObject returnObject = createJSONFeatureContainer()
@@ -461,6 +460,9 @@ class RequestHandlingService {
         String trackName = fixTrackHeader(inputObject.track)
         log.info "final trackNAme [${trackName}]"
         Sequence sequence = Sequence.findByName(trackName)
+
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
         log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
         log.info "sequence ${sequence}"
         log.info "RHS::PRE featuresArray ${featuresArray?.size()}"
@@ -831,7 +833,7 @@ class RequestHandlingService {
     }
 
     def fireAnnotationEvent(AnnotationEvent... annotationEvents) {
-        for(AnnotationEvent annotationEvent in annotationEvents){
+        for (AnnotationEvent annotationEvent in annotationEvents) {
             handleChangeEvent(annotationEvent)
         }
     }
@@ -850,7 +852,7 @@ class RequestHandlingService {
     }
 
     synchronized void handleChangeEvent(AnnotationEvent event) {
-        
+
 //        println "handingling event ${events.length}"
         if (!event) {
             return;
@@ -1689,7 +1691,7 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.UPDATE
         )
 
-        fireAnnotationEvent(updateAnnotationEvent,deleteAnnotationEvent)
+        fireAnnotationEvent(updateAnnotationEvent, deleteAnnotationEvent)
 
         return returnObject
     }

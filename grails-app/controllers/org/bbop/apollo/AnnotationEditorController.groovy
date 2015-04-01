@@ -6,9 +6,11 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.TranslationTable
 
+import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.security.Principal
 
 import static grails.async.Promises.*
 
@@ -45,6 +47,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def exonService
     def cdsService
     def permissionService
+    def brokerMessagingTemplate
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
@@ -531,9 +534,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
-    protected String annotationEditor(String inputString) {
+    protected String annotationEditor(String inputString,Principal principal) {
         log.debug "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
+        rootElement.put(FeatureStringEnum.USERNAME.value,principal.name)
+
 
         log.debug "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
@@ -567,24 +572,44 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     if (foundMethod) {
                         return returnString
                     } else {
-                        println "METHOD NOT found ${operationName}"
+                        log.error "METHOD NOT found ${operationName}"
                         throw new AnnotationException("Operation ${operationName} not found")
                     }
                     break
             }
         }
-        def results = p.get()
-        return results
+        try {
+            def results = p.get()
+            return results
+        } catch (AnnotationException ae) {
+            // TODO: should be returning nothing, but then broadcasting specifically to this user
+            return sendError(ae,principal.name)
+//            return new JSONObject() as JSON
+        }
 
-//        p.onComplete([p]){ List results ->
-//            println "completling result ${results}"
-//            return "returning annotationEditor ${inputString}!"
-//        }
-//        p.onError([p]){ List results ->
-//            println "error ${results}"
-//            return "ERROR returning annotationEditor ${inputString}!"
-//        }
+    }
 
+
+    // TODO: handle errors without broadcasting
+    protected def sendError(AnnotationException exception,String username){
+        println "excrption ${exception}"
+        println "excrption message ${exception.message}"
+        println "username ${username}"
+
+        JSONObject errorObject = new JSONObject()
+        errorObject.put(REST_OPERATION,FeatureStringEnum.ERROR.name())
+        errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value,exception.message)
+        errorObject.put(FeatureStringEnum.USERNAME.value,username)
+
+//        println "sending an error"
+////        brokerMessagingTemplate.convertAndSendToUser username, "/topic/AnnotationNotification/", errorObject.toString()
+//        try {
+//            brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification/", errorObject.toString())
+//        } catch (e) {
+//            log.error("problem sending: ${e}")
+//        }
+//        println "SENT an EORROR"
+        return errorObject.toString()
     }
 
 
