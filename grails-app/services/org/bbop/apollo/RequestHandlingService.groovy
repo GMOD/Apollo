@@ -65,6 +65,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 //            Symbol symbol = feature.symbol
 //            if (!symbol) {
 //                symbol = new Symbol(
@@ -105,6 +106,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
             if (!sequence) sequence = feature.getFeatureLocation().getSequence()
+            permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
 //            Description description = feature.description
 //            if (!description) {
@@ -148,9 +150,13 @@ class RequestHandlingService {
         }
     }
 
+    // is this used?
     def deleteNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -177,8 +183,6 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
@@ -199,6 +203,10 @@ class RequestHandlingService {
     def updateNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -231,8 +239,6 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
@@ -250,6 +256,9 @@ class RequestHandlingService {
     def addNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -287,8 +296,6 @@ class RequestHandlingService {
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: updateFeatureContainer
@@ -307,7 +314,9 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-        Sequence sequence = null
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
@@ -335,9 +344,10 @@ class RequestHandlingService {
     }
 
 
-    JSONObject getFeatures(JSONObject returnObject) {
-        String trackName = fixTrackHeader(returnObject.track)
+    JSONObject getFeatures(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.READ)
 
         Set<Feature> featureSet = new HashSet<>()
 
@@ -379,16 +389,16 @@ class RequestHandlingService {
             jsonFeatures.put(jsonObject)
         }
 
-        returnObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
+        inputObject.put(AnnotationEditorController.REST_FEATURES, jsonFeatures)
 
         fireAnnotationEvent(new AnnotationEvent(
-                features: returnObject
+                features: inputObject
                 , operation: AnnotationEvent.Operation.ADD
                 , sequence: sequence
         ))
 
 
-        return returnObject
+        return inputObject
 
     }
 
@@ -404,6 +414,7 @@ class RequestHandlingService {
 
         Transcript transcript = Transcript.findByUniqueName(uniqueName)
         Sequence sequence = transcript.featureLocation.sequence
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i);
@@ -460,7 +471,6 @@ class RequestHandlingService {
         String trackName = fixTrackHeader(inputObject.track)
         log.info "final trackNAme [${trackName}]"
         Sequence sequence = Sequence.findByName(trackName)
-
         permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
@@ -506,6 +516,7 @@ class RequestHandlingService {
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setStart) {
@@ -544,6 +555,7 @@ class RequestHandlingService {
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
         if (!setStart) {
@@ -581,6 +593,7 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         transcript.save(flush: true)
 
@@ -604,6 +617,7 @@ class RequestHandlingService {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray transcriptArray = new JSONArray()
@@ -653,6 +667,7 @@ class RequestHandlingService {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray transcriptArray = new JSONArray()
@@ -703,6 +718,7 @@ class RequestHandlingService {
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         featureService.setLongestORF(transcript, false)
 
@@ -732,6 +748,7 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         JSONObject returnObject = createJSONFeatureContainer()
 
@@ -796,6 +813,7 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         JSONObject returnObject = createJSONFeatureContainerFromFeatures()
 
@@ -907,6 +925,7 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
@@ -954,6 +973,7 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
@@ -1014,6 +1034,9 @@ class RequestHandlingService {
     def lockFeature(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject featureContainer = createJSONFeatureContainer();
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
@@ -1033,8 +1056,6 @@ class RequestHandlingService {
             }
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1050,6 +1071,11 @@ class RequestHandlingService {
     def unlockFeature(JSONObject inputObject) {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject featureContainer = createJSONFeatureContainer();
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
+
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
@@ -1067,8 +1093,6 @@ class RequestHandlingService {
             }
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1082,6 +1106,9 @@ class RequestHandlingService {
     }
 
     def flipStrand(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < features.length(); ++i) {
@@ -1097,8 +1124,6 @@ class RequestHandlingService {
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1112,6 +1137,9 @@ class RequestHandlingService {
     }
 
     def mergeExons(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Exon exon1 = (Exon) Exon.findByUniqueName(features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value));
@@ -1132,8 +1160,6 @@ class RequestHandlingService {
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript1))
 
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1147,14 +1173,15 @@ class RequestHandlingService {
     }
 
     def splitExon(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject jsonExon = features.getJSONObject(0)
         Exon exon = (Exon) Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value);
         Transcript transcript = exonService.getTranscript(exon)
-
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
 
         Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
@@ -1185,6 +1212,10 @@ class RequestHandlingService {
      * @param inputObject
      */
     def deleteExon(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject jsonTranscript = features.getJSONObject(0)
 
@@ -1197,8 +1228,6 @@ class RequestHandlingService {
             Exon.deleteAll(exon)
         }
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature))
 
@@ -1220,12 +1249,12 @@ class RequestHandlingService {
     }
 
     def addFeature(JSONObject inputObject) {
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-        JSONObject returnObject = createJSONFeatureContainer()
-
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONObject returnObject = createJSONFeatureContainer()
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
@@ -1276,6 +1305,7 @@ class RequestHandlingService {
 
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1405,6 +1435,7 @@ class RequestHandlingService {
 //        throw new RuntimeException("Implement make intron")
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 //        Exon exon = (Exon) getFeature(editor, jsonExon);
         JSONObject jsonExon = featuresArray.getJSONObject(0)
@@ -1458,6 +1489,7 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
         Exon exon1 = Exon.findByUniqueName(featuresArray.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
         Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
@@ -1630,6 +1662,10 @@ class RequestHandlingService {
     }
 
     def mergeTranscripts(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject jsonTranscript1 = featuresArray.get(0)
         JSONObject jsonTranscript2 = featuresArray.get(1)
@@ -1667,8 +1703,6 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
 
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript1))).toString());
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
@@ -1697,6 +1731,10 @@ class RequestHandlingService {
     }
 
     def duplicateTranscript(JSONObject inputObject) {
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+
         Transcript transcript = Transcript.findByUniqueName(inputObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value))
 
         Transcript duplicateTranscript = transcriptService.duplicateTranscript(transcript)
@@ -1704,10 +1742,6 @@ class RequestHandlingService {
         Feature topFeature = featureService.getTopLevelFeature(transcript)
         topFeature.save()
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topFeature))
-//        out.write(featureContainer.toString());
-//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer

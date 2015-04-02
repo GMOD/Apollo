@@ -480,6 +480,7 @@ define([
                                 // TODO: handle errors without broadcasting
                                 if (changeData.operation == "ERROR" && changeData.username == track.username) {
                                     alert(changeData.error_message);
+                                    return ;
                                 }
 
                                 if (changeData.operation == "ADD") {

@@ -42,12 +42,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def featureRelationshipService
     def featurePropertyService
     def requestHandlingService
-    def gff3HandlerService
     def transcriptService
     def exonService
-    def cdsService
     def permissionService
-    def brokerMessagingTemplate
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
@@ -122,12 +119,37 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
+    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum){
+        try {
+            Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.value);
+            Integer permission = permissions.get(SecurityUtils?.subject?.principal)
+            PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForInteger(permission)
+
+            if(sessionPermissionsEnum.value < requiredPermissionEnum.value){
+                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
+                return false
+            }
+            return true
+        } catch (e) {
+            log.error "Error checking permissions from session ${e}"
+            return false
+        }
+
+    }
+
     def getDataAdapters() {
         log.debug "get data adapters !! ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
+
         JSONArray dataAdaptersArray = new JSONArray();
         returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+
+        if(!checkPermissions(PermissionEnum.EXPORT)){
+            render returnObject
+            return
+        }
+
         log.debug "# of data adapters ${DataAdapter.count}"
         for (DataAdapter dataAdapter in DataAdapter.all) {
             log.debug "adding data adatapter ${dataAdapter}"
@@ -238,6 +260,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        returnObject.put(FeatureStringEnum.USERNAME.value,SecurityUtils?.subject?.principal)
         render requestHandlingService.getFeatures(returnObject)
     }
 
@@ -248,6 +271,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if(!checkPermissions(PermissionEnum.WRITE)){
+            render new JSONObject() as JSON
+            return
+        }
 //        JSONArray jsonFeatures = new JSONArray()
 //        featureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -437,6 +464,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequence() {
         println "REQUEST TO ACE: ${params.data}"
+        if(!checkPermissions(PermissionEnum.EXPORT)){
+            render new JSONObject() as JSON
+            return
+        }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONObject featureContainer = createJSONFeatureContainer()
         JSONObject sequenceObject = sequenceService.getSequenceForFeature(inputObject)
@@ -445,6 +476,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getGff3() {
+        if(!checkPermissions(PermissionEnum.EXPORT)){
+            render new JSONObject() as JSON
+            return
+        }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         File tempFile = sequenceService.getGff3ForFeature(inputObject)
         Charset encoding = Charset.defaultCharset()
@@ -454,6 +489,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getAnnotationInfoEditorData() {
+        if(!checkPermissions(PermissionEnum.WRITE)){
+            render new JSONObject() as JSON
+            return
+        }
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         String trackName = fixTrackHeader(inputObject.track)
