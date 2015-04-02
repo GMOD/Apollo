@@ -47,7 +47,7 @@ class JbrowseController {
 
     private String getJBrowseDirectoryForSession() {
         // TODO: move to shiro
-        Session session = SecurityUtils?.subject?.getSession(false)
+        Session session = SecurityUtils.subject.getSession(false)
         String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         if(!organismJBrowseDirectory ){
             for(Organism organism in Organism.all){

@@ -45,7 +45,7 @@ class PermissionService {
     }
 
     boolean isAdmin() {
-        String currentUserName = SecurityUtils?.subject?.principal
+        String currentUserName = SecurityUtils.subject.principal
         if (currentUserName) {
             User researcher = User.findByUsername(currentUserName)
             if(isUserAdmin(researcher)){
@@ -330,7 +330,7 @@ class PermissionService {
     }
 
     User getCurrentUser() {
-        String currentUserName = SecurityUtils?.subject?.principal
+        String currentUserName = SecurityUtils.subject.principal
         def subject = SecurityUtils.subject
         if (currentUserName) {
             User user = User.findByUsername(currentUserName)

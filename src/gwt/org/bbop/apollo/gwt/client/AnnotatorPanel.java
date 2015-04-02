@@ -36,6 +36,7 @@ import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.shared.event.TabEvent;
 import org.gwtbootstrap3.client.ui.*;
@@ -65,6 +66,7 @@ public class AnnotatorPanel extends Composite {
 //    private TextColumn<AnnotationInfo> filterColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
+    long requestIndex = 0 ;
 
     @UiField
     TextBox nameSearchBox;
@@ -414,13 +416,22 @@ public class AnnotatorPanel extends Composite {
             loadSequences();
         }
 
-        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + selectedSequenceName;
+        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + selectedSequenceName+"&request="+requestIndex;
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
+                // returns
+                if(localRequestValue<=requestIndex){
+                    return;
+                }
+                else{
+                    requestIndex = localRequestValue ;
+                }
+
                 JSONArray array = returnValue.isObject().get("features").isArray();
                 annotationInfoList.clear();
 

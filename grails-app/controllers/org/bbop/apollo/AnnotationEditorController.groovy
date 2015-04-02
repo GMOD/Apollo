@@ -79,8 +79,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: wire into actual user table
-        println "principal: " + SecurityUtils?.subject?.principal
-        String username = SecurityUtils?.subject?.principal
+        println "principal: " + SecurityUtils.subject.principal
+        String username = SecurityUtils.subject.principal
         int permission = PermissionEnum.NONE.value
         if(username) {
 
@@ -120,7 +120,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     private Boolean checkPermissions(PermissionEnum requiredPermissionEnum){
         try {
             Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-            Integer permission = permissions.get(SecurityUtils?.subject?.principal)
+            Integer permission = permissions.get(SecurityUtils.subject.principal)
             PermissionEnum sessionPermissionsEnum = permissionService.isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
             if(sessionPermissionsEnum==null){
@@ -263,7 +263,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        returnObject.put(FeatureStringEnum.USERNAME.value,SecurityUtils?.subject?.principal)
+        returnObject.put(FeatureStringEnum.USERNAME.value,SecurityUtils.subject.principal)
         render requestHandlingService.getFeatures(returnObject)
     }
 

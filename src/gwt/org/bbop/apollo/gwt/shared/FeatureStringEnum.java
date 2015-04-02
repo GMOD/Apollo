@@ -93,6 +93,7 @@ public enum FeatureStringEnum {
         PERMISSIONS,
         ERROR,
         ERROR_MESSAGE,
+        REQUEST_INDEX,
         LOCKED,
         ;
 

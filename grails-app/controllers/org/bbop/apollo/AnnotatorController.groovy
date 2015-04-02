@@ -113,16 +113,17 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    def findAnnotationsForSequence(String sequenceName) {
+    def findAnnotationsForSequence(String sequenceName,String request) {
         JSONObject returnObject = createJSONFeatureContainer()
 
         Sequence sequence = Sequence.findByName(sequenceName)
+        Integer index = Integer.parseInt(request)
 
         // TODO: should only be returning the top-level features
         List<Feature> allFeatures
         if(!sequence){
             // find all features for current organism
-            Session session = SecurityUtils?.subject?.getSession(false)
+            Session session = SecurityUtils.subject.getSession(false)
             String organismIdString = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value)
             Long organismId
             try {
@@ -144,8 +145,9 @@ class AnnotatorController {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
-        // TODO: do checks here
+        returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(),index+1)
 
+        // TODO: do checks here
         render returnObject
 
     }

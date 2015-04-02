@@ -102,8 +102,9 @@ class LoginController extends AbstractApolloController {
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
             Subject subject = SecurityUtils.getSubject();
-            Session session = subject.getSession(true);
             subject.login(authToken)
+            Session session = subject.getSession(false);
+            println "has a session ${session}"
 
 //            HttpSession session = request.getSession();
             session.setAttribute("username", username);

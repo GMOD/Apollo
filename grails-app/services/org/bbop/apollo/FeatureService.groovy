@@ -209,7 +209,7 @@ class FeatureService {
             }
 
             // todo, make work
-            setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+            setOwner(transcript, SecurityUtils.subject.principal?.toString());
 //            String username = null
 //            try {
 //                username = SecurityUtils?.subject?.principal;
@@ -241,7 +241,7 @@ class FeatureService {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    setOwner(tmpTranscript, SecurityUtils?.subject?.principal?.toString());
+                    setOwner(tmpTranscript, SecurityUtils.subject.principal?.toString());
 //                    // TODO: make good code
 //                    String username = null
 //                    try {
@@ -312,8 +312,8 @@ class FeatureService {
             transcript.save(flush: true)
 
             if(!grails.util.Environment.TEST){
-                setOwner(gene, SecurityUtils?.subject?.principal?.toString());
-                setOwner(transcript, SecurityUtils?.subject?.principal?.toString());
+                setOwner(gene, SecurityUtils.subject.principal?.toString());
+                setOwner(transcript, SecurityUtils.subject.principal?.toString());
             }
 //            String username = null
 //            try {
