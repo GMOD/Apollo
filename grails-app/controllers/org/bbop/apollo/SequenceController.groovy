@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -39,7 +41,7 @@ class SequenceController {
         params.max = Math.min(max ?: 10, 100)
         respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
     }
-
+//
     def show(Sequence sequenceInstance) {
 //        respond sequenceInstance
         if (sequenceInstance == null) {
@@ -56,7 +58,7 @@ class SequenceController {
 //    def retrieveSequences(Organism organism){
 //    }
 
-    def setDefaultSequence(String sequenceName){
+    def setDefaultSequence(Long id,String sequenceName){
         println "setting default sequences: ${params}"
         Sequence sequence = Sequence.findByName(sequenceName)
         if(!sequence){

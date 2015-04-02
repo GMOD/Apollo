@@ -13,7 +13,6 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
-import org.bbop.apollo.gwt.shared.SharedStuff;
 import org.gwtbootstrap3.client.ui.*;
 
 /**

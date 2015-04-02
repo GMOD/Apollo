@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject

@@ -6,7 +6,6 @@ package org.bbop.apollo.sequence;
 
 import org.bbop.apollo.*;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

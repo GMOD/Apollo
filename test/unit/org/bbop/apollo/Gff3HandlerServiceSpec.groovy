@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import grails.test.mixin.support.SkipMethod
 import spock.lang.Ignore
 import spock.lang.Specification
 

@@ -1,7 +1,4 @@
-package org.bbop.apollo
-
-import org.bbop.apollo.event.AnnotationEvent
-
+package org.bbop.apollo.event
 /**
  * Created by ndunn on 11/7/14.
  */

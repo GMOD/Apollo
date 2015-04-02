@@ -2,12 +2,12 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import grails.util.Environment
 import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.bbop.apollo.gwt.shared.PermissionEnum;
-import grails.util.Environment
-
 
 @Transactional
 class PermissionService {

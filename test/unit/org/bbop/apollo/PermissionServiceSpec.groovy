@@ -2,8 +2,8 @@ package org.bbop.apollo
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import spock.lang.Specification
-import org.bbop.apollo.gwt.shared.PermissionEnum;
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions

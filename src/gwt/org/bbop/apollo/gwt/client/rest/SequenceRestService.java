@@ -68,12 +68,16 @@ public class SequenceRestService {
         loadSequences(requestCallback, organismId);
     }
 
+    public static void setDefaultSequence(RequestCallback requestCallback,final String sequenceName) {
+        RestService.sendRequest(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
+    }
+
     public static void setDefaultSequence(final String sequenceName) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                GWT.log("sequence: "+response.getText());
+                GWT.log("sequence: " + response.getText());
             }
 
             @Override
@@ -82,7 +86,7 @@ public class SequenceRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
+        setDefaultSequence(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
     }
 
     public static void generateLink(final ExportPanel exportPanel) {
@@ -115,4 +119,6 @@ public class SequenceRestService {
 
         RestService.sendRequest(requestCallback, "/sequence/exportSequences/","data="+jsonObject.toString());
     }
+
+
 }

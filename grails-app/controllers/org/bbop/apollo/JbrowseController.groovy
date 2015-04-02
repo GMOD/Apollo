@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+
 import grails.converters.JSON
 import org.apache.catalina.Session
 import org.codehaus.groovy.grails.web.json.JSONObject

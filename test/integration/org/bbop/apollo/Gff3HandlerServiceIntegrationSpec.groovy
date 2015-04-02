@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
-import spock.lang.Ignore
 
 class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
    

@@ -1,14 +1,9 @@
 package org.bbop.apollo
 
 import grails.test.spock.IntegrationSpec
-import grails.web.JSONBuilder
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
 import spock.lang.Ignore
-
-
 
 class AnnotationEditorControllerIntegrationSpec extends IntegrationSpec {
 

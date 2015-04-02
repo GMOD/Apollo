@@ -1,19 +1,16 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import grails.web.JSONBuilder
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
 import spock.lang.Ignore
+import spock.lang.Specification
 
 //import org.codehaus.groovy.grails.web.json.parser.JSONParser
 //import org.json.JSONObject
-import spock.lang.Specification
-
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */

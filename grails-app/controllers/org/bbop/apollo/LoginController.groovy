@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+
 import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException

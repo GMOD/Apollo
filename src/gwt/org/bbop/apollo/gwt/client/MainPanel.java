@@ -137,15 +137,34 @@ public class MainPanel extends Composite {
         });
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
+
             @Override
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                String organismId = contextSwitchEvent.getOrganismInfo().getId();
-                for(int i = 0 ; i < organismList.getItemCount() ; i++){
-                    organismList.setItemSelected(i,organismId.equals(organismList.getValue(i)));
-                }
+                // need to set this before calling the sequence sequenct
+                currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
+                String sequenceName = contextSwitchEvent.getSequenceInfo().getName();
 
-                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
-                updateGenomicViewer();
+                for(int i = 0 ; i < organismList.getItemCount() ; i++){
+                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
+                }
+//                currentOrganism = organismList.getSelectedItemText();
+                sequenceList.setText(sequenceName);
+
+
+                RequestCallback requestCallback = new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                       updateGenomicViewer();
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        Window.alert("Error setting default sequence: " + exception);
+                    }
+                };
+                SequenceRestService.setDefaultSequence(requestCallback,sequenceName);
+
+//                updateGenomicViewer();
 //                organismList.setSelectedIndex();
 //                loadSequences();
 //                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
