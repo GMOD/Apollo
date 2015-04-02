@@ -154,6 +154,9 @@ public class MainPanel extends Composite {
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
+                       String sequenceName = response.getText() ;
+                        sequenceList.setText(sequenceName);
+
                        updateGenomicViewer();
                     }
 
@@ -347,11 +350,11 @@ public class MainPanel extends Composite {
                     if (currentSequenceId == null) {
                         currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
                     }
-                    String url = rootUrl + "/jbrowse/?loc=" + currentSequenceId;
-                    if (!showFrame) {
-                        url += "&tracklist=0";
-                    }
-                    frame.setUrl(url);
+//                    String url = rootUrl + "/jbrowse/?loc=" + currentSequenceId;
+//                    if (!showFrame) {
+//                        url += "&tracklist=0";
+//                    }
+//                    frame.setUrl(url);
                 }
 //                if(sequenceList.getText().trim().length()==0){
 //                    sequenceList.setText(array.get(0).object.get("name").isString().stringValue());

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.apache.shiro.session.Session
+import org.apache.shiro.subject.Subject
 
 import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
@@ -104,9 +105,11 @@ class LoginController extends AbstractApolloController {
             // Perform the actual login. An AuthenticationException
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
-            SecurityUtils.subject.login(authToken)
+            Subject subject = SecurityUtils.getSubject();
+            Session session = subject.getSession(true);
+            subject.login(authToken)
 
-            HttpSession session = request.getSession();
+//            HttpSession session = request.getSession();
             session.setAttribute("username", username);
             session.setAttribute("permissions", new HashMap<String, Integer>());
 
@@ -170,7 +173,7 @@ class LoginController extends AbstractApolloController {
 //            }
 //        }
         SecurityUtils.subject?.logout()
-        
+
 //        webRequest.getCurrentRequest().session = null
         response.status = HttpServletResponse.SC_OK
         render {result:"OK"} as JSON

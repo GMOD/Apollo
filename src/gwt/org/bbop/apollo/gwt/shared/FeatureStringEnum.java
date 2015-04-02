@@ -111,4 +111,8 @@ public enum FeatureStringEnum {
         public String toString() {
             return value;
         }
+
+        public String getValue() {
+                return value;
+        }
 }

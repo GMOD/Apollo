@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -60,17 +62,25 @@ class SequenceController {
 
     def setDefaultSequence(Long id,String sequenceName){
         println "setting default sequences: ${params}"
+        Session session = SecurityUtils.subject.session
         Sequence sequence = Sequence.findByName(sequenceName)
+        Organism organism = Organism.findById(id)
         if(!sequence){
-            log.error "default sequence not found ${sequenceName}"
-            return
+            if(organism){
+                sequence = organism.sequences.iterator().next()
+            }
+            else{
+                log.error "default sequence not found ${sequenceName}"
+                return
+            }
         }
-        Organism organism = sequence.organism
-        HttpSession session = request.session
+//        Organism organism = sequence.organism
+//        HttpSession session = request.session
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,sequence.name)
         session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value,sequence.name)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,sequence.organismId)
+        render sequenceName as String
     }
 
     @Transactional
