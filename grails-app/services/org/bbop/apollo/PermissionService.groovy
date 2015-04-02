@@ -359,6 +359,42 @@ class PermissionService {
         return highestValue
     }
 
+    /**
+     * If it comes through a WebSocket, the USERNAME will be set explcitly
+     * @param jsonTranscript
+     * @return
+     */
+    User findUser(JSONObject jsonTranscript){
+        String userName = findUserName(jsonTranscript)
+        return userName ? User.findByUsername(userName) : null
+    }
+
+    /**
+     * If it comes through a WebSocket, the USERNAME will be set explcitly
+     * @param jsonTranscript
+     * @return
+     */
+    String findUserName(JSONObject jsonTranscript){
+        if(jsonTranscript.containsKey(FeatureStringEnum.USERNAME.value)){
+            return jsonTranscript.getString(FeatureStringEnum.USERNAME.value)
+        }
+        else{
+            try {
+                return SecurityUtils.subject.principal?.toString()
+            } catch (e) {
+                log.error "find to find user for session"
+                return null
+            }
+        }
+    }
+
+    JSONObject copyUserName(JSONObject fromJSON,JSONObject toJSON){
+        if(fromJSON.containsKey(FeatureStringEnum.USERNAME.value)){
+            toJSON.put(FeatureStringEnum.USERNAME.value,fromJSON.getString(FeatureStringEnum.USERNAME.value))
+        }
+        return toJSON
+    }
+
     def getOrganismsForCurrentUser() {
         User currentUser = currentUser
         if (currentUser) {

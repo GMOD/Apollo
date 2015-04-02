@@ -35,8 +35,8 @@ class FeatureService {
     def cdsService
     def nonCanonicalSplitSiteService
     def featureRelationshipService
-    def featurePropertyService
     def sequenceService
+    def permissionService
 
 
     public
@@ -165,23 +165,24 @@ class FeatureService {
         }
     }
 
-    private setOwner(Feature feature,String owner){
-        println "looking for owner ${owner}"
-        User user = User.findByUsername(owner)
-        println "owner ${owner} found ${user}"
-        println "feature ${feature}"
-
-        if (user) {
-            setOwner(feature, user)
-        } else {
-            log.error("User ${owner} not found, just adding")
-        }
-
-    }
+//    private setOwner(Feature feature,String owner){
+//        println "looking for owner ${owner}"
+//        User user = User.findByUsername(owner)
+//        println "owner ${owner} found ${user}"
+//        println "feature ${feature}"
+//
+//        if (user) {
+//            setOwner(feature, user)
+//        } else {
+//            log.error("User ${owner} not found, just adding")
+//        }
+//
+//    }
 
     private setOwner(Feature feature,User owner){
         feature.addToOwners(owner)
     }
+
 
     /**
      * From Gene.addTranscript
@@ -209,14 +210,7 @@ class FeatureService {
             }
 
             // todo, make work
-            setOwner(transcript, SecurityUtils.subject.principal?.toString());
-//            String username = null
-//            try {
-//                username = SecurityUtils?.subject?.principal;
-//                featurePropertyService.setOwner(transcript, username);
-//            } catch (e) {
-//                log.error(e)
-//            }
+            setOwner(transcript, permissionService.findUser(jsonTranscript));
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -241,7 +235,7 @@ class FeatureService {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
 //                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    setOwner(tmpTranscript, SecurityUtils.subject.principal?.toString());
+                    setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
 //                    // TODO: make good code
 //                    String username = null
 //                    try {
@@ -312,8 +306,8 @@ class FeatureService {
             transcript.save(flush: true)
 
             if(!grails.util.Environment.TEST){
-                setOwner(gene, SecurityUtils.subject.principal?.toString());
-                setOwner(transcript, SecurityUtils.subject.principal?.toString());
+                setOwner(gene, permissionService.findUser(jsonTranscript));
+                setOwner(transcript, permissionService.findUser(jsonTranscript));
             }
 //            String username = null
 //            try {

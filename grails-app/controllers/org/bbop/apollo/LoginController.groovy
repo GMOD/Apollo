@@ -102,9 +102,11 @@ class LoginController extends AbstractApolloController {
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
             Subject subject = SecurityUtils.getSubject();
+            Session session = subject.getSession(true);
             subject.login(authToken)
-            Session session = subject.getSession(false);
+            println "IS AUTHENTICATED: " + subject.isAuthenticated()
             println "has a session ${session}"
+            println "LOGIN SESSIN ${SecurityUtils.subject.getSession(false).id}"
 
 //            HttpSession session = request.getSession();
             session.setAttribute("username", username);
@@ -169,7 +171,8 @@ class LoginController extends AbstractApolloController {
 //                log.error "error invalidating session ${e}"
 //            }
 //        }
-        SecurityUtils.subject?.logout()
+        SecurityUtils.subject.logout()
+        println "LOGOUT SESSIN ${SecurityUtils.subject.getSession(false).id}"
 
 //        webRequest.getCurrentRequest().session = null
         response.status = HttpServletResponse.SC_OK

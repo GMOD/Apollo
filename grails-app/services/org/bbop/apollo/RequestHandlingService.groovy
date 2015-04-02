@@ -482,6 +482,7 @@ class RequestHandlingService {
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
+            jsonTranscript = permissionService.copyUserName(returnObject,jsonTranscript)
             Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
 
             // should automatically write to history
@@ -1731,6 +1732,7 @@ class RequestHandlingService {
 
         return returnObject
     }
+
 
     def duplicateTranscript(JSONObject inputObject) {
         String trackName = fixTrackHeader(inputObject.track)
