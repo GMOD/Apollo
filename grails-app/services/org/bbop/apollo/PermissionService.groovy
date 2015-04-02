@@ -65,7 +65,7 @@ class PermissionService {
                 organismList.add(userPermission.organism)
             }
         }
-        for (UserGroup userGroup in user.userGroups) {
+        for (UserGroup userGroup in user?.userGroups) {
             organismList.addAll(getOrganisms(userGroup))
         }
         return organismList
@@ -344,7 +344,7 @@ class PermissionService {
     PermissionEnum findHighestEnum(List<PermissionEnum> permissionEnums) {
         PermissionEnum highestValue  = PermissionEnum.NONE
         permissionEnums.each { it ->
-            highestValue = it.value > highestValue.value ? it : highestValue
+            highestValue = it.rank > highestValue.rank ? it : highestValue
         }
 
         return highestValue
@@ -353,7 +353,7 @@ class PermissionService {
     int findHighestEnumValue(List<PermissionEnum> permissionEnums) {
         int highestValue = -1
         permissionEnums.each { it ->
-            highestValue = it.value > highestValue ? it.value : highestValue
+            highestValue = it.rank > highestValue ? it.rank : highestValue
         }
 
         return highestValue
@@ -384,7 +384,7 @@ class PermissionService {
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
-        if(highestValue.value<requiredPermissionEnum.value){
+        if(highestValue.rank<requiredPermissionEnum.rank){
 //            return false
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
@@ -394,7 +394,7 @@ class PermissionService {
 
 //        Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.value);
 //        String organism = session.getAttribute(FeatureStringEnum.ORGANISM.value);
-//        PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForInteger(permissions.get(organism))
+//        PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForOldInteger(permissions.get(organism))
 //        println "vs sessionPErmision enum: ${sessionPermissionsEnum}"
 //        if(sessionPermissionsEnum!=null && sessionPermissionsEnum.value>=permissionEnum.value){
 //            return true

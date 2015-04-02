@@ -3,10 +3,8 @@ package org.bbop.apollo
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
-import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.TranslationTable
 
-import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -24,8 +22,6 @@ import org.bbop.apollo.event.AnnotationListener
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.bbop.apollo.web.util.JSONUtil
-import org.gmod.gbol.util.SequenceUtil
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
 
@@ -123,10 +119,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         try {
             Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.value);
             Integer permission = permissions.get(SecurityUtils?.subject?.principal)
-            PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForInteger(permission)
+            PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForOldInteger(permission)
 
-            println "session value ${sessionPermissionsEnum.value} < ${requiredPermissionEnum.value}"
-            if(sessionPermissionsEnum.value < requiredPermissionEnum.value){
+            if(sessionPermissionsEnum.rank < requiredPermissionEnum.rank){
                 log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
                 return false
             }

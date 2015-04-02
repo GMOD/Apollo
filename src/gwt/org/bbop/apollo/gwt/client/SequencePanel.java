@@ -204,7 +204,7 @@ public class SequencePanel extends Composite {
                     public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
                         filterSequences();
                         if (sequenceInfoList.size() > 0) {
-                            exportAllButton.setEnabled(highestPermission.getValue()>=PermissionEnum.EXPORT.getValue());
+                            exportAllButton.setEnabled(highestPermission.getRank()>=PermissionEnum.EXPORT.getRank());
                             exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
                         } else {
                             exportAllButton.setEnabled(false);

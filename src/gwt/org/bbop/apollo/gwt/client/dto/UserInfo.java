@@ -178,7 +178,7 @@ public class UserInfo {
 
         for(UserOrganismPermissionInfo userOrganismPermissionInfo : organismPermissionMap.values()){
             PermissionEnum thisHighestPermission = userOrganismPermissionInfo.getHighestPermission();
-            if(thisHighestPermission.getValue()>highestPermission.getValue()){
+            if(thisHighestPermission.getRank()>highestPermission.getRank()){
                 highestPermission = thisHighestPermission ;
             }
         }

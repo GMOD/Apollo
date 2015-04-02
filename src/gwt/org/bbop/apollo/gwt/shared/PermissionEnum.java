@@ -4,22 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * The "value" is mapping for Apollo 1
+ * Relateive ranks are for allowing bulk accesses.   For that WRITE access will have additional permissions (including export).
+ * We will likely be adding additional permissions, as well.
+ *
  * Created by ndunn on 3/31/15.
  */
 public enum PermissionEnum implements Comparable<PermissionEnum>{
 
-    NONE(0),
-    READ(1),
-    EXPORT(3),
-    WRITE(7),
-    ADMINISTRATE(15),
-    ALL_ORGANISM_ADMIN(100);
+    NONE(0,0),
+    READ(1,10),
+    EXPORT(7,30),
+    WRITE(3,50),
+    ADMINISTRATE(15,70),
+    ALL_ORGANISM_ADMIN(100,100);
 
-    private Integer value ;
+    private Integer value ; // pertains to the 1.0 value
+    private Integer rank ;
 
 
-    PermissionEnum(int oldValue){
+    PermissionEnum(int oldValue,int rank){
         this.value = oldValue;
+        this.rank = rank ;
     }
 
     public String getDisplay(){
@@ -35,7 +41,7 @@ public enum PermissionEnum implements Comparable<PermissionEnum>{
         return null;
     }
 
-    public static PermissionEnum getValueForInteger(Integer input){
+    public static PermissionEnum getValueForOldInteger(Integer input){
         for(PermissionEnum permissionEnum : values()){
             if(permissionEnum.value.equals(input))
                 return permissionEnum;
@@ -55,7 +61,11 @@ public enum PermissionEnum implements Comparable<PermissionEnum>{
         return value;
     }
 
-//    @Override
+    public Integer getRank() {
+        return rank;
+    }
+
+    //    @Override
 //    public int compareTo(PermissionEnum o) {
 //        return value - o.getValue();
 //    }
