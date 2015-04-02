@@ -1,17 +1,14 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
-import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 import static org.springframework.http.HttpStatus.*
-import grails.transaction.Transactional
-import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.HttpSession
 
 @Transactional(readOnly = true)
 class SequenceController {
@@ -62,7 +59,7 @@ class SequenceController {
 
     def setDefaultSequence(Long id,String sequenceName){
         println "setting default sequences: ${params}"
-        Session session = SecurityUtils.subject.session
+        Session session = SecurityUtils.subject.getSession(false)
         Sequence sequence = Sequence.findByName(sequenceName)
         Organism organism = Organism.findById(id)
         if(!sequence){

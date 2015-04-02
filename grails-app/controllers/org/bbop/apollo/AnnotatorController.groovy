@@ -1,15 +1,14 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.HttpSession
 
 class AnnotatorController {
 
@@ -123,7 +122,7 @@ class AnnotatorController {
         List<Feature> allFeatures
         if(!sequence){
             // find all features for current organism
-            HttpSession session = request.session
+            Session session = SecurityUtils?.subject?.getSession(false)
             String organismIdString = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value)
             Long organismId
             try {

@@ -121,7 +121,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         try {
             Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
             Integer permission = permissions.get(SecurityUtils?.subject?.principal)
-            PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForOldInteger(permission)
+            PermissionEnum sessionPermissionsEnum = permissionService.isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
             if(sessionPermissionsEnum==null){
                 log.warn "No permissions found in session"

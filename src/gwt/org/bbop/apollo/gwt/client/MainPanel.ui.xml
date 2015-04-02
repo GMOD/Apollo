@@ -81,7 +81,7 @@
         <gwt:center>
             <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
         </gwt:center>
-        <gwt:east size="550">
+        <gwt:east size="600">
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">

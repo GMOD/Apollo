@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -7,8 +8,6 @@ import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
-
-import javax.servlet.http.HttpSession
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -171,7 +170,7 @@ class OrganismController {
         println "changing organism ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         String organismId = dataObject.organismId
-        HttpSession session = request.session
+        Session session = SecurityUtils.subject.getSession(false)
         println "organismId ${organismId}"
         Organism organism = Organism.findById(organismId as Long)
         if (organism) {

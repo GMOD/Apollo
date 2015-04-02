@@ -1,20 +1,14 @@
 package org.bbop.apollo
 
+import org.apache.shiro.session.Session
+import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
-import grails.converters.JSON
-import org.apache.catalina.Session
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.springframework.messaging.handler.annotation.MessageMapping
-
 import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.HttpSession
 
 //@CompileStatic
 class JbrowseController {
 
-    def configWrapperService
-    def brokerMessagingTemplate
     def sequenceService
 
 //    def index() {
@@ -53,7 +47,7 @@ class JbrowseController {
 
     private String getJBrowseDirectoryForSession() {
         // TODO: move to shiro
-        HttpSession session = request.session
+        Session session = SecurityUtils?.subject?.getSession(false)
         String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         if(!organismJBrowseDirectory ){
             for(Organism organism in Organism.all){
