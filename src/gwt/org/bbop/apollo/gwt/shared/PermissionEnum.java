@@ -10,8 +10,8 @@ public enum PermissionEnum implements Comparable<PermissionEnum>{
 
     NONE(0),
     READ(1),
-    WRITE(3),
-    EXPORT(7),
+    EXPORT(3),
+    WRITE(7),
     ADMINISTRATE(15),
     ALL_ORGANISM_ADMIN(100);
 

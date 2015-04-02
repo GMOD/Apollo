@@ -125,6 +125,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             Integer permission = permissions.get(SecurityUtils?.subject?.principal)
             PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForInteger(permission)
 
+            println "session value ${sessionPermissionsEnum.value} < ${requiredPermissionEnum.value}"
             if(sessionPermissionsEnum.value < requiredPermissionEnum.value){
                 log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
                 return false
