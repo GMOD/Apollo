@@ -80,8 +80,8 @@ public class SequencePanel extends Composite {
     Button exportGff3Button;
     @UiField
     Button exportFastaButton;
-    @UiField
-    Button exportChadoButton;
+//    @UiField
+//    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
 
@@ -196,7 +196,7 @@ public class SequencePanel extends Composite {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
                 Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
-                if(sequenceInfoSet.size()==1){
+                if (sequenceInfoSet.size() == 1) {
                     SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
                     ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismList.getSelectedValue());
                     Annotator.eventBus.fireEvent(contextSwitchEvent);
@@ -280,12 +280,14 @@ public class SequencePanel extends Composite {
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         filterSequences();
     }
-
-    @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
+    
+    @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
+    // Disabling exportChadoButton for future release (Apollo 2.0 alpha2)
+    // @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
-        exportChadoButton.setType(ButtonType.DEFAULT);
+//        exportChadoButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
         switch (selectedButton.getText()) {
             case "GFF3":
@@ -294,9 +296,9 @@ public class SequencePanel extends Composite {
             case "FASTA":
                 exportFastaButton.setType(ButtonType.PRIMARY);
                 break;
-            case "CHADO":
-                exportChadoButton.setType(ButtonType.PRIMARY);
-                break;
+//            case "CHADO":
+//                exportChadoButton.setType(ButtonType.PRIMARY);
+//                break;
         }
     }
 
@@ -348,9 +350,10 @@ public class SequencePanel extends Composite {
             type = exportGff3Button.getText();
         } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
-        } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
-            type = exportChadoButton.getText();
-        }
+        } 
+//        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+//            type = exportChadoButton.getText();
+//        }
 
         ExportPanel exportPanel = new ExportPanel();
         exportPanel.setOrganismInfo(organismInfo);
