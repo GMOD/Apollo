@@ -4,9 +4,7 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -23,10 +21,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
-import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
-import org.bbop.apollo.gwt.client.event.SequenceLoadEventHandler;
-import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
@@ -195,6 +190,19 @@ public class SequencePanel extends Composite {
                     }
                 }
         );
+
+        // have to use a special handler instead of UiHandler for this type
+        dataGrid.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
+                if(sequenceInfoSet.size()==1){
+                    SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
+                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismList.getSelectedValue());
+                    Annotator.eventBus.fireEvent(contextSwitchEvent);
+                }
+            }
+        }, DoubleClickEvent.getType());
 
         loadOrganisms(organismList);
 

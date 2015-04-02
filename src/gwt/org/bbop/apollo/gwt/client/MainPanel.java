@@ -133,6 +133,23 @@ public class MainPanel extends Composite {
                         break;
                 }
             }
+
+        });
+
+        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
+            @Override
+            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
+                String organismId = contextSwitchEvent.getOrganismInfo().getId();
+                for(int i = 0 ; i < organismList.getItemCount() ; i++){
+                    organismList.setItemSelected(i,organismId.equals(organismList.getValue(i)));
+                }
+
+                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
+                updateGenomicViewer();
+//                organismList.setSelectedIndex();
+//                loadSequences();
+//                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
+            }
         });
 
         loginUser();
