@@ -22,7 +22,7 @@ class SequenceService {
     def transcriptService
     def exonService
     def cdsService
-    def Gff3HandlerService
+    def gff3HandlerService
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
