@@ -67,10 +67,11 @@ class TranscriptService {
 
 
     public boolean isProteinCoding(Transcript transcript) {
-        if (getGene(transcript) != null && getGene(transcript) instanceof Pseudogene) {
-            return false;
-        }
-        return true;
+        return transcript instanceof MRNA
+//        if (getGene(transcript) != null && getGene(transcript) instanceof Pseudogene) {
+//            return false;
+//        }
+//        return true;
     }
 
     CDS createCDS(Transcript transcript) {
