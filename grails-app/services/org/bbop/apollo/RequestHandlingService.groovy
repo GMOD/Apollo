@@ -1286,7 +1286,8 @@ class RequestHandlingService {
                     }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     transcript.name = nameService.generateUniqueName(transcript)
-                    transcript.uniqueName = transcript.name
+//                    transcript.uniqueName = transcript.name
+                    transcript.uniqueName = nameService.generateUniqueName()
 
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
                 }
