@@ -1261,6 +1261,13 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            // pull transcript name and put it in the top if not there
+            if(!jsonFeature.containsKey(FeatureStringEnum.NAME.value)){
+                JSONArray childArray = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
+                if(childArray?.size()==1){
+                    jsonFeature.put(FeatureStringEnum.NAME.value,childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
+                }
+            }
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
