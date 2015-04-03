@@ -218,7 +218,8 @@ class SequenceController {
                         requestObject.put("features", featuresObjectArray)
                     }
                 }
-                File outputFile = sequenceService.getGff3ForFeature(requestObject) // fetching Gff3 for each chromosome
+                File outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
+                sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
                 pathToOutputFile = Paths.get(outputFile.getPath())
                 println "The output is located at ${pathToOutputFile}"
 
