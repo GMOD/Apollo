@@ -331,7 +331,7 @@ class PermissionService {
 
     User getCurrentUser() {
         String currentUserName = SecurityUtils.subject.principal
-        def subject = SecurityUtils.subject
+//        def subject = SecurityUtils.subject
         if (currentUserName) {
             User user = User.findByUsername(currentUserName)
             if (user) {
