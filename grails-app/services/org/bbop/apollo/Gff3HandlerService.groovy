@@ -138,7 +138,8 @@ public class Gff3HandlerService {
     static private void writeGroupDirectives(WriteObject writeObject,Sequence sourceFeature) {
         if (sourceFeature.getFeatureLocations().size() == 0) return;
         FeatureLocation loc = sourceFeature.getFeatureLocations().iterator().next();
-        writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, loc.getFmin() + 1, loc.getFmax()));
+        //writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, loc.getFmin() + 1, loc.getFmax()));
+        writeObject.out.println(String.format("##sequence-region %s %d %d", sourceFeature.name, sourceFeature.start + 1, sourceFeature.end));
     }
 
     static private void writeFeatureGroupEnd(PrintWriter out) {

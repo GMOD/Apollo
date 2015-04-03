@@ -484,10 +484,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return
         }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        File tempFile = sequenceService.getGff3ForFeature(inputObject)
+        File outputFile = File.createTempFile("feature", ".gff3");
+        sequenceService.getGff3ForFeature(inputObject, outputFile)
         Charset encoding = Charset.defaultCharset()
-        byte[] encoded = Files.readAllBytes(Paths.get(tempFile.getAbsolutePath()))
+        byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))
         String gff3String = new String(encoded, encoding)
+        outputFile.delete() // deleting temp file
         render gff3String
     }
 

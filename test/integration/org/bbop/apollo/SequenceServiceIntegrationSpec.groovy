@@ -114,7 +114,8 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         FeatureLocation.all.each { featureLocation->
             refSequence.addToFeatureLocations(featureLocation)
         }
-        File gffFile = sequenceService.getGff3ForFeature(inputObject)
+        File gffFile = File.createTempFile("feature", ".gff3")
+        sequenceService.getGff3ForFeature(inputObject, gffFile)
 
         then: "we should get a proper GFF3 for the feature"
         String gffFileText = gffFile.text
@@ -208,7 +209,9 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         FeatureLocation.all.each { featureLocation->
             refSequence.addToFeatureLocations(featureLocation)
         }
-        File gffFile = sequenceService.getGff3ForFeature(inputObject)
+        
+        File gffFile = File.createTempFile("feature", ".gff3")
+        sequenceService.getGff3ForFeature(inputObject, gffFile)
 
         then: "we should get a proper GFF3 for the feature"
         String gffFileText = gffFile.text
@@ -246,7 +249,8 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         FeatureLocation.all.each { featureLocation->
             refSequence.addToFeatureLocations(featureLocation)
         }
-        File gffFile = sequenceService.getGff3ForFeature(inputObject)
+        File gffFile = File.createTempFile("feature", ".gff3");
+        sequenceService.getGff3ForFeature(inputObject, gffFile)
         
         then: "we should get a proper GFF3 for each feature"
         String gffFileText = gffFile.text

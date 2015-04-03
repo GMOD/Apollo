@@ -7,6 +7,7 @@ import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import java.nio.file.Paths
 
 import static org.springframework.http.HttpStatus.*
 
@@ -17,7 +18,9 @@ class SequenceController {
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def sequenceService
-
+    def featureService
+    def transcriptService
+    
     def permissions(){
 
     }
@@ -185,17 +188,47 @@ class SequenceController {
             '*' { render status: NOT_FOUND }
         }
     }
+    
 
     def exportSequences() {
         println "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
+        String pathToOutputFile = ""
+        
+        for(String sequence : dataObject.sequences.name) {
+            println "===>${sequence}"
+            println "${Sequence.findByName(sequence)}"
+            for(Sequence eachSeq in Sequence.findByName(sequence)) {
+                // for each sequence in the params
+                println "===> eachSeQ: ${eachSeq.name}"
+                List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
+                JSONObject requestObject = new JSONObject()
+                // create a request object
+                println "CREATED JSON : ${requestObject}"
+                requestObject.put("operation", "get_gff3")
+                requestObject.put("track", "Annotations-" + eachSeq.name)
 
+                JSONArray featuresObjectArray = new JSONArray()
+                for (FeatureLocation entity in testList) {
+                    if(entity.feature.class.cvTerm == Gene.cvTerm) {
+                        println "${entity.feature}"
+                        JSONObject featureUniqueName = new JSONObject()
+                        featureUniqueName.put('uniquename', entity.feature.uniqueName)
+                        featuresObjectArray.add(featureUniqueName)
+                        requestObject.put("features", featuresObjectArray)
+                    }
+                }
+                File outputFile = sequenceService.getGff3ForFeature(requestObject) // fetching Gff3 for each chromosome
+                pathToOutputFile = Paths.get(outputFile.getPath())
+                println "The output is located at ${pathToOutputFile}"
+
+            }
+
+        }
         // TODO: call methods here and generate url
         // use sequenceServices to export the object and then generate a URL
-
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put("url","someurl")
-
+        jsonObject.put("url",pathToOutputFile)
         render jsonObject as JSON
     }
 }

@@ -12,6 +12,7 @@
             <gwt:HTML ui:field="organismLabel"/>
             <gwt:HTML ui:field="sequenceInfoLabel"/>
             <gwt:HTML ui:field="typeLabel"/>
+            <gwt:HTML ui:field="urlLink"/>
             <gwt:Button ui:field="exportButton" text="Export"/>
         </gwt:HTMLPanel>
     </gwt:FlowPanel>

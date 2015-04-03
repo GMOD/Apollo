@@ -3,6 +3,8 @@ package org.bbop.apollo.gwt.client.rest;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
@@ -11,6 +13,7 @@ import org.bbop.apollo.gwt.client.dto.ExportInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
 
+import java.io.*;
 import java.util.List;
 
 /**
@@ -98,18 +101,17 @@ public class SequenceRestService {
             jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
         }
         jsonObject.put("sequences", jsonArray);
-
+        GWT.log("GWTLAND: " + jsonObject.toString());
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.alert("yeah: "+response.getText());
+                // Window.alert("yeah: "+response.getText());
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
-
+                GWT.log(returnValue.toString());
                 // TODO: set url properly
-//                exportPanel.setUrl();
+                exportPanel.setUrl(response.getText());
 
             }
-
 
             @Override
             public void onError(Request request, Throwable exception) {
