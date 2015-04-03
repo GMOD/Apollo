@@ -113,8 +113,9 @@ public class Gff3HandlerService {
             writeGroupDirectives(writeObject,entry.getKey());
             for (Feature feature : entry.getValue()) {
                 writeFeature(writeObject,feature, source);
-                writeFeatureGroupEnd(writeObject.out);
+//                writeFeatureGroupEnd(writeObject.out);
             }
+            writeFeatureGroupEnd(writeObject.out);
         }
     }
 

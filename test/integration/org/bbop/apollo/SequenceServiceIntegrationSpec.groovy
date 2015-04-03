@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.test.spock.IntegrationSpec
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
 
 class SequenceServiceIntegrationSpec extends IntegrationSpec {
     
@@ -143,7 +144,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String uniqueName = MRNA.findByName("GB40749-RA-00001").uniqueName
         JSONObject commandObject = new JSONObject()
         
-        when: "A request is end for the peptide sequence of the mRNA"
+        when: "A request is sent for the peptide sequence of the mRNA"
         String getPeptideSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getPeptideSequenceString = getPeptideSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getPeptideSequenceString) as JSONObject
@@ -210,6 +211,44 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         File gffFile = sequenceService.getGff3ForFeature(inputObject)
 
         then: "we should get a proper GFF3 for the feature"
+        String gffFileText = gffFile.text
+        assert gffFileText.length() > 0
+        println gffFileText
+    }
+    
+
+    void "Add 2 genes and get their GFF3"() {
+        
+        given: "a simple gene model with 1 mRNA, 1 exon and 1 CDS"
+        String jsonString1 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40722-RA\",\"children\":[{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1248797,\"fmax\":1249052,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        JSONObject jsonObject1 = JSON.parse(jsonString1) as JSONObject
+
+        String jsonString2 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":729928,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40827-RA\",\"children\":[{\"location\":{\"fmin\":729928,\"fmax\":730010,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":730296,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":729928,\"fmax\":730304,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        JSONObject jsonObject2 = JSON.parse(jsonString2) as JSONObject
+
+        when: "the gene model is added"
+        JSONObject returnObject1 = requestHandlingService.addTranscript(jsonObject1)
+        JSONObject returnObject2 = requestHandlingService.addTranscript(jsonObject2)
+        
+        then: "we should see the appropriate model"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+
+        when: "A request is sent for the GFF3 of a list of genes"
+        String uniqueName1 = MRNA.findByName("GB40722-RA-00001").uniqueName
+        String uniqueName2 = MRNA.findByName("GB40827-RA-00001").uniqueName
+        JSONObject commandObject = new JSONObject()
+        String getGff3String = "{\"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME1@\"}, {\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Annotations-Group1.10\"}"
+        getGff3String = getGff3String.replaceAll("@UNIQUENAME1@", uniqueName1)
+        getGff3String = getGff3String.replaceAll("@UNIQUENAME2@", uniqueName2)
+        JSONObject inputObject = JSON.parse(getGff3String) as JSONObject
+        Sequence refSequence = Sequence.first()
+        FeatureLocation.all.each { featureLocation->
+            refSequence.addToFeatureLocations(featureLocation)
+        }
+        File gffFile = sequenceService.getGff3ForFeature(inputObject)
+        
+        then: "we should get a proper GFF3 for each feature"
         String gffFileText = gffFile.text
         assert gffFileText.length() > 0
         println gffFileText
