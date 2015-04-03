@@ -33,9 +33,9 @@ class NameService {
                 Transcript transcript = Transcript.findByName(transcriptName)
 
                 while (transcript != null) {
-                    ++transcriptNumber
                     transcriptName = principalName.trim() + "-" + transcriptNumber.toString().padLeft(5,"0")
                     transcript = Transcript.findByName(transcriptName)
+                    ++transcriptNumber
                 }
                 return transcriptName
             } else
@@ -51,9 +51,9 @@ class NameService {
                 String newGeneName = principalName.trim() + transcriptLetter
                 Gene gene = Gene.findByName(newGeneName)
                 while (gene != null) {
-                    ++transcriptLetter
                     newGeneName = principalName.trim() + transcriptLetter
                     gene = Gene.findByName(newGeneName)
+                    ++transcriptLetter
                 }
                 return newGeneName
             }
@@ -66,9 +66,9 @@ class NameService {
                 String exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
                 Exon exon = Exon.findByName(exonName)
                 while (exon != null) {
-                    ++exonNumber
                     exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
                     exon = Exon.findByName(exonName)
+                    ++exonNumber
                 }
                 return exonName
             }
@@ -93,9 +93,9 @@ class NameService {
         Gene gene = Gene.findByName(originalName)
         char transcriptLetter = 'a'
         while (gene != null) {
-            ++transcriptLetter
             newGeneName = originalName.trim() + transcriptLetter
             gene = Gene.findByName(newGeneName)
+            ++transcriptLetter
         }
         return newGeneName
     }

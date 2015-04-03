@@ -37,6 +37,7 @@ class FeatureService {
     def featureRelationshipService
     def sequenceService
     def permissionService
+    def overlapperService
 
 
     public
@@ -249,7 +250,8 @@ class FeatureService {
                         calculateCDS(tmpTranscript);
                     }
                     tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
-                    if (overlaps(tmpTranscript, tmpGene)) {
+
+                    if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
                         log.debug "There is an overlap, adding to an existing gene"
                         transcript = tmpTranscript;
                         gene = tmpGene;
@@ -260,6 +262,10 @@ class FeatureService {
                         gene.save(insert: false, flush: true)
                         break;
                     } else {
+                        featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
+//                        tmpTranscript.delete(flush: true)
+//                        deleteFeature(tmpTranscript)
+//                        transcriptService.deleteTranscript(tmpGene,tmpTranscript)
                         log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                     }
                 } else {
@@ -1207,7 +1213,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
 
-            gsolFeature.save(failOnError: true)
+//            gsolFeature.save(failOnError: true)
 
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray children = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value);

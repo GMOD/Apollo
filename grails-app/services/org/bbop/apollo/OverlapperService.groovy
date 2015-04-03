@@ -1,7 +1,5 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
 import org.bbop.apollo.sequence.Overlapper
 
@@ -55,17 +53,17 @@ class OverlapperService implements Overlapper{
                 return exonsOverlap(exons1, exons2, true);
             }
         }
-
+        return false
     }
 
-    private boolean exonsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkFrame) {
+    private boolean exonsOverlap(List<Exon> exons1, List<Exon> exons2, boolean checkStrand) {
         int i = 0;
         int j = 0;
         while (i < exons1.size() && j < exons2.size()) {
             Exon exon1 = (Exon)exons1.get(i);
             Exon exon2 = (Exon)exons2.get(j);
             if (featureService.overlaps(exon1,exon2)) {
-                if (checkFrame) {
+                if (checkStrand) {
                     if (exon1.getStrand().equals(1) && exon1.getFmin() % 3 == exon2.getFmin() % 3) {
                         return true;
                     }
