@@ -316,8 +316,8 @@ class SequenceService {
         }
     }
     
-    def getGff3ForFeature(inputObject) {
-        File tempFile = File.createTempFile("feature", ".gff3");
+    def getGff3ForFeature(JSONObject inputObject, File outputFile) {
+        // File tempFile = File.createTempFile("feature", ".gff3");
         // TODO: use specified metadata?
         Set<String> metaDataToExport = new HashSet<>();
         metaDataToExport.add(FeatureStringEnum.NAME.value);
@@ -339,7 +339,6 @@ class SequenceService {
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
             featuresToWrite.add(gbolFeature);
         }
-        gff3HandlerService.writeFeaturesToText(tempFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
-        return tempFile
+        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
 }
