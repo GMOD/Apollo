@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class ExportPanel extends DialogBox{
     private String type;
-
+    private String url;
     private OrganismInfo organismInfo ;
     private List<SequenceInfo> sequenceList ;
 
@@ -33,6 +33,8 @@ public class ExportPanel extends DialogBox{
     HTML sequenceInfoLabel;
     @UiField
     HTML typeLabel;
+    @UiField
+    HTML urlLink;
     @UiField
     Button exportButton;
 
@@ -60,6 +62,11 @@ public class ExportPanel extends DialogBox{
         typeLabel.setHTML("Type: "+this.type);
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+        urlLink.setHTML("<a href=" + url + ">Download Annotations (GFF3)</a>");
+    }
+    
     public String getType() {
         return type;
     }
