@@ -144,8 +144,7 @@ elif [[ $1 == "release" ]];then
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
 #    mvn compile
-    ant gwtc &&
-    grails compile
+    ant gwtc && grails compile
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     rm -rf bin
