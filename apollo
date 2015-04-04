@@ -103,6 +103,7 @@ function check_configs(){
 if [[ $1 == "run" ]];then
     # should call the copy target first
     check_configs
+    ant devmode &
 	grails -reloading run-app  
 #    mvn tomcat7:run
 elif [[ $1 == "debug" ]];then
@@ -115,6 +116,10 @@ elif [[ $1 == "debug" ]];then
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
+    # should call the copy target first
+    grails test-app
+#    mvn test
+elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     grails test-app :unit
 #    mvn test
@@ -131,6 +136,7 @@ elif [[ $1 == "release" ]];then
    check_configs
    check_configs_for_release
    ant release
+   ant gwtc
    grails war
 #   mvn package
     # make -f build/Makefile release
@@ -138,7 +144,8 @@ elif [[ $1 == "release" ]];then
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
 #    mvn compile
-    grails compile 
+    ant gwtc &&
+    grails compile
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     rm -rf bin
