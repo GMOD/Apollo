@@ -9,7 +9,7 @@ class UrlMappings {
 
 
 //        "/"(view:"/index")
-        "/"(action: "index",controller: "organism")
+        "/"(redirect: '/annotator/index')
 //        "/home"(action: "index", controller: "genome")
         "500"(view: '/error')
         "/menu"(view: '/menu')

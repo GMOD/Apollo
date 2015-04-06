@@ -17,10 +17,10 @@ eventCompileStart = {
 }
 
 grails.config.locations = [
-        "file:./${appName}-config.groovy"
-        ,"file:/tmp/${appName}-config.groovy"
-        ,"classpath:${appName}-config.groovy"
+        "file:./${appName}-config.groovy" // dev only
+        ,"classpath:${appName}-config.groovy" // for production deployment
         ,"classpath:${appName}-config.properties"
+        ,"file:/tmp/${appName}-config.groovy"
 ]
 
 //grails.assetsminifyJs = true
