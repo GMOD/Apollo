@@ -182,10 +182,6 @@ public class MainPanel extends Composite {
         PermissionEnum highestPermission = userOrganismPermissionInfo.getHighestPermission();
         if(globalRole.equals("admin")){
             highestPermission = PermissionEnum.ADMINISTRATE;
-            detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
-        }
-        else{
-            detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
         }
 
         switch(highestPermission){
@@ -194,10 +190,10 @@ public class MainPanel extends Composite {
                 detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(true);
+                detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
                 break ;
             case WRITE:
                 GWT.log("setting to WRITE permissions");
-            // same permissions
             case EXPORT:
                 GWT.log("setting to EXPORT permissions");
             case READ:
@@ -209,6 +205,7 @@ public class MainPanel extends Composite {
                 detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(false);
+                detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
 
                 break ;
         }
@@ -287,7 +284,7 @@ public class MainPanel extends Composite {
         trackListString += selectedSequence;
 
         trackListString += "&";
-        for (TrackInfo trackInfo : trackPanel.dataProvider.getList()) {
+        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
             trackListString += trackInfo.getName();
             trackListString += "&";
         }
@@ -517,7 +514,6 @@ public class MainPanel extends Composite {
         annotatorPanel.reload();
     }
 
-    //    public static void loadTracks(JSONObject trackList){ trackPanel.loadTracks(trackList); }
     public static void reloadSequences() {
         sequencePanel.reload();
     }
