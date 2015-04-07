@@ -179,10 +179,15 @@ public class MainPanel extends Composite {
 
     private void updatePermissionsForOrganism() {
         GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
-
         String globalRole = currentUser.getRole();
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         GWT.log("global: "+globalRole);
+        GWT.log("global: "+userOrganismPermissionInfo);
+        GWT.log(currentOrganism.getName());
+        if(userOrganismPermissionInfo==null) {
+            GWT.log("Failed to login");
+            return;
+        }
         GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
         PermissionEnum highestPermission = userOrganismPermissionInfo.getHighestPermission();
         if(globalRole.equals("admin")){
