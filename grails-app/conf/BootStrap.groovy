@@ -9,80 +9,43 @@ class BootStrap {
     def mockupService
     def sequenceService
     def configWrapperService
-//    def grailsApplication
-
-//    def cloneForDomains={
-//        def cloned=delegate.class.newInstance();
-//        cloned.properties=delegate.properties;
-//        return cloned;
-//    }
-    
-
+    def grailsApplication
 
 
     def init = { servletContext ->
 
-        JSON.registerObjectMarshaller(User){
+        JSON.registerObjectMarshaller(User) {
             def returnArray = [:]
-            returnArray['userId']=it.id
-            returnArray['username']=it.username
-            returnArray['firstName']=it.firstName
-            returnArray['lastName']=it.lastName
+            returnArray['userId'] = it.id
+            returnArray['username'] = it.username
+            returnArray['firstName'] = it.firstName
+            returnArray['lastName'] = it.lastName
             return returnArray
         }
 
-        JSON.registerObjectMarshaller(Organism){
+        JSON.registerObjectMarshaller(Organism) {
             def returnArray = [:]
-            returnArray['id']=it.id
-            returnArray['commonName']=it.commonName
-            returnArray['genus']=it.genus
-            returnArray['species']=it.species
-            returnArray['directory']=it.directory
+            returnArray['id'] = it.id
+            returnArray['commonName'] = it.commonName
+            returnArray['genus'] = it.genus
+            returnArray['species'] = it.species
+            returnArray['directory'] = it.directory
             return returnArray
         }
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
-        mockupService.addUsers()
-
-        if (Environment.current == Environment.TEST) {
-            // insert Test environment specific code here
-            return
-        } 
-
-        mockupService.addDataAdapters()
-        mockupService.addOrganisms()
-//        mockupService.addSequences()  // add tracks
-//        mockupService.addFeatureWithLocations()  // add tracks
 
 
-//        sequenceService.parseRefSeqs()
-//        sequenceService.parseAllRefSeqs()
-        try {
 
 
-            def c = Organism.createCriteria()
-            def results = c.list{
-                isEmpty("sequences")
-            }
-
-//            results.each{ organism ->
-           results.each{ Organism organism ->
-                println "processing organism ${organism}"
-                 String fileName = organism.getRefseqFile()
-                File testFile = new File(fileName)
-                if(testFile.exists() && testFile.isFile()){
-                    println "trying to load refseq file: ${testFile.absolutePath}"
-                    sequenceService.loadRefSeqs(organism)
-                }
-                else{
-                    log.error "file not found: "+testFile.absolutePath
-                }
-            }
-        } catch (e) {
-            log.error "Problem loading in external sequences: "+e
+        if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
+            mockupService.bootstrapData()
+//            if(grailsApplication.config.apollo.bootstrapClass && grailsApplication.config.apollo.bootstrapMethod){
+//                Class.forName(grailsApplication.config.apollo.bootstrapClass).newInstance().invoke(grailsApplication.config.apollo.bootstrapMethod);
+//
+//            }
         }
-
 
     }
     def destroy = {

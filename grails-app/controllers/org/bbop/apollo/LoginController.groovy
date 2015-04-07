@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
 import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.apache.shiro.web.util.SavedRequest
@@ -59,7 +60,33 @@ class LoginController extends AbstractApolloController {
             log.error("Error sending error: ${e2}")
         }
     }
-    
+
+    def registerAdmin(){
+        if(User.count > 0 && !permissionService.isAdmin()){
+            log.error "Can only register admins if no users ${User.count} or user is admin"
+            throw new AnnotationException("Can only register admins if no users ${User.count} or user is admin")
+        }
+        println "doing the register ${params}"
+        def jsonObj = request.JSON
+        if(!jsonObj){
+            jsonObj = JSON.parse(params.data)
+            println "jsonObj ${jsonObj}"
+        }
+        println "register -> the jsonObj ${jsonObj}"
+        String username = jsonObj.username
+        String password = jsonObj.password
+        Boolean rememberMe = jsonObj.rememberMe
+
+        def adminRole = Role.findByName(UserService.ADMIN)
+
+        User user = new User(
+                username: username
+                ,passwordHash: new Sha256Hash(password).toHex()
+                ,firstName: "Bob"
+                ,lastName: "Smith"
+        ).save()
+        user.addToRoles(adminRole)
+    }
 
     /**
      * Merging Login.java (old) and  AuthController.groovy

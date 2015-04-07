@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import grails.util.Environment
 
 import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
@@ -15,7 +15,43 @@ class MockupService {
 //    CvTermService cvTermService
     
     def permissionService
+    def sequenceService
 
+
+    def bootstrapData(){
+        addUsers()
+
+        if (Environment.current == Environment.TEST) {
+            // insert Test environment specific code here
+            return
+        }
+
+        addDataAdapters()
+        addOrganisms()
+        try {
+
+
+            def c = Organism.createCriteria()
+            def results = c.list {
+                isEmpty("sequences")
+            }
+
+//            results.each{ organism ->
+            results.each { Organism organism ->
+                println "processing organism ${organism}"
+                String fileName = organism.getRefseqFile()
+                File testFile = new File(fileName)
+                if (testFile.exists() && testFile.isFile()) {
+                    println "trying to load refseq file: ${testFile.absolutePath}"
+                    sequenceService.loadRefSeqs(organism)
+                } else {
+                    log.error "file not found: " + testFile.absolutePath
+                }
+            }
+        } catch (e) {
+            log.error "Problem loading in external sequences: " + e
+        }
+    }
 
     private String generatePassword(){
         return "demo"

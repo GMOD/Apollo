@@ -29,6 +29,30 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "/Login", data.toString());
     }
 
+    public static void registerAdmin(String username, String password, Boolean rememberMe) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Window.Location.reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("operation", new JSONString("register"));
+        jsonObject.put("username", new JSONString(username));
+        jsonObject.put("password", new JSONString(password));
+        jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
+        registerAdmin(requestCallback, jsonObject);
+    }
+
+    public static void registerAdmin(RequestCallback requestCallback, JSONObject data) {
+        RestService.sendRequest(requestCallback, "/login/registerAdmin", data.toString());
+    }
+
     public static void login(String username, String password, Boolean rememberMe) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override

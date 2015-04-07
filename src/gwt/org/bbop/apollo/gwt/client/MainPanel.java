@@ -23,6 +23,7 @@ import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
@@ -223,7 +224,7 @@ public class MainPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-                if (returnValue.isObject().size() > 0) {
+                if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     loadOrganisms(organismList);
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
@@ -233,11 +234,21 @@ public class MainPanel extends Composite {
                     userName.setHTML(displayName.length()>maxUsernameLength?
                             displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                 } else {
-                    currentUser = null;
-                    logoutButton.setVisible(false);
-                    LoginDialog loginDialog = new LoginDialog();
-                    loginDialog.center();
-                    loginDialog.show();
+                    boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
+                    if(hasUsers){
+                        currentUser = null;
+                        logoutButton.setVisible(false);
+                        LoginDialog loginDialog = new LoginDialog();
+                        loginDialog.center();
+                        loginDialog.show();
+                    }
+                    else{
+                        currentUser = null;
+                        logoutButton.setVisible(false);
+                        RegisterDialog registerDialog = new RegisterDialog();
+                        registerDialog.center();
+                        registerDialog.show();
+                    }
                 }
             }
 

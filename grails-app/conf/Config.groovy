@@ -189,6 +189,7 @@ apollo.get_translation_code = 1
 apollo.splice_donor_sites = [ "GT"]
 apollo.splice_acceptor_sites = [ "AG"]
 apollo.gff3.source= "."
+apollo.bootstrap = false
 
 apollo.info_editor = {
     feature_types = "default"
@@ -205,12 +206,13 @@ grails.tomcat.nio = true
 grails.tomcat.scan.enabled = true
 
 
+
 // from: http://grails.org/plugin/audit-logging
 auditLog {
 //    // note, this disables the audit log
-    disabled = true
+//    disabled = true
 //    verbose = true // verbosely log all changed values to db
-//    logIds = true  // log db-ids of associated objects.
+    logIds = true  // log db-ids of associated objects.
 //    // Note: if you change next 2 properties, you must update your database schema!
 ////    tablename = 'my_audit' // table name for audit logs.
 //    largeValueColumnTypes = true // use large column db types for oldValue/newValue.

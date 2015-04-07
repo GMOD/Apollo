@@ -94,6 +94,8 @@ public enum FeatureStringEnum {
         ERROR,
         ERROR_MESSAGE,
         REQUEST_INDEX,
+        HAS_USERS,
+        USER_ID("userId"),
         LOCKED,
         ;
 
@@ -116,4 +118,5 @@ public enum FeatureStringEnum {
         public String getValue() {
                 return value;
         }
+
 }

@@ -165,10 +165,11 @@ class UserController {
 
             userObject.organismPermissions = organismPermissionsArray
 
-
             render userObject as JSON
         } else {
-            render new JSONObject() as JSON
+            def userObject = new JSONObject()
+            userObject.put(FeatureStringEnum.HAS_USERS.value,true)
+            render userObject as JSON
         }
     }
 
