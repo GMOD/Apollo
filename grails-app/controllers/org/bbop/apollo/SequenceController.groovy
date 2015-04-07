@@ -90,7 +90,7 @@ class SequenceController {
             sequenceService.loadRefSeqs(organism)
         }
 
-        String defaultName = request.session.getAttribute("defaultSequenceName")
+        String defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
         log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
         for(Sequence sequence in organism.sequences){
