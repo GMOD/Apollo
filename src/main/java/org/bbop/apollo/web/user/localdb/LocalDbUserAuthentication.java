@@ -19,12 +19,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LocalDbUserAuthentication implements UserAuthentication {
 
+    private ServerConfiguration serverConfig;
+
+    public LocalDbUserAuthentication(ServerConfiguration serverConfig) {
+        this.serverConfig = serverConfig;
+    }
 //    @Override
 //    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
 //            HttpServletResponse response) throws ServletException {
