@@ -57,6 +57,7 @@ public class MainPanel extends Composite {
 
     // debug
     private Boolean showFrame = false;
+    private int maxUsernameLength = 15;
 
     @UiField
     Button dockOpenClose;
@@ -227,16 +228,10 @@ public class MainPanel extends Composite {
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
+                    String displayName = currentUser.getEmail();
 
-
-                    String username = currentUser.getEmail();
-
-                    int maxLength = 15;
-                    if (username.length() > maxLength) {
-                        username = username.substring(0, maxLength - 1) + "...";
-                    }
-
-                    userName.setHTML(username);
+                    userName.setHTML(displayName.length()>maxUsernameLength?
+                            displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                 } else {
                     currentUser = null;
                     logoutButton.setVisible(false);
