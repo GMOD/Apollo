@@ -5,6 +5,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
@@ -12,10 +13,8 @@ import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
@@ -32,6 +31,7 @@ import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -83,10 +83,15 @@ public class UserPanel extends Composite {
 //    @UiField FlexTable organismPermissions;
     @UiField(provided = true)
     DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
+    @UiField(provided = true)
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
+    @UiField
+    org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
-    private List<UserInfo> userInfoList = dataProvider.getList();
+    private List<UserInfo> userInfoList = new ArrayList<>();
+    private List<UserInfo> filteredUserInfoList = dataProvider.getList();
     private SingleSelectionModel<UserInfo> selectionModel = new SingleSelectionModel<>();
     private UserInfo selectedUserInfo;
 
@@ -154,12 +159,13 @@ public class UserPanel extends Composite {
         });
 
         dataProvider.addDataDisplay(dataGrid);
+        pager.setDisplay(dataGrid);
 
 
         createOrganismPermissionsTable();
 
 
-        ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(userInfoList);
+        ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(filteredUserInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(firstNameColumn, new Comparator<UserInfo>() {
             @Override
@@ -371,6 +377,33 @@ public class UserPanel extends Composite {
         selectedUserInfo = null;
         updateUserInfo();
     }
+
+    @UiHandler(value = {"nameSearchBox"})
+    public void handleNameSearch(KeyUpEvent keyUpEvent) {
+        filterSequences();
+    }
+
+    private void filterSequences() {
+        GWT.log("original size: " + userInfoList.size());
+
+        filteredUserInfoList.clear();
+        String nameText = nameSearchBox.getText().toLowerCase().trim();
+        if(nameText.length()>0){
+            for (UserInfo userInfo : userInfoList) {
+                if (userInfo.getName().toLowerCase().contains(nameText)
+                        ) {
+                    filteredUserInfoList.add(userInfo);
+                }
+            }
+        }
+        else{
+            filteredUserInfoList.addAll(userInfoList);
+        }
+        GWT.log("filtered size: " + filteredUserInfoList.size());
+//        viewableLabel.setText(filteredSequenceList.size() + "");
+
+    }
+
 
     @UiHandler("saveButton")
     public void save(ClickEvent clickEvent) {

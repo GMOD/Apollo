@@ -56,7 +56,7 @@ public class SequencePanel extends Composite {
     @UiField(provided = true)
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
-    SimplePager pager = null;
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);;
 
     @UiField
     HTML sequenceName;
@@ -94,7 +94,7 @@ public class SequencePanel extends Composite {
     private PermissionEnum highestPermission = PermissionEnum.NONE;
 
     public SequencePanel() {
-        pager = new SimplePager(SimplePager.TextLocation.CENTER);
+
         initWidget(ourUiBinder.createAndBindUi(this));
 
         dataGrid.setWidth("100%");
