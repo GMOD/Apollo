@@ -17,9 +17,11 @@ public class RegisterDialog extends DialogBox {
 
     // TODO: move to UIBinder
     private VerticalPanel panel = new VerticalPanel();
-    private Grid grid = new Grid(3,2);
-    private Button okButton = new Button("Login");
+    private Grid grid = new Grid(5,2);
+    private Button okButton = new Button("Register & Login");
     private TextBox username = new TextBox();
+    private TextBox firstNameBox = new TextBox();
+    private TextBox lastNameBox = new TextBox();
     private PasswordTextBox passwordTextBox = new PasswordTextBox();
     private PasswordTextBox passwordRepeatTextBox = new PasswordTextBox();
     private HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -39,6 +41,10 @@ public class RegisterDialog extends DialogBox {
         grid.setWidget(1, 1, passwordTextBox);
         grid.setHTML(2, 0, "Repeat Password");
         grid.setWidget(2, 1, passwordRepeatTextBox);
+        grid.setHTML(3, 0, "First Name");
+        grid.setWidget(3, 1, firstNameBox);
+        grid.setHTML(4, 0, "Last Name");
+        grid.setWidget(4, 1, lastNameBox);
         panel.add(grid);
         
 

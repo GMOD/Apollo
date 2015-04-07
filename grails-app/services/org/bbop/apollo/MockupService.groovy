@@ -59,10 +59,6 @@ class MockupService {
 
     def addUsers() {
         if (User.count > 0) return
-        def userRole = new Role(name: UserService.USER).save()
-        userRole.addToPermissions("*:*")
-        def adminRole = new Role(name: UserService.ADMIN).save()
-        adminRole.addToPermissions("*:*")
 
 //        CVTerm userCvTerm = cvTermService.getTerm(FeatureStringEnum.OWNER.value)
 

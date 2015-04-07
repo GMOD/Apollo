@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.rest;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 
 /**
@@ -26,7 +27,12 @@ public class RestService {
     }
 
     public static void sendRequest(RequestCallback requestCallback,String url){
-        sendRequest(requestCallback,url,null);
+        sendRequest(requestCallback,url,(String) null);
+    }
+
+
+    public static void sendRequest(RequestCallback requestCallback,String url,JSONObject jsonObject){
+        sendRequest(requestCallback,url,"data="+jsonObject.toString());
     }
 
     public static void sendRequest(RequestCallback requestCallback,String url,String data){

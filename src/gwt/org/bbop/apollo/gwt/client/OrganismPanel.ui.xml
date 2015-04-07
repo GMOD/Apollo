@@ -93,7 +93,7 @@
                             <b:Column size="6" styleName="{style.widgetPanel}">
                                 <b:Button ui:field="newButton" text="Add New Organism" enabled="true"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"/>
-                                <b:Button ui:field="createButton" text="Create Organism" visible="false"/>
+                                <b:Button ui:field="createButton" text="Save New Organism" visible="false"/>
                                 <b:Button ui:field="cancelButton" text="Cancel" visible="false"/>
                             </b:Column>
                         </b:Row>

@@ -43,7 +43,7 @@ class OrganismController {
 
     @Transactional
     def deleteOrganism() {
-        println "saving params: ${params.data}"
+        println "DELETING ORGANISM params: ${params.data}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
         println "organismJSON ${organismJson}"
         println "id: ${organismJson.id}"

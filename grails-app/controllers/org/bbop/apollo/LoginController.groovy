@@ -86,6 +86,10 @@ class LoginController extends AbstractApolloController {
                 ,lastName: "Smith"
         ).save()
         user.addToRoles(adminRole)
+
+//        params.data.username = username
+//        params.data.password = password
+        return login()
     }
 
     /**

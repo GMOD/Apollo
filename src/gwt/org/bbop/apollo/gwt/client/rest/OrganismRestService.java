@@ -69,10 +69,10 @@ public class OrganismRestService {
             if(object.get("valid")!=null){
                 organismInfo.setValid(object.get("valid").isBoolean().booleanValue());
             }
-            if(object.get("genus")!=null){
+            if(object.get("genus")!=null && object.get("genus").isString()!=null){
                 organismInfo.setGenus(object.get("genus").isString().stringValue());
             }
-            if(object.get("species")!=null){
+            if(object.get("species")!=null && object.get("species").isString()!=null){
                 organismInfo.setSpecies(object.get("species").isString().stringValue());
             }
             organismInfoList.add(organismInfo);
@@ -146,7 +146,6 @@ public class OrganismRestService {
     }
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
-        String payload = "data="+convertOrganismInfoToJSONObject(organismInfo);
-        RestService.sendRequest(requestCallback,"/organism/deleteOrganism", payload);
+        RestService.sendRequest(requestCallback,"/organism/deleteOrganism", convertOrganismInfoToJSONObject(organismInfo));
     }
 }

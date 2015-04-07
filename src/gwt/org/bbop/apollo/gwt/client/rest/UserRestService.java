@@ -50,7 +50,7 @@ public class UserRestService {
     }
 
     public static void registerAdmin(RequestCallback requestCallback, JSONObject data) {
-        RestService.sendRequest(requestCallback, "/login/registerAdmin", data.toString());
+        RestService.sendRequest(requestCallback, "/login/registerAdmin", data);
     }
 
     public static void login(String username, String password, Boolean rememberMe) {
