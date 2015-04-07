@@ -33,8 +33,12 @@ public class OrganismRestService {
         }
         object.put("commonName",new JSONString(organismInfo.getName()));
         object.put("directory",new JSONString(organismInfo.getDirectory()));
-        object.put("genus",new JSONString(organismInfo.getGenus()));
-        object.put("species",new JSONString(organismInfo.getSpecies()));
+        if(organismInfo.getGenus()!=null){
+            object.put("genus",new JSONString(organismInfo.getGenus()));
+        }
+        if(organismInfo.getSpecies()!=null) {
+            object.put("species", new JSONString(organismInfo.getSpecies()));
+        }
         if(organismInfo.getNumSequences()!=null){
             object.put("sequences",new JSONNumber(organismInfo.getNumFeatures()));
         }
@@ -53,7 +57,7 @@ public class OrganismRestService {
             OrganismInfo organismInfo = new OrganismInfo();
             organismInfo.setId(object.get("id").isNumber().toString());
             organismInfo.setName(object.get("commonName").isString().stringValue());
-            if(object.get("sequences")!=null){
+            if(object.get("sequences")!=null && object.get("sequences").isNumber()!=null){
                 organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
             }
             else{
@@ -141,8 +145,7 @@ public class OrganismRestService {
     }
 
     public static void createOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
-        String payload = "data="+convertOrganismInfoToJSONObject(organismInfo);
-        RestService.sendRequest(requestCallback,"/organism/saveOrganism", payload);
+        RestService.sendRequest(requestCallback,"/organism/saveOrganism", convertOrganismInfoToJSONObject(organismInfo));
     }
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {

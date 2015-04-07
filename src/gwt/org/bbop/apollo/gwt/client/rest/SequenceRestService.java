@@ -45,9 +45,9 @@ public class SequenceRestService {
                     sequenceInfo.setLength((int) object.get("length").isNumber().doubleValue());
                     sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
                     sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-                    GWT.log("get default: "+object.get("default"));
+//                    GWT.log("get default: "+object.get("default"));
                     if(object.get("default")!=null){
-                        GWT.log("setting default to "+ sequenceInfo.getName());
+//                        GWT.log("setting default to "+ sequenceInfo.getName());
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }
                     sequenceInfoList.add(sequenceInfo);
