@@ -140,24 +140,22 @@ public class MainPanel extends Composite {
 
             @Override
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                // need to set this before calling the sequence sequenct
+                // need to set this before calling the sequence
                 currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
                 String sequenceName = contextSwitchEvent.getSequenceInfo().getName();
 
                 for(int i = 0 ; i < organismList.getItemCount() ; i++){
                     organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
                 }
-//                currentOrganism = organismList.getSelectedItemText();
                 sequenceList.setText(sequenceName);
 
 
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
-                       String sequenceName = response.getText() ;
+                        String sequenceName = response.getText();
                         sequenceList.setText(sequenceName);
-
-                       updateGenomicViewer();
+                        updateGenomicViewer();
                     }
 
                     @Override
@@ -166,11 +164,6 @@ public class MainPanel extends Composite {
                     }
                 };
                 SequenceRestService.setDefaultSequence(requestCallback,sequenceName);
-
-//                updateGenomicViewer();
-//                organismList.setSelectedIndex();
-//                loadSequences();
-//                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
             }
         });
 
@@ -182,10 +175,7 @@ public class MainPanel extends Composite {
         String globalRole = currentUser.getRole();
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         GWT.log("global: "+globalRole);
-        GWT.log("global: "+userOrganismPermissionInfo);
-        GWT.log(currentOrganism.getName());
         if(userOrganismPermissionInfo==null) {
-            GWT.log("Failed to login");
             return;
         }
         GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
@@ -343,33 +333,16 @@ public class MainPanel extends Composite {
                         sequenceList.setText(sequenceInfo.getName());
                         currentSequenceId = sequenceInfo.getName();
                     }
-//                    else
-//                      if(sequenceList.getText().length()==0 && sequenceInfo.isDefault()) {
-//                          sequenceList.setText(sequenceInfo.getName());
-//                      }
                 }
-
-//                updateGenomicViewer();
 
                 if (array.size() > 0) {
                     if (currentSequenceId == null) {
                         currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
                     }
-//                    String url = rootUrl + "/jbrowse/?loc=" + currentSequenceId;
-//                    if (!showFrame) {
-//                        url += "&tracklist=0";
-//                    }
-//                    frame.setUrl(url);
                 }
-//                if(sequenceList.getText().trim().length()==0){
-//                    sequenceList.setText(array.get(0).object.get("name").isString().stringValue());
-//                }
-
-//                updateGenomicViewer();
 
                 ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(), organismList.getSelectedValue());
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
-//                reloadTabPerIndex(detailTabs.getSelectedIndex());
             }
 
             @Override
@@ -400,26 +373,16 @@ public class MainPanel extends Composite {
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
-//                    GWT.log(object.toString());
-//                    GWT.log(object.toString());
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (organismInfo.isCurrent()) {
                         currentOrganismId = Long.parseLong(organismInfo.getId());
                         currentOrganism = organismInfo ;
                         trackInfoList.setSelectedIndex(i);
                     }
-//                    if (currentOrganismId != null) {
-//                        if (Long.parseLong(organismInfo.getId()) == currentOrganismId) {
-//                            trackInfoList.setSelectedIndex(i);
-//                        }
-//                    } else if (i == 0) {
-//                        currentOrganismId = Long.parseLong(organismInfo.getId());
-//                    }
                 }
 
                 if (currentOrganismId == null && array.size() > 0) {
                     JSONObject rootObject = array.get(0).isObject();
-//                    String name = rootObject.get("commonName").isString().stringValue();
                     currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
                     currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
                     trackInfoList.setSelectedIndex(0);
@@ -527,15 +490,6 @@ public class MainPanel extends Composite {
         return currentUser;
     }
 
-    /*
-     * Takes in a JSON String and evals it.
-     * @param JSON String that you trust
-     * @return JavaScriptObject that you can cast to an Overlay Type
-     */
-    public static <T extends JavaScriptObject> T parseJson(String jsonStr) {
-        return JsonUtils.safeEval(jsonStr);
-    }
-
     public static String executeFunction(String name) {
         return executeFunction(name, JavaScriptObject.createObject());
     }
@@ -555,7 +509,6 @@ public class MainPanel extends Composite {
         console.log('trying to execute a function: ' + targetFunction);
         console.log('with data: ' + data);
         return targetFunction(data);
-        //return 'executed';
     }-*/;
 
 
@@ -580,13 +533,9 @@ public class MainPanel extends Composite {
     public static void reloadUserGroups() {
         userGroupPanel.reload();
     }
-//    public static void sampleFunction(){ Window.alert("sample function"); }
 
-
-    //    $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::reload()());
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
-        //$wnd.loadTracks = $entry(@org.bbop.apollo.gwt.client.TrackPanel::updateTracks(Lcom/google/gwt/json/client/JSONObject;));
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
@@ -597,7 +546,6 @@ public class MainPanel extends Composite {
                 return 'ApolloGwt-1.0';
             }
         );
-        //$wnd.sampleFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::sampleFunction());
     }-*/;
 
     private enum TabPanelIndex {
