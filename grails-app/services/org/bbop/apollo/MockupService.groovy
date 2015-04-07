@@ -68,6 +68,8 @@ class MockupService {
         UserGroup usdaGroup = new UserGroup(name: "USDA").save()
         UserGroup vectorBaseGroup = new UserGroup(name: "Vector Base").save()
 
+        Role userRole = Role.findByName(UserService.USER)
+        Role adminRole = Role.findByName(UserService.ADMIN)
 
         User demoUser = new User(
                 username: "demo@demo.gov"
