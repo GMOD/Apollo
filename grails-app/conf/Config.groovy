@@ -147,6 +147,7 @@ log4j.main = {
 //    debug 'org.hibernate.SQL'
 
     info 'grails.app'
+//    debug 'grails.app'
 
 //    debug 'grails.app.controllers.org.bbop.apollo'
 //    debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'

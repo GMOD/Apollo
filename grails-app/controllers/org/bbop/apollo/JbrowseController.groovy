@@ -155,6 +155,11 @@ class JbrowseController {
         return data("bigwig/" + fileName)
     }
 
+    def bam(String fileName) {
+        println "bam! ${fileName}"
+        return data("bam/" + fileName)
+    }
+
     /**
      * Has to handle a number of routes based on selected genome or just use the default otherwise.
      *
@@ -205,10 +210,10 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
-            log.error("Could not get MIME type of " + fileName);
+            log.info("No input MIME type of " + fileName);
 //                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 //                return;
-            if (params.format == "json") {
+            if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType("contentType: ${mimeType}");
 
@@ -240,6 +245,7 @@ class JbrowseController {
 //                return;
             }
         }
+        println "mimeType ${mimeType}"
 
         if (isCacheableFile(fileName)) {
             String eTag = createHashFromFile(file);

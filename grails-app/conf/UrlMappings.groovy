@@ -19,6 +19,7 @@ class UrlMappings {
         "/jbrowse/"(uri: "/jbrowse/index.html")
         "/jbrowse/data/${fileName}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/bigwig/${fileName}"(controller: "jbrowse", action: "bigwig")
+        "/jbrowse/data/bam/${fileName}"(controller: "jbrowse", action: "bam")
         "/jbrowse/data/seq/refSeqs.json"(controller: "jbrowse", action: "seq")
         "/jbrowse/data/seq/$a/$b/$c/$group"(controller: "jbrowse", action: "seqMapper",params:params)
         "/jbrowse/data/names/${directory}/${jsonFile}.json"(controller: "jbrowse", action: "namesFiles")
