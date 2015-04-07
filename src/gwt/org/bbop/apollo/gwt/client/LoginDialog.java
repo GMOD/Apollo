@@ -2,7 +2,12 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.Event.*;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 
 /**
@@ -20,15 +25,12 @@ public class LoginDialog extends DialogBox {
     private HorizontalPanel horizontalPanel = new HorizontalPanel();
     private CheckBox rememberMeCheckBox = new CheckBox("Remember me");
 
-    //
     public LoginDialog() {
-//            // Set the dialog box's caption.
+        // Set the dialog box's caption.
         setText("Login");
-//
-//            // Enable animation.
+        // Enable animation.
         setAnimationEnabled(true);
-//
-//            // Enable glass background.
+        // Enable glass background.
         setGlassEnabled(true);
 
         grid.setHTML(0, 0, "Username");
@@ -42,11 +44,8 @@ public class LoginDialog extends DialogBox {
         horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));
         horizontalPanel.add(okButton);
         panel.add(horizontalPanel);
-//
-//            // DialogBox is a SimplePanel, so you have to set its widget property to
-//            // whatever you want its contents to be.
-       
-
+        // DialogBox is a SimplePanel, so you have to set its widget property to
+        // whatever you want its contents to be.
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -54,6 +53,15 @@ public class LoginDialog extends DialogBox {
             }
         });
         setWidget(panel);
+    }
+    @Override
+    public void onPreviewNativeEvent(NativePreviewEvent e) {
+        NativeEvent nativeEvent = e.getNativeEvent();
+        if ("keydown".equals(nativeEvent.getType())) {
+            if (nativeEvent.getKeyCode() == KeyCodes.KEY_ENTER) {
+                doLogin(username.getText().trim(),passwordTextBox.getText(),rememberMeCheckBox.getValue());
+            }
+        }
     }
 
     public void doLogin(String username,String password,Boolean rememberMe){
