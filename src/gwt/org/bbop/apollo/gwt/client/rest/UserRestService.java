@@ -68,6 +68,8 @@ public class UserRestService {
                     userInfoList.add(userInfo);
                 }
 
+                Annotator.eventBus.fireEvent(new UserChangeEvent(UserChangeEvent.Action.USERS_RELOADED));
+
             }
 
             @Override

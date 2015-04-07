@@ -204,6 +204,9 @@ public class UserPanel extends Composite {
                     case REMOVE_USER_FROM_GROUP:
                         removeGroupFromUI(userChangeEvent.getGroup());
                         break;
+                    case USERS_RELOADED:
+                        filterSequences();
+                        break;
 
                 }
             }
@@ -391,6 +394,7 @@ public class UserPanel extends Composite {
         if(nameText.length()>0){
             for (UserInfo userInfo : userInfoList) {
                 if (userInfo.getName().toLowerCase().contains(nameText)
+                        ||  userInfo.getEmail().toLowerCase().contains(nameText)
                         ) {
                     filteredUserInfoList.add(userInfo);
                 }

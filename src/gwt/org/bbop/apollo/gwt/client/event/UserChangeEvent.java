@@ -24,7 +24,9 @@ public class UserChangeEvent extends GwtEvent<UserChangeEventHandler>{
     private String group ;
     private PermissionEnum highestPermission ;
 
-    public UserChangeEvent(){}
+    public UserChangeEvent(Action action){
+        this.action = action ;
+    }
     public UserChangeEvent(List<UserInfo> userInfoList,Action action,String group){
         this.userInfoList = userInfoList ;
         this.action = action ;
@@ -82,5 +84,6 @@ public class UserChangeEvent extends GwtEvent<UserChangeEventHandler>{
         REMOVE_USER_FROM_GROUP,
         RELOAD_USERS,
         PERMISSION_CHANGED,
+        USERS_RELOADED,
     }
 }
