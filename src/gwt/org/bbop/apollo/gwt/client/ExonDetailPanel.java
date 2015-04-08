@@ -62,6 +62,8 @@ public class ExonDetailPanel extends Composite {
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     HTML notePanel;
+    @UiField
+    Button phaseButton;
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
@@ -195,6 +197,10 @@ public class ExonDetailPanel extends Composite {
             positiveStrandValue.setType(ButtonType.DEFAULT);
             negativeStrandValue.setType(ButtonType.PRIMARY);
         }
+        Integer length = internalAnnotationInfo.getLength();
+        Integer phase = (length % 3 == 0 ? 0 : 3 - (length % 3))+1;
+
+        phaseButton.setText(phase.toString());
 
         SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
         for(String note : annotationInfo.getNoteList()){
