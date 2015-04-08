@@ -206,7 +206,8 @@ class SequenceService {
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
     }
     
-    def getSequenceForFeature(JSONObject inputObject) {
+    def getSequenceForFeature(JSONObject inputObject, File outputFile=null) {
+        println "===> input at getSequenceForFeature: ${inputObject}"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
         StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
@@ -311,8 +312,11 @@ class SequenceService {
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
             outFeature.put("residues", sequence)
             outFeature.put("uniquename", uniqueName)
+            if(outputFile) {
+                println "Writing output to ${outputFile.name}"
+                outputFile << sequence
+            }
             return outFeature
-
         }
     }
     

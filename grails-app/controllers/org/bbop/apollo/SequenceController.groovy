@@ -8,6 +8,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import java.nio.file.Paths
+import java.nio.file.Files
 
 import static org.springframework.http.HttpStatus.*
 
@@ -188,24 +189,28 @@ class SequenceController {
             '*' { render status: NOT_FOUND }
         }
     }
-    
 
     def exportSequences() {
         println "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
+        File outputFile
         String pathToOutputFile = ""
-        
+        String typeOfExport = dataObject.type
+        println "==> TypeofExport: ${typeOfExport}"
         for(String sequence : dataObject.sequences.name) {
-            println "===>${sequence}"
             println "${Sequence.findByName(sequence)}"
             for(Sequence eachSeq in Sequence.findByName(sequence)) {
                 // for each sequence in the params
                 println "===> eachSeQ: ${eachSeq.name}"
                 List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
+                println "===> SIZE OF FEATURE LIST: ${testList.size()}"
+                if(testList.size() == 0) {
+                    println "No features on chromosome ${sequence}"
+                    continue
+                }
                 JSONObject requestObject = new JSONObject()
                 // create a request object
-                println "CREATED JSON : ${requestObject}"
-                requestObject.put("operation", "get_gff3")
+
                 requestObject.put("track", "Annotations-" + eachSeq.name)
 
                 JSONArray featuresObjectArray = new JSONArray()
@@ -218,18 +223,40 @@ class SequenceController {
                         requestObject.put("features", featuresObjectArray)
                     }
                 }
-                File outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
-                sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
-                pathToOutputFile = Paths.get(outputFile.getPath())
-                println "The output is located at ${pathToOutputFile}"
-
+                // outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
+                if (typeOfExport == "GFF3") {
+                    outputFile = File.createTempFile("Annotations", ".gff3")
+                    requestObject.put("operation", "get_gff3")
+                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
+                    pathToOutputFile = Paths.get(outputFile.getPath())
+                    println "The output is located at ${pathToOutputFile}"
+                }
+                else if(typeOfExport == "FASTA") {
+                    outputFile = File.createTempFile("Annotations", ".fa")
+                    requestObject.put("operation", "get_sequence")
+                    requestObject.put(FeatureStringEnum.TYPE.value, FeatureStringEnum.TYPE_GENOMIC.value)
+                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
+                    pathToOutputFile = Paths.get(outputFile.getPath())
+                    println "The output is located at ${pathToOutputFile}"
+                }
             }
 
         }
-        // TODO: call methods here and generate url
-        // use sequenceServices to export the object and then generate a URL
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put("url",pathToOutputFile)
+        jsonObject.put("filePath",pathToOutputFile)
         render jsonObject as JSON
+    }
+    
+    def exportGff3() {
+        println "PARAMS: ${params}"
+        String pathToFile = params.filePath
+        def file = new File(pathToFile)
+        response.contentType = 'txt'
+        response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")
+        def outputStream = response.outputStream
+        outputStream << file.text
+        outputStream.flush()
+        outputStream.close()
+        file.delete()
     }
 }

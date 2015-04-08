@@ -36,7 +36,7 @@ public class ExportPanel extends DialogBox{
     @UiField
     HTML urlLink;
     @UiField
-    Button exportButton;
+    Button closeButton;
 
     public ExportPanel() {
         setWidget(ourUiBinder.createAndBindUi(this));
@@ -71,9 +71,8 @@ public class ExportPanel extends DialogBox{
         return type;
     }
 
-    @UiHandler("exportButton")
-    public void doExport(ClickEvent clickEvent){
-        Window.alert("doing export with REST IO/Service ");
+    @UiHandler("closeButton")
+    public void closeExportPanel(ClickEvent clickEvent){
         hide();
     }
 

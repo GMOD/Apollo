@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client.rest;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
@@ -93,7 +94,8 @@ public class SequenceRestService {
     }
 
     public static void generateLink(final ExportPanel exportPanel) {
-
+        Dictionary dictionary = Dictionary.getDictionary("Options");
+        final String rootUrl = dictionary.get("rootUrl");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type",new JSONString(exportPanel.getType()));
         JSONArray jsonArray = new JSONArray();
@@ -105,12 +107,13 @@ public class SequenceRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                // Window.alert("yeah: "+response.getText());
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                GWT.log(returnValue.toString());
-                // TODO: set url properly
-                exportPanel.setUrl(response.getText());
-
+                GWT.log("RESPONSE: " + response.getText());
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                String filePath = responseObject.get("filePath").isString().stringValue();
+                GWT.log( filePath );
+                Window.open(rootUrl + "/sequence/exportGff3/?filePath=" + filePath, "_blank", "");
+                // change name from exportGff3 to exportData (to make it more generic)
+                
             }
 
             @Override

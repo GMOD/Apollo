@@ -339,6 +339,7 @@ public class SequencePanel extends Composite {
     }
 
     private void exportValues(List<SequenceInfo> sequenceInfoList) {
+        GWT.log( organismList.getSelectedValue() );
         Integer organismId = Integer.parseInt(organismList.getSelectedValue());
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setId(organismId.toString());
@@ -350,7 +351,8 @@ public class SequencePanel extends Composite {
             type = exportGff3Button.getText();
         } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
-        } 
+        }
+        GWT.log("Type selected is " + type);
 //        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
 //            type = exportChadoButton.getText();
 //        }
@@ -381,6 +383,7 @@ public class SequencePanel extends Composite {
         SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
         sequenceInfoList1.add(sequenceInfo);
+        GWT.log("single export of " + sequenceInfoList1.size());
         exportValues(sequenceInfoList1);
 
     }
