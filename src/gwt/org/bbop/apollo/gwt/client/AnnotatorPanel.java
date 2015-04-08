@@ -568,6 +568,8 @@ public class AnnotatorPanel extends Composite {
 
         // 1 - get the correct gene
         AnnotationInfo annotationInfo = filteredAnnotationList.get(geneIndex);
+        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
