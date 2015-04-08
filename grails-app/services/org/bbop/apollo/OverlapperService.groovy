@@ -95,5 +95,27 @@ class OverlapperService implements Overlapper{
         return false;
     }
 
-    
+    boolean overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
+        return overlaps(leftFeature.featureLocation, rightFeature.featureLocation, compareStrands)
+    }
+
+    boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
+        if (leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
+            return false;
+        }
+        int thisFmin = leftFeatureLocation.getFmin();
+        int thisFmax = leftFeatureLocation.getFmax();
+        int thisStrand = leftFeatureLocation.getStrand();
+        int otherFmin = rightFeatureLocation.getFmin();
+        int otherFmax = rightFeatureLocation.getFmax();
+        int otherStrand = rightFeatureLocation.getStrand();
+        boolean strandsOverlap = compareStrands ? thisStrand == otherStrand : true;
+        if (strandsOverlap &&
+                (thisFmin <= otherFmin && thisFmax > otherFmin ||
+                        thisFmin >= otherFmin && thisFmin < otherFmax)) {
+            return true;
+        }
+        return false;
+    }
+
 }

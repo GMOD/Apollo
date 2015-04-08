@@ -451,7 +451,7 @@ class FeatureService {
             Exon leftExon = sortedExons.get(i);
             for (int j = i + 1; j < sortedExons.size(); ++j) {
                 Exon rightExon = sortedExons.get(j);
-                if (overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
+                if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
                         exonService.mergeExons(leftExon, rightExon);
                         sortedExons = transcriptService.getSortedExons(transcript)
@@ -496,28 +496,6 @@ class FeatureService {
         return false;
     }
 
-    boolean overlaps(Feature leftFeature, Feature rightFeature, boolean compareStrands = true) {
-        return overlaps(leftFeature.featureLocation, rightFeature.featureLocation, compareStrands)
-    }
-
-    boolean overlaps(FeatureLocation leftFeatureLocation, FeatureLocation rightFeatureLocation, boolean compareStrands = true) {
-        if (leftFeatureLocation.sequence != rightFeatureLocation.sequence) {
-            return false;
-        }
-        int thisFmin = leftFeatureLocation.getFmin();
-        int thisFmax = leftFeatureLocation.getFmax();
-        int thisStrand = leftFeatureLocation.getStrand();
-        int otherFmin = rightFeatureLocation.getFmin();
-        int otherFmax = rightFeatureLocation.getFmax();
-        int otherStrand = rightFeatureLocation.getStrand();
-        boolean strandsOverlap = compareStrands ? thisStrand == otherStrand : true;
-        if (strandsOverlap &&
-                (thisFmin <= otherFmin && thisFmax > otherFmin ||
-                        thisFmin >= otherFmin && thisFmin < otherFmax)) {
-            return true;
-        }
-        return false;
-    }
 
 
     def calculateCDS(Transcript transcript) {
@@ -649,7 +627,7 @@ class FeatureService {
         }
         int currentOffset = 0;
         for (Exon exon : exonService.getSortedExons(transcript)) {
-            if (!overlaps(cds, exon)) {
+            if (!overlapperService.overlaps(cds, exon)) {
                 currentOffset += exon.getLength();
                 continue;
             }
@@ -686,7 +664,7 @@ class FeatureService {
             Collections.reverse(alterations);
         }
         for (SequenceAlteration alteration : alterations) {
-            if (!overlaps(feature, alteration)) {
+            if (!overlapperService.overlaps(feature, alteration)) {
                 continue;
             }
             if (feature.getFeatureLocation().getStrand() == -1) {
@@ -1477,7 +1455,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         int currentOffset = 0;
         for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
-            if (!overlaps(feature, sequenceAlteration, false)) {
+            if (!overlapperService.overlaps(feature, sequenceAlteration, false)) {
                 continue
             }
 //            if (!feature.overlaps(sequenceAlteration, false)) {

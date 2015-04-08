@@ -4,13 +4,16 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
+import org.bbop.apollo.web.util.JSONUtil
 
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
+import java.text.DateFormat
 
 import static grails.async.Promises.*
 
@@ -43,6 +46,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def transcriptService
     def exonService
     def permissionService
+    def overlapperService
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
 
 //    List<AnnotationEventListener> listenerList = new ArrayList<>()
@@ -70,7 +74,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
-
     /**
      * @return
      */
@@ -82,7 +85,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         println "principal: " + SecurityUtils.subject.principal
         String username = SecurityUtils.subject.principal
         int permission = PermissionEnum.NONE.value
-        if(username) {
+        if (username) {
 
             println "input username ${username}"
 
@@ -91,16 +94,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             println "attribute names: "
             session.attributeNames.each { println it }
             Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
-            Map<String, Integer> permissions 
-            if(organismId){
+            Map<String, Integer> permissions
+            if (organismId) {
                 Organism organism = Organism.findById(organismId)
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,user)
-                println " permission list size: "+permissionEnumList
-                 permission = permissionService.findHighestEnumValue(permissionEnumList)
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
+                println " permission list size: " + permissionEnumList
+                permission = permissionService.findHighestEnumValue(permissionEnumList)
                 permissions = new HashMap<>()
-                permissions.put(username,permission)
-            }
-            else{
+                permissions.put(username, permission)
+            } else {
                 log.error "somehow no organism shown, getting for all"
                 permissions = permissionService.getPermissionsForUser(user)
             }
@@ -117,18 +119,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum){
+    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
-            Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
             Integer permission = permissions.get(SecurityUtils.subject.principal)
             PermissionEnum sessionPermissionsEnum = permissionService.isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
-            if(sessionPermissionsEnum==null){
+            if (sessionPermissionsEnum == null) {
                 log.warn "No permissions found in session"
                 return false
             }
 
-            if(sessionPermissionsEnum.rank < requiredPermissionEnum.rank){
+            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
                 log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
                 return false
             }
@@ -148,7 +150,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray dataAdaptersArray = new JSONArray();
         returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
 
-        if(!checkPermissions(PermissionEnum.EXPORT)){
+        if (!checkPermissions(PermissionEnum.EXPORT)) {
             render returnObject
             return
         }
@@ -180,6 +182,112 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "returning data adapters  ${returnObject}"
 
         render returnObject
+    }
+
+    def getHistoryForFeatures() {
+        log.debug "getting history !! ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.READ)
+
+        JSONObject historyContainer = createJSONFeatureContainer();
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+//            Feature  gbolFeature = getFeature(editor, jsonFeature);
+            JSONArray history = new JSONArray();
+            jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
+            List<FeatureTransaction> transactionList = FeatureTransaction.findAllByFeature(feature)
+//            TransactionList transactionList = historyStore.getTransactionListForFeature(jsonFeature.getString("uniquename"));
+            for (int j = 0; j < transactionList.size(); ++j) {
+//                Transaction transaction = transactionList.get(j);
+                FeatureTransaction transaction = transactionList.get(j);
+                JSONObject historyItem = new JSONObject();
+                historyItem.put(REST_OPERATION, transaction.operation.toString());
+//                historyItem.put("editor", transaction.getEditor());
+                historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
+//                if (j == transactionList.current) {
+                if (transactionList.current) {
+                    historyItem.put(FeatureStringEnum.CURRENT.value, true);
+                }
+                JSONArray historyFeatures = new JSONArray();
+                historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
+                for (Feature f : transaction.newFeatures) {
+                    if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
+//                        if (gbolFeature.overlaps(f)) {
+                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
+//                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
+                            historyFeatures.put(featureService.convertFeatureToJSON(f));
+                        }
+                    } else {
+                        historyFeatures.put(featureService.convertFeatureToJSON(f));
+                    }
+                }
+                history.put(historyItem);
+            }
+            historyContainer.getJSONArray(FeatureStringEnum.FEATURES.values).put(jsonFeature);
+        }
+
+        render historyContainer as JSON
+    }
+
+    def undo() {
+        log.debug "doing undo !! ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
+//                continue;
+//            }
+//            for (int j = 0; j < count; ++j) {
+//                historyStore.setToNextTransactionForFeature(uniqueName);
+//            }
+//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
+//            if (transaction == null) {
+//                return;
+//            }
+
+        }
+        render new JSONObject() as JSON
+    }
+
+    def redo() {
+        log.debug "doing redo !! ${params}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        String trackName = fixTrackHeader(inputObject.track)
+        Sequence sequence = Sequence.findByName(trackName)
+        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
+//                continue;
+//            }
+//            for (int j = 0; j < count; ++j) {
+//                historyStore.setToNextTransactionForFeature(uniqueName);
+//            }
+//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
+//            if (transaction == null) {
+//                return;
+//            }
+        }
+
+        render new JSONObject() as JSON
     }
 
     def getTranslationTable() {
@@ -263,7 +371,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        returnObject.put(FeatureStringEnum.USERNAME.value,SecurityUtils.subject.principal)
+        returnObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         render requestHandlingService.getFeatures(returnObject)
     }
 
@@ -274,7 +382,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(!checkPermissions(PermissionEnum.WRITE)){
+        if (!checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
         }
@@ -467,7 +575,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequence() {
         println "REQUEST TO ACE: ${params.data}"
-        if(!checkPermissions(PermissionEnum.EXPORT)){
+        if (!checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
@@ -479,7 +587,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getGff3() {
-        if(!checkPermissions(PermissionEnum.EXPORT)){
+        if (!checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
@@ -494,7 +602,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getAnnotationInfoEditorData() {
-        if(!checkPermissions(PermissionEnum.WRITE)){
+        if (!checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
         }
@@ -568,20 +676,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/hello")
-    protected String hello(String inputString) {
-        println "hello in the house! ${inputString}"
-        return "i[${inputString}]"
-    }
-
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
-    protected String annotationEditor(String inputString,Principal principal) {
+    protected String annotationEditor(String inputString, Principal principal) {
         log.debug "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
-        rootElement.put(FeatureStringEnum.USERNAME.value,principal.name)
+        rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
 
         log.debug "AEC::root element: ${rootElement as JSON}"
@@ -627,32 +728,23 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return results
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
-            return sendError(ae,principal.name)
+            return sendError(ae, principal.name)
 //            return new JSONObject() as JSON
         }
 
     }
 
-
     // TODO: handle errors without broadcasting
-    protected def sendError(AnnotationException exception,String username){
+    protected def sendError(AnnotationException exception, String username) {
         println "excrption ${exception}"
         println "excrption message ${exception.messaged}"
         println "username ${username}"
 
         JSONObject errorObject = new JSONObject()
-        errorObject.put(REST_OPERATION,FeatureStringEnum.ERROR.name())
-        errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value,exception.message)
-        errorObject.put(FeatureStringEnum.USERNAME.value,username)
+        errorObject.put(REST_OPERATION, FeatureStringEnum.ERROR.name())
+        errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value, exception.message)
+        errorObject.put(FeatureStringEnum.USERNAME.value, username)
 
-//        println "sending an error"
-////        brokerMessagingTemplate.convertAndSendToUser username, "/topic/AnnotationNotification/", errorObject.toString()
-//        try {
-//            brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification/", errorObject.toString())
-//        } catch (e) {
-//            log.error("problem sending: ${e}")
-//        }
-//        println "SENT an EORROR"
         return errorObject.toString()
     }
 

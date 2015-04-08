@@ -28,6 +28,8 @@ public enum FeatureStringEnum {
         NONCANONICALTHREEPRIMESPLICESITE("NonCanonicalThreePrimeSpliceSite"),
         DATE_LAST_MODIFIED,
         DATE_CREATION,
+        DATE,
+        CURRENT,
         COMMENT("Comment"),
         COMMENTS,
         CANNED_COMMENTS,
@@ -97,6 +99,7 @@ public enum FeatureStringEnum {
         HAS_USERS,
         USER_ID("userId"),
         LOCKED,
+        HISTORY,
         ;
 
 

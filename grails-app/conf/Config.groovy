@@ -210,7 +210,7 @@ grails.tomcat.scan.enabled = true
 // from: http://grails.org/plugin/audit-logging
 auditLog {
 //    // note, this disables the audit log
-//    disabled = true
+    disabled = true
 //    verbose = true // verbosely log all changed values to db
     logIds = true  // log db-ids of associated objects.
 //    // Note: if you change next 2 properties, you must update your database schema!
