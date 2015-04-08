@@ -36,7 +36,6 @@ class ConfigWrapperService {
 
     TranslationTable getTranslationTable() {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
-//        return grailsApplication.config.apollo.translation_table
     }
 
     int getTranslationCode(){
@@ -78,5 +77,13 @@ class ConfigWrapperService {
 
     int getDefaultMinimumIntronSize() {
         return grailsApplication.config.apollo.default_minimum_intron_size
+    }
+
+    String getBlatExecutable() {
+        return grailsApplication.config.apollo.blat_executable
+    }
+
+    String getBlatDefaultParams() {
+        return grailsApplication.config.apollo.blat_default_params
     }
 }
