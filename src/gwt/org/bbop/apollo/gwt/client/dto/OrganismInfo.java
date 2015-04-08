@@ -20,6 +20,7 @@ public class OrganismInfo {
     private String genus ;
     private String species ;
     private String directory ;
+    private String blatDb ;
 
     private Integer numFeatures ;
     private Integer numSequences;
@@ -31,14 +32,20 @@ public class OrganismInfo {
 
     }
 
+
     public OrganismInfo(String name) {
         this.name = name;
+        //this.numFeatures = (int) Math.round(Math.random()*200) ;
+        //this.numSequences = (int) Math.round(Math.random()*200) ;
+        //this.numTracks = (int) Math.round(Math.random()*200) ;
+    }
 
-        this.numFeatures = (int) Math.round(Math.random()*200) ;
-        this.numSequences = (int) Math.round(Math.random()*200) ;
-        this.numTracks = (int) Math.round(Math.random()*200) ;
-        this.genus="";
-        this.species="";
+    public String getBlatDb() {
+        return blatDb;
+    }
+
+    public void setBlatDb(String blatdb) {
+        this.blatDb = blatdb;
     }
 
     public String getGenus() {
@@ -127,6 +134,9 @@ public class OrganismInfo {
         payload.put("name",new JSONString(name));
         payload.put("directory",new JSONString(directory));
         payload.put("current",JSONBoolean.getInstance(current));
+        if(blatDb!=null) {
+            payload.put("blatdb", new JSONString(blatDb));
+        }
         if(genus!=null){
             payload.put("genus",new JSONString(genus));
         }

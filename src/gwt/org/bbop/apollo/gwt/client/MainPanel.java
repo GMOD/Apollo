@@ -148,7 +148,7 @@ public class MainPanel extends Composite {
                 currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
                 String sequenceName = contextSwitchEvent.getSequenceInfo().getName();
 
-                for(int i = 0 ; i < organismList.getItemCount() ; i++){
+                for (int i = 0; i < organismList.getItemCount(); i++) {
                     organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
                 }
                 sequenceList.setText(sequenceName);
@@ -167,7 +167,19 @@ public class MainPanel extends Composite {
                         Window.alert("Error setting default sequence: " + exception);
                     }
                 };
-                SequenceRestService.setDefaultSequence(requestCallback,sequenceName);
+                SequenceRestService.setDefaultSequence(requestCallback, sequenceName);
+            }
+        });
+
+        Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
+            @Override
+            public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
+                switch (annotationInfoChangeEvent.getAction()){
+                    case SET_FOCUS:
+                        AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
+                        updateGenomicViewerForLocation(annotationInfo.getSequence(),annotationInfo.getMin(),annotationInfo.getMax());
+                        break;
+                }
             }
         });
 
@@ -285,6 +297,21 @@ public class MainPanel extends Composite {
     public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
         updateGenomicViewer();
         SequenceRestService.setDefaultSequence(sequenceList.getText());
+    }
+
+    public void updateGenomicViewerForLocation(String selectedSequence,Integer minRegion,Integer maxRegion) {
+        String trackListString = rootUrl + "/jbrowse/?loc=";
+        trackListString += selectedSequence;
+        trackListString += ":"+minRegion + ".."+maxRegion;
+        trackListString += "&";
+        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
+            trackListString += trackInfo.getName();
+            trackListString += "&";
+        }
+        trackListString = trackListString.substring(0, trackListString.length() - 1);
+        trackListString += "&highlight=&tracklist=0";
+        GWT.log("set string: " + trackListString);
+        frame.setUrl(trackListString);
     }
 
     public void updateGenomicViewer() {
