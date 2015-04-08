@@ -193,10 +193,15 @@ class SequenceController {
     def exportSequences() {
         println "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
-        File outputFile
-        String pathToOutputFile = ""
         String typeOfExport = dataObject.type
+        File outputFile = File.createTempFile("Annotations", typeOfExport.toLowerCase())
+        if(typeOfExport == 'GFF3') {
+            outputFile << "##gff-version 3\n"
+        }
+        String pathToOutputFile = ""
+
         println "==> TypeofExport: ${typeOfExport}"
+        println "===> dataobjectSequence: ${dataObject.sequences.name}"
         for(String sequence : dataObject.sequences.name) {
             println "${Sequence.findByName(sequence)}"
             for(Sequence eachSeq in Sequence.findByName(sequence)) {
@@ -205,7 +210,7 @@ class SequenceController {
                 List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
                 println "===> SIZE OF FEATURE LIST: ${testList.size()}"
                 if(testList.size() == 0) {
-                    println "No features on chromosome ${sequence}"
+                    println "No features on sequence ${sequence}"
                     continue
                 }
                 JSONObject requestObject = new JSONObject()
@@ -225,17 +230,17 @@ class SequenceController {
                 }
                 // outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
                 if (typeOfExport == "GFF3") {
-                    outputFile = File.createTempFile("Annotations", ".gff3")
+                    
                     requestObject.put("operation", "get_gff3")
-                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
+                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching GFF3 for each chromosome
                     pathToOutputFile = Paths.get(outputFile.getPath())
                     println "The output is located at ${pathToOutputFile}"
                 }
                 else if(typeOfExport == "FASTA") {
-                    outputFile = File.createTempFile("Annotations", ".fa")
+//                    outputFile = File.createTempFile("Annotations", ".fa")
                     requestObject.put("operation", "get_sequence")
                     requestObject.put(FeatureStringEnum.TYPE.value, FeatureStringEnum.TYPE_GENOMIC.value)
-                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
+                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching FASTA for each chromosome
                     pathToOutputFile = Paths.get(outputFile.getPath())
                     println "The output is located at ${pathToOutputFile}"
                 }

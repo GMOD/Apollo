@@ -13,7 +13,7 @@
             <gwt:HTML ui:field="sequenceInfoLabel"/>
             <gwt:HTML ui:field="typeLabel"/>
             <gwt:HTML ui:field="urlLink"/>
-            <gwt:Button ui:field="closeButton" text="Close"/>
+            <gwt:Button ui:field="closeButton" text="Close" enabled="false"/>
         </gwt:HTMLPanel>
     </gwt:FlowPanel>
 </ui:UiBinder>

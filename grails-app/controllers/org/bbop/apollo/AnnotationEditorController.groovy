@@ -43,6 +43,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def transcriptService
     def exonService
     def permissionService
+    def sequenceSearchService
+
+
     public AnnotationEditorController() {
     }
 
@@ -92,7 +95,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 Organism organism = Organism.findById(organismId)
                 List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,user)
                 println " permission list size: "+permissionEnumList
-                 permission = permissionService.findHighestEnumValue(permissionEnumList)
+                permission = permissionService.findHighestEnumValue(permissionEnumList)
                 permissions = new HashMap<>()
                 permissions.put(username,permission)
             }
@@ -442,8 +445,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequenceSearchTools() {
         println "getSequenceSearchTools ${params.data}"
-
-        render featureContainer
+        JSONArray sequenceSearchToolsArray = new JSONArray();
+        JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
+        for (String key : sequenceSearchToolsKeys) {
+            sequenceSearchToolsArray.put(key);
+        }
+        render sequenceSearchToolsContainer.toString()
     }
     def getGff3() {
         if(!checkPermissions(PermissionEnum.EXPORT)){
@@ -452,6 +459,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         File outputFile = File.createTempFile("feature", ".gff3");
+        outputFile << "##gff-version 3\n"
         sequenceService.getGff3ForFeature(inputObject, outputFile)
         Charset encoding = Charset.defaultCharset()
         byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))

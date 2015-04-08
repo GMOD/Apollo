@@ -89,9 +89,11 @@ public class Gff3HandlerService {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
         }
 
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file)));
+        //PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file)));
+        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file, true)));
+        // opening the file in append mode
         writeObject.out = out
-        out.println("##gff-version 3");
+//        out.println("##gff-version 3");
        
         writeFeatures(writeObject,features,source)
         out.close()
@@ -113,9 +115,8 @@ public class Gff3HandlerService {
             writeGroupDirectives(writeObject,entry.getKey());
             for (Feature feature : entry.getValue()) {
                 writeFeature(writeObject,feature, source);
-//                writeFeatureGroupEnd(writeObject.out);
+                writeFeatureGroupEnd(writeObject.out);
             }
-            writeFeatureGroupEnd(writeObject.out);
         }
     }
 

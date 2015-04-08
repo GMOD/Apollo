@@ -112,6 +112,7 @@ public class SequenceRestService {
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 GWT.log( filePath );
                 Window.open(rootUrl + "/sequence/exportGff3/?filePath=" + filePath, "_blank", "");
+                exportPanel.enableCloseButton();
                 // change name from exportGff3 to exportData (to make it more generic)
                 
             }
