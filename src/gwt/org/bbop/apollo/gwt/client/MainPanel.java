@@ -300,6 +300,11 @@ public class MainPanel extends Composite {
     }
 
     public void updateGenomicViewerForLocation(String selectedSequence,Integer minRegion,Integer maxRegion) {
+        // add a 20% buffer
+        Integer buffer = (int) Math.round( (maxRegion - minRegion) * 0.2) ;
+        minRegion -= buffer ;
+        if(minRegion<0) minRegion = 0 ;
+        maxRegion += buffer ;
         String trackListString = rootUrl + "/jbrowse/?loc=";
         trackListString += selectedSequence;
         trackListString += ":"+minRegion + ".."+maxRegion;

@@ -220,12 +220,16 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseduogene":
                 geneDetailPanel.updateData(annotationInfo);
-                exonDetailPanel.setVisible(false);
+//                exonDetailPanel.setVisible(false);
+                tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.selectTab(0);
                 break;
             case "mRNA":
             case "tRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
-                exonDetailPanel.setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                exonDetailPanel.updateData(annotationInfo);
+//                exonDetailPanel.setVisible(true);
                 break;
 //            case "exon":
 //                exonDetailPanel.updateData(annotationInfo);
@@ -573,8 +577,8 @@ public class AnnotatorPanel extends Composite {
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
-                updateAnnotationInfo(childAnnotation);
                 exonDetailPanel.updateData(childAnnotation);
+                updateAnnotationInfo(childAnnotation);
                 return;
             }
         }
