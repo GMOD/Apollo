@@ -4440,8 +4440,10 @@ define([
                         timeout: 5 * 1000, // Time in milliseconds
                         // The LOAD function will be called on a successful response.
                         load: function (response, ioArgs) { //
+                            window.parent.location.reload();
                         },
                         error: function (response, ioArgs) { //
+                            alert('Failed to log out cleanly.  Please refresh your browser.');
 // track.handleError(response);
                         }
                     });
@@ -4504,9 +4506,10 @@ define([
                                         // will be called on a
                                         // successful response.
                                         load: function (response, ioArgs) { //
+                                            window.parent.location.reload();
                                         },
                                         error: function (response, ioArgs) { //
-                                            // track.handleError(response);
+                                            alert('Failed to log out cleanly.  Please refresh your browser.');
                                         }
                                     });
                                 }

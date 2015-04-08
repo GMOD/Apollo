@@ -202,12 +202,13 @@ class LoginController extends AbstractApolloController {
 //                log.error "error invalidating session ${e}"
 //            }
 //        }
+        println "LOGOUT SESSIN ${SecurityUtils?.subject?.getSession(false)?.id}"
         SecurityUtils.subject.logout()
-        println "LOGOUT SESSIN ${SecurityUtils.subject.getSession(false).id}"
 
 //        webRequest.getCurrentRequest().session = null
-        response.status = HttpServletResponse.SC_OK
-        render {result:"OK"} as JSON
+//        response.status = HttpServletResponse.SC_OK
+//        render {result:"OK"} as JSON
+        render new JSONObject() as JSON
     }
     
 }
