@@ -116,7 +116,7 @@ grails.project.dependency.resolution = {
 
         runtime ":jquery:1.11.1"
         runtime ':twitter-bootstrap:3.3.1'
-        compile ":angularjs:1.0.0"
+//        compile ":angularjs:1.0.0"
 
 //        compile ":dojo:1.7.2.0"
 
