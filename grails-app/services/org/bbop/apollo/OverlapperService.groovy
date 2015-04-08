@@ -7,8 +7,7 @@ import org.bbop.apollo.sequence.Overlapper
 class OverlapperService implements Overlapper{
 
 
-    def featureService 
-    def transcriptService 
+    def transcriptService
     def exonService 
     def configWrapperService 
 
@@ -47,7 +46,7 @@ class OverlapperService implements Overlapper{
 
             CDS cds = transcriptService.getCDS(transcript1);
 
-            if (featureService.overlaps(cds,transcriptService.getCDS(transcript2)) &&  (featureService.overlaps(transcriptService.getCDS(transcript2),cds)))  {
+            if (overlaps(cds,transcriptService.getCDS(transcript2)) &&  (overlaps(transcriptService.getCDS(transcript2),cds)))  {
                 List<Exon> exons1 = exonService.getSortedExons(transcript1);
                 List<Exon> exons2 = exonService.getSortedExons(transcript2);
                 return exonsOverlap(exons1, exons2, true);
@@ -62,7 +61,7 @@ class OverlapperService implements Overlapper{
         while (i < exons1.size() && j < exons2.size()) {
             Exon exon1 = (Exon)exons1.get(i);
             Exon exon2 = (Exon)exons2.get(j);
-            if (featureService.overlaps(exon1,exon2)) {
+            if (overlaps(exon1,exon2)) {
                 if (checkStrand) {
                     if (exon1.getStrand().equals(1) && exon1.getFmin() % 3 == exon2.getFmin() % 3) {
                         return true;

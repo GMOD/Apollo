@@ -32,6 +32,7 @@ public class Gff3HandlerService {
     def transcriptService
     def exonService
     def featureService
+    def overlapperService
     def featurePropertyService
 
 
@@ -252,7 +253,7 @@ public class Gff3HandlerService {
 //        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(cds.getTranscript().getExons());
         int length = 0;
         for (Exon exon : exons) {
-            if (!featureService.overlaps(exon, cds)) {
+            if (!overlapperService.overlaps(exon, cds)) {
                 continue;
             }
             int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();

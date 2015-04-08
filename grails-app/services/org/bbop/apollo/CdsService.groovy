@@ -18,6 +18,7 @@ class CdsService {
     def transcriptService
     def featureService
     def exonService
+    def overlapperService
     
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
@@ -189,7 +190,7 @@ class CdsService {
         int length = 0
         String residues = ""
         for(Exon exon : exons) {
-            if (!featureService.overlaps(exon,cds)) {
+            if (!overlapperService.overlaps(exon,cds)) {
                 continue
             }
             int fmin = exon.fmin < cds.fmin ? cds.fmin : exon.fmin
