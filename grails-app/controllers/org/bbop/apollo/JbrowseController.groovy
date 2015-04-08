@@ -215,7 +215,7 @@ class JbrowseController {
 //                return;
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
-                response.setContentType("contentType: ${mimeType}");
+                response.setContentType(mimeType);
 
                 // Open the file and output streams
                 FileInputStream fis = new FileInputStream(file);
@@ -305,7 +305,7 @@ class JbrowseController {
 
         }
 
-        response.setContentType("contentType: ${mimeType}");
+        response.setContentType(mimeType);
 //        }
 
         // Set content size
