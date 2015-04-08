@@ -76,6 +76,9 @@ public class ExportPanel extends DialogBox{
         hide();
     }
 
+    public void enableCloseButton(){
+        closeButton.setEnabled(true);
+    }
 
     public void generateLink() {
         SequenceRestService.generateLink(this);
