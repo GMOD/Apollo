@@ -48,6 +48,8 @@ public class OrganismPanel extends Composite {
     @UiField
     TextBox organismName;
     @UiField
+    TextBox blatdb;
+    @UiField
     TextBox genus;
     @UiField
     TextBox species;
@@ -159,6 +161,8 @@ public class OrganismPanel extends Composite {
         }
         organismName.setText(organismInfo.getName());
         organismName.setEnabled(true);
+        blatdb.setText(organismInfo.getBlatDb());
+        blatdb.setEnabled(true);
         genus.setText(organismInfo.getGenus());
         genus.setEnabled(true);
         species.setText(organismInfo.getSpecies());
@@ -220,6 +224,7 @@ public class OrganismPanel extends Composite {
         genus.setText("");
         species.setText("");
         sequenceFile.setText("");
+        blatdb.setText("");
         validDirectory.setVisible(false);
         newButton.setEnabled(false);
     }
@@ -238,6 +243,7 @@ public class OrganismPanel extends Composite {
         organismInfo.setDirectory(sequenceFile.getText());
         organismInfo.setGenus(genus.getText());
         organismInfo.setSpecies(species.getText());
+        organismInfo.setBlatDb(blatdb.getText());
         createButton.setEnabled(false);
         createButton.setText("Processing");
         OrganismRestService.createOrganism(new UpdateInfoListCallback(true), organismInfo);
@@ -249,6 +255,7 @@ public class OrganismPanel extends Composite {
         sequenceFile.setText("");
         species.setText("");
         genus.setText("");
+        blatdb.setText("");
         dataGrid.setSelectionModel(singleSelectionModel);
         newButton.setEnabled(true);
         setSelectedInfo(singleSelectionModel.getSelectedObject());
@@ -307,11 +314,13 @@ public class OrganismPanel extends Composite {
         sequenceFile.setText("");
         species.setText("");
         genus.setText("");
+        blatdb.setText("");
 
         sequenceFile.setEnabled(false);
         organismName.setEnabled(false);
         genus.setEnabled(false);
         species.setEnabled(false);
+        blatdb.setEnabled(false);
 
         annotationCount.setText("");
         validDirectory.setVisible(false);
@@ -347,15 +356,18 @@ public class OrganismPanel extends Composite {
         cancelButton.setEnabled(true);
         deleteButton.setVisible(false);
 
+
         organismName.setText("");
         sequenceFile.setText("");
         genus.setText("");
         species.setText("");
+        blatdb.setText("");
         validDirectory.setVisible(false);
         organismName.setEnabled(true);
         sequenceFile.setEnabled(true);
         genus.setEnabled(true);
         species.setEnabled(true);
+        blatdb.setEnabled(true);
     }
     public void setThinkingInterface(){
     }
