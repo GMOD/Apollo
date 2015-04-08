@@ -498,19 +498,15 @@ public class MainPanel extends Composite {
     }
 
     public static String executeFunction(String name, JavaScriptObject dataObject) {
-        GWT.log("should be executing a function of some sort " + annotrackFunctionMap + " for name: " + name);
         JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
         if (targetFunction == null) {
             return "function " + name + " not found";
         }
-        GWT.log("function found!: " + targetFunction);
         return executeFunction(targetFunction, dataObject);
     }
 
 
     public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
-        console.log('trying to execute a function: ' + targetFunction);
-        console.log('with data: ' + data);
         return targetFunction(data);
     }-*/;
 

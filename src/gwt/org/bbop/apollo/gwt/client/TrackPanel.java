@@ -49,11 +49,6 @@ public class TrackPanel extends Composite {
 
     private String rootUrl;
 
-    //    @UiField
-//    FlexTable configurationTable;
-//    @UiField FlexTable trackTable;
-//    @UiField
-//    ListBox organismList;
     @UiField
     static TextBox nameSearchBox;
     @UiField
@@ -64,11 +59,8 @@ public class TrackPanel extends Composite {
     HTML trackCount;
     @UiField
     HTML trackDensity;
-//    @UiField(provided = false)
-//    DataGrid<TrackInfo> dataGrid;
 
     private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-    //    @UiField(provided=true) DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>( 10, tablecss );
     @UiField(provided = true)
     DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(100, tablecss);
     @UiField
@@ -112,12 +104,9 @@ public class TrackPanel extends Composite {
 
         showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
             /**
-             * TODO: emulate . . underTrackList . . Create an external function n Annotrackto then call from here
+             * TODO: emulate . . underTrackList . . Create an external function in Annotrack to then call from here
              * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
              * uses DOJO publish mechanism (http://dojotoolkit.org/reference-guide/1.7/dojo/publish.html)
-             });
-             });
-             });
 
              * @param index
              * @param trackInfo
@@ -129,10 +118,8 @@ public class TrackPanel extends Composite {
                 trackInfo.setVisible(value);
                 if (value) {
                     jsonObject.put("command", new JSONString("show"));
-                    GWT.log("selected . .  do something");
                 } else {
                     jsonObject.put("command", new JSONString("hide"));
-                    GWT.log("UN selected . .  do something");
                 }
 
                 MainPanel.executeFunction("handleTrackVisibility", jsonObject.getJavaScriptObject());
@@ -302,17 +289,12 @@ public class TrackPanel extends Composite {
         String text = nameSearchBox.getText();
         GWT.log("input list: " + trackInfoList.size());
         filteredTrackInfoList.clear();
-        GWT.log("FL A");
         TrackInfo trackInfo;
         GWT.log(trackInfoList.get(2).toString());
         for (int i = 0; i < trackInfoList.size(); i++) {
-            GWT.log("B: " + i);
-//        for(TrackInfo trackInfo : trackInfoList ){
             trackInfo = trackInfoList.get(i);
-            GWT.log("i: " + i + " - " + trackInfo);
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);
-                GWT.log("adding?: " + filteredTrackInfoList.size() + " with: " + trackInfo);
             }
         }
         GWT.log("filtered list: " + filteredTrackInfoList.size());
@@ -334,16 +316,11 @@ public class TrackPanel extends Composite {
         JSONObject commandObject = new JSONObject();
         commandObject.put("command", new JSONString("list"));
         MainPanel.executeFunction("handleTrackVisibility", commandObject.getJavaScriptObject());
-//        loadTracks(trackInfoList);
     }
 
     public static void updateTracks(String jsonString) {
-        GWT.log("updating tracks: " + jsonString);
         JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
-        GWT.log("array size: " + returnValueObject.size());
         updateTracks(returnValueObject);
-        GWT.log("updated yo");
-
     }
 
     public static void updateTracks(JSONArray array) {
@@ -373,15 +350,12 @@ public class TrackPanel extends Composite {
 
 
     public void loadTracks(final List<TrackInfo> trackInfoList) {
-
-//        String url = rootUrl+"/jbrowse/allTracks";
         String url = rootUrl + "/jbrowse/data/trackList.json";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                GWT.log("response: "+response.getText());
                 JSONValue returnValue = JSONParser.parseLenient(response.getText());
                 JSONObject returnValueObject = returnValue.isObject();
                 updateTracks(returnValueObject.get("tracks").isArray());
