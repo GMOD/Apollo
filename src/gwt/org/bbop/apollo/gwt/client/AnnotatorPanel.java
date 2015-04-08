@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -26,6 +27,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
@@ -99,10 +101,10 @@ public class AnnotatorPanel extends Composite {
     Button cdsButton;
     @UiField
     Button stopCodonButton;
-    @UiField
-    ListBox userField;
-    @UiField
-    ListBox groupField;
+//    @UiField
+//    ListBox userField;
+//    @UiField
+//    ListBox groupField;
 
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
@@ -113,6 +115,7 @@ public class AnnotatorPanel extends Composite {
     //    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
+    private static Boolean transcriptSelected ;
 
 
     public AnnotatorPanel() {
@@ -133,12 +136,19 @@ public class AnnotatorPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+                if (transcriptSelected) {
+                    transcriptSelected = false;
+                    return;
+                }
                 AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
                 GWT.log(selectionModel.getSelectedObject().getName());
                 updateAnnotationInfo(annotationInfo);
             }
         });
+
+
         exportStaticMethod(this);
+
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
@@ -147,6 +157,14 @@ public class AnnotatorPanel extends Composite {
         initializeTypes();
         initializeUsers();
         initializeGroups();
+
+
+        tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                exonDetailPanel.redrawExonTable();
+            }
+        });
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
             @Override
@@ -194,11 +212,11 @@ public class AnnotatorPanel extends Composite {
     }
 
     private void initializeGroups() {
-        groupField.addItem("All Groups");
+//        groupField.addItem("All Groups");
     }
 
     private void initializeUsers() {
-        userField.addItem("All Users");
+//        userField.addItem("All Users");
     }
 
     private void initializeTypes() {
@@ -569,16 +587,17 @@ public class AnnotatorPanel extends Composite {
 
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
+        transcriptSelected = true ;
 
         // 1 - get the correct gene
         AnnotationInfo annotationInfo = filteredAnnotationList.get(geneIndex);
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
 
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 exonDetailPanel.updateData(childAnnotation);
                 updateAnnotationInfo(childAnnotation);
+                Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
                 return;
             }
         }

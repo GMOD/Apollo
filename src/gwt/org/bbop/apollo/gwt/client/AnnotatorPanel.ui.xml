@@ -136,14 +136,14 @@
                 <!--<gwt:HTML>-->
                 <!--<hr/>-->
                 <!--</gwt:HTML>-->
-                <b:Row styleName="{style.rowSpacing}">
-                    <b:Column size="MD_4">
-                        <b:ListBox ui:field="userField"/>
-                    </b:Column>
-                    <b:Column size="MD_4">
-                        <b:ListBox ui:field="groupField"/>
-                    </b:Column>
-                </b:Row>
+                <!--<b:Row styleName="{style.rowSpacing}">-->
+                    <!--<b:Column size="MD_4">-->
+                        <!--<b:ListBox ui:field="userField"/>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_4">-->
+                        <!--<b:ListBox ui:field="groupField"/>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
                 <b:Row visible="false">
                     <b:Column size="MD_4">
                         <gwt:HTML styleName="{style.internalHeader}">

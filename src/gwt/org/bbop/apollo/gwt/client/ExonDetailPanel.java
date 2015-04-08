@@ -208,6 +208,10 @@ public class ExonDetailPanel extends Composite {
         setVisible(true);
     }
 
+    public void redrawExonTable(){
+        dataGrid.redraw();
+    }
+
     @UiHandler("minField")
     void handleMinChange(ChangeEvent e) {
         internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));

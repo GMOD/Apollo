@@ -300,8 +300,7 @@ public class MainPanel extends Composite {
     }
 
     public void updateGenomicViewerForLocation(String selectedSequence,Integer minRegion,Integer maxRegion) {
-        // add a 20% buffer
-        Integer buffer = (int) Math.round( (maxRegion - minRegion) * 0.2) ;
+        Integer buffer = (int) Math.round( (maxRegion - minRegion) * 0.5) ;
         minRegion -= buffer ;
         if(minRegion<0) minRegion = 0 ;
         maxRegion += buffer ;
@@ -316,7 +315,10 @@ public class MainPanel extends Composite {
         trackListString = trackListString.substring(0, trackListString.length() - 1);
         trackListString += "&highlight=&tracklist=0";
         GWT.log("set string: " + trackListString);
-        frame.setUrl(trackListString);
+        GWT.log("get string: " + frame.getUrl());
+        if(!frame.getUrl().contains(trackListString)){
+            frame.setUrl(trackListString);
+        }
     }
 
     public void updateGenomicViewer() {
