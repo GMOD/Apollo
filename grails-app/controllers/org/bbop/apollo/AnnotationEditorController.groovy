@@ -43,11 +43,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def transcriptService
     def exonService
     def permissionService
-//    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
-
-//    List<AnnotationEventListener> listenerList = new ArrayList<>()
     public AnnotationEditorController() {
-//        dataListenerHandler.addDataStoreChangeListener(this);
     }
 
     def index() {
@@ -64,7 +60,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         track = postObject.get(REST_TRACK)
 
         // TODO: hack needs to be fixed
-//        track = fixTrackHeader(track)
+        //track = fixTrackHeader(track)
         println "Controller: " + params.controller
 
         forward action: "${mappedAction}", params: [data: postObject]
@@ -249,27 +245,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render requestHandlingService.setBoundaries(inputObject)
     }
 
-/**
- *
- * Should return of form:
- *{"features": [{"location": {"fmin": 511,
- "strand": - 1,
- "fmax": 656},
- "parent_type": {"name": "gene",
- "cv": {"name": "sequence"}},
- "name": "gnl|Amel_4.5|TA31.1_00029673-1",
- * @return
- */
+    /**
+     *
+     * Should return of form:
+     *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
+     * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}
+     * @return
+     */
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         returnObject.put(FeatureStringEnum.USERNAME.value,SecurityUtils.subject.principal)
         render requestHandlingService.getFeatures(returnObject)
     }
-
-//    private void fireDataStoreChange(DataStoreChangeEvent... events) {
-//        AbstractDataStoreManager.getInstance().fireDataStoreChange(events);
-//    }
 
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
@@ -278,16 +266,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render new JSONObject() as JSON
             return
         }
-//        JSONArray jsonFeatures = new JSONArray()
-//        featureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
             Feature gbolFeature = Feature.findByName(uniqueName)
-//            Date timeAccessioned = gbolFeature.getTimeAccessioned();
-//            String owner = gbolFeature.getOwner().getOwner();
             JSONObject info = new JSONObject();
             info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
             info.put("time_accessioned", gbolFeature.lastUpdated)
@@ -299,8 +283,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 parentIds += it.getUniqueName();
             }
-//            for (AbstractSingleLocationBioFeature feature : gbolFeature.getParents()) {
-//            }
             if (parentIds.length() > 0) {
                 info.put("parent_ids", parentIds);
             }
@@ -309,7 +291,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
 
         render featureContainer
-//        out.write(featureContainer.toString());
     }
 
     def getSequenceAlterations() {
@@ -322,14 +303,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
-        // TODO: get alternations from session
+        // TODO: get alterations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
                 , [sequence: sequence, sequenceTypes: sequenceTypes])
-//        FeatureLocation.findAllBySequence(sequence)
-//        Insertion.findAllByFeatureLocations
-//        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
-//            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
-//        }
+        //        FeatureLocation.findAllBySequence(sequence)
+        //        Insertion.findAllByFeatureLocations
+        //        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
+        //            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
+        //        }
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
@@ -358,7 +339,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
-//        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : annotationInfoEditorConfigurations.values()) {
         JSONObject annotationInfoEditorConfig = new JSONObject();
         annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
         if (configWrapperService.hasStatus()) {
@@ -367,33 +347,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             Status.all.each { status ->
                 statusArray.add(status.value)
             }
-//                for (String status : annotationInfoEditorConfiguration.getStatus()) {
-//                    annotationInfoEditorConfig.append("status", status);
-//                }
         }
-//            if (annotationInfoEditorConfiguration.hasDbxrefs()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasAttributes()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasPubmedIds()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasGoIds()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasComments()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
-//            }
         JSONArray supportedTypes = new JSONArray();
         supportedTypes.add(FeatureStringEnum.DEFAULT.value)
         annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
-//            for (String supportedType : annotationInfoEditorConfiguration.getSupportedFeatureTypes()) {
-//                supportedTypes.put(supportedType);
-//            }
-//        }
-//        out.write(annotationInfoEditorConfigContainer.toString());
         println "return config ${annotationInfoEditorConfigContainer}"
         render annotationInfoEditorConfigContainer
     }
@@ -478,6 +440,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
+    def getSequenceSearchTools() {
+        println "getSequenceSearchTools ${params.data}"
+
+        render featureContainer
+    }
     def getGff3() {
         if(!checkPermissions(PermissionEnum.EXPORT)){
             render new JSONObject() as JSON
@@ -645,14 +612,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value,exception.message)
         errorObject.put(FeatureStringEnum.USERNAME.value,username)
 
-//        println "sending an error"
-////        brokerMessagingTemplate.convertAndSendToUser username, "/topic/AnnotationNotification/", errorObject.toString()
-//        try {
-//            brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification/", errorObject.toString())
-//        } catch (e) {
-//            log.error("problem sending: ${e}")
-//        }
-//        println "SENT an EORROR"
         return errorObject.toString()
     }
 
@@ -668,9 +627,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (events.length == 0) {
             return;
         }
-//        sendAnnotationEvent(events)
         // TODO: this is more than a bit of a hack
-//        String sequenceName = "Annotations-${events[0].sequence.name}"
         JSONArray operations = new JSONArray();
         for (AnnotationEvent event : events) {
             JSONObject features = event.getFeatures();
