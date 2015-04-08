@@ -52,6 +52,8 @@ public class MainPanel extends Composite {
 
     // state info
     private static UserInfo currentUser; // the current logged-in user
+    // should I use a getter, or is this fine?
+    static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static OrganismInfo currentOrganism; // the current logged-in user
     public static Long currentOrganismId = null;
     public static String currentSequenceId = null;
@@ -175,15 +177,17 @@ public class MainPanel extends Composite {
     private void updatePermissionsForOrganism() {
         GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
         String globalRole = currentUser.getRole();
-        UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         GWT.log("global: "+globalRole);
-        if(userOrganismPermissionInfo==null) {
-            return;
-        }
-        GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
-        PermissionEnum highestPermission = userOrganismPermissionInfo.getHighestPermission();
+        UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if(globalRole.equals("admin")){
             highestPermission = PermissionEnum.ADMINISTRATE;
+        }
+        else{
+            highestPermission = PermissionEnum.NONE;
+        }
+        if(userOrganismPermissionInfo!=null) {
+            GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
+            highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }
 
         switch(highestPermission){

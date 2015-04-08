@@ -91,7 +91,6 @@ public class SequencePanel extends Composite {
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
-    private PermissionEnum highestPermission = PermissionEnum.NONE;
 
     public SequencePanel() {
 
@@ -212,7 +211,7 @@ public class SequencePanel extends Composite {
                     public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
                         filterSequences();
                         if (sequenceInfoList.size() > 0) {
-                            exportAllButton.setEnabled(highestPermission.getRank()>=PermissionEnum.EXPORT.getRank());
+                            exportAllButton.setEnabled(MainPanel.highestPermission.getRank()>=PermissionEnum.EXPORT.getRank());
                             exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
                         } else {
                             exportAllButton.setEnabled(false);
