@@ -93,7 +93,7 @@
             padding-left: 0;
         }</ui:style>
     <gwt:SplitLayoutPanel>
-        <gwt:north size="180">
+        <gwt:north size="100">
             <!--<gwt:HTML text="filterPanel"/>-->
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row styleName="{style.rowPadding}">
