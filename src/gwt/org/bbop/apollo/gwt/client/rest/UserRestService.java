@@ -29,7 +29,7 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "/Login", data.toString());
     }
 
-    public static void registerAdmin(String username, String password, Boolean rememberMe) {
+    public static void registerAdmin(String username, String password, Boolean rememberMe, String firstName, String lastName) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -46,6 +46,8 @@ public class UserRestService {
         jsonObject.put("username", new JSONString(username));
         jsonObject.put("password", new JSONString(password));
         jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
+        jsonObject.put("firstName", new JSONString(firstName));
+        jsonObject.put("lastName", new JSONString(lastName));
         registerAdmin(requestCallback, jsonObject);
     }
 

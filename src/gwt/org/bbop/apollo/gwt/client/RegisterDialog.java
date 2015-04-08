@@ -90,7 +90,7 @@ public class RegisterDialog extends DialogBox {
         }
 
 
-        UserRestService.registerAdmin(username.getText().trim(), passwordTextBox.getText(), rememberMeCheckBox.getValue());
+        UserRestService.registerAdmin(username.getText().trim(), passwordTextBox.getText(), rememberMeCheckBox.getValue(),firstNameBox.getText().trim(),lastNameBox.getText().trim());
     }
 }
 
