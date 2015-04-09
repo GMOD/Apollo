@@ -21,6 +21,8 @@ class SequenceController {
     def sequenceService
     def featureService
     def transcriptService
+    def fastaHandlerService
+    def gff3HandlerService
     
     def permissions(){
 
@@ -189,17 +191,14 @@ class SequenceController {
             '*' { render status: NOT_FOUND }
         }
     }
-
+    
+    @Transactional
     def exportSequences() {
         println "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         String typeOfExport = dataObject.type
-        File outputFile = File.createTempFile("Annotations", typeOfExport.toLowerCase())
-        if(typeOfExport == 'GFF3') {
-            outputFile << "##gff-version 3\n"
-        }
-        String pathToOutputFile = ""
-
+        Collection<Feature> listOfFeatures = new ArrayList<Feature>();
+        
         println "==> TypeofExport: ${typeOfExport}"
         println "===> dataobjectSequence: ${dataObject.sequences.name}"
         for(String sequence : dataObject.sequences.name) {
@@ -220,48 +219,67 @@ class SequenceController {
 
                 JSONArray featuresObjectArray = new JSONArray()
                 for (FeatureLocation entity in testList) {
-                    if(entity.feature.class.cvTerm == Gene.cvTerm) {
-                        println "${entity.feature}"
-                        JSONObject featureUniqueName = new JSONObject()
-                        featureUniqueName.put('uniquename', entity.feature.uniqueName)
-                        featuresObjectArray.add(featureUniqueName)
-                        requestObject.put("features", featuresObjectArray)
+                    if(entity.feature.class.cvTerm == MRNA.cvTerm) {
+                        // getting only MRNA features might want to extend to other features in future
+                        Feature featureToWrite = Feature.findByUniqueName(entity.feature.uniqueName)
+                        listOfFeatures.add(featureToWrite)
                     }
                 }
                 // outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
-                if (typeOfExport == "GFF3") {
-                    
-                    requestObject.put("operation", "get_gff3")
-                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching GFF3 for each chromosome
-                    pathToOutputFile = Paths.get(outputFile.getPath())
-                    println "The output is located at ${pathToOutputFile}"
-                }
-                else if(typeOfExport == "FASTA") {
-//                    outputFile = File.createTempFile("Annotations", ".fa")
-                    requestObject.put("operation", "get_sequence")
-                    requestObject.put(FeatureStringEnum.TYPE.value, FeatureStringEnum.TYPE_GENOMIC.value)
-                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching FASTA for each chromosome
-                    pathToOutputFile = Paths.get(outputFile.getPath())
-                    println "The output is located at ${pathToOutputFile}"
-                }
+//                if (typeOfExport == "GFF3") {
+//                    
+//                    requestObject.put("operation", "get_gff3")
+//                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching GFF3 for each chromosome
+//                    pathToOutputFile = Paths.get(outputFile.getPath())
+//                    println "The output is located at ${pathToOutputFile}"
+//                }
+//                else if(typeOfExport == "FASTA") {
+////                    outputFile = File.createTempFile("Annotations", ".fa")
+//                    requestObject.put("operation", "get_sequence")
+//                    requestObject.put(FeatureStringEnum.TYPE.value, FeatureStringEnum.TYPE_GENOMIC.value)
+////                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching FASTA for each chromosome
+//
+//                    pathToOutputFile = Paths.get(outputFile.getPath())
+//                    println "The output is located at ${pathToOutputFile}"
+//                }
             }
+    
+        }
 
+        File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
+        if(typeOfExport == 'GFF3') {
+            // call gff3HandlerService
+            println "CHECKFILE : ${outputFile.path}"
+            gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
+        }
+        else if(typeOfExport == 'FASTA') {
+            // call fastaHandlerService
+            // currently handles genomic. Must handle all types depending on user's input
+            fastaHandlerService.writeFeatures( listOfFeatures, 'genomic', ['name','date_creation'] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+            
         }
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put("filePath",pathToOutputFile)
+        jsonObject.put("filePath",outputFile.path)
+        jsonObject.put("exportType",typeOfExport)
         render jsonObject as JSON
     }
     
-    def exportGff3() {
+    def exportHandler() {
         println "PARAMS: ${params}"
         String pathToFile = params.filePath
         def file = new File(pathToFile)
         response.contentType = 'txt'
-        response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")
+        if(params.exportType == 'GFF3') {
+            response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")
+        }
+        else if(params.exportType == 'FASTA') {
+            response.setHeader("Content-disposition", "attachment; filename=Annotations.fasta")
+        }
         def outputStream = response.outputStream
         outputStream << file.text
         outputStream.flush()
         outputStream.close()
         file.delete()
+        
     }
 }

@@ -19,7 +19,7 @@ public class FastaHandlerService {
     private File file;
     private PrintWriter out;
     private Mode mode;
-    private int numResiduesPerLine;
+    private int numResiduesPerLine = 60;
 
     def sequenceService
     def featurePropertyService
@@ -38,28 +38,31 @@ public class FastaHandlerService {
 //        this(path, mode, Format.TEXT);
 //    }
 //
-    public FastaHandlerService(String path, Mode mode, Format format) throws IOException {
-        numResiduesPerLine = 60;
-        this.mode = mode;
-        file = new File(path);
-        file.createNewFile();
-        if (mode == Mode.READ) {
-            if (!file.canRead()) {
-                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath());
-            }
-        }
-        if (mode == Mode.WRITE) {
-            if (!file.canWrite()) {
-                throw new IOException("Cannot write FATA to: " + file.getAbsolutePath());
-            }
-            switch (format) {
-            case Format.TEXT:
-                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-                break;
-            case Format.GZIP:
-                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
-            }
-        }
+//    public FastaHandlerService(String path, Mode mode, Format format) throws IOException {
+//        numResiduesPerLine = 60;
+//        this.mode = mode;
+//        file = new File(path);
+//        file.createNewFile();
+//        if (mode == Mode.READ) {
+//            if (!file.canRead()) {
+//                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath());
+//            }
+//        }
+//        if (mode == Mode.WRITE) {
+//            if (!file.canWrite()) {
+//                throw new IOException("Cannot write FATA to: " + file.getAbsolutePath());
+//            }
+//            switch (format) {
+//            case Format.TEXT:
+//                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+//                break;
+//            case Format.GZIP:
+//                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
+//            }
+//        }
+//    }
+    
+    public FastaHandlerService() {
     }
     
     public void close() {
@@ -71,8 +74,32 @@ public class FastaHandlerService {
         }
     }
     
-    public void writeFeatures(Collection<? extends Feature> features, String seqType, Set<String> metaDataToExport) throws IOException {
+    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format) throws IOException {
+        this.mode = mode
+        file = new File(path)
+        file.createNewFile()
+        if(mode == Mode.READ) {
+            if (!file.canRead()) {
+                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath())
+            }
+        }
+        if(mode == Mode.WRITE) {
+            if(!file.canWrite()) {
+                throw new IOException("Cannot write FASTA to file: " + file.getAbsolutePath())
+            }
+            switch(format) {
+                case Format.TEXT:
+                    out = new PrintWriter(new BufferedWriter(new FileWriter(file)))
+                    break
+                case Format.GZIP:
+                    out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))))
+                    break
+            }
+            
+        }
         writeFeatures(features.iterator(), seqType, metaDataToExport);
+        out.flush()
+        out.close()
     }
     
     public void writeFeatures(Iterator<? extends Feature> iterator, String seqType, Set<String> metaDataToExport) throws IOException {

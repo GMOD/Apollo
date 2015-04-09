@@ -47,7 +47,9 @@ public class Gff3HandlerService {
 
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file, true)));
         writeObject.out = out
+        out.println("##gff-version 3")
         writeFeatures(writeObject,features,source)
+        out.flush()
         out.close()
     }
 
