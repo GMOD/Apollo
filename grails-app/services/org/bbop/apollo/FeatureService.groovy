@@ -96,58 +96,6 @@ class FeatureService {
 
         return results*.feature.unique()
     }
-
-//        if (strandsOverlap &&
-//                (thisFmin <= otherFmin && thisFmax > otherFmin ||
-//                        thisFmin >= otherFmin && thisFmin < otherFmax))
-
-//        int low = 0;
-//        int high = Feature.count - 1;
-//        int index = -1;
-//        while (low <= high) {
-//            int mid = (low + ((high - low) / 2)).intValue();
-//            Feature.all.get(mid)
-//            Feature feature = Feature.all.get(mid)
-//            if (feature == null) {
-////                uniqueNameToStoredUniqueName.remove(features.get(mid).getUniqueName());
-////                features.remove(mid);
-//                return getOverlappingFeatures(location, compareStrands);
-//            }
-//            if (overlaps(feature.featureLocation, location, compareStrands)) {
-//                index = mid;
-//                break;
-//            } else if (feature.getFeatureLocation().getFmin() < location.getFmin()) {
-//                low = mid + 1;
-//            } else {
-//                high = mid - 1;
-//            }
-//        }
-//        if (index >= -1) {
-//            for (int i = index; i >= 0; --i) {
-//                Feature feature = Feature.all.get(i)
-//                if (feature == null) {
-////                    uniqueNameToStoredUniqueName.remove(features.get(i).getUniqueName());
-////                    features.remove(i);
-//                    return getOverlappingFeatures(location, compareStrands);
-//                }
-//                if (overlaps(feature.featureLocation, location, compareStrands)) {
-//                    overlappingFeatures.addFirst(feature);
-//                } else {
-//                    break;
-//                }
-//            }
-//            for (int i = index + 1; i < Feature.count; ++i) {
-//                Feature feature = Feature.all.get(i)
-//                if (overlaps(feature.featureLocation, location, compareStrands)) {
-//                    overlappingFeatures.addLast(feature);
-//                } else {
-//                    break;
-//                }
-//            }
-//        }
-//    return overlappingFeatures;
-//}
-
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
         gsolFeature.setIsAnalysis(false);
@@ -159,26 +107,12 @@ class FeatureService {
         }
 
         // TODO: this may be a mistake, is different than the original code
-        // you are iterating through all of the children in order to set the SourceFeature and analsysis
-//        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
+        // you are iterating through all of the children in order to set the SourceFeature and analysis
+        // for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
         for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
             updateNewGsolFeatureAttributes(fr.getChildFeature(), sequence);
         }
     }
-
-//    private setOwner(Feature feature,String owner){
-//        println "looking for owner ${owner}"
-//        User user = User.findByUsername(owner)
-//        println "owner ${owner} found ${user}"
-//        println "feature ${feature}"
-//
-//        if (user) {
-//            setOwner(feature, user)
-//        } else {
-//            log.error("User ${owner} not found, just adding")
-//        }
-//
-//    }
 
     private setOwner(Feature feature,User owner){
         feature.addToOwners(owner)
@@ -231,20 +165,21 @@ class FeatureService {
                     log.debug "found an overlpaping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript, sequence);
-//                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
-//                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
-//                    // TODO: make good code
-//                    String username = null
-//                    try {
-//                        username = SecurityUtils?.subject?.principal
-//                        featurePropertyService.setOwner(transcript, username);
-//                    } catch (e) {
-//                        log.error(e)
-//                    }
+                    //wasn't working --colin
+                    //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
+
+
+                    //this one is working, but was marked as needing improvement
+                    String username = null
+                    try {
+                        username = SecurityUtils?.subject?.principal
+                        featurePropertyService.setOwner(transcript, username);
+                    } catch (e) {
+                        log.error(e)
+                    }
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
