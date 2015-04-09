@@ -312,10 +312,6 @@ class SequenceService {
             JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
             outFeature.put("residues", sequence)
             outFeature.put("uniquename", uniqueName)
-            if(outputFile) {
-                println "Writing output to ${outputFile.name}"
-                outputFile << sequence
-            }
             return outFeature
         }
     }
