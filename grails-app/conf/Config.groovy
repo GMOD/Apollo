@@ -9,6 +9,7 @@ eventCompileStart = {
 
 grails.config.locations = [
         "file:./${appName}-config.groovy"        // dev only
+        ,"file:./ApolloDefaults.groovy"        // dev only
         ,"classpath:${appName}-config.groovy"    // for production deployment
         ,"classpath:${appName}-config.properties"
 ]
