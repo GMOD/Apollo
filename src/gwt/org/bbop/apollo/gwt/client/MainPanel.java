@@ -25,6 +25,8 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -96,8 +98,8 @@ public class MainPanel extends Composite {
     Button logoutButton;
     @UiField
     HTML userName;
-
-
+    @UiField
+    Button generateLink;
 
 
     private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
@@ -249,6 +251,8 @@ public class MainPanel extends Composite {
 
                     userName.setHTML(displayName.length()>maxUsernameLength?
                             displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
+//                    userName.setHTML(displayName.length()>maxUsernameLength?
+//                            displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
                     if(hasUsers){
@@ -520,6 +524,14 @@ public class MainPanel extends Composite {
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
+    }
+
+    @UiHandler("generateLink")
+    public void generateLink(ClickEvent clickEvent) {
+        UrlDialogBox urlDialogBox = new UrlDialogBox(frame.getUrl());
+        urlDialogBox.setWidth("600px");
+
+        urlDialogBox.show();
     }
 
     @UiHandler("logoutButton")
