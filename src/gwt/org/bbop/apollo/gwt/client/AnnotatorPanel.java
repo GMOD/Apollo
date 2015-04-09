@@ -171,6 +171,7 @@ public class AnnotatorPanel extends Composite {
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
                 selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
                 loadSequences();
+                sequenceList.setText(selectedSequenceName);
 //                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
             }
         });

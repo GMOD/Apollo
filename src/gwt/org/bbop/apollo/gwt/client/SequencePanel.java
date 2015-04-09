@@ -56,7 +56,8 @@ public class SequencePanel extends Composite {
     @UiField(provided = true)
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);;
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
+    ;
 
     @UiField
     HTML sequenceName;
@@ -80,7 +81,7 @@ public class SequencePanel extends Composite {
     Button exportGff3Button;
     @UiField
     Button exportFastaButton;
-//    @UiField
+    //    @UiField
 //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
@@ -211,7 +212,7 @@ public class SequencePanel extends Composite {
                     public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
                         filterSequences();
                         if (sequenceInfoList.size() > 0) {
-                            exportAllButton.setEnabled(MainPanel.highestPermission.getRank()>=PermissionEnum.EXPORT.getRank());
+                            exportAllButton.setEnabled(MainPanel.highestPermission.getRank() >= PermissionEnum.EXPORT.getRank());
                             exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
                         } else {
                             exportAllButton.setEnabled(false);
@@ -225,18 +226,18 @@ public class SequencePanel extends Composite {
                 new UserChangeEventHandler() {
                     @Override
                     public void onUserChanged(UserChangeEvent authenticationEvent) {
-                        switch(authenticationEvent.getAction()){
+                        switch (authenticationEvent.getAction()) {
                             case PERMISSION_CHANGED:
                                 PermissionEnum hiPermissionEnum = authenticationEvent.getHighestPermission();
-                                if(MainPanel.isCurrentUserAdmin()){
+                                if (MainPanel.isCurrentUserAdmin()) {
                                     hiPermissionEnum = PermissionEnum.ADMINISTRATE;
                                 }
                                 boolean allowExport = false;
-                                switch(hiPermissionEnum){
+                                switch (hiPermissionEnum) {
                                     case ADMINISTRATE:
                                     case WRITE:
                                     case EXPORT:
-                                        allowExport= true ;
+                                        allowExport = true;
                                         break;
                                     // default is false
                                 }
@@ -248,6 +249,16 @@ public class SequencePanel extends Composite {
                     }
                 }
         );
+
+        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
+            @Override
+            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
+                for (int i = 0; i < organismList.getItemCount(); i++) {
+                    organismList.setItemSelected(i, contextSwitchEvent.getOrganismInfo().getId() == organismList.getValue(i));
+                }
+                handleOrganismChange(null);
+            }
+        });
     }
 
     private void updatedExportSelectedButton() {
@@ -279,7 +290,7 @@ public class SequencePanel extends Composite {
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         filterSequences();
     }
-    
+
     @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
     // Disabling exportChadoButton for future release (Apollo 2.0 alpha2)
     // @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
@@ -338,7 +349,7 @@ public class SequencePanel extends Composite {
     }
 
     private void exportValues(List<SequenceInfo> sequenceInfoList) {
-        GWT.log( organismList.getSelectedValue() );
+        GWT.log(organismList.getSelectedValue());
         Integer organismId = Integer.parseInt(organismList.getSelectedValue());
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setId(organismId.toString());
