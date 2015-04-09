@@ -79,23 +79,6 @@ function check_configs(){
 	   exit 1 ;
 	fi
 
-#    if [ ! -e "./config.xml" ]; then
-#       echo "No config.xml found, exiting."
-#       echo "You must copy and sample_config.xml to config.xml in order to build."
-#       exit 1;
-#    fi
-
-#    if [ ! -e "./canned_comments.xml" ]; then
-#       echo "No canned_comments.xml found, exiting."
-#       echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
-#       exit 1;
-#    fi
-
-#    if [ ! -e "./config.properties" ]; then
-#       echo "No config.properties found, exiting."
-#       echo "You must copy and sample_config.properties to config.properties in order to build."
-#       exit 1;
-#    fi
 }
 
 
@@ -111,14 +94,13 @@ elif [[ $1 == "debug" ]];then
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    #mvn tomcat7:run
-	grails -reloading debug 
+    ant devmode &
+	grails -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     grails test-app
-#    mvn test
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     grails test-app :unit
@@ -129,16 +111,13 @@ elif [[ $1 == "deploy" ]];then
 	# this makes it globally availab le
 	rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    ant gwtc &&  grails war 
-#    mvn package
+    #grails deploy
+    ant copy-resources gwtc &&  grails war
 elif [[ $1 == "release" ]];then
    # should call the copy target first
    check_configs
    check_configs_for_release
-   ant release
-   ant gwtc
-   grails war
-#   mvn package
+   ant clean-all release copy-resources gwtc && grails war
     # make -f build/Makefile release
     # make -f build/Makefile create-precompiled
 elif [[ $1 == "compile" ]];then

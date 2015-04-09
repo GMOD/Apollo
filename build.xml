@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project name="Annotator" default="build" basedir=".">
+<!--<project name="Web Apollo" default="usage" basedir=".">-->
+<project name="Web Apollo" default="usage" basedir=".">
   <!-- Arguments to gwtc and devmode targets -->
   <property name="gwt.args" value="" />
 
@@ -86,7 +87,7 @@ Test targets suppressed because -junit argument was not specified when running w
       <classpath refid="project.class.path"/>
     </javac>
   </target>
-  
+
   <target name="test.dev" depends="javac.tests" description="Run development mode tests">
     <mkdir dir="reports/htmlunit.dev" />
     <junit fork="yes" printsummary="yes" haltonfailure="yes" maxmemory="256m">
@@ -145,6 +146,13 @@ Test targets suppressed because -junit argument was not specified when running w
     <!--<zip destfile="Annotator.war" basedir="war"/>-->
   <!--</target>-->
 
+    <!--<target name="clean" description="">-->
+        <!--<delete dir="${apollo.jbrowse.directory}"/>-->
+        <!--<exec executable="mvn" failifexecutionfails="" errorproperty="">-->
+            <!--<arg value="clean"/>-->
+        <!--</exec>-->
+    <!--</target>-->
+
   <target name="clean" description="Cleans this project">
         <delete dir="${apollo.jbrowse.directory}"/>
         <exec executable="grails" failifexecutionfails="" errorproperty="">
@@ -184,7 +192,7 @@ Test targets suppressed because -junit argument was not specified when running w
 
 
     <property name="apollo.webapp.directory" location="web-app" relative="true" basedir="."/>
-    <property name="apollo.resources.directory" location="web-app" relative="true" basedir="."/>
+    <!--<property name="apollo.resources.directory" location="src/main/resources" relative="true" basedir="."/>-->
 
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
@@ -192,9 +200,10 @@ Test targets suppressed because -junit argument was not specified when running w
     <property name="jbrowse.download.directory" location="jbrowse-download"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
     <property name="webapp.apollo.plugin.test.file" location="${apollo.plugin.directory}/js/main.js"/>
-    <property name="webapp.apollo.plugin.uncompressed.test.file" location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
+    <property name="webapp.apollo.plugin.uncompressed.test.file"
+              location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
-    <property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>
+    <!--<property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>-->
     <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
     <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
     <!--<property name="jbrowse.github"  />-->
@@ -202,8 +211,8 @@ Test targets suppressed because -junit argument was not specified when running w
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
-    <property name="jbrowse.release.version" value="1.11.5-release"/>
-    <property name="jbrowse.download.file.name" value="JBrowse-1.11.5-dev"/>
+    <property name="jbrowse.release.version" value="1.11.6-release"/>
+    <property name="jbrowse.download.file.name" value="JBrowse-1.11.6-dev"/>
 
     <!--<property name="jbrowse.download.url" value="${jbrowse.github}/archive/${jbrowse.release.version}"/>-->
     <property name="jbrowse.download.url" value="http://jbrowse.org/releases/JBrowse-1.11.5-dev.zip"/>
@@ -211,13 +220,12 @@ Test targets suppressed because -junit argument was not specified when running w
     <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
     <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
 
-
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
     <available file="${jbrowse.webapp.test.file}" type="file" property="jbrowse.webapp.installed"/>
     <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
     <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
-    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled" />
+    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled"/>
 
     <!--<property name="pom.version" value="${mypom.properties.apollo.version}"/>-->
 
@@ -247,7 +255,8 @@ Test targets suppressed because -junit argument was not specified when running w
         <echo>${jbrowse.download.directory}</echo>
     </target>
 
-    <target name="release" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+    <target name="release" description=""
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -259,7 +268,8 @@ Test targets suppressed because -junit argument was not specified when running w
         <delete file="JBrowse-${jbrowse.version}"/>
     </target>
 
-    <target name="debug" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+    <target name="debug" description=""
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
@@ -269,7 +279,7 @@ Test targets suppressed because -junit argument was not specified when running w
         </move>
         <delete file="JBrowse-${jbrowse.version}-dev.zip"/>
         <delete dir="JBrowse-${jbrowse.version}-dev"/>
-    </target>  
+    </target>
 
 
     <target name="git.clean" description="Remove all unstaged files from ${basedir}">
@@ -287,11 +297,12 @@ Test targets suppressed because -junit argument was not specified when running w
             <arg value="${jbrowse.download.directory}"/>
         </exec>
         <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
-<!--         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
+        <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <arg value="tags/${jbrowse.release.version}"/>
-        </exec> -->
+        </exec>
     </target>
+
 <!--    NOTE: this does not contain the additional libraries needed.-->
     <target name="git.download" unless="jbrowse.git.present" description="Downloads static release, but static release does not have other libraries">
 		<delete dir="${jbrowse.download.directory}"/>
@@ -316,8 +327,7 @@ Test targets suppressed because -junit argument was not specified when running w
             <!--<arg value="${jbrowse.git.directory}"/>-->
         <!--</exec>-->
         <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
-<!--             <arg value="${jbrowse.download.directory}"/>
-            <arg value="${jbrowse.download.directory}"/> -->
+            <arg value="${jbrowse.download.directory}"/>
         </exec>
     </target>
 
@@ -337,35 +347,35 @@ Test targets suppressed because -junit argument was not specified when running w
     </target>
 
     <!--<property name="release.is.snapshot" value="${project.version}"/>-->
-    <condition property="release.is.snapshot">
-        <contains substring="SNAPSHOT" string="${project.version}" casesensitive="true"/>
-    </condition>
+    <!--<condition property="release.is.snapshot">-->
+        <!--<contains substring="SNAPSHOT" string="${project.version}" casesensitive="true"/>-->
+    <!--</condition>-->
 
-    <target name="install-no-release-version"  if="${release.is.snapshot}">
-        <echo>IS SNAPSHOT ${project.version}</echo>
-        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
-            <filterset>
-                <filter token="POM_VERSION" value="${project.version}"/>
-                <filter token="GITHUB_VERSION" value=""/>
-            </filterset>
-        </copy>
-    </target>
+    <!--<target name="install-no-release-version" if="${release.is.snapshot}">-->
+        <!--<echo>IS SNAPSHOT ${project.version}</echo>-->
+        <!--<copy file="${version.template.file}" tofile="${version.file}" overwrite="true">-->
+            <!--<filterset>-->
+                <!--<filter token="POM_VERSION" value="${project.version}"/>-->
+                <!--<filter token="GITHUB_VERSION" value=""/>-->
+            <!--</filterset>-->
+        <!--</copy>-->
+    <!--</target>-->
 
-    <target name="install-release-version"  unless="${release.is.snapshot}">
-        <echo>IS RELEASE ${project.version}</echo>
-        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
-            <filterset>
-                <filter token="POM_VERSION" value="${project.version}"/>
-                <filter token="GITHUB_VERSION" value="tag/${project.version}"/>
-            </filterset>
-        </copy>
-    </target>
+    <!--<target name="install-release-version" unless="${release.is.snapshot}">-->
+        <!--<echo>IS RELEASE ${project.version}</echo>-->
+        <!--<copy file="${version.template.file}" tofile="${version.file}" overwrite="true">-->
+            <!--<filterset>-->
+                <!--<filter token="POM_VERSION" value="${project.version}"/>-->
+                <!--<filter token="GITHUB_VERSION" value="tag/${project.version}"/>-->
+            <!--</filterset>-->
+        <!--</copy>-->
+    <!--</target>-->
 
-    <target name="install-version" depends="git.revision,install-release-version,install-no-release-version">
+    <target name="install-version" depends="git.revision">
         <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
     </target>
 
-    <target name="setup-jbrowse"  unless="jbrowse.webapp.installed">
+    <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
 
         <!--<antcall target="git.download"/>-->
         <antcall target="git.clone"/>
@@ -389,26 +399,53 @@ Test targets suppressed because -junit argument was not specified when running w
         </copy>
     </target>
 
-    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed" description="Copy client into webapp plugin directory.">
+    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
+            description="Copy client into webapp plugin directory.">
+        <!--<target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.git.present"-->
         <echo>copying plugin to webapp ...</echo>
+        <!--<copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">-->
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
-            <fileset dir="${apollo.client.directory}"/>
+            <fileset dir="${apollo.client.directory}" />
+            <!--<filterset>-->
+                <!--&lt;!&ndash;<filter token="GOLR_URL" value="http://golr.berkeleybop.org/"/>&ndash;&gt;-->
+                <!--&lt;!&ndash;Alternate GOLR URL's&ndash;&gt;-->
+                <!--<filter token="GOLR_URL" value="http://a2-proxy1.stanford.edu:8080/solr/"/>-->
+                <!--&lt;!&ndash;<filter token="GOLR_URL" value="http://a2-proxy2.stanford.edu:8080/solr/"/>&ndash;&gt;-->
+                <!--&lt;!&ndash;<filter token="GOLR_URL" value="http://golr.geneontology.org/"/>&ndash;&gt;-->
+            <!--</filterset>-->
         </copy>
     </target>
 
-    <target name="copy-web-apollo-config">
-        <echo>copying config ...</echo>
-        <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
-        <copy failonerror="false" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
-        <copy failonerror="false" file="canned_comments.xml" tofile="${apollo.webapp.directory}/config/canned_comments.xml" />
-        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" />
-        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
-        <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json" />
-        <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>
-    </target>
+    <!--<target name="copy-web-apollo-config">-->
+        <!--<echo>copying config ...</echo>-->
+        <!--<copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml"/>-->
+        <!--<copy failonerror="false" file="config.properties"-->
+              <!--tofile="${apollo.webapp.directory}/config/config.properties"/>-->
+        <!--<copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml"/>-->
+        <!-- -->
+        <!--<copy failonerror="false" file="chado.xml" tofile="${apollo.webapp.directory}/config/chado.xml"/>-->
+        <!--<copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml"/>-->
+        <!--&lt;!&ndash;<copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json"/>&ndash;&gt;-->
+        <!--&lt;!&ndash;<copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>&ndash;&gt;-->
+        <!--<copy failonerror="false" file="drupal.xml" tofile="${apollo.webapp.directory}/config/drupal.xml"/>-->
+        <!--<copy failonerror="false" file="oauth.xml" tofile="${apollo.webapp.directory}/config/oauth.xml"/>-->
 
 
-    <target name="copy-resources" depends="copy-web-apollo-config,copy.apollo.plugin.webapp,install-version,setup-jbrowse"
+        <!--<copy failonerror="true" file="default_gff3_config.xml" tofile="${apollo.webapp.directory}/config/gff3_config.xml"/>-->
+        <!--<copy failonerror="false" file="gff3_config.xml" tofile="${apollo.webapp.directory}/config/gff3_config.xml"/>-->
+
+        <!--<copy failonerror="true" file="default_fasta_config.xml" tofile="${apollo.webapp.directory}/config/fasta_config.xml"/>-->
+        <!--<copy failonerror="false" file="fasta_config.xml" tofile="${apollo.webapp.directory}/config/fasta_config.xml"/>-->
+
+        <!--<copy failonerror="true" file="default_canned_comments.xml"-->
+              <!--tofile="${apollo.webapp.directory}/config/canned_comments.xml"/>-->
+        <!--<copy failonerror="false" file="canned_comments.xml"-->
+              <!--tofile="${apollo.webapp.directory}/config/canned_comments.xml"/>-->
+    <!--</target>-->
+
+
+    <target name="copy-resources"
+            depends="copy.apollo.plugin.webapp,install-version,setup-jbrowse"
             description="This is called externally by shell script.">
 
     </target>
