@@ -69,16 +69,16 @@
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
-                <b:Row>
-                    <b:Column size="6" styleName="{style.widgetPanel}">
-                        <b:InputGroup>
-                            <b:InputGroupAddon>Strand</b:InputGroupAddon>
-                            <b:ButtonGroup dataToggle="BUTTONS">
-                                <b:Button ui:field="phaseButton"  enabled="false" styleName="{style.phaseButton}"/>
-                            </b:ButtonGroup>
-                        </b:InputGroup>
-                    </b:Column>
-                </b:Row>
+                <!--<b:Row>-->
+                    <!--<b:Column size="6" styleName="{style.widgetPanel}">-->
+                        <!--<b:InputGroup>-->
+                            <!--<b:InputGroupAddon>Phase</b:InputGroupAddon>-->
+                            <!--<b:ButtonGroup dataToggle="BUTTONS">-->
+                                <!--<b:Button ui:field="phaseButton"  enabled="false" styleName="{style.phaseButton}"/>-->
+                            <!--</b:ButtonGroup>-->
+                        <!--</b:InputGroup>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
                 <b:Row>
                     <b:Column size="6" styleName="{style.widgetPanel}">
                         <gwt:HTML ui:field="notePanel"/>

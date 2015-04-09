@@ -62,8 +62,8 @@ public class ExonDetailPanel extends Composite {
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     HTML notePanel;
-    @UiField
-    Button phaseButton;
+//    @UiField
+//    Button phaseButton;
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
@@ -172,12 +172,42 @@ public class ExonDetailPanel extends Composite {
             annotationInfoList.add(annotationInfo1);
         }
 
+        // TODO: calculate phases
+//        calculatePhaseOnList(annotationInfoList);
+
         GWT.log("should be showing: " + annotationInfoList.size());
 
         if(annotationInfoList.size()>0){
             updateDetailData(annotationInfoList.get(0));
         }
         dataGrid.redraw();
+    }
+
+    private void calculatePhaseOnList(List<AnnotationInfo> annotationInfoList) {
+        // get the CDS annotionInfo . .
+//        int length = 0;
+//        for (Exon exon : exons) {
+//            if (!exon.overlaps(cds)) {
+//                continue;
+//            }
+//            int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
+//            int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
+//            String phase;
+//            if (length % 3 == 0) {
+//                phase = "0";
+//            }
+//            else if (length % 3 == 1) {
+//                phase = "2";
+//            }
+//            else {
+//                phase = "1";
+//            }
+//            length += fmax - fmin;
+//            GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
+//            entry.setAttributes(extractAttributes(cds));
+//            gffEntries.add(entry);
+//        }
+
     }
 
     public void updateDetailData(AnnotationInfo annotationInfo) {
@@ -197,10 +227,8 @@ public class ExonDetailPanel extends Composite {
             positiveStrandValue.setType(ButtonType.DEFAULT);
             negativeStrandValue.setType(ButtonType.PRIMARY);
         }
-        Integer length = internalAnnotationInfo.getLength();
-        Integer phase = (length % 3 == 0 ? 0 : 3 - (length % 3))+1;
 
-        phaseButton.setText(phase.toString());
+//        phaseButton.setText(internalAnnotationInfo.getPhase());
 
         SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
         for(String note : annotationInfo.getNoteList()){
