@@ -1348,6 +1348,9 @@ class RequestHandlingService {
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
                     Gene gene = transcriptService.getGene(transcript)
+                    if(!gene){
+                        gene = transcriptService.getPseudogene(transcript)
+                    }
 //                    transcriptService.deleteTranscript(gene, transcript)
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {
