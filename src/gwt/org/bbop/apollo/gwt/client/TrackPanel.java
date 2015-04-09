@@ -136,18 +136,18 @@ public class TrackPanel extends Composite {
         nameColumn.setSortable(true);
 
 
-        TextColumn<TrackInfo> typeColumn = new TextColumn<TrackInfo>() {
-            @Override
-            public String getValue(TrackInfo employee) {
-                return employee.getType();
-            }
-        };
-        typeColumn.setSortable(true);
+//        TextColumn<TrackInfo> typeColumn = new TextColumn<TrackInfo>() {
+//            @Override
+//            public String getValue(TrackInfo employee) {
+//                return employee.getType();
+//            }
+//        };
+//        typeColumn.setSortable(true);
 
 
         dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(nameColumn, "Name");
-        dataGrid.addColumn(typeColumn, "Type");
+//        dataGrid.addColumn(typeColumn, "Type");
         dataGrid.setColumnWidth(0, "10%");
         dataGrid.setSelectionModel(singleSelectionModel);
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -187,12 +187,12 @@ public class TrackPanel extends Composite {
             }
         });
 
-        sortHandler.setComparator(typeColumn, new Comparator<TrackInfo>() {
-            @Override
-            public int compare(TrackInfo o1, TrackInfo o2) {
-                return o1.getType().compareTo(o2.getType());
-            }
-        });
+//        sortHandler.setComparator(typeColumn, new Comparator<TrackInfo>() {
+//            @Override
+//            public int compare(TrackInfo o1, TrackInfo o2) {
+//                return o1.getType().compareTo(o2.getType());
+//            }
+//        });
 
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
