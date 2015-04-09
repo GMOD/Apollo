@@ -335,7 +335,12 @@ public class UserPanel extends Composite {
 
 
     private void setCurrentUserInfoFromUI() {
-        selectedUserInfo.setEmail(email.getText());
+        String emailString = email.getText().trim();
+        if(emailString.indexOf("@")>=emailString.lastIndexOf(".")){
+           Window.alert("Does not appear to be a valid email "+emailString);
+           return ;
+        }
+        selectedUserInfo.setEmail(emailString);
         selectedUserInfo.setFirstName(firstName.getText());
         selectedUserInfo.setLastName(lastName.getText());
         selectedUserInfo.setPassword(passwordTextBox.getText());
@@ -384,7 +389,7 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        if(Window.confirm("Delete user "+selectedUserInfo.getName())){
+        if(Window.confirm("Delete user "+selectedUserInfo.getName()+"?")){
             UserRestService.deleteUser(userInfoList, selectedUserInfo);
             selectedUserInfo = null;
             updateUserInfo();
