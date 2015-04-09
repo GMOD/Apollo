@@ -28,6 +28,7 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -87,6 +88,10 @@ public class UserPanel extends Composite {
     SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
+    @UiField
+    Row userRow1;
+    @UiField
+    Row userRow2;
 
 
     private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
@@ -351,8 +356,9 @@ public class UserPanel extends Composite {
     public void create(ClickEvent clickEvent) {
         selectedUserInfo = null;
         selectionModel.clear();
-        updateUserInfo();
         saveButton.setVisible(true);
+        updateUserInfo();
+        cancelButton.setVisible(true);
         cancelButton.setEnabled(true);
         createButton.setEnabled(false);
         passwordRow.setVisible(true);
@@ -367,8 +373,9 @@ public class UserPanel extends Composite {
 
     @UiHandler("cancelButton")
     public void cancel(ClickEvent clickEvent) {
-        updateUserInfo();
         saveButton.setVisible(false);
+        updateUserInfo();
+        cancelButton.setVisible(false);
         cancelButton.setEnabled(false);
         createButton.setEnabled(true);
         passwordRow.setVisible(false);
@@ -428,11 +435,8 @@ public class UserPanel extends Composite {
         passwordTextBox.setText("");
         if (selectedUserInfo == null) {
             firstName.setText("");
-//            firstName.setVisible(false);
             lastName.setText("");
-//            lastName.setVisible(false);
             email.setText("");
-//            email.setVisible(false);
 //
             deleteButton.setEnabled(false);
             roleList.setVisible(false);
@@ -444,17 +448,31 @@ public class UserPanel extends Composite {
                 UserInfo currentUser = MainPanel.getCurrentUser();
                 roleList.setSelectedIndex(0);
                 roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin"));
+
+                userRow1.setVisible(true);
+                userRow2.setVisible(true);
+                passwordRow.setVisible(true);
+            }
+            else{
+                userRow1.setVisible(false);
+                userRow2.setVisible(false);
+                passwordRow.setVisible(false);
             }
 
         } else {
             firstName.setText(selectedUserInfo.getFirstName());
             lastName.setText(selectedUserInfo.getLastName());
             email.setText(selectedUserInfo.getEmail());
+            cancelButton.setVisible(false);
+            saveButton.setVisible(false);
             deleteButton.setEnabled(true);
+            userRow1.setVisible(true);
+            userRow2.setVisible(true);
+            passwordRow.setVisible(true);
 
             UserInfo currentUser = MainPanel.getCurrentUser();
 
-            passwordRow.setVisible(selectedUserInfo.getEmail().equals(currentUser.getEmail()));
+            passwordRow.setVisible(currentUser.getRole().equals("admin") || selectedUserInfo.getEmail().equals(currentUser.getEmail()));
 
             roleList.setVisible(true);
 
