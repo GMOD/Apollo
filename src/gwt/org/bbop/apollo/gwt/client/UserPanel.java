@@ -428,8 +428,12 @@ public class UserPanel extends Composite {
         passwordTextBox.setText("");
         if (selectedUserInfo == null) {
             firstName.setText("");
+//            firstName.setVisible(false);
             lastName.setText("");
+//            lastName.setVisible(false);
             email.setText("");
+//            email.setVisible(false);
+//
             deleteButton.setEnabled(false);
             roleList.setVisible(false);
             permissionProviderList.clear();

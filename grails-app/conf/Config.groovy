@@ -161,14 +161,45 @@ grails.gorm.failOnError = true
 grails.tomcat.nio = true
 grails.tomcat.scan.enabled = true
 
+// default apollo settings
+apollo {
+    default_minimum_intron_size = 1
+    history_size = 0
+    overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
+    track_name_comparator = "/config/track_name_comparator.js"
+    use_cds_for_new_transcripts = true
+    user_pure_memory_store = true
+    translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
+    is_partial_translation_allowed = false // unused so far
+    get_translation_code = 1
+    blat_executable = "/usr/local/bin/blat"
+
+// TODO: should come from config or via preferences database
+    splice_donor_sites = [ "GT"]
+    splice_acceptor_sites = [ "AG"]
+    gff3.source= "."
+    bootstrap = false
+
+    info_editor = {
+        feature_types = "default"
+        attributes = true
+        dbxrefs = true
+        pubmed_ids = true
+        go_ids = true
+        comments = true
+    }
+}
+
+
 
 
 // from: http://grails.org/plugin/audit-logging
+// may end up going away
 auditLog {
     //note, this disables the audit log
-    //disabled = true
+    disabled = true
     //verbose = true // verbosely log all changed values to db
-    logIds = true  // log db-ids of associated objects.
+//    logIds = true  // log db-ids of associated objects.
 
     // Note: if you change next 2 properties, you must update your database schema!
 
