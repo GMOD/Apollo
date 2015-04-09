@@ -112,7 +112,7 @@ elif [[ $1 == "deploy" ]];then
 	rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
-    ant copy-resources gwtc &&  grails war
+    ant gwtc &&  grails war
 elif [[ $1 == "release" ]];then
    # should call the copy target first
    check_configs
@@ -130,14 +130,11 @@ elif [[ $1 == "clean-all" ]];then
     rm -rf jbrowse-download
     rm -rf src/main/webapp/jbrowse
     rm -f *.zip
-     # remove in webapp, as well? 
 	ant clean-all
 	grails clean 
-#    mvn clean
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
-    grails clean 
-#    mvn clean
+    ant clean &&  grails clean
 else
     usage
 fi
