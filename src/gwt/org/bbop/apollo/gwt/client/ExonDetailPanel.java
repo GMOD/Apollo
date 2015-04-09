@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
@@ -49,9 +50,9 @@ public class ExonDetailPanel extends Composite {
 
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
     @UiField
-    TextBox maxField;
+    InputGroupAddon maxField;
     @UiField
-    TextBox minField;
+    InputGroupAddon minField;
     @UiField
     Button positiveStrandValue;
     @UiField
@@ -246,17 +247,17 @@ public class ExonDetailPanel extends Composite {
         dataGrid.redraw();
     }
 
-    @UiHandler("minField")
-    void handleMinChange(ChangeEvent e) {
-        internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));
-        updateFeatureLocation();
-    }
+//    @UiHandler("minField")
+//    void handleMinChange(ChangeEvent e) {
+//        internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));
+//        updateFeatureLocation();
+//    }
 
-    @UiHandler("maxField")
-    void handleMaxChange(ChangeEvent e) {
-        internalAnnotationInfo.setMax(Integer.parseInt(maxField.getText()));
-        updateFeatureLocation();
-    }
+//    @UiHandler("maxField")
+//    void handleMaxChange(ChangeEvent e) {
+//        internalAnnotationInfo.setMax(Integer.parseInt(maxField.getText()));
+//        updateFeatureLocation();
+//    }
 
     // we would only ever enable these for the gene . . . not sure if we want this here
 //    @UiHandler("positiveStrandValue")
@@ -289,47 +290,47 @@ public class ExonDetailPanel extends Composite {
         sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
         builder.setRequestData(sb.toString());
-        enableFields(false);
+//        enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("return value: "+returnValue.toString());
 //                Window.alert("successful update: "+returnValue);
-                enableFields(true);
+//                enableFields(true);
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
                 Window.alert("Error updating exon: " + exception);
-                enableFields(true);
+//                enableFields(true);
             }
         };
         try {
             builder.setCallback(requestCallback);
             builder.send();
-            enableFields(true);
+//            enableFields(true);
         } catch (RequestException e) {
             // Couldn't connect to server
             Window.alert(e.getMessage());
-            enableFields(true);
+//            enableFields(true);
         }
 
     }
 
-    private void enableFields(boolean enabled) {
-        minField.setEnabled(enabled && editable);
-        maxField.setEnabled(enabled && editable);
-//        positiveStrandValue.setEnabled(enabled);
-//        negativeStrandValue.setEnabled(enabled);
-    }
-
-
+//    private void enableFields(boolean enabled) {
+////        minField.setEnabled(enabled && editable);
+//        maxField.setEnabled(enabled && editable);
+////        positiveStrandValue.setEnabled(enabled);
+////        negativeStrandValue.setEnabled(enabled);
+//    }
+//
+//
     public void setEditable(boolean editable) {
         this.editable = editable ;
 
-        maxField.setEnabled(this.editable);
-        minField.setEnabled(this.editable);
+//        maxField.setEnabled(this.editable);
+//        minField.setEnabled(this.editable);
     }
 }

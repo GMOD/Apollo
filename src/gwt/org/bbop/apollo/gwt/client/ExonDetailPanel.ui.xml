@@ -43,23 +43,25 @@
         <gwt:center>
             <b:Container fluid="true" width="100%" styleName="{style.container}">
                 <b:Row>
-                    <b:Column size="6" styleName="{style.widgetPanel}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
                             <b:InputGroupAddon>Max</b:InputGroupAddon>
-                            <b:TextBox autoComplete="false" ui:field="maxField"/>
+                            <!--<b:TextBox autoComplete="false" ui:field="maxField" enabled="false"/>-->
+                            <b:InputGroupAddon ui:field="maxField"/>
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="6" styleName="{style.widgetPanel}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
                             <b:InputGroupAddon>Min</b:InputGroupAddon>
-                            <b:TextBox autoComplete="false" ui:field="minField"/>
+                            <!--<b:TextBox autoComplete="false" ui:field="minField"  enabled="false"/>-->
+                            <b:InputGroupAddon ui:field="minField"/>
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="6" styleName="{style.widgetPanel}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
                             <b:InputGroupAddon>Strand</b:InputGroupAddon>
                             <b:ButtonGroup dataToggle="BUTTONS" ui:field="strand">
