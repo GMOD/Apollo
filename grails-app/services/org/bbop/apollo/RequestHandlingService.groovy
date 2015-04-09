@@ -272,9 +272,6 @@ class RequestHandlingService {
             for (int j = 0; j < dbXrefJSONArray.size(); j++) {
                 JSONObject dbXfrefJsonObject = dbXrefJSONArray.getJSONObject(j)
                 log.debug "innerArray ${j}: ${dbXfrefJsonObject}"
-//                for(int k = 0 ; k < innerArray.size(); k++){
-//                    String jsonString = innerArray.getString(k)
-//                println "string ${k} ${jsonString}"
                 String dbString = dbXfrefJsonObject.getString(FeatureStringEnum.DB.value)
                 log.debug "dbString: ${dbString}"
                 String accessionString = dbXfrefJsonObject.getString(FeatureStringEnum.ACCESSION.value)
@@ -288,8 +285,6 @@ class RequestHandlingService {
 
                 feature.addToFeatureDBXrefs(dbXref)
                 feature.save()
-//                }
-
             }
 
 
@@ -632,7 +627,6 @@ class RequestHandlingService {
                 Exon exon = Exon.findByName(uniqueName)
                 Transcript transcript = exonService.getTranscript(exon)
 
-//            editor.setToDownstreamDonor(exon);
                 if (upstreamDonor) {
                     exonService.setToUpstreamAcceptor(exon)
                 } else {
@@ -643,7 +637,6 @@ class RequestHandlingService {
                 featureService.calculateCDS(transcript)
 
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-//            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
 
                 transcript.save()
 
@@ -681,7 +674,6 @@ class RequestHandlingService {
                 String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
                 Exon exon = Exon.findByName(uniqueName)
                 Transcript transcript = exonService.getTranscript(exon)
-//            editor.setToDownstreamDonor(exon);
                 if (upstreamDonor) {
                     exonService.setToUpstreamDonor(exon)
                 } else {
@@ -692,7 +684,6 @@ class RequestHandlingService {
                 featureService.calculateCDS(transcript)
 
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-//            findNonCanonicalAcceptorDonorSpliceSites(editor, transcript);
 
                 transcript.save()
 
@@ -766,7 +757,6 @@ class RequestHandlingService {
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-//            Exon exon = (Exon) editor.getSession().getFeatureByUniqueName(jsonFeature.getString("uniquename"));
             Exon exon = Exon.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             Transcript transcript = exonService.getTranscript(exon)
 

@@ -36,7 +36,6 @@ class MockupService {
                 isEmpty("sequences")
             }
 
-//            results.each{ organism ->
             results.each { Organism organism ->
                 println "processing organism ${organism}"
                 String fileName = organism.getRefseqFile()

@@ -404,24 +404,24 @@ class PermissionService {
     }
 
 
-//    def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){
+    //def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){
     def checkPermissions(JSONObject jsonObject,Organism organism,PermissionEnum requiredPermissionEnum) {
 
         if(Environment.current == Environment.TEST && !jsonObject.containsKey(FeatureStringEnum.USERNAME.value)){
             return true
         }
 
-//        def session = RequestContextHolder.currentRequestAttributes().getSession()
+        //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
 
 
         User user = User.findByUsername(username)
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-       PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if(highestValue.rank<requiredPermissionEnum.rank){
-//            return false
+            //return false
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 //        else{
