@@ -146,7 +146,7 @@
                                 <!--<b:Column size="MD_2">-->
                             </b:Column>
                             <b:Column size="MD_1">
-                                <b:Button ui:field="addGroupButton" text="Add"/>
+                                <b:Button ui:field="addGroupButton" icon="PLUS" color="blue"/>
                             </b:Column>
                             <!--</b:Row>-->
                             <!--<b:Row>-->

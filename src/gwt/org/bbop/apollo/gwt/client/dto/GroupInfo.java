@@ -5,6 +5,7 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class GroupInfo {
     private Integer numberSequences;
     private Long id;
     private List<UserInfo> userInfoList;
-    private Map<String, GroupOrganismPermissionInfo> organismPermissionMap;
+    private Map<String, GroupOrganismPermissionInfo> organismPermissionMap = new HashMap<>();
 
 //    public GroupInfo(String name){
 //        this.name = name ;

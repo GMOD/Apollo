@@ -15,6 +15,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
@@ -383,9 +384,11 @@ public class UserPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
-        UserRestService.deleteUser(userInfoList, selectedUserInfo);
-        selectedUserInfo = null;
-        updateUserInfo();
+        if(Window.confirm("Delete user "+selectedUserInfo.getName())){
+            UserRestService.deleteUser(userInfoList, selectedUserInfo);
+            selectedUserInfo = null;
+            updateUserInfo();
+        }
     }
 
     @UiHandler(value = {"nameSearchBox"})
@@ -427,7 +430,7 @@ public class UserPanel extends Composite {
         selectionModel.clear();
         updateUserInfo();
         saveButton.setVisible(false);
-        cancelButton.setEnabled(false);
+        cancelButton.setVisible(false);
         passwordRow.setVisible(false);
     }
 
@@ -439,6 +442,7 @@ public class UserPanel extends Composite {
             email.setText("");
 //
             deleteButton.setEnabled(false);
+            deleteButton.setVisible(false);
             roleList.setVisible(false);
             permissionProviderList.clear();
 
@@ -465,6 +469,7 @@ public class UserPanel extends Composite {
             email.setText(selectedUserInfo.getEmail());
             cancelButton.setVisible(false);
             saveButton.setVisible(false);
+            deleteButton.setVisible(true);
             deleteButton.setEnabled(true);
             userRow1.setVisible(true);
             userRow2.setVisible(true);
@@ -543,7 +548,7 @@ public class UserPanel extends Composite {
         public RemoveGroupButton(final String groupName) {
             this.groupName = groupName;
             setIcon(IconType.REMOVE);
-//            setText("X");
+            setColor("red");
             addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
