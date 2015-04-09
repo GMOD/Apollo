@@ -13,23 +13,6 @@ class ConfigWrapperService {
 
     def grailsApplication
 
-    /**
-     * @deprecated
-     * @return
-     */
-    String getRefSeqDirectory() {
-        return getJBrowseDirectory()+"/seq/refSeqs.json"
-    }
-
-
-    /**
-     * @deprecated
-     * @return
-     */
-    String getJBrowseDirectory() {
-        return grailsApplication.config.apollo.jbrowse.data.directory
-    }
-
     Boolean useCDS() {
         return grailsApplication.config.apollo.use_cds_for_new_transcripts
     }

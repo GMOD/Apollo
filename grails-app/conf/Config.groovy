@@ -11,7 +11,6 @@ grails.config.locations = [
         "file:./${appName}-config.groovy"        // dev only
         ,"classpath:${appName}-config.groovy"    // for production deployment
         ,"classpath:${appName}-config.properties"
-        ,"file:/tmp/${appName}-config.groovy"
 ]
 
 // if (System.properties["${appName}.config.location"]) {

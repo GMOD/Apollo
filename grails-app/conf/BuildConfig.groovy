@@ -16,9 +16,9 @@ grails.project.fork = [
         //  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
 
         test   : false,
-//        run    : false,
+        //run    : false,
         // configure settings for the test-app JVM, uses the daemon by default
-//    test: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, daemon:true],
+        //test: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, daemon:true],
         // configure settings for the run-app JVM
         run    : [maxMemory: 2048, minMemory: 64, debug: false , maxPerm: 1024, forkReserve: false],
         // configure settings for the run-war JVM
@@ -28,7 +28,7 @@ grails.project.fork = [
 ]
 
 if (System.getProperty("grails.debug")) {
-//    grails.project.fork.war += [debug: true]
+    //grails.project.fork.war += [debug: true]
     grails.project.fork.run = false
     println "Using debug for run"
 }
@@ -72,23 +72,22 @@ grails.project.dependency.resolution = {
         compile 'org.json:json:20140107'
         compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
-//        compile 'org.spiffyui:spiffyuitasks:1.5'
-//        compile 'org.spiffyui:spiffyui:1.5'
+        //compile 'org.spiffyui:spiffyuitasks:1.5'
+        //compile 'org.spiffyui:spiffyui:1.5'
 
-//        compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
-//        compile 'asm:asm:3.1'
+        //compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.5.0-RC2'
+        //compile 'asm:asm:3.1'
 
-//        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+        //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 
-//        compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
-//        compile 'org.biojava:biojava3-core:3.1.0'
+        //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
+        //compile 'org.biojava:biojava3-core:3.1.0'
 
-//        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-//        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-//        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
-//        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-//
-//        test "org.gebish:geb-spock:$gebVersion"
+        //test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+        //test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+        //test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
+        //test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+        //test "org.gebish:geb-spock:$gebVersion"
     }
 
     plugins {
@@ -118,29 +117,29 @@ grails.project.dependency.resolution = {
         runtime ':twitter-bootstrap:3.3.1'
         compile ":angularjs:1.0.0"
 
-//        compile ":dojo:1.7.2.0"
+        //compile ":dojo:1.7.2.0"
 
-//        compile ":platform-core:1.0.0"
+        //compile ":platform-core:1.0.0"
 
-//        compile ":vaadin:7.3.5"
+        //compile ":vaadin:7.3.5"
 
-//        runtime ":resources:1.2.1"
-//        runtime ":resources:1.2.13"
-//        build ":extended-dependency-manager:0.5.5"
+        //runtime ":resources:1.2.1"
+        //runtime ":resources:1.2.13"
+        //build ":extended-dependency-manager:0.5.5"
 
-//        compile ":gwt:1.0" , {
-//            transitive=true
-//        }
+        //compile ":gwt:1.0" , {
+        //    transitive=true
+        //}
 
-//        compile ":crypto:2.0"
+        //compile ":crypto:2.0"
 
         //compile ":kickstart-with-bootstrap:1.1.0"
-//        compile ":twitter-bootstrap:3.1.1.3"
+        //compile ":twitter-bootstrap:3.1.1.3"
         compile ":audit-logging:1.0.3"
-//        compile ":jasypt-encryption:1.1.0"
-//        compile ":joda-time:1.4"
+        //compile ":jasypt-encryption:1.1.0"
+        //compile ":joda-time:1.4"
 
-//        test    ":geb:$gebVersion"
+        //test    ":geb:$gebVersion"
     }
 }
 

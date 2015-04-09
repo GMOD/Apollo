@@ -8,14 +8,14 @@ class UrlMappings {
         }
 
 
-//        "/"(view:"/index")
+        //"/"(view:"/index")
+        //"/home"(action: "index", controller: "genome")
         "/"(redirect: '/annotator/index')
-//        "/home"(action: "index", controller: "genome")
         "500"(view: '/error')
         "/menu"(view: '/menu')
 
         // set this routing here
-//        "/jbrowse"(controller: "jbrowse", action: "index")
+        //"/jbrowse"(controller: "jbrowse", action: "index")
         "/jbrowse/"(uri: "/jbrowse/index.html")
         "/jbrowse/data/${fileName}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/bigwig/${fileName}"(controller: "jbrowse", action: "bigwig")
@@ -25,7 +25,7 @@ class UrlMappings {
         "/jbrowse/data/names/${directory}/${jsonFile}.json"(controller: "jbrowse", action: "namesFiles")
         "/jbrowse/data/names/${fileName}.json"(controller: "jbrowse", action: "names")
         "/jbrowse/data/names/meta.json"(controller: "jbrowse", action: "meta")
-//        "/jbrowse/data/tracks/**"(controller: "jbrowse", action: "tracks")
+        //"/jbrowse/data/tracks/**"(controller: "jbrowse", action: "tracks")
         "/jbrowse/data/tracks/$trackName/$groupName/${jsonFile}.json" {
             controller = 'jbrowse'
             action = 'tracks'
@@ -36,6 +36,5 @@ class UrlMappings {
 
         "/Login"(controller:"login",action: "handleOperation",params:params){
         }
-        // In UrlMappings.groovy
     }
 }
