@@ -90,7 +90,7 @@ public class SequenceRestService {
             }
         };
 
-        setDefaultSequence(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
+        setDefaultSequence(requestCallback, sequenceName);
     }
 
     public static void generateLink(final ExportPanel exportPanel) {
