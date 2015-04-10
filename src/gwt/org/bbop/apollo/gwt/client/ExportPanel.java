@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class ExportPanel extends DialogBox{
     private String url;
     private OrganismInfo organismInfo ;
     private List<SequenceInfo> sequenceList ;
-
+    private String sequenceType = "genomic";
 
     interface ExportPanelUiBinder extends UiBinder<Widget, ExportPanel> {
     }
@@ -36,7 +37,19 @@ public class ExportPanel extends DialogBox{
     @UiField
     HTML urlLink;
     @UiField
+    HTML sequenceTypeLabel;
+    @UiField
     Button closeButton;
+    @UiField
+    Button exportButton;
+    @UiField
+    RadioButton genomicRadioButton;
+    @UiField
+    RadioButton cdnaRadioButton;
+    @UiField
+    RadioButton cdsRadioButton;
+    @UiField
+    RadioButton peptideRadioButton;
 
     public ExportPanel() {
         setWidget(ourUiBinder.createAndBindUi(this));
@@ -59,7 +72,7 @@ public class ExportPanel extends DialogBox{
 
     public void setType(String type) {
         this.type = type;
-        typeLabel.setHTML("Type: "+this.type);
+        typeLabel.setHTML("Type: " + this.type);
     }
 
     public void setUrl(String url) {
@@ -70,20 +83,63 @@ public class ExportPanel extends DialogBox{
     public String getType() {
         return type;
     }
-
+    
+    public String getSequenceType() { return sequenceType; }
+    
     @UiHandler("closeButton")
     public void closeExportPanel(ClickEvent clickEvent){
         hide();
     }
-
+    
     public void enableCloseButton(){
         closeButton.setEnabled(true);
     }
 
+    @UiHandler("exportButton")
+    public void doExport(ClickEvent clickEvent) {
+        genomicRadioButton.setVisible(false);
+        cdnaRadioButton.setVisible(false);
+        cdsRadioButton.setVisible(false);
+        peptideRadioButton.setVisible(false);
+        showSequenceTypeLabel();
+        exportButton.setEnabled(false);
+        generateLink();
+    }
     public void generateLink() {
         SequenceRestService.generateLink(this);
     }
 
+    public void showSequenceTypeLabel() {
+        sequenceTypeLabel.setHTML("Sequence Type: " + this.sequenceType);
+        sequenceTypeLabel.setVisible(true);
+    }
+    public void renderFastaSelection() {
+        genomicRadioButton.setVisible(true);
+        cdnaRadioButton.setVisible(true);
+        cdsRadioButton.setVisible(true);
+        peptideRadioButton.setVisible(true);
+    }
+    
+    @UiHandler("genomicRadioButton")
+    public void selectGenomic(ClickEvent clickEvent) {
+        sequenceType = FeatureStringEnum.TYPE_GENOMIC.getValue();
+    }
+
+    @UiHandler("cdnaRadioButton")
+    public void selectCDNA(ClickEvent clickEvent) {
+        sequenceType = FeatureStringEnum.TYPE_CDNA.getValue();
+    }
+
+    @UiHandler("cdsRadioButton")
+    public void selectCDS(ClickEvent clickEvent) {
+        sequenceType = FeatureStringEnum.TYPE_CDS.getValue();
+    }
+
+    @UiHandler("peptideRadioButton")
+    public void selectPeptide(ClickEvent clickEvent) {
+        sequenceType = FeatureStringEnum.TYPE_PEPTIDE.getValue();
+    }
+    
     public List<SequenceInfo> getSequenceList() {
         return sequenceList;
     }

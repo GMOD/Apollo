@@ -98,6 +98,7 @@ public class SequenceRestService {
         final String rootUrl = dictionary.get("rootUrl");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type",new JSONString(exportPanel.getType()));
+        jsonObject.put("sequenceType",new JSONString(exportPanel.getSequenceType()));
         JSONArray jsonArray = new JSONArray();
         for(SequenceInfo sequenceInfo : exportPanel.getSequenceList()){
             jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
@@ -111,8 +112,8 @@ public class SequenceRestService {
                 JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
-                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType, "_blank", "");
-                exportPanel.enableCloseButton();
+                String sequenceType = responseObject.get("sequenceType").isString().stringValue();
+                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
             }
 
             @Override

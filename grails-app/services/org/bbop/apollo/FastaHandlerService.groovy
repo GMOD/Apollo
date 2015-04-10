@@ -1,10 +1,9 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.sequence.Strand
+import org.codehaus.groovy.grails.web.json.JSONObject
+import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
-
-
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
@@ -113,9 +112,20 @@ public class FastaHandlerService {
     }
     
     public void writeFeature(Feature feature, String seqType, Set<String> metaDataToExport) {
-
-        int featureLength = sequenceService.getResiduesFromFeature(feature).length()
-        String defline = String.format(">%s (%s) %d residues [%s]", feature.getUniqueName(), feature.cvTerm, featureLength, seqType);
+        String seq = null
+        seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
+        int featureLength = seq.length()
+        String strand
+        
+        if (feature.getStrand() == Strand.POSITIVE.getValue()) {
+            strand = Strand.POSITIVE.getDisplay()
+        } else if (feature.getStrand() == Strand.NEGATIVE.getValue()) {
+            strand = Strand.NEGATIVE.getDisplay()
+        } else {
+            strand = "."
+        }
+        //int featureLength = sequenceService.getResiduesFromFeature(feature).length()
+        String defline = String.format(">%s (%s) %d residues [%s:%d-%d %s strand] [%s]", feature.getUniqueName(), feature.cvTerm, featureLength, feature.getFeatureLocation().getSequence().name, feature.fmin + 1, feature.fmax, strand, seqType);
         if (!metaDataToExport.isEmpty()) {
             boolean first = true;
             if (metaDataToExport.contains("name") && feature.getName() != null) {
@@ -265,7 +275,7 @@ public class FastaHandlerService {
             }
         }
         out.println(defline);
-        String seq = sequenceService.getResiduesFromFeature(feature)
+//        String seq = sequenceService.getResiduesFromFeature(feature)
         for (int i = 0; i < seq.length(); i += numResiduesPerLine) {
             int endIdx = i + numResiduesPerLine;
             out.println(seq.substring(i, endIdx > seq.length() ? seq.length() : endIdx));

@@ -197,6 +197,8 @@ class SequenceController {
         println "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         String typeOfExport = dataObject.type
+        String sequenceType = dataObject.sequenceType
+        println "SEQTYPE: ${sequenceType}"
         Collection<Feature> listOfFeatures = new ArrayList<Feature>();
         
         println "==> TypeofExport: ${typeOfExport}"
@@ -220,7 +222,7 @@ class SequenceController {
                 JSONArray featuresObjectArray = new JSONArray()
                 for (FeatureLocation entity in testList) {
                     if(entity.feature.class.cvTerm == MRNA.cvTerm) {
-                        // getting only MRNA features might want to extend to other features in future
+                        // getting only MRNA features; might want to extend to other features in future
                         Feature featureToWrite = Feature.findByUniqueName(entity.feature.uniqueName)
                         listOfFeatures.add(featureToWrite)
                     }
@@ -247,20 +249,20 @@ class SequenceController {
         }
 
         File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
-        if(typeOfExport == 'GFF3') {
+        if(typeOfExport == "GFF3") {
             // call gff3HandlerService
-            println "CHECKFILE : ${outputFile.path}"
             gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
         }
-        else if(typeOfExport == 'FASTA') {
+        else if(typeOfExport == "FASTA") {
             // call fastaHandlerService
             // currently handles genomic. Must handle all types depending on user's input
-            fastaHandlerService.writeFeatures( listOfFeatures, 'genomic', ['name','date_creation'] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+            fastaHandlerService.writeFeatures( listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
             
         }
         JSONObject jsonObject = new JSONObject()
         jsonObject.put("filePath",outputFile.path)
         jsonObject.put("exportType",typeOfExport)
+        jsonObject.put("sequenceType", sequenceType)
         render jsonObject as JSON
     }
     
@@ -268,11 +270,11 @@ class SequenceController {
         println "PARAMS: ${params}"
         String pathToFile = params.filePath
         def file = new File(pathToFile)
-        response.contentType = 'txt'
-        if(params.exportType == 'GFF3') {
+        response.contentType = "txt"
+        if(params.exportType == "GFF3") {
             response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")
         }
-        else if(params.exportType == 'FASTA') {
+        else if(params.exportType == "FASTA") {
             response.setHeader("Content-disposition", "attachment; filename=Annotations.fasta")
         }
         def outputStream = response.outputStream

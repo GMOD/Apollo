@@ -374,8 +374,11 @@ public class SequencePanel extends Composite {
         exportPanel.setOrganismInfo(organismInfo);
         exportPanel.setSequenceList(sequenceInfoList);
         exportPanel.setType(type);
+        if (type.equals("FASTA")) {
+            exportPanel.renderFastaSelection();
+        }
         exportPanel.show();
-        exportPanel.generateLink();
+//        exportPanel.generateLink();
     }
 
     @UiHandler("exportSelectedButton")
