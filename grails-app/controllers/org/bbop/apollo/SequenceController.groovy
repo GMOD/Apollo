@@ -100,24 +100,13 @@ class SequenceController {
         def sequenceList
         if (exportAllSequences == "true") {
             // HQL for all sequences
-            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl")
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl").sort{[it.name]}
         }
         else {
             // HQL for a single sequence or selected sequences
-            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames)", [sequenceNames: sequences])
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames)", [sequenceNames: sequences]).sort{[it.name]}
         }
-//        def c = Sequence.createCriteria()
-//        def sequenceList = c.list {
-//            inList("name", sequences)
-//            and {
-//                isNotEmpty("featureLocations")
-//            }
-//            order("name", "asc")
-//        }
-
         for (Sequence eachSeq in sequenceList) {
-            // for each sequence in the params
-            println "eachSeq ${eachSeq.name}"
             List<FeatureLocation> featureLocationList = sequenceService.getFeatureLocations(eachSeq)
             if (featureLocationList.size() == 0) {
                 log.debug "No features on sequence ${eachSeq}"

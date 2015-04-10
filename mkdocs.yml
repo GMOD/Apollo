@@ -2,7 +2,7 @@ site_name: Web Apollo
 pages:
 - ['index.md', 'Index']
 - ['Introduction.md', 'Introduction']
-- ['Quick_start_guide.md', 'Quick-start guide']
+- ['Apollo2Build.md', 'Web Apollo 2.0 quick-setup']
 - ['Prerequisites.md', 'Pre-requisites']
 - ['Database_setup.md', 'Database setup']
 - ['Configure.md', 'Configure']
