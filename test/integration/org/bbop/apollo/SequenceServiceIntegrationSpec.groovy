@@ -54,7 +54,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getPeptideSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getPeptideSequenceString = getPeptideSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getPeptideSequenceString) as JSONObject
-        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
         
         then: "we should get back the expected peptide sequence"
         assert getPeptideSequenceReturnObject.residues != null
@@ -65,7 +65,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getCDSSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDSSequenceString = getCDSSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDS.value)
         commandObject = JSON.parse(getCDSSequenceString) as JSONObject
-        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDS sequence"
         assert getCDSSequenceReturnObject.residues != null
@@ -76,7 +76,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getCDNASequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDNASequenceString = getCDNASequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDNA.value)
         commandObject = JSON.parse(getCDNASequenceString) as JSONObject
-        JSONObject getCDNASequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getCDNASequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDNA sequence"
         assert getCDNASequenceReturnObject.residues != null
@@ -87,7 +87,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getGenomicSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getGenomicSequenceString = getGenomicSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicSequenceString) as JSONObject
-        JSONObject getGenomicSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getGenomicSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 //
         then: "we should get back the expected genomic sequence"
         assert getGenomicSequenceReturnObject.residues != null
@@ -99,7 +99,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         getGenomicFlankSequenceString = getGenomicFlankSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicFlankSequenceString) as JSONObject
         commandObject.put("flank", 500)
-        JSONObject getGenomicFlankSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getGenomicFlankSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected genomic sequence including the flanking regions"
         assert getGenomicFlankSequenceReturnObject.residues != null
@@ -149,7 +149,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getPeptideSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getPeptideSequenceString = getPeptideSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getPeptideSequenceString) as JSONObject
-        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected peptide sequence"
         assert getPeptideSequenceReturnObject.residues != null
@@ -160,7 +160,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getCDSSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDSSequenceString = getCDSSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDS.value)
         commandObject = JSON.parse(getCDSSequenceString) as JSONObject
-        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDS sequence"
         assert getCDSSequenceReturnObject.residues != null
@@ -171,7 +171,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getCDNASequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDNASequenceString = getCDNASequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDNA.value)
         commandObject = JSON.parse(getCDNASequenceString) as JSONObject
-        JSONObject getCDNASequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getCDNASequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDNA sequence"
         assert getCDNASequenceReturnObject.residues != null
@@ -182,7 +182,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         String getGenomicSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getGenomicSequenceString = getGenomicSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicSequenceString) as JSONObject
-        JSONObject getGenomicSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getGenomicSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 //
         then: "we should get back the expected genomic sequence"
         assert getGenomicSequenceReturnObject.residues != null
@@ -194,7 +194,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         getGenomicFlankSequenceString = getGenomicFlankSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicFlankSequenceString) as JSONObject
         commandObject.put("flank", 500)
-        JSONObject getGenomicFlankSequenceReturnObject = sequenceService.getSequenceForFeature(commandObject)
+        JSONObject getGenomicFlankSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected genomic sequence including the flanking regions"
         assert getGenomicFlankSequenceReturnObject.residues != null
