@@ -160,8 +160,8 @@ public class Gff3HandlerService {
         String strand;
         if (feature.getStrand() == Strand.POSITIVE.getValue()) {
             strand = Strand.POSITIVE.getDisplay()
-        } else if (feature.getStrand() == Strand.POSITIVE.getValue()) {
-            strand = Strand.POSITIVE.getDisplay()
+        } else if (feature.getStrand() == Strand.NEGATIVE.getValue()) {
+            strand = Strand.NEGATIVE.getDisplay()
         } else {
             strand = "."
         }
