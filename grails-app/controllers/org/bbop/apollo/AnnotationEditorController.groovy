@@ -431,7 +431,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getSequence() {
-        log.debug "REQUEST TO ACE: ${params.data}"
+        log.debug "getSequence ${params.data}"
         if(!checkPermissions(PermissionEnum.EXPORT)){
             render new JSONObject() as JSON
             return
@@ -453,6 +453,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render sequenceSearchToolsContainer.toString()
     }
     def getGff3() {
+        log.debug "getGff3 ${params.data}"
         if(!checkPermissions(PermissionEnum.EXPORT)){
             render new JSONObject() as JSON
             return

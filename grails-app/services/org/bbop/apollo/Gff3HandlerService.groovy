@@ -241,7 +241,7 @@ public class Gff3HandlerService {
         int count = 0;
         StringBuilder parents = new StringBuilder();
         if (feature.ontologyId == Gene.ontologyId) {
-            println "${feature.name} is a gene and hence doesn't have a parent"
+            log.debug "${feature.name} is a gene and hence doesn't have a parent"
         }
         else {
             for (Feature parentFeature in featureRelationshipService.getParentForFeature(feature)) {

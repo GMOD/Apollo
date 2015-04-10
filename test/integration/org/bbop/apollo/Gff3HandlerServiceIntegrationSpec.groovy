@@ -221,7 +221,5 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should get a valid gff3 file"
         assert tempFileText.length() > 0
-        log.debug tempFileText
-
     }
 }

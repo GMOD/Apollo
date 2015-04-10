@@ -93,11 +93,8 @@ class SequenceController {
         JSONObject dataObject = JSON.parse(params.data)
         String typeOfExport = dataObject.type
         String sequenceType = dataObject.sequenceType
-        log.debug "SEQTYPE: ${sequenceType}"
         Collection<Feature> listOfFeatures = new ArrayList<Feature>();
 
-        log.debug "==> TypeofExport: ${typeOfExport}"
-        log.debug "===> dataobjectSequence: ${dataObject.sequences.name}"
         def sequences = dataObject.sequences.name
         // the alternate way
 //        def sequenceList = Sequence.executeQuery("select s from Sequence s join s.featureLocations fl  ")
@@ -112,9 +109,7 @@ class SequenceController {
 
         for (Sequence eachSeq in sequenceList) {
             // for each sequence in the params
-            log.debug "===> eachSeQ: ${eachSeq.name}"
             List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
-            log.debug "===> SIZE OF FEATURE LIST: ${testList.size()}"
             if (testList.size() == 0) {
                 log.debug "No features on sequence ${sequence}"
                 continue
@@ -132,25 +127,6 @@ class SequenceController {
                     listOfFeatures.add(featureToWrite)
                 }
             }
-            // outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
-//                if (typeOfExport == "GFF3") {
-//                    
-//                    requestObject.put("operation", "get_gff3")
-//                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching GFF3 for each chromosome
-//                    pathToOutputFile = Paths.get(outputFile.getPath())
-//                    log.debug "The output is located at ${pathToOutputFile}"
-//                }
-//                else if(typeOfExport == "FASTA") {
-////                    outputFile = File.createTempFile("Annotations", ".fa")
-//                    requestObject.put("operation", "get_sequence")
-//                    requestObject.put(FeatureStringEnum.TYPE.value, FeatureStringEnum.TYPE_GENOMIC.value)
-////                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching FASTA for each chromosome
-//
-//                    pathToOutputFile = Paths.get(outputFile.getPath())
-//                    log.debug "The output is located at ${pathToOutputFile}"
-//                }
-//            }
-
         }
 
         File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
@@ -159,7 +135,6 @@ class SequenceController {
             gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
         } else if (typeOfExport == "FASTA") {
             // call fastaHandlerService
-            // currently handles genomic. Must handle all types depending on user's input
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
 
         }
@@ -171,7 +146,7 @@ class SequenceController {
     }
 
     def exportHandler() {
-        log.debug "PARAMS: ${params}"
+        log.debug "params to exportHandler: ${params}"
         String pathToFile = params.filePath
         def file = new File(pathToFile)
         response.contentType = "txt"

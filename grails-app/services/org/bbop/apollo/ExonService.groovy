@@ -412,7 +412,6 @@ class ExonService {
     String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
         Transcript transcript = getTranscript(exon)
         CDS cds = transcriptService.getCDS(transcript)
-        log.debug "===> CDS @getCodingSequenceInPhase: ${cds}"
         if (cds == null || !featureService.overlaps(exon, cds, true)) {
             return ""
         }
@@ -436,9 +435,6 @@ class ExonService {
             int fmin = e.fmin < cds.fmin ? cds.fmin : e.fmin
             int fmax = e.fmax > cds.fmax ? cds.fmax : e.fmax
             length = fmin < fmax ? fmax - fmin : fmin - fmax
-            log.debug "===> fmin of Exon: ${fmin}"
-            log.debug "===> fmax of Exon: ${fmax}"
-            log.debug "===> length of Exon: ${length}"
         }
         
         FeatureLocation flankingRegionLocation = new FeatureLocation(
@@ -449,13 +445,10 @@ class ExonService {
                 ,sequence : exon.getFeatureLocation().sequence
         ).save()
         String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
-        log.debug "===> RESIDUES from flankingRegion : ${residues}"
         if (removePartialCodons) {
             int phase = length % 3 == 0 ? 0 : 3 - (length % 3)
             residues = residues.substring(phase)
-            log.debug "===> RESIDUES from flankingRegion (phase style1) : ${residues}"
             residues = residues.substring(0, residues.length() - (residues.length() % 3))
-            log.debug "===> RESIDUES from flankingRegion (phase style2) : ${residues}"
         }
         return residues
     }
