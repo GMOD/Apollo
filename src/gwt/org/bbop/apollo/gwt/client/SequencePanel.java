@@ -314,6 +314,9 @@ public class SequencePanel extends Composite {
 
     @UiHandler(value = {"organismList"})
     public void handleOrganismChange(ChangeEvent changeEvent) {
+        selectedCount = 0 ;
+        multiSelectionModel.clear();
+        updatedExportSelectedButton();
         reload();
     }
 
