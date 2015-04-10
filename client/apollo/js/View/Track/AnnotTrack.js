@@ -4584,7 +4584,7 @@ define([
                      * contextMenuItems["information"] = index++;
                      */
                     annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Get sequence",
+                        label: "Get Sequence",
                         onClick: function (event) {
                             thisObj.getSequence();
                         }
@@ -4592,7 +4592,7 @@ define([
                     contextMenuItems["get_sequence"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Get gff3",
+                        label: "Get GFF3",
                         onClick: function (event) {
                             thisObj.getGff3();
                         }
@@ -4602,7 +4602,7 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Zoom to base level",
                         onClick: function (event) {
-                            if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to base level") {
+                            if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to Base Level") {
                                 thisObj.zoomToBaseLevel(thisObj.annot_context_mousedown);
                             }
                             else {
@@ -4683,7 +4683,7 @@ define([
                         }));
                         contextMenuItems["duplicate"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Make intron",
+                            label: "Make Intron",
                             // use annot_context_mousedown instead of current event, since want
                             // to split
                             // at mouse position of event that triggered annot_context_menu
@@ -4694,7 +4694,7 @@ define([
                         }));
                         contextMenuItems["make_intron"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Move to opposite strand",
+                            label: "Move to Opposite Strand",
                             onClick: function (event) {
                                 thisObj.flipStrand();
                             }
@@ -4704,7 +4704,7 @@ define([
                         index++;
 
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set translation start",
+                            label: "Set Translation Start",
                             // use annot_context_mousedown instead of current event, since want
                             // to split
                             // at mouse position of event that triggered annot_context_menu
@@ -4715,7 +4715,7 @@ define([
                         }));
                         contextMenuItems["set_translation_start"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set translation end",
+                            label: "Set Translation End",
                             // use annot_context_mousedown instead of current event, since want
                             // to split
                             // at mouse position of event that triggered annot_context_menu
@@ -4726,7 +4726,7 @@ define([
                         }));
                         contextMenuItems["set_translation_end"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set longest ORF",
+                            label: "Set Longest ORF",
                             // use annot_context_mousedown instead of current event, since want
                             // to split
                             // at mouse position of event that triggered annot_context_menu
@@ -4737,7 +4737,7 @@ define([
                         }));
                         contextMenuItems["set_longest_orf"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set readthrough stop codon",
+                            label: "Set Readthrough Stop Codon",
                             onClick: function (event) {
                                 thisObj.setReadthroughStopCodon();
                             }
@@ -4754,14 +4754,14 @@ define([
                         }));
                         contextMenuItems["set_as_five_prime_end"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set as 3' end",
+                            label: "Set as 3' End",
                             onClick: function (event) {
                                 thisObj.setAsThreePrimeEnd();
                             }
                         }));
                         contextMenuItems["set_as_three_prime_end"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set both ends",
+                            label: "Set both Ends",
                             onClick: function (event) {
                                 thisObj.setBothEnds();
                             }
@@ -4771,28 +4771,28 @@ define([
                         index++;
                         contextMenuItems["set_downstream_donor"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set to downstream splice donor",
+                            label: "Set to Downstream Splice Donor",
                             onClick: function (event) {
                                 thisObj.setToDownstreamDonor();
                             }
                         }));
                         contextMenuItems["set_upstream_donor"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set to upstream splice donor",
+                            label: "Set to Upstream Splice Donor",
                             onClick: function (event) {
                                 thisObj.setToUpstreamDonor();
                             }
                         }));
                         contextMenuItems["set_downstream_acceptor"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set to downstream splice acceptor",
+                            label: "Set to Downstream Splice Acceptor",
                             onClick: function (event) {
                                 thisObj.setToDownstreamAcceptor();
                             }
                         }));
                         contextMenuItems["set_upstream_acceptor"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set to upstream splice acceptor",
+                            label: "Set to Upstream Splice Acceptor",
                             onClick: function (event) {
                                 thisObj.setToUpstreamAcceptor();
                             }
@@ -4814,7 +4814,7 @@ define([
                         }));
                         contextMenuItems["redo"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "History",
+                            label: "Show History",
                             onClick: function (event) {
                                 thisObj.getHistory();
                             }
