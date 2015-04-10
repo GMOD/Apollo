@@ -8,8 +8,10 @@
 - cd grails-apollo
 - git checkout grails1
 
-## Deploy the code
+## Deploy the code as a war file
 - ./apollo deploy
+- war file is created in target/apollo-X.Y.war
+- deploy to your tomcat system (typically in the webapps tomcat directory)
 
 
 ## Run the code
