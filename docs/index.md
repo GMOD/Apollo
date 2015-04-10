@@ -18,7 +18,7 @@ Note: This documentation covers release versions 1.x of Web Apollo. Documentatio
 Let's get started!
 
 1. [Introduction](Introduction.md)
-2. [Quick-start guide](Quick_start_guide.md)
+2. [Web Apollo 2.0 quick-start](Apollo2Build.md)
 3. [Pre-requisites](Prerequisites.md)
 4. [Database setup](Database_setup.md)
 5. [Configure](Configure.md)
