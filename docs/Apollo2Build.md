@@ -1,15 +1,15 @@
 
+## Install Grails:
+1. curl -s get.gvmtool.net | bash
+2. gvm install grails 2.4.4
 
 ## Get The code
 - git clone https://github.com/GMOD/Apollo.git grails-apollo
 - cd grails-apollo
 - git checkout grails1
-- git status   # should be grails1
 
-
-## Install jbrowse
-- ant debug  # just once
-- ./copy_client.sh # every time JS code in client changes 
+## Deploy the code
+- ./apollo deploy
 
 
 ## Run the code
@@ -24,26 +24,8 @@ It runs with H2, postgreSQL, etc.
 - copy sample-postgres-apollo-config.groovy to apollo-config.groovy and update
 
 
-#### To run in dev-mode:
-1. curl -s get.gvmtool.net | bash
-2. gvm install grails 2.4.4
-3. open two terminals A and B
-4. terminal A (grails run-app)
-5. terminal B (ant devmode or ant gwtc if not doing any GWT development)
-6. setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
 
-
-#### To run in production:
-1. curl -s get.gvmtool.net | bash
-2. gvm install grails 2.4.4
-3. ant gwtc
-4. grails war
-5. Copy target/apollo-2.0-SNAPSHOT.war to your tomcat webapps directory
-6. setup jbrowse data here with user read permissions:  /opt/apollo/jbrowse/data
-
-
-``Note: We will be wrapping these commands in the "apollo" binary at some point.``
-
+==========
 
 ## Architecture notes:
 - Grails code is in normal grails directories under "grails-app"
