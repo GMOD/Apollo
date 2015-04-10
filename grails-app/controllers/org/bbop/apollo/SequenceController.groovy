@@ -100,12 +100,13 @@ class SequenceController {
         def sequenceList
         if (exportAllSequences == "true") {
             // HQL for all sequences
-            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl").sort{[it.name]}
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl order by s.name asc ")
         }
         else {
             // HQL for a single sequence or selected sequences
-            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames)", [sequenceNames: sequences]).sort{[it.name]}
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences])
         }
+        println "# of sequences to export ${sequenceList.size()}"
         for (Sequence eachSeq in sequenceList) {
             List<FeatureLocation> featureLocationList = sequenceService.getFeatureLocations(eachSeq)
             if (featureLocationList.size() == 0) {
