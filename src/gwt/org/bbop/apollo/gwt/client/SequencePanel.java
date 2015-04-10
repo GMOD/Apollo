@@ -385,6 +385,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler("exportSelectedButton")
     public void exportSelectedHandler(ClickEvent clickEvent) {
+        exportAll = false;
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
         for (SequenceInfo sequenceInfo : sequenceInfoList) {
             if (sequenceInfo.getSelected()) {
@@ -398,6 +399,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler("exportSingleButton")
     public void exportSingleHandler(ClickEvent clickEvent) {
+        exportAll = false;
         SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
         sequenceInfoList1.add(sequenceInfo);
