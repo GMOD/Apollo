@@ -26,7 +26,7 @@ http://tomcat.apache.org/tomcat-7.0-doc/security-howto.html#Non-Tomcat_settings
 ### No refseqs when opening up selectTrack.jsp
 
 
-This problem often indicates that credentials for the LocalDbUserAuthentication script were not initialized properly because only tracks that the user has permissions for will be shown. Please refer to the [quick install guide](Quick_start_guide.md) for details on these steps, paying attention particularly to the set_user_track_permissions.pl script which sets the permissions for which which refseqs a user can access.
+This problem often indicates that credentials for the LocalDbUserAuthentication script were not initialized properly because only tracks that the user has permissions for will be shown. Please refer to the [quick install guide](Apollo2Build.md) for details on these steps, paying attention particularly to the set_user_track_permissions.pl script which sets the permissions for which which refseqs a user can access.
 
 ### Getting logged out when entering JBrowse
 

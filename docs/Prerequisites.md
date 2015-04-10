@@ -10,7 +10,7 @@ requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and
 and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
 
 ### Server-side Prerequisites
-Note: see the [Quick-start guide](Quick_start_guide.md) for the
+Note: see the [Quick-start guide](Apollo2Build.md) for the
 quickest way to take care of pre-requisites.
 
 -   System prerequisites (see quick-start guide for simple setup)

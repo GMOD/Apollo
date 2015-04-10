@@ -3,7 +3,7 @@
 
 The data generation pipeline will use jbrowse and webapollo perl scripts. The preferred way to install these is through the `apollo deploy` command, which will install the necessary pre-requisites automatically into a local directory.
 
-If you have trouble finding or running the jbrowse binaries, please refer to the [troubleshooting guide](Troubleshooting.md). If you are building a custom jbrowse+webapollo package, please refer to the [developers guide](Developer.md). This directory will output the data into a such as JBROWSE_DATA_DIR like in the [Quick-install guide](Quick_start_guide.md), and will also be using the pyu_data that was sourced there as well.
+If you have trouble finding or running the jbrowse binaries, please refer to the [troubleshooting guide](Troubleshooting.md). If you are building a custom jbrowse+webapollo package, please refer to the [developers guide](Developer.md). This directory will output the data into a such as JBROWSE_DATA_DIR like in the [Quick-install guide](Apollo2Build.md), and will also be using the pyu_data that was sourced there as well.
 
 Note: you will be based in the directory that you originally downloaded or cloned Web Apollo during these steps, not inside the tomcat webapps directory.
 
