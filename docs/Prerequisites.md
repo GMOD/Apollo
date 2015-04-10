@@ -1,6 +1,6 @@
 ## Prerequisites
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On GitHub</a>
 
 
 ### Client Prerequisites
@@ -13,21 +13,15 @@ and matches the web browser requirements for JBrowse (see [jbrowse.org](http://j
 Note: see the [Quick-start guide](Quick_start_guide.md) for the
 quickest way to take care of pre-requisites.
 
--   System prerequisites
+-   System prerequisites (see quick-start guide for simple setup)
     -   Any Unix like system (e.g., Unix, Linux, Mac OS X)
-    -   Servlet container (must support servlet spec 3.0+) [officially
-        supported: Tomcat 7]
+    -   Servlet container (must support servlet spec 3.0+) [officially supported: Tomcat 7]
     -   Java 7+
-    -   Maven3+ (most package managers will have this)
-    -   Relational Database Management System [officially supported:
-        PostgreSQL]
+    -   Grails (easiest way to install is using GVM)
+    -   Ant 1.8+ (most package managers will have this)
+    -   Relational Database Management System [officially supported: PostgreSQL]
     -   Git
--   Perl prerequisites:
-    -   Web Apollo will automatically try to install all perl-pre-requisites using install_jbrowse.sh
-    -   If you experience problems with this script, please review setup.log
--   Data generation pipeline prerequisites (see [JBrowse
-    prerequisites](http://gmod.org/wiki/JBrowse_Configuration_Guide) for more
-    information on its prerequisites)
+-   Data generation pipeline prerequisites (see [JBrowse prerequisites](http://gmod.org/wiki/JBrowse_Configuration_Guide) for more information)
     -   System packages
         -   libpng12-0 (optional, for JBrowse imagetrack)
         -   libpng12-dev (optional, for JBrowse imagetrack)
@@ -37,10 +31,10 @@ quickest way to take care of pre-requisites.
         -   zlib-devel (RedHat/CentOS)
         -   libexpat1-dev (Debian/Ubuntu)
         -   expat-dev (RedHat/CentOS)
+-   Perl prerequisites:
+    -   Web Apollo will automatically try to install all perl-pre-requisites using install_jbrowse.sh or automatically when running the "apollo deploy" step
+    -   If you experience problems with this perl setup, please review setup.log and post on our [mailing list](apollo@lists.lbl.gov)
+    -   If you are building Web Apollo in "release" mode, perl 5.10 or up will be required
 -   Sequence search (optional)
-    -   Blat (download
-        [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/)
-        or
-        [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/|Mac)
-        binaries)
+    -   Blat (download [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/ or [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/|Mac) binaries)
 
