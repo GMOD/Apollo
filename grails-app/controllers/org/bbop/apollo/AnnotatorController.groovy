@@ -18,26 +18,22 @@ class AnnotatorController {
     def index() {
         String uuid = UUID.randomUUID().toString()
         Organism.all.each {
-            println it.commonName
+            log.info it.commonName
         }
         [userKey:uuid]
     }
-
-    def demo() {
-    }
-
     /**
      * updates shallow properties of gene / feature
      * @return
      */
     @Transactional
     def updateFeature() {
-        println "updating feature ${params.data}"
+        log.info "updating feature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        println "uqnieuname 2: ${data.uniquename}"
-        println "rendered data ${data as JSON}"
+        log.info "uqnieuname 2: ${data.uniquename}"
+        log.info "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
-        println "foiund feature: "+feature
+        log.info "foiund feature: "+feature
 
         feature.name = data.name
         feature.symbol = data.symbol
@@ -45,7 +41,7 @@ class AnnotatorController {
 
         feature.save(flush: true, failOnError: true)
 
-        println "saved!! "
+        log.info "saved!! "
 
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         if (feature instanceof Gene) {
@@ -74,10 +70,10 @@ class AnnotatorController {
 
 
     def updateFeatureLocation() {
-        println "updating exon ${params.data}"
+        log.info "updating exon ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        println "uqnieuname 2: ${data.uniquename}"
-        println "rendered data ${data as JSON}"
+        log.info "uqnieuname 2: ${data.uniquename}"
+        log.info "rendered data ${data as JSON}"
         Feature exon = Feature.findByUniqueName(data.uniquename)
         exon.featureLocation.fmin = data.fmin
         exon.featureLocation.fmax = data.fmax
@@ -129,7 +125,7 @@ class AnnotatorController {
             try {
                 organismId = Long.parseLong(organismIdString?.trim())
                 allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o.id = :organismId",[organismId:organismId])
-                println "found features ${allFeatures.size()} -> ${organismId}"
+                log.info "found features ${allFeatures.size()} -> ${organismId}"
             } catch (e) {
                 log.error "error parsing ${organismIdString}, returning no features ${e}"
                 allFeatures = new ArrayList<>()
@@ -152,31 +148,5 @@ class AnnotatorController {
 
     }
 
-    def what(String data) {
-        println params
-        println data
-        def dataObject = JSON.parse(data)
-        println dataObject
-        println dataObject.thekey
-
-        render dataObject.thekey
-    }
-
-    def search(String data) {
-        println params
-        println data
-        def dataObject = JSON.parse(data)
-        println dataObject
-        println dataObject.query
-
-        // do stuff
-        String result = ['pax6a-001', 'pax6a-002']
-
-        dataObject.result = result
-
-//        println "return object ${dataObject} vs ${dataObject as JSON}"
-
-        render dataObject as JSON
-    }
 
 }

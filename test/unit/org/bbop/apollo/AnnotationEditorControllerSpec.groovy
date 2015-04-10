@@ -69,7 +69,7 @@ class AnnotationEditorControllerSpec extends Specification {
             operation = "get_features"
             track = "chromosome7"
         }.toString()
-        println "Feature.count: " + Feature.count
+        log.debug "Feature.count: " + Feature.count
 
         controller.getFeatures()
 
@@ -80,9 +80,9 @@ class AnnotationEditorControllerSpec extends Specification {
         JSONObject jsonObject = (JSONObject) parser.parseJSON()
         assert jsonObject.get("operation") == "get_features"
         assert jsonObject.get("track") == "chromosome7"
-        println jsonObject.getJSONArray("features")
+        log.debug jsonObject.getJSONArray("features")
         JSONArray array = jsonObject.getJSONArray("features")
-        println "array ${array}"
+        log.debug "array ${array}"
         assert 1 == array.size()
         JSONObject element = array.getJSONObject(0)
         element.get("name") == "abc123"

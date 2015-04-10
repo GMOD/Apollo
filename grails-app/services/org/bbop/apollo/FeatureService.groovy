@@ -1389,13 +1389,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String residueString = null
 
         if (feature instanceof Transcript) {
-            println "===> in getResiduesWithAlterations() feature is of type Transcript; calling getResiduesFromTranscript()"
+            log.debug "===> in getResiduesWithAlterations() feature is of type Transcript; calling getResiduesFromTranscript()"
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
         } else if (feature instanceof CDS) {
-            println "===> in getResiduesWithAlterations() feature is of type CDS; calling getResiduesFromCDS()"
+            log.debug "===> in getResiduesWithAlterations() feature is of type CDS; calling getResiduesFromCDS()"
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
         } else {
-            println "===> in getResiduesWithAlterations() feature is of type ${feature.class}; calling getResiduesFromFeature()"
+            log.debug "===> in getResiduesWithAlterations() feature is of type ${feature.class}; calling getResiduesFromFeature()"
             residueString = sequenceService.getResiduesFromFeature(feature)
         }
         if (sequenceAlterations.size() == 0) {

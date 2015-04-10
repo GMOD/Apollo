@@ -36,7 +36,6 @@ class PermissionService {
 
     boolean isUserAdmin(User user ){
         for (Role role in user.roles) {
-            println "researcher roles? ${role.name}"
             if (role.name == UserService.ADMIN) {
                 return true
             }

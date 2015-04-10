@@ -220,7 +220,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 //        then: "we should get a transcript back" // we currently get nothing
 //        int flankingRegionCount = FlankingRegion.count
 //        assert Feature.count == 7 + flankingRegionCount
-////        println returnObject as JSON
+////        log.debug returnObject as JSON
 //        assert returnObject.getString('operation')=="ADD"
 //        assert returnObject.getBoolean('sequenceAlterationEvent')==false
 //        JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -294,7 +294,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject returnObject = requestHandlingService.addTranscript(jsonObject)
 
         then: "we should get a transcript back" // we currently get nothing
-//        println returnObject as JSON
+//        log.debug returnObject as JSON
         assert returnObject.getString('operation')=="ADD"
         assert returnObject.getBoolean('sequenceAlterationEvent')==false
         JSONArray featuresArray = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -332,7 +332,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should see an exon added"
         assert returnedAfterExonObject!=null
-        println Feature.count
+        log.debug Feature.count
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size()==1
@@ -396,7 +396,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
         then: "we should see that we flipped the strand"
         assert returnedAfterExonObject != null
-        println Feature.count
+        log.debug Feature.count
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 1
@@ -419,7 +419,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
 
         then: "we should have no splice sites"
-        println Feature.count
+        log.debug Feature.count
         assert Feature.count > 5
         assert returnFeaturesArray.size() == 1
         assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"

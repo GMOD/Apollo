@@ -38,7 +38,7 @@
         }
     </ui:style>
     <b:Container fluid="true" styleName="{style.preferenceContainer}">
-        <b:Row>
+        <b:Row visible="false">
             <b:Column size="MD_4" styleName="{style.widgetPanel}">
                 <b:Form type="INLINE">
                     <b:FieldSet>
@@ -50,7 +50,7 @@
                 </b:Form>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row visible="false">
             <b:Column size="MD_2" styleName="{style.statusPanel}">
                 <gwt:HTML>
                     <b>Status</b>
@@ -60,7 +60,7 @@
                 <gwt:FlexTable ui:field="statusList"/>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row visible="false">
             <b:Column size="MD_6" styleName="{style.statusPanel}">
                 <gwt:TextBox ui:field="newStatusField"/>
                 <gwt:Button ui:field="newStatusButton" text="Add Status"/>

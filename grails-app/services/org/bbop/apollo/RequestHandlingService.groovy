@@ -851,7 +851,7 @@ class RequestHandlingService {
 
     public void sendAnnotationEvent(String returnString) {
         log.debug "RHS::return operations sent . . ${returnString?.size()}"
-//        println "returnString ${returnString}"
+//        log.debug "returnString ${returnString}"
         if (returnString.startsWith("[")) {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
@@ -864,11 +864,11 @@ class RequestHandlingService {
 
     synchronized void handleChangeEvent(AnnotationEvent event) {
 
-//        println "handingling event ${events.length}"
+//        log.debug "handingling event ${events.length}"
         if (!event) {
             return;
         }
-//        println "handling first event ${events[0] as JSON}"
+//        log.debug "handling first event ${events[0] as JSON}"
         JSONArray operations = new JSONArray();
 //        for (AnnotationEvent event : events) {
         JSONObject features = event.getFeatures();
@@ -1581,7 +1581,7 @@ class RequestHandlingService {
             transcript2Object.put(FeatureStringEnum.NAME.value, gene1.name)
             transcript2Object.remove(FeatureStringEnum.PARENT_ID.value)
             transcript2Object.remove(FeatureStringEnum.UNIQUENAME.value)
-            println "transcript2Object ${transcript2Object as JSON}"
+            log.debug "transcript2Object ${transcript2Object as JSON}"
             addTranscriptFeaturesArray.add(transcript2Object)
             addSplitTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
             addSplitTranscriptJSONObject.put("track", inputObject.track)
@@ -1591,7 +1591,7 @@ class RequestHandlingService {
 //                featureRelationshipService.removeFeatureRelationship(gene1,t)
                 transcriptService.deleteTranscript(gene1, t)
             }
-            println "NAME OF TRANSCRIPT 2: ${transcript2.name}"
+            log.debug "NAME OF TRANSCRIPT 2: ${transcript2.name}"
             transcript2.parentFeatureRelationships.each { it ->
                 it.childFeature.delete()
 //                featureRelationshipService.removeFeatureRelationship(transcript2)

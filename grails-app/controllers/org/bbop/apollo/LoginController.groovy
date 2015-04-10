@@ -23,10 +23,10 @@ class LoginController extends AbstractApolloController {
     def handleOperation(String track, String operation) {
         // TODO: this is a hack, but it should come through the UrlMapper
 
-        println "request stuff ${request.parameterMap.keySet()}"
-        println "upstream params ${params}"
+        log.debug "request stuff ${request.parameterMap.keySet()}"
+        log.debug "upstream params ${params}"
         JSONObject postObject = findPost()
-        println "postObject ${postObject as JSON}"
+        log.debug "postObject ${postObject as JSON}"
         if(postObject?.containsKey(REST_OPERATION)){
             operation = postObject.get(REST_OPERATION)
         }
@@ -66,13 +66,13 @@ class LoginController extends AbstractApolloController {
             log.error "Can only register admins if no users ${User.count} or user is admin"
             throw new AnnotationException("Can only register admins if no users ${User.count} or user is admin")
         }
-        println "doing the register ${params}"
+        log.debug "doing the register ${params}"
         def jsonObj = request.JSON
         if(!jsonObj){
             jsonObj = JSON.parse(params.data)
-            println "jsonObj ${jsonObj}"
+            log.debug "jsonObj ${jsonObj}"
         }
-        println "register -> the jsonObj ${jsonObj}"
+        log.debug "register -> the jsonObj ${jsonObj}"
         String username = jsonObj.username
         String password = jsonObj.password
         Boolean rememberMe = jsonObj.rememberMe
@@ -97,13 +97,13 @@ class LoginController extends AbstractApolloController {
      * @return
      */
     def login(){
-        println "doing the login ${params}"
+        log.debug "doing the login ${params}"
         def jsonObj = request.JSON
         if(!jsonObj){
             jsonObj = JSON.parse(params.data)
-            println "jsonObj ${jsonObj}"
+            log.debug "jsonObj ${jsonObj}"
         }
-        println "login -> the jsonObj ${jsonObj}"
+        log.debug "login -> the jsonObj ${jsonObj}"
         String username = jsonObj.username
         String password = jsonObj.password
         Boolean rememberMe = jsonObj.rememberMe
@@ -114,8 +114,8 @@ class LoginController extends AbstractApolloController {
         if (rememberMe) {
             authToken.rememberMe = true
         }
-        println "remembmerMe: ${rememberMe}"
-        println "authToken : ${authToken.rememberMe}"
+        log.debug "remembmerMe: ${rememberMe}"
+        log.debug "authToken : ${authToken.rememberMe}"
 
         // If a controller redirected to this page, redirect back
         // to it. Otherwise redirect to the root URI.
@@ -135,9 +135,9 @@ class LoginController extends AbstractApolloController {
             Subject subject = SecurityUtils.getSubject();
             Session session = subject.getSession(true);
             subject.login(authToken)
-            println "IS AUTHENTICATED: " + subject.isAuthenticated()
-            println "has a session ${session}"
-            println "LOGIN SESSIN ${SecurityUtils.subject.getSession(false).id}"
+            log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
+            log.debug "has a session ${session}"
+            log.debug "LOGIN SESSIN ${SecurityUtils.subject.getSession(false).id}"
 
 //            HttpSession session = request.getSession();
             session.setAttribute("username", username);
@@ -194,7 +194,7 @@ class LoginController extends AbstractApolloController {
 
 
     def logout(){
-        println "doing the logOUT"
+        log.debug "doing the logOUT"
 //        if (request.getSession(false)) {
 //            try {
 //                request.getSession(false).invalidate();
@@ -202,7 +202,7 @@ class LoginController extends AbstractApolloController {
 //                log.error "error invalidating session ${e}"
 //            }
 //        }
-        println "LOGOUT SESSIN ${SecurityUtils?.subject?.getSession(false)?.id}"
+        log.debug "LOGOUT SESSIN ${SecurityUtils?.subject?.getSession(false)?.id}"
         SecurityUtils.subject.logout()
 
 //        webRequest.getCurrentRequest().session = null

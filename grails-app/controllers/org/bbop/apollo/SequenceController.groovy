@@ -28,44 +28,8 @@ class SequenceController {
 
     }
 
-    def index3(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(), username: 'demo@demo.gov', isAdmin: 'true']
-    }
-
-    def index2(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(), username: 'demo@demo.gov', isAdmin: 'true']
-    }
-
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(), username: 'demo@demo.gov', isAdmin: 'true']
-    }
-
-    def websocketTest(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
-    }
-//
-    def show(Sequence sequenceInstance) {
-//        respond sequenceInstance
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-        respond sequenceInstance, model: [featureLocations: FeatureLocation.findAllBySequence(sequenceInstance)]
-    }
-
-    def create() {
-        respond new Sequence(params)
-    }
-//
-//    def retrieveSequences(Organism organism){
-//    }
-
     def setDefaultSequence(Long id, String sequenceName) {
-        println "setting default sequences: ${params}"
+        log.debug "setting default sequences: ${params}"
         Session session = SecurityUtils.subject.getSession(false)
         Sequence sequence = Sequence.findByName(sequenceName)
         Organism organism = Organism.findById(id)
@@ -113,75 +77,6 @@ class SequenceController {
         render sequenceArray as JSON
     }
 
-    @Transactional
-    def save(Sequence sequenceInstance) {
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-
-        if (sequenceInstance.hasErrors()) {
-            respond sequenceInstance.errors, view: 'create'
-            return
-        }
-
-        sequenceInstance.save flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'sequence.label', default: 'Sequence'), sequenceInstance.id])
-                redirect sequenceInstance
-            }
-            '*' { respond sequenceInstance, [status: CREATED] }
-        }
-    }
-
-    def edit(Sequence sequenceInstance) {
-        respond sequenceInstance
-    }
-
-    @Transactional
-    def update(Sequence sequenceInstance) {
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-
-        if (sequenceInstance.hasErrors()) {
-            respond sequenceInstance.errors, view: 'edit'
-            return
-        }
-
-        sequenceInstance.save flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
-                redirect sequenceInstance
-            }
-            '*' { respond sequenceInstance, [status: OK] }
-        }
-    }
-
-    @Transactional
-    def delete(Sequence sequenceInstance) {
-
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-
-        sequenceInstance.delete flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
-                redirect action: "index", method: "GET"
-            }
-            '*' { render status: NO_CONTENT }
-        }
-    }
-
     protected void notFound() {
         request.withFormat {
             form multipartForm {
@@ -194,15 +89,15 @@ class SequenceController {
 
     @Transactional
     def exportSequences() {
-        println "export sequences ${request.JSON} -> ${params}"
+        log.debug "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         String typeOfExport = dataObject.type
         String sequenceType = dataObject.sequenceType
-        println "SEQTYPE: ${sequenceType}"
+        log.debug "SEQTYPE: ${sequenceType}"
         Collection<Feature> listOfFeatures = new ArrayList<Feature>();
 
-        println "==> TypeofExport: ${typeOfExport}"
-        println "===> dataobjectSequence: ${dataObject.sequences.name}"
+        log.debug "==> TypeofExport: ${typeOfExport}"
+        log.debug "===> dataobjectSequence: ${dataObject.sequences.name}"
         def sequences = dataObject.sequences.name
         // the alternate way
 //        def sequenceList = Sequence.executeQuery("select s from Sequence s join s.featureLocations fl  ")
@@ -217,11 +112,11 @@ class SequenceController {
 
         for (Sequence eachSeq in sequenceList) {
             // for each sequence in the params
-            println "===> eachSeQ: ${eachSeq.name}"
+            log.debug "===> eachSeQ: ${eachSeq.name}"
             List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
-            println "===> SIZE OF FEATURE LIST: ${testList.size()}"
+            log.debug "===> SIZE OF FEATURE LIST: ${testList.size()}"
             if (testList.size() == 0) {
-                println "No features on sequence ${sequence}"
+                log.debug "No features on sequence ${sequence}"
                 continue
             }
             JSONObject requestObject = new JSONObject()
@@ -243,7 +138,7 @@ class SequenceController {
 //                    requestObject.put("operation", "get_gff3")
 //                    sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching GFF3 for each chromosome
 //                    pathToOutputFile = Paths.get(outputFile.getPath())
-//                    println "The output is located at ${pathToOutputFile}"
+//                    log.debug "The output is located at ${pathToOutputFile}"
 //                }
 //                else if(typeOfExport == "FASTA") {
 ////                    outputFile = File.createTempFile("Annotations", ".fa")
@@ -252,7 +147,7 @@ class SequenceController {
 ////                    sequenceService.getSequenceForFeature(requestObject, outputFile) // fetching FASTA for each chromosome
 //
 //                    pathToOutputFile = Paths.get(outputFile.getPath())
-//                    println "The output is located at ${pathToOutputFile}"
+//                    log.debug "The output is located at ${pathToOutputFile}"
 //                }
 //            }
 
@@ -276,7 +171,7 @@ class SequenceController {
     }
 
     def exportHandler() {
-        println "PARAMS: ${params}"
+        log.debug "PARAMS: ${params}"
         String pathToFile = params.filePath
         def file = new File(pathToFile)
         response.contentType = "txt"

@@ -156,10 +156,10 @@ class FeaturePropertyService {
 //     */
     public void setOwner(Feature feature, String owner) {
 
-        println "looking for owner ${owner}"
+        log.debug "looking for owner ${owner}"
         User user = User.findByUsername(owner)
-        println "owner ${owner} found ${user}"
-        println "feature ${feature}"
+        log.debug "owner ${owner} found ${user}"
+        log.debug "feature ${feature}"
 
         if (user) {
             setOwner(feature, user)

@@ -48,7 +48,7 @@ class BootStrap {
 
 
         if (grailsApplication.config.apollo.bootstrap || Environment.current == Environment.TEST) {
-            println "attempting to bootstrap the data "
+            log.debug "attempting to bootstrap the data "
             mockupService.bootstrapData()
 //            if(grailsApplication.config.apollo.bootstrapClass && grailsApplication.config.apollo.bootstrapMethod){
 //                Class.forName(grailsApplication.config.apollo.bootstrapClass).newInstance().invoke(grailsApplication.config.apollo.bootstrapMethod);
@@ -56,7 +56,7 @@ class BootStrap {
 //            }
         }
         else{
-            println "NOT attempting to bootstrap the data "
+            log.debug "NOT attempting to bootstrap the data "
 
         }
 

@@ -81,7 +81,7 @@ class AnnotationEditorControllerIntegrationSpec extends IntegrationSpec {
         ).save()
         cdsOne.addToFeatureLocations(cdsOneFeatureLocation)
         
-        println "Features: ${Feature.count}"
+        log.debug "Features: ${Feature.count}"
     }
 
     def cleanup() {
@@ -98,7 +98,7 @@ class AnnotationEditorControllerIntegrationSpec extends IntegrationSpec {
         String jsonString = "{ \"track\": \"chr1\", \"features\": [ { \"uniquename\": \"abc123-gene\" } ], \"operation\": \"get_gff3\" }"
         JSONParser parser = new JSONParser(new StringReader(jsonString))
         JSONObject jsonObject = (JSONObject) parser.parseJSON()
-//        println "===> JSONOBJECT: ${jsonObject}"
+//        log.debug "===> JSONOBJECT: ${jsonObject}"
 //        params.data = jsonObject.toString()
 
         

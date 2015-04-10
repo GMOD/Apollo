@@ -217,7 +217,7 @@ class SequenceService {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
                 String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
-                println "=====> TRANSLATING SEQUENCE FOR PEPTIDE"
+                log.debug "=====> TRANSLATING SEQUENCE FOR PEPTIDE"
                 sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(cds) != null)
                 if (sequence.charAt(sequence.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     sequence = sequence.substring(0, sequence.size() - 1)
@@ -231,7 +231,7 @@ class SequenceService {
                     }
                 }
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
-                println "===> trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
+                log.debug "===> trying to fetch PEPTIDE sequence of selected exon: ${gbolFeature}"
                 String rawSequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
                 sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))) != null)
                 if (sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
@@ -252,7 +252,7 @@ class SequenceService {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 sequence = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
-                println "trying to fetch CDS sequence of selected exon: ${gbolFeature}"
+                log.debug "trying to fetch CDS sequence of selected exon: ${gbolFeature}"
                 sequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, false)
             } else {
                 sequence = ""
@@ -305,13 +305,13 @@ class SequenceService {
     def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
         // Method returns a JSONObject 
         // Suitable for 'get sequence' operation from AEC
-        println "===> input at getSequenceForFeature: ${inputObject}"
+        log.debug "===> input at getSequenceForFeature: ${inputObject}"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
         int flank
         if (inputObject.has('flank')) {
             flank = inputObject.getInt("flank")
-            println "FLANK from request object: ${flank}"
+            log.debug "FLANK from request object: ${flank}"
         } else {
             flank = 0
         }

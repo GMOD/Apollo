@@ -37,11 +37,11 @@ class MockupService {
             }
 
             results.each { Organism organism ->
-                println "processing organism ${organism}"
+                log.debug "processing organism ${organism}"
                 String fileName = organism.getRefseqFile()
                 File testFile = new File(fileName)
                 if (testFile.exists() && testFile.isFile()) {
-                    println "trying to load refseq file: ${testFile.absolutePath}"
+                    log.debug "trying to load refseq file: ${testFile.absolutePath}"
                     sequenceService.loadRefSeqs(organism)
                 } else {
                     log.error "file not found: " + testFile.absolutePath

@@ -120,7 +120,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         then: "we should get a proper GFF3 for the feature"
         String gffFileText = gffFile.text
         assert gffFileText.length() > 0
-        println gffFileText
+        log.debug gffFileText
     }
 
     void "add a gene model with UTRs to get its sequence and a valid GFF3"() {
@@ -216,7 +216,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         then: "we should get a proper GFF3 for the feature"
         String gffFileText = gffFile.text
         assert gffFileText.length() > 0
-        println gffFileText
+        log.debug gffFileText
     }
     
 
@@ -255,6 +255,6 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
         then: "we should get a proper GFF3 for each feature"
         String gffFileText = gffFile.text
         assert gffFileText.length() > 0
-        println gffFileText
+        log.debug gffFileText
     }
 }

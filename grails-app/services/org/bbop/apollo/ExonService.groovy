@@ -284,7 +284,7 @@ class ExonService {
             }
             String seq = residues.substring(coordinate, coordinate + 2);
 
-//            println "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
+//            log.debug "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
             if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 1, exon.getFmax());
@@ -412,7 +412,7 @@ class ExonService {
     String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
         Transcript transcript = getTranscript(exon)
         CDS cds = transcriptService.getCDS(transcript)
-        println "===> CDS @getCodingSequenceInPhase: ${cds}"
+        log.debug "===> CDS @getCodingSequenceInPhase: ${cds}"
         if (cds == null || !featureService.overlaps(exon, cds, true)) {
             return ""
         }
@@ -436,9 +436,9 @@ class ExonService {
             int fmin = e.fmin < cds.fmin ? cds.fmin : e.fmin
             int fmax = e.fmax > cds.fmax ? cds.fmax : e.fmax
             length = fmin < fmax ? fmax - fmin : fmin - fmax
-            println "===> fmin of Exon: ${fmin}"
-            println "===> fmax of Exon: ${fmax}"
-            println "===> length of Exon: ${length}"
+            log.debug "===> fmin of Exon: ${fmin}"
+            log.debug "===> fmax of Exon: ${fmax}"
+            log.debug "===> length of Exon: ${length}"
         }
         
         FeatureLocation flankingRegionLocation = new FeatureLocation(
@@ -449,13 +449,13 @@ class ExonService {
                 ,sequence : exon.getFeatureLocation().sequence
         ).save()
         String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
-        println "===> RESIDUES from flankingRegion : ${residues}"
+        log.debug "===> RESIDUES from flankingRegion : ${residues}"
         if (removePartialCodons) {
             int phase = length % 3 == 0 ? 0 : 3 - (length % 3)
             residues = residues.substring(phase)
-            println "===> RESIDUES from flankingRegion (phase style1) : ${residues}"
+            log.debug "===> RESIDUES from flankingRegion (phase style1) : ${residues}"
             residues = residues.substring(0, residues.length() - (residues.length() % 3))
-            println "===> RESIDUES from flankingRegion (phase style2) : ${residues}"
+            log.debug "===> RESIDUES from flankingRegion (phase style2) : ${residues}"
         }
         return residues
     }
