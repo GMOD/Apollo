@@ -99,6 +99,7 @@ public class SequenceRestService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type",new JSONString(exportPanel.getType()));
         jsonObject.put("sequenceType",new JSONString(exportPanel.getSequenceType()));
+        jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         JSONArray jsonArray = new JSONArray();
         for(SequenceInfo sequenceInfo : exportPanel.getSequenceList()){
             jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());

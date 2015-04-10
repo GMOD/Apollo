@@ -23,7 +23,8 @@ public class ExportPanel extends DialogBox{
     private OrganismInfo organismInfo ;
     private List<SequenceInfo> sequenceList ;
     private String sequenceType = "genomic";
-
+    private Boolean exportAll = false;
+    
     interface ExportPanelUiBinder extends UiBinder<Widget, ExportPanel> {
     }
 
@@ -69,7 +70,15 @@ public class ExportPanel extends DialogBox{
         this.sequenceList = sequenceList;
         sequenceInfoLabel.setHTML(this.sequenceList.size() + " exported ");
     }
+    
+    public void setExportAll(Boolean exportAll) {
+        this.exportAll = exportAll;
+    }
 
+    public Boolean getExportAll() {
+        return exportAll;
+    }
+    
     public void setType(String type) {
         this.type = type;
         typeLabel.setHTML("Type: " + this.type);

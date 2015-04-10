@@ -93,34 +93,37 @@ class SequenceController {
         JSONObject dataObject = JSON.parse(params.data)
         String typeOfExport = dataObject.type
         String sequenceType = dataObject.sequenceType
+        String exportAllSequences = dataObject.exportAllSequences
         Collection<Feature> listOfFeatures = new ArrayList<Feature>();
 
         def sequences = dataObject.sequences.name
-        // the alternate way
-//        def sequenceList = Sequence.executeQuery("select s from Sequence s join s.featureLocations fl  ")
-        def c = Sequence.createCriteria()
-        def sequenceList = c.list {
-            inList("name", sequences)
-            and {
-                isNotEmpty("featureLocations")
-            }
-            order("name", "asc")
+        def sequenceList
+        if (exportAllSequences == "true") {
+            // HQL for all sequences
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl")
         }
+        else {
+            // HQL for a single sequence or selected sequences
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames)", [sequenceNames: sequences])
+        }
+//        def c = Sequence.createCriteria()
+//        def sequenceList = c.list {
+//            inList("name", sequences)
+//            and {
+//                isNotEmpty("featureLocations")
+//            }
+//            order("name", "asc")
+//        }
 
         for (Sequence eachSeq in sequenceList) {
             // for each sequence in the params
-            List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
-            if (testList.size() == 0) {
-                log.debug "No features on sequence ${sequence}"
+            println "eachSeq ${eachSeq.name}"
+            List<FeatureLocation> featureLocationList = sequenceService.getFeatureLocations(eachSeq)
+            if (featureLocationList.size() == 0) {
+                log.debug "No features on sequence ${eachSeq}"
                 continue
             }
-            JSONObject requestObject = new JSONObject()
-            // create a request object
-
-            requestObject.put("track", "Annotations-" + eachSeq.name)
-
-            JSONArray featuresObjectArray = new JSONArray()
-            for (FeatureLocation entity in testList) {
+            for (FeatureLocation entity in featureLocationList) {
                 if (entity.feature.class.cvTerm == MRNA.cvTerm) {
                     // getting only MRNA features; might want to extend to other features in future
                     Feature featureToWrite = Feature.findByUniqueName(entity.feature.uniqueName)

@@ -92,6 +92,7 @@ public class SequencePanel extends Composite {
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
+    private Boolean exportAll = false;
 
     public SequencePanel() {
 
@@ -374,6 +375,7 @@ public class SequencePanel extends Composite {
         exportPanel.setOrganismInfo(organismInfo);
         exportPanel.setSequenceList(sequenceInfoList);
         exportPanel.setType(type);
+        exportPanel.setExportAll(exportAll);
         if (type.equals("FASTA")) {
             exportPanel.renderFastaSelection();
         }
@@ -406,6 +408,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler("exportAllButton")
     public void exportAllHandler(ClickEvent clickEvent) {
+        exportAll = true;
         GWT.log("exporting gff3");
 
         exportValues(sequenceInfoList);
