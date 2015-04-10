@@ -459,14 +459,20 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return
         }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        File outputFile = File.createTempFile("feature", ".gff3");
-        outputFile << "##gff-version 3\n"
-        sequenceService.getGff3ForFeature(inputObject, outputFile)
-        Charset encoding = Charset.defaultCharset()
-        byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))
-        String gff3String = new String(encoded, encoding)
-        outputFile.delete() // deleting temp file
-        render gff3String
+        try {
+            File outputFile = File.createTempFile("feature", ".gff3");
+            outputFile << "##gff-version 3\n"
+            sequenceService.getGff3ForFeature(inputObject, outputFile)
+            Charset encoding = Charset.defaultCharset()
+            byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))
+            String gff3String = new String(encoded, encoding)
+            outputFile.delete() // deleting temp file
+            render gff3String
+            
+        } catch (IOException e) {
+            log.debug("Cannot create a temp file for 'get GFF3' operation")
+            e.printStackTrace()
+        }
     }
 
     def getAnnotationInfoEditorData() {
