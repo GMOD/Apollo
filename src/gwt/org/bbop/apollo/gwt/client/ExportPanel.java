@@ -97,11 +97,13 @@ public class ExportPanel extends DialogBox{
 
     @UiHandler("exportButton")
     public void doExport(ClickEvent clickEvent) {
-        genomicRadioButton.setVisible(false);
-        cdnaRadioButton.setVisible(false);
-        cdsRadioButton.setVisible(false);
-        peptideRadioButton.setVisible(false);
-        showSequenceTypeLabel();
+        if(type.equals("FASTA")) {
+            genomicRadioButton.setVisible(false);
+            cdnaRadioButton.setVisible(false);
+            cdsRadioButton.setVisible(false);
+            peptideRadioButton.setVisible(false);
+            showSequenceTypeLabel();
+        }
         exportButton.setEnabled(false);
         generateLink();
     }
