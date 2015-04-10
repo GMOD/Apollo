@@ -4694,7 +4694,7 @@ define([
                         }));
                         contextMenuItems["make_intron"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Move to opposte strand",
+                            label: "Move to opposite strand",
                             onClick: function (event) {
                                 thisObj.flipStrand();
                             }
