@@ -174,7 +174,7 @@ apollo {
     get_translation_code = 1
     blat_executable = "/usr/local/bin/blat"
 
-// TODO: should come from config or via preferences database
+// TODO: should come from config oldr via preferences database
     splice_donor_sites = [ "GT"]
     splice_acceptor_sites = [ "AG"]
     gff3.source= "."
