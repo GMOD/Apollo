@@ -7,6 +7,7 @@ import org.bbop.apollo.web.user.UserManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -76,15 +77,8 @@ public class Login extends HttpServlet {
             login(request, response, forceRedirect);
         }
         else {
-            String url = request.getRequestURL() + "/../" + userAuthentication.getUserLoginPageURL();
-            URL userLoginUrl = new URL(url);
-            InputStream in = userLoginUrl.openStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.getWriter().println(line);
-            }
-            in.close();
+            RequestDispatcher view = request.getRequestDispatcher(userAuthentication.getUserLoginPageURL());
+            view.forward(request, response);
         }
     }
 

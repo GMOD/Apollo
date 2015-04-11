@@ -52,7 +52,7 @@ sub parse_options {
     die "Missing required parameter: username\n" if !$username;
     die "Missing required parameter: password\n" if !$password;
     die "Missing required parameter: url\n" if !$url;
-    $url = "http://$url" if $url !~ m%http://%;
+    $url = "http://$url" if $url !~ m%https?://%;
 }
 
 

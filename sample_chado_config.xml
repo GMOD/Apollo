@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- configuration file for Chado data adapter -->
+
+<chado_config>
+
+	<!-- Hibernate configuration file for accessing Chado database -->
+	<hibernate_config>/config/hibernate.xml</hibernate_config>
+
+</chado_config>

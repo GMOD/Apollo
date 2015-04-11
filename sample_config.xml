@@ -36,19 +36,24 @@
 			<driver>org.postgresql.Driver</driver>
 
             <!-- JDBC URL for user database -->
+			<!-- over-ridden by database.url in config.properties -->
             <url>jdbc:postgresql:web_apollo_users</url>
 
             <!-- username for user database -->
+			<!-- over-ridden by database.username in config.properties -->
             <username>web_apollo_users_admin</username>
 
             <!-- password for user database -->
+			<!-- over-ridden by database.password in config.properties -->
             <password>web_apollo_users_admin</password>
 
 		</database>
 
 		<!-- class for generating user authentication page
 		(login page) -->
-		<authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>
+		<authentication_class>org.bbop.apollo.web.user.encryptedlocaldb.EncryptedLocalDbUserAuthentication</authentication_class>
+		<!-- If the database is unencrypted (older default).  -->
+		<!--<authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>-->
 
 	</user>
 

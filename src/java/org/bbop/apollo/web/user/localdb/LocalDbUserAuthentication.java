@@ -25,21 +25,21 @@ import org.json.JSONObject;
 
 public class LocalDbUserAuthentication implements UserAuthentication {
 
-    @Override
-    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException {
-        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                response.getOutputStream().println(line);
-            }
-            in.close();
-        } catch (IOException e) {
-            throw new ServletException(e);
-        }
-    }
+//    @Override
+//    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
+//            HttpServletResponse response) throws ServletException {
+//        InputStream in = servlet.getServletContext().getResourceAsStream("/user_interfaces/localdb/login.html");
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//        String line;
+//        try {
+//            while ((line = reader.readLine()) != null) {
+//                response.getOutputStream().println(line);
+//            }
+//            in.close();
+//        } catch (IOException e) {
+//            throw new ServletException(e);
+//        }
+//    }
 
     @Override
     public String validateUser(HttpServletRequest request, HttpServletResponse response) throws UserAuthenticationException {
@@ -66,12 +66,12 @@ public class LocalDbUserAuthentication implements UserAuthentication {
 
     @Override
     public String getUserLoginPageURL() {
-        return "user_interfaces/localdb/login.html";
+        return "/WEB-INF/jsp/user_interfaces/localdb/login.jsp";
     }
 
     @Override
     public String getAddUserURL() {
-        return "user_interfaces/localdb/addUser.jsp";
+        return "/WEB-INF/jsp/user_interfaces/localdb/addUser.jsp";
     }
 
     private boolean validateUser(String username, String password) throws SQLException {

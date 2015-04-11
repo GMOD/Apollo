@@ -60,6 +60,7 @@ my $user_track_json = '
        "type" : "WebApollo/View/Track/AnnotTrack", 
        "storeClass" : "WebApollo/Store/SeqFeature/ScratchPad", 
        "autocomplete" : "none",
+       "maxHeight": 600,
        "style" : {
            "renderClassName" : "annot-render", 
            "uniqueIdField" : "id", 
