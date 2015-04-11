@@ -238,10 +238,10 @@ define([
                     standby.show();
 
 
-                    if (!this.webapollo.loginMenuInitialized) {
+                    if (!this.webapollo.loginMenuInitialized&&this.browser.show_nav&&this.browser.show_menu) {
                         this.webapollo.initLoginMenu(this.username);
                     }
-                    if (!this.webapollo.searchMenuInitialized && this.permission) {
+                    if (! this.webapollo.searchMenuInitialized && this.permission&&this.browser.show_nav&&this.browser.show_menu)  {
                         this.webapollo.initSearchMenu();
                     }
                     this.initSaveMenu();
@@ -946,8 +946,6 @@ define([
                         }
                         else if (strand != dragfeat.get("strand")) {
                             strand = -2;
-                            // alert("Cannot create annotation with children with opposite strands");
-                            // return;
                         }
 
                         if (is_subfeature) {
@@ -4281,9 +4279,7 @@ define([
                     console.log("ERROR: ");
                     console.log(response);  // in Firebug, allows retrieval of stack trace,
                                             // jump to code, etc.
-                    var error = response.responseText ? JSON.parse(response.responseText) : response.response.data;
-                    // var error = response.error ? response : eval('(' +
-                    // response.responseText + ')');
+                    var error = response.responseText&&response.responseText.match("^<")!="<" ? JSON.parse(response.responseText) : response.response.data;
                     if (error && error.error) {
                         alert(error.error);
                         return false;
