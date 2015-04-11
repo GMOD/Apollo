@@ -8,23 +8,23 @@
 - cd grails-apollo
 - git checkout grails1
 
-## Deploy the code as a war file
-- ./apollo deploy
-- war file is created in target/apollo-X.Y.war
-- deploy to your tomcat system (typically in the webapps tomcat directory)
 
-
-## Run the code
-It runs with H2, postgreSQL, etc.
+## Basic configuration
+There are sample configurations that allow Apollo to run with H2, PostgreSQL, etc.
 
 #### Configure for H2:
 - copy sample-h2-apollo-config.groovy to apollo-config.groovy and update the data directory
 
-#### Configure for Apollo:
+#### Configure for PostgreSQL:
 - Create a new database (I chose apollo by default)
 - There are no user-level anything yet, so no need to add tracks, users, etc.  those will come later.
 - copy sample-postgres-apollo-config.groovy to apollo-config.groovy and update
 
+
+## Deploy the code as a war file
+- ./apollo deploy
+- war file is created in target/apollo-X.Y.war
+- deploy to your tomcat system (typically in the webapps tomcat directory)
 
 
 ==========
@@ -86,6 +86,7 @@ This runs the tests in FeatureServiceSpec . . some of which is below.  Some impo
 ```
 
 There are 3 “special” types of things to test, which are all important and reflect the grails special functions: Domains, Controllers, Services.  They will all be in the “test” directory and all be suffixed with “Spec” for a Spock test.
+
 
 
 
