@@ -532,9 +532,6 @@ define([
 
                     if (!history) {
                         var label = "Type: " + type.name + "<br/>Owner: " + feature.get("owner") + "<br/>Last modified: " + FormatUtils.formatDate(feature.afeature.date_last_modified) + " " + FormatUtils.formatTime(feature.afeature.date_last_modified);
-                        if (feature.get("locked")) {
-                            label += "<br/>[Locked]";
-                        }
                         new Tooltip({
                             connectId: featDiv,
                             label: label,
@@ -1865,7 +1862,7 @@ define([
                     dojo.place(annotContent, content);
                     ++numItems;
                     dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-                    track.openDialog("Information Editor (alt-click)", content);
+                    track.openDialog("Information Editor", content);
                     AnnotTrack.popupDialog.resize();
                     AnnotTrack.popupDialog._position();
                 },
@@ -4407,30 +4404,18 @@ define([
                         annot_context_menu.addChild(new dijit.MenuSeparator());
                         index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Information Editor (option-click)",
+                            label: "Information Editor (alt-click)",
                             onClick: function (event) {
                                 thisObj.getAnnotationInfoEditor();
                             }
                         }));
                         contextMenuItems["annotation_info_editor"] = index++;
                     }
-                    /*
-                     * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on next
-                     * edge", onClick: function(event) {
-                     * thisObj.scrollToNextEdge(thisObj.annot_context_mousedown); } } ));
-                     * contextMenuItems["next_subfeature_edge"] = index++;
-                     *
-                     * annot_context_menu.addChild(new dijit.MenuItem( { label: "Center on previous
-                     * edge", onClick: function(event) {
-                     * thisObj.scrollToPreviousEdge(thisObj.annot_context_mousedown); } } ));
-                     * contextMenuItems["next_subfeature_edge"] = index++;
-                     */
-
                     if (permission & Permission.WRITE) {
                         //annot_context_menu.addChild(new dijit.MenuSeparator());
                         //index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Edit Annotation (option-click)",
+                            label: "Edit Information (alt-click)",
                             onClick: function (event) {
                                 thisObj.getAnnotationInfoEditor();
                             }
@@ -4612,22 +4597,10 @@ define([
                             }
                         }));
                         contextMenuItems["history"] = index++;
-                        /*
-                         annot_context_menu.addChild(new dijit.MenuSeparator());
-                         index++;
-                         annot_context_menu.addChild(new dijit.MenuItem( {
-                         label: "Lock annotation",
-                         onClick: function(event) {
-                         thisObj.lockAnnotation();
-                         }
-                         } ));
-                         contextMenuItems["lock_annotation"] = index++;
-                         */
                     }
 
                     annot_context_menu.onOpen = function (event) {
-                        // keeping track of mousedown event that triggered annot_context_menu
-                        // popup,
+                        // keeping track of mousedown event that triggered annot_context_menu popup
                         // because need mouse position of that event for some actions
                         thisObj.annot_context_mousedown = thisObj.last_mousedown_event;
                         if (thisObj.permission & Permission.WRITE) {
@@ -4848,7 +4821,6 @@ define([
                     this.updateSetPreviousDonorMenuItem();
                     this.updateSetNextAcceptorMenuItem();
                     this.updateSetPreviousAcceptorMenuItem();
-                    //this.updateLockAnnotationMenuItem();
                 },
 
                 updateDeleteMenuItem: function () {
@@ -5396,27 +5368,6 @@ define([
                             menuItem.set("disabled", true);
                             return;
                         }
-                    }
-                    menuItem.set("disabled", false);
-                },
-
-                updateLockAnnotationMenuItem: function () {
-                    var menuItem = this.getMenuItem("lock_annotation");
-                    var selectedAnnots = this.selectionManager.getSelection();
-                    if (selectedAnnots.length > 1) {
-                        menuItem.set("disabled", true);
-                        return;
-                    }
-                    var feature = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
-                    if (feature.get("locked")) {
-                        menuItem.set("label", "Unlock annotation");
-                    }
-                    else {
-                        menuItem.set("label", "Lock annotation");
-                    }
-                    if (feature.get("owner") != this.username && !this.isAdmin()) {
-                        menuItem.set("disabled", true);
-                        return;
                     }
                     menuItem.set("disabled", false);
                 },
