@@ -372,28 +372,6 @@ return declare( [JBPlugin, HelpMixin],
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
     },
         
-    addNavigationOptions: function()  {
-        var thisB = this;
-        var browser = this.browser;
-        var select_Tracks = new dijitMenuItem(
-            {
-                label: "Sequences",
-                onClick: function(event) {
-                    window.open('../sequences', '_blank');
-                }
-            });
-        browser.addGlobalMenuItem( 'view', select_Tracks );
-        var recent_Changes = new dijitMenuItem(
-            {
-                label: "Changes",
-                onClick: function(event) {
-                    window.open('../changes', '_blank');
-                }
-            });
-        browser.addGlobalMenuItem( 'view', recent_Changes );
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-    },
-
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) {
             var webapollo = this;
@@ -594,7 +572,6 @@ return declare( [JBPlugin, HelpMixin],
         var browser=this.browser;
         var thisB=this;
         
-        this.addNavigationOptions();
 
                 // add a global menu option for setting CDS color
         var cds_frame_toggle = new dijitCheckedMenuItem(
