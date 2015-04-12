@@ -159,7 +159,7 @@ public class RecentChangeServlet extends HttpServlet {
         int count = 0;
         Collection<ServerConfiguration.TrackConfiguration> tracks = serverConfig.getTracks().values();
 
-        System.out.println("# of tracks: " + tracks.size());
+//        System.out.println("# of tracks: " + tracks.size());
         boolean isAdmin = false;
         List<String> changeList = new ArrayList<>();
         List<ServerConfiguration.TrackConfiguration> trackList = new ArrayList<>();
@@ -174,14 +174,14 @@ public class RecentChangeServlet extends HttpServlet {
 
                 Integer permission = permissions.get(track.getName());
                 Object trackString = request.getParameter("track");
-                if (permission == null || count > maximum || (trackString != null && trackString.toString().length() > 0 && !track.getName().substring("Annotations-".length()).equals(trackString.toString()))) {
+                if (permission == null || (trackString != null && trackString.toString().length() > 0 && !track.getName().substring("Annotations-".length()).equals(trackString.toString()))) {
                     permission = 0;
                 }
                 if ((permission & Permission.USER_MANAGER) == Permission.USER_MANAGER) {
                     isAdmin = true;
                 }
 
-                if ((permission & Permission.READ) == Permission.READ) {
+                if ( count < maximum+offset  && (permission & Permission.READ) == Permission.READ) {
                         trackList.add(track);
                         Collection<Feature> features = new ArrayList<Feature>();
                         Collection<Feature> sequence_alterations = new ArrayList<Feature>();
@@ -209,10 +209,10 @@ public class RecentChangeServlet extends HttpServlet {
                                 }
                                 List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
                                 for (String s : record) {
-                                    if(count >= offset){
+                                    if(count >= offset  && changeList.size() < maximum ){
                                         changeList.add(s);
                                     }
-                                    ++count;
+                                    ++count ;
                                 }
 
                             }
@@ -228,7 +228,7 @@ public class RecentChangeServlet extends HttpServlet {
                                 }
                                 List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
                                 for (String s : record) {
-                                    if(count >= offset){
+                                    if(count >= offset  && changeList.size() < maximum ){
                                         changeList.add(s);
                                     }
                                     ++count;

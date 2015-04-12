@@ -40,24 +40,49 @@ define([
         'dojo/store/Memory',
         'dojo/data/ObjectStore'
     ],
-    function (declare, $, draggable, droppable, resizable, autocomplete, dialog,
-              dijitMenu, dijitMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
-              dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-              dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore,
-              DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-              SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore) {
+    function (declare,
+        $,
+        draggable,
+        droppable,
+        resizable,
+        autocomplete,
+        dialog,
+        dijitMenu,
+        dijitMenuItem,
+        dijitMenuSeparator,
+        dijitPopupMenuItem,
+        dijitButton,
+        dijitDropDownButton,
+        dijitDropDownMenu,
+        dijitComboBox,
+        dijitTextBox,
+        dijitValidationTextBox,
+        dijitRadioButton,
+        dojoxDialogSimple,
+        dojoxDataGrid,
+        dojoxCells,
+        dojoItemFileWriteStore,
+        DraggableFeatureTrack,
+        FeatureSelectionManager,
+        JSONUtils,
+        BioFeatureUtils,
+        Permission,
+        SequenceSearch,
+        EUtils,
+        SequenceOntologyUtils,
+        SimpleFeature,
+        Util,
+        Layout,
+        xhr,
+        Standby,
+        Tooltip,
+        FormatUtils,
+        Select,
+        Memory,
+        ObjectStore) {
 
-// var listeners = [];
         var listener;
         var client;
-
-        /**
-         * WARNING Requires server support for Servlet 3.0 comet-style long-polling,
-         * AnnotationChangeNotificationService web app properly set up for async
-         * Otherwise will cause server-breaking errors
-         */
-
-        var creation_count = 0;
 
         var annot_context_menu;
         var contextMenuItems;
@@ -69,19 +94,7 @@ define([
         var AnnotTrack = declare(DraggableFeatureTrack,
             {
                 constructor: function (args) {
-                    // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
                     this.isWebApolloAnnotTrack = true;
-                    // trackMeta: object with:
-                    // key: display text track name
-                    // label: internal track name (no spaces, odd characters)
-                    // sourceUrl: replaces previous url arg to FetureTrack constructors
-                    // refSeq: object with:
-                    // start: refseq start
-                    // end: refseq end
-                    // browserParams: object with:
-                    // changeCallback: function to call once JSON is loaded
-                    // trackPadding: distance in px between tracks
-                    // baseUrl: base URL for the URL in trackMeta
                     this.has_custom_context_menu = true;
                     this.exportAdapters = [];
 
@@ -98,21 +111,7 @@ define([
                     this.useResiduesOverlay = 'pointerEvents' in document.body.style;
                     this.FADEIN_RESIDUES = false;
 
-                    /**
-                     * map keeping track of set of y positions for top-level feature divs of
-                     * selected features (for better residue-overlay to be implemented TBD)
-                     */
-                    // this.selectionYPosition = null;
-
                     var thisObj = this;
-                    /*
-                     * this.subfeatureCallback = function(i, val, param) {
-                     * thisObj.renderSubfeature(param.feature, param.featDiv, val); };
-                     */
-                    // define fields meta data
-                    // this.fields = AnnotTrack.fields;
-                    this.comet_working = true;
-                    // this.remote_edit_working = false;
 
                     this.annotMouseDown = function (event) {
                         thisObj.onAnnotMouseDown(event);
@@ -132,14 +131,6 @@ define([
 
                     var track = this;
 
-                    dojo.addOnUnload(this, function () {
-                        /*
-                         * var track = this; if( listeners[track.getUniqueTrackName()] ) {
-                         * if( listeners[track.getUniqueTrackName()].fired == -1 ) {
-                         * console.log("calling listener.cancel(), via addOnUnload setup");
-                         * listeners[track.getUniqueTrackName()].cancel(); } }
-                         */
-                    });
 
                     this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                         if (currRegion.ref != this.refSeq.name) {
@@ -148,19 +139,6 @@ define([
                             if (this.listener) {
                                 this.listener.close();
                             }
-
-                            //if (this.listener && this.listener.fired == -1 ) {
-                            //    this.listener.cancel();
-                            //}
-
-                            /*
-                             * loginButton.destroyRecursive();
-                             *
-                             * var userMenu = this.browser._globalMenuItems["user"]; if
-                             * (userMenu) { for (var i = 0; i < userMenu.length; ++i) {
-                             * userMenu[i].destroyRecursive(); } delete
-                             * this.browser._globalMenuItems["user"]; }
-                             */
                         }
 
                     }));
@@ -193,39 +171,13 @@ define([
 
                 _defaultConfig: function () {
                     var thisConfig = this.inherited(arguments);
-                    // nulling out menuTemplate to suppress default JBrowse feature contextual
-                    // menu
                     thisConfig.menuTemplate = null;
                     thisConfig.noExport = true;  // turn off default "Save track data" "
                     thisConfig.style.centerChildrenVertically = false;
                     thisConfig.pinned = true;
                     return thisConfig;
-                    /*
-                     * start of alternative to nulling out JBrowse feature contextual menu,
-                     * instead attempt to merge in AnnotTrack-specific menu items var
-                     * superConfig = this.inherited(arguments); var track = this; var
-                     * superMenuTemplate = superConfig.menuTemplate; var thisConfig =
-                     * Util.deepUpdate( // dojo.clone( this.inherited(arguments) ), dojo.clone(
-                     * superConfig ), { menuTemplate: [ { label: "Delete", action: function() {
-                     * track.deleteSelectedFeatures(); } } ] } ); var thisMenuTemplate =
-                     * thisConfig.menuTemplate; for (var i=0; i<superMenuTemplate.length; i++) {
-                     * thisMenuTemplate.push(superMenuTemplate[i]); }
-                     * console.log(thisMenuTemplate);
-                     */
-
                 },
 
-                /**
-                 * removing "Pin to top" menuitem, so SequenceTrack is always pinned and
-                 * "Delete track" menuitem, so can't be deleted (very hacky since depends on
-                 * label property of menuitem config)
-                 */
-                _trackMenuOptions: function () {
-                    var options = this.inherited(arguments);
-                    options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-                    options = this.webapollo.removeItemWithLabel(options, "Delete track");
-                    return options;
-                },
 
                 setViewInfo: function (genomeView, numBlocks,
                                        trackDiv, labelDiv,
@@ -234,21 +186,11 @@ define([
                     this.inherited(arguments);
                     var track = this;
 
-                    // this.getPermission( dojo.hitch(this, initAnnotContextMenu) ); // calling back
                     // to initAnnotContextMenu() once permissions are returned by server
                     var success = this.getPermission(function () {
                         track.initAnnotContextMenu();
-                    });  // calling back to
-                         // initAnnotContextMenu() once
-                         // permissions are returned by
-                         // server
-
-                    /*
-                     * getPermission call is synchronous, so login initialization etc. can
-                     * be called anytime after getPermission call
-                     */
-                    // track.initLoginMenu();
-
+                    });
+                   
                     var standby = new Standby({
                         target: track.div,
                         color: "transparent",
@@ -259,10 +201,10 @@ define([
                     standby.show();
 
 
-                    if (!this.webapollo.loginMenuInitialized) {
+                    if (!this.webapollo.loginMenuInitialized&&this.browser.config.show_nav&&this.browser.config.show_menu) {
                         this.webapollo.initLoginMenu(this.username);
                     }
-                    if (!this.webapollo.searchMenuInitialized && this.permission) {
+                    if (! this.webapollo.searchMenuInitialized && this.permission&&this.browser.config.show_nav&&this.browser.config.show_menu)  {
                         this.webapollo.initSearchMenu();
                     }
                     this.initSaveMenu();
@@ -295,67 +237,11 @@ define([
                             };
                             func();
 
-                            /*
-                             * // console.log("AnnotTrack get_features XHR returned, trying
-                             * to find sequence track: ", strack); var strack =
-                             * track.getSequenceTrack(); // setAnnotTrack() triggers loading
-                             * of sequence alterations if (strack && (! strack.annotTrack)) {
-                             * strack.setAnnotTrack(track); }
-                             */
-
-                            /*
-                             * for (var i = 0; i < responseFeatures.length; i++) { var jfeat =
-                             * JSONUtils.createJBrowseFeature( responseFeatures[i] );
-                             * track.store.insert(jfeat); }
-                             */
-                            // track.hideAll(); shouldn't need to call hideAll() before
-                            // changed() anymore
-                            /*
-                             * track.changed();
-                             *  // console.log("AnnotTrack get_features XHR returned, trying
-                             * to find sequence track: ", strack); var strack =
-                             * track.getSequenceTrack(); // setAnnotTrack() triggers loading
-                             * of sequence alterations if (strack && (! strack.annotTrack)) {
-                             * strack.setAnnotTrack(track); }
-                             *
-                             * standby.hide();
-                             */
-                        }, function (response, ioArgs) { //
+                        }, function (response, ioArgs) {
                             console.log("Annotation server error--maybe you forgot to login to the server?");
-                            // console.error("HTTP status code: ", ioArgs.xhr.status); //
                             track.handleError({responseText: response.response.text});
-                            // dojo.byId("replace").innerHTML = 'Loading the resource from
-                            // the server did not work'; //
-                            // track.remote_edit_working = false;
-                            return response; //
+                            return response;
                         });
-
-                        /*
-                         * dojo.xhrPost( { postData: '{ "track": "' +
-                         * track.getUniqueTrackName() + '", "operation": "get_features" }',
-                         * url: context_path + "/AnnotationEditorService", handleAs: "json",
-                         * timeout: 5 * 60 * 1000, // Time in milliseconds // The LOAD
-                         * function will be called on a successful response. load:
-                         * function(response, ioArgs) { // var responseFeatures =
-                         * response.features; for (var i = 0; i < responseFeatures.length;
-                         * i++) { var jfeat = JSONUtils.createJBrowseFeature(
-                         * responseFeatures[i] ); track.store.insert(jfeat); } //
-                         * track.hideAll(); shouldn't need to call hideAll() before
-                         * changed() anymore track.changed();
-                         *  // console.log("AnnotTrack get_features XHR returned, trying to
-                         * find sequence track: ", strack); var strack =
-                         * track.getSequenceTrack(); // setAnnotTrack() triggers loading of
-                         * sequence alterations if (strack && (! strack.annotTrack)) {
-                         * strack.setAnnotTrack(track); } }, // The ERROR function will be
-                         * called in an error case. error: function(response, ioArgs) { //
-                         * console.log("Annotation server error--maybe you forgot to login
-                         * to the server?"); console.error("HTTP status code: ",
-                         * ioArgs.xhr.status); // track.handleError(response);
-                         * //dojo.byId("replace").innerHTML = 'Loading the resource from the
-                         * server did not work'; // // track.remote_edit_working = false;
-                         * return response; // } });
-                         */
-
                     }
 
                     if (success) {
@@ -565,14 +451,6 @@ define([
 
                     for (var i = 0; i < responseFeatures.length; ++i) {
                         var id = responseFeatures[i].uniquename;
-                        /*
-                         * if update deleted a selected child, select the parent?? var oldfeat =
-                         * this.store.getFeatureById(id); var children_selected; if (oldfeat) { var
-                         * childfeats = oldfeat.children(); if (childfeats) { for (var k=0; k<childfeats.length;
-                         * k++) { var child = childfeats[k]; if (this.selectionManager.isSelected( {
-                         * feature: child, track: this })) { if (! children_selected) {
-                         * children_selected = []; } children_selected .push(child); } } } }
-                         */
                         var feat = JSONUtils.createJBrowseFeature(responseFeatures[i]);
                         this.store.replace(feat);
                         this.processParent(responseFeatures[i], "UPDATE");
@@ -585,7 +463,7 @@ define([
                 renderFeature: function (feature, uniqueId, block, scale, labelScale, descriptionScale,
                                          containerStart, containerEnd, history) {
                     // if (uniqueId.length > 20) {
-                    // feature.short_id = uniqueId;
+                    //     feature.short_id = uniqueId;
                     // }
                     var track = this;
                     // var featDiv = this.inherited( arguments );
@@ -724,22 +602,6 @@ define([
                     if (ftrack.verbose_selection || ftrack.verbose_drag) {
                         console.log("AnnotTrack.onFeatureMouseDown called, genome coord: " + this.getGenomeCoord(event));
                     }
-
-                    // checking for whether this is part of drag setup retrigger of
-                    // mousedown --
-                    // if so then don't do selection or re-setup draggability)
-                    // this keeps selection from getting confused,
-                    // and keeps trigger(event) in draggable setup from causing infinite
-                    // recursion
-                    // in event handling calls to featMouseDown
-                    /*
-                     * if (ftrack.drag_create) { if (ftrack.verbose_selection ||
-                     * ftrack.verbose_drag) { console.log("DFT.featMouseDown re-triggered event
-                     * for drag initiation, drag_create: " + ftrack.drag_create);
-                     * console.log(ftrack); } ftrack.drag_create = null; } else {
-                     * this.handleFeatureSelection(event); //
-                     * this.handleFeatureDragSetup(event); }
-                     */
                     this.handleFeatureSelection(event);
                 },
 
@@ -823,20 +685,11 @@ define([
                                         console.log("right edge delta bases: " + rightDeltaBases);
                                     }
                                     var subfeat = ui.originalElement[0].subfeature;
-                                    // console.log(subfeat);
-
                                     var fmin = subfeat.get('start') + leftDeltaBases;
                                     var fmax = subfeat.get('end') + rightDeltaBases;
-                                    // var fmin = subfeat[track.subFields["start"]] +
-                                    // leftDeltaBases;
-                                    // var fmax = subfeat[track.subFields["end"]] +
-                                    // rightDeltaBases;
                                     var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
                                     var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
                                     track.executeUpdateOperation(postData);
-                                    // console.log(subfeat);
-                                    // track.hideAll(); shouldn't need to call hideAll()
-                                    // before changed() anymore
                                     track.changed();
                                 }
                             });
@@ -1050,20 +903,12 @@ define([
                         var parent = is_subfeature ? dragfeat.parent() : dragfeat;
                         var parentId = parent.id();
                         parentFeatures[parentId] = parent;
-                        /*
-                         * if (parentFeatures[parentId] === undefined) {
-                         * parentFeatures[parentId] = new Array();
-                         * parentFeatures[parentId].isSubfeature = is_subfeature; }
-                         * parentFeatures[parentId].push(dragfeat);
-                         */
 
                         if (strand == undefined) {
                             strand = dragfeat.get("strand");
                         }
                         else if (strand != dragfeat.get("strand")) {
                             strand = -2;
-                            // alert("Cannot create annotation with children with opposite strands");
-                            // return;
                         }
 
                         if (is_subfeature) {
@@ -1102,8 +947,6 @@ define([
                             featureToAdd.set('name', featureToAdd.get('id'));
                         }
                         featureToAdd.set("strand", strand);
-                        // var featureToAdd = new SimpleFeature(data);
-                        // //JSONUtils.makeSimpleFeature(parentFeature);
                         var fmin = undefined;
                         var fmax = undefined;
                         featureToAdd.set('subfeatures', new Array());
@@ -1132,28 +975,7 @@ define([
 
                         console.log('almost adding features?: ' + featureToAdd);
 
-                        /*
-                         * for (var i in parentFeatures) { var featArray =
-                         * parentFeatures[i]; if (featArray.isSubfeature) { var
-                         * parentFeature = featArray[0].parent(); var fmin = undefined;
-                         * var fmax = undefined; // var featureToAdd = $.extend({},
-                         * parentFeature); var featureToAdd =
-                         * JSONUtils.makeSimpleFeature(parentFeature);
-                         * featureToAdd.set('subfeatures', new Array()); for (var k = 0;
-                         * k < featArray.length; ++k) { // var dragfeat = featArray[k];
-                         * var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]); var
-                         * childFmin = dragfeat.get('start'); var childFmax =
-                         * dragfeat.get('end'); if (fmin === undefined || childFmin <
-                         * fmin) { fmin = childFmin; } if (fmax === undefined ||
-                         * childFmax > fmax) { fmax = childFmax; }
-                         * featureToAdd.get("subfeatures").push( dragfeat ); }
-                         * featureToAdd.set( "start", fmin ); featureToAdd.set( "end",
-                         * fmax ); var afeat = JSONUtils.createApolloFeature(
-                         * featureToAdd, "mRNA" ); featuresToAdd.push(afeat); } else {
-                         * for (var k = 0; k < featArray.length; ++k) { var dragfeat =
-                         * featArray[k]; var afeat = JSONUtils.createApolloFeature(
-                         * dragfeat, "mRNA", true); featuresToAdd.push(afeat); } } }
-                         */
+                        
                         var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
                         console.log('target track? : ' + target_track);
                         console.log('posting: ' + postData);
@@ -2041,7 +1863,7 @@ define([
                     dojo.place(annotContent, content);
                     ++numItems;
                     dojo.attr(content, "style", "width:" + (numItems == 1 ? "28" : "58") + "em;");
-                    track.openDialog("Information Editor (option-click)", content);
+                    track.openDialog("Information Editor (alt-click)", content);
                     AnnotTrack.popupDialog.resize();
                     AnnotTrack.popupDialog._position();
                 },
@@ -4420,9 +4242,7 @@ define([
                     console.log("ERROR: ");
                     console.log(response);  // in Firebug, allows retrieval of stack trace,
                                             // jump to code, etc.
-                    var error = response.responseText ? JSON.parse(response.responseText) : response.response.data;
-                    // var error = response.error ? response : eval('(' +
-                    // response.responseText + ')');
+                    var error = response.responseText&&response.responseText.match("^<")!="<" ? JSON.parse(response.responseText) : response.response.data;
                     if (error && error.error) {
                         alert(error.error);
                         return false;
@@ -4444,7 +4264,6 @@ define([
                         },
                         error: function (response, ioArgs) { //
                             alert('Failed to log out cleanly.  Please refresh your browser.');
-// track.handleError(response);
                         }
                     });
                 },
@@ -4456,7 +4275,6 @@ define([
                         handleAs: "text",
                         timeout: 5 * 60,
                         load: function (response, ioArgs) {
-//                track.openDialog("Login", response);
                             var dialog = new dojoxDialogSimple({
                                 preventCache: true,
                                 refreshOnShow: true,
@@ -4523,10 +4341,6 @@ define([
                                 title: 'user logged in: UserName',
                                 dropDown: userMenu
                             });
-                        // if add 'menu' class, button will be placed on left side of
-                        // menubar instead (because of 'float: left'
-                        // styling in CSS rule for 'menu' class
-                        // dojo.addClass( loginButton.domNode, 'menu' );
                     }
                     else {
                         loginButton = new dijitButton(
@@ -4542,27 +4356,8 @@ define([
                                             track.openDialog("Login", response);
                                         }
                                     });
-                                    /*
-                                     * if (dijit.byId("login_dialog")) {
-                                     * dijit.byId("login_dialog").destroyRecursive(); } var
-                                     * dialog = new dojoxDialogSimple({ href: context_path +
-                                     * "/Login?operation=login", executeScripts: true,
-                                     * title: "Login", id: "login_dialog" }); dialog.show();
-                                     */
-
-                                    /*
-                                     * var $login = $("<div id='login' title='Login'></div>");
-                                     * $login.dialog( { draggable: false, modal: true,
-                                     * autoOpen: false, resizable: false, closeOnEscape:
-                                     * true, width: "20%" } ); $login.load(context_path +
-                                     * "/Login", null, function() { });
-                                     * $login.dialog("open");
-                                     */
-
-                                    // console.log("clicked on login") ;
                                 }
                             });
-                        // dojo.addClass( loginButton.domNode, 'menu' );
                     }
                     browser.afterMilestone('initView', function () {
                         // must append after menubar is created, plugin constructor called
@@ -4578,11 +4373,6 @@ define([
                     annot_context_menu = new dijit.Menu({});
                     var permission = thisObj.permission;
                     var index = 0;
-                    /*
-                     * annot_context_menu.addChild(new dijit.MenuItem( { label: "Information",
-                     * onClick: function(event) { thisObj.getAnnotationInformation(); } } ));
-                     * contextMenuItems["information"] = index++;
-                     */
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Get Sequence",
                         onClick: function (event) {
@@ -5056,7 +4846,7 @@ define([
                     this.updateSetPreviousDonorMenuItem();
                     this.updateSetNextAcceptorMenuItem();
                     this.updateSetPreviousAcceptorMenuItem();
-//        this.updateLockAnnotationMenuItem();
+                    //this.updateLockAnnotationMenuItem();
                 },
 
                 updateDeleteMenuItem: function () {
@@ -5187,17 +4977,7 @@ define([
                     var selected = this.selectionManager.getSelection();
                     if (selected.length < 2) {
                         menuItem.set("disabled", true);
-                        // menuItem.domNode.style.display = "none"; // direct method for
-                        // hiding menuitem
-                        // $(menuItem.domNode).hide(); // probably better method for hiding
-                        // menuitem
                         return;
-                    }
-                    else {
-                        // menuItem.domNode.style.display = ""; // direct method for
-                        // unhiding menuitem
-                        // $(menuItem.domNode).show(); // probably better method for
-                        // unhiding menuitem
                     }
                     var strand = selected[0].feature.get('strand');
                     for (var i = 1; i < selected.length; ++i) {
@@ -5660,55 +5440,7 @@ define([
                         else {
                             return annot1.id().localeCompare(annot2.id());
                         }
-                        /*
-                         * if (annot1[track.fields["start"]] !=
-                         * annot2[track.fields["start"]]) { return
-                         * annot1[track.fields["start"]] -
-                         * annot2[track.fields["start"]]; } if
-                         * (annot1[track.fields["end"]] !=
-                         * annot2[track.fields["end"]]) { return
-                         * annot1[track.fields["end"]] -
-                         * annot2[track.fields["end"]]; } return 0;
-                         */
                     });
-                },
-
-                showRange: function (first, last, startBase, bpPerBlock, scale,
-                                     containerStart, containerEnd) {
-                    // console.log("called AnnotTrack.showRange()");
-                    this.inherited(arguments);
-
-                    // console.log("after calling annot track.showRange(), block range: " +
-                    // this.firstAttached + "--" + this.lastAttached + ", " +
-                    // (this.lastAttached - this.firstAttached));
-
-                    // handle showing base residues for selected here?
-                    // selected feats
-                    // ==> selected feat divs
-                    // ==> selected "rows"
-                    // ==> (A) float SequenceTrack-like residues layer (with blocks) on each
-                    // selected row?
-                    // OR (B) just get all residues needed and float simple div (no blocks)
-                    // but set up so that callback for actual render happens once all needed
-                    // residues
-                    // are available
-                    // can do this way while still using SequenceTrack.getRange function
-                    //
-                    // update:
-                    // OR (C), hybrid of A and B, block-based AND leveraging
-                    // SequenceTrack.getRange()
-                    // originally tried (B), but after struggling a bit with
-                    // SequenceTrack.getRange() etc., now leaning
-                    // trying (C)
-                    /*
-                     * var track = this; if (scale === track.browserParams.charWidth) { // need
-                     * to float sequence residues over selected row(s) var seqTrack =
-                     * this.getSequenceTrack(); seqTrack.getRange(containerStart, containerEnd, //
-                     * see // callback, gets called for every block that overlaps with
-                     * containerStart->containerEnd range // start = genome coord of first bp of
-                     * block // end = genome coord of function(start, end, seq) {
-                     *  } ); }
-                     */
                 },
 
 
@@ -5840,18 +5572,9 @@ define([
                 },
 
                 startZoom: function (destScale, destStart, destEnd) {
-                    // would prefer to only try and hide dna residues on zoom if previous
-                    // scale was at base pair resolution
-                    // (otherwise there are no residues to hide), but by time startZoom is
-                    // called, pxPerBp is already set to destScale,
-                    // so would require keeping prevScale var around, or passing in
-                    // prevScale as additional parameter to startZoom()
-                    // so for now just always trying to hide residues on a zoom, whether
-                    // they're present or not
 
                     this.inherited(arguments);
 
-                    // console.log("AnnotTrack.startZoom() called");
                     var selected = this.selectionManager.getSelection();
                     if (selected.length > 0) {
                         // if selected annotations, then hide residues overlay
@@ -5861,61 +5584,59 @@ define([
                     }
                 },
 
-                // ,
-                // endZoom: function(destScale, destBlockBases) {
-                // DraggableFeatureTrack.prototype.endZoom.call(this, destScale,
-                // destBlockBases);
-                // };
+                // override getLayout to access addRect method
+                _getLayout: function( ) {
+                    var thisB=this; 
+                    var browser = this.browser;
+                    var layout=this.inherited( arguments ); 
+                    var clabel = this.name+"-collapsed";
+                    return declare.safeMixin( layout, { 
+                        addRect: function( id, left, right, height, data ) {
+                            var cm = thisB.collapsedMode||browser.cookie(clabel)=="true";
+                            //store height for collapsed mode
+                            if( cm ) {
+                                var pHeight = Math.ceil(  height / this.pitchY );
+                                this.pTotalHeight = Math.max( this.pTotalHeight||0, pHeight );
+                            }
+                            return cm?0:this.inherited(arguments);
+                        }
+                    });
+                },
+
+                _trackMenuOptions: function() {
+                    var thisB = this;
+                    var browser = this.browser;
+                    var clabel = this.name+"-collapsed";
+                    var options = this.inherited(arguments) || [];
+                    options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+                    options = this.webapollo.removeItemWithLabel(options, "Delete track");
+                    
+                    options.push({ label: "Collapsed view",
+                             title: "Collapsed view",
+                             type: 'dijit/CheckedMenuItem',
+                             checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel)=="true"),
+                             onClick: function(event) {
+                                 thisB.collapsedMode=this.get("checked");
+                                 browser.cookie(clabel,this.get("checked")?"true":"false");
+                                 var temp=thisB.showLabels;
+                                 if(this.get("checked")) {thisB.showLabels=false; }
+                                 else if(thisB.previouslyShowLabels) {thisB.showLabels=true;}
+                                 thisB.previouslyShowLabels=temp;
+                                 delete thisB.trackMenu;
+                                 thisB.makeTrackMenu();
+                                 thisB.redraw();
+                             }
+                           });
+
+                    return options;
+                },
+
+
 
                 executeUpdateOperation: function (postData, loadCallback) {
-                    /*
-                     var track = this;
-                     if (!this.listener || this.listener.fired != -1 ) {
-                     this.handleError({responseText: '{ error: "Server connection error - try reloading the page" }'});
-                     return;
-                     }
-                     */
-                    //this.listener.send(postData, loadCallback);
-
-                    //var client = Stomp.over(this.listener);
-                    //console.log('client established 1 2 3 ');
-                    //client.connect({}, function() {
-                    //    console.log('trying to subscribe 1 2 3');
-                    //    client.subscribe("/topic/AnnotationNotification", function (message) {
-                    //        console.log('recieved annotation notification 1 2 3: ' + JSON.parse(message.body));
-                    //loadCallback(message.body);
-                    //});
                     console.log('connected . .. trying to send notification');
                     this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
                     console.log('sent notification message');
-                    //client.send("/app/AnnotationNotification", {}, JSON.stringify("world"));
-                    //});
-
-                    /*
-                     * dojo.xhrPost( { postData: postData, url: context_path +
-                     * "/AnnotationEditorService", handleAs: "json", timeout: 1000 * 1000, //
-                     * Time in milliseconds load: function(response, ioArgs) { // if
-                     * (loadCallback) { loadCallback(response); } if (response &&
-                     * response.alert) { alert(response.alert); } }, error:
-                     * function(response, ioArgs) { // track.handleError(response); return
-                     * response; } });
-                     */
-                    /*
-                     xhr(context_path + "/AnnotationEditorService", {
-                     handleAs: "json",
-                     data: postData,
-                     method: "post"
-                     }).then(function(response, ioArgs) {
-                     if (loadCallback) {
-                     loadCallback(response);
-                     }
-                     if (response && response.alert) {
-                     alert(response.alert);
-                     }
-                     }, function(response, ioArgs) {
-                     track.handleError({responseText: response.response.text });
-                     });
-                     */
                 },
 
                 isProteinCoding: function (feature) {

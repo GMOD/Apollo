@@ -5,13 +5,13 @@ Apollo
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.  
 
-For general information on WebApollo, go to: 
+For general information on Web Apollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org/)
 
-Complete WebApollo installation and configuration instructions for 1.x, are available at:
+Complete Web Apollo installation and configuration instructions for 1.x, are available at:
 [http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
 
-The WebApollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
+The Web Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
 [http://jbrowse.org](http://jbrowse.org)
 
 ![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
@@ -21,6 +21,10 @@ Note: For documentation of older Web Apollo versions, please see [http://gmod.or
 ## Quick Update Guide to Version 1.0.x
 
 If you already have Web Apollo instances running, you can use these steps to update to Version 1.0.x.
+
+### Remove any symlinks in your deploy directory
+In your deployment / webapp directory, remove your symlinks.  Tomcat will remove data through the symlinks.  You won't need symlinks or to deploy the war file. 
+
 
 ### Edit property files and config files before deploying
 
@@ -33,9 +37,11 @@ If you already have Web Apollo instances running, you can use these steps to upd
     cp ./sample_log4j2-test.json ./log4j2-test.json     # optional
 
 
-You must edit config.properties to supply the jbrowse data and annotations directory. The datastore.directory property is where Web Apollo annotations are to be stored.  The jbrowse.data property is where the jbrowse tracks are stored.
+You must edit config.properties to supply the jbrowse data and annotations directory. The datastore.directory property is where Web Apollo annotations are to be stored.  The jbrowse.data property is where the jbrowse tracks are stored.   
 
-**Note: the JBrowse data directory should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat**.
+If you specify the database properties in both the config.xml and config.properties, only the one in config.properties will be used.
+
+**Important Note: the JBrowse data directory should not be stored in the Tomcat webapps directory. This can result in data loss when doing undeploy operations in Tomcat**.
 
 
 ### Generate a war file
@@ -58,10 +64,15 @@ To run tomcat on 8080:
 
     apollo run
 
-To run tomcat on 8080, but open up the debug port on 5005:
+To run tomcat on 8080, but open up the debug port on 8000:
 
     apollo debug
 
 
 ### Thanks to
 [![IntelliJ](https://lh6.googleusercontent.com/--QIIJfKrjSk/UJJ6X-UohII/AAAAAAAAAVM/cOW7EjnH778/s800/banner_IDEA.png)](http://www.jetbrains.com/idea/index.html)
+
+[![YourKit] (https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
+
+
+Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit supports Open Source.

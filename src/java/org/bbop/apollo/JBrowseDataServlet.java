@@ -3,6 +3,7 @@ package org.bbop.apollo;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,32 +26,43 @@ public class JBrowseDataServlet extends HttpServlet {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
+    private Properties properties = null;
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        // TODO: move up so not recalculating each time
-        String pathTranslated = request.getPathTranslated();
-        String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
-        String configPath = rootPath + "/config/config.properties";
-
+    public void init() throws ServletException {
+        super.init();
+        String configPath = getServletContext().getRealPath("/config/config.properties") ;
 
         File propertyFile = new File(configPath);
-        String filename = null;
 
         if (propertyFile.exists()) {
-            Properties properties = new Properties();
-            FileInputStream fileInputStream = new FileInputStream(propertyFile);
-            properties.load(fileInputStream);
-
-            filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
-            File dataFile = new File(filename);
-            if (!dataFile.exists() || !dataFile.canRead()) {
-                logger.debug("NOT found: " + filename);
-                filename = null;
+            properties = new Properties();
+            try {
+                FileInputStream fileInputStream = new FileInputStream(propertyFile);
+                properties.load(fileInputStream);
+                fileInputStream.close();
+            } catch (IOException e) {
+                throw new ServletException("Failed to load property file", e);
             }
+        } else {
+            throw new ServletException("File does not exist: " + configPath);
+        }
+    }
+
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String filename = properties.getProperty("jbrowse.data") + request.getPathInfo();
+        File dataFile = new File(filename);
+        if (!dataFile.exists() || !dataFile.canRead()) {
+            logger.debug("NOT found: " + filename);
+            filename = null;
         }
 
-        if (filename == null) {
+        if (filename == null)
+        {
+            String pathTranslated = request.getPathTranslated();
+            String rootPath = pathTranslated.substring(0, pathTranslated.length() - request.getPathInfo().length());
             filename = rootPath + request.getServletPath() + request.getPathInfo();
             File testFile = new File(filename);
             if (FileUtils.isSymlink(testFile)) {
@@ -58,7 +70,6 @@ public class JBrowseDataServlet extends HttpServlet {
                 logger.debug("symlink found so adjusting to absolute path: " + filename);
             }
         }
-
 
         // Get the absolute path of the file
         ServletContext sc = getServletContext();
@@ -77,6 +88,8 @@ public class JBrowseDataServlet extends HttpServlet {
         if (mimeType == null) {
             if (filename.endsWith(".bam")
                     || filename.endsWith(".bw")
+                    || filename.endsWith(".bigwig")
+                    || filename.endsWith(".bigWig")
                     || filename.endsWith(".bai")
                     || filename.endsWith(".conf")
                     ) {
@@ -86,22 +99,18 @@ public class JBrowseDataServlet extends HttpServlet {
             } else {
                 logger.error("Could not get MIME type of " + filename + " falling back to text/plain");
                 mimeType = "text/plain";
-//                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                return;
             }
         }
 
-        if(isCacheableFile(filename)){
+        if (isCacheableFile(filename)) {
             String eTag = createHashFromFile(file);
             String dateString = formatLastModifiedDate(file);
 
-            response.setHeader("ETag",eTag);
-            response.setHeader("Last-Modified",dateString );
+            response.setHeader("ETag", eTag);
+            response.setHeader("Last-Modified", dateString);
         }
 
         String range = request.getHeader("range");
-//        logger.debug("range: " + range);
-
         long length = file.length();
         Range full = new Range(0, length - 1, length);
 
@@ -114,7 +123,6 @@ public class JBrowseDataServlet extends HttpServlet {
             if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
                 response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                 response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-//                response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                 return;
             } else {
                 // If any valid If-Range header, then process each part of byte range.
@@ -137,7 +145,6 @@ public class JBrowseDataServlet extends HttpServlet {
                         if (start > end) {
                             response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                             response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-//                            response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                             return;
                         }
 
@@ -172,7 +179,6 @@ public class JBrowseDataServlet extends HttpServlet {
         } else if (ranges.size() == 1) {
             // Return single part of file.
             Range r = ranges.get(0);
-//            response.setContentType(contentType);
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
@@ -189,19 +195,17 @@ public class JBrowseDataServlet extends HttpServlet {
         }
 
 
-
-
     }
 
     private boolean isCacheableFile(String filename) {
-        if(filename.endsWith(".txt")) return true ;
-        if(filename.endsWith(".json")){
+        if (filename.endsWith(".txt")) return true;
+        if (filename.endsWith(".json")) {
             String[] names = filename.split("\\/");
-            String requestName = names[names.length-1];
+            String requestName = names[names.length - 1];
             return requestName.startsWith("lf-");
         }
 
-        return false ;
+        return false;
     }
 
     private String formatLastModifiedDate(File file) {

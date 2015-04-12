@@ -116,6 +116,14 @@ public class IOService extends HttpServlet {
             Map<String, String[]> parameters = new HashMap<String, String[]>();
             parameters.putAll(request.getParameterMap());
             parameters.put("session_id", new String[]{ session.getId() });
+
+            if(request.getParameterMap().containsKey("options")){
+                for (String parameter : request.getParameter("options").split("&")) {
+                    String []keyValue = parameter.split("=");
+                    parameters.put(keyValue[0], keyValue[1].split("\\+"));
+                }
+            }
+
             if (operation.equals("read")) {
                 dataAdapter.read(tracks, parameters, response);
             }

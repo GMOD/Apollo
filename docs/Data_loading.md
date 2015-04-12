@@ -1,27 +1,30 @@
 # Data generation pipeline
 
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Data_loading.md">On GitHub</a>
 
-The data generation pipeline will use jbrowse and webapollo perl scripts. The preferred way to install these is through the `apollo deploy` command, which will install the necessary pre-requisites automatically into a local directory.
+The data generation pipeline uses JBrowse perl scripts to output efficient JSON representations of GFF and FASTA data. The JBrowse perl scripts will be automatically installed by the `apollo deploy` command, but can also be installed using `install_jbrowse.sh`.
 
-If you have trouble finding or running the jbrowse binaries, please refer to the [troubleshooting guide](Troubleshooting.md). If you are building a custom jbrowse+webapollo package, please refer to the [developers guide](Developer.md). This directory will output the data into a such as JBROWSE_DATA_DIR like in the [Quick-install guide](Apollo2Build.md), and will also be using the pyu_data that was sourced there as well.
+Running these scripts outputs
 
-Note: you will be based in the directory that you originally downloaded or cloned Web Apollo during these steps, not inside the tomcat webapps directory.
+- WebApollo/bin
+- WebApollo/src/perl5
+- WebApollo/extlib
 
-### DNA track setup
+Where the bin/ directory contains the normal jbrowse perl scripts such as prepare-refseqs.pl and flatfile-to-json.pl. Refer to the [troubleshooting guide](Troubleshooting.md) if these files are not outputted.
 
-The first step to setup the genome browser is to load the reference genome data to be used by JBrowse. We'll use the `prepare-refseqs.pl` script.
+### DNA track setup with prepare-refseqs.pl
+
+The first step to setup the genome browser is to load the reference genome data. We'll use the `prepare-refseqs.pl` script to output to the data directory that we configured in config.properties or config.xml.
 
     $ bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out $JBROWSE_DATA_DIR
 
-We now have the DNA track setup. Note that you can also use a GFF3 file if it contains the genomic sequence itself by using the `--gff` option instead of `--fasta` and point it to the GFF3 file.
+### WebApollo track setup with add-webapollo-plugin.pl
 
-### Adding the WebApollo plugin
-
-We now need to setup the WebApollo plugin tracks using the `add-webapollo-plugin.pl`. It takes a 'trackList.json' as an argument.
+After initializing the data directory, add the WebApollo plugin tracks using the `add-webapollo-plugin.pl`. It takes a 'trackList.json' as an argument.
 
     $ client/apollo/bin/add-webapollo-plugin.pl -i $JBROWSE_DATA_DIR/trackList.json
 
-### Process Pythium ultimum GFF3
+### GFF3 pre-processing with split_gff_by_source.pl
 
 Generating data from GFF3 works best by having a separate GFF3 per source type. If your GFF3 has all source types in the same file, as with the Pythium ultimum sample, then use the  `tools/data/split_gff_by_source.pl` script. We'll output the split GFF3 to some temporary directory (e.g. `split_gff`).
 
@@ -36,72 +39,53 @@ If we look at the contents of `WEB_APOLLO_SAMPLE_DIR/split_gff`, we can see we h
 
 We will load each file and create the appropriate tracks in the following steps.
 
-#### Load GFF3 with gene/transcript/exon/CDS/polypeptide features
+#### GFF3 track setup with gene/transcript/exon/CDS/polypeptide with flatfile-to-json.pl
 
 We'll start off by loading `maker.gff` from the Pythium ultimum data. We need to handle that file a bit differently than the rest of the files since the GFF represents the features as gene, transcript, exons, and CDSs.
+
+    $ bin/flatfile-to-json.pl --gff split_gff/maker.gff --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
+
+
+We can also add styling to the track by changing the subfeatureClasses and className to use custom WebApollo CSS classes:
 
     $ bin/flatfile-to-json.pl --gff split_gff/maker.gff \
       --arrowheadClass trellis-arrowhead  \
       --subfeatureClasses '{"wholeCDS": null, "CDS":"brightgreen-80pct", "UTR": "darkgreen-60pct", "exon":"container-100pct"}' \
       --className container-16px --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
 
-Note: it is important to use `--type mRNA` to maintain database consistency. If there are three levels of gene features, such as gene->mRNA->exon, then you want to load the "mRNA" level.
+See the [Customizing features](Data_loading.md#customizing-features) section for more information on CSS styles.
 
 
-Also note: `brightgreen-80pct`, `darkgreen-60pct`, `container-100pct`, `container-16px`, `gray-center-20pct` are all CSS classes defined in WebApollo stylesheets that describe how to display their respective features and subfeatures. WebApollo also tries to use reasonable default CSS styles, so it is possible to omit these CSS class arguments. For example, to accept default styles for maker.gff, the above could instead be shortened to:
+#### GFF3 with match/match\_part features with flatfile-to-json.pl
 
-    $ bin/flatfile-to-json.pl --gff split_gff/maker.gff \
-      --getSubfeatures --type mRNA --trackLabel maker --out $JBROWSE_DATA_DIR
-
-See the [Customizing features](Data_loading.md#customizing-features) section for more information on CSS styles. There are also many other configuration options for flatfile-to-json.pl, see [JBrowse data formatting](JBrowse_Configuration_Guide#Data_Formatting) for more information.
-
-#### GFF3 with match/match\_part features
-
-Now we need to process the other remaining GFF3 files. The entries in those are stored as "match/match\_part", so they can all be handled in a similar fashion.
+If your track uses match and match_part types instead of gene->mRNA->exon, you can load the track using the --type match argument.
 
 We'll start off with `blastn` results as an example.
 
     $bin/flatfile-to-json.pl --gff split_gff/blastn.gff \
-      --arrowheadClass webapollo-arrowhead --getSubfeatures \
-      --subfeatureClasses '{"match_part": "darkblue-80pct"}' \
+      --arrowheadClass webapollo-arrowhead \
+      --subfeatureClasses '{"match_part": "darkblue-80pct"}'
+      --type match
       --className container-10px --trackLabel blastn --out $JBROWSE_DATA_DIR
-
-You can see the the --type parameter is not needed here because there are only two levels to the blastn.gff, match->match_part.
-
-You can automate this process to load all the rest of the tracks similarly as follows:
-
-    for i in $(ls split_gff/*.gff | grep -v maker); do
-        j=$(basename $i)
-        j=${j/.gff/}
-        echo "Processing $j"
-        bin/flatfile-to-json.pl --gff $i --arrowheadClass webapollo-arrowhead \
-            --getSubfeatures --subfeatureClasses "{\"match_part\": \"darkblue-80pct\"}" \
-            --className container-10px --trackLabel $j --out $JBROWSE_DATA_DIR
-    done
 
 
 #### Generate searchable name index
 
 Once data tracks have been created, you can generate a searchable index of names using the generate-names.pl script:
 
-    $ bin/generate-names.pl --out $JBROWSE_DATA_DIR
+    $ bin/generate-names.pl --verbose --out $JBROWSE_DATA_DIR
 
-This script creates an index of sequence names and feature names in order to enable auto-completion in the navigation text box.
-
-The script can be also incrementally get new data by using the `--incremental` option.
-
+This script creates an index of sequence names and feature names in order to enable auto-completion in the navigation text box. If you have some tracks that have millions of features, consider using "--completionLimit 0" to disable the autocompletion which will save time.
 
 #### BAM data
 
-WebApollo/JBrowse has native support for BAM files, so the file can be read (in chunks) directly from the server with no preprocessing.
+BAM files are natively supported so the file can be read (in chunks) directly from the server with no preprocessing.
 
-First we'll copy the BAM and BAM index file into $JBROWSE_DATA_DIR.
+To use this, copy the BAM+BAM index to $JBROWSE_DATA_DIR, and then use the add-bam-track.pl to add the file to the tracklist.
 
     $ mkdir $JBROWSE_DATA_DIR/bam
-    $ cp pyu_data/*.bam* $JBROWSE_DATA_DIR/bam
-
-Then we need to add the BAM track to the track configuration.
-
+    $ cp pyu_data/simulated-sorted.bam $JBROWSE_DATA_DIR/bam
+    $ cp pyu_data/simulated-sorted.bam.bai $JBROWSE_DATA_DIR/bam
     $ bin/add-bam-track.pl --bam_url bam/simulated-sorted.bam \
        --label simulated_bam --key "simulated BAM" -i $JBROWSE_DATA_DIR/trackList.json
 
@@ -109,9 +93,9 @@ Note: the `bam_url` parameter is a relative URL to the $JBROWSE_DATA_DIR. It is 
 
 #### BigWig data
 
-WebApollo has native support for BigWig files (.bw), so no extra processing of the data is required.
+WebApollo also has native support for BigWig files (.bw), so no extra processing of these files is required either.
 
-Configuring a BigWig track is very similar to configuring a BAM track. First we'll copy the BigWig data into the WebApollo data directory. We'll put it in the `$JBROWSE_DATA_DIR/bigwig` directory.
+To use this, copy the BigWig data into the WebApollo data directory and then use the add-bw-track.pl.
 
     $ mkdir $JBROWSE_DATA_DIR/bigwig
     $ cp pyu_data/*.bw $JBROWSE_DATA_DIR/bigwig

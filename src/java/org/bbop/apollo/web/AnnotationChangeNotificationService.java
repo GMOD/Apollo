@@ -5,7 +5,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Enumeration;
 
+import java.sql.DriverManager;
+import java.sql.Driver;
+import java.sql.SQLException;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
@@ -183,6 +187,21 @@ public class AnnotationChangeNotificationService extends HttpServlet implements 
             for (AsyncContext context : contexts) {
                 sendError((HttpServletResponse)context.getResponse(), "Server shutdown", HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                 context.complete();
+            }
+        }
+
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+
+        Driver driver = null;
+
+        // clear drivers
+        while(drivers.hasMoreElements()) {
+            try {
+                driver = drivers.nextElement();
+                DriverManager.deregisterDriver(driver);
+
+            } catch (SQLException ex) {
+                // deregistration failed, might want to do something, log at the very least
             }
         }
     }

@@ -1,20 +1,24 @@
 
 ### Tomcat memory
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Troubleshooting.md">On GitHub</a>
 
 
-Many times the default memory allowance is too low.
-The memory requirements of WebApollo will depend on the the size of your genome and
-how many instances of Web Apollo you host in the same Tomcat instance, but in general,
-we recommend at least 1g for the heap size and 256m for the permgen size
-as a starting point. Suggested settings are:
+In many ocassions the default memory allowance is too low. The memory requirements of Web Apollo will depend on the the size of your genome and how many instances of Web Apollo you host in the same Tomcat instance, but in general, we recommend at least 1g for the heap size and 256m for the PermGen size as a starting point. Suggested settings are:
 
     export CATALINA_OPTS="-Xms512m -Xmx1g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m"
+
+In cases where the assembled genome is highly fragmented, additional tuning of memory requirements and garbage collection will be necessary to maintain the system stable. Below is an example from a research group that maintains over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffolds (reference sequences):  
+
+    "-Xmx12288m -Xms8192m -XX:PermSize=256m -XX:MaxPermSize=1024m -XX:ReservedCodeCacheSize=64m -XX:+UseG1GC -XX:+CMSClassUnloadingEnabled -Xloggc:$CATALINA_HOME/logs/gc.log -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 
 To use this setting, edit the setenv.sh script in 
 `$TOMCAT_BIN_DIR/setenv.sh` where `$TOMCAT_BIN_DIR` is where the
 directory where the Tomcat binaries reside.
+
+#### Memory fixes for special cases
+Some members of our community have contributed information on how they 
+
 
 ### Tomcat permissions
 
@@ -31,16 +35,6 @@ This problem often indicates that credentials for the LocalDbUserAuthentication 
 ### Getting logged out when entering JBrowse
 
 This often indicates that the add-webapollo-plugin.pl script wasn't run properly, which will update JBrowse's configuration and load the Web Apollo plugin. See the [data generation](Data_loading.md) for details on this step.
-
-
-### No error message from failed Web Apollo login
-
-Web Apollo uses a custom error reporting valve. To setup, add `errorReportValveClass="org.bbop.apollo.web.ErrorReportValve"` as an attribute to the existing <Host> element in tomcat's server.xml (e.g. /var/lib/tomcat7/conf/server.xml)
-
-    <Host name="localhost" appBase="webapps" 
-      unpackWARs="true" autoDeploy="true" 
-      errorReportValveClass="org.bbop.apollo.web.ErrorReportValve">
-    </Host>
 
 
 ### Errors running JBrowse scripts
@@ -102,3 +96,9 @@ You must install chado to use the Chado export feature, and you must also set it
         at org.bbop.apollo.web.dataadapter.chado.ChadoDataAdapter.write(ChadoDataAdapter.java:68)
 
 Then you must also make sure to import your genome into Chado. Refer to the configuration guide for this note on [Chado export](Configure.md#important-note-for-chado-export).
+
+
+### Differences between JBrowse and WebApollo
+
+
+The "linkTemplate" track configuration parameter in JBrowse is overridden by WebApollo's feature edge matcher and drag and drop functions. It is recommended to use menuTemplate instead.

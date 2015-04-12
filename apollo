@@ -53,11 +53,6 @@ function check_perldependencies(){
 }
 
 function check_configs_for_release(){
-    make_executable=$(which make)
-    if ! [ -x "$make_executable" ] ; then
-        echo "You must install 'Make' to do a release of web apollo."
-        exit 1 ;
-    fi
     ant_executable=$(which ant)
     if ! [ -x "$ant_executable" ] ; then
         echo "You must install 'Ant' to do a release of web apollo."

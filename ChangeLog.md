@@ -1,3 +1,58 @@
+## 1.0.4 release
+
+Features
+
++ Update to JBrowse 1.11.6 (http://jbrowse.org/jbrowse-1-11-6/)
++ Added new Help page with Web Apollo specific content (#153).
++ Added Drupal authentication module to share authentication with an existing Drupal DB (#117).
++ Made "Show track labels" and "Color by CDS" more persistent (#120).
++ Added a "Collapse" option to the "User-created Annotations" track. The track labels are automatically removed when selecting to "Collapse" the track, but can be shown again. (#155).
++ Changed maxHeight on "User-created Annotations" track to prevent overflow (#124).
++ Allow single-level features to be dragged to the "User-created Annotations" track for editing (#193).
+
+Bugfixes
+
++ Updated URL to new server to access Gene Ontology terms (GOLR) (#190).
++ Fixed an issue where the API could be used to create random berkeley DBs (#152).
++ Fixed the sample log4j2 implementation and added extra notes on it to the documentation (#151).
++ Fixed an issue where the config files were readable by the outside world in previous 1.x versions.
++ Changed default user database to be encrypted. Unencrypted options are still available via command line scripts for people with older configurations (#147).
++ Fixed bug where Tomcat could report "Too many open files error" (#162).
++ Fixed bug where the dark theme made the reference sequence too dark (#119).
++ Added some basic help text for search parameters in the sequences view (#160).
++ Added MIME types for bigwig files (#166).
++ Added labels to the boxes in the Sequence Search page to inform user of acceptable query options (#158).
++ Fixed GFF3 export to update fileds with non-specified phase, score, and strand (#177).
++ Fixed "Previous" button on sequence page to update datagrid appropriately (#176).
++ Fixed "Show track labels" feature that was causing feature labels to go offscreen (#179).
++ Renamed "Edit Annotation" menu item to "Edit Information" and camel-case file-menu options. (#172)
++ Fixed mislabeled column in "Changes" page (#169). 
++ Fixed "Add sequence search track" function not matching amino acid queries (#168).
++ Fixed bad layout on "Changes" page (#180).
++ Fixed plus/minus strand filters making bigwig score go to zero (#181).
++ Fixed problem encountered with using iframe embedded mode options (#183).
++ Fixed problem with "Add user" popup using outdated server configuration (#182).
++ Fixed minor issue raised when attempting to retrieve (non-existent) peptides from untranslated regions (#157).
+
+## 1.0.3 release
+
+Features 
+
++ Added ability to view GFF3 for individual annotations
+
+Bugfixes
+
++ Speed up set\_track\_permissions.pl (#118)
++ Fix some cases where error reporting was broken on login pages (#111)
++ Fix Chado export case where DBXref or DB were not pre-existing (#103)
++ Fixed issue where HTTP header size could become large when exporting all tracks (#101)
++ Fixed issue when jbrowse "bin" directory not created properly during deployment (#97)
++ Added apollo "release" target to build a precompiled target (#96)
++ Provided support to visualize GFF3 files on a per-feature basis (#89)
++ Fixed URL encoding of multiple attributes with the same key in GFF3 export (#82)
++ Fixed GFF3 and FASTA export where no annotations existed (#62)
++ Fixed where genome insertion trigers recalculate CDS on non-coding features (#30)
+
 ## 1.0.2 release 
 
 Features: 

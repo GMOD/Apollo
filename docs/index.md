@@ -1,5 +1,6 @@
 # Apollo
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
+
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
 
 An instantaneous, collaborative, genome annotation editor. The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.
 
@@ -11,7 +12,9 @@ The WebApollo client is implemented as a plugin for JBrowse, for more informatio
 
 [![Build status](https://travis-ci.org/GMOD/Apollo.png?branch=master)](https://travis-ci.org/GMOD/Apollo)
 
-Note: This documentation covers release versions 1.x of Web Apollo. Documentation for previous versions of Web Apollo can be found on the [Web Apollo installation Guide on GMOD](http://gmod.org/wiki/WebApollo_Installation)
+Note: This documentation covers release versions 2.x of Web Apollo.
+
+
 
 ## Table of contents
 

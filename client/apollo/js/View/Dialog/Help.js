@@ -1,0 +1,60 @@
+define( [
+            'dojo/_base/declare'
+        ],
+        function(
+            declare
+        ) {
+return declare( null, {
+    defaultHelp: function() {
+        return ''
+                + '<div class="help_dialog">'
+                + '<div class="main" style="float: left; width: 49%;">'
+                + '<dl>'
+                + '<dt>Navigation</dt>'
+                + '<dd><ul>'
+                + '    <li>Move the view by clicking and dragging in the track area, or by clicking <img class="icon nav" id="moveLeftSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'">  or <img class="icon nav" id="moveRightSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'"> in the navigation bar, or by pressing the left and right arrow keys.</li>'
+                + '    <li>Center the view at a point by clicking on either the track scale bar or overview bar, or by shift-clicking in the track area.</li>'
+                + '</ul></dd>'
+                + '<dt>Zooming</dt>'
+                + '<dd><ul>'
+                + '    <li>Zoom in and out by clicking <img class="icon nav" id="zoomInSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'"> or <img class="icon nav" id="zoomOutSmall" src="'+this.browser.resolveUrl('img/Empty.png')+'"> in the navigation bar, or by pressing the up and down arrow keys while holding down "shift".</li>'
+                + '    <li>Select a region and zoom to it ("rubber-band" zoom) by clicking and dragging in the overview or track scale bar, or shift-clicking and dragging in the track area.</li>'
+                + '    </ul>'
+                + '</dd>'
+                + '<dt>Searching</dt>'
+                + '<dd><ul>'
+                + '    <li>Jump to a feature or reference sequence by typing its name in the location box and pressing Enter.</li>'
+                + '    <li>Jump to a specific region by typing the region into the location box as: <span class="example">ref:start..end</span>.</li>'
+                + '    </ul>'
+                + '</dd>'
+                + '</dl>'
+                + '</div>'
+                + '<div class="main" style="float: right; width: 49%;">'
+                + '<dl>'
+                + '<dt>Annotating features</dt>'
+                + '<dd><ul><li>Click-and-drag features to the User-created annotations or right click features and select "Create new annotation".</li>'
+                + '<li>Use "edge matching" function, shown as red highlight, to match exon boundaries to evidence from gene models or alignments.</li>'
+                + '<li>Use "Color by CDS" to highlight the calculated translation frame for annotations and evidence features.</li>'
+                + '<li>Add details for each annotation using the "Information Editor" dialog.</li></ul></dd>'
+                + '<dt>Annotation shortcuts</dt>'
+                + '<dd>'
+                + '    <ul>'
+                + '        <li>Use [ and ] to jump between splice sites in a given annotation on the User-created annotation area.</dt>'
+                + '        <li>Use { and } to jump to the nearest gene on the User-created annotation area.</dt>'
+                + '        <li>Select a feature in the User-created annotation area and press alt-click to quickly reach the "Information editor".</dt>'
+                + '    </ul>'
+                + '</dd>'
+                + '<div style="float: left; width: 49%;"><dt>Web Apollo links</dt>'
+                + '<dd><ul>'
+                + '<li><a href=http://genomearchitect.org/web_apollo_user_guide>Web Apollo User Guide</a></li>'
+                + '<li><a href=http://webapollo.readthedocs.org>Web Apollo Configuration and Installation Guide</a></li>'
+                + '</ul></dd>'
+                + '</div>'
+                + '<div style="float: right; width:49%; margin-top: 10px;"><a href="http://genomearchitect.org"><img src="plugins/WebApollo/img/ApolloLogo_100x36.png"></img></a></div>'
+                + '</dl>'
+                + '</div>'
+                + '</div>'
+            ;
+    }
+});
+});
