@@ -40,24 +40,49 @@ define([
         'dojo/store/Memory',
         'dojo/data/ObjectStore'
     ],
-    function (declare, $, draggable, droppable, resizable, autocomplete, dialog,
-              dijitMenu, dijitMenuItem, dijitMenuSeparator, dijitPopupMenuItem, dijitButton, dijitDropDownButton, dijitDropDownMenu,
-              dijitComboBox, dijitTextBox, dijitValidationTextBox, dijitRadioButton,
-              dojoxDialogSimple, dojoxDataGrid, dojoxCells, dojoItemFileWriteStore,
-              DraggableFeatureTrack, FeatureSelectionManager, JSONUtils, BioFeatureUtils, Permission, SequenceSearch, EUtils, SequenceOntologyUtils,
-              SimpleFeature, Util, Layout, xhr, Standby, Tooltip, FormatUtils, Select, Memory, ObjectStore) {
+    function (declare,
+        $,
+        draggable,
+        droppable,
+        resizable,
+        autocomplete,
+        dialog,
+        dijitMenu,
+        dijitMenuItem,
+        dijitMenuSeparator,
+        dijitPopupMenuItem,
+        dijitButton,
+        dijitDropDownButton,
+        dijitDropDownMenu,
+        dijitComboBox,
+        dijitTextBox,
+        dijitValidationTextBox,
+        dijitRadioButton,
+        dojoxDialogSimple,
+        dojoxDataGrid,
+        dojoxCells,
+        dojoItemFileWriteStore,
+        DraggableFeatureTrack,
+        FeatureSelectionManager,
+        JSONUtils,
+        BioFeatureUtils,
+        Permission,
+        SequenceSearch,
+        EUtils,
+        SequenceOntologyUtils,
+        SimpleFeature,
+        Util,
+        Layout,
+        xhr,
+        Standby,
+        Tooltip,
+        FormatUtils,
+        Select,
+        Memory,
+        ObjectStore) {
 
-// var listeners = [];
         var listener;
         var client;
-
-        /**
-         * WARNING Requires server support for Servlet 3.0 comet-style long-polling,
-         * AnnotationChangeNotificationService web app properly set up for async
-         * Otherwise will cause server-breaking errors
-         */
-
-        var creation_count = 0;
 
         var annot_context_menu;
         var contextMenuItems;
@@ -69,19 +94,7 @@ define([
         var AnnotTrack = declare(DraggableFeatureTrack,
             {
                 constructor: function (args) {
-                    // function AnnotTrack(trackMeta, url, refSeq, browserParams) {
                     this.isWebApolloAnnotTrack = true;
-                    // trackMeta: object with:
-                    // key: display text track name
-                    // label: internal track name (no spaces, odd characters)
-                    // sourceUrl: replaces previous url arg to FetureTrack constructors
-                    // refSeq: object with:
-                    // start: refseq start
-                    // end: refseq end
-                    // browserParams: object with:
-                    // changeCallback: function to call once JSON is loaded
-                    // trackPadding: distance in px between tracks
-                    // baseUrl: base URL for the URL in trackMeta
                     this.has_custom_context_menu = true;
                     this.exportAdapters = [];
 
@@ -98,21 +111,7 @@ define([
                     this.useResiduesOverlay = 'pointerEvents' in document.body.style;
                     this.FADEIN_RESIDUES = false;
 
-                    /**
-                     * map keeping track of set of y positions for top-level feature divs of
-                     * selected features (for better residue-overlay to be implemented TBD)
-                     */
-                    // this.selectionYPosition = null;
-
                     var thisObj = this;
-                    /*
-                     * this.subfeatureCallback = function(i, val, param) {
-                     * thisObj.renderSubfeature(param.feature, param.featDiv, val); };
-                     */
-                    // define fields meta data
-                    // this.fields = AnnotTrack.fields;
-                    this.comet_working = true;
-                    // this.remote_edit_working = false;
 
                     this.annotMouseDown = function (event) {
                         thisObj.onAnnotMouseDown(event);
@@ -132,14 +131,6 @@ define([
 
                     var track = this;
 
-                    dojo.addOnUnload(this, function () {
-                        /*
-                         * var track = this; if( listeners[track.getUniqueTrackName()] ) {
-                         * if( listeners[track.getUniqueTrackName()].fired == -1 ) {
-                         * console.log("calling listener.cancel(), via addOnUnload setup");
-                         * listeners[track.getUniqueTrackName()].cancel(); } }
-                         */
-                    });
 
                     this.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                         if (currRegion.ref != this.refSeq.name) {
@@ -148,19 +139,6 @@ define([
                             if (this.listener) {
                                 this.listener.close();
                             }
-
-                            //if (this.listener && this.listener.fired == -1 ) {
-                            //    this.listener.cancel();
-                            //}
-
-                            /*
-                             * loginButton.destroyRecursive();
-                             *
-                             * var userMenu = this.browser._globalMenuItems["user"]; if
-                             * (userMenu) { for (var i = 0; i < userMenu.length; ++i) {
-                             * userMenu[i].destroyRecursive(); } delete
-                             * this.browser._globalMenuItems["user"]; }
-                             */
                         }
 
                     }));
@@ -193,26 +171,11 @@ define([
 
                 _defaultConfig: function () {
                     var thisConfig = this.inherited(arguments);
-                    // nulling out menuTemplate to suppress default JBrowse feature contextual
-                    // menu
                     thisConfig.menuTemplate = null;
                     thisConfig.noExport = true;  // turn off default "Save track data" "
                     thisConfig.style.centerChildrenVertically = false;
                     thisConfig.pinned = true;
                     return thisConfig;
-                    /*
-                     * start of alternative to nulling out JBrowse feature contextual menu,
-                     * instead attempt to merge in AnnotTrack-specific menu items var
-                     * superConfig = this.inherited(arguments); var track = this; var
-                     * superMenuTemplate = superConfig.menuTemplate; var thisConfig =
-                     * Util.deepUpdate( // dojo.clone( this.inherited(arguments) ), dojo.clone(
-                     * superConfig ), { menuTemplate: [ { label: "Delete", action: function() {
-                     * track.deleteSelectedFeatures(); } } ] } ); var thisMenuTemplate =
-                     * thisConfig.menuTemplate; for (var i=0; i<superMenuTemplate.length; i++) {
-                     * thisMenuTemplate.push(superMenuTemplate[i]); }
-                     * console.log(thisMenuTemplate);
-                     */
-
                 },
 
 
