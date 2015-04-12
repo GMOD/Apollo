@@ -4538,7 +4538,7 @@ define([
                         }));
                         contextMenuItems["set_as_three_prime_end"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set both Ends",
+                            label: "Set Both Ends",
                             onClick: function (event) {
                                 thisObj.setBothEnds();
                             }
@@ -4858,10 +4858,10 @@ define([
                         return;
                     }
                     if (selectedFeat.get('manuallySetTranslationStart')) {
-                        menuItem.set("label", "Unset translation start");
+                        menuItem.set("label", "Unset Translation Start");
                     }
                     else {
-                        menuItem.set("label", "Set translation start");
+                        menuItem.set("label", "Set Translation Start");
                     }
                 },
 
@@ -4888,10 +4888,10 @@ define([
                         return;
                     }
                     if (selectedFeat.get('manuallySetTranslationEnd')) {
-                        menuItem.set("label", "Unset translation end");
+                        menuItem.set("label", "Unset Translation End");
                     }
                     else {
-                        menuItem.set("label", "Set translation end");
+                        menuItem.set("label", "Set Translation End");
                     }
                 },
 
@@ -4939,10 +4939,10 @@ define([
                         selectedFeat = selectedFeat.parent();
                     }
                     if (selectedFeat.get('readThroughStopCodon')) {
-                        menuItem.set("label", "Unset readthrough stop codon");
+                        menuItem.set("label", "Unset Readthrough Stop Codon");
                     }
                     else {
-                        menuItem.set("label", "Set readthrough stop codon");
+                        menuItem.set("label", "Set Readthrough Stop Codon");
                     }
                 },
 
