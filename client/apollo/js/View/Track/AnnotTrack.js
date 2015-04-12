@@ -919,13 +919,15 @@ define([
                         }
                         else {
                             var children = dragfeat.get("subfeatures");
-                            if (!children) {
-                                alert("This element cannot be annotated as a gene. Please choose a different type of annotation");
-                                return;
+                            if(children) {
+                                for (var j = 0; j < children.length; ++j) {
+                                    subfeatures.push(children[j]);
+                                }
                             }
-                            for (var j = 0; j < children.length; ++j) {
-                                subfeatures.push(children[j]);
+                            else {
+                                subfeatures.push(dragfeat);
                             }
+
                             if (!parentFeature) {
                                 parentFeature = dragfeat;
                             }
