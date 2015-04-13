@@ -329,22 +329,6 @@ class SequenceService {
     }
     
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
-        // File tempFile = File.createTempFile("feature", ".gff3");
-        // TODO: use specified metadata?
-        Set<String> metaDataToExport = new HashSet<>();
-        metaDataToExport.add(FeatureStringEnum.NAME.value);
-        metaDataToExport.add(FeatureStringEnum.SYMBOL.value);
-        metaDataToExport.add(FeatureStringEnum.SYNONYMS.value);
-        metaDataToExport.add(FeatureStringEnum.DESCRIPTION.value);
-        metaDataToExport.add(FeatureStringEnum.STATUS.value);
-        metaDataToExport.add(FeatureStringEnum.DBXREFS.value);
-        metaDataToExport.add(FeatureStringEnum.ATTRIBUTES.value);
-        metaDataToExport.add(FeatureStringEnum.PUBMEDIDS.value);
-        metaDataToExport.add(FeatureStringEnum.GOIDS.value);
-        metaDataToExport.add(FeatureStringEnum.COMMENTS.value);
-        metaDataToExport.add(FeatureStringEnum.DATE_CREATION.value);
-        metaDataToExport.add(FeatureStringEnum.DATE_LAST_MODIFIED.value);
-        
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < features.length(); ++i) {
@@ -354,6 +338,6 @@ class SequenceService {
             gbolFeature = featureService.getTopLevelFeature(gbolFeature)
             featuresToWrite.add(gbolFeature);
         }
-        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, metaDataToExport, grailsApplication.config.apollo.gff3.source as String)
+        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
 }

@@ -29,13 +29,27 @@ public class Gff3HandlerService {
     def featurePropertyService
 
     
-    public void writeFeaturesToText(String path,Collection<? extends Feature> features, Set<String> attributesToExport, String source) throws IOException {
+    public void writeFeaturesToText(String path,Collection<? extends Feature> features, String source) throws IOException {
         WriteObject writeObject = new WriteObject( )
 
         writeObject.mode = Mode.WRITE
         writeObject.file = new File(path)
         writeObject.format = Format.TEXT
-        writeObject.attributesToExport = attributesToExport
+        
+        // TODO: use specified metadata?
+        writeObject.attributesToExport.add(FeatureStringEnum.NAME.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.SYMBOL.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.SYNONYMS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.DESCRIPTION.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.STATUS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.DBXREFS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.ATTRIBUTES.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.PUBMEDIDS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.GOIDS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.COMMENTS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.DATE_CREATION.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.DATE_LAST_MODIFIED.value);
+
         if (!writeObject.file.canWrite()) {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
         }
@@ -345,8 +359,8 @@ public class Gff3HandlerService {
         File file;
         PrintWriter out;
         Mode mode;
-        Set<String> attributesToExport;
-        Format format
+        Set<String> attributesToExport = new HashSet<>();
+        Format format;
     }
 
 }
