@@ -36,8 +36,8 @@
     </div>
 </noscript>
 
-Version <g:meta name="app.version"/>
-Built with Grails <g:meta name="app.grails.version"/>
+%{--Version <g:meta name="app.version"/>--}%
+%{--Built with Grails <g:meta name="app.grails.version"/>--}%
 
 </body>
 </html>

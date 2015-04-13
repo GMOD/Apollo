@@ -13,6 +13,7 @@ class UrlMappings {
         "/"(redirect: '/annotator/index')
         "500"(view: '/error')
         "/menu"(view: '/menu')
+        "/version.jsp"(controller: 'annotator', view: "version")
 
         // set this routing here
         //"/jbrowse"(controller: "jbrowse", action: "index")

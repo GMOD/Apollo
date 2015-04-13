@@ -148,5 +148,9 @@ class AnnotatorController {
 
     }
 
+    def version(){
+
+    }
+
 
 }
