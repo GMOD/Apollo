@@ -182,20 +182,7 @@ public class AnnotationEditorService extends HttpServlet {
             if (serverConfig.getCannedComments() != null) {
                 cannedComments = new CannedComments((InputStream) getServletContext().getResourceAsStream(serverConfig.getCannedComments()));
             }
-            sequenceSearchTools = new HashMap<String, SequenceSearchTool>();
-            sequenceSearchToolsKeys = new ArrayList<String>();
-            for (ServerConfiguration.SequenceSearchToolConfiguration conf : serverConfig.getSequenceSearchTools()) {
-                SequenceSearchTool sequenceSearchTool = (SequenceSearchTool) Class.forName(conf.getClassName()).newInstance();
-                InputStream inputStream = (InputStream) getServletContext().getResourceAsStream(conf.getConfigFilename());
-                if (inputStream == null) {
-                    logger.error(conf.getConfigFilename() + " does not exist or is empty.");
-                } else {
-                    sequenceSearchTool.parseConfiguration(inputStream);
-                    sequenceSearchTool.setBioObjectConfiguration(bioObjectConfiguration);
-                    sequenceSearchTools.put(conf.getKey(), sequenceSearchTool);
-                    sequenceSearchToolsKeys.add(conf.getKey());
-                }
-            }
+            
             dataAdapters = serverConfig.getDataAdapters();
             useCDS = serverConfig.getUseCDS();
             useMemoryStore = serverConfig.getUseMemoryStore();
