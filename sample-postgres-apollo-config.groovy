@@ -9,8 +9,6 @@ grails {
             dataSource.driverClassName = "org.postgresql.Driver"
             dataSource.dialect = org.hibernate.dialect.PostgresPlusDialect
             dataSource.url = "jdbc:postgresql://localhost/apollo"
-
-            apollo.jbrowse.data.directory = "/opt/another.apollo/jbrowse/data"
         }
         test {
             dataSource.dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
@@ -19,8 +17,6 @@ grails {
             dataSource.driverClassName = "org.postgresql.Driver"
             dataSource.dialect = org.hibernate.dialect.PostgresPlusDialect
             dataSource.url = "jdbc:postgresql://localhost/apollo-test"
-            apollo.jbrowse.data.directory = "/opt/another.apollo/jbrowse/data"
-
         }
         production {
             dataSource.dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
@@ -29,8 +25,6 @@ grails {
             dataSource.driverClassName = "org.postgresql.Driver"
             dataSource.dialect = org.hibernate.dialect.PostgresPlusDialect
             dataSource.url = "jdbc:postgresql://localhost/apollo-production"
-
-            apollo.jbrowse.data.directory = "/opt/another.apollo/jbrowse/data"
             dataSource.properties {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true
