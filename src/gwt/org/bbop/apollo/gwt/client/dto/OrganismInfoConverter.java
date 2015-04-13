@@ -15,6 +15,9 @@ public class OrganismInfoConverter {
             organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
         }
         organismInfo.setDirectory(object.get("directory").isString().stringValue());
+        if(object.get("blatDb")!=null){
+            organismInfo.setBlatDb(object.get("blatDb").isString().stringValue());
+        }
         organismInfo.setCurrent(object.get("currentOrganism")!=null && object.get("currentOrganism").isBoolean().booleanValue());
         organismInfo.setNumFeatures(0);
         organismInfo.setNumTracks(0);

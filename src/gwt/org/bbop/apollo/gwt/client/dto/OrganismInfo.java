@@ -35,9 +35,6 @@ public class OrganismInfo {
 
     public OrganismInfo(String name) {
         this.name = name;
-        //this.numFeatures = (int) Math.round(Math.random()*200) ;
-        //this.numSequences = (int) Math.round(Math.random()*200) ;
-        //this.numTracks = (int) Math.round(Math.random()*200) ;
     }
 
     public String getBlatDb() {
