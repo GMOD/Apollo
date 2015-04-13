@@ -107,7 +107,7 @@ elif [[ $1 == "test-unit" ]];then
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
-	# this makes it globally availab le
+	# this makes it globally available
 	rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
@@ -117,11 +117,8 @@ elif [[ $1 == "release" ]];then
    check_configs
    check_configs_for_release
    ant clean-all release copy-resources gwtc && grails war
-    # make -f build/Makefile release
-    # make -f build/Makefile create-precompiled
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
-#    mvn compile
     ant gwtc && grails compile
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
