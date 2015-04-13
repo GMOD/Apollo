@@ -549,13 +549,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-    @MessageMapping("/hello")
-    @SendTo("/topic/hello")
-    protected String hello(String inputString) {
-        log.debug "hello in the house! ${inputString}"
-        return "i[${inputString}]"
-    }
-
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")

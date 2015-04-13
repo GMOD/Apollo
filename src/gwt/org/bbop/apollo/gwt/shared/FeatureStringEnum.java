@@ -36,6 +36,8 @@ public enum FeatureStringEnum {
         NOTES,
         TAG,
         NON_RESERVED_PROPERTIES,
+        OLD_NON_RESERVED_PROPERTIES,
+        NEW_NON_RESERVED_PROPERTIES,
         LOCATION,
         FMIN,
         FMAX,
