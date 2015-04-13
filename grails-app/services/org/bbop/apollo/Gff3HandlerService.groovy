@@ -28,19 +28,14 @@ public class Gff3HandlerService {
     def featureService
     def featurePropertyService
 
-
-    // adding a default attribute list to export when defaultAttributesToExport is null
-    private List<String> defaultAttributesExport = ["name"]
     
-    public void writeFeaturesToText(String path,Collection<? extends Feature> features, String source) throws IOException {
+    public void writeFeaturesToText(String path,Collection<? extends Feature> features, Set<String> attributesToExport, String source) throws IOException {
         WriteObject writeObject = new WriteObject( )
 
         writeObject.mode = Mode.WRITE
         writeObject.file = new File(path)
         writeObject.format = Format.TEXT
-        if(!writeObject.attributesToExport){
-            writeObject.attributesToExport = defaultAttributesExport;
-        }
+        writeObject.attributesToExport = attributesToExport
         if (!writeObject.file.canWrite()) {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
         }
