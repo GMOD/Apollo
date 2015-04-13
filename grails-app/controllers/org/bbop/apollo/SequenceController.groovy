@@ -94,7 +94,6 @@ class SequenceController {
         String typeOfExport = dataObject.type
         String sequenceType = dataObject.sequenceType
         String exportAllSequences = dataObject.exportAllSequences
-        Collection<Feature> listOfFeatures = new ArrayList<Feature>();
 
         def sequences = dataObject.sequences.name
         def sequenceList
@@ -106,30 +105,18 @@ class SequenceController {
             // HQL for a single sequence or selected sequences
             sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences])
         }
-        println "# of sequences to export ${sequenceList.size()}"
-        for (Sequence eachSeq in sequenceList) {
-            List<FeatureLocation> featureLocationList = sequenceService.getFeatureLocations(eachSeq)
-            if (featureLocationList.size() == 0) {
-                log.debug "No features on sequence ${eachSeq}"
-                continue
-            }
-            for (FeatureLocation entity in featureLocationList) {
-                if (entity.feature.class.cvTerm == MRNA.cvTerm) {
-                    // getting only MRNA features; might want to extend to other features in future
-                    Feature featureToWrite = Feature.findByUniqueName(entity.feature.uniqueName)
-                    listOfFeatures.add(featureToWrite)
-                }
-            }
-        }
+        log.debug "# of sequences to export ${sequenceList.size()}"
 
+        List<String> ontologyIdList = [Gene.class.name]
+        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList])
         File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
+        
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
         } else if (typeOfExport == "FASTA") {
             // call fastaHandlerService
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
-
         }
         JSONObject jsonObject = new JSONObject()
         jsonObject.put("filePath", outputFile.path)
