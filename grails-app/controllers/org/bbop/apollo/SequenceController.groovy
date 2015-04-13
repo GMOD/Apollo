@@ -126,7 +126,7 @@ class SequenceController {
     }
 
     def exportHandler() {
-        log.debug "params to exportHandler: ${params}"
+        println  "DOING params to exportHandler: ${params}"
         String pathToFile = params.filePath
         def file = new File(pathToFile)
         response.contentType = "txt"

@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -24,7 +25,8 @@ public class ExportPanel extends DialogBox{
     private List<SequenceInfo> sequenceList ;
     private String sequenceType = "genomic";
     private Boolean exportAll = false;
-    
+
+
     interface ExportPanelUiBinder extends UiBinder<Widget, ExportPanel> {
     }
 
@@ -35,8 +37,8 @@ public class ExportPanel extends DialogBox{
     HTML sequenceInfoLabel;
     @UiField
     HTML typeLabel;
-    @UiField
-    HTML urlLink;
+//    @UiField
+//    HTML urlLink;
     @UiField
     HTML sequenceTypeLabel;
     @UiField
@@ -84,11 +86,11 @@ public class ExportPanel extends DialogBox{
         typeLabel.setHTML("Type: " + this.type);
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-        urlLink.setHTML("<a href=" + url + ">Download Annotations (GFF3)</a>");
+    public void setExportUrl(String exportUrlString) {
+        Window.Location.assign(exportUrlString);
+        this.closeButton.click();
     }
-    
+
     public String getType() {
         return type;
     }

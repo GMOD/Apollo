@@ -114,7 +114,9 @@ public class SequenceRestService {
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
+                String exportUrl =  rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType ;
+                exportPanel.setExportUrl(exportUrl);
+//                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
             }
 
             @Override

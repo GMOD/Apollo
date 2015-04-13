@@ -8,7 +8,6 @@
     </ui:style>
     <gwt:FlowPanel>
         <gwt:HTMLPanel styleName="{style.exportStyle}">
-            <h3>Export</h3>
             <gwt:HTML ui:field="organismLabel"/>
             <gwt:HTML ui:field="sequenceInfoLabel"/>
             <gwt:HTML ui:field="typeLabel"/>
@@ -17,7 +16,7 @@
             <gwt:RadioButton ui:field='cdsRadioButton' name="export" text="CDS" checked="false" visible="false"/>
             <gwt:RadioButton ui:field='peptideRadioButton' name="export" text="Peptide" checked="false" visible="false"/>
             <gwt:HTML ui:field="sequenceTypeLabel" visible="false"/>
-            <gwt:HTML ui:field="urlLink"/>
+            <!--<gwt:HTML ui:field="urlLink"/>-->
             <gwt:Button ui:field="exportButton" text="Export Annotations" enabled="true"/>
             <gwt:Button ui:field="closeButton" text="Close" enabled="true"/>
         </gwt:HTMLPanel>
