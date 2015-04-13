@@ -57,7 +57,15 @@ public class ExonDetailPanel extends Composite {
     Button positiveStrandValue;
     @UiField
     Button negativeStrandValue;
-
+    @UiField
+    Button decreaseFmin;
+    @UiField
+    Button increaseFmin;
+    @UiField
+    Button decreaseFmax;
+    @UiField
+    Button increaseFmax;
+    
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
@@ -183,7 +191,7 @@ public class ExonDetailPanel extends Composite {
         }
         dataGrid.redraw();
     }
-
+    
     private void calculatePhaseOnList(List<AnnotationInfo> annotationInfoList) {
         // get the CDS annotionInfo . .
 //        int length = 0;
@@ -332,5 +340,78 @@ public class ExonDetailPanel extends Composite {
 
 //        maxField.setEnabled(this.editable);
 //        minField.setEnabled(this.editable);
+    }
+    
+    public boolean isEditableType(String type) {
+        if (type.equals("CDS") || type.equals("exon")) {
+            return true; 
+        }
+        else {
+            return false;
+        }
+    }
+    
+    @UiHandler("decreaseFmax")
+    public void setDecreaseFmax(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        if ((internalAnnotationInfo.getMax() - 1) > internalAnnotationInfo.getMin()) {
+            decreaseFmax.setEnabled(false);
+            internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() - 1);
+            updateFeatureLocation();
+            decreaseFmax.setEnabled(true);
+            redrawExonTable();
+        }
+        else {
+            GWT.log("Cannot decrease Fmax to a value which is less than or equal to Fmin");
+        }
+    }
+
+    @UiHandler("increaseFmax")
+    public void setIncreaseFmax(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        increaseFmax.setEnabled(false);
+        internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() + 1);
+        updateFeatureLocation();
+        increaseFmax.setEnabled(true);
+        redrawExonTable();
+    }
+
+    @UiHandler("decreaseFmin")
+    public void setDecreaseFmin(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        decreaseFmin.setEnabled(false);
+        internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
+        updateFeatureLocation();
+        decreaseFmin.setEnabled(true);
+        redrawExonTable();
+    }
+
+    @UiHandler("increaseFmin")
+    public void setIncreaseFmin(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        GWT.log(internalAnnotationInfo.getMin().toString());
+        GWT.log(internalAnnotationInfo.getMax().toString());
+        if((internalAnnotationInfo.getMin() + 1) < internalAnnotationInfo.getMax()) {
+            increaseFmin.setEnabled(false);
+            internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() + 1);
+            updateFeatureLocation();
+            increaseFmin.setEnabled(true);
+            redrawExonTable();  
+        }
+        else {
+            GWT.log("Cannot increase Fmin to a value which is greater than or equal to Fmax");
+        }
     }
 }
