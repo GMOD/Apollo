@@ -618,7 +618,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     // TODO: handle errors without broadcasting
     protected def sendError(AnnotationException exception,String username){
         log.debug "excrption ${exception}"
-        log.debug "excrption message ${exception.messaged}"
+        log.debug "excrption message ${exception.message}"
         log.debug "username ${username}"
 
         JSONObject errorObject = new JSONObject()

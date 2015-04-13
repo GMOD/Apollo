@@ -29,6 +29,7 @@ public enum FeatureStringEnum {
         DATE_LAST_MODIFIED,
         DATE_CREATION,
         COMMENT("Comment"),
+        TAG_VALUE_DELIMITER("="),
         COMMENTS,
         CANNED_COMMENTS,
         STATUS,
