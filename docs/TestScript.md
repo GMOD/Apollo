@@ -90,7 +90,7 @@ E.g: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniP
 
 11.3) color by CDS
 
-12) 'Zoom to base level' to reveal DNA Track and test sequence annotation alterations: 
+12) 'Zoom to Base Level' to reveal DNA Track and test sequence annotation alterations: 
 
 12.1) Insertions 
 

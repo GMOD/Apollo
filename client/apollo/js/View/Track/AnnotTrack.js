@@ -4389,7 +4389,7 @@ define([
                     contextMenuItems["get_gff3"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Zoom to base level",
+                        label: "Zoom to Base Level",
                         onClick: function (event) {
                             if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to Base Level") {
                                 thisObj.zoomToBaseLevel(thisObj.annot_context_mousedown);
@@ -4538,7 +4538,7 @@ define([
                         }));
                         contextMenuItems["set_as_three_prime_end"] = index++;
                         annot_context_menu.addChild(new dijit.MenuItem({
-                            label: "Set Both Ends",
+                            label: "Set both Ends",
                             onClick: function (event) {
                                 thisObj.setBothEnds();
                             }
@@ -5099,10 +5099,10 @@ define([
                 updateZoomToBaseLevelMenuItem: function () {
                     var menuItem = this.getMenuItem("zoom_to_base_level");
                     if (!this.gview.isZoomedToBase()) {
-                        menuItem.set("label", "Zoom to base level");
+                        menuItem.set("label", "Zoom to Base Level");
                     }
                     else {
-                        menuItem.set("label", "Zoom back out");
+                        menuItem.set("label", "Zoom Back Out");
                     }
                 },
 
