@@ -558,7 +558,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         rootElement.put(FeatureStringEnum.USERNAME.value,principal.name)
 
 
-        log.debug "AEC::root element: ${rootElement as JSON}"
+
+        println "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)

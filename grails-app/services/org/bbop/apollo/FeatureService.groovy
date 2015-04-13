@@ -80,14 +80,14 @@ class FeatureService {
                 and {
                     le("fmin", location.fmin)
                     gt("fmax", location.fmin)
-                    if(compareStrands){
+                    if (compareStrands) {
                         eq("strand", location.strand)
                     }
                 }
                 and {
                     lt("fmin", location.fmax)
                     ge("fmax", location.fmax)
-                    if(compareStrands){
+                    if (compareStrands) {
                         eq("strand", location.strand)
                     }
                 }
@@ -96,6 +96,7 @@ class FeatureService {
 
         return results*.feature.unique()
     }
+
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
         gsolFeature.setIsAnalysis(false);
@@ -114,10 +115,10 @@ class FeatureService {
         }
     }
 
-    private setOwner(Feature feature,User owner){
+    private setOwner(Feature feature, User owner) {
+        println "setting owner for feature ${feature} to ${owner}"
         feature.addToOwners(owner)
     }
-
 
     /**
      * From Gene.addTranscript
@@ -171,15 +172,8 @@ class FeatureService {
                     //wasn't working --colin
                     //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
 
-
                     //this one is working, but was marked as needing improvement
-                    String username = null
-                    try {
-                        username = SecurityUtils?.subject?.principal
-                        featurePropertyService.setOwner(transcript, username);
-                    } catch (e) {
-                        log.error(e)
-                    }
+                    setOwner(transcript, jsonTranscript);
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
@@ -198,9 +192,6 @@ class FeatureService {
                         break;
                     } else {
                         featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
-//                        tmpTranscript.delete(flush: true)
-//                        deleteFeature(tmpTranscript)
-//                        transcriptService.deleteTranscript(tmpGene,tmpTranscript)
                         log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                     }
                 } else {
@@ -224,7 +215,6 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
-
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
 
@@ -246,9 +236,16 @@ class FeatureService {
             gene.save(insert: true)
             transcript.save(flush: true)
 
-            if(!grails.util.Environment.TEST){
-                setOwner(gene, permissionService.findUser(jsonTranscript));
-                setOwner(transcript, permissionService.findUser(jsonTranscript));
+            // doesn't work well for testing
+            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+                println "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                User userToSet = permissionService.findUser(jsonTranscript)
+                if (userToSet) {
+                    setOwner(gene, userToSet);
+                    setOwner(transcript, userToSet);
+                } else {
+                    log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
+                }
             }
 //            String username = null
 //            try {
@@ -1147,7 +1144,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 sequenceService.setResiduesForFeature(gsolFeature, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
 
-
 //            gsolFeature.save(failOnError: true)
 
             if (jsonFeature.has(FeatureStringEnum.CHILDREN.value)) {
@@ -1282,7 +1278,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
             case RepeatRegion.ontologyId: return new RepeatRegion()
-            case FlankingRegion.ontologyId : return new FlankingRegion()
+            case FlankingRegion.ontologyId: return new FlankingRegion()
             case Insertion.ontologyId: return new Insertion()
             case Deletion.ontologyId: return new Deletion()
             case Substitution.ontologyId: return new Substitution()
@@ -1633,18 +1629,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             gsolFeature.attach()
 
-            if(gsolFeature.owners){
-                String ownerString =""
-                for(owner in gsolFeature.owners){
-                    ownerString +=  gsolFeature.owner.username + " "
+            if (gsolFeature.owners) {
+                String ownerString = ""
+                for (owner in gsolFeature.owners) {
+                    ownerString += gsolFeature.owner.username + " "
                 }
                 jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), ownerString?.trim());
-            }
-            else
-            if(gsolFeature.owner){
+            } else if (gsolFeature.owner) {
                 jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), gsolFeature.owner.username);
-            }
-            else{
+            } else {
                 jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), "None");
             }
 //            gsolFeature.featureLocations.each {

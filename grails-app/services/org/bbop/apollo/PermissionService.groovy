@@ -381,7 +381,7 @@ class PermissionService {
             try {
                 return SecurityUtils.subject.principal?.toString()
             } catch (e) {
-                log.error "find to find user for session"
+                log.error "trying to find user for session"
                 return null
             }
         }
@@ -390,6 +390,9 @@ class PermissionService {
     JSONObject copyUserName(JSONObject fromJSON,JSONObject toJSON){
         if(fromJSON.containsKey(FeatureStringEnum.USERNAME.value)){
             toJSON.put(FeatureStringEnum.USERNAME.value,fromJSON.getString(FeatureStringEnum.USERNAME.value))
+        }
+        else{
+            log.error "No username to copy from ${fromJSON}"
         }
         return toJSON
     }

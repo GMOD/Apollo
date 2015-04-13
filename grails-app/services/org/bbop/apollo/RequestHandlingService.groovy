@@ -478,7 +478,8 @@ class RequestHandlingService {
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
-            jsonTranscript = permissionService.copyUserName(returnObject, jsonTranscript)
+            jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
+            println "copied jsonTranscript ${jsonTranscript}"
             Transcript transcript = featureService.generateTranscript(jsonTranscript, trackName)
 
             // should automatically write to history
