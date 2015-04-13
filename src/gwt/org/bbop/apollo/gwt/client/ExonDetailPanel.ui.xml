@@ -45,14 +45,13 @@
                 <b:Row>
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
-                            <b:InputGroupButton>
-                                <b:Button ui:field="decreaseFmax" text="-"/>
-                            </b:InputGroupButton>
                             <b:InputGroupAddon>Max</b:InputGroupAddon>
-                            <!--<b:TextBox autoComplete="false" ui:field="maxField" enabled="false"/>-->
+                            <b:InputGroupButton>
+                                <b:Button ui:field="decreaseFmax" icon="MINUS"/>
+                            </b:InputGroupButton>
                             <b:InputGroupAddon ui:field="maxField"/>
                             <b:InputGroupButton>
-                                <b:Button ui:field="increaseFmax" text="+"/>
+                                <b:Button ui:field="increaseFmax" icon="PLUS"/>
                             </b:InputGroupButton>
                         </b:InputGroup>
                     </b:Column>
@@ -60,14 +59,13 @@
                 <b:Row>
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
-                            <b:InputGroupButton>
-                                <b:Button ui:field="decreaseFmin" text="-"/>
-                            </b:InputGroupButton>
                             <b:InputGroupAddon>Min</b:InputGroupAddon>
-                            <!--<b:TextBox autoComplete="false" ui:field="minField"  enabled="false"/>-->
+                            <b:InputGroupButton>
+                                <b:Button ui:field="decreaseFmin" icon="MINUS"/>
+                            </b:InputGroupButton>
                             <b:InputGroupAddon ui:field="minField"/>
                             <b:InputGroupButton>
-                                <b:Button ui:field="increaseFmin" text="+"/>
+                                <b:Button ui:field="increaseFmin" icon="PLUS"/>
                             </b:InputGroupButton>
                         </b:InputGroup>
                     </b:Column>
