@@ -151,6 +151,8 @@ class RequestHandlingService {
         } else {
             jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature));
         }
+
+        return jsonObject
     }
 
     // is this used?

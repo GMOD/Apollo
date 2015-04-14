@@ -73,8 +73,8 @@ public class SequencePanel extends Composite {
     Button exportSingleButton;
     @UiField
     TextBox nameSearchBox;
-    @UiField
-    org.gwtbootstrap3.client.ui.Label viewableLabel;
+//    @UiField
+//    org.gwtbootstrap3.client.ui.Label viewableLabel;
     @UiField
     HTML sequenceLength;
     @UiField
@@ -449,8 +449,8 @@ public class SequencePanel extends Composite {
 //            filteredSequenceList.addAll(sequenceInfoList);
 //        }
 
-        GWT.log("filtered size: " + filteredSequenceList.size());
-        viewableLabel.setText(filteredSequenceList.size() + "");
+//        GWT.log("filtered size: " + filteredSequenceList.size());
+//        viewableLabel.setText(filteredSequenceList.size() + "");
 
     }
 

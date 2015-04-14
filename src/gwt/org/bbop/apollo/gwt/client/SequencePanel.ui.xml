@@ -69,9 +69,9 @@
                     <b:Column size="MD_6" styleName="{style.widgetPanel}">
                         <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
                     </b:Column>
-                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
-                        <b:Label ui:field="viewableLabel"/>
-                    </b:Column>
+                    <!--<b:Column size="MD_2" styleName="{style.widgetPanel}">-->
+                        <!--<b:Label ui:field="viewableLabel"/>-->
+                    <!--</b:Column>-->
                 </b:Row>
                 <b:Row>
                     <b:Column size="MD_2">
@@ -90,13 +90,13 @@
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_3">
-                        <b:TextBox ui:field="minFeatureLength"/>
+                        <b:TextBox ui:field="minFeatureLength" placeholder="Minimum"/>
                     </b:Column>
                     <!--<b:Column size="MD_1">-->
                     <!--<gwt:HTML text="-"/>-->
                     <!--</b:Column>-->
                     <b:Column size="MD_3">
-                        <b:TextBox ui:field="maxFeatureLength"/>
+                        <b:TextBox ui:field="maxFeatureLength" placeholder="Maximum"/>
                     </b:Column>
                 </b:Row>
                 <b:Row>

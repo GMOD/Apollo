@@ -34,8 +34,9 @@ class UrlMappings {
         "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params){
 
         }
-
         "/Login"(controller:"login",action: "handleOperation",params:params){
+        }
+        "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params){
         }
     }
 }

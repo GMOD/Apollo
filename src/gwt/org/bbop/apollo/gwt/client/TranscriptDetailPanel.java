@@ -45,8 +45,15 @@ public class TranscriptDetailPanel extends Composite {
     InputGroupAddon locationField;
     @UiField
     InputGroupAddon userField;
+    @UiField
+    InputGroupAddon sequenceField;
 
     private Boolean editable = false ;
+
+    public TranscriptDetailPanel() {
+        initWidget(ourUiBinder.createAndBindUi(this));
+    }
+
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
@@ -54,12 +61,6 @@ public class TranscriptDetailPanel extends Composite {
         updateTranscript();
     }
 
-//    @UiHandler("symbolField")
-//    void handleSymbolChange(ChangeEvent e) {
-////        Window.alert("symbol field changed: "+e);
-//        internalAnnotationInfo.setSymbol(symbolField.getText());
-//        updateTranscript();
-//    }
 
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
@@ -67,9 +68,6 @@ public class TranscriptDetailPanel extends Composite {
         updateTranscript();
     }
 
-    public TranscriptDetailPanel() {
-        initWidget(ourUiBinder.createAndBindUi(this));
-    }
 
 
     public void updateData(AnnotationInfo annotationInfo) {
@@ -77,6 +75,7 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
+        sequenceField.setText(internalAnnotationInfo.getSequence());
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = internalAnnotationInfo.getMin().toString();

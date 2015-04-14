@@ -121,6 +121,7 @@ public class AnnotatorPanel extends Composite {
     public AnnotatorPanel() {
         pager = new SimplePager(SimplePager.TextLocation.CENTER);
         sequenceList = new SuggestBox(sequenceOracle);
+        sequenceList.getElement().setAttribute("placeHolder", "All Reference Sequences");
         dataGrid.setWidth("100%");
 
 //        dataGrid.setEmptyTableWidget(new Label("Loading"));
