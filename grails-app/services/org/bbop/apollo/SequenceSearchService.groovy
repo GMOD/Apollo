@@ -9,4 +9,9 @@ class SequenceSearchService {
     def serviceMethod() {
 
     }
+
+    def searchSequence(JSONObject input) {
+        configWrapperService.getSequenceSearchTools()
+
+    }
 }

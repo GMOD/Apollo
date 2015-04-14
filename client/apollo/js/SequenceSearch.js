@@ -5,7 +5,7 @@ define( [
     function( declare, $ ) {
 
 return declare(null, {
-constructor(contextPath) {
+constructor: function(contextPath) {
     this.contextPath = contextPath;
 },
 

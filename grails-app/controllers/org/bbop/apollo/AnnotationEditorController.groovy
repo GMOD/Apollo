@@ -445,7 +445,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequenceSearchTools() {
         log.debug "getSequenceSearchTools ${params.data}"
-        log.debug configWrapperService.getSequenceSearchTools()
         JSONArray sequenceSearchToolsArray = new JSONArray();
         configWrapperService.getSequenceSearchTools().each { k,v ->
             sequenceSearchToolsArray.put(k);
@@ -453,6 +452,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
         render sequenceSearchToolsContainer.toString()
     }
+
+    def searchSequence() {
+        log.debug "getSequenceSearch ${params.data}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        render sequenceSearchService.searchSequence(inputObject)
+    }
+
+
     def getGff3() {
         log.debug "getGff3 ${params.data}"
         if(!checkPermissions(PermissionEnum.EXPORT)){
@@ -558,14 +565,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value,principal.name)
 
-
-
         println "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
         log.debug "operationName: ${operationName}"
-//        handleOperation(track,operation)
         def p = task {
             switch (operationName) {
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
@@ -604,7 +608,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
             return sendError(ae,principal.name)
-//            return new JSONObject() as JSON
         }
 
     }
