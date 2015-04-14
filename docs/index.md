@@ -27,7 +27,6 @@ Let's get started!
 5. [Configure](Configure.md)
 6. [Data loading](Data_loading.md)
 7. [Build](Build.md)
-8. [Deploy](Deploy.md)
-9. [Troubleshooting](Troubleshooting.md)
-10. [Developers guide](Developer.md)
-
+8. [Troubleshooting](Troubleshooting.md)
+9. [Developers guide](Developer.md)
+10. [Testing notes](Testing_notes.md)
