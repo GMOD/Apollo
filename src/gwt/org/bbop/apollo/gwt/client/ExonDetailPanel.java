@@ -335,6 +335,13 @@ public class ExonDetailPanel extends Composite {
 //    }
 //
 //
+    private void enableFields(boolean enabled) {
+        GWT.log("triggered");
+        increaseFmin.setEnabled(enabled);
+        increaseFmax.setEnabled(enabled);
+        decreaseFmin.setEnabled(enabled);
+        decreaseFmax.setEnabled(enabled);
+    }
     public void setEditable(boolean editable) {
         this.editable = editable ;
 
@@ -350,6 +357,44 @@ public class ExonDetailPanel extends Composite {
             return false;
         }
     }
+
+    private void updateFeatureLocation(final AnnotationInfo originalInfo) {
+        String url = rootUrl + "/annotator/updateFeatureLocation";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        StringBuilder sb = new StringBuilder();
+        sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
+        final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
+        builder.setRequestData(sb.toString());
+        enableFields(false);
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                GWT.log("return value: " + returnValue.toString());
+                enableFields(true);
+                
+                redrawExonTable();
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                //todo: handling different types of errors
+                Window.alert("Error updating exon: " + exception);
+                minField.setText(originalInfo.getMin().toString());
+                maxField.setText(originalInfo.getMax().toString());
+                enableFields(true);
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            Window.alert(e.getMessage());
+            enableFields(true);
+        }
+    }
     
     @UiHandler("decreaseFmax")
     public void setDecreaseFmax(ClickEvent e) {
@@ -358,11 +403,10 @@ public class ExonDetailPanel extends Composite {
             return;
         }
         if ((internalAnnotationInfo.getMax() - 1) > internalAnnotationInfo.getMin()) {
-            decreaseFmax.setEnabled(false);
+            final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
             internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() - 1);
-            updateFeatureLocation();
-            decreaseFmax.setEnabled(true);
-            redrawExonTable();
+            maxField.setText(internalAnnotationInfo.getMax().toString());
+            updateFeatureLocation(beforeUpdate);
         }
         else {
             GWT.log("Cannot decrease Fmax to a value which is less than or equal to Fmin");
@@ -375,11 +419,10 @@ public class ExonDetailPanel extends Composite {
         if (!isEditableType(type)) {
             return;
         }
-        increaseFmax.setEnabled(false);
+        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
         internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() + 1);
-        updateFeatureLocation();
-        increaseFmax.setEnabled(true);
-        redrawExonTable();
+        maxField.setText(internalAnnotationInfo.getMax().toString());
+        updateFeatureLocation(beforeUpdate);
     }
 
     @UiHandler("decreaseFmin")
@@ -388,11 +431,10 @@ public class ExonDetailPanel extends Composite {
         if (!isEditableType(type)) {
             return;
         }
-        decreaseFmin.setEnabled(false);
+        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
         internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
-        updateFeatureLocation();
-        decreaseFmin.setEnabled(true);
-        redrawExonTable();
+        minField.setText(internalAnnotationInfo.getMin().toString());
+        updateFeatureLocation(beforeUpdate);
     }
 
     @UiHandler("increaseFmin")
@@ -401,14 +443,11 @@ public class ExonDetailPanel extends Composite {
         if (!isEditableType(type)) {
             return;
         }
-        GWT.log(internalAnnotationInfo.getMin().toString());
-        GWT.log(internalAnnotationInfo.getMax().toString());
         if((internalAnnotationInfo.getMin() + 1) < internalAnnotationInfo.getMax()) {
-            increaseFmin.setEnabled(false);
+            final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
             internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() + 1);
-            updateFeatureLocation();
-            increaseFmin.setEnabled(true);
-            redrawExonTable();  
+            minField.setText(internalAnnotationInfo.getMin().toString());
+            updateFeatureLocation(beforeUpdate);
         }
         else {
             GWT.log("Cannot increase Fmin to a value which is greater than or equal to Fmax");
