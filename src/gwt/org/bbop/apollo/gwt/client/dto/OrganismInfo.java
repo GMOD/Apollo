@@ -20,7 +20,7 @@ public class OrganismInfo {
     private String genus ;
     private String species ;
     private String directory ;
-    private String blatDb ;
+    private String blatdb ;
 
     private Integer numFeatures ;
     private Integer numSequences;
@@ -38,11 +38,11 @@ public class OrganismInfo {
     }
 
     public String getBlatDb() {
-        return blatDb;
+        return blatdb;
     }
 
     public void setBlatDb(String blatdb) {
-        this.blatDb = blatdb;
+        this.blatdb = blatdb;
     }
 
     public String getGenus() {
@@ -131,8 +131,8 @@ public class OrganismInfo {
         payload.put("name",new JSONString(name));
         payload.put("directory",new JSONString(directory));
         payload.put("current",JSONBoolean.getInstance(current));
-        if(blatDb!=null) {
-            payload.put("blatdb", new JSONString(blatDb));
+        if(blatdb!=null) {
+            payload.put("blatdb", new JSONString(blatdb));
         }
         if(genus!=null){
             payload.put("genus",new JSONString(genus));

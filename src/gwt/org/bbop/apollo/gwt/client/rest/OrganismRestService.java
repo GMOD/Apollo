@@ -45,6 +45,9 @@ public class OrganismRestService {
         if(organismInfo.getNumFeatures()!=null) {
             object.put("annotationCount", new JSONNumber(organismInfo.getNumFeatures()));
         }
+        if(organismInfo.getBlatDb()!=null) {
+            object.put("blatdb",new JSONString(organismInfo.getBlatDb()));
+        }
         return object;
     }
 
@@ -78,6 +81,9 @@ public class OrganismRestService {
             }
             if(object.get("species")!=null && object.get("species").isString()!=null){
                 organismInfo.setSpecies(object.get("species").isString().stringValue());
+            }
+            if(object.get("blatdb")!=null && object.get("blatdb").isString()!=null){
+                organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
             }
             organismInfoList.add(organismInfo);
         }

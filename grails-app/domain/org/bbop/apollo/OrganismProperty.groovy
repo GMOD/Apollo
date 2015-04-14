@@ -9,16 +9,16 @@ class OrganismProperty {
     static constraints = {
     }
 
-     Integer organismId;
-     String abbreviation;
-     String genus;
-     String species;
-     String commonName;
-     String comment;
+    Integer organismId;
+    String abbreviation;
+    String genus;
+    String species;
+    String commonName;
+    String comment;
 
     static hasMany = [
-            organismProperties : OrganismProperty
-            ,organismDBXrefs : OrganismDBXref
+        organismProperties : OrganismProperty
+        ,organismDBXrefs : OrganismDBXref
     ]
 
 

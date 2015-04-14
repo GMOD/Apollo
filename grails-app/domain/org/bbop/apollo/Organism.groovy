@@ -10,18 +10,17 @@ class Organism {
         species nullable: true
         genus nullable: true
         valid nullable: true
-        blatDb nullable: true
+        blatdb nullable: true
     }
 
-//     Integer organismId;
+    //Integer organismId;
     String abbreviation;
     String genus;
     String species;
     String commonName;
     String comment;
     Boolean valid;
-    String blatDb;
-
+    String blatdb;
     String directory
 
     static hasMany = [

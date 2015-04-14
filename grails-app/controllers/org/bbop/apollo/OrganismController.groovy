@@ -43,6 +43,7 @@ class OrganismController {
         Organism organism = new Organism(
                 commonName: organismJson.commonName
                 , directory: organismJson.directory
+                , blatdb: organismJson.blatdb
                 , species: organismJson.species
                 , genus: organismJson.genus
         )
@@ -129,9 +130,7 @@ class OrganismController {
         Organism organism = Organism.findById(organismId as Long)
         if (organism) {
             log.debug "found the organism ${organism}"
-//            request.session.setAttribute("organismJBrowseDirectory", organism.directory)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-//            session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value,sequence.name)
             session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
         } else {
             log.debug "no organism found"
@@ -152,11 +151,13 @@ class OrganismController {
 
         JSONArray jsonArray = new JSONArray()
         for (def organism in organismList) {
+            log.debug "TEST123"
             log.debug organism
             Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId", ["organismId": organism.id])[0]
             JSONObject jsonObject = [
                 id: organism.id,
                 commonName: organism.commonName,
+                blatdb: organism.blatdb,
                 directory: organism.directory,
                 annotationCount: geneCount,
                 sequences: organism.sequences?.size(),

@@ -1,4 +1,5 @@
 package org.bbop.apollo.gwt.client.dto;
+import com.google.gwt.core.client.GWT;
 
 import com.google.gwt.json.client.JSONObject;
 
@@ -15,8 +16,9 @@ public class OrganismInfoConverter {
             organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
         }
         organismInfo.setDirectory(object.get("directory").isString().stringValue());
-        if(object.get("blatDb")!=null){
-            organismInfo.setBlatDb(object.get("blatDb").isString().stringValue());
+        //GWT.log(object.get("blatdb"));
+        if(object.get("blatdb")!=null){
+            organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
         }
         organismInfo.setCurrent(object.get("currentOrganism")!=null && object.get("currentOrganism").isBoolean().booleanValue());
         organismInfo.setNumFeatures(0);

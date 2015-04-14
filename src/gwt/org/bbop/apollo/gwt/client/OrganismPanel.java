@@ -85,22 +85,22 @@ public class OrganismPanel extends Composite {
                 return employee.getName();
             }
         };
-        organismNameColumn.setSortable(true);
-
         Column<OrganismInfo, Number> annotationsNameColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumFeatures();
             }
         };
-        annotationsNameColumn.setSortable(true);
         Column<OrganismInfo, Number> sequenceColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumSequences();
             }
         };
+
         sequenceColumn.setSortable(true);
+        organismNameColumn.setSortable(true);
+        annotationsNameColumn.setSortable(true);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -110,7 +110,6 @@ public class OrganismPanel extends Composite {
         });
 
         dataGrid.setLoadingIndicator(new HTML("Calculating Annotations ... "));
-
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
         dataGrid.addColumn(sequenceColumn, "Sequences");
@@ -279,6 +278,15 @@ public class OrganismPanel extends Composite {
             updateOrganismInfo();
         }
     }
+
+    @UiHandler("blatdb")
+    public void handleBlatDbChange(ChangeEvent changeEvent) {
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setBlatDb(blatdb.getText());
+            updateOrganismInfo();
+        }
+    }
+
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
