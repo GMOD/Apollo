@@ -30,5 +30,4 @@ Let's get started!
 5. [Data loading](Data_loading.md)
 6. [Build](Build.md)
 7. [Troubleshooting](Troubleshooting.md)
-8. [Developers guide](Developer.md)
-9. [Testing notes](Testing_notes.md)
+8. [Testing notes](Testing_notes.md)
