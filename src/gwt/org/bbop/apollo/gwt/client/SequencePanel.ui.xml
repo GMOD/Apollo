@@ -90,13 +90,13 @@
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_3">
-                        <b:TextBox ui:field="minFeatureLength"/>
+                        <b:TextBox ui:field="minFeatureLength" placeholder="Minimum"/>
                     </b:Column>
                     <!--<b:Column size="MD_1">-->
                     <!--<gwt:HTML text="-"/>-->
                     <!--</b:Column>-->
                     <b:Column size="MD_3">
-                        <b:TextBox ui:field="maxFeatureLength"/>
+                        <b:TextBox ui:field="maxFeatureLength" placeholder="Maximum"/>
                     </b:Column>
                 </b:Row>
                 <b:Row>
