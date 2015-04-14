@@ -17,6 +17,11 @@ You can override any of the below configurations by putting the exact configurat
         }
     }
     
+* The H2 is the default if no config is copied.   Only for development or running for a single user.
+* [H2 sample file](https://github.com/GMOD/Apollo/blob/grails1/sample-h2-apollo-config.groovy)     
+* [Postgres sample file](https://github.com/GMOD/Apollo/blob/grails1/sample-postgres-apollo-config.groovy)
+* [MySQL sample file](https://github.com/GMOD/Apollo/blob/grails1/sample-mysql-apollo-config.groovy)
+
    
 Note: Configuration options may change, moving into the web interface / database from the configuration file. 
 
