@@ -18,6 +18,15 @@ import java.util.List;
 public abstract class BlatCommandLine extends SequenceSearchTool {
 
     private String blatBin;
+
+    public String getBlatBin() {
+        return blatBin;
+    }
+
+    public void setBlatBin(String blatBin) {
+        this.blatBin = blatBin;
+    }
+
     private String tmpDir;
     private String database;
     private String blatUserOptions;
