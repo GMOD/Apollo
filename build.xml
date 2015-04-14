@@ -163,7 +163,11 @@
             <arg value="JBrowse-${jbrowse.version}.zip"/>
         </exec>
         <move todir="${apollo.jbrowse.directory}">
-            <fileset dir="JBrowse-${jbrowse.version}"/>
+            <fileset dir="JBrowse-${jbrowse.version}">
+                <not>
+                    <filename name="sample_data/**"/>
+                </not>
+	    </fileset>
         </move>
         <delete file="JBrowse-${jbrowse.version}.zip"/>
         <delete file="JBrowse-${jbrowse.version}"/>
