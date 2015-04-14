@@ -455,8 +455,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def searchSequence() {
         log.debug "getSequenceSearch ${params.data}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        render sequenceSearchService.searchSequence(inputObject)
+        render "unimplemented"
+        //JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        //render sequenceSearchService.searchSequence(inputObject)
     }
 
 

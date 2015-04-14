@@ -10,8 +10,7 @@ class SequenceSearchService {
 
     }
 
-    def searchSequence(JSONObject input) {
-        configWrapperService.getSequenceSearchTools()
-
-    }
+    //def searchSequence(JSONObject input) {
+    //    configWrapperService.getSequenceSearchTools()
+    //}
 }
