@@ -8,7 +8,7 @@ An instantaneous, collaborative, genome annotation editor.  The stack is a Java 
 For general information on Web Apollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org/)
 
-Complete Web Apollo installation and configuration instructions for 1.x, are available at:
+Complete Web Apollo installation and configuration instructions are available at:
 [http://webapollo.readthedocs.org](http://webapollo.readthedocs.org)
 
 The Web Apollo client is implemented as a plugin for JBrowse, for more information on JBrowse, please visit:
@@ -16,17 +16,15 @@ The Web Apollo client is implemented as a plugin for JBrowse, for more informati
 
 ![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
 
-Note: For documentation of older Web Apollo versions, please see [http://gmod.org/wiki/WebApollo_Installation](http://gmod.org/wiki/WebApollo_Installation)
-
-## Quick Update Guide to Version 2.0.x
+## Quick Update Guide to Version 2.0.x 
 
 If you already have Web Apollo instances running, you can use your current JBrowse data directories.  
 
 See [the Apollo2 build guide](docs/Apollo2Build.md) to get the proper build guides up.
 
-## Migrating data.
+## Migrating data from &lt;2.0:
 
-We are working towards providing data migration scripts between Apollo 1 and Apollo 2.  
+We are working towards providing data migration scripts that pull data from Apollo 1 to Apollo 2.  
 
 ### Remove any symlinks in your deploy directory if updating from &lt;1.0 version
 In your deployment / webapp directory, remove your symlinks.  Tomcat will remove data through the symlinks.  You won't need symlinks or to deploy the war file. 
