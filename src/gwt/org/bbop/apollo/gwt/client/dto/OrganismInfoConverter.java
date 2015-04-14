@@ -17,7 +17,7 @@ public class OrganismInfoConverter {
         }
         organismInfo.setDirectory(object.get("directory").isString().stringValue());
         //GWT.log(object.get("blatdb"));
-        if(object.get("blatdb")!=null){
+        if(object.get("blatdb")!=null && object.get("blatdb").isString()!=null){
             organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
         }
         organismInfo.setCurrent(object.get("currentOrganism")!=null && object.get("currentOrganism").isBoolean().booleanValue());

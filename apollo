@@ -7,7 +7,7 @@ function usage(){
     echo "Commands:";
     echo "";
     echo "deploy:    Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "run:       Runs from current directory debug mode (non-minimized javascript).";
+    echo "devmode:       Runs from current directory debug mode (non-minimized javascript).";
     echo "run-local: Runs from current directory, but not in dev-mode.";
     echo "test:      Runs test-suite.";
     echo "debug:     Runs from current directory in debug mode (non-minimized javascript).";
@@ -79,7 +79,7 @@ function check_configs(){
 
 
 
-if [[ $1 == "run" ]];then
+if [[ $1 == "devmode" ]];then
     # should call the copy target first
     check_configs
     ant devmode &

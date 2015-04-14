@@ -1,14 +1,12 @@
-site_name: Web Apollo
+site_name: Web Apollo 2.0
 pages:
 - ['index.md', 'Index']
 - ['Introduction.md', 'Introduction']
-- ['Apollo2Build.md', 'Web Apollo 2.0 quick-setup']
 - ['Prerequisites.md', 'Pre-requisites']
-- ['Database_setup.md', 'Database setup']
+- ['Apollo2Build.md', 'Web Apollo 2.0 quick-setup']
 - ['Configure.md', 'Configure']
 - ['Data_loading.md', 'Data loading']
 - ['Build.md', 'Build']
-- ['Deploy.md', 'Deploy']
 - ['Troubleshooting.md', 'Troubleshooting']
-- ['Developer.md', 'Developers guide']
+- ['Testing_notes.md', 'Testing notes']
 
