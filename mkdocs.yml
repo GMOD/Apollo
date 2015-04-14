@@ -8,6 +8,5 @@ pages:
 - ['Data_loading.md', 'Data loading']
 - ['Build.md', 'Build']
 - ['Troubleshooting.md', 'Troubleshooting']
-- ['Developer.md', 'Developers guide']
 - ['Testing_notes.md', 'Testing notes']
 
