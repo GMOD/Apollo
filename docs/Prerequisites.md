@@ -5,11 +5,12 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On G
 
 ### Client Prerequisites
 
-Web Apollo is a web-based application, so the only client side
+Web Apollo 2.0 is a web-based application, so the only client side
 requirement is a web browser. Web Apollo has been tested on Chrome, Firefox, and Safari
 and matches the web browser requirements for JBrowse (see [jbrowse.org](http://jbrowse.org) for details).
 
 ### Server-side Prerequisites
+
 Note: see the [Quick-start guide](Apollo2Build.md) for the
 quickest way to take care of pre-requisites.
 
@@ -17,10 +18,10 @@ quickest way to take care of pre-requisites.
     -   Any Unix like system (e.g., Unix, Linux, Mac OS X)
     -   Servlet container (must support servlet spec 3.0+) [officially supported: Tomcat 7]
     -   Java 7+
-    -   Grails (easiest way to install is using GVM)
+    -   Grails (easiest way to install is using GVM, see [Apollo2Build.md](Apollo2Build.md))
     -   Ant 1.8+ (most package managers will have this)
     -   Relational Database Management System [officially supported: PostgreSQL]
-    -   Git
+    -   Basic tools like Git, Curl, a text editor, etc
 -   Data generation pipeline prerequisites (see [JBrowse prerequisites](http://gmod.org/wiki/JBrowse_Configuration_Guide) for more information)
     -   System packages
         -   libpng12-0 (optional, for JBrowse imagetrack)

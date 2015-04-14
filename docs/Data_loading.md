@@ -22,7 +22,7 @@ The first step to setup the genome browser is to load the reference genome data.
 
 After initializing the data directory, add the WebApollo plugin tracks using the `add-webapollo-plugin.pl`. It takes a 'trackList.json' as an argument.
 
-    $ client/apollo/bin/add-webapollo-plugin.pl -i $JBROWSE_DATA_DIR/trackList.json
+    $ bin/add-webapollo-plugin.pl -i $JBROWSE_DATA_DIR/trackList.json
 
 ### GFF3 pre-processing with split_gff_by_source.pl
 
