@@ -45,14 +45,14 @@ prompted for login information
 
 ![Login first time](images/1.png)
 
-Figure 1. Register First User screen allows you to create a new admin user interface
+Figure 1. "Register First Admin User" screen allows you to create a new admin user.
 
 
 ![Organism configuration](images/2.png)
 
 Figure 2. Navigate to the "Organism tab" and select "Create new organism". Then enter the new information for your
 organism. Importantly, the data directory refers to a directory that has been prepared with the JBrowse data loading
-scripts from the command line. See the [data loading] (Data_loading.md) section for details
+scripts from the command line. See the [data loading](Data_loading.md) section for details.
 
 ![Open annotator](images/3.png)
 
