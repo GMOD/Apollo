@@ -112,7 +112,7 @@ public class OrganismPanel extends Composite {
         dataGrid.setLoadingIndicator(new HTML("Calculating Annotations ... "));
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
-        dataGrid.addColumn(sequenceColumn, "Sequences");
+        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
 
 
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
