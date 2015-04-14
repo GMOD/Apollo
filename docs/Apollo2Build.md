@@ -7,9 +7,8 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHu
 2. gvm install grails 2.4.4
 
 ## Get The code
-- git clone https://github.com/GMOD/Apollo.git grails-apollo
-- cd grails-apollo
-- git checkout grails1
+- git clone https://github.com/GMOD/Apollo.git Apollo
+- cd Apollo
 
 
 ## Basic configuration
@@ -17,7 +16,6 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHu
 Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
 
 ## Database options
-
 
 
 #### Configure for H2:

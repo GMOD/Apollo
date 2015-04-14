@@ -2,7 +2,23 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">On GitHub</a>
 
-WebApollo 2.0 has a basic configuration that is mostly configured using the web interface or through simple changes to Config.groovy
+WebApollo 2.0 has a basic configuration that is mostly configured using the web interface or through simple changes that override parameters in Config.groovy.
+
+To override the defaults set in Config.groovy copy a sample-apollo-XXX.groovy file to "apollo-config.groovy" in the same folder. 
+
+You can override any of the below configurations by putting the exact configuration between grails{  } as in the sample-apollo-config.groovy below:
+
+    grails{
+        apollo.get_translation_code =1 
+        apollo{
+             use_cds_for_new_transcripts = true
+             default_minimum_intron_size = 1
+            get_translation_code =1  // identical to the above statement
+        }
+    }
+    
+   
+Note: Configuration options may change, moving into the web interface / database from the configuration file. 
 
 ### Main configuration
 
@@ -18,18 +34,6 @@ WebApollo 2.0 has a basic configuration that is mostly configured using the web 
         translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
         is_partial_translation_allowed = false // unused so far
         get_translation_code = 1
-        sequence_search_tools {
-            blat_nuc {
-                exe = "/usr/local/bin/blat"
-                name = "Blat nucleotide"
-                params = ""
-            }
-            blat_prot {
-                exe = "/usr/local/bin/blat"
-                name = "Blat protein"
-                params = ""
-            }
-        }
 
         // TODO: should come from config or via preferences database
         splice_donor_sites = [ "GT"]
