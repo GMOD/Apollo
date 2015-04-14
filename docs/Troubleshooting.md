@@ -42,7 +42,7 @@ If are trying to run the jbrowse binaries but get these sorts of errors, try `in
 
 ##### e.g. "cd: src/main/webapp/jbrowse: No such file or directory"
 
-If you get this error, then you may need to re-run `apollo deploy` or even do a `apollo clean-all && apollo deploy`. You may also want to review the [developers guide](Developer.md) for how to create a precompiled package.
+If you get this error, then you may need to re-run `apollo deploy` or even do a `apollo clean-all && apollo deploy`.
 
 
 ### Differences between JBrowse and WebApollo

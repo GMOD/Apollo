@@ -1,6 +1,6 @@
 ## Prerequisites
 
-View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Developer.md">On GitHub</a>
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Prerequisites.md">On GitHub</a>
 
 
 ### Client Prerequisites
