@@ -2,29 +2,18 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md">On GitHub</a>
 
-WebApollo uses a database backed authentication by default that uses PostgreSQL.
-Make sure to understand the [postgres configuration](http://www.postgresql.org/docs/current/static/auth-pg-hba-conf.html) for configuring the database and see our [troubleshooting guide](Troubleshooting.md) to help with any problems with these steps.
+Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
 
-## User database
+### Options
 
-Web Apollo uses a database to determine who can access and edit
-annotations for a given sequence.
 
-First we'll need to create a database to store our authentication data.
-You can call this database whatever you want, but remember the name of it as you'll need to point the configuration to it. For the purposes of this guide, we'll call it `web_apollo_users`. 
-
-Also, you might want to create a new postgres user account to manage the database. We'll have the user `web_apollo_users_admin` with password `web_apollo_users_admin` who has database creation privilege. This is not essential, but it makes it easier to administer because it doesn't tie the Web Apollo database to a specific operating system user.
-
-Depending on how your database server
-is setup, you might not need to set a password for the user. See the
-[PostgreSQL documentation](http://www.postgresql.org/docs) for more
-information. We'll assume that the database is in the same server where
-Web Apollo is being installed ("localhost"). These commands should be run
-as the *postgres* user.
+- H2 database - an embedded in-memory zero-configuration database
+- PostgreSQL - an established database system that is popular for Chado compatibility
+- MySQL - an established database system that has familiarity in the PHP community
 
 ### Create new postgres user (optional)
 
-    $ sudo su postgres
+    $ sudo su postgres # unneeded for some systems (e.g. homebrew)
     $ createuser -P web_apollo_users_admin
     Enter password for new role: 
     Enter it again: 
