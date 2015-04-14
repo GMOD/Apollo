@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- configuration file for GFF3 data adapter -->
+
+<gff3_config>
+
+	<!-- path to where to put generated GFF3 file.  This path is a
+	relative path that will be where you deployed your WebApollo
+	instance (so that it's accessible from HTTP download requests) -->
+	<tmp_dir>tmp</tmp_dir>
+
+	<!-- value to use in the source column (column 2) of the generated
+	GFF3 file. -->
+	<source>.</source>
+
+	<!-- which metadata to export as an attribute - optional.
+	Default is to export everything except owner, date_creation, and date_last_modified -->
+	<!--
+	<metadata_to_export>
+		<metadata type="name" />
+		<metadata type="symbol" />
+		<metadata type="description" />
+		<metadata type="status" />
+		<metadata type="dbxrefs" />
+		<metadata type="attributes" />
+		<metadata type="comments" />
+		<metadata type="owner" />
+		<metadata type="date_creation" />
+		<metadata type="date_last_modified" />
+	</metadata_to_export>
+	-->
+
+	<!-- whether to export underlying genomic sequence - optional.
+	Defaults to true -->
+	<export_source_genomic_sequence>true</export_source_genomic_sequence>
+
+</gff3_config>
