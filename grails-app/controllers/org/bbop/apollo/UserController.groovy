@@ -39,7 +39,6 @@ class UserController {
         User.all.each {
             def userObject = new JSONObject()
 
-//            userObject.putAll(it.properties)
             userObject.userId = it.id
             userObject.username = it.username
             userObject.firstName = it.firstName
@@ -78,7 +77,6 @@ class UserController {
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
                 if (userOrganismPermission.organism in allowableOrganisms) {
                     JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                     organismJSON.put("organism", userOrganismPermission.organism.commonName)
                     organismJSON.put("permissions", userOrganismPermission.permissions)
                     organismJSON.put("userId", userOrganismPermission.userId)
@@ -89,7 +87,6 @@ class UserController {
             }
 
             // if an organism has permissions
-//            Set<Organism> organismList = permissionService.getOrganisms(it).findAll(){
             Set<Organism> organismList = allowableOrganisms.findAll() {
                 !organismsWithPermissions.contains(it.id)
             }
@@ -98,11 +95,9 @@ class UserController {
 
             for (Organism organism in organismList) {
                 JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                 organismJSON.put("organism", organism.commonName)
                 organismJSON.put("permissions", "[]")
                 organismJSON.put("userId", it.id)
-//                organismJSON.put("id",null)
                 organismPermissionsArray.add(organismJSON)
             }
 
@@ -119,7 +114,6 @@ class UserController {
         def currentUser = permissionService.currentUser
         if (currentUser) {
             def userObject = new JSONObject()
-//            userObject.putAll(it.properties)
             userObject.userId = currentUser.id
             userObject.username = currentUser.username
             userObject.firstName = currentUser.firstName
@@ -221,6 +215,14 @@ class UserController {
     def createUser() {
         log.debug "creating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
+        if(User.findByUsername(dataObject.email)!=null) {
+            JSONObject error = new JSONObject()
+            error.put("error","User already exists. Please enter a new username")
+            render error.toString()
+
+            return
+        }
+
         User user = new User(
                 firstName: dataObject.firstName
                 , lastName: dataObject.lastName
@@ -272,7 +274,6 @@ class UserController {
             }
             Role role = Role.findByName(roleString.toUpperCase())
             user.addToRoles(role)
-//            user.save()
         }
 
         user.save(flush: true)
