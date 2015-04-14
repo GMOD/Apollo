@@ -24,8 +24,8 @@ Note: This documentation covers release versions 2.x of Web Apollo.
 Let's get started!
 
 1. [Introduction](Introduction.md)
-2. [Web Apollo 2.0 quick-start](Apollo2Build.md)
-3. [Pre-requisites](Prerequisites.md)
+2. [Pre-requisites](Prerequisites.md)
+3. [Web Apollo 2.0 quick-start](Apollo2Build.md)
 4. [Configure](Configure.md)
 5. [Data loading](Data_loading.md)
 6. [Build](Build.md)
