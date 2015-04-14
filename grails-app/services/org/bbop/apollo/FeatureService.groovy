@@ -137,6 +137,7 @@ class FeatureService {
         boolean useCDS = configWrapperService.useCDS()
 
         Sequence sequence = Sequence.findByName(trackName)
+        User owner = permissionService.findUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
             log.debug "has gene: ${gene}"
@@ -146,7 +147,7 @@ class FeatureService {
             }
 
             // todo, make work
-            setOwner(transcript, permissionService.findUser(jsonTranscript));
+            setOwner(transcript, owner);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -173,7 +174,7 @@ class FeatureService {
                     //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
 
                     //this one is working, but was marked as needing improvement
-                    setOwner(transcript, jsonTranscript);
+                    setOwner(tmpTranscript, owner);
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
@@ -239,10 +240,9 @@ class FeatureService {
             // doesn't work well for testing
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
                 println "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
-                User userToSet = permissionService.findUser(jsonTranscript)
                 if (userToSet) {
-                    setOwner(gene, userToSet);
-                    setOwner(transcript, userToSet);
+                    setOwner(gene, owner);
+                    setOwner(transcript, owner);
                 } else {
                     log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
                 }
