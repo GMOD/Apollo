@@ -227,7 +227,7 @@ public class ExonDetailPanel extends Composite {
 
 //        JSONObject locationObject = this.internalData.get("location").isObject();
         minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
-        maxField.setText(internalAnnotationInfo.getMax().toString());
+        maxField.setText(Integer.toString(internalAnnotationInfo.getMax()+1));
 
         if (internalAnnotationInfo.getStrand() > 0) {
             positiveStrandValue.setType(ButtonType.PRIMARY);
@@ -383,7 +383,7 @@ public class ExonDetailPanel extends Composite {
                 //todo: handling different types of errors
                 Window.alert("Error updating exon: " + exception);
                 minField.setText(Integer.toString(getDisplayMin(originalInfo.getMin())));
-                maxField.setText(originalInfo.getMax().toString());
+                maxField.setText(Integer.toString(originalInfo.getMax()+1));
                 enableFields(true);
             }
         };
@@ -405,7 +405,7 @@ public class ExonDetailPanel extends Composite {
         if ((internalAnnotationInfo.getMax() - 1) > internalAnnotationInfo.getMin()) {
             final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
             internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() - 1);
-            maxField.setText(internalAnnotationInfo.getMax().toString());
+            maxField.setText(Integer.toString(internalAnnotationInfo.getMax()+1));
             updateFeatureLocation(beforeUpdate);
         }
         else {
@@ -421,7 +421,7 @@ public class ExonDetailPanel extends Composite {
         }
         final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
         internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() + 1);
-        maxField.setText(internalAnnotationInfo.getMax().toString());
+        maxField.setText(Integer.toString(internalAnnotationInfo.getMax()+1));
         updateFeatureLocation(beforeUpdate);
     }
 
