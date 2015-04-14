@@ -5,27 +5,16 @@ import org.bbop.apollo.tools.seq.search.SequenceSearchTool;
 import org.bbop.apollo.tools.seq.search.SequenceSearchToolException;
 import org.bbop.apollo.tools.seq.search.blast.TabDelimittedAlignment;
 import org.gmod.gbol.bioObject.Match;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.codehaus.groovy.grails.web.json.JSONObject;
 
 public abstract class BlatCommandLine extends SequenceSearchTool {
 
     private String blatBin;
 
-    public String getBlatBin() {
-        return blatBin;
-    }
-
-    public void setBlatBin(String blatBin) {
-        this.blatBin = blatBin;
-    }
 
     private String tmpDir;
     private String database;
@@ -34,36 +23,17 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
     protected String [] blatOptions;
     
     @Override
-    public void parseConfiguration(InputStream config) throws SequenceSearchToolException {
+    public void parseConfiguration(JSONObject config) throws SequenceSearchToolException {
         try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(config);
-            Node blatBinNode = doc.getElementsByTagName("blat_bin").item(0);
-            if (blatBinNode == null) {
-                throw new SequenceSearchToolException("Configuration missing required 'blat_bin' element");
-            }
-            blatBin = blatBinNode.getTextContent();
-            Node tmpDirNode = doc.getElementsByTagName("tmp_dir").item(0);
-            if (tmpDirNode == null) {
-                throw new SequenceSearchToolException("Configuration missing required 'tmp_dir' element");
-            }
-            tmpDir = tmpDirNode.getTextContent();
-            Node databaseNode = doc.getElementsByTagName("database").item(0);
-            if (databaseNode == null) {
-                throw new SequenceSearchToolException("Configuration missing required 'database' element");
-            }
-            database = databaseNode.getTextContent();
-            Node optionsNode = doc.getElementsByTagName("blat_options").item(0);
-            if (optionsNode != null) {
-                blatUserOptions = optionsNode.getTextContent();
-            }
-            Node removeTmpDirNode = doc.getElementsByTagName("remove_tmp_dir").item(0);
-            removeTmpDir = removeTmpDirNode != null ? Boolean.parseBoolean(removeTmpDirNode.getTextContent()) : false;
+            blatBin = config.getString("search_exe");
+            tmpDir = config.getString("tmp_dir");
+            database = config.getString("database");
+            blatUserOptions = config.getString("params");
         } catch (Exception e) {
             throw new SequenceSearchToolException("Error parsing configuration: " + e.getMessage(), e);
         }
     }
+
 
     @Override
     public Collection<Match> search(String uniqueToken, String query, String databaseId) throws SequenceSearchToolException {
@@ -82,9 +52,9 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
             throw new SequenceSearchToolException("Error running search: " + e.getMessage(), e);
         }
         finally {
-            if (removeTmpDir && dir!=null) {
-                deleteTmpDir(dir);
-            }
+            //if (removeTmpDir && dir!=null) {
+            //    deleteTmpDir(dir);
+            //}
         }
     }
     
@@ -112,6 +82,7 @@ public abstract class BlatCommandLine extends SequenceSearchTool {
         log.println("Command:");
         for (String arg : commands) {
             log.print(arg + " ");
+            System.out.println(arg + " ");
         }
         log.println();
         log.println();

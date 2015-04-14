@@ -456,7 +456,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def searchSequence() {
         println "sequenceSearch ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        render sequenceSearchService.searchSequence(inputObject)
+        Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
+        Organism organism = Organism.findById(organismId)
+        println organism.toString()
+        render sequenceSearchService.searchSequence(inputObject,organism.getBlatdb())
     }
 
 
