@@ -98,8 +98,20 @@ searchSequence: function(trackName, refSeqName, starts) {
             dojo.style(waitingDiv, { display: "block"} );
             dojo.style(matchDiv, { display: "none"} );
             dojo.style(headerDiv, { display: "none" });
+            var postobj={
+                "track": trackName,
+                "search": {
+                    "key": sequenceToolsSelect.value,
+                    "residues": residues.replace(/(\r\n|\n|\r)/gm,""),
+                },
+                "operation": operation
+            };
+            if(searchAllRefSeqs) {
+                postobj.search.database_id=refSeqName;
+            }
+
             dojo.xhrPost( {
-                postData: '{ "track": "' + trackName + '", "search": { "key": "' + sequenceToolsSelect.value + '", "residues": "' + residues + (!searchAllRefSeqs && refSeqName != null ? '", "database_id": "' + refSeqName : '') + '"}, "operation": "' + operation + '" }', 
+                postData: JSON.stringify(postobj),
                 url: contextPath + "/AnnotationEditorService",
                 handleAs: "json",
                 timeout: 5000 * 1000, // Time in milliseconds
