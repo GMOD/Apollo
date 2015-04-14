@@ -239,8 +239,8 @@ class FeatureService {
 
             // doesn't work well for testing
             if (grails.util.Environment.current != grails.util.Environment.TEST) {
-                println "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
-                if (userToSet) {
+                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                if (owner) {
                     setOwner(gene, owner);
                     setOwner(transcript, owner);
                 } else {
