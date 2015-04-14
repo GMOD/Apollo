@@ -17,10 +17,10 @@ There are sample configurations that allow Apollo to run with H2, PostgreSQL, et
 
 #### Configure for PostgreSQL:
 - Create a new database (e.g. default is just named `apollo`)
-- There are no user-level anything yet, so no need to use the old add-tracks, add-users, pipeline.
 - Copy sample-postgres-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
+- Note: There is no need to run the old add-tracks/add-users/set-track-permissions pipeline now.
 
-#### Configure for PostgreSQL:
+#### Configure for MySQL:
 - Create a new database (e.g. apollo by default)
 - Copy sample-mysql-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
 
