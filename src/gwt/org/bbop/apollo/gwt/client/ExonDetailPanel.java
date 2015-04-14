@@ -112,7 +112,7 @@ public class ExonDetailPanel extends Composite {
         startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getMin();
+                return annotationInfo.getMin() + 1;
             }
         };
         startColumn.setSortable(true);
@@ -226,7 +226,7 @@ public class ExonDetailPanel extends Composite {
 //        nameField.setText(internalData.get("name").isString().stringValue());
 
 //        JSONObject locationObject = this.internalData.get("location").isObject();
-        minField.setText(internalAnnotationInfo.getMin().toString());
+        minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
         maxField.setText(internalAnnotationInfo.getMax().toString());
 
         if (internalAnnotationInfo.getStrand() > 0) {
@@ -373,7 +373,7 @@ public class ExonDetailPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("return value: " + returnValue.toString());
                 enableFields(true);
-                
+                updateDetailData(updatedInfo);
                 redrawExonTable();
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
@@ -382,7 +382,7 @@ public class ExonDetailPanel extends Composite {
             public void onError(Request request, Throwable exception) {
                 //todo: handling different types of errors
                 Window.alert("Error updating exon: " + exception);
-                minField.setText(originalInfo.getMin().toString());
+                minField.setText(Integer.toString(getDisplayMin(originalInfo.getMin())));
                 maxField.setText(originalInfo.getMax().toString());
                 enableFields(true);
             }
@@ -433,7 +433,7 @@ public class ExonDetailPanel extends Composite {
         }
         final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
         internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
-        minField.setText(internalAnnotationInfo.getMin().toString());
+        minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
         updateFeatureLocation(beforeUpdate);
     }
 
@@ -446,11 +446,15 @@ public class ExonDetailPanel extends Composite {
         if((internalAnnotationInfo.getMin() + 1) < internalAnnotationInfo.getMax()) {
             final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
             internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() + 1);
-            minField.setText(internalAnnotationInfo.getMin().toString());
+            minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
             updateFeatureLocation(beforeUpdate);
         }
         else {
             GWT.log("Cannot increase Fmin to a value which is greater than or equal to Fmax");
         }
+    }
+    
+    private int getDisplayMin(int min) {
+        return min + 1;
     }
 }
