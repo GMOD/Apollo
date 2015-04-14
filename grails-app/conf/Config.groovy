@@ -174,12 +174,16 @@ apollo {
     sequence_search_tools {
         blat_nuc {
             exe = "/usr/local/bin/blat"
+            search_class = "org.bbop.apollo.tools.seq.search.blat.BlatCommandLineNucleotideToNucleotide"
             name = "Blat nucleotide"
+            tmp_dir = "/opt/apollo/honeybee/tmp"
             params = ""
         }
         blat_prot {
             exe = "/usr/local/bin/blat"
             name = "Blat protein"
+            search_class = "org.bbop.apollo.tools.seq.search.blat.BlatCommandLineProteinToNucleotide"
+            tmp_dir = "/opt/apollo/honeybee/tmp"
             params = ""
         }
     }
