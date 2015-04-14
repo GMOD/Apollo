@@ -1313,7 +1313,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case CDS.cvTerm.toUpperCase(): return CDS.ontologyId
                 case Intron.cvTerm.toUpperCase(): return Intron.ontologyId
                 case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
+                case TransposableElement.alternateCvTerm.toUpperCase():
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
+                case RepeatRegion.alternateCvTerm.toUpperCase():
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
                 case FlankingRegion.cvTerm.toUpperCase(): return FlankingRegion.ontologyId
                 case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
