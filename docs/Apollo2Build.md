@@ -1,3 +1,6 @@
+## Web Apollo 2.0 build instructions
+
+View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
 
 ## Install Grails:
 1. curl -s get.gvmtool.net | bash
@@ -10,7 +13,12 @@
 
 
 ## Basic configuration
-There are sample configurations that allow Apollo to run with H2, PostgreSQL, etc.
+
+Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
+
+## Database options
+
+
 
 #### Configure for H2:
 - copy sample-h2-apollo-config.groovy to apollo-config.groovy and update the data directory
@@ -27,23 +35,25 @@ There are sample configurations that allow Apollo to run with H2, PostgreSQL, et
 
 ## Deploy the code as a war file
 - ./apollo deploy
-- war file is created in target/apollo-X.Y.war
-- deploy to your tomcat system (typically in the webapps tomcat directory)
+- copy the war file at target/apollo-X.Y.war to your webapps folder as apollo.war or similar
 
 
-After this setup, you will configure the application via the web interface. See [Database_setup.md](database setup) for
-additional details on database creation and the web interface.
+### Login to the web interface
+
+After deployment, you can navigate to your server at http://localhost:8080/apollo/ or similar path and you will be
+prompted for login information
+
+![Login first time](images/1.png)
+
+Figure 1. Register First User screen allows you to create a new admin user interface
 
 
-## Architecture notes:
-- Grails code is in normal grails directories under "grails-app"
-- GWT-only code is under src/gwt except
-    - Code shared between the client and the server is under src/gwt/org/bbop/apollo/gwt/shared
-- Client code is under client (still)
-- Tests are under "Test"
-- Old (presumably inactive code) is under src/main/webapp
-- New source (loaded into VM) is under src/java or src/groovy except for grails specific code.
-- Web code (not much) is either under web-app (and where jbrowse is copied) or under grails-app/assets (these are compiled down).
-- GWT-specifc CSS can also be found in: src/gwt/org/bbop/apollo/gwt/client/resources/ , but it inherits the CSS on its current page, as well.
+![Organism configuration](images/2.png)
 
+Figure 2. Navigate to the "Organism tab" and select "Create new organism". Then enter the new information for your
+organism. Importantly, the data directory refers to a directory that has been prepared with the JBrowse data loading
+scripts from the command line. See the [data loading] (Data_loading.md) section for details
 
+![Open annotator](images/3.png)
+
+Figure 3. Open up the new organism from the drop down tab on the annotator panel.

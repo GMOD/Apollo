@@ -4,7 +4,6 @@ pages:
 - ['Introduction.md', 'Introduction']
 - ['Apollo2Build.md', 'Web Apollo 2.0 quick-setup']
 - ['Prerequisites.md', 'Pre-requisites']
-- ['Database_setup.md', 'Database setup']
 - ['Configure.md', 'Configure']
 - ['Data_loading.md', 'Data loading']
 - ['Build.md', 'Build']

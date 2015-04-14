@@ -1,4 +1,17 @@
 
+
+## Architecture notes:
+- Grails code is in normal grails directories under "grails-app"
+- GWT-only code is under src/gwt except
+    - Code shared between the client and the server is under src/gwt/org/bbop/apollo/gwt/shared
+- Client code is under client (still)
+- Tests are under "Test"
+- Old (presumably inactive code) is under src/main/webapp
+- New source (loaded into VM) is under src/java or src/groovy except for grails specific code.
+- Web code (not much) is either under web-app (and where jbrowse is copied) or under grails-app/assets (these are compiled down).
+- GWT-specifc CSS can also be found in: src/gwt/org/bbop/apollo/gwt/client/resources/ , but it inherits the CSS on its current page, as well.
+
+
 A doc in progress.
 
 For reference:
