@@ -62,11 +62,8 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.default_minimum_intron_size
     }
 
-    String getBlatExecutable() {
-        return grailsApplication.config.apollo.blat_executable
+    Map<String,String> getSequenceSearchTools() {
+        return grailsApplication.config.apollo.sequence_search_tools
     }
 
-    String getBlatDefaultParams() {
-        return grailsApplication.config.apollo.blat_default_params
-    }
 }

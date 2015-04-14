@@ -171,9 +171,20 @@ apollo {
     translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
     is_partial_translation_allowed = false // unused so far
     get_translation_code = 1
-    blat_executable = "/usr/local/bin/blat"
+    sequence_search_tools {
+        blat_nuc {
+            exe = "/usr/local/bin/blat"
+            name = "Blat nucleotide"
+            params = ""
+        }
+        blat_prot {
+            exe = "/usr/local/bin/blat"
+            name = "Blat protein"
+            params = ""
+        }
+    }
 
-// TODO: should come from config oldr via preferences database
+    // TODO: should come from config or via preferences database
     splice_donor_sites = [ "GT"]
     splice_acceptor_sites = [ "AG"]
     gff3.source= "."

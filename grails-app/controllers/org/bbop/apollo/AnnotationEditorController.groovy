@@ -445,11 +445,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequenceSearchTools() {
         log.debug "getSequenceSearchTools ${params.data}"
+        log.debug configWrapperService.getSequenceSearchTools()
         JSONArray sequenceSearchToolsArray = new JSONArray();
-        JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
-        for (String key : sequenceSearchToolsKeys) {
-            sequenceSearchToolsArray.put(key);
+        configWrapperService.getSequenceSearchTools().each { k,v ->
+            sequenceSearchToolsArray.put(k);
         }
+        JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
         render sequenceSearchToolsContainer.toString()
     }
     def getGff3() {

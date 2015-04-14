@@ -149,7 +149,6 @@ public class AnnotationEditorServiceManager {
 		private Overlapper overlapper;
 		private CannedComments cannedComments;
 		private Map<String, SequenceSearchTool> sequenceSearchTools;
-		private Collection<String> sequenceSearchToolsKeys;
 		private Map<String, ServerConfiguration.DataAdapterGroupConfiguration> dataAdapters;
 		private boolean useCDS;
 		private boolean useMemoryStore;
