@@ -39,3 +39,15 @@ quickest way to take care of pre-requisites.
 -   Sequence search (optional)
     -   Blat (download [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/ or [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/|Mac) binaries)
 
+#### Get prerequisites
+
+Then get some system pre-requisites. These commands will try to get everything in one bang for several system types.
+
+    # install system prerequisites (debian/ubuntu)
+    sudo apt-get install openjdk-7-jdk curl libexpat1-dev postgresql postgresql-server-dev-all maven tomcat7 git
+    # install system prerequisites (centOS/redhat)
+    sudo yum install postgresql postgresql-server postgresql-devel maven expat-devel tomcat git curl
+    # install system prerequisites (macOSX/homebrew), read the postgresql start guide
+    brew install maven postgresql wget tomcat git
+
+

@@ -33,9 +33,15 @@ The current preferred method for building a release with Javascript minimization
 
 ## Performing active development
 
-To perform active development of the codebase, it is recommended to use `apollo debug`, which will launch a temporary
-instance of `ant devmode` and then any changes to the files will be pick up any changes that you make to the Java files
+To perform active development of the codebase, use
+
+    apollo debug
+    
+This will launch a temporary instance Apollo using `ant devmode` so that any changes to the Java or Javascript files will be pick up any changes that you make to the Java files
 during the process.
 
 
+Alternatively, a basic temporary server without devmode can be initialized with
+
+    apollo run-app
 
