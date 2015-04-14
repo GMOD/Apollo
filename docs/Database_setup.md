@@ -4,12 +4,16 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Database_setup.md"
 
 Web Apollo 2.0 simplifies and expands options for the database setup. This section will cover the basic options for this.
 
-### Options
+## Database options
 
 
 - H2 database - an embedded in-memory zero-configuration database
 - PostgreSQL - an established database system that is popular for Chado compatibility
 - MySQL - an established database system that has familiarity in the PHP community
+
+## Basic setup
+
+Simply copy the sample-*-apollo-config.groovy file to apollo-config.groovy and customize it as needed. H2 has zero-configuration but is only recommended for temporary instances.
 
 ### Create new postgres user (optional)
 

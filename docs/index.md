@@ -2,12 +2,15 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/index.md">On GitHub</a>
 
-An instantaneous, collaborative, genome annotation editor. The stack is a Java web application / database backend and a Javascript client that runs in a web browser as a JBrowse plugin.
+Web Apollo 2 - An instantaneous, collaborative, genome annotation editor.
+
+The application's technology stack includes a Grails-based Java web application with flexible database backends and a
+Javascript client that runs in a web browser as a JBrowse plugin.
 
 For general information on WebApollo, go to: 
 [http://genomearchitect.org/](http://genomearchitect.org)
 
-Web Apollo includes an sophisticated annotation plugin for the JBrowse. For more information on JBrowse, please visit:
+For more information on JBrowse, please visit:
 [http://jbrowse.org](http://jbrowse.org)
 
 [![Build status](https://travis-ci.org/GMOD/Apollo.png?branch=master)](https://travis-ci.org/GMOD/Apollo)

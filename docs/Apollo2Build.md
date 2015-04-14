@@ -16,9 +16,13 @@ There are sample configurations that allow Apollo to run with H2, PostgreSQL, et
 - copy sample-h2-apollo-config.groovy to apollo-config.groovy and update the data directory
 
 #### Configure for PostgreSQL:
-- Create a new database (I chose apollo by default)
-- There are no user-level anything yet, so no need to add tracks, users, etc.  those will come later.
-- copy sample-postgres-apollo-config.groovy to apollo-config.groovy and update
+- Create a new database (e.g. default is just named `apollo`)
+- There are no user-level anything yet, so no need to use the old add-tracks, add-users, pipeline.
+- Copy sample-postgres-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
+
+#### Configure for PostgreSQL:
+- Create a new database (e.g. apollo by default)
+- Copy sample-mysql-apollo-config.groovy to apollo-config.groovy and re-run apollo deploy
 
 
 ## Deploy the code as a war file
@@ -27,7 +31,9 @@ There are sample configurations that allow Apollo to run with H2, PostgreSQL, et
 - deploy to your tomcat system (typically in the webapps tomcat directory)
 
 
-==========
+After this setup, you will configure the application via the web interface. See [Database_setup.md](database setup) for
+additional details on database creation and the web interface.
+
 
 ## Architecture notes:
 - Grails code is in normal grails directories under "grails-app"
