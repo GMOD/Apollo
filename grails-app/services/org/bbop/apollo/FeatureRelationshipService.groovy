@@ -173,7 +173,9 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getChildren(Feature feature) {
-        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
+        List<Feature> childFeatures = (List<Feature>) Feature.executeQuery("select fr.childFeature from FeatureRelationship fr where fr.parentFeature = :parentFeature",["parentFeature":feature])
+        return childFeatures
+//        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
     }
 
     /**

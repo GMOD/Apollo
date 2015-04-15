@@ -164,9 +164,8 @@ public class Gff3HandlerService {
 
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
-        println "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
+        log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
-        String[] cvterm = feature.cvTerm.split(":");
         String seqId = feature.getFeatureLocation().sequence.name
         String type = featureService.getCvTermFromFeature(feature);
         int start = feature.getFmin() + 1;
@@ -184,11 +183,13 @@ public class Gff3HandlerService {
         GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
         entry.setAttributes(extractAttributes(writeObject, feature));
         gffEntries.add(entry);
-        for (Feature child : featureRelationshipService.getChildren(feature)) {
-            if (child instanceof CDS) {
-                convertToEntry(writeObject, (CDS) child, source, gffEntries);
-            } else {
-                convertToEntry(writeObject, child, source, gffEntries);
+        if(featureService.typeHasChildren(feature)){
+            for (Feature child : featureRelationshipService.getChildren(feature)) {
+                if (child instanceof CDS) {
+                    convertToEntry(writeObject, (CDS) child, source, gffEntries);
+                } else {
+                    convertToEntry(writeObject, child, source, gffEntries);
+                }
             }
         }
     }
