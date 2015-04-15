@@ -45,13 +45,13 @@
                 <b:Row>
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
-                            <b:InputGroupAddon>Max</b:InputGroupAddon>
+                            <b:InputGroupAddon>3' End</b:InputGroupAddon>
                             <b:InputGroupButton>
-                                <b:Button ui:field="decreaseFmax" icon="MINUS"/>
+                                <b:Button ui:field="decreaseThreePrime" icon="MINUS"/>
                             </b:InputGroupButton>
-                            <b:InputGroupAddon ui:field="maxField"/>
+                            <b:InputGroupAddon ui:field="threePrimeField"/>
                             <b:InputGroupButton>
-                                <b:Button ui:field="increaseFmax" icon="PLUS"/>
+                                <b:Button ui:field="increaseThreePrime" icon="PLUS"/>
                             </b:InputGroupButton>
                         </b:InputGroup>
                     </b:Column>
@@ -59,13 +59,13 @@
                 <b:Row>
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
-                            <b:InputGroupAddon>Min</b:InputGroupAddon>
+                            <b:InputGroupAddon>5' End</b:InputGroupAddon>
                             <b:InputGroupButton>
-                                <b:Button ui:field="decreaseFmin" icon="MINUS"/>
+                                <b:Button ui:field="decreaseFivePrime" icon="MINUS"/>
                             </b:InputGroupButton>
-                            <b:InputGroupAddon ui:field="minField"/>
+                            <b:InputGroupAddon ui:field="fivePrimeField"/>
                             <b:InputGroupButton>
-                                <b:Button ui:field="increaseFmin" icon="PLUS"/>
+                                <b:Button ui:field="increaseFivePrime" icon="PLUS"/>
                             </b:InputGroupButton>
                         </b:InputGroup>
                     </b:Column>

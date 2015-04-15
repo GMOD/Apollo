@@ -49,22 +49,23 @@ public class ExonDetailPanel extends Composite {
     private AnnotationInfo internalAnnotationInfo;
 
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
-    @UiField
-    InputGroupAddon maxField;
-    @UiField
-    InputGroupAddon minField;
+
     @UiField
     Button positiveStrandValue;
     @UiField
     Button negativeStrandValue;
     @UiField
-    Button decreaseFmin;
+    InputGroupAddon fivePrimeField;
     @UiField
-    Button increaseFmin;
+    InputGroupAddon threePrimeField;
     @UiField
-    Button decreaseFmax;
+    Button increaseFivePrime;
     @UiField
-    Button increaseFmax;
+    Button decreaseFivePrime;
+    @UiField
+    Button increaseThreePrime;
+    @UiField
+    Button decreaseThreePrime;
     
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -112,7 +113,7 @@ public class ExonDetailPanel extends Composite {
         startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getMin() + 1;
+                return getDisplayMin(annotationInfo.getMin());
             }
         };
         startColumn.setSortable(true);
@@ -226,9 +227,8 @@ public class ExonDetailPanel extends Composite {
 //        nameField.setText(internalData.get("name").isString().stringValue());
 
 //        JSONObject locationObject = this.internalData.get("location").isObject();
-        minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
-        maxField.setText(Integer.toString(internalAnnotationInfo.getMax()+1));
-
+        fivePrimeField.setText(Integer.toString(getFivePrimeField(annotationInfo)));
+        threePrimeField.setText(Integer.toString(getThreePrimeField(annotationInfo)));
         if (internalAnnotationInfo.getStrand() > 0) {
             positiveStrandValue.setType(ButtonType.PRIMARY);
             negativeStrandValue.setType(ButtonType.DEFAULT);
@@ -254,19 +254,7 @@ public class ExonDetailPanel extends Composite {
     public void redrawExonTable(){
         dataGrid.redraw();
     }
-
-//    @UiHandler("minField")
-//    void handleMinChange(ChangeEvent e) {
-//        internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));
-//        updateFeatureLocation();
-//    }
-
-//    @UiHandler("maxField")
-//    void handleMaxChange(ChangeEvent e) {
-//        internalAnnotationInfo.setMax(Integer.parseInt(maxField.getText()));
-//        updateFeatureLocation();
-//    }
-
+    
     // we would only ever enable these for the gene . . . not sure if we want this here
 //    @UiHandler("positiveStrandValue")
     void handlePositiveStrand(ClickEvent e) {
@@ -337,11 +325,12 @@ public class ExonDetailPanel extends Composite {
 //
     private void enableFields(boolean enabled) {
         GWT.log("triggered");
-        increaseFmin.setEnabled(enabled);
-        increaseFmax.setEnabled(enabled);
-        decreaseFmin.setEnabled(enabled);
-        decreaseFmax.setEnabled(enabled);
+        decreaseFivePrime.setEnabled(enabled);
+        increaseFivePrime.setEnabled(enabled);
+        decreaseThreePrime.setEnabled(enabled);
+        increaseThreePrime.setEnabled(enabled);
     }
+    
     public void setEditable(boolean editable) {
         this.editable = editable ;
 
@@ -373,17 +362,18 @@ public class ExonDetailPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("return value: " + returnValue.toString());
                 enableFields(true);
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
                 updateDetailData(updatedInfo);
                 redrawExonTable();
-                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
                 //todo: handling different types of errors
                 Window.alert("Error updating exon: " + exception);
-                minField.setText(Integer.toString(getDisplayMin(originalInfo.getMin())));
-                maxField.setText(Integer.toString(originalInfo.getMax()+1));
+                fivePrimeField.setText(Integer.toString(getFivePrimeField(originalInfo)));
+                threePrimeField.setText(Integer.toString(getThreePrimeField(originalInfo)));
                 enableFields(true);
             }
         };
@@ -396,65 +386,128 @@ public class ExonDetailPanel extends Composite {
         }
     }
     
-    @UiHandler("decreaseFmax")
-    public void setDecreaseFmax(ClickEvent e) {
+    private int getDisplayMin(int min) {
+        // increases the fmin by 1 for display since coordinates are handled as zero-based on server-side
+        return min + 1;
+    }
+
+    @UiHandler("decreaseFivePrime")
+    public void setDecreaseFivePrime(ClickEvent e) {
         String type = internalAnnotationInfo.getType();
         if (!isEditableType(type)) {
             return;
         }
-        if ((internalAnnotationInfo.getMax() - 1) > internalAnnotationInfo.getMin()) {
-            final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        if (internalAnnotationInfo.getStrand() == 1) {
+            // fmin is 5' ; fmax is 3'
+            internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
+            fivePrimeField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
+            updateFeatureLocation(beforeUpdate);
+        }
+        else {
+            // fmin is 3' ; fmax is 5'
+            GWT.log("getMax(): " + internalAnnotationInfo.getMax());
+            GWT.log("getMin(): " + internalAnnotationInfo.getMin());
+            if (internalAnnotationInfo.getMax() - 1 <= internalAnnotationInfo.getMin()) {
+                GWT.log("Cannot decrease 5' end to be less than 3' end");
+                return;
+            }
             internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() - 1);
-            maxField.setText(Integer.toString(internalAnnotationInfo.getMax()+1));
+            fivePrimeField.setText(Integer.toString(internalAnnotationInfo.getMax()));
             updateFeatureLocation(beforeUpdate);
-        }
-        else {
-            GWT.log("Cannot decrease Fmax to a value which is less than or equal to Fmin");
-        }
-    }
-
-    @UiHandler("increaseFmax")
-    public void setIncreaseFmax(ClickEvent e) {
-        String type = internalAnnotationInfo.getType();
-        if (!isEditableType(type)) {
-            return;
-        }
-        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
-        internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() + 1);
-        maxField.setText(Integer.toString(internalAnnotationInfo.getMax()+1));
-        updateFeatureLocation(beforeUpdate);
-    }
-
-    @UiHandler("decreaseFmin")
-    public void setDecreaseFmin(ClickEvent e) {
-        String type = internalAnnotationInfo.getType();
-        if (!isEditableType(type)) {
-            return;
-        }
-        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
-        internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
-        minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
-        updateFeatureLocation(beforeUpdate);
-    }
-
-    @UiHandler("increaseFmin")
-    public void setIncreaseFmin(ClickEvent e) {
-        String type = internalAnnotationInfo.getType();
-        if (!isEditableType(type)) {
-            return;
-        }
-        if((internalAnnotationInfo.getMin() + 1) < internalAnnotationInfo.getMax()) {
-            final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
-            internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() + 1);
-            minField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
-            updateFeatureLocation(beforeUpdate);
-        }
-        else {
-            GWT.log("Cannot increase Fmin to a value which is greater than or equal to Fmax");
         }
     }
     
-    private int getDisplayMin(int min) {
-        return min + 1;
+    @UiHandler("increaseFivePrime")
+    public void setIncreaseFivePrime(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        if (internalAnnotationInfo.getStrand() == 1) {
+            // fmin is 5' ; fmax is 3'
+            if (internalAnnotationInfo.getMin() + 1 >= internalAnnotationInfo.getMax()) {
+                GWT.log("Cannot increase 5' end to be greater than 3' end");
+                return;
+            }
+            internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() + 1);
+            fivePrimeField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
+            updateFeatureLocation(beforeUpdate);
+        }
+        else {
+            // fmin is 3' ; fmax is 5'
+            internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() + 1);
+            fivePrimeField.setText(Integer.toString(internalAnnotationInfo.getMax()));
+            updateFeatureLocation(beforeUpdate);
+        }
+    }
+    
+    @UiHandler("decreaseThreePrime")
+    public void setDecreaseThreePrime(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        if (internalAnnotationInfo.getStrand() == 1) {
+            // fmin is 5' ; fmax is 3'
+            if (internalAnnotationInfo.getMax() - 1 <= internalAnnotationInfo.getMin()) {
+                GWT.log("Cannot decrease 3' end to be less than 5' end");
+                return;
+            }
+            internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() - 1);
+            threePrimeField.setText(Integer.toString(internalAnnotationInfo.getMax()));
+            updateFeatureLocation(beforeUpdate);
+        }
+        else {
+             // fmin is 3' ; fmax is 5'
+            internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
+            threePrimeField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
+            updateFeatureLocation(beforeUpdate);
+        }
+    }
+
+    @UiHandler("increaseThreePrime")
+    public void setIncreaseThreePrime(ClickEvent e) {
+        String type = internalAnnotationInfo.getType();
+        if (!isEditableType(type)) {
+            return;
+        }
+        final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        if (internalAnnotationInfo.getStrand() == 1) {
+            // fmin is 5' ; fmax is 3'
+            internalAnnotationInfo.setMax(internalAnnotationInfo.getMax() + 1);
+            threePrimeField.setText(Integer.toString(internalAnnotationInfo.getMax()));
+            updateFeatureLocation(beforeUpdate);
+        }
+        else {
+            // fmin is 3' ; fmax is 5'
+            if(internalAnnotationInfo.getMin() + 1 >= internalAnnotationInfo.getMax()) {
+                GWT.log("Cannot increase 3' end to be greater than 5' end");
+                return;
+            }
+            internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() + 1);
+            threePrimeField.setText(Integer.toString(getDisplayMin(internalAnnotationInfo.getMin())));
+            updateFeatureLocation(beforeUpdate);
+        }
+    }
+    
+    private int getFivePrimeField(AnnotationInfo annotationInfo) {
+        if (annotationInfo.getStrand() == 1) {
+            return getDisplayMin(annotationInfo.getMin());
+        }
+        else {
+            return  annotationInfo.getMax();
+        }
+    }
+    
+    private int getThreePrimeField(AnnotationInfo annotationInfo) {
+        if (annotationInfo.getStrand() == 1) {
+            return annotationInfo.getMax();
+        }
+        else {
+            return getDisplayMin(annotationInfo.getMin());
+        }
     }
 }
