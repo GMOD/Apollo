@@ -21,6 +21,7 @@ public class FastaHandlerService {
     private int numResiduesPerLine = 60;
 
     def sequenceService
+    def transcriptService
     def featurePropertyService
 
     public enum Mode {
@@ -107,7 +108,10 @@ public class FastaHandlerService {
         }
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
-            writeFeature(feature, seqType, metaDataToExport);
+            def transcriptList = transcriptService.getTranscripts(feature)
+            for (Transcript transcript in transcriptList) {
+                writeFeature(transcript, seqType, metaDataToExport);
+            }
         }
     }
     
