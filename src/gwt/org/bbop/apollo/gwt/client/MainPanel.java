@@ -40,7 +40,6 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
@@ -148,19 +147,22 @@ public class MainPanel extends Composite {
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
                 // need to set this before calling the sequence
                 currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
-                String sequenceName = contextSwitchEvent.getSequenceInfo().getName();
 
                 for (int i = 0; i < organismList.getItemCount(); i++) {
                     organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
                 }
-                sequenceList.setText(sequenceName);
 
+                String sequenceName = "";
+                if (contextSwitchEvent.getSequenceInfo() != null) {
+                    contextSwitchEvent.getSequenceInfo().getName();
+                    sequenceList.setText(sequenceName);
+                }
 
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
-                        String sequenceName = response.getText();
-                        sequenceList.setText(sequenceName);
+                        String innerSequenceName = response.getText();
+                        sequenceList.setText(innerSequenceName);
                         updateGenomicViewer();
                     }
 
@@ -176,10 +178,10 @@ public class MainPanel extends Composite {
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
-                switch (annotationInfoChangeEvent.getAction()){
+                switch (annotationInfoChangeEvent.getAction()) {
                     case SET_FOCUS:
                         AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
-                        updateGenomicViewerForLocation(annotationInfo.getSequence(),annotationInfo.getMin(),annotationInfo.getMax());
+                        updateGenomicViewerForLocation(annotationInfo.getSequence(), annotationInfo.getMin(), annotationInfo.getMax());
                         break;
                 }
             }
@@ -191,27 +193,26 @@ public class MainPanel extends Composite {
     private void updatePermissionsForOrganism() {
         GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
         String globalRole = currentUser.getRole();
-        GWT.log("global: "+globalRole);
+        GWT.log("global: " + globalRole);
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
-        if(globalRole.equals("admin")){
+        if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
-        }
-        else{
+        } else {
             highestPermission = PermissionEnum.NONE;
         }
-        if(userOrganismPermissionInfo!=null) {
-            GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
+        if (userOrganismPermissionInfo != null) {
+            GWT.log("organism: " + userOrganismPermissionInfo.toJSON().toString());
             highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }
 
-        switch(highestPermission){
+        switch (highestPermission) {
             case ADMINISTRATE:
                 GWT.log("setting to ADMINISTRATE permissions");
                 detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
-                break ;
+                break;
             case WRITE:
                 GWT.log("setting to WRITE permissions");
             case EXPORT:
@@ -227,10 +228,10 @@ public class MainPanel extends Composite {
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
 
-                break ;
+                break;
         }
 
-        UserChangeEvent userChangeEvent = new UserChangeEvent(UserChangeEvent.Action.PERMISSION_CHANGED,highestPermission);
+        UserChangeEvent userChangeEvent = new UserChangeEvent(UserChangeEvent.Action.PERMISSION_CHANGED, highestPermission);
         Annotator.eventBus.fireEvent(userChangeEvent);
     }
 
@@ -249,20 +250,19 @@ public class MainPanel extends Composite {
 
                     String displayName = currentUser.getEmail();
 
-                    userName.setHTML(displayName.length()>maxUsernameLength?
+                    userName.setHTML(displayName.length() > maxUsernameLength ?
                             displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
 //                    userName.setHTML(displayName.length()>maxUsernameLength?
 //                            displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
-                    if(hasUsers){
+                    if (hasUsers) {
                         currentUser = null;
                         logoutButton.setVisible(false);
                         LoginDialog loginDialog = new LoginDialog();
                         loginDialog.center();
                         loginDialog.show();
-                    }
-                    else{
+                    } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
                         RegisterDialog registerDialog = new RegisterDialog();
@@ -303,14 +303,14 @@ public class MainPanel extends Composite {
         SequenceRestService.setDefaultSequence(sequenceList.getText());
     }
 
-    public void updateGenomicViewerForLocation(String selectedSequence,Integer minRegion,Integer maxRegion) {
-        Integer buffer = (int) Math.round( (maxRegion - minRegion) * 0.5) ;
-        minRegion -= buffer ;
-        if(minRegion<0) minRegion = 0 ;
-        maxRegion += buffer ;
+    public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+        Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.5);
+        minRegion -= buffer;
+        if (minRegion < 0) minRegion = 0;
+        maxRegion += buffer;
         String trackListString = rootUrl + "/jbrowse/?loc=";
         trackListString += selectedSequence;
-        trackListString += ":"+minRegion + ".."+maxRegion;
+        trackListString += ":" + minRegion + ".." + maxRegion;
         trackListString += "&";
         for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
             trackListString += trackInfo.getName();
@@ -320,7 +320,7 @@ public class MainPanel extends Composite {
         trackListString += "&highlight=&tracklist=0";
         GWT.log("set string: " + trackListString);
         GWT.log("get string: " + frame.getUrl());
-        if(!frame.getUrl().contains(trackListString)){
+        if (!frame.getUrl().contains(trackListString)) {
             frame.setUrl(trackListString);
         }
     }
@@ -421,7 +421,7 @@ public class MainPanel extends Composite {
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (organismInfo.isCurrent()) {
                         currentOrganismId = Long.parseLong(organismInfo.getId());
-                        currentOrganism = organismInfo ;
+                        currentOrganism = organismInfo;
                         trackInfoList.setSelectedIndex(i);
                     }
                 }

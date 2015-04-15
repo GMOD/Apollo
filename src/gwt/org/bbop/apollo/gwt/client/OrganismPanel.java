@@ -5,6 +5,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -22,6 +24,7 @@ import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.event.ContextSwitchEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
@@ -33,6 +36,7 @@ import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -74,6 +78,7 @@ public class OrganismPanel extends Composite {
     Button reloadButton;
 
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
+    private List<OrganismInfo> organismInfoList = dataProvider.getList();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
@@ -105,7 +110,8 @@ public class OrganismPanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                dataProvider.setList(organismChangeEvent.organismInfoList);
+                organismInfoList.addAll(organismChangeEvent.getOrganismInfoList());
+//                dataProvider.setList(organismChangeEvent.organismInfoList);
             }
         });
 
@@ -118,15 +124,28 @@ public class OrganismPanel extends Composite {
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if(singleSelectionModel.getSelectedObject()!=null) {
+                if (singleSelectionModel.getSelectedObject() != null) {
                     setSelectedInfo(singleSelectionModel.getSelectedObject());
-                    setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
+                    setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
                 }
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
 
         dataProvider.addDataDisplay(dataGrid);
+
+
+        dataGrid.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                Set<OrganismInfo> sequenceInfoSet = singleSelectionModel.getSelectedSet();
+                if (sequenceInfoSet.size() == 1) {
+                    OrganismInfo sequenceInfo = organismInfoList.iterator().next();
+                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject().getId());
+                    Annotator.eventBus.fireEvent(contextSwitchEvent);
+                }
+            }
+        }, DoubleClickEvent.getType());
 
         List<OrganismInfo> trackInfoList = dataProvider.getList();
 

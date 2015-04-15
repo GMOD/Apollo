@@ -170,8 +170,10 @@ public class AnnotatorPanel extends Composite {
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
             @Override
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
-                sequenceList.setText(selectedSequenceName);
+                if(contextSwitchEvent.getSequenceInfo()!=null){
+                    selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
+                    sequenceList.setText(selectedSequenceName);
+                }
                 loadSequences();
                 annotationInfoList.clear();
                 filterList();

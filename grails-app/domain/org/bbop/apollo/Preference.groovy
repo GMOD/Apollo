@@ -3,7 +3,7 @@ package org.bbop.apollo
 class Preference {
 
     static constraints = {
-        name nullable: false,blank: false
+        name nullable: true ,blank: false
         preferencesString nullable: true, blank: false
     }
 

@@ -23,6 +23,7 @@ class SequenceController {
     def transcriptService
     def fastaHandlerService
     def gff3HandlerService
+    def permissionService
 
     def permissions() {
 
@@ -57,7 +58,22 @@ class SequenceController {
             sequenceService.loadRefSeqs(organism)
         }
 
-        String defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
+        User currentUser = permissionService.currentUser
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
+        String defaultName
+        if(userOrganismPreference){
+            defaultName = userOrganismPreference.defaultSequence
+            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,defaultName)
+        }
+        else{
+            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
+            userOrganismPreference = new UserOrganismPreference(
+                    user:currentUser
+                    ,organism: organism
+                    ,defaultSequence: defaultName
+            ).save(insert:true)
+        }
+
         log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
         for (Sequence sequence in organism.sequences) {

@@ -16,6 +16,8 @@ class JbrowseController {
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
     def sequenceService
+    def userService
+    def permissionService
 
 //    def index() {
 //
@@ -63,7 +65,24 @@ class JbrowseController {
                 }
 
                 if (organism.sequences) {
+
+                    User user = permissionService.currentUser
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
+
+                    if(!userOrganismPreference){
+                        userOrganismPreference = new UserOrganismPreference(
+                                user: user
+                                ,organism: organism
+                                ,defaultSequence: sequence.name
+                        ).save(insert:true)
+                    }
+                    else{
+                        userOrganismPreference.defaultSequence = sequence.name
+                        userOrganismPreference.save()
+                    }
+
+
                     organismJBrowseDirectory = organism.directory
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
                     session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
