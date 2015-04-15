@@ -27,45 +27,41 @@ class SequenceSearchService {
                 input.get('search').residues,
                 input.get('search').database_id)
         JSONArray arr=new JSONArray()
-        for(result in results) {
-            def jsonObject = json {
-                identity result.percentId
-                significance result.eValue
-                subject ({
-                    location ({
-                        fmin result.subjectStart
-                        fmax result.subjectEnd
-                        strand result.subjectStrand
-                    })
-                    feature ({
-                        uniquename result.subjectId
-                        type ({
-                            name "region"
-                            cv ({ name "sequence" })
-                        })
-                    })
-                })
-                query ({
-                    location ({
-                        fmin result.queryStart
-                        fmax result.queryEnd
-                        strand result.queryStrand
-                    })
-                    feature ({
-                        uniquename result.queryId
-                        type ({
-                            name "region"
-                            cv ({ name "sequence" })
-                        })
-                    })
-                })
-                rawscore result.bitscore
-            }
-            arr.add(jsonObject)
+        JsonBuilder json = new JsonBuilder ()
+        json.matches results, { TabDelimittedAlignment result ->
+            identity result.percentId
+            significance result.eValue
+            subject(
+                location : {
+                    fmin result.subjectStart
+                    fmax result.subjectEnd
+                    strand result.subjectStrand
+                },
+                feature : {
+                    uniquename result.subjectId
+                    type(
+                        name: "region",
+                        cv: { name "sequence" }
+                    )
+                }
+            )
+            query(
+                location: {
+                    fmin result.queryStart
+                    fmax result.queryEnd
+                    strand result.queryStrand
+                },
+                feature: {
+                    uniquename result.queryId
+                    type(
+                        name: "region",
+                        cv: {name "sequence"}
+                    )
+                }
+            )
+            rawscore result.bitscore
         }
-
-
-        return [ matches: arr ] as JSONObject
+        return json.toString()
     }
 
 
