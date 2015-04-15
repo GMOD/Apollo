@@ -22,6 +22,18 @@ public class TabDelimittedAlignment extends BlastAlignment {
         int queryEnd = Integer.parseInt(fields[7]);
         int subjectStart = Integer.parseInt(fields[8]);
         int subjectEnd = Integer.parseInt(fields[9]);
+        if(subjectEnd<subjectStart) {
+            int swap;
+            swap=subjectStart;
+            subjectStart=subjectEnd;
+            subjectEnd=swap;
+        }
+        if(queryEnd<queryStart) {
+            int swap;
+            swap=queryStart;
+            queryStart=queryEnd;
+            queryEnd=swap;
+        }
         double eValue = Double.parseDouble(fields[10]);
         double bitscore = Double.parseDouble(fields[11]);
         init(queryId, subjectId, percentId, alignmentLength, numMismatches, numGaps,
