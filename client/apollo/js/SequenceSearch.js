@@ -106,7 +106,7 @@ searchSequence: function(trackName, refSeqName, starts) {
                 },
                 "operation": operation
             };
-            if(searchAllRefSeqs) {
+            if(!searchAllRefSeqs) {
                 postobj.search.database_id=refSeqName;
             }
 
