@@ -8,6 +8,7 @@ import org.bbop.apollo.sequence.Range
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import static org.springframework.http.HttpStatus.*
 
 //@CompileStatic
 class JbrowseController {
@@ -44,6 +45,7 @@ class JbrowseController {
         if (!file.exists()) {
             log.error("Could not get tracks file " + fileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
         render file.text
@@ -86,6 +88,7 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
         render file.text
@@ -104,6 +107,7 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("Could not get ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
         render file.text

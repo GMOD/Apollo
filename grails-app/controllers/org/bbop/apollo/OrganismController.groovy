@@ -7,7 +7,6 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.json.parser.JSONParser
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
