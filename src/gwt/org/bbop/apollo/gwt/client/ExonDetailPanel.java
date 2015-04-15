@@ -49,7 +49,9 @@ public class ExonDetailPanel extends Composite {
     private AnnotationInfo internalAnnotationInfo;
 
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
-
+    
+    private AnnotationInfo annotationInfoWithTopLevelFeature;
+    
     @UiField
     Button positiveStrandValue;
     @UiField
@@ -173,8 +175,9 @@ public class ExonDetailPanel extends Composite {
 
 
     public void updateData(AnnotationInfo annotationInfo){
-        GWT.log("updating data: " + annotationInfo.getName());
         if(annotationInfo==null) return ;
+        //displayAnnotationInfo(annotationInfo);
+        getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
         GWT.log("sublist: " + annotationInfo.getAnnotationInfoSet().size());
         for(AnnotationInfo annotationInfo1 : annotationInfo.getAnnotationInfoSet()){
@@ -221,6 +224,8 @@ public class ExonDetailPanel extends Composite {
     }
 
     public void updateDetailData(AnnotationInfo annotationInfo) {
+        // updates the detail section (3' and 5' coordinates) when user clicks on any of the types in the table.
+        // mRNA information is not available
         this.internalAnnotationInfo = annotationInfo;
         GWT.log("updating exon detail panel");
 //        GWT.log(internalData.toString());
@@ -324,20 +329,19 @@ public class ExonDetailPanel extends Composite {
 //
 //
     private void enableFields(boolean enabled) {
-        GWT.log("triggered");
         decreaseFivePrime.setEnabled(enabled);
         increaseFivePrime.setEnabled(enabled);
         decreaseThreePrime.setEnabled(enabled);
         increaseThreePrime.setEnabled(enabled);
     }
-    
+
     public void setEditable(boolean editable) {
         this.editable = editable ;
 
 //        maxField.setEnabled(this.editable);
 //        minField.setEnabled(this.editable);
     }
-    
+
     public boolean isEditableType(String type) {
         if (type.equals("CDS") || type.equals("exon")) {
             return true; 
@@ -348,6 +352,15 @@ public class ExonDetailPanel extends Composite {
     }
 
     private void updateFeatureLocation(final AnnotationInfo originalInfo) {
+        if (! verifyBoundaries(this.internalAnnotationInfo)) {
+            enableFields(false);
+            GWT.log("5'end reverted to " + Integer.toString(getFivePrimeField(originalInfo)));
+            GWT.log("3'end reverted to " + Integer.toString(getThreePrimeField(originalInfo)));
+            fivePrimeField.setText(Integer.toString(getFivePrimeField(originalInfo)));
+            threePrimeField.setText(Integer.toString(getThreePrimeField(originalInfo)));
+            enableFields(true);
+            return;
+        }
         String url = rootUrl + "/annotator/updateFeatureLocation";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
@@ -398,6 +411,8 @@ public class ExonDetailPanel extends Composite {
             return;
         }
         final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        GWT.log("fmin Before any manipulation: " + beforeUpdate.getMin());
+        GWT.log("fmax Before any manipulation: " + beforeUpdate.getMax());
         if (internalAnnotationInfo.getStrand() == 1) {
             // fmin is 5' ; fmax is 3'
             internalAnnotationInfo.setMin(internalAnnotationInfo.getMin() - 1);
@@ -450,6 +465,8 @@ public class ExonDetailPanel extends Composite {
             return;
         }
         final AnnotationInfo beforeUpdate = this.internalAnnotationInfo;
+        GWT.log("fmin Before any manipulation: " + beforeUpdate.getMin());
+        GWT.log("fmax Before any manipulation: " + beforeUpdate.getMax());
         if (internalAnnotationInfo.getStrand() == 1) {
             // fmin is 5' ; fmax is 3'
             if (internalAnnotationInfo.getMax() - 1 <= internalAnnotationInfo.getMin()) {
@@ -508,6 +525,31 @@ public class ExonDetailPanel extends Composite {
         }
         else {
             return getDisplayMin(annotationInfo.getMin());
+        }
+    }
+    
+    private void displayAnnotationInfo(AnnotationInfo ai) {
+        GWT.log("*** AI name: " + ai.getName());
+        GWT.log("*** AI type: " + ai.getType());
+        GWT.log("*** AI annotationInfoSet size: " + ai.getAnnotationInfoSet().size());
+    }
+    
+    private void getAnnotationInfoWithTopLevelFeature(AnnotationInfo annotationInfo) {
+        this.annotationInfoWithTopLevelFeature = annotationInfo;
+    }
+    
+    private boolean verifyBoundaries(AnnotationInfo annotationInfo) {
+        GWT.log("Requested min: " + annotationInfo.getMin());
+        GWT.log("Requested max: " + annotationInfo.getMax());
+        GWT.log("Transcript min: " + annotationInfoWithTopLevelFeature.getMin());
+        GWT.log("Transcript max: " + annotationInfoWithTopLevelFeature.getMax());
+        if (annotationInfo.getMin() >= annotationInfoWithTopLevelFeature.getMin() && annotationInfo.getMax() <= annotationInfoWithTopLevelFeature.getMax()) {
+            GWT.log("allowed");
+            return true;
+        }
+        else {
+            GWT.log("not allowed");
+            return false;
         }
     }
 }
