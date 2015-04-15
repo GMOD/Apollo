@@ -150,8 +150,17 @@ class JbrowseController {
         if (!file.exists()) {
             log.error("Could not get seq file " + file.absolutePath);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
+
+        String eTag = createHashFromFile(file);
+        String dateString = formatLastModifiedDate(file);
+        response.setHeader("ETag", eTag);
+        response.setHeader("Last-Modified", dateString);
+        response.setContentType("application/json");
+
+
         render file.text
     }
 
