@@ -1,9 +1,9 @@
-package org.bbop.apollo.tools.search.blat;
+package org.bbop.apollo.sequence.search.blat;
 
-import org.bbop.apollo.tools.search.AlignmentParsingException;
-import org.bbop.apollo.tools.search.SequenceSearchTool;
-import org.bbop.apollo.tools.search.SequenceSearchToolException;
-import org.bbop.apollo.tools.search.blast.TabDelimittedAlignment;
+import org.bbop.apollo.sequence.search.AlignmentParsingException;
+import org.bbop.apollo.sequence.search.SequenceSearchTool;
+import org.bbop.apollo.sequence.search.SequenceSearchToolException;
+import org.bbop.apollo.sequence.search.blast.TabDelimittedAlignment;
 import org.bbop.apollo.Match;
 import java.io.*;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package org.bbop.apollo.tools.search;
+package org.bbop.apollo.sequence.search;
 
 import org.bbop.apollo.Match;
 

@@ -1,6 +1,6 @@
-package org.bbop.apollo.tools.search.blast;
+package org.bbop.apollo.sequence.search.blast;
 
-import org.bbop.apollo.tools.search.AlignmentParsingException;
+import org.bbop.apollo.sequence.search.AlignmentParsingException;
 
 public class TabDelimittedAlignment extends BlastAlignment {
 

@@ -1,6 +1,6 @@
-package org.bbop.apollo.tools.search.blast;
+package org.bbop.apollo.sequence.search.blast;
 
-import org.bbop.apollo.tools.search.Alignment;
+import org.bbop.apollo.sequence.search.Alignment;
 import org.bbop.apollo.Match;
 import org.bbop.apollo.Region;
 import org.bbop.apollo.AnalysisFeature;
