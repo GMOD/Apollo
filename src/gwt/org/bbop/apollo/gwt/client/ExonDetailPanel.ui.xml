@@ -45,20 +45,6 @@
                 <b:Row>
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
-                            <b:InputGroupAddon>3' End</b:InputGroupAddon>
-                            <b:InputGroupButton>
-                                <b:Button ui:field="decreaseThreePrime" icon="ARROW_LEFT"/>
-                            </b:InputGroupButton>
-                            <b:InputGroupAddon ui:field="threePrimeField"/>
-                            <b:InputGroupButton>
-                                <b:Button ui:field="increaseThreePrime" icon="ARROW_RIGHT"/>
-                            </b:InputGroupButton>
-                        </b:InputGroup>
-                    </b:Column>
-                </b:Row>
-                <b:Row>
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:InputGroup>
                             <b:InputGroupAddon>5' End</b:InputGroupAddon>
                             <b:InputGroupButton>
                                 <b:Button ui:field="decreaseFivePrime" icon="ARROW_LEFT"/>
@@ -66,6 +52,20 @@
                             <b:InputGroupAddon ui:field="fivePrimeField"/>
                             <b:InputGroupButton>
                                 <b:Button ui:field="increaseFivePrime" icon="ARROW_RIGHT"/>
+                            </b:InputGroupButton>
+                        </b:InputGroup>
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:InputGroup>
+                            <b:InputGroupAddon>3' End</b:InputGroupAddon>
+                            <b:InputGroupButton>
+                                <b:Button ui:field="decreaseThreePrime" icon="ARROW_LEFT"/>
+                            </b:InputGroupButton>
+                            <b:InputGroupAddon ui:field="threePrimeField"/>
+                            <b:InputGroupButton>
+                                <b:Button ui:field="increaseThreePrime" icon="ARROW_RIGHT"/>
                             </b:InputGroupButton>
                         </b:InputGroup>
                     </b:Column>
