@@ -69,7 +69,7 @@
         <b:Row>
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
-                    <b:InputGroupAddon>Sequence</b:InputGroupAddon>
+                    <b:InputGroupAddon>Ref Sequence</b:InputGroupAddon>
                     <b:InputGroupAddon ui:field="sequenceField"/>
                 </b:InputGroup>
             </b:Column>

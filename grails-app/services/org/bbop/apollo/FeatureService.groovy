@@ -1123,7 +1123,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
                 log.debug "NO name using unique name"
-                gsolFeature.name = gsolFeature.uniqueName
+                gsolFeature.name = gsolFeature.uniqueName+"-${type}"
             }
 
             gsolFeature.save(failOnError: true)
@@ -1929,4 +1929,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
+    boolean typeHasChildren(Feature feature) {
+        def f = Feature.get(feature.id)
+        boolean hasChildren = !(f instanceof Exon) && !(f instanceof CDS) && !(f instanceof SpliceSite)
+        log.debug "type ${f.ontologyId}, ${f.cvTerm}->${f.name} has children ${hasChildren}"
+        return hasChildren
+    }
 }
