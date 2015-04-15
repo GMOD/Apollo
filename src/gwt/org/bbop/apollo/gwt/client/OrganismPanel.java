@@ -110,6 +110,7 @@ public class OrganismPanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+                organismInfoList.clear();
                 organismInfoList.addAll(organismChangeEvent.getOrganismInfoList());
 //                dataProvider.setList(organismChangeEvent.organismInfoList);
             }
