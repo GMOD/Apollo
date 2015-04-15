@@ -347,6 +347,7 @@ public class AnnotatorPanel extends Composite {
             }
         };
         typeColumn.setSortable(true);
+        typeColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
@@ -355,6 +356,8 @@ public class AnnotatorPanel extends Composite {
             }
         };
         lengthColumn.setSortable(true);
+        lengthColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        lengthColumn.setCellStyleNames("dataGridLastColumn");
 
 
 //        dataGrid.addColumn(nameColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
@@ -363,7 +366,9 @@ public class AnnotatorPanel extends Composite {
         dataGrid.addColumn(lengthColumn, "Length");
 //        dataGrid.addColumn(filterColumn, "Warnings");
 
-        dataGrid.setColumnWidth(0, "50%");
+        dataGrid.setColumnWidth(0, "70%");
+        dataGrid.setColumnWidth(1, "15%");
+        dataGrid.setColumnWidth(2, "15%");
 
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
