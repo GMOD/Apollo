@@ -8,18 +8,20 @@ import org.bbop.apollo.Feature;
 
 public class BlastAlignment implements Alignment {
 
-    private String queryId;
-    private String subjectId;
-    private double percentId;
-    private int alignmentLength;
-    private int numMismatches;
-    private int numGaps;
-    private int queryStart;
-    private int queryEnd;
-    private int subjectStart;
-    private int subjectEnd;
-    private double eValue;
-    private double bitscore;
+    public String queryId;
+    public String subjectId;
+    public double percentId;
+    public int alignmentLength;
+    public int numMismatches;
+    public int numGaps;
+    public int queryStrand;
+    public int subjectStrand;
+    public int queryStart;
+    public int queryEnd;
+    public int subjectStart;
+    public int subjectEnd;
+    public double eValue;
+    public double bitscore;
 
     public BlastAlignment(String queryId, String subjectId, double percentId, int alignmentLength, int numMismatches, int numGaps,
             int queryStart, int queryEnd, int subjectStart, int subjectEnd, double eValue, double bitscore) {
@@ -101,7 +103,7 @@ public class BlastAlignment implements Alignment {
         query.setUniqueName(getQueryId());
         int queryFmin = getQueryStart();
         int queryFmax = getQueryEnd();
-        int queryStrand = 1;
+        queryStrand = 1;
         if (queryFmin > queryFmax) {
             int tmp = queryFmin;
             queryFmin = queryFmax;
@@ -114,7 +116,7 @@ public class BlastAlignment implements Alignment {
         subject.setUniqueName(getSubjectId());
         int subjectFmin = getSubjectStart();
         int subjectFmax = getSubjectEnd();
-        int subjectStrand = 1;
+        subjectStrand = 1;
         if (subjectFmin > subjectFmax) {
             int tmp = subjectFmin;
             subjectFmin = subjectFmax;
