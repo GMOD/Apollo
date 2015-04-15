@@ -14,7 +14,6 @@ class FeatureLocation {
 
 
         isFminPartial nullable: true
-//        sourceFeature nullable: true
         isFmaxPartial nullable: true
         strand nullable: true
         phase nullable: true
@@ -35,7 +34,7 @@ class FeatureLocation {
     int locgroup;
     int rank;
     Sequence sequence
-    
+
     static belongsTo = [Feature]
 
 
@@ -80,4 +79,5 @@ class FeatureLocation {
         cloned.featureLocationPublications = this.featureLocationPublications;
         return cloned;
     }
+
 }

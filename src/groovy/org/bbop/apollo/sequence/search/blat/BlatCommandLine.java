@@ -3,6 +3,7 @@ package org.bbop.apollo.sequence.search.blat;
 import org.bbop.apollo.sequence.search.AlignmentParsingException;
 import org.bbop.apollo.sequence.search.SequenceSearchTool;
 import org.bbop.apollo.sequence.search.SequenceSearchToolException;
+import org.bbop.apollo.sequence.search.blast.BlastAlignment;
 import org.bbop.apollo.sequence.search.blast.TabDelimittedAlignment;
 import org.bbop.apollo.Match;
 import java.io.*;
@@ -34,7 +35,7 @@ public class BlatCommandLine extends SequenceSearchTool {
 
 
     @Override
-    public Collection<Match> search(String uniqueToken, String query, String databaseId) throws SequenceSearchToolException {
+    public Collection<BlastAlignment> search(String uniqueToken, String query, String databaseId) throws SequenceSearchToolException {
         File dir = null;
         try {
             dir = createTmpDir(uniqueToken);
@@ -56,7 +57,7 @@ public class BlatCommandLine extends SequenceSearchTool {
         }
     }
     
-    private Collection<Match> runSearch(File dir, String query, String databaseId)
+    private Collection<BlastAlignment> runSearch(File dir, String query, String databaseId)
             throws IOException, AlignmentParsingException, InterruptedException {
         PrintWriter log = new PrintWriter(new BufferedWriter(new FileWriter(dir + "/search.log")));
         String queryArg = createQueryFasta(dir, query);
@@ -83,8 +84,6 @@ public class BlatCommandLine extends SequenceSearchTool {
             log.print(arg + " ");
             System.out.println(arg + " ");
         }
-        log.println();
-        log.println();
         ProcessBuilder pb = new ProcessBuilder(commands);
         Process p = pb.start();
         p.waitFor();
@@ -102,10 +101,10 @@ public class BlatCommandLine extends SequenceSearchTool {
         }
         log.close();
         p.destroy();
-        Collection<Match> matches = new ArrayList<Match>();
+        Collection<BlastAlignment> matches = new ArrayList<BlastAlignment>();
         BufferedReader in = new BufferedReader(new FileReader(outputArg));
         while ((line = in.readLine()) != null) {
-            matches.add(new TabDelimittedAlignment(line).convertToMatch());
+            matches.add(new TabDelimittedAlignment(line));
         }
         in.close();
         return matches;
