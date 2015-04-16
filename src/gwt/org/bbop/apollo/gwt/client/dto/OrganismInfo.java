@@ -5,6 +5,7 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -26,7 +27,7 @@ public class OrganismInfo {
     private Integer numSequences;
     private Integer numTracks;
     private Boolean valid ;
-    private boolean current;
+    private Boolean current;
 
     public OrganismInfo(){
 
@@ -127,10 +128,19 @@ public class OrganismInfo {
 
     public JSONObject toJSON() {
         JSONObject payload = new JSONObject();
-        payload.put("id",new JSONString(id));
-        payload.put("name",new JSONString(name));
-        payload.put("directory",new JSONString(directory));
-        payload.put("current",JSONBoolean.getInstance(current));
+
+        if(id!=null) {
+            payload.put("id", new JSONString(id));
+        }
+        if(name!=null) {
+            payload.put("name", new JSONString(name));
+        }
+        if(directory!=null) {
+            payload.put("directory", new JSONString(directory));
+        }
+        if(current!=null) {
+            payload.put("current", JSONBoolean.getInstance(current));
+        }
         if(blatdb!=null) {
             payload.put("blatdb", new JSONString(blatdb));
         }

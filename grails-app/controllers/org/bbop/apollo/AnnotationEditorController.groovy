@@ -293,8 +293,22 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
+    /**
+     * Provided if not coming thorugh a websocket
+     * @param jsonObject
+     * @return
+     */
+    private def fixUserName(JSONObject jsonObject) {
+        if(jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
+
+        String username = SecurityUtils.subject.principal
+        jsonObject.put(FeatureStringEnum.USERNAME.value, username)
+    }
+
     def getSequenceAlterations() {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+
+        fixUserName(returnObject)
 
         Sequence sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
 
@@ -316,6 +330,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
         render returnObject
     }
+
 
     def getOrganism() {
         String organismName = session.getAttribute(FeatureStringEnum.ORGANISM.value)

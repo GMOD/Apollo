@@ -83,8 +83,8 @@ public class MainPanel extends Composite {
     static SplitLayoutPanel mainSplitPanel;
     @UiField
     static TabLayoutPanel detailTabs;
-    @UiField
-    static ListBox organismList;
+//    @UiField
+//    static ListBox organismList;
 //    @UiField(provided = true)
 //    static SuggestBox sequenceList;
     @UiField
@@ -97,6 +97,10 @@ public class MainPanel extends Composite {
     HTML userName;
     @UiField
     Button generateLink;
+    @UiField
+    HTML currentOrganismDisplay;
+    @UiField
+    HTML currentSequenceDisplay;
 
 
 //    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
@@ -122,14 +126,15 @@ public class MainPanel extends Composite {
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 switch (organismChangeEvent.getAction()) {
                     case LOADED_ORGANISMS:
-                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
-                        organismList.clear();
-                        for (OrganismInfo organismInfo : organismInfoList) {
-                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
-                        }
+//                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
+//                        organismList.clear();
+//                        for (OrganismInfo organismInfo : organismInfoList) {
+//                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
+//                        }
                         break;
                     case CHANGED_ORGANISM:
                         currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
+                        currentOrganismDisplay.setHTML(currentOrganism.getName());
                         updateGenomicViewer();
                         loadReferenceSequences(true);
                         updatePermissionsForOrganism();
@@ -145,10 +150,13 @@ public class MainPanel extends Composite {
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
                 // need to set this before calling the sequence
                 currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
+                currentOrganism = contextSwitchEvent.getOrganismInfo();
+                Window.alert("current rog: "+currentOrganism.toJSON().toString());
+                currentOrganismDisplay.setHTML(currentOrganism.getName());
 
-                for (int i = 0; i < organismList.getItemCount(); i++) {
-                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
-                }
+//                for (int i = 0; i < organismList.getItemCount(); i++) {
+//                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
+//                }
 
                 String sequenceName = "";
                 if (contextSwitchEvent.getSequenceInfo() != null) {
@@ -160,6 +168,7 @@ public class MainPanel extends Composite {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
                         currentSequenceName= response.getText();
+                        currentSequenceDisplay.setHTML(currentSequenceName);
 //                        sequenceList.setText(innerSequenceName);
                         updateGenomicViewer();
                     }
@@ -242,7 +251,7 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
-                    loadOrganisms(organismList);
+                    loadOrganisms();
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
@@ -286,14 +295,14 @@ public class MainPanel extends Composite {
     }
 
 
-    @UiHandler("organismList")
-    public void changeOrganism(ChangeEvent event) {
-        String selectedValue = organismList.getSelectedValue();
-        currentOrganismId = Long.parseLong(selectedValue);
-//        sequenceList.setText("");
-//        sequenceOracle.clear();
-        OrganismRestService.changeOrganism(selectedValue);
-    }
+//    @UiHandler("organismList")
+//    public void changeOrganism(ChangeEvent event) {
+//        String selectedValue = organismList.getSelectedValue();
+//        currentOrganismId = Long.parseLong(selectedValue);
+////        sequenceList.setText("");
+////        sequenceOracle.clear();
+//        OrganismRestService.changeOrganism(selectedValue);
+//    }
 
 //    @UiHandler("sequenceList")
 //    public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
@@ -384,8 +393,9 @@ public class MainPanel extends Composite {
                         currentSequenceName = array.get(0).isObject().get("name").isString().stringValue();
                     }
                 }
+                currentSequenceDisplay.setHTML(currentSequenceName);
 
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, organismList.getSelectedValue());
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, currentOrganism.getId());
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
             }
 
@@ -402,9 +412,8 @@ public class MainPanel extends Composite {
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
      *
-     * @param trackInfoList
      */
-    public void loadOrganisms(final ListBox trackInfoList) {
+    public void loadOrganisms() {
         String url = rootUrl + "/organism/findAllOrganisms";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
@@ -417,11 +426,12 @@ public class MainPanel extends Composite {
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
-                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
                     if (organismInfo.isCurrent()) {
                         currentOrganismId = Long.parseLong(organismInfo.getId());
                         currentOrganism = organismInfo;
-                        trackInfoList.setSelectedIndex(i);
+                        currentOrganismDisplay.setHTML(currentOrganism.getName());
+//                        trackInfoList.setSelectedIndex(i);
                     }
                 }
 
@@ -429,7 +439,8 @@ public class MainPanel extends Composite {
                     JSONObject rootObject = array.get(0).isObject();
                     currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
                     currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
-                    trackInfoList.setSelectedIndex(0);
+                    currentOrganismDisplay.setHTML(currentOrganism.getName());
+//                    trackInfoList.setSelectedIndex(0);
                 }
                 updatePermissionsForOrganism();
 

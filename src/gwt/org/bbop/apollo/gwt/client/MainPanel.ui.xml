@@ -87,9 +87,10 @@
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
-                        <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
-                        <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
-                        <!--<gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>-->
+                        <!--<gwt:HTML text="Organism" styleName="{style.details-list-title}"/>-->
+                        <!--<gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>-->
+                        <gwt:HTML text="Current Organism" ui:field="currentOrganismDisplay" styleName="{style.details-list-title}"/>
+                        <gwt:HTML text="Current Ref Sequence" ui:field="currentSequenceDisplay" styleName="{style.details-list-title}"/>
                         <!--<gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>-->
                         <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                         <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
