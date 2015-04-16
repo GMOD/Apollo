@@ -29,11 +29,19 @@ class SequenceController {
 
     }
 
+    /**
+     * ID is the organism ID
+     * Sequence is teh default sequence name
+     * @param id
+     * @param sequenceName
+     * @return
+     */
+    @Transactional
     def setDefaultSequence(Long id, String sequenceName) {
         log.debug "setting default sequences: ${params}"
         Session session = SecurityUtils.subject.getSession(false)
-        Sequence sequence = Sequence.findByName(sequenceName)
         Organism organism = Organism.findById(id)
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
         if (!sequence) {
             if (organism) {
                 sequence = organism.sequences.iterator().next()
@@ -42,12 +50,32 @@ class SequenceController {
                 return
             }
         }
-//        Organism organism = sequence.organism
-//        HttpSession session = request.session
+
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequence.name)
         session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
+
+        User currentUser = permissionService.currentUser
+
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false ")
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
+        if(!userOrganismPreference){
+            userOrganismPreference = new UserOrganismPreference(
+                    user:currentUser
+                    ,organism: organism
+                    ,defaultSequence: sequence.name
+                    ,currentOrganism: true
+            ).save(insert:true)
+        }
+        else{
+            userOrganismPreference.defaultSequence = sequence.name
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save()
+        }
+
+
+
         render sequenceName as String
     }
 

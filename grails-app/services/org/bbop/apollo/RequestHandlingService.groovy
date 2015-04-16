@@ -345,9 +345,11 @@ class RequestHandlingService {
 
 
     JSONObject getFeatures(JSONObject inputObject) {
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.READ)
+//        String trackName = fixTrackHeader(inputObject.track)
+//        Sequence sequence = Sequence.findByName(trackName)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+
+        println "getFeatures -> ${sequence.organism.commonName}"
 
         Set<Feature> featureSet = new HashSet<>()
 

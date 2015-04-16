@@ -139,11 +139,12 @@ public class OrganismPanel extends Composite {
         dataGrid.addDomHandler(new DoubleClickHandler() {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
-                Set<OrganismInfo> sequenceInfoSet = singleSelectionModel.getSelectedSet();
-                if (sequenceInfoSet.size() == 1) {
-                    OrganismInfo sequenceInfo = organismInfoList.iterator().next();
-                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject().getId());
-                    Annotator.eventBus.fireEvent(contextSwitchEvent);
+                if (singleSelectionModel.getSelectedObject()!=null) {
+                    String orgId = singleSelectionModel.getSelectedObject().getId();
+                    if(!MainPanel.currentOrganismId.toString().equals(orgId)){
+                        ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject().getId());
+                        Annotator.eventBus.fireEvent(contextSwitchEvent);
+                    }
                 }
             }
         }, DoubleClickEvent.getType());
