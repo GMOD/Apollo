@@ -89,8 +89,8 @@
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
                         <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
-                        <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
-                        <gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>
+                        <!--<gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>-->
+                        <!--<gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>-->
                         <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                         <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
                     </gwt:FlowPanel>

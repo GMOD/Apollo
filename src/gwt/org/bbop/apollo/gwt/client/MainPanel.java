@@ -2,7 +2,6 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -25,8 +24,6 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -57,7 +54,8 @@ public class MainPanel extends Composite {
     static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static OrganismInfo currentOrganism; // the current logged-in user
     public static Long currentOrganismId = null;
-    public static String currentSequenceId = null;
+    public static String currentSequenceName = null;
+
 
     // debug
     private Boolean showFrame = false;
@@ -87,8 +85,8 @@ public class MainPanel extends Composite {
     static TabLayoutPanel detailTabs;
     @UiField
     static ListBox organismList;
-    @UiField(provided = true)
-    static SuggestBox sequenceList;
+//    @UiField(provided = true)
+//    static SuggestBox sequenceList;
     @UiField
     FlowPanel westPanel;
     @UiField
@@ -101,12 +99,12 @@ public class MainPanel extends Composite {
     Button generateLink;
 
 
-    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
+//    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
 
 
     public MainPanel() {
         exportStaticMethod();
-        sequenceList = new SuggestBox(sequenceOracle);
+//        sequenceList = new SuggestBox(sequenceOracle);
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
@@ -154,15 +152,15 @@ public class MainPanel extends Composite {
 
                 String sequenceName = "";
                 if (contextSwitchEvent.getSequenceInfo() != null) {
-                    contextSwitchEvent.getSequenceInfo().getName();
-                    sequenceList.setText(sequenceName);
+                    sequenceName = contextSwitchEvent.getSequenceInfo().getName();
+//                    currentSequenceName = contextSwitchEvent.getSequenceInfo().getName();
                 }
 
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
-                        String innerSequenceName = response.getText();
-                        sequenceList.setText(innerSequenceName);
+                        currentSequenceName= response.getText();
+//                        sequenceList.setText(innerSequenceName);
                         updateGenomicViewer();
                     }
 
@@ -292,16 +290,16 @@ public class MainPanel extends Composite {
     public void changeOrganism(ChangeEvent event) {
         String selectedValue = organismList.getSelectedValue();
         currentOrganismId = Long.parseLong(selectedValue);
-        sequenceList.setText("");
-        sequenceOracle.clear();
+//        sequenceList.setText("");
+//        sequenceOracle.clear();
         OrganismRestService.changeOrganism(selectedValue);
     }
 
-    @UiHandler("sequenceList")
-    public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
-        updateGenomicViewer();
-        SequenceRestService.setDefaultSequence(sequenceList.getText());
-    }
+//    @UiHandler("sequenceList")
+//    public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
+//        updateGenomicViewer();
+//        SequenceRestService.setDefaultSequence(currentSequenceName);
+//    }
 
     public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
         Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.5);
@@ -327,9 +325,9 @@ public class MainPanel extends Composite {
 
     public void updateGenomicViewer() {
         String trackListString = rootUrl + "/jbrowse/?loc=";
-        String selectedSequence = sequenceList.getText();
-        GWT.log("get selected sequence: " + selectedSequence);
-        trackListString += selectedSequence;
+//        String selectedSequence =
+        GWT.log("get selected sequence: " + currentSequenceName);
+        trackListString += currentSequenceName;
 
         trackListString += "&";
         for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
@@ -353,8 +351,8 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                sequenceOracle.clear();
-                sequenceList.setText("");
+//                sequenceOracle.clear();
+//                sequenceList.setText("");
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
@@ -368,25 +366,26 @@ public class MainPanel extends Composite {
                     if (object.get("default") != null) {
                         sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
                     }
-                    sequenceOracle.add(sequenceInfo.getName());
+//                    sequenceOracle.add(sequenceInfo.getName());
                     if (sequenceInfo.isDefault()) {
                         GWT.log("setting name to default: " + sequenceInfo.getName());
-                        sequenceList.setText(sequenceInfo.getName());
-                        currentSequenceId = sequenceInfo.getName();
-                    } else if (sequenceList.getText().isEmpty() && currentSequenceId != null && sequenceInfo.getName().equals(currentSequenceId)) {
-                        GWT.log("setting name: " + currentSequenceId);
-                        sequenceList.setText(sequenceInfo.getName());
-                        currentSequenceId = sequenceInfo.getName();
+//                        sequenceList.setText(sequenceInfo.getName());
+                        currentSequenceName = sequenceInfo.getName();
+                    }
+                    else if (currentSequenceName != null && sequenceInfo.getName().equals(currentSequenceName)) {
+                        GWT.log("setting name: " + currentSequenceName);
+//                        sequenceList.setText(sequenceInfo.getName());
+                        currentSequenceName = sequenceInfo.getName();
                     }
                 }
 
                 if (array.size() > 0) {
-                    if (currentSequenceId == null) {
-                        currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
+                    if (currentSequenceName == null) {
+                        currentSequenceName = array.get(0).isObject().get("name").isString().stringValue();
                     }
                 }
 
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(), organismList.getSelectedValue());
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, organismList.getSelectedValue());
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
             }
 
