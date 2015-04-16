@@ -43,6 +43,7 @@ public class Gff3HandlerService {
         writeObject.attributesToExport.add(FeatureStringEnum.DESCRIPTION.value);
         writeObject.attributesToExport.add(FeatureStringEnum.STATUS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.DBXREFS.value);
+        writeObject.attributesToExport.add(FeatureStringEnum.OWNER.value);
         writeObject.attributesToExport.add(FeatureStringEnum.ATTRIBUTES.value);
         writeObject.attributesToExport.add(FeatureStringEnum.PUBMEDIDS.value);
         writeObject.attributesToExport.add(FeatureStringEnum.GOIDS.value);
@@ -331,7 +332,7 @@ public class Gff3HandlerService {
                 }
             }
         }
-        if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
+        if (feature.getOwner() && writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
             attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
