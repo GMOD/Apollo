@@ -15,8 +15,8 @@
 A doc in progress.
 
 For reference:
-https://github.com/GMOD/Apollo/blob/grails1/doc/architecture2.png
-https://github.com/GMOD/Apollo/blob/grails1/doc/schemaupdates.pdf
+https://github.com/GMOD/Apollo/blob/master/doc/architecture2.png
+https://github.com/GMOD/Apollo/blob/master/doc/schemaupdates.pdf
 
 The main components are:
 + Grails Server (formally a simple servlet 3 container)

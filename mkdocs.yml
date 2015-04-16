@@ -1,7 +1,6 @@
 site_name: Web Apollo 2.0
 pages:
 - ['index.md', 'Index']
-- ['Introduction.md', 'Introduction']
 - ['Prerequisites.md', 'Pre-requisites']
 - ['Apollo2Build.md', 'Web Apollo 2.0 quick-setup']
 - ['Configure.md', 'Configure']
@@ -9,4 +8,4 @@ pages:
 - ['Build.md', 'Build']
 - ['Troubleshooting.md', 'Troubleshooting']
 - ['Testing_notes.md', 'Testing notes']
-
+- ['Architecture.md', 'Architecture']
