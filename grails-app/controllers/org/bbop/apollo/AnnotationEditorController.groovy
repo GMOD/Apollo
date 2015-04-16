@@ -60,15 +60,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
         log.debug "${operation} -> ${mappedAction}"
-        track = postObject.get(REST_TRACK)
+//        track = postObject.get(REST_TRACK)
 
         // TODO: hack needs to be fixed
-        //track = fixTrackHeader(track)
+//        track = fixTrackHeader(track)
         log.debug "Controller: " + params.controller
 
         forward action: "${mappedAction}", params: [data: postObject]
     }
-
 
     /**
      * @return
@@ -81,7 +80,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "principal: " + SecurityUtils.subject.principal
         String username = SecurityUtils.subject.principal
         int permission = PermissionEnum.NONE.value
-        if(username) {
+        if (username) {
 
             log.debug "input username ${username}"
 
@@ -90,16 +89,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             log.debug "attribute names: "
             session.attributeNames.each { log.debug it }
             Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
-            Map<String, Integer> permissions 
-            if(organismId){
+            Map<String, Integer> permissions
+            if (organismId) {
                 Organism organism = Organism.findById(organismId)
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,user)
-                log.debug " permission list size: "+permissionEnumList
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
+                log.debug " permission list size: " + permissionEnumList
                 permission = permissionService.findHighestEnumValue(permissionEnumList)
                 permissions = new HashMap<>()
-                permissions.put(username,permission)
-            }
-            else{
+                permissions.put(username, permission)
+            } else {
                 log.error "somehow no organism shown, getting for all"
                 permissions = permissionService.getPermissionsForUser(user)
             }
@@ -116,18 +114,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum){
+    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
-            Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
             Integer permission = permissions.get(SecurityUtils.subject.principal)
             PermissionEnum sessionPermissionsEnum = permissionService.isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
-            if(sessionPermissionsEnum==null){
+            if (sessionPermissionsEnum == null) {
                 log.warn "No permissions found in session"
                 return false
             }
 
-            if(sessionPermissionsEnum.rank < requiredPermissionEnum.rank){
+            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
                 log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
                 return false
             }
@@ -147,7 +145,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray dataAdaptersArray = new JSONArray();
         returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
 
-        if(!checkPermissions(PermissionEnum.EXPORT)){
+        if (!checkPermissions(PermissionEnum.EXPORT)) {
             render returnObject
             return
         }
@@ -252,20 +250,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      *
      * Should return of form:
      *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
-     * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}
-     * @return
+     * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
      */
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        returnObject.put(FeatureStringEnum.USERNAME.value,SecurityUtils.subject.principal)
+        returnObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         render requestHandlingService.getFeatures(returnObject)
     }
 
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(!checkPermissions(PermissionEnum.WRITE)){
+        if (!checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
         }
@@ -298,12 +295,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequenceAlterations() {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+
+        Sequence sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
-
-        String trackName = fixTrackHeader(returnObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
         // TODO: get alterations from session
@@ -432,7 +428,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequence() {
         log.debug "getSequence ${params.data}"
-        if(!checkPermissions(PermissionEnum.EXPORT)){
+        if (!checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
@@ -446,7 +442,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getSequenceSearchTools() {
         log.debug "getSequenceSearchTools ${params.data}"
         JSONArray sequenceSearchToolsArray = new JSONArray();
-        configWrapperService.getSequenceSearchTools().each { k,v ->
+        configWrapperService.getSequenceSearchTools().each { k, v ->
             sequenceSearchToolsArray.put(k);
         }
         JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
@@ -459,13 +455,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
         Organism organism = Organism.findById(organismId)
         println organism.toString()
-        render sequenceSearchService.searchSequence(inputObject,organism.getBlatdb())
+        render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
     }
 
 
     def getGff3() {
         log.debug "getGff3 ${params.data}"
-        if(!checkPermissions(PermissionEnum.EXPORT)){
+        if (!checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
@@ -478,7 +474,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             String gff3String = new String(encoded, encoding)
             outputFile.delete() // deleting temp file
             render gff3String
-            
+
         } catch (IOException e) {
             log.debug("Cannot create a temp file for 'get GFF3' operation")
             e.printStackTrace()
@@ -486,17 +482,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getAnnotationInfoEditorData() {
-        if(!checkPermissions(PermissionEnum.WRITE)){
+        Sequence sequence
+        try {
+            sequence = permissionService.checkPermissions(returnObject, PermissionEnum.WRITE)
+        } catch (e) {
+            log.error(e)
             render new JSONObject() as JSON
             return
         }
 
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-        log.debug "sequence ${sequence} for track ${trackName}"
+
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
 
         JSONObject returnObject = createJSONFeatureContainer()
@@ -563,10 +561,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @MessageMapping("/AnnotationNotification")
     @SendTo("/topic/AnnotationNotification")
-    protected String annotationEditor(String inputString,Principal principal) {
+    protected String annotationEditor(String inputString, Principal principal) {
         log.debug "Input String:  annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
-        rootElement.put(FeatureStringEnum.USERNAME.value,principal.name)
+        rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
         println "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
@@ -610,22 +608,21 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return results
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
-            return sendError(ae,principal.name)
+            return sendError(ae, principal.name)
         }
 
     }
 
-
     // TODO: handle errors without broadcasting
-    protected def sendError(AnnotationException exception,String username){
+    protected def sendError(AnnotationException exception, String username) {
         log.debug "excrption ${exception}"
         log.debug "excrption message ${exception.message}"
         log.debug "username ${username}"
 
         JSONObject errorObject = new JSONObject()
-        errorObject.put(REST_OPERATION,FeatureStringEnum.ERROR.name())
-        errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value,exception.message)
-        errorObject.put(FeatureStringEnum.USERNAME.value,username)
+        errorObject.put(REST_OPERATION, FeatureStringEnum.ERROR.name())
+        errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value, exception.message)
+        errorObject.put(FeatureStringEnum.USERNAME.value, username)
 
         return errorObject.toString()
     }
