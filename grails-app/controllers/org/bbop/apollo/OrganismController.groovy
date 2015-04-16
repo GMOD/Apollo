@@ -74,12 +74,10 @@ class OrganismController {
         } else if (!refSeqFile.exists()) {
             log.error("Reference sequence file does not exists: " + refSeqFile.absolutePath)
             organism.valid = false
-        }
-        else if(!trackListFile.text.contains("WebApollo")){
+        } else if (!trackListFile.text.contains("WebApollo")) {
             log.error("Track is not WebApollo enabled: " + trackListFile.absolutePath)
             organism.valid = false
-        }
-        else {
+        } else {
             organism.valid = true
         }
         return organism.valid
@@ -129,8 +127,8 @@ class OrganismController {
         Organism organism = Organism.findById(organismId as Long)
         if (organism) {
             log.debug "found the organism ${organism}"
-            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
         } else {
             log.debug "no organism found"
         }
@@ -142,8 +140,14 @@ class OrganismController {
     }
 
     def findAllOrganisms() {
-       
+
         def organismList = permissionService.getOrganismsForCurrentUser()
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+        Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+
+
+//        request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value) == organism.directory
+
         log.debug "organism list: ${organismList}"
 
         log.debug "finding all organisms: ${Organism.count}"
@@ -154,16 +158,16 @@ class OrganismController {
             log.debug organism
             Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId", ["organismId": organism.id])[0]
             JSONObject jsonObject = [
-                id: organism.id,
-                commonName: organism.commonName,
-                blatdb: organism.blatdb,
-                directory: organism.directory,
-                annotationCount: geneCount,
-                sequences: organism.sequences?.size(),
-                genus: organism.genus,
-                species: organism.species,
-                valid: organism.valid,
-                currentOrganism: request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)==organism.directory
+                    id             : organism.id,
+                    commonName     : organism.commonName,
+                    blatdb         : organism.blatdb,
+                    directory      : organism.directory,
+                    annotationCount: geneCount,
+                    sequences      : organism.sequences?.size(),
+                    genus          : organism.genus,
+                    species        : organism.species,
+                    valid          : organism.valid,
+                    currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
             ] as JSONObject
             jsonArray.add(jsonObject)
         }
