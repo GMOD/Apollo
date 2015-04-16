@@ -32,7 +32,7 @@ grails {
             dataSource.driverClassName = "com.mysql.jdbc.Driver"
             dataSource.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             dataSource.url = "jdbc:mysql://localhost/apollo-production"
-            dataSource.properties {
+            dataSource.properties = {
                 // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                 jmxEnabled = true
                 initialSize = 5
