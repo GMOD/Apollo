@@ -22,7 +22,7 @@ grails {
             dataSource{
                 dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
                 username = "<CHANGEME>"
-                password "<CHANGEME>"
+                password = "<CHANGEME>"
                 driverClassName = "com.postgresql.Driver"
                 dialect = org.hibernate.dialect.PostgresPlusDialect
                 url = "jdbc:mysql://localhost/apollo-production"

@@ -28,7 +28,7 @@ grails {
         production {
             dataSource{
                 username = "<CHANGEME>"
-                password "<CHANGEME>"    
+                password = "<CHANGEME>"    
                 dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
                 driverClassName = "com.mysql.jdbc.Driver"
                 dialect = org.hibernate.dialect.MySQL5InnoDBDialect
