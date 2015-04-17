@@ -457,6 +457,7 @@ class RequestHandlingService {
 
         log.info "RHS::adding transcript return object ${inputObject?.size()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        println "writing feature for org ${sequence.organism.commonName}"
 
         log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
         log.info "sequence ${sequence}"
@@ -467,7 +468,7 @@ class RequestHandlingService {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
             log.debug "copied jsonTranscript ${jsonTranscript}"
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence.name)
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence)
 
             // should automatically write to history
             transcript.save(flush: true)

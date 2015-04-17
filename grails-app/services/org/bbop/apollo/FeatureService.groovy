@@ -123,20 +123,17 @@ class FeatureService {
     /**
      * From Gene.addTranscript
      * @param jsonTranscript
-     * @param trackName
      * @param isPseudogene
      * @return
      */
-    def generateTranscript(JSONObject jsonTranscript, String trackName, boolean isPseudogene = false) {
+    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean isPseudogene = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
         log.debug "gene ${gene}"
-        trackName = trackName.startsWith("Annotations-") ? trackName.substring("Annotations-".size()) : trackName
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
-        Sequence sequence = Sequence.findByName(trackName)
         User owner = permissionService.findUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {

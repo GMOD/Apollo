@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -14,6 +15,7 @@ class AnnotatorController {
 
     def featureService
     def requestHandlingService
+    def permissionService
 
     def index() {
         String uuid = UUID.randomUUID().toString()
@@ -111,30 +113,37 @@ class AnnotatorController {
 
     def findAnnotationsForSequence(String sequenceName,String request) {
         JSONObject returnObject = createJSONFeatureContainer()
+        if(sequenceName && !Sequence.countByName(sequenceName)) return
 
-        Sequence sequence = Sequence.findByName(sequenceName)
+        if(sequenceName){
+            returnObject.track = sequenceName
+        }
+
+        Sequence sequence
+        Organism organism
+        if(returnObject.has("track")){
+            sequence = permissionService.checkPermissions(returnObject,PermissionEnum.READ)
+            organism = sequence.organism
+        }
+        else{
+            organism = permissionService.checkPermissionsForOrganism(returnObject,PermissionEnum.READ)
+        }
+        // find all features for current organism
+
         Integer index = Integer.parseInt(request)
 
         // TODO: should only be returning the top-level features
         List<Feature> allFeatures
         if(!sequence){
-            // find all features for current organism
-            Session session = SecurityUtils.subject.getSession(false)
-            String organismIdString = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value)
-            Long organismId
             try {
-                organismId = Long.parseLong(organismIdString?.trim())
-                allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o.id = :organismId",[organismId:organismId])
-                log.info "found features ${allFeatures.size()} -> ${organismId}"
+                allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism",[organism:organism])
             } catch (e) {
-                log.error "error parsing ${organismIdString}, returning no features ${e}"
                 allFeatures = new ArrayList<>()
+                log.error(e)
             }
-
-
         }
         else{
-            allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s where s.name = :sequenceName and f.childFeatureRelationships is empty",[sequenceName: sequenceName])
+            allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism",[sequenceName: sequenceName,organism:organism])
         }
 
         for (Feature feature in allFeatures) {
