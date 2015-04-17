@@ -21,7 +21,7 @@ script to output to the data directory that we configured in config.properties o
 After initializing the data directory, add the WebApollo plugin tracks using the `add-webapollo-plugin.pl`. It takes a
 'trackList.json' as an argument.
 
-    bin/add-webapollo-plugin.pl -i /opt/apollo/data/trackList.json
+    client/apollo/bin/add-webapollo-plugin.pl -i /opt/apollo/data/trackList.json
 
 ### split_gff_by_source.pl
 
