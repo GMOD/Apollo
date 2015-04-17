@@ -240,7 +240,6 @@ public class UserManager {
             //  - one listing read-only users
             new_permissions.clear();
             TrackConfiguration track = trackEntry.getValue();
-            System.out.println("Track " + track.getName());
             for (TrackAutoPermissionsGroup trackPermissions : track.getAutoPermissions()) {
                 // If this trackPermissions applies to username
                 //
