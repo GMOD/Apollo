@@ -157,9 +157,33 @@ class AnnotatorController {
 
     }
 
-    def version(){
+    def version(){ }
 
+    /**
+     * TODO: return an AnnotatorStateInfo object
+     */
+    def getAppState(){
+        // returns a JSON object to AnnotatorStateInfo . . with the current ssate
     }
 
+
+
+    /**
+     * TODO: return an AnnotatorStateInfo object
+     */
+    def setCurrentOrganism(Long organismId){
+        // set the current organism
+
+        getAppState()
+    }
+
+    /**
+     * TODO: return an AnnotatorStateInfo object
+     */
+    def setCurrentOrganismAndSequence(Long organismId,Long sequenceId){
+        // set the current organism and sequence Id (if both)
+
+        getAppState()
+    }
 
 }

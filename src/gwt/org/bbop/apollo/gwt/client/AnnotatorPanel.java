@@ -170,7 +170,7 @@ public class AnnotatorPanel extends Composite {
                     selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
                     sequenceList.setText(selectedSequenceName);
                 }
-                loadSequences();
+//                loadSequences();
                 annotationInfoList.clear();
                 filterList();
 //                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
@@ -191,7 +191,7 @@ public class AnnotatorPanel extends Composite {
                         switch(authenticationEvent.getAction()){
                             case PERMISSION_CHANGED:
                                 PermissionEnum hiPermissionEnum = authenticationEvent.getHighestPermission();
-                                if(MainPanel.isCurrentUserAdmin()){
+                                if(MainPanel.getInstance().isCurrentUserAdmin()){
                                     hiPermissionEnum = PermissionEnum.ADMINISTRATE;
                                 }
                                 boolean editable = false;
@@ -405,98 +405,96 @@ public class AnnotatorPanel extends Composite {
 
     }
 
-    private void loadSequences() {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-                if (selectedSequenceName == null && array.size() > 0) {
-                    selectedSequenceName = array.get(0).isObject().get("name").isString().stringValue();
-                }
-                sequenceOracle.clear();
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    SequenceInfo sequenceInfo = new SequenceInfo();
-                    sequenceInfo.setName(object.get("name").isString().stringValue());
-                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-                    sequenceOracle.add(sequenceInfo.getName());
-//                    sequenceList.addItem(sequenceInfo.getName());
-                    if (selectedSequenceName.equals(sequenceInfo.getName())) {
-                        sequenceList.setText(sequenceInfo.getName());
-//                        sequenceList.setSelectedIndex(i);
-                    }
-                }
-
-//                reload();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
-    }
+//    private void loadSequences() {
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+//                JSONArray array = returnValue.isArray();
+//
+//                if (selectedSequenceName == null && array.size() > 0) {
+//                    selectedSequenceName = array.get(0).isObject().get("name").isString().stringValue();
+//                }
+//                sequenceOracle.clear();
+//                for (int i = 0; i < array.size(); i++) {
+//                    JSONObject object = array.get(i).isObject();
+//                    SequenceInfo sequenceInfo = new SequenceInfo();
+//                    sequenceInfo.setName(object.get("name").isString().stringValue());
+//                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
+//                    sequenceOracle.add(sequenceInfo.getName());
+//                    if (selectedSequenceName.equals(sequenceInfo.getName())) {
+//                        sequenceList.setText(sequenceInfo.getName());
+//                    }
+//                }
+//
+////                reload();
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Window.alert("Error loading organisms");
+//            }
+//        };
+//        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
+//    }
 
     private String getType(JSONObject internalData) {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
     public void reload() {
-        if (selectedSequenceName == null) {
-            selectedSequenceName = MainPanel.currentSequenceName;
-            loadSequences();
-        }
-
-        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + selectedSequenceName+"&request="+requestIndex;
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
-                // returns
-                if(localRequestValue<=requestIndex){
-                    return;
-                }
-                else{
-                    requestIndex = localRequestValue ;
-                }
-
-                JSONArray array = returnValue.isObject().get("features").isArray();
-                annotationInfoList.clear();
-
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    GWT.log(object.toString());
-
-
-                    AnnotationInfo annotationInfo = generateAnnotationInfo(object);
-                    annotationInfoList.add(annotationInfo);
-                }
-
-//                features.setAnimationEnabled(true);
-                GWT.log("# of annoations: " + filteredAnnotationList.size());
-
-                filterList();
-                dataGrid.redraw();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
+//        if (selectedSequenceName == null) {
+//            selectedSequenceName = MainPanel.getInstance().getCurrentSequence();
+//            loadSequences();
+//        }
+//
+//        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + selectedSequenceName+"&request="+requestIndex;
+//        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+//        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+//                long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
+//                // returns
+//                if(localRequestValue<=requestIndex){
+//                    return;
+//                }
+//                else{
+//                    requestIndex = localRequestValue ;
+//                }
+//
+//                JSONArray array = returnValue.isObject().get("features").isArray();
+//                annotationInfoList.clear();
+//
+//                for (int i = 0; i < array.size(); i++) {
+//                    JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+//
+//
+//                    AnnotationInfo annotationInfo = generateAnnotationInfo(object);
+//                    annotationInfoList.add(annotationInfo);
+//                }
+//
+////                features.setAnimationEnabled(true);
+//                GWT.log("# of annoations: " + filteredAnnotationList.size());
+//
+//                filterList();
+//                dataGrid.redraw();
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Window.alert("Error loading organisms");
+//            }
+//        };
+//        try {
+//            builder.setCallback(requestCallback);
+//            builder.send();
+//        } catch (RequestException e) {
+//            // Couldn't connect to server
+//            Window.alert(e.getMessage());
+//        }
     }
 
     private void filterList() {

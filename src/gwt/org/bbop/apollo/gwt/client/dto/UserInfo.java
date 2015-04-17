@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by ndunn on 12/18/14.
  */
-public class UserInfo {
+public class UserInfo implements HasJSON {
     private Long userId ;
     private String firstName;
     private String lastName;

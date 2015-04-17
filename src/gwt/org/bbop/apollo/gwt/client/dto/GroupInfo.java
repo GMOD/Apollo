@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by ndunn on 12/18/14.
  */
-public class GroupInfo {
+public class GroupInfo implements HasJSON{
 
     private String name;
     private Integer numberOfUsers;
@@ -99,7 +99,7 @@ public class GroupInfo {
         int index = 0 ;
         for(String organism : organismPermissionMap.keySet()){
             JSONObject orgPermission = new JSONObject();
-            orgPermission.put(organism,new JSONString(organismPermissionMap.get(organism).toJSON()));
+            orgPermission.put(organism,organismPermissionMap.get(organism).toJSON());
             organismPermissions.set(index,orgPermission);
             ++index ;
         }

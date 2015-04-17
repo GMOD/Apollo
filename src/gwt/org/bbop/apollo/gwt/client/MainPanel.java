@@ -42,26 +42,32 @@ public class MainPanel extends Composite {
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
-
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
-
 
     private boolean toggleOpen = true;
     private String rootUrl;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
-    private static UserInfo currentUser; // the current logged-in user
     // should I use a getter, or is this fine?
     static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
-    private static OrganismInfo currentOrganism; // the current logged-in user
     public static Long currentOrganismId = null;
     public static String currentSequenceName = null;
+
+    private UserInfo currentUser ;
+    private OrganismInfo currentOrganism ;
+    private List<SequenceInfo> currentSequenceList ; // sequence list for current organisms
+    private SequenceInfo currentSequence;
+    private List<OrganismInfo> organismInfoList ; // list of organisms for user
+    private Annotator rootAnnotator ;
+    private static MainPanel instance ;
+
 
 
     // debug
     private Boolean showFrame = false;
     private int maxUsernameLength = 15;
+
 
     @UiField
     Button dockOpenClose;
@@ -85,10 +91,6 @@ public class MainPanel extends Composite {
     static SplitLayoutPanel mainSplitPanel;
     @UiField
     static TabLayoutPanel detailTabs;
-//    @UiField
-//    static ListBox organismList;
-//    @UiField(provided = true)
-//    static SuggestBox sequenceList;
     @UiField
     FlowPanel westPanel;
     @UiField
@@ -105,10 +107,27 @@ public class MainPanel extends Composite {
     Label currentSequenceDisplay;
 
 
-//    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
+    public static MainPanel getInstance(){
+         if(instance!=null)   {
+             return instance ;
+         }
+        else{
+             Window.alert("No instance available . . initialized?");
+             return null ;
+         }
+    }
+
+    public static MainPanel getInstance(Annotator annotator){
+        if(instance==null)   {
+            instance = new MainPanel(annotator);
+        }
+        return instance ;
+    }
 
 
-    public MainPanel() {
+    MainPanel(Annotator annotator) {
+        this.rootAnnotator = annotator ;
+        instance = this;
         exportStaticMethod();
 //        sequenceList = new SuggestBox(sequenceOracle);
 
@@ -198,8 +217,11 @@ public class MainPanel extends Composite {
             }
         });
 
+
         loginUser();
     }
+
+
 
     private void updatePermissionsForOrganism() {
         GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
@@ -409,6 +431,57 @@ public class MainPanel extends Composite {
 //
 //    }
 
+    public void getAppState(){
+        String url = rootUrl + "/annotator/getAppState";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+
+                for (int i = 0; i < array.size(); i++) {
+                    JSONObject object = array.get(i).isObject();
+                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
+//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+                    if (organismInfo.isCurrent()) {
+                        currentOrganismId = Long.parseLong(organismInfo.getId());
+                        currentOrganism = organismInfo;
+                        currentOrganismDisplay.setHTML(currentOrganism.getName());
+//                        trackInfoList.setSelectedIndex(i);
+                    }
+                }
+
+                if (currentOrganismId == null && array.size() > 0) {
+                    JSONObject rootObject = array.get(0).isObject();
+                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
+                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
+                    currentOrganismDisplay.setHTML(currentOrganism.getName());
+//                    trackInfoList.setSelectedIndex(0);
+                }
+                updatePermissionsForOrganism();
+
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
+                Annotator.eventBus.fireEvent(contextSwitchEvent);
+//                loadReferenceSequences();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
+
+    }
+
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
      *
@@ -551,9 +624,6 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
-    public static UserInfo getCurrentUser() {
-        return currentUser;
-    }
 
     public static String executeFunction(String name) {
         return executeFunction(name, JavaScriptObject.createObject());
@@ -625,8 +695,48 @@ public class MainPanel extends Composite {
 
     }
 
-    public static boolean isCurrentUserAdmin() {
+    public boolean isCurrentUserAdmin() {
         return (currentUser != null && currentUser.getRole().equals("admin"));
+    }
+
+    public UserInfo getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(UserInfo currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public OrganismInfo getCurrentOrganism() {
+        return currentOrganism;
+    }
+
+    public void setCurrentOrganism(OrganismInfo currentOrganism) {
+        this.currentOrganism = currentOrganism;
+    }
+
+    public List<SequenceInfo> getCurrentSequenceList() {
+        return currentSequenceList;
+    }
+
+    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
+        this.currentSequenceList = currentSequenceList;
+    }
+
+    public SequenceInfo getCurrentSequence() {
+        return currentSequence;
+    }
+
+    public void setCurrentSequence(SequenceInfo currentSequence) {
+        this.currentSequence = currentSequence;
+    }
+
+    public List<OrganismInfo> getOrganismInfoList() {
+        return organismInfoList;
+    }
+
+    public void setOrganismInfoList(List<OrganismInfo> organismInfoList) {
+        this.organismInfoList = organismInfoList;
     }
 
 }

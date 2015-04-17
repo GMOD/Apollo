@@ -8,6 +8,8 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.ExportEvent;
 import org.bbop.apollo.gwt.client.event.ExportEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -28,7 +30,7 @@ public class Annotator implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        MainPanel mainPanel = new MainPanel();
+        MainPanel mainPanel = MainPanel.getInstance(this);
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
         String rootUrl = dictionary.get("rootUrl");
@@ -42,21 +44,8 @@ public class Annotator implements EntryPoint {
         eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
             }
         });
-
-//        Annotator.eventBus.addHandler(ExportEvent.TYPE, new ExportEventHandler() {
-//            @Override
-//            public void onExport(ExportEvent exportEvent) {
-//                GWT.log("handling gff3 export");
-////                popupPanel.setWidget(new Label("export GFF3"));
-////                popupPanel.setModal(true);
-////                popupPanel.show();
-//            }
-//        });
-
     }
-
 
 }

@@ -233,7 +233,7 @@ public class SequencePanel extends Composite {
                         switch (authenticationEvent.getAction()) {
                             case PERMISSION_CHANGED:
                                 PermissionEnum hiPermissionEnum = authenticationEvent.getHighestPermission();
-                                if (MainPanel.isCurrentUserAdmin()) {
+                                if (MainPanel.getInstance().isCurrentUserAdmin()) {
                                     hiPermissionEnum = PermissionEnum.ADMINISTRATE;
                                 }
                                 boolean allowExport = false;

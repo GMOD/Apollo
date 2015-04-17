@@ -454,7 +454,7 @@ public class UserPanel extends Composite {
 
             if (saveButton.isVisible()) {
                 roleList.setVisible(true);
-                UserInfo currentUser = MainPanel.getCurrentUser();
+                UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
                 roleList.setSelectedIndex(0);
                 roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin"));
 
@@ -480,7 +480,7 @@ public class UserPanel extends Composite {
             userRow2.setVisible(true);
             passwordRow.setVisible(true);
 
-            UserInfo currentUser = MainPanel.getCurrentUser();
+            UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
 
             passwordRow.setVisible(currentUser.getRole().equals("admin") || selectedUserInfo.getEmail().equals(currentUser.getEmail()));
 

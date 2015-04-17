@@ -10,7 +10,7 @@ import com.google.gwt.user.client.Window;
 /**
  * Created by ndunn on 12/18/14.
  */
-public class OrganismInfo {
+public class OrganismInfo implements HasJSON{
 
     // permanent key
     private String id;
