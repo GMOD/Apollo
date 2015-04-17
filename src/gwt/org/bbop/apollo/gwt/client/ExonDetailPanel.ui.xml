@@ -49,7 +49,7 @@
                             <b:InputGroupButton>
                                 <b:Button ui:field="decreaseFivePrime" icon="ARROW_LEFT"/>
                             </b:InputGroupButton>
-                            <b:InputGroupAddon ui:field="fivePrimeField"/>
+                            <b:TextBox ui:field="fivePrimeField" text="-"/>
                             <b:InputGroupButton>
                                 <b:Button ui:field="increaseFivePrime" icon="ARROW_RIGHT"/>
                             </b:InputGroupButton>
@@ -63,7 +63,7 @@
                             <b:InputGroupButton>
                                 <b:Button ui:field="decreaseThreePrime" icon="ARROW_LEFT"/>
                             </b:InputGroupButton>
-                            <b:InputGroupAddon ui:field="threePrimeField"/>
+                            <b:TextBox ui:field="threePrimeField" text="-"/>
                             <b:InputGroupButton>
                                 <b:Button ui:field="increaseThreePrime" icon="ARROW_RIGHT"/>
                             </b:InputGroupButton>
