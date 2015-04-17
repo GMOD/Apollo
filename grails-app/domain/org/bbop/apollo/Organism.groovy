@@ -11,6 +11,7 @@ class Organism {
         genus nullable: true
         valid nullable: true
         blatdb nullable: true
+        commonName nullable: false
     }
 
     //Integer organismId;

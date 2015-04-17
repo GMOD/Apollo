@@ -457,7 +457,7 @@ class RequestHandlingService {
 
         log.info "RHS::adding transcript return object ${inputObject?.size()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        println "writing feature for org ${sequence.organism.commonName}"
+        println "writing feature for org ${sequence.organism}"
 
         log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
         log.info "sequence ${sequence}"
