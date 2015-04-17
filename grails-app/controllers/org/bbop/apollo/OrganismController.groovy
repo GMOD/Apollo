@@ -18,6 +18,7 @@ class OrganismController {
 
     def sequenceService
     def permissionService
+    def requestHandlingService
 
 
     @Transactional
@@ -156,13 +157,15 @@ class OrganismController {
         for (def organism in organismList) {
             log.debug "TEST123"
             log.debug organism
-            Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId", ["organismId": organism.id])[0]
+//            Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId", ["organismId": organism.id])[0]
+
+            Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)",[organism:organism,viewableTypes:requestHandlingService.viewableAnnotationList])[0] as Integer
             JSONObject jsonObject = [
                     id             : organism.id,
                     commonName     : organism.commonName,
                     blatdb         : organism.blatdb,
                     directory      : organism.directory,
-                    annotationCount: geneCount,
+                    annotationCount: annotationCount,
                     sequences      : organism.sequences?.size(),
                     genus          : organism.genus,
                     species        : organism.species,

@@ -486,23 +486,13 @@ class PermissionService {
         Organism organism
         String trackName = null
         if(inputObject.has("track")){
-            println "has track ${inputObject.track}"
             trackName = fixTrackHeader(inputObject.track)
-            println "track name ${trackName}"
-        }
-        else{
-            println "does not have a track"
         }
 
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
-
             Sequence sequence = trackName ? Sequence.findByName(trackName) : null
-            println "returning a sequence ${sequence} for track ${trackName}"
             return sequence
-        }
-        else{
-            println "why is test here? "
         }
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
