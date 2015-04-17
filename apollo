@@ -63,17 +63,17 @@ function check_configs_for_release(){
 
 function check_configs(){
 
-	grails_executeable=$(which grails)
-	git_executable=$(which git)
+    grails_executeable=$(which grails)
+    git_executable=$(which git)
 
-	if ! [ -x "$grails_executeable" ] ; then
-	   echo "You must install 'grails' to install web apollo."
-	   exit 1 ;
-	fi
-	if ! [ -x "$git_executable" ] ; then
-	   echo "You must install 'git' to install web apollo."
-	   exit 1 ;
-	fi
+    if ! [ -x "$grails_executeable" ] ; then
+       echo "You must install 'grails' to install web apollo."
+       exit 1 ;
+    fi
+    if ! [ -x "$git_executable" ] ; then
+       echo "You must install 'git' to install web apollo."
+       exit 1 ;
+    fi
 
 }
 
@@ -83,7 +83,7 @@ if [[ $1 == "devmode" ]];then
     # should call the copy target first
     check_configs
     ant devmode &
-	grails -reloading run-app  
+    grails -reloading run-app  
 elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
@@ -94,7 +94,7 @@ elif [[ $1 == "debug" ]];then
     check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
     ant devmode &
-	grails -reloading debug
+    grails -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
@@ -107,8 +107,8 @@ elif [[ $1 == "test-unit" ]];then
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
-	# this makes it globally available
-	rm -f src/java/apollo-config.groovy
+    # this makes it globally available
+    rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
     ant gwtc &&  grails war
@@ -127,8 +127,8 @@ elif [[ $1 == "clean-all" ]];then
     rm -rf JBrowse-dev
     rm -rf src/main/webapp/jbrowse
     rm -f *.zip
-	ant clean-all
-	grails clean 
+    ant clean-all
+    grails clean 
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
     ant clean &&  grails clean

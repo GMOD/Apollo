@@ -13,8 +13,8 @@ done_message () {
 echo > setup.log;
 echo -n "Installing Perl prerequisites ..."
 if [ -f bin/cpanm ]; then 
-	echo  "Prerequisites installed, finished.";
-	exit 0; 
+    echo  "Prerequisites installed, finished.";
+    exit 0; 
 fi
 
 if ! ( perl -MExtUtils::MakeMaker -e 1 >/dev/null 2>&1); then

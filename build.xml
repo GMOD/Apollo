@@ -167,7 +167,7 @@
                 <not>
                     <filename name="sample_data/**"/>
                 </not>
-	    </fileset>
+    </fileset>
         </move>
         <delete file="JBrowse-${jbrowse.version}.zip"/>
         <delete file="JBrowse-${jbrowse.version}"/>
