@@ -10,6 +10,6 @@ class UserOrganismPreference extends UserPreference{
 
     Organism organism
     String defaultSequence
-    Boolean currentOrganism = false
+    Boolean currentOrganism
 
 }

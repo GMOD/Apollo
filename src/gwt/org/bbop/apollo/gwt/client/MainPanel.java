@@ -138,7 +138,7 @@ public class MainPanel extends Composite {
                         currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
                         currentOrganismDisplay.setHTML(currentOrganism.getName());
                         updateGenomicViewer();
-                        loadReferenceSequences(true);
+//                        loadReferenceSequences();
                         updatePermissionsForOrganism();
                         break;
                 }
@@ -154,6 +154,7 @@ public class MainPanel extends Composite {
                 currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
                 currentOrganism = contextSwitchEvent.getOrganismInfo();
                 currentOrganismDisplay.setHTML(currentOrganism.getName());
+//                Window.alert("context switching org to "+currentOrganism.getName());
 
 //                for (int i = 0; i < organismList.getItemCount(); i++) {
 //                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
@@ -168,9 +169,11 @@ public class MainPanel extends Composite {
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
+//                        Window.alert("should be setting org "+currentOrganism.getName());
                         currentSequenceName= response.getText();
                         currentSequenceDisplay.setHTML(currentSequenceName);
 //                        sequenceList.setText(innerSequenceName);
+//                        Window.alert("going to update the genomic viewer");
                         updateGenomicViewer();
                     }
 
@@ -350,65 +353,61 @@ public class MainPanel extends Composite {
         frame.setUrl(trackListString);
     }
 
-    public void loadReferenceSequences() {
-        loadReferenceSequences(false);
-    }
-
     /**
      * could use an sequence callback . . . however, this element needs to use the callback directly.
      */
-    public void loadReferenceSequences(final boolean loadFirstSequence) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-//                sequenceOracle.clear();
-//                sequenceList.setText("");
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    SequenceInfo sequenceInfo = new SequenceInfo();
-                    sequenceInfo.setName(object.get("name").isString().stringValue());
-                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
-                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-                    if (object.get("default") != null) {
-                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
-                    }
-//                    sequenceOracle.add(sequenceInfo.getName());
-                    if (sequenceInfo.isDefault()) {
-                        GWT.log("setting name to default: " + sequenceInfo.getName());
-//                        sequenceList.setText(sequenceInfo.getName());
-                        currentSequenceName = sequenceInfo.getName();
-                    }
-                    else if (currentSequenceName != null && sequenceInfo.getName().equals(currentSequenceName)) {
-                        GWT.log("setting name: " + currentSequenceName);
-//                        sequenceList.setText(sequenceInfo.getName());
-                        currentSequenceName = sequenceInfo.getName();
-                    }
-                }
-
-                if (array.size() > 0) {
-                    if (currentSequenceName == null) {
-                        currentSequenceName = array.get(0).isObject().get("name").isString().stringValue();
-                    }
-                }
-                currentSequenceDisplay.setHTML(currentSequenceName);
-
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, currentOrganism);
-                Annotator.eventBus.fireEvent(contextSwitchEvent);
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        // TODO: move to a javscript function in iFrame?
-        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
-
-    }
+//    public void loadReferenceSequences() {
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+////                sequenceOracle.clear();
+////                sequenceList.setText("");
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+//                JSONArray array = returnValue.isArray();
+//
+//
+//                for (int i = 0; i < array.size(); i++) {
+//                    JSONObject object = array.get(i).isObject();
+//                    SequenceInfo sequenceInfo = new SequenceInfo();
+//                    sequenceInfo.setName(object.get("name").isString().stringValue());
+//                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
+//                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
+//                    if (object.get("default") != null) {
+//                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
+//                    }
+////                    sequenceOracle.add(sequenceInfo.getName());
+//                    if (sequenceInfo.isDefault()) {
+//                        GWT.log("setting name to default: " + sequenceInfo.getName());
+////                        sequenceList.setText(sequenceInfo.getName());
+//                        currentSequenceName = sequenceInfo.getName();
+//                    }
+//                    else if (currentSequenceName != null && sequenceInfo.getName().equals(currentSequenceName)) {
+//                        GWT.log("setting name: " + currentSequenceName);
+////                        sequenceList.setText(sequenceInfo.getName());
+//                        currentSequenceName = sequenceInfo.getName();
+//                    }
+//                }
+//
+//                if (array.size() > 0) {
+//                    if (currentSequenceName == null) {
+//                        currentSequenceName = array.get(0).isObject().get("name").isString().stringValue();
+//                    }
+//                }
+//                currentSequenceDisplay.setHTML(currentSequenceName);
+//
+//                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, currentOrganism);
+//                Annotator.eventBus.fireEvent(contextSwitchEvent);
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Window.alert("Error loading organisms");
+//            }
+//        };
+//        // TODO: move to a javscript function in iFrame?
+//        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
+//
+//    }
 
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
@@ -445,7 +444,9 @@ public class MainPanel extends Composite {
                 }
                 updatePermissionsForOrganism();
 
-                loadReferenceSequences(true);
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
+                Annotator.eventBus.fireEvent(contextSwitchEvent);
+//                loadReferenceSequences();
             }
 
             @Override

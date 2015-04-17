@@ -167,7 +167,7 @@ public class SequencePanel extends Composite {
         pager.setDisplay(dataGrid);
 
 
-        SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
+//        SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
 
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -496,6 +496,7 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
+//        Window.alert("reloading sequence panel");
         GWT.log("item count: " + organismList.getItemCount());
         if (organismList.getItemCount() > 0) {
             Long organismListId = Long.parseLong(organismList.getSelectedValue());

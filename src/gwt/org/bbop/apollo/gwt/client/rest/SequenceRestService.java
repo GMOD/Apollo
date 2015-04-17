@@ -76,23 +76,6 @@ public class SequenceRestService {
         RestService.sendRequest(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
     }
 
-    public static void setDefaultSequence(final String sequenceName) {
-
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                GWT.log("sequence: " + response.getText());
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                GWT.log("error setting sequence name: " + sequenceName);
-            }
-        };
-
-        setDefaultSequence(requestCallback, sequenceName);
-    }
-
     public static void generateLink(final ExportPanel exportPanel) {
         Dictionary dictionary = Dictionary.getDictionary("Options");
         final String rootUrl = dictionary.get("rootUrl");

@@ -69,19 +69,24 @@ class JbrowseController {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
-
-                    if(!userOrganismPreference){
+//                    UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false ")
+                    if(userOrganismPreference ==null){
+                        println "creating a new one!"
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 ,organism: organism
                                 ,defaultSequence: sequence.name
-                        ).save(insert:true)
+                                ,currentOrganism: true
+                        ).save(insert:true,flush:true)
                     }
                     else{
+                        println "updating an old one!!"
                         userOrganismPreference.defaultSequence = sequence.name
-                        userOrganismPreference.save()
+                        userOrganismPreference.currentOrganism = true
+                        userOrganismPreference.save(flush:true)
                     }
 
+                    println "222 - has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
 
                     organismJBrowseDirectory = organism.directory
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)

@@ -42,6 +42,7 @@ class SequenceController {
     def setDefaultSequence(Long id, String sequenceName) {
         log.debug "setting default sequences: ${params}"
         Organism organism = Organism.findById(id)
+        println "SETTIGN DEFAULT SEQUENCES ${id} -> ${organism.commonName} -> ${sequenceName}"
         if(!organism){
             throw new AnnotationException("Invalid organism id ${id}")
         }
@@ -62,23 +63,28 @@ class SequenceController {
                 sequence = organism.sequences.iterator().next()
         }
 
-        println "sequence found ${sequence} for ${sequenceName}"
+        println "sequence found ${sequence} for ${sequenceName} and rg ${organism.commonName}"
 
 
-        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false ")
         if(!userOrganismPreference){
+            println "creating a new one!"
             userOrganismPreference = new UserOrganismPreference(
                     user:currentUser
                     ,organism: organism
                     ,defaultSequence: sequence.name
                     ,currentOrganism: true
-            ).save(insert:true)
+            ).save(insert:true,flush:true,failOnError: true)
         }
         else{
+            println "updating an old one!!"
+//            userOrganismPreference.refresh()
             userOrganismPreference.defaultSequence = sequence.name
             userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save()
+            userOrganismPreference.save(flush:true,failOnError: true)
         }
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+
+        println "has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
 
 
         Session session = SecurityUtils.subject.getSession(false)
@@ -93,6 +99,7 @@ class SequenceController {
 
     @Transactional
     def loadSequences(Organism organism) {
+        println "LOADING SEQUENCES ${organism.commonName}"
         log.info "loading sequences for organism ${organism}"
         if (!organism.sequences) {
             sequenceService.loadRefSeqs(organism)
@@ -103,16 +110,21 @@ class SequenceController {
         String defaultName
         if(userOrganismPreference){
             defaultName = userOrganismPreference.defaultSequence
+            userOrganismPreference.currentOrganism = true
             request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,defaultName)
+            userOrganismPreference.save(flush:true)
         }
         else{
             defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
             userOrganismPreference = new UserOrganismPreference(
                     user:currentUser
                     ,organism: organism
+                    ,currentOrganism: true
                     ,defaultSequence: defaultName
-            ).save(insert:true)
+                    ,
+            ).save(insert:true,flush:true)
         }
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
 
         log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
