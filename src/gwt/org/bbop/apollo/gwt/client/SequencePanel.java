@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
@@ -31,10 +32,7 @@ import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -51,6 +49,9 @@ public class SequencePanel extends Composite {
     TextBox maxFeatureLength;
     @UiField
     ListBox organismList;
+    // TODO: a hack of a backing object fro the organism List
+    // key is the ID as we can have a dupe org?
+    Map<String,OrganismInfo> organismInfoMap = new TreeMap<>();
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -200,7 +201,8 @@ public class SequencePanel extends Composite {
                 Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
                 if (sequenceInfoSet.size() == 1) {
                     SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismList.getSelectedValue());
+                    OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
+                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(),organismInfo );
                     Annotator.eventBus.fireEvent(contextSwitchEvent);
                 }
             }
@@ -468,6 +470,7 @@ public class SequencePanel extends Composite {
                 JSONArray array = returnValue.isArray();
 
                 trackInfoList.clear();
+                organismInfoMap.clear();
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     OrganismInfo organismInfo = new OrganismInfo();
@@ -478,6 +481,7 @@ public class SequencePanel extends Composite {
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+                    organismInfoMap.put(organismInfo.getId(),organismInfo);
                 }
             }
 
