@@ -24,7 +24,9 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.HashMap;
@@ -98,9 +100,9 @@ public class MainPanel extends Composite {
     @UiField
     Button generateLink;
     @UiField
-    HTML currentOrganismDisplay;
+    org.gwtbootstrap3.client.ui.Label currentOrganismDisplay;
     @UiField
-    HTML currentSequenceDisplay;
+    Label currentSequenceDisplay;
 
 
 //    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
