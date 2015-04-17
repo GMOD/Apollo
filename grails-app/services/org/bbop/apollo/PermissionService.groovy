@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.util.Environment
 import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -538,6 +539,30 @@ class PermissionService {
         }
 
         return trackName ? Sequence.findByNameAndOrganism(trackName,organism) : null
+    }
+
+    Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
+        try {
+            Session session = SecurityUtils.subject.getSession(false)
+            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+            Integer permission = permissions.get(SecurityUtils.subject.principal)
+            PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
+
+            if (sessionPermissionsEnum == null) {
+                log.warn "No permissions found in session"
+                return false
+            }
+
+            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
+                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
+                return false
+            }
+            return true
+        } catch (e) {
+            log.error "Error checking permissions from session ${e}"
+            return false
+        }
+
     }
 
     //def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){

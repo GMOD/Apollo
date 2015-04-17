@@ -114,28 +114,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
-        try {
-            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-            Integer permission = permissions.get(SecurityUtils.subject.principal)
-            PermissionEnum sessionPermissionsEnum = permissionService.isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
-
-            if (sessionPermissionsEnum == null) {
-                log.warn "No permissions found in session"
-                return false
-            }
-
-            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
-                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
-                return false
-            }
-            return true
-        } catch (e) {
-            log.error "Error checking permissions from session ${e}"
-            return false
-        }
-
-    }
 
     def getDataAdapters() {
         log.debug "get data adapters !! ${params}"
@@ -145,7 +123,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray dataAdaptersArray = new JSONArray();
         returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
 
-        if (!checkPermissions(PermissionEnum.EXPORT)) {
+        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
             render returnObject
             return
         }
@@ -262,7 +240,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if (!checkPermissions(PermissionEnum.WRITE)) {
+        if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
         }
@@ -443,7 +421,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequence() {
         log.debug "getSequence ${params.data}"
-        if (!checkPermissions(PermissionEnum.EXPORT)) {
+        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
@@ -476,7 +454,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getGff3() {
         log.debug "getGff3 ${params.data}"
-        if (!checkPermissions(PermissionEnum.EXPORT)) {
+        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
@@ -498,15 +476,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getAnnotationInfoEditorData() {
         Sequence sequence
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         try {
-            sequence = permissionService.checkPermissions(returnObject, PermissionEnum.WRITE)
+            sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         } catch (e) {
             log.error(e)
             render new JSONObject() as JSON
             return
         }
 
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
 
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
