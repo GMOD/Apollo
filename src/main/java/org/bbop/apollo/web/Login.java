@@ -23,6 +23,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.reflect.Constructor;
 
 /**
  * Servlet implementation class LoginDynamic
@@ -32,20 +33,23 @@ public class Login extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private UserAuthentication userAuthentication;
-    
+
     /**
      * @see HttpServlet#HttpServlet()
      */
     public Login() {
         super();
     }
-    
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
             ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
-            userAuthentication = (UserAuthentication)Class.forName(serverConfig.getUserAuthenticationClass()).newInstance();
+            Constructor ctor = Class.forName(serverConfig.getUserAuthenticationClass())
+                .getDeclaredConstructor(ServerConfiguration.class);
+            ctor.setAccessible(true);
+            userAuthentication = (UserAuthentication)ctor.newInstance(serverConfig);
             if (!UserManager.getInstance().isInitialized()) {
                 ServerConfiguration.UserDatabaseConfiguration userDatabase = serverConfig.getUserDatabase();
                 UserManager.getInstance().initialize(userDatabase.getDriver(), userDatabase.getURL(), userDatabase.getUserName(), userDatabase.getPassword());
@@ -106,11 +110,11 @@ public class Login extends HttpServlet {
         catch (JSONException e2) {
         }
     }
-    
+
     private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         login(request, response, false);
     }
-    
+
     private void login(HttpServletRequest request, HttpServletResponse response, boolean forceRedirect) throws IOException {
         try {
             String username = userAuthentication.validateUser(request, response);

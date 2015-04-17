@@ -8,6 +8,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,11 +18,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
+import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class BrowserIdUserAuthentication implements UserAuthentication {
+
+    private ServerConfiguration serverConfig;
+
+    public BrowserIdUserAuthentication(ServerConfiguration serverConfig) {
+        this.serverConfig = serverConfig;
+    }
 
 //    @Override
 //    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,
@@ -58,7 +68,18 @@ public class BrowserIdUserAuthentication implements UserAuthentication {
             if (ok) {
                 JSONObject verificationJSON = JSONUtil.convertInputStreamToJSON(connection.getInputStream());
                 if (verificationJSON.getString("status").equals("okay")) {
-                    return verificationJSON.getString("email");
+                    String email = verificationJSON.getString("email");
+                    // Automatically add user if enabled
+                    UserManager umi = UserManager.getInstance();
+                    try {
+                        Set<String> users = umi.getUserNames();
+                        if(serverConfig.getAutoCreateUsers() && !users.contains(email)){
+                            umi.addUser(email);
+                            umi.setDefaultUserTrackPermissions(email, serverConfig.getTracks());
+                        }
+                    } catch(SQLException sqle) {
+                    }
+                    return email;
                 }
                 else {
                     throw new UserAuthenticationException("Error validating user");

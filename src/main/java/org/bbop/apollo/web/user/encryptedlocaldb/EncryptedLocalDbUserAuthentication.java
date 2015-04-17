@@ -21,11 +21,18 @@ import net.crackstation.PasswordHash;
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class EncryptedLocalDbUserAuthentication implements UserAuthentication {
+
+    private ServerConfiguration serverConfig;
+
+    public EncryptedLocalDbUserAuthentication(ServerConfiguration serverConfig) {
+        this.serverConfig = serverConfig;
+    }
 
 //    @Override
 //    public void generateUserLoginPage(HttpServlet servlet, HttpServletRequest request,

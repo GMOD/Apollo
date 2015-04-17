@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -24,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.bbop.apollo.web.user.UserAuthenticationException;
 import org.bbop.apollo.web.user.UserAuthentication;
 import org.bbop.apollo.web.user.UserManager;
+import org.bbop.apollo.web.config.ServerConfiguration;
 import org.bbop.apollo.web.util.JSONUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,17 +42,19 @@ public class DrupalUserAuthentication implements UserAuthentication {
 
     private final Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
-    /** 
+    /**
      * Variables with values derived from the drupal.xml config file
      */
     private String drupalUsername = null;
     private String drupalPassword = null;
     private String drupalURL = null;
+    private ServerConfiguration serverConfig = null;
 
     /**
-     * The class constructor.  
+     * The class constructor.
      */
-    public DrupalUserAuthentication() {
+    public DrupalUserAuthentication(ServerConfiguration serverConfig) {
+        this.serverConfig = serverConfig;
         try {
             // Read in the configuration settings.
 
@@ -101,10 +105,10 @@ public class DrupalUserAuthentication implements UserAuthentication {
         }
         catch (ParserConfigurationException e) {
             e.printStackTrace();
-        } 
+        }
         catch (SAXException e) {
             e.printStackTrace();
-        } 
+        }
         catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,11 +145,11 @@ public class DrupalUserAuthentication implements UserAuthentication {
             // If both the user name and password are set to '__SESSION__' then
             // this means the caller wants to authenticate using the Drupal
             // Session ID.  If not, then try to authenticate using credentials.
-            if (username.contentEquals("__SESSION__") && 
+            if (username.contentEquals("__SESSION__") &&
                 password.contentEquals("__SESSION__")) {
 
                 // First check the Drupal session cookie and see if it is
-                // associated with a valid user. This will only exist if 
+                // associated with a valid user. This will only exist if
                 // WebApollo is running on the same domain as the Drupal server.
                 // Checking the session ID allows WebApollo to auto login using
                 // for the Drupal user that is already logged in.
@@ -173,6 +177,18 @@ public class DrupalUserAuthentication implements UserAuthentication {
         catch (IOException e) {
             throw new UserAuthenticationException(e);
         }
+        if (returnName != null) {
+            UserManager umi = UserManager.getInstance();
+            try {
+                Set<String> users = umi.getUserNames();
+                if(serverConfig.getAutoCreateUsers() && !users.contains(returnName) ){
+                    umi.addUser(returnName);
+                    umi.setDefaultUserTrackPermissions(returnName, serverConfig.getTracks());
+                }
+            } catch(SQLException sqle) {
+                // Handle this?
+            }
+        }
         return returnName;
     }
 
@@ -190,10 +206,10 @@ public class DrupalUserAuthentication implements UserAuthentication {
     public String getAddUserURL() {
         return "/WEB-INF/jsp/user_interfaces/localdb/addUser.jsp";
     }
-    
+
     /**
      * Performs user authentication using the Drupal Session ID
-     * 
+     *
      *   The request object
      *
      * @return
@@ -224,7 +240,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
 
                     // Iterate through the matched records and get the matched name
                     if (rs.next()) {
-                         dname = rs.getString(1);    
+                         dname = rs.getString(1);
                     }
                     drupalConn.close();
                 }
@@ -238,31 +254,31 @@ public class DrupalUserAuthentication implements UserAuthentication {
 
     /**
      * Authenticates a user name and password with the Drupal database.
-     * 
+     *
      * Users that are blocked by Drupal will not pass validation checks.
-     * 
+     *
      * @param username
-     *   The user name to validate 
+     *   The user name to validate
      * @param password
      *   The password for the user.
-     * 
+     *
      * @return boolean
      *   TRUE if the user name and password are valid (and not blocked) FALSE
      *   otherwise.
-     * 
+     *
      * @throws SQLException
      */
     private boolean validateDrupalUser(String username, String password) throws SQLException {
-        
+
         boolean valid = false;
-        
+
         // Establish the connection with Drupal, and query the database for the given user
         Connection drupalConn = DriverManager.getConnection(drupalURL, drupalUsername, drupalPassword);
         String sql = "SELECT name, pass, status FROM users WHERE name = ?";
         PreparedStatement stmt = drupalConn.prepareStatement(sql);
         stmt.setString(1, username);
         ResultSet rs = stmt.executeQuery();
-        
+
         // Iterate through the matched records and see if the password matches
         if (rs.next()) {
 
@@ -294,7 +310,7 @@ public class DrupalUserAuthentication implements UserAuthentication {
 
     /**
      * The proceeding functions were copied from a post on the following site
-     * http://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html 
+     * http://docs.oracle.com/javase/tutorial/jdbc/basics/connecting.html
      **/
 
     private static String _password_itoa64() {
