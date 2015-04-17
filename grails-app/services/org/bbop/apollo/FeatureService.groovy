@@ -1120,7 +1120,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
                 log.debug "NO name using unique name"
-                gsolFeature.name = gsolFeature.uniqueName+"-${type}"
+                gsolFeature.name = gsolFeature.uniqueName+"-${type.get('name')}"
             }
 
             gsolFeature.save(failOnError: true)
