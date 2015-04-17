@@ -151,7 +151,6 @@ public class MainPanel extends Composite {
                 // need to set this before calling the sequence
                 currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
                 currentOrganism = contextSwitchEvent.getOrganismInfo();
-                Window.alert("current rog: "+currentOrganism.toJSON().toString());
                 currentOrganismDisplay.setHTML(currentOrganism.getName());
 
 //                for (int i = 0; i < organismList.getItemCount(); i++) {
@@ -395,7 +394,7 @@ public class MainPanel extends Composite {
                 }
                 currentSequenceDisplay.setHTML(currentSequenceName);
 
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, currentOrganism.getId());
+                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, currentOrganism);
                 Annotator.eventBus.fireEvent(contextSwitchEvent);
             }
 

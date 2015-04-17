@@ -13,17 +13,29 @@ public class ContextSwitchEvent extends GwtEvent<ContextSwitchEventHandler>{
 
     public static Type<ContextSwitchEventHandler> TYPE = new Type<ContextSwitchEventHandler>();
 
-    public OrganismInfo organismInfo;
-    public SequenceInfo sequenceInfo;
+    private OrganismInfo organismInfo;
+    private SequenceInfo sequenceInfo;
 
 //    public ContextSwitchEvent(OrganismInfo organismInfo,SequenceInfo sequenceInfo){
 //        this.organismInfo = organismInfo ;
 //        this.sequenceInfo = sequenceInfo ;
 //    }
 
+    public ContextSwitchEvent(OrganismInfo organismInfo) {
+        this.organismInfo = organismInfo ;
+    }
+
     public ContextSwitchEvent(String organismInfoId) {
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setId(organismInfoId);
+        this.organismInfo = organismInfo ;
+    }
+
+    public ContextSwitchEvent(String sequenceName, OrganismInfo organismInfo) {
+        SequenceInfo sequenceInfo = new SequenceInfo();
+        sequenceInfo.setName(sequenceName);
+        this.sequenceInfo = sequenceInfo ;
+
         this.organismInfo = organismInfo ;
     }
 

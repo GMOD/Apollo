@@ -142,7 +142,7 @@ public class OrganismPanel extends Composite {
                 if (singleSelectionModel.getSelectedObject()!=null) {
                     String orgId = singleSelectionModel.getSelectedObject().getId();
                     if(!MainPanel.currentOrganismId.toString().equals(orgId)){
-                        ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject().getId());
+                        ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject());
                         Annotator.eventBus.fireEvent(contextSwitchEvent);
                     }
                 }
