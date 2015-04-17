@@ -348,12 +348,10 @@ class RequestHandlingService {
         for (Gene gene : topLevelGenes) {
             for (Transcript transcript : transcriptService.getTranscripts(gene)) {
                 log.debug "Getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-//                    jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(transcript));
                 featureSet.add(transcript)
-//                    jsonFeatures.put(transcript as JSON);
             }
         }
-
+//
         // 1b. - handle psuedogenes
         List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
         for (Gene gene : listOfPseudogenes) {
@@ -363,12 +361,34 @@ class RequestHandlingService {
             }
         }
 
-        // 2. - handle transcripts
-        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-        log.debug "# of top level features ${topLevelTranscripts.size()}"
-        for (Transcript transcript1 in topLevelTranscripts) {
-            featureSet.add(transcript1)
+        // handle repeat regions
+        List<RepeatRegion> listOfRepeatRegions = RepeatRegion.executeQuery("select f from RepeatRegion f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
+        for (RepeatRegion repeatRegion : listOfRepeatRegions) {
+            log.debug " getting repeat region ${repeatRegion.uniqueName} "
+            featureSet.add(repeatRegion)
         }
+
+        // handle transposable elements
+        List<TransposableElement> listOfTransposableElements = TransposableElement.executeQuery("select f from TransposableElement f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
+        for (TransposableElement transposableElement : listOfTransposableElements) {
+            log.debug " getting transposable element ${transposableElement.uniqueName} "
+            featureSet.add(transposableElement)
+        }
+//
+        // 2. - handle transcripts
+//        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
+//        log.debug "# of top level features ${topLevelTranscripts.size()}"
+//        for (Transcript transcript1 in topLevelTranscripts) {
+//            featureSet.add(transcript1)
+//        }
+
+//        List<String> viewableAnnotationList = new ArrayList<>()
+//
+//        List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence,viewableAnnotationList:viewableAnnotationList])
+//        log.debug "# of top level features ${topLevelTranscripts.size()}"
+//        for (Feature transcript1 in topLevelTranscripts) {
+//            featureSet.add(transcript1)
+//        }
 
         log.debug "feature set size: ${featureSet.size()}"
 
@@ -1052,15 +1072,14 @@ class RequestHandlingService {
                 println "tagString ${tagString}"
                 println "valueString ${valueString}"
                 // a NonReservedProperty will always have a tag
-                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tagString,valueString,feature)
-                if(featureProperty){
+                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tagString, valueString, feature)
+                if (featureProperty) {
                     println "found the feature property . . . now we remvoe it!"
 //                    featurePropertyService.deleteProperty(feature,featureProperty)
                     feature.removeFromFeatureProperties(featureProperty)
                     feature.save()
-                    featureProperty.delete(flush: true )
-                }
-                else{
+                    featureProperty.delete(flush: true)
+                } else {
                     log.error "Could not find feature property to delete ${property as JSON}"
                 }
             }
@@ -1100,13 +1119,12 @@ class RequestHandlingService {
                 String newTag = newProperty.getString(FeatureStringEnum.TAG.value)
                 String newValue = newProperty.getString(FeatureStringEnum.VALUE.value)
 
-                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(oldTag,oldValue,feature)
-                if(feature){
+                FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(oldTag, oldValue, feature)
+                if (feature) {
                     featureProperty.tag = newTag
                     featureProperty.value = newValue
                     featureProperty.save()
-                }
-                else{
+                } else {
                     log.error("No feature property found for tag ${oldTag} and value ${oldValue} for feature ${feature}")
                 }
 //                editor.updateNonReservedProperty(feature, oldProperty.getString("tag"), oldProperty.getString("value"), newProperty.getString("tag"), newProperty.getString("value"));
