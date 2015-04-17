@@ -173,9 +173,10 @@ class FeatureRelationshipService {
     }
 
     List<Feature> getChildren(Feature feature) {
-        List<Feature> childFeatures = (List<Feature>) Feature.executeQuery("select fr.childFeature from FeatureRelationship fr where fr.parentFeature = :parentFeature",["parentFeature":feature])
-        return childFeatures
-//        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
+//        List<Feature> childFeatures = (List<Feature>) Feature.executeQuery("select fr.childFeature from FeatureRelationship fr where fr.parentFeature = :parentFeature",["parentFeature":feature])
+//        return childFeatures
+        // HQL commented out due to issue with exporting GFF3 (inability of calculating CDS segments)
+        return FeatureRelationship.findAllByParentFeature(feature)*.childFeature
     }
 
     /**
