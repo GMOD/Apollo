@@ -194,6 +194,42 @@ Defines how user authentication is handled. It can point to any class implementi
 -   `org.bbop.apollo.web.user.drupal.DrupalUserAuthentication`
     -   Allows sharing credentials and user authentication sessions with an existing Drupal database. Uses extra drupal.xml file class. Added in 1.0.4.
 
+### Auto-creation of users
+
+The ability to add new users was added in 1.0.5-SNAPSHOT for authentication methods which rely on upstream user databases, so for methods such as these:
+
+* OAuth
+* RemoteUser
+* BrowserID
+* Drupal
+
+
+If enabled, as soon as the first time a user logs in successfully, they'll be created in the database if they don't
+exist yet. Additionally, automatic permissions will possibly be granted to them.
+
+#### Permissions for Auto-created users
+
+Having users automatically created is one thing, but it wasn't that much good until they were automatically granted
+permissions on first log-in. These are track specific permissions, and can enable read, write, and publish permissions
+
+This functionality also allows for whitelisting of users and domains:
+
+``` xml
+<default_permissions>
+     <auto_grant>
+        <users>
+            <user>username@fqdn.edu</user>        
+            <user>username2@fqdn.edu</user>
+        </users>
+        <domains>
+            <domain>@university.edu</domain>
+         </domains>
+         <read />
+         <publish />
+   </auto_grant>
+</default_permissions>
+```
+
 
 ### Annotation information
 
