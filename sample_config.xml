@@ -127,7 +127,7 @@
                     <user>username2@fqdn.edu</user>
                 </users>
                 <domains>
-                    <domain>university.edu</domain>
+                    <domain>@university.edu</domain>
                 </domains>
                 <read />
                 <publish />
