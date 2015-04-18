@@ -277,7 +277,8 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
-                    loadOrganisms();
+                    getAppState();
+//                    loadOrganisms();
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
@@ -438,33 +439,33 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+                AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
+                List<OrganismInfo> organismList = appStateInfo.getOrganismList();
 
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
-//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    if (organismInfo.isCurrent()) {
-                        currentOrganismId = Long.parseLong(organismInfo.getId());
-                        currentOrganism = organismInfo;
-                        currentOrganismDisplay.setHTML(currentOrganism.getName());
-//                        trackInfoList.setSelectedIndex(i);
-                    }
-                }
+//                for (int i = 0; i < organismList.size(); i++) {
+//                    JSONObject object = organismList.get(i).isObject();
+////                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+//                    if (organismInfo.isCurrent()) {
+//                        currentOrganismId = Long.parseLong(organismInfo.getId());
+//                        currentOrganism = organismInfo;
+//                        currentOrganismDisplay.setHTML(currentOrganism.getName());
+////                        trackInfoList.setSelectedIndex(i);
+//                    }
+//                }
 
-                if (currentOrganismId == null && array.size() > 0) {
-                    JSONObject rootObject = array.get(0).isObject();
-                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
-                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
-                    currentOrganismDisplay.setHTML(currentOrganism.getName());
-//                    trackInfoList.setSelectedIndex(0);
-                }
-                updatePermissionsForOrganism();
-
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
-                Annotator.eventBus.fireEvent(contextSwitchEvent);
-//                loadReferenceSequences();
+//                if (currentOrganismId == null && array.size() > 0) {
+//                    JSONObject rootObject = array.get(0).isObject();
+//                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
+//                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
+//                    currentOrganismDisplay.setHTML(currentOrganism.getName());
+////                    trackInfoList.setSelectedIndex(0);
+//                }
+//                updatePermissionsForOrganism();
+//
+//                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
+//                Annotator.eventBus.fireEvent(contextSwitchEvent);
+////                loadReferenceSequences();
             }
 
             @Override

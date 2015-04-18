@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by ndunn on 4/17/15.
  */
-public class AnnotatorStateInfo implements HasJSON{
+public class AppStateInfo implements HasJSON{
 
     private OrganismInfo currentOrganism ;
     private List<OrganismInfo> organismList ;

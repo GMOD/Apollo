@@ -163,7 +163,41 @@ class AnnotatorController {
      * TODO: return an AnnotatorStateInfo object
      */
     def getAppState(){
-        // returns a JSON object to AnnotatorStateInfo . . with the current ssate
+
+        JSONObject appStateObject = new JSONObject()
+        def organismList = permissionService.getOrganismsForCurrentUser()
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
+        Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+
+
+//        request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value) == organism.directory
+
+        log.debug "organism list: ${organismList}"
+
+        log.debug "finding all organisms: ${Organism.count}"
+
+        JSONArray jsonArray = new JSONArray()
+        for (def organism in organismList) {
+            Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)",[organism:organism,viewableTypes:requestHandlingService.viewableAnnotationList])[0] as Integer
+            JSONObject jsonObject = [
+                    id             : organism.id,
+                    commonName     : organism.commonName,
+                    blatdb         : organism.blatdb,
+                    directory      : organism.directory,
+                    annotationCount: annotationCount,
+                    sequences      : organism.sequences?.size(),
+                    genus          : organism.genus,
+                    species        : organism.species,
+                    valid          : organism.valid,
+                    currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
+            ] as JSONObject
+            jsonArray.add(jsonObject)
+        }
+        appStateObject.put("organismList",jsonArray)
+        appStateObject.put("organismList",jsonArray)
+
+
+        render appStateObject as JSON
     }
 
 
