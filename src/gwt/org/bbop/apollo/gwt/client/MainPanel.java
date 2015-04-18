@@ -51,17 +51,16 @@ public class MainPanel extends Composite {
     // state info
     // should I use a getter, or is this fine?
     static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
-    public static Long currentOrganismId = null;
-    public static String currentSequenceName = null;
+//    public static Long currentOrganismId = null;
+//    public static String currentSequenceName = null;
 
-    private UserInfo currentUser ;
-    private OrganismInfo currentOrganism ;
-    private List<SequenceInfo> currentSequenceList ; // sequence list for current organisms
+    private UserInfo currentUser;
+    private OrganismInfo currentOrganism;
+    private List<SequenceInfo> currentSequenceList; // sequence list for current organisms
     private SequenceInfo currentSequence;
-    private List<OrganismInfo> organismInfoList ; // list of organisms for user
-    private Annotator rootAnnotator ;
-    private static MainPanel instance ;
-
+    private List<OrganismInfo> organismInfoList; // list of organisms for user
+    private Annotator rootAnnotator;
+    private static MainPanel instance;
 
 
     // debug
@@ -107,26 +106,25 @@ public class MainPanel extends Composite {
     Label currentSequenceDisplay;
 
 
-    public static MainPanel getInstance(){
-         if(instance!=null)   {
-             return instance ;
-         }
-        else{
-             Window.alert("No instance available . . initialized?");
-             return null ;
-         }
+    public static MainPanel getInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            Window.alert("No instance available . . initialized?");
+            return null;
+        }
     }
 
-    public static MainPanel getInstance(Annotator annotator){
-        if(instance==null)   {
+    public static MainPanel getInstance(Annotator annotator) {
+        if (instance == null) {
             instance = new MainPanel(annotator);
         }
-        return instance ;
+        return instance;
     }
 
 
     MainPanel(Annotator annotator) {
-        this.rootAnnotator = annotator ;
+        this.rootAnnotator = annotator;
         instance = this;
         exportStaticMethod();
 //        sequenceList = new SuggestBox(sequenceOracle);
@@ -142,35 +140,35 @@ public class MainPanel extends Composite {
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
 
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-            @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                switch (organismChangeEvent.getAction()) {
-                    case LOADED_ORGANISMS:
-//                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
-//                        organismList.clear();
-//                        for (OrganismInfo organismInfo : organismInfoList) {
-//                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
-//                        }
-                        break;
-                    case CHANGED_ORGANISM:
-                        currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
-                        currentOrganismDisplay.setHTML(currentOrganism.getName());
-                        updateGenomicViewer();
-//                        loadReferenceSequences();
-                        updatePermissionsForOrganism();
-                        break;
-                }
-            }
-
-        });
+//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+//            @Override
+//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+//                switch (organismChangeEvent.getAction()) {
+//                    case LOADED_ORGANISMS:
+////                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
+////                        organismList.clear();
+////                        for (OrganismInfo organismInfo : organismInfoList) {
+////                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
+////                        }
+//                        break;
+//                    case CHANGED_ORGANISM:
+//                        currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
+//                        currentOrganismDisplay.setHTML(currentOrganism.getName());
+//                        updateGenomicViewer();
+////                        loadReferenceSequences();
+//                        updatePermissionsForOrganism();
+//                        break;
+//                }
+//            }
+//
+//        });
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
 
             @Override
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
                 // need to set this before calling the sequence
-                currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
+//                currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
                 currentOrganism = contextSwitchEvent.getOrganismInfo();
                 currentOrganismDisplay.setHTML(currentOrganism.getName());
 //                Window.alert("context switching org to "+currentOrganism.getName());
@@ -179,29 +177,29 @@ public class MainPanel extends Composite {
 //                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
 //                }
 
-                String sequenceName = "";
                 if (contextSwitchEvent.getSequenceInfo() != null) {
-                    sequenceName = contextSwitchEvent.getSequenceInfo().getName();
-//                    currentSequenceName = contextSwitchEvent.getSequenceInfo().getName();
+                    currentSequence = contextSwitchEvent.getSequenceInfo();
+                    currentSequenceDisplay.setHTML(currentSequence.getName());
                 }
+                updateGenomicViewer();
+//                updateGenomicViewerForLocation();
 
-                RequestCallback requestCallback = new RequestCallback() {
-                    @Override
-                    public void onResponseReceived(Request request, Response response) {
-//                        Window.alert("should be setting org "+currentOrganism.getName());
-                        currentSequenceName= response.getText();
-                        currentSequenceDisplay.setHTML(currentSequenceName);
-//                        sequenceList.setText(innerSequenceName);
-//                        Window.alert("going to update the genomic viewer");
-                        updateGenomicViewer();
-                    }
-
-                    @Override
-                    public void onError(Request request, Throwable exception) {
-                        Window.alert("Error setting default sequence: " + exception);
-                    }
-                };
-                SequenceRestService.setDefaultSequence(requestCallback, sequenceName);
+//                RequestCallback requestCallback = new RequestCallback() {
+//                    @Override
+//                    public void onResponseReceived(Request request, Response response) {
+////                        Window.alert("should be setting org "+currentOrganism.getName());
+////                        currentSequenceName= response.getText();
+////                        sequenceList.setText(innerSequenceName);
+////                        Window.alert("going to update the genomic viewer");
+//                        updateGenomicViewer();
+//                    }
+//
+//                    @Override
+//                    public void onError(Request request, Throwable exception) {
+//                        Window.alert("Error setting default sequence: " + exception);
+//                    }
+//                };
+//                SequenceRestService.setDefaultSequence(requestCallback, sequenceName);
             }
         });
 
@@ -220,7 +218,6 @@ public class MainPanel extends Composite {
 
         loginUser();
     }
-
 
 
     private void updatePermissionsForOrganism() {
@@ -362,8 +359,8 @@ public class MainPanel extends Composite {
     public void updateGenomicViewer() {
         String trackListString = rootUrl + "/jbrowse/?loc=";
 //        String selectedSequence =
-        GWT.log("get selected sequence: " + currentSequenceName);
-        trackListString += currentSequenceName;
+//        GWT.log("get selected sequence: " + currentSequenceName);
+        trackListString += currentSequence.getName();
 
         trackListString += "&";
         for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
@@ -432,7 +429,7 @@ public class MainPanel extends Composite {
 //
 //    }
 
-    public void getAppState(){
+    public void getAppState() {
         String url = rootUrl + "/annotator/getAppState";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
@@ -441,31 +438,25 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
-                List<OrganismInfo> organismList = appStateInfo.getOrganismList();
+                organismInfoList = appStateInfo.getOrganismList();
+                currentSequenceList = appStateInfo.getCurrentSequenceList();
+                currentSequence = appStateInfo.getCurrentSequence();
+                currentOrganism = appStateInfo.getCurrentOrganism();
 
-//                for (int i = 0; i < organismList.size(); i++) {
-//                    JSONObject object = organismList.get(i).isObject();
-////                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-//                    if (organismInfo.isCurrent()) {
-//                        currentOrganismId = Long.parseLong(organismInfo.getId());
-//                        currentOrganism = organismInfo;
-//                        currentOrganismDisplay.setHTML(currentOrganism.getName());
-////                        trackInfoList.setSelectedIndex(i);
-//                    }
-//                }
+                if(currentSequence!=null){
+                    currentSequenceDisplay.setHTML(currentSequence.getName());
+                }
 
-//                if (currentOrganismId == null && array.size() > 0) {
-//                    JSONObject rootObject = array.get(0).isObject();
-//                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
-//                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
-//                    currentOrganismDisplay.setHTML(currentOrganism.getName());
-////                    trackInfoList.setSelectedIndex(0);
-//                }
-//                updatePermissionsForOrganism();
+                if(currentOrganism!=null){
+                    currentOrganismDisplay.setHTML(currentOrganism.getName());
+                }
+
+                updatePermissionsForOrganism();
+//
+////                loadReferenceSequences();
 //
 //                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
 //                Annotator.eventBus.fireEvent(contextSwitchEvent);
-////                loadReferenceSequences();
             }
 
             @Override
@@ -485,59 +476,57 @@ public class MainPanel extends Composite {
 
     /**
      * could use an organism callback . . . however, this element needs to use the callback directly.
-     *
      */
-    public void loadOrganisms() {
-        String url = rootUrl + "/organism/findAllOrganisms";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
-//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    if (organismInfo.isCurrent()) {
-                        currentOrganismId = Long.parseLong(organismInfo.getId());
-                        currentOrganism = organismInfo;
-                        currentOrganismDisplay.setHTML(currentOrganism.getName());
-//                        trackInfoList.setSelectedIndex(i);
-                    }
-                }
-
-                if (currentOrganismId == null && array.size() > 0) {
-                    JSONObject rootObject = array.get(0).isObject();
-                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
-                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
-                    currentOrganismDisplay.setHTML(currentOrganism.getName());
-//                    trackInfoList.setSelectedIndex(0);
-                }
-                updatePermissionsForOrganism();
-
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
-                Annotator.eventBus.fireEvent(contextSwitchEvent);
-//                loadReferenceSequences();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
-
-    }
-
+//    public void loadOrganisms() {
+//        String url = rootUrl + "/organism/findAllOrganisms";
+//        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+//        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+//                JSONArray array = returnValue.isArray();
+//
+//                for (int i = 0; i < array.size(); i++) {
+//                    JSONObject object = array.get(i).isObject();
+//                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
+////                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+//                    if (organismInfo.isCurrent()) {
+//                        currentOrganismId = Long.parseLong(organismInfo.getId());
+//                        currentOrganism = organismInfo;
+//                        currentOrganismDisplay.setHTML(currentOrganism.getName());
+////                        trackInfoList.setSelectedIndex(i);
+//                    }
+//                }
+//
+//                if (currentOrganismId == null && array.size() > 0) {
+//                    JSONObject rootObject = array.get(0).isObject();
+//                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
+//                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
+//                    currentOrganismDisplay.setHTML(currentOrganism.getName());
+////                    trackInfoList.setSelectedIndex(0);
+//                }
+//                updatePermissionsForOrganism();
+//
+//                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
+//                Annotator.eventBus.fireEvent(contextSwitchEvent);
+////                loadReferenceSequences();
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Window.alert("Error loading organisms");
+//            }
+//        };
+//        try {
+//            builder.setCallback(requestCallback);
+//            builder.send();
+//        } catch (RequestException e) {
+//            // Couldn't connect to server
+//            Window.alert(e.getMessage());
+//        }
+//
+//    }
     @UiHandler("dockOpenClose")
     void handleClick(ClickEvent event) {
         toggleOpen();

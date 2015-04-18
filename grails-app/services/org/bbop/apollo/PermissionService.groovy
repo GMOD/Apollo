@@ -429,13 +429,13 @@ class PermissionService {
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username
-        if(inputObject.has(FeatureStringEnum.USERNAME.value)){
+        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
         }
-        if(!username){
+        if (!username) {
             username = SecurityUtils.subject.principal
         }
-        if(!username){
+        if (!username) {
             throw new PermissionException("Unable to find a username to check")
         }
 
@@ -447,15 +447,15 @@ class PermissionService {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
         }
 
-        if(!userOrganismPreference){
+        if (!userOrganismPreference) {
             UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
             organism = userOrganismPermission.organism
 
             userOrganismPreference = new UserOrganismPreference(
                     user: user
-                    ,organism: organism
-                    ,currentOrganism: true
-                    ,defaultSequence: organism.sequences.iterator().next().name
+                    , organism: organism
+                    , currentOrganism: true
+                    , defaultSequence: organism.sequences.iterator().next().name
             ).save(insert: true)
         }
 
@@ -486,7 +486,7 @@ class PermissionService {
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
         String trackName = null
-        if(inputObject.has("track")){
+        if (inputObject.has("track")) {
             trackName = fixTrackHeader(inputObject.track)
         }
 
@@ -498,13 +498,13 @@ class PermissionService {
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username
-        if(inputObject.has(FeatureStringEnum.USERNAME.value)){
+        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
         }
-        if(!username){
+        if (!username) {
             username = SecurityUtils.subject.principal
         }
-        if(!username){
+        if (!username) {
             throw new PermissionException("Unable to find a username to check")
         }
 
@@ -516,15 +516,15 @@ class PermissionService {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
         }
 
-        if(!userOrganismPreference){
+        if (!userOrganismPreference) {
             UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
             organism = userOrganismPermission.organism
 
             userOrganismPreference = new UserOrganismPreference(
                     user: user
-                    ,organism: organism
-                    ,currentOrganism: true
-                    ,defaultSequence: organism.sequences.iterator().next().name
+                    , organism: organism
+                    , currentOrganism: true
+                    , defaultSequence: organism.sequences.iterator().next().name
             ).save(insert: true)
         }
 
@@ -538,7 +538,7 @@ class PermissionService {
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 
-        return trackName ? Sequence.findByNameAndOrganism(trackName,organism) : null
+        return trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
@@ -601,4 +601,34 @@ class PermissionService {
 //        }
 //        return false
     }
+
+    UserOrganismPreference getCurrentOrganismPreference(){
+        User currentUser = getCurrentUser()
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
+        if (userOrganismPreference) {
+            return userOrganismPreference
+        }
+
+        // find another one
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, false)
+        if (userOrganismPreference) {
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true)
+            return userOrganismPreference
+        }
+
+
+        Organism organism = getOrganisms(currentUser)?.iterator()?.next()
+        if(!organism){
+            throw new PermissionException("User ${currentUser} does not have permission for any organisms.")
+        }
+//            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
+        userOrganismPreference = new UserOrganismPreference(
+                user: currentUser
+                , currentOrganism: true
+                , organism: organism
+        ).save(insert: true, flush: true)
+        return userOrganismPreference
+    }
+
 }

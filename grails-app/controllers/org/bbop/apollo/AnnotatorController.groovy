@@ -194,7 +194,29 @@ class AnnotatorController {
             jsonArray.add(jsonObject)
         }
         appStateObject.put("organismList",jsonArray)
-        appStateObject.put("organismList",jsonArray)
+        UserOrganismPreference currrentUserOrganismPreference =  permissionService.currentOrganismPreference
+        appStateObject.put("currentOrganism", currrentUserOrganismPreference.organism as JSON)
+//        Sequence sequence = Sequence.findByOrganismAndName(currrentUserOrganismPreference.organism,currrentUserOrganismPreference.defaultSequence)
+        appStateObject.put("currentSequence",currrentUserOrganismPreference.sequence as JSON)
+
+
+        JSONArray sequenceArray = new JSONArray()
+        for (Sequence sequence in currrentUserOrganismPreference.organism.sequences) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put("id", sequence.id)
+            jsonObject.put("name", sequence.name)
+            jsonObject.put("length", sequence.length)
+            jsonObject.put("start", sequence.start)
+            jsonObject.put("end", sequence.end)
+            jsonObject.put("sequence", sequence as JSON)
+//            jsonObject.put("default", defaultName && defaultName == sequence.name)
+//            if (defaultName == sequence.name) {
+//                log.info "setting the default sequence: ${jsonObject.get("default")}"
+//            }
+            sequenceArray.put(jsonObject)
+        }
+
+        appStateObject.put("currentSequenceList",sequenceArray)
 
 
         render appStateObject as JSON

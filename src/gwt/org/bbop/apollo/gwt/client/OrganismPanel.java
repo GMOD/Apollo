@@ -141,7 +141,7 @@ public class OrganismPanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 if (singleSelectionModel.getSelectedObject()!=null) {
                     String orgId = singleSelectionModel.getSelectedObject().getId();
-                    if(!MainPanel.currentOrganismId.toString().equals(orgId)){
+                    if(!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)){
                         ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject());
                         Annotator.eventBus.fireEvent(contextSwitchEvent);
                     }

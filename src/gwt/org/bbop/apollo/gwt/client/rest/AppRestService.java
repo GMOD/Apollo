@@ -1,26 +1,50 @@
 package org.bbop.apollo.gwt.client.rest;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
-import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
-import org.bbop.apollo.gwt.client.MainPanel;
-import org.bbop.apollo.gwt.client.dto.ExportInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
-import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
-
-import java.io.*;
-import java.util.List;
 
 /**
  * Created by ndunn on 1/14/15.
  */
-public class SequenceRestService {
+public class AppRestService {
+
+    private static AppRestService instance ;
+
+    public static AppRestService getInstance(){
+        if(instance==null){
+            instance = new AppRestService();
+        }
+        return instance;
+    }
+
+    private AppRestService(){}
+
+    /**
+     * TODO: make it so
+     * @param organismId
+     */
+    public void setCurrentOrganism(Long organismId){
+
+    }
+
+    /**
+     * TODO: make it so
+     * @param organismId
+     * @param sequenceId
+     */
+    public void setCurrentOrganismAndSequence(Long organismId,Long sequenceId){
+
+    }
 
 //    public static void loadSequences(RequestCallback requestCallback,Long organismId){
 //        if(MainPanel.getInstance().getCurrentOrganism()==null){
@@ -75,41 +99,5 @@ public class SequenceRestService {
 //    public static void setDefaultSequence(RequestCallback requestCallback,final String sequenceName) {
 //        RestService.sendRequest(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
 //    }
-
-    public static void generateLink(final ExportPanel exportPanel) {
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        final String rootUrl = dictionary.get("rootUrl");
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type",new JSONString(exportPanel.getType()));
-        jsonObject.put("sequenceType",new JSONString(exportPanel.getSequenceType()));
-        jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
-        JSONArray jsonArray = new JSONArray();
-        for(SequenceInfo sequenceInfo : exportPanel.getSequenceList()){
-            jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
-        }
-        jsonObject.put("sequences", jsonArray);
-        GWT.log("GWTLAND: " + jsonObject.toString());
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                GWT.log("RESPONSE: " + response.getText());
-                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
-                String filePath = responseObject.get("filePath").isString().stringValue();
-                String exportType = responseObject.get("exportType").isString().stringValue();
-                String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl =  rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType ;
-                exportPanel.setExportUrl(exportUrl);
-//                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("boo: "+exception);
-            }
-        };
-
-        RestService.sendRequest(requestCallback, "/sequence/exportSequences/","data="+jsonObject.toString());
-    }
-
 
 }

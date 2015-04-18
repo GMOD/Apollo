@@ -51,7 +51,7 @@ public class SequencePanel extends Composite {
     ListBox organismList;
     // TODO: a hack of a backing object fro the organism List
     // key is the ID as we can have a dupe org?
-    Map<String,OrganismInfo> organismInfoMap = new TreeMap<>();
+    Map<String, OrganismInfo> organismInfoMap = new TreeMap<>();
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -74,7 +74,7 @@ public class SequencePanel extends Composite {
     Button exportSingleButton;
     @UiField
     TextBox nameSearchBox;
-//    @UiField
+    //    @UiField
 //    org.gwtbootstrap3.client.ui.Label viewableLabel;
     @UiField
     HTML sequenceLength;
@@ -202,7 +202,7 @@ public class SequencePanel extends Composite {
                 if (sequenceInfoSet.size() == 1) {
                     SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
                     OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
-                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(),organismInfo );
+                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
                     Annotator.eventBus.fireEvent(contextSwitchEvent);
                 }
             }
@@ -318,7 +318,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler(value = {"organismList"})
     public void handleOrganismChange(ChangeEvent changeEvent) {
-        selectedCount = 0 ;
+        selectedCount = 0;
         multiSelectionModel.clear();
         updatedExportSelectedButton();
         reload();
@@ -481,7 +481,7 @@ public class SequencePanel extends Composite {
                     organismInfo.setNumFeatures(0);
                     organismInfo.setNumTracks(0);
                     trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    organismInfoMap.put(organismInfo.getId(),organismInfo);
+                    organismInfoMap.put(organismInfo.getId(), organismInfo);
                 }
             }
 
@@ -497,13 +497,17 @@ public class SequencePanel extends Composite {
 
     public void reload() {
 //        Window.alert("reloading sequence panel");
+
         GWT.log("item count: " + organismList.getItemCount());
         if (organismList.getItemCount() > 0) {
-            Long organismListId = Long.parseLong(organismList.getSelectedValue());
-            GWT.log("list id: " + organismListId);
-            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
-        } else {
-            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
+//            sequenceInfoList.clear();
+//            sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
+            sequenceInfoList = MainPanel.getInstance().getCurrentSequenceList();
+//            Long organismListId = Long.parseLong(organismList.getSelectedValue());
+//            GWT.log("list id: " + organismListId);
+//            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
+//        } else {
+//            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.getInstance().getCurrentOrganism().getId());
         }
     }
 

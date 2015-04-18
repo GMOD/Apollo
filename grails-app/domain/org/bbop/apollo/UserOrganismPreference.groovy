@@ -6,10 +6,12 @@ class UserOrganismPreference extends UserPreference{
         organism nullable: false
         currentOrganism nullable: false
         defaultSequence nullable: true, blank: false
+        sequence nullable: true, blank: false
     }
 
     Organism organism
     String defaultSequence
     Boolean currentOrganism
+    Sequence sequence
 
 }
