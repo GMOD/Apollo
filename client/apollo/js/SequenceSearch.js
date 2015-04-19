@@ -102,7 +102,7 @@ searchSequence: function(trackName, refSeqName, starts) {
                 "track": trackName,
                 "search": {
                     "key": sequenceToolsSelect.value,
-                    "residues": residues.replace(/(\r\n|\n|\r)/gm,""),
+                    "residues": residues.replace(/(\r\n|\n|\r)/gm,"")
                 },
                 "operation": operation
             };
