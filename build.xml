@@ -149,6 +149,7 @@
             <fileset dir="${jbrowse.download.directory}">
                 <not>
                     <filename name="sample_data/**"/>
+                    <filename name="tests/**"/>
                 </not>
             </fileset>
         </copy>
@@ -166,6 +167,7 @@
             <fileset dir="JBrowse-${jbrowse.version}">
                 <not>
                     <filename name="sample_data/**"/>
+                    <filename name="tests/**"/>
                 </not>
     </fileset>
         </move>
