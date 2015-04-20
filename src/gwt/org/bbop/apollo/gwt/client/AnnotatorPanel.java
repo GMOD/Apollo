@@ -58,7 +58,7 @@ public class AnnotatorPanel extends Composite {
 
     Dictionary dictionary = Dictionary.getDictionary("Options");
     String rootUrl = dictionary.get("rootUrl");
-    private String selectedSequenceName = null;
+//    private String selectedSequenceName = null;
 
     private Column<AnnotationInfo, String> nameColumn;
     //    private TextColumn<AnnotationInfo> filterColumn;
@@ -154,6 +154,12 @@ public class AnnotatorPanel extends Composite {
         initializeUsers();
         initializeGroups();
 
+        sequenceList.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            @Override
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                reload();
+            }
+        });
 
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -166,8 +172,8 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
                 if (contextSwitchEvent.getSequenceInfo() != null) {
-                    selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
-                    sequenceList.setText(selectedSequenceName);
+//                    selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
+                    sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
                 }
 //                loadSequences();
                 annotationInfoList.clear();
@@ -219,6 +225,9 @@ public class AnnotatorPanel extends Composite {
                         for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
                             sequenceOracle.add(sequenceInfo.getName());
                         } ;
+
+                    sequenceList.setText(MainPanel.getInstance().getCurrentSequence().getName());
+                    loadOrganismAndSequence(MainPanel.getInstance().getCurrentSequence().getName());
                 }
                 else{
                     GWT.log("Unable to handle organism action "+organismChangeEvent.getAction());
@@ -449,7 +458,59 @@ public class AnnotatorPanel extends Composite {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
+    public void loadOrganismAndSequence(String sequenceName){
+        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName +"&request="+requestIndex;
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
+                // returns
+                if(localRequestValue<=requestIndex){
+                    return;
+                }
+                else{
+                    requestIndex = localRequestValue ;
+                }
+
+                JSONArray array = returnValue.isObject().get("features").isArray();
+                annotationInfoList.clear();
+
+                for (int i = 0; i < array.size(); i++) {
+                    JSONObject object = array.get(i).isObject();
+//                    GWT.log(object.toString());
+
+                    AnnotationInfo annotationInfo = generateAnnotationInfo(object);
+                    annotationInfoList.add(annotationInfo);
+                }
+
+//                features.setAnimationEnabled(true);
+                GWT.log("# of annottions: " + filteredAnnotationList.size());
+
+                filterList();
+                dataGrid.redraw();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error loading organisms");
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+        }
+
+    }
+
     public void reload() {
+
+        loadOrganismAndSequence(sequenceList.getText());
 
 //        sequenceOracle.clear();
 //        for(SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()){
@@ -461,53 +522,6 @@ public class AnnotatorPanel extends Composite {
 //            loadSequences();
 //        }
 //
-//        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + selectedSequenceName+"&request="+requestIndex;
-//        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-//        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
-//                // returns
-//                if(localRequestValue<=requestIndex){
-//                    return;
-//                }
-//                else{
-//                    requestIndex = localRequestValue ;
-//                }
-//
-//                JSONArray array = returnValue.isObject().get("features").isArray();
-//                annotationInfoList.clear();
-//
-//                for (int i = 0; i < array.size(); i++) {
-//                    JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
-//
-//
-//                    AnnotationInfo annotationInfo = generateAnnotationInfo(object);
-//                    annotationInfoList.add(annotationInfo);
-//                }
-//
-////                features.setAnimationEnabled(true);
-//                GWT.log("# of annoations: " + filteredAnnotationList.size());
-//
-//                filterList();
-//                dataGrid.redraw();
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Window.alert("Error loading organisms");
-//            }
-//        };
-//        try {
-//            builder.setCallback(requestCallback);
-//            builder.send();
-//        } catch (RequestException e) {
-//            // Couldn't connect to server
-//            Window.alert(e.getMessage());
-//        }
     }
 
     private void filterList() {
@@ -551,7 +565,7 @@ public class AnnotatorPanel extends Composite {
     private AnnotationInfo generateAnnotationInfo(JSONObject object, boolean processChildren) {
         AnnotationInfo annotationInfo = new AnnotationInfo();
         annotationInfo.setName(object.get("name").isString().stringValue());
-        GWT.log("top-level processing: " + annotationInfo.getName());
+//        GWT.log("top-level processing: " + annotationInfo.getName());
         annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
         if (object.get("symbol") != null) {
             annotationInfo.setSymbol(object.get("symbol").isString().stringValue());
@@ -600,11 +614,17 @@ public class AnnotatorPanel extends Composite {
     }
 
 
-    @UiHandler("sequenceList")
-    public void changeRefSequence(KeyUpEvent changeEvent) {
-        selectedSequenceName = sequenceList.getText();
-        reload();
-    }
+//    @UiHandler("sequenceList")
+//    public void changeRefSequence(SelectionEvent changeEvent) {
+////        selectedSequenceName = sequenceList.getText();
+//        reload();
+//    }
+
+//    @UiHandler("sequenceList")
+//    public void changeRefSequence(KeyUpEvent changeEvent) {
+////        selectedSequenceName = sequenceList.getText();
+//        reload();
+//    }
 
 
     // TODO: need to cache these or retrieve from the backend
