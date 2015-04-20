@@ -210,6 +210,22 @@ public class SequencePanel extends Composite {
 
         loadOrganisms(organismList);
 
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+                    GWT.log("item count: " + organismList.getItemCount());
+                    if (organismList.getItemCount() > 0) {
+                        sequenceInfoList.clear();
+                        sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
+                    }
+                }
+                else{
+                    GWT.log("Unable to handle organism action "+organismChangeEvent.getAction());
+                }
+            }
+        });
+
         Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE,
                 new SequenceLoadEventHandler() {
                     @Override
@@ -496,19 +512,15 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
+        filterSequences();
 //        Window.alert("reloading sequence panel");
 
-        GWT.log("item count: " + organismList.getItemCount());
-        if (organismList.getItemCount() > 0) {
-//            sequenceInfoList.clear();
-//            sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
-            sequenceInfoList = MainPanel.getInstance().getCurrentSequenceList();
+//            sequenceInfoList = MainPanel.getInstance().getCurrentSequenceList();
 //            Long organismListId = Long.parseLong(organismList.getSelectedValue());
 //            GWT.log("list id: " + organismListId);
 //            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
 //        } else {
 //            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.getInstance().getCurrentOrganism().getId());
-        }
     }
 
 }

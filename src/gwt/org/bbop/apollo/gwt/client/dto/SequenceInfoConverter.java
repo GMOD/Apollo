@@ -15,9 +15,10 @@ public class SequenceInfoConverter {
         sequenceInfo.setId((long) object.get("id").isNumber().doubleValue());
         sequenceInfo.setName(object.get("name").isString().stringValue());
         sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
-        sequenceInfo.setEnd((int) object.get("start").isNumber().doubleValue());
+        sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
+        sequenceInfo.setLength((int) object.get("length").isNumber().doubleValue());
         sequenceInfo.setSelected(object.get("selected") != null && object.get("selected").isBoolean().booleanValue());
-        sequenceInfo.setSelected(object.get("aDefault") != null && object.get("aDefault").isBoolean().booleanValue());
+        sequenceInfo.setDefault(object.get("aDefault") != null && object.get("aDefault").isBoolean().booleanValue());
         return sequenceInfo ;
     }
 

@@ -159,20 +159,10 @@ class AnnotatorController {
 
     def version(){ }
 
-    private JSONObject convertToJSONobject(Organism organism){
-        JSONObject organismJSONObject = new JSONObject()
-        organismJSONObject.id = organism.id
-        organismJSONObject.name = organism.commonName
-        organismJSONObject.genus = organism.genus
-        organismJSONObject.species = organism.species
-        organismJSONObject.directory = organism.directory
-
-        return organismJSONObject
-    }
-
     /**
      * TODO: return an AnnotatorStateInfo object
      */
+    @Transactional
     def getAppState(){
 
         JSONObject appStateObject = new JSONObject()
@@ -213,6 +203,10 @@ class AnnotatorController {
 
 
         log.info "the current sequence ${currentUserOrganismPreference.sequence}"
+        if(!currentUserOrganismPreference.sequence){
+            currentUserOrganismPreference.sequence = currentUserOrganismPreference.organism.sequences.iterator().next()
+            currentUserOrganismPreference.save()
+        }
         appStateObject.put("currentSequence",currentUserOrganismPreference.sequence)
 //
 //
@@ -225,6 +219,9 @@ class AnnotatorController {
             jsonObject.put("length", sequence.length)
             jsonObject.put("start", sequence.start)
             jsonObject.put("end", sequence.end)
+
+
+
 //            jsonObject.put("sequence", sequence as JSON)
 //            jsonObject.put("default", defaultName && defaultName == sequence.name)
 //            if (defaultName == sequence.name) {

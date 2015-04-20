@@ -182,24 +182,8 @@ public class MainPanel extends Composite {
                     currentSequenceDisplay.setHTML(currentSequence.getName());
                 }
                 updateGenomicViewer();
-//                updateGenomicViewerForLocation();
 
-//                RequestCallback requestCallback = new RequestCallback() {
-//                    @Override
-//                    public void onResponseReceived(Request request, Response response) {
-////                        Window.alert("should be setting org "+currentOrganism.getName());
-////                        currentSequenceName= response.getText();
-////                        sequenceList.setText(innerSequenceName);
-////                        Window.alert("going to update the genomic viewer");
-//                        updateGenomicViewer();
-//                    }
-//
-//                    @Override
-//                    public void onError(Request request, Throwable exception) {
-//                        Window.alert("Error setting default sequence: " + exception);
-//                    }
-//                };
-//                SequenceRestService.setDefaultSequence(requestCallback, sequenceName);
+
             }
         });
 
@@ -452,9 +436,11 @@ public class MainPanel extends Composite {
                 }
 
                 updatePermissionsForOrganism();
-//
-////                loadReferenceSequences();
-//
+
+                updateGenomicViewer();
+
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+//                 OrganismChangeEvent.Action.LOADED_ORGANISMS
 //                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
 //                Annotator.eventBus.fireEvent(contextSwitchEvent);
             }
