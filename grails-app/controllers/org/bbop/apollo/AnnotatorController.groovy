@@ -159,6 +159,17 @@ class AnnotatorController {
 
     def version(){ }
 
+    private JSONObject convertToJSONobject(Organism organism){
+        JSONObject organismJSONObject = new JSONObject()
+        organismJSONObject.id = organism.id
+        organismJSONObject.name = organism.commonName
+        organismJSONObject.genus = organism.genus
+        organismJSONObject.species = organism.species
+        organismJSONObject.directory = organism.directory
+
+        return organismJSONObject
+    }
+
     /**
      * TODO: return an AnnotatorStateInfo object
      */
@@ -173,14 +184,13 @@ class AnnotatorController {
 //        request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value) == organism.directory
 
         log.debug "organism list: ${organismList}"
-
         log.debug "finding all organisms: ${Organism.count}"
 
-        JSONArray jsonArray = new JSONArray()
+        JSONArray organismArray = new JSONArray()
         for (def organism in organismList) {
             Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)",[organism:organism,viewableTypes:requestHandlingService.viewableAnnotationList])[0] as Integer
             JSONObject jsonObject = [
-                    id             : organism.id,
+                    id             : organism.id as Long,
                     commonName     : organism.commonName,
                     blatdb         : organism.blatdb,
                     directory      : organism.directory,
@@ -191,24 +201,31 @@ class AnnotatorController {
                     valid          : organism.valid,
                     currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
             ] as JSONObject
-            jsonArray.add(jsonObject)
+            organismArray.add(jsonObject)
         }
-        appStateObject.put("organismList",jsonArray)
-        UserOrganismPreference currrentUserOrganismPreference =  permissionService.currentOrganismPreference
-        appStateObject.put("currentOrganism", currrentUserOrganismPreference.organism as JSON)
-//        Sequence sequence = Sequence.findByOrganismAndName(currrentUserOrganismPreference.organism,currrentUserOrganismPreference.defaultSequence)
-        appStateObject.put("currentSequence",currrentUserOrganismPreference.sequence as JSON)
+        appStateObject.put("organismList",organismArray)
+        UserOrganismPreference currentUserOrganismPreference =  permissionService.currentOrganismPreference
+//        println "current org ${currrentUserOrganismPreference.organism as JSON}"
+//        appStateObject.put("currentOrganism", currrentUserOrganismPreference.organism as JSON)
+//        appStateObject.put("currentOrganism", convertToJSONobject(currrentUserOrganismPreference.organism) as JSON)
+        appStateObject.put("currentOrganism", currentUserOrganismPreference.organism)
+////        Sequence sequence = Sequence.findByOrganismAndName(currrentUserOrganismPreference.organism,currrentUserOrganismPreference.defaultSequence)
 
 
+        log.info "the current sequence ${currentUserOrganismPreference.sequence}"
+        appStateObject.put("currentSequence",currentUserOrganismPreference.sequence)
+//
+//
         JSONArray sequenceArray = new JSONArray()
-        for (Sequence sequence in currrentUserOrganismPreference.organism.sequences) {
+        for (Sequence sequence in currentUserOrganismPreference.organism.sequences) {
+//            println "seq i . . ${sequence as JSON}"
             JSONObject jsonObject = new JSONObject()
             jsonObject.put("id", sequence.id)
             jsonObject.put("name", sequence.name)
             jsonObject.put("length", sequence.length)
             jsonObject.put("start", sequence.start)
             jsonObject.put("end", sequence.end)
-            jsonObject.put("sequence", sequence as JSON)
+//            jsonObject.put("sequence", sequence as JSON)
 //            jsonObject.put("default", defaultName && defaultName == sequence.name)
 //            if (defaultName == sequence.name) {
 //                log.info "setting the default sequence: ${jsonObject.get("default")}"
@@ -216,8 +233,11 @@ class AnnotatorController {
             sequenceArray.put(jsonObject)
         }
 
+//
         appStateObject.put("currentSequenceList",sequenceArray)
+//        appStateObject.put("currentSequenceList",currrentUserOrganismPreference.organism.sequences)
 
+//        println "appState obj ${appStateObject as JSON}"
 
         render appStateObject as JSON
     }

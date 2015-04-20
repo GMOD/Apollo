@@ -1,7 +1,12 @@
 package org.bbop.apollo.gwt.client.dto;
 import com.google.gwt.core.client.GWT;
 
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Window;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ndunn on 3/31/15.
@@ -24,5 +29,15 @@ public class OrganismInfoConverter {
         organismInfo.setNumFeatures(0);
         organismInfo.setNumTracks(0);
         return organismInfo ;
+    }
+
+    public static List<OrganismInfo> convertFromJsonArray(JSONArray organismList) {
+        List<OrganismInfo> organismInfoList = new ArrayList<>();
+
+        for(int i = 0 ; i < organismList.size() ; i++){
+            organismInfoList.add(convertFromJson( organismList.get(i).isObject()));
+        }
+
+        return organismInfoList;
     }
 }
