@@ -178,6 +178,7 @@ class AnnotatorController {
     def setCurrentOrganism(Organism organismInstance){
         // set the current organism
         preferenceService.setCurrentOrganism(permissionService.currentUser,organismInstance)
+        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organismInstance.directory)
         render annotatorService.getAppState() as JSON
     }
 
@@ -188,6 +189,7 @@ class AnnotatorController {
     def setCurrentSequence(Sequence sequenceInstance){
         // set the current organism and sequence Id (if both)
         preferenceService.setCurrentSequence(permissionService.currentUser,sequenceInstance)
+        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,sequenceInstance.organism.directory)
 
         render annotatorService.getAppState() as JSON
     }

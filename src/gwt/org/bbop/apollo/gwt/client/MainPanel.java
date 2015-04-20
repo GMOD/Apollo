@@ -344,7 +344,7 @@ public class MainPanel extends Composite {
     public void updateGenomicViewer() {
         String trackListString = rootUrl + "/jbrowse/?loc=";
 //        String selectedSequence =
-//        GWT.log("get selected sequence: " + currentSequenceName);
+        GWT.log("get selected sequence: " + currentSequence.getName());
         trackListString += currentSequence.getName();
 
         trackListString += "&";

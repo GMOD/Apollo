@@ -397,9 +397,9 @@ class PermissionService {
     }
 
     def getOrganismsForCurrentUser() {
-        User currentUser = currentUser
-        if (currentUser) {
-            return getOrganisms(currentUser)
+        User thisUser = currentUser
+        if (thisUser) {
+            return getOrganisms(thisUser)
         }
         return []
     }
@@ -621,11 +621,11 @@ class PermissionService {
             return userOrganismPreference
         }
 
-
-        Organism organism = getOrganisms(currentUser)?.iterator()?.next()
-        if(!organism){
+        def organisms = getOrganisms(currentUser)
+        if(!organisms){
             throw new PermissionException("User ${currentUser} does not have permission for any organisms.")
         }
+        Organism organism = organisms?.iterator()?.next()
 //            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
         userOrganismPreference = new UserOrganismPreference(
                 user: currentUser
