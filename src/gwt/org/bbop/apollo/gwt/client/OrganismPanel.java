@@ -139,11 +139,13 @@ public class OrganismPanel extends Composite {
         dataGrid.addDomHandler(new DoubleClickHandler() {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
-                if (singleSelectionModel.getSelectedObject()!=null) {
+                if (singleSelectionModel.getSelectedObject() != null) {
                     String orgId = singleSelectionModel.getSelectedObject().getId();
-                    if(!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)){
-                        ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject());
-                        Annotator.eventBus.fireEvent(contextSwitchEvent);
+                    if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
+                        // TODO: set the organism here
+                        OrganismRestService.switchOrganismById(orgId);
+//                        ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject());
+//                        Annotator.eventBus.fireEvent(contextSwitchEvent);
                     }
                 }
             }
@@ -257,7 +259,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
-        setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
+        setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -286,7 +288,7 @@ public class OrganismPanel extends Composite {
     public void handleDeleteOrganism(ClickEvent clickEvent) {
         if(Window.confirm("Delete organism: "+singleSelectionModel.getSelectedObject().getName())){
             deleteButton.setEnabled(false);
-            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),singleSelectionModel.getSelectedObject());
+            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true), singleSelectionModel.getSelectedObject());
             setNoSelection();
         }
     }
@@ -327,7 +329,7 @@ public class OrganismPanel extends Composite {
     }
 
     private void updateOrganismInfo(boolean forceReload) {
-        OrganismRestService.updateOrganismInfo(singleSelectionModel.getSelectedObject(),forceReload);
+        OrganismRestService.updateOrganismInfo(singleSelectionModel.getSelectedObject(), forceReload);
     }
 
 

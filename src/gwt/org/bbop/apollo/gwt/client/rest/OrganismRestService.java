@@ -1,15 +1,11 @@
 package org.bbop.apollo.gwt.client.rest;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.MainPanel;
-import org.bbop.apollo.gwt.client.OrganismPanel;
+import org.bbop.apollo.gwt.client.dto.AppInfoConverter;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -156,5 +152,60 @@ public class OrganismRestService {
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
         RestService.sendRequest(requestCallback,"/organism/deleteOrganism", convertOrganismInfoToJSONObject(organismInfo));
+    }
+
+    public static void switchOrganismById(String newOrganismId) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+
+                MainPanel.getInstance().setAppState(AppInfoConverter.convertFromJson(returnValue));
+//                Window.alert(returnValue.toString());
+
+//                OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
+//                MainPanel.getInstance().setCurrentOrganism(organismInfo);
+
+//                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
+//                List<OrganismInfo> organismInfoList = new ArrayList<>();
+//                organismInfoList.add(organismInfo);
+//                organismChangeEvent.setOrganismInfoList(organismInfoList);
+//                Annotator.eventBus.fireEvent(organismChangeEvent);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error changing organisms");
+            }
+        };
+
+        RestService.sendRequest(requestCallback,"/annotator/setCurrentOrganism/"+newOrganismId);
+    }
+
+    public static void switchSequenceById(String newSequenceId) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+//                Window.alert(returnValue.toString());
+                MainPanel.getInstance().setAppState(AppInfoConverter.convertFromJson(returnValue));
+
+//                OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
+//                MainPanel.getInstance().setCurrentOrganism(organismInfo);
+
+                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
+//                List<OrganismInfo> organismInfoList = new ArrayList<>();
+//                organismInfoList.add(organismInfo);
+//                organismChangeEvent.setOrganismInfoList(organismInfoList);
+                Annotator.eventBus.fireEvent(organismChangeEvent);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error changing organisms");
+            }
+        };
+
+        RestService.sendRequest(requestCallback,"/annotator/setCurrentSequence/"+ newSequenceId);
     }
 }

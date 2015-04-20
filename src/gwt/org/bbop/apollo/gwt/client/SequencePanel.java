@@ -3,14 +3,9 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -200,15 +195,28 @@ public class SequencePanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
                 if (sequenceInfoSet.size() == 1) {
-                    SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-                    OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
-                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
-                    Annotator.eventBus.fireEvent(contextSwitchEvent);
+                    final SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
+                    final OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
+
+                    // TODO: set the default here!
+                    RequestCallback requestCallback = new RequestCallback() {
+                        @Override
+                        public void onResponseReceived(Request request, Response response) {
+                            OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+//                            ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
+//                            Annotator.eventBus.fireEvent(contextSwitchEvent);
+                        }
+
+                        @Override
+                        public void onError(Request request, Throwable exception) {
+                            Window.alert("Error setting current sequence: "+exception);
+                        }
+                    };
+                    SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
+
                 }
             }
         }, DoubleClickEvent.getType());
-
-//        loadOrganisms(organismList);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -217,6 +225,7 @@ public class SequencePanel extends Composite {
                     sequenceInfoList.clear();
                     sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
 
+                    OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
 
                     organismList.clear();
                     organismInfoMap.clear();
@@ -225,7 +234,11 @@ public class SequencePanel extends Composite {
                         OrganismInfo organismInfo = organismInfoList.get(i);
                         organismList.addItem(organismInfo.getName(), organismInfo.getId());
                         organismInfoMap.put(organismInfo.getId(), organismInfo);
+                        if(organismInfo.getId().equals(currentOrganism.getId())){
+                            organismList.setSelectedIndex(i);
+                        }
                     }
+
                 } else {
                     GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
                 }
@@ -343,7 +356,7 @@ public class SequencePanel extends Composite {
         selectedCount = 0;
         multiSelectionModel.clear();
         updatedExportSelectedButton();
-        reload();
+        OrganismRestService.switchOrganismById(organismList.getSelectedValue());
     }
 
 

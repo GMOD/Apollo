@@ -39,6 +39,7 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
+
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
@@ -140,9 +141,9 @@ public class MainPanel extends Composite {
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
 
-//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
 //                switch (organismChangeEvent.getAction()) {
 //                    case LOADED_ORGANISMS:
 ////                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
@@ -159,9 +160,9 @@ public class MainPanel extends Composite {
 //                        updatePermissionsForOrganism();
 //                        break;
 //                }
-//            }
-//
-//        });
+            }
+
+        });
 
         Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
 
@@ -412,6 +413,26 @@ public class MainPanel extends Composite {
 //        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
 //
 //    }
+    public void setAppState(AppStateInfo appStateInfo) {
+        organismInfoList = appStateInfo.getOrganismList();
+        currentSequenceList = appStateInfo.getCurrentSequenceList();
+        currentSequence = appStateInfo.getCurrentSequence();
+        currentOrganism = appStateInfo.getCurrentOrganism();
+
+        if(currentSequence!=null){
+            currentSequenceDisplay.setHTML(currentSequence.getName());
+        }
+
+        if(currentOrganism!=null){
+            currentOrganismDisplay.setHTML(currentOrganism.getName());
+        }
+
+        updatePermissionsForOrganism();
+
+        updateGenomicViewer();
+
+        Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+    }
 
     public void getAppState() {
         String url = rootUrl + "/annotator/getAppState";
@@ -422,24 +443,7 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
-                organismInfoList = appStateInfo.getOrganismList();
-                currentSequenceList = appStateInfo.getCurrentSequenceList();
-                currentSequence = appStateInfo.getCurrentSequence();
-                currentOrganism = appStateInfo.getCurrentOrganism();
-
-                if(currentSequence!=null){
-                    currentSequenceDisplay.setHTML(currentSequence.getName());
-                }
-
-                if(currentOrganism!=null){
-                    currentOrganismDisplay.setHTML(currentOrganism.getName());
-                }
-
-                updatePermissionsForOrganism();
-
-                updateGenomicViewer();
-
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+                setAppState(appStateInfo);
 //                 OrganismChangeEvent.Action.LOADED_ORGANISMS
 //                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
 //                Annotator.eventBus.fireEvent(contextSwitchEvent);

@@ -5,12 +5,12 @@ class UserOrganismPreference extends UserPreference{
     static constraints = {
         organism nullable: false
         currentOrganism nullable: false
-        defaultSequence nullable: true, blank: false
+//        defaultSequence nullable: true, blank: false
         sequence nullable: true, blank: false
     }
 
     Organism organism
-    String defaultSequence
+//    String defaultSequence
     Boolean currentOrganism
     Sequence sequence
 

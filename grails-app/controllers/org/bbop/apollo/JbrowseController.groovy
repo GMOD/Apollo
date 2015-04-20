@@ -75,15 +75,15 @@ class JbrowseController {
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 ,organism: organism
-                                ,defaultSequence: sequence.name
+                                ,sequence: sequence
                                 ,currentOrganism: true
                         ).save(insert:true,flush:true)
                     }
                     else{
                         println "updating an old one!!"
-                        userOrganismPreference.defaultSequence = sequence.name
+                        userOrganismPreference.sequence = sequence
                         userOrganismPreference.currentOrganism = true
-                        userOrganismPreference.save(flush:true)
+                        userOrganismPreference.save()
                     }
 
                     println "222 - has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"

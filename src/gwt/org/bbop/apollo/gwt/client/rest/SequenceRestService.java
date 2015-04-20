@@ -11,6 +11,7 @@ import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.ExportInfo;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.event.SequenceLoadEvent;
 
@@ -71,6 +72,12 @@ public class SequenceRestService {
 //        }
 //        loadSequences(requestCallback, organismId);
 //    }
+
+
+
+    public static void setCurrentSequence(RequestCallback requestCallback,SequenceInfo sequenceInfo) {
+        RestService.sendRequest(requestCallback, "/sequence/setCurrentSequence/"+sequenceInfo.getId());
+    }
 
 //    public static void setDefaultSequence(RequestCallback requestCallback,final String sequenceName) {
 //        RestService.sendRequest(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);

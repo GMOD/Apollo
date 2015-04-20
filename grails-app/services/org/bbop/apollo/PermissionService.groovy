@@ -455,7 +455,7 @@ class PermissionService {
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , defaultSequence: organism.sequences.iterator().next().name
+                    , sequence: organism.sequences.iterator().next()
             ).save(insert: true)
         }
 
@@ -489,12 +489,14 @@ class PermissionService {
         if (inputObject.has("track")) {
             trackName = fixTrackHeader(inputObject.track)
         }
+        println "trackName ${trackName}"
 
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
             Sequence sequence = trackName ? Sequence.findByName(trackName) : null
             return sequence
         }
+
 
         //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username
@@ -517,14 +519,15 @@ class PermissionService {
         }
 
         if (!userOrganismPreference) {
-            UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
-            organism = userOrganismPermission.organism
+            // find a random organism based on sequence
+            Sequence sequence = Sequence.findByName(trackName)
+            organism  = sequence.organism
 
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , defaultSequence: organism.sequences.iterator().next().name
+                    , sequence: sequence
             ).save(insert: true)
         }
 
@@ -537,8 +540,9 @@ class PermissionService {
             //return false
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-
-        return trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
+//        Sequence returnSequence = Sequence.findByNameAndOrganism(trackName, organism)
+//        return trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
+        return trackName ? userOrganismPreference.sequence : null
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {

@@ -346,6 +346,7 @@ class RequestHandlingService {
 
 
     JSONObject getFeatures(JSONObject inputObject) {
+
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         log.debug "getFeatures -> ${sequence.organism.commonName}"
 
@@ -424,7 +425,6 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.ADD
                 , sequence: sequence
         ))
-
 
         return inputObject
 
@@ -1088,12 +1088,12 @@ class RequestHandlingService {
                 JSONObject property = properties.getJSONObject(j);
                 String tagString = property.getString(FeatureStringEnum.TAG.value)
                 String valueString = property.getString(FeatureStringEnum.VALUE.value)
-                println "tagString ${tagString}"
-                println "valueString ${valueString}"
+                log.debug "tagString ${tagString}"
+                log.debug "valueString ${valueString}"
                 // a NonReservedProperty will always have a tag
                 FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tagString, valueString, feature)
                 if (featureProperty) {
-                    println "found the feature property . . . now we remvoe it!"
+                    log.info "found the feature property . . . now we remvoe it!"
 //                    featurePropertyService.deleteProperty(feature,featureProperty)
                     feature.removeFromFeatureProperties(featureProperty)
                     feature.save()
