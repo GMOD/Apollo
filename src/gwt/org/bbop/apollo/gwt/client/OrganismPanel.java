@@ -111,7 +111,7 @@ public class OrganismPanel extends Composite {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 organismInfoList.clear();
-                organismInfoList.addAll(organismChangeEvent.getOrganismInfoList());
+                organismInfoList.addAll(MainPanel.getInstance().getOrganismInfoList());
 //                dataProvider.setList(organismChangeEvent.organismInfoList);
             }
         });
@@ -331,12 +331,20 @@ public class OrganismPanel extends Composite {
     }
 
 
-    public List<OrganismInfo> reload() {
-        List<OrganismInfo> trackInfoList = dataProvider.getList();
-        OrganismRestService.loadOrganisms(trackInfoList);
-
-        return trackInfoList;
+    public void reload() {
+        dataGrid.redraw();
+//        List<OrganismInfo> trackInfoList = dataProvider.getList();
+//        OrganismRestService.loadOrganisms(trackInfoList);
+//
+//        return trackInfoList;
     }
+
+//    public List<OrganismInfo> reload() {
+//        List<OrganismInfo> trackInfoList = dataProvider.getList();
+//        OrganismRestService.loadOrganisms(trackInfoList);
+//
+//        return trackInfoList;
+//    }
     // Clear textboxes and make them unselectable
     private void setNoSelection() {
         organismName.setText("");

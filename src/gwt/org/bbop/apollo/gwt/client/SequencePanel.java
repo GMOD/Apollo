@@ -208,20 +208,26 @@ public class SequencePanel extends Composite {
             }
         }, DoubleClickEvent.getType());
 
-        loadOrganisms(organismList);
+//        loadOrganisms(organismList);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-                    GWT.log("item count: " + organismList.getItemCount());
-                    if (organismList.getItemCount() > 0) {
-                        sequenceInfoList.clear();
-                        sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
+                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+                    sequenceInfoList.clear();
+                    sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
+
+
+                    organismList.clear();
+                    organismInfoMap.clear();
+                    List<OrganismInfo> organismInfoList = MainPanel.getInstance().getOrganismInfoList();
+                    for (int i = 0; i < organismInfoList.size(); i++) {
+                        OrganismInfo organismInfo = organismInfoList.get(i);
+                        organismList.addItem(organismInfo.getName(), organismInfo.getId());
+                        organismInfoMap.put(organismInfo.getId(), organismInfo);
                     }
-                }
-                else{
-                    GWT.log("Unable to handle organism action "+organismChangeEvent.getAction());
+                } else {
+                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
                 }
             }
         });
@@ -473,43 +479,43 @@ public class SequencePanel extends Composite {
 
     }
 
-    /**
-     * could use an organism callback . . . however, this element needs to use the callback directly.
-     *
-     * @param trackInfoList
-     */
-    public void loadOrganisms(final ListBox trackInfoList) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-                trackInfoList.clear();
-                organismInfoMap.clear();
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    OrganismInfo organismInfo = new OrganismInfo();
-                    organismInfo.setId(object.get("id").isNumber().toString());
-                    organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
-                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
-                    organismInfo.setNumFeatures(0);
-                    organismInfo.setNumTracks(0);
-                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    organismInfoMap.put(organismInfo.getId(), organismInfo);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-
-        OrganismRestService.loadOrganisms(requestCallback);
-
-    }
+//    /**
+//     * could use an organism callback . . . however, this element needs to use the callback directly.
+//     *
+//     * @param trackInfoList
+//     */
+//    public void loadOrganisms(final ListBox trackInfoList) {
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+//                JSONArray array = returnValue.isArray();
+//
+//                trackInfoList.clear();
+//                organismInfoMap.clear();
+//                for (int i = 0; i < array.size(); i++) {
+//                    JSONObject object = array.get(i).isObject();
+//                    OrganismInfo organismInfo = new OrganismInfo();
+//                    organismInfo.setId(object.get("id").isNumber().toString());
+//                    organismInfo.setName(object.get("commonName").isString().stringValue());
+//                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
+//                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
+//                    organismInfo.setNumFeatures(0);
+//                    organismInfo.setNumTracks(0);
+//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+//                    organismInfoMap.put(organismInfo.getId(), organismInfo);
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Window.alert("Error loading organisms");
+//            }
+//        };
+//
+//        OrganismRestService.loadOrganisms(requestCallback);
+//
+//    }
 
     public void reload() {
         filterSequences();

@@ -41,11 +41,11 @@ public class Annotator implements EntryPoint {
         rp.setWidgetTopHeight(mainPanel, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
 
-        eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-            @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-            }
-        });
+//        eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+//            @Override
+//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+//            }
+//        });
     }
 
 }
