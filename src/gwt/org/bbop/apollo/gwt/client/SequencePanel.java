@@ -238,6 +238,7 @@ public class SequencePanel extends Composite {
                             organismList.setSelectedIndex(i);
                         }
                     }
+                    reload();
 
                 } else {
                     GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
