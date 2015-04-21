@@ -16,28 +16,8 @@ class JbrowseController {
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
     def sequenceService
-    def userService
     def permissionService
 
-//    def index() {
-//
-//        // this should serve the index.html wherever jbrowse is
-//        File file = new File(".")
-//        log.debug  file.absolutePath
-//
-//        File file = new File("")
-//
-//    }
-
-//    @MessageMapping("/topic/TrackListReturn")
-//    def allTracks(String input) {
-//        println "GETTING ALL TRACKS 2 ${input}"
-//        JSONObject inputObject = new JSONObject()
-//        inputObject.command = "list"
-//        println "returnString = ${returnString}"
-//        render returnString as JSON
-////            return "i[${inputString}]"
-//    }
 
     // is typically checking for trackData.json
     def tracks(String jsonFile, String trackName, String groupName) {
@@ -69,7 +49,6 @@ class JbrowseController {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
-//                    UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false ")
                     if(userOrganismPreference ==null){
                         println "creating a new one!"
                         userOrganismPreference = new UserOrganismPreference(

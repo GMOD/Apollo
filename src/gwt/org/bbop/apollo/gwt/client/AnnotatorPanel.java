@@ -168,20 +168,6 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
-        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
-            @Override
-            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                if (contextSwitchEvent.getSequenceInfo() != null) {
-//                    selectedSequenceName = contextSwitchEvent.getSequenceInfo().getName();
-                    sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
-                }
-//                loadSequences();
-                annotationInfoList.clear();
-                filterList();
-//                sequenceList.setText(contextSwitchEvent.getSequenceInfo().getName());
-            }
-        });
-
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {

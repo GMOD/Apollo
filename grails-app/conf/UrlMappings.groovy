@@ -17,6 +17,9 @@ class UrlMappings {
 
         // set this routing here
         //"/jbrowse"(controller: "jbrowse", action: "index")
+        "/jbrowse/org-${organism}"(uri: "/jbrowse/index.html"){
+            println "organism ${organism}"
+        }
         "/jbrowse/"(uri: "/jbrowse/index.html")
         "/jbrowse/data/${fileName}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/bigwig/${fileName}"(controller: "jbrowse", action: "bigwig")

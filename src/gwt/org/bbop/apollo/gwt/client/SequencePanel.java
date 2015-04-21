@@ -290,15 +290,6 @@ public class SequencePanel extends Composite {
                 }
         );
 
-        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
-            @Override
-            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                for (int i = 0; i < organismList.getItemCount(); i++) {
-                    organismList.setItemSelected(i, contextSwitchEvent.getOrganismInfo().getId() == organismList.getValue(i));
-                }
-                handleOrganismChange(null);
-            }
-        });
     }
 
     private void updatedExportSelectedButton() {

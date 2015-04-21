@@ -187,28 +187,6 @@ public class TrackPanel extends Composite {
             }
         });
 
-//        sortHandler.setComparator(typeColumn, new Comparator<TrackInfo>() {
-//            @Override
-//            public int compare(TrackInfo o1, TrackInfo o2) {
-//                return o1.getType().compareTo(o2.getType());
-//            }
-//        });
-
-
-        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
-            @Override
-            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-//                loadTracks(trackInfoList);
-                reload();
-            }
-
-        });
-
-//        trackName.setHTML("GeneID");
-//        trackType.setHTML("HTMLFeature");
-//        trackCount.setHTML("34");
-//        trackDensity.setHTML("0.000123");
-
     }
 
     private void setTrackInfo(TrackInfo selectedObject) {

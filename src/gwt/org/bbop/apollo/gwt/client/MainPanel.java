@@ -141,53 +141,6 @@ public class MainPanel extends Composite {
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
 
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-            @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                switch (organismChangeEvent.getAction()) {
-//                    case LOADED_ORGANISMS:
-////                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
-////                        organismList.clear();
-////                        for (OrganismInfo organismInfo : organismInfoList) {
-////                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
-////                        }
-//                        break;
-//                    case CHANGED_ORGANISM:
-//                        currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
-//                        currentOrganismDisplay.setHTML(currentOrganism.getName());
-//                        updateGenomicViewer();
-////                        loadReferenceSequences();
-//                        updatePermissionsForOrganism();
-//                        break;
-//                }
-            }
-
-        });
-
-        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
-
-            @Override
-            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                // need to set this before calling the sequence
-//                currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
-                currentOrganism = contextSwitchEvent.getOrganismInfo();
-                currentOrganismDisplay.setHTML(currentOrganism.getName());
-//                Window.alert("context switching org to "+currentOrganism.getName());
-
-//                for (int i = 0; i < organismList.getItemCount(); i++) {
-//                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
-//                }
-
-                if (contextSwitchEvent.getSequenceInfo() != null) {
-                    currentSequence = contextSwitchEvent.getSequenceInfo();
-                    currentSequenceDisplay.setHTML(currentSequence.getName());
-                }
-                updateGenomicViewer();
-
-
-            }
-        });
-
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
