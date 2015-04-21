@@ -5,7 +5,8 @@ import org.bbop.apollo.sequence.search.SequenceSearchTool;
 import org.bbop.apollo.sequence.search.SequenceSearchToolException;
 import org.bbop.apollo.sequence.search.blast.BlastAlignment;
 import org.bbop.apollo.sequence.search.blast.TabDelimittedAlignment;
-import org.bbop.apollo.Match;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject;
 public class BlatCommandLine extends SequenceSearchTool {
 
     private String blatBin;
-    private String tmpDir;
     private String database;
     private String blatUserOptions;
     private boolean removeTmpDir;
@@ -24,10 +24,14 @@ public class BlatCommandLine extends SequenceSearchTool {
     @Override
     public void parseConfiguration(JSONObject config) throws SequenceSearchToolException {
         try {
-            blatBin = config.getString("search_exe");
-            tmpDir = config.getString("tmp_dir");
-            database = config.getString("database");
-            blatUserOptions = config.getString("params");
+            if(config.has("search_exe")) { blatBin = config.getString("search_exe"); }
+            else { throw new SequenceSearchToolException("No blat exe specified"); }
+            if(config.has("database")) {database = config.getString("database"); }
+            else { throw new SequenceSearchToolException("No database configured"); }
+            if(config.has("params")) {blatUserOptions = config.getString("params");}
+            else { /* unset */ }
+            if(config.has("removeTmpDir")) {removeTmpDir=config.getBoolean("removeTmpDir"); }
+            else { removeTmpDir=true; }
         } catch (Exception e) {
             throw new SequenceSearchToolException("Error parsing configuration: " + e.getMessage(), e);
         }
@@ -38,7 +42,10 @@ public class BlatCommandLine extends SequenceSearchTool {
     public Collection<BlastAlignment> search(String uniqueToken, String query, String databaseId) throws SequenceSearchToolException {
         File dir = null;
         try {
-            dir = createTmpDir(uniqueToken);
+            Path p = Files.createTempDirectory("blat_tmp");
+            System.out.println(p.toString());
+            dir = p.toFile();
+
             return runSearch(dir, query, databaseId);
         }
         catch (IOException e) {
@@ -51,9 +58,9 @@ public class BlatCommandLine extends SequenceSearchTool {
             throw new SequenceSearchToolException("Error running search: " + e.getMessage(), e);
         }
         finally {
-            //if (removeTmpDir && dir!=null) {
-            //    deleteTmpDir(dir);
-            //}
+            if (removeTmpDir && dir!=null) {
+                deleteTmpDir(dir);
+            }
         }
     }
     
@@ -119,17 +126,8 @@ public class BlatCommandLine extends SequenceSearchTool {
         }
         dir.delete();
     }
-    
-    private File createTmpDir(String uniqueToken) throws SequenceSearchToolException {
-        File dir = new File(tmpDir + "/" + uniqueToken + "_" + System.nanoTime());
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                throw new SequenceSearchToolException("Error creating tmp dir: " + dir.getAbsolutePath());
-            }
-        }
-        return dir;
-    }
-    
+
+
     private String createQueryFasta(File dir, String query) throws IOException {
         String queryFileName = dir.getAbsolutePath() + "/query.fa";
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(queryFileName)));
