@@ -41,8 +41,6 @@ public class TrackPanel extends Composite {
 
     private static TrackUiBinder ourUiBinder = GWT.create(TrackUiBinder.class);
 
-    private String rootUrl;
-
     @UiField
     static TextBox nameSearchBox;
     @UiField
@@ -73,8 +71,6 @@ public class TrackPanel extends Composite {
 
 
     public TrackPanel() {
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        rootUrl = dictionary.get("rootUrl");
         exportStaticMethod();
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
@@ -322,7 +318,7 @@ public class TrackPanel extends Composite {
 
 
     public void loadTracks(final List<TrackInfo> trackInfoList) {
-        String url = rootUrl + "/jbrowse/data/trackList.json";
+        String url = Annotator.getRootUrl() + "jbrowse/data/trackList.json";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {

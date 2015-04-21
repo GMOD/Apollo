@@ -23,69 +23,11 @@ import java.util.List;
  */
 public class SequenceRestService {
 
-//    public static void loadSequences(RequestCallback requestCallback,Long organismId){
-//        if(MainPanel.getInstance().getCurrentOrganism()==null){
-//            GWT.log("organism not set...returning");
-//            return ;
-//        }
-//        RestService.sendRequest(requestCallback,"/sequence/loadSequences/"+ organismId);
-//    }
-
-//    public static void loadSequences(final List<SequenceInfo> sequenceInfoList,Long organismId) {
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                JSONArray array = returnValue.isArray();
-//                sequenceInfoList.clear();
-//
-//                for(int i = 0 ; i < array.size() ; i++){
-//                    JSONObject object = array.get(i).isObject();
-//                    SequenceInfo sequenceInfo = new SequenceInfo();
-//                    sequenceInfo.setId((long) object.get("id").isNumber().doubleValue());
-//                    sequenceInfo.setName(object.get("name").isString().stringValue());
-//                    sequenceInfo.setLength((int) object.get("length").isNumber().doubleValue());
-//                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
-//                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-////                    GWT.log("get default: "+object.get("default"));
-//                    if(object.get("default")!=null){
-////                        GWT.log("setting default to "+ sequenceInfo.getName());
-//                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
-//                    }
-//                    sequenceInfoList.add(sequenceInfo);
-//                }
-//                SequenceLoadEvent contextSwitchEvent = new SequenceLoadEvent(SequenceLoadEvent.Action.FINISHED_LOADING);
-//                Annotator.eventBus.fireEvent(contextSwitchEvent);
-//                GWT.log("added # sequences: "+sequenceInfoList.size());
-//
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Window.alert("Error loading organisms");
-//            }
-//        };
-//        if(MainPanel.currentOrganismId==null){
-//            GWT.log("organism not set...returning");
-//            sequenceInfoList.clear();
-//            return ;
-//        }
-//        loadSequences(requestCallback, organismId);
-//    }
-
-
-
     public static void setCurrentSequence(RequestCallback requestCallback,SequenceInfo sequenceInfo) {
-        RestService.sendRequest(requestCallback, "/sequence/setCurrentSequence/"+sequenceInfo.getId());
+        RestService.sendRequest(requestCallback, "sequence/setCurrentSequence/"+sequenceInfo.getId());
     }
 
-//    public static void setDefaultSequence(RequestCallback requestCallback,final String sequenceName) {
-//        RestService.sendRequest(requestCallback, "/sequence/setDefaultSequence/" + MainPanel.currentOrganismId + "?sequenceName=" + sequenceName);
-//    }
-
     public static void generateLink(final ExportPanel exportPanel) {
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        final String rootUrl = dictionary.get("rootUrl");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type",new JSONString(exportPanel.getType()));
         jsonObject.put("sequenceType",new JSONString(exportPanel.getSequenceType()));
@@ -104,7 +46,7 @@ public class SequenceRestService {
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl =  rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType ;
+                String exportUrl =  Annotator.getRootUrl() + "sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType ;
                 exportPanel.setExportUrl(exportUrl);
 //                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
             }
@@ -115,7 +57,7 @@ public class SequenceRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback, "/sequence/exportSequences/","data="+jsonObject.toString());
+        RestService.sendRequest(requestCallback, "sequence/exportSequences/","data="+jsonObject.toString());
     }
 
 

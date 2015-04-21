@@ -32,9 +32,9 @@ public class Annotator implements EntryPoint {
     public void onModuleLoad() {
         MainPanel mainPanel = MainPanel.getInstance(this);
 
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        String rootUrl = dictionary.get("rootUrl");
-        mainPanel.setRootUrl(rootUrl);
+//        Dictionary dictionary = Dictionary.getDictionary("Options");
+//        String rootUrl = dictionary.get("rootUrl");
+//        mainPanel.setRootUrl(rootUrl);
 
         RootLayoutPanel rp = RootLayoutPanel.get();
         rp.add(mainPanel);
@@ -46,6 +46,11 @@ public class Annotator implements EntryPoint {
 //            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
 //            }
 //        });
+    }
+
+    public static String getRootUrl(){
+        String rootUrl = GWT.getModuleBaseURL().replace("annotator/","");
+        return rootUrl ;
     }
 
 }

@@ -113,7 +113,7 @@ public class GroupRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback, "/group/loadGroups/");
+        RestService.sendRequest(requestCallback, "group/loadGroups/");
     }
 
     public static void updateGroup(final GroupInfo selectedGroupInfo) {
@@ -128,7 +128,7 @@ public class GroupRestService {
                 Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/group/updateGroup/", "data="+selectedGroupInfo.toJSON().toString());
+        RestService.sendRequest(requestCallback, "group/updateGroup/", "data="+selectedGroupInfo.toJSON().toString());
     }
 
     public static void deleteGroup(final GroupInfo selectedGroupInfo) {
@@ -143,7 +143,7 @@ public class GroupRestService {
                 Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/group/deleteGroup/", "data="+selectedGroupInfo.toJSON().toString());
+        RestService.sendRequest(requestCallback, "group/deleteGroup/", "data="+selectedGroupInfo.toJSON().toString());
     }
 
     public static void addNewGroup(final GroupInfo selectedGroupInfo) {
@@ -158,7 +158,7 @@ public class GroupRestService {
                 Window.alert("error updating group "+selectedGroupInfo.getName()+" "+exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/group/createGroup/", "data="+selectedGroupInfo.toJSON().toString());
+        RestService.sendRequest(requestCallback, "group/createGroup/", "data="+selectedGroupInfo.toJSON().toString());
     }
 
     public static void updateOrganismPermission(GroupOrganismPermissionInfo object) {
@@ -174,6 +174,6 @@ public class GroupRestService {
                 Window.alert("Error updating permissions: " + exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/group/updateOrganismPermission", "data=" + object.toJSON());
+        RestService.sendRequest(requestCallback, "group/updateOrganismPermission", "data=" + object.toJSON());
     }
 }

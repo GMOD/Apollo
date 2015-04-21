@@ -46,7 +46,7 @@ public class MainPanel extends Composite {
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
     private boolean toggleOpen = true;
-    private String rootUrl;
+//    private String rootUrl;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
@@ -137,8 +137,9 @@ public class MainPanel extends Composite {
         frame.getElement().setAttribute("id", frame.getName());
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
-        rootUrl = dictionary.get("rootUrl");
+//        rootUrl = dictionary.get("rootUrl");
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
+
 
 
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
@@ -204,7 +205,7 @@ public class MainPanel extends Composite {
     }
 
     private void loginUser() {
-        String url = rootUrl + "/user/checkLogin";
+        String url = Annotator.getRootUrl()+"user/checkLogin";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -257,27 +258,12 @@ public class MainPanel extends Composite {
     }
 
 
-//    @UiHandler("organismList")
-//    public void changeOrganism(ChangeEvent event) {
-//        String selectedValue = organismList.getSelectedValue();
-//        currentOrganismId = Long.parseLong(selectedValue);
-////        sequenceList.setText("");
-////        sequenceOracle.clear();
-//        OrganismRestService.changeOrganism(selectedValue);
-//    }
-
-//    @UiHandler("sequenceList")
-//    public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
-//        updateGenomicViewer();
-//        SequenceRestService.setDefaultSequence(currentSequenceName);
-//    }
-
     public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
         Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.5);
         minRegion -= buffer;
         if (minRegion < 0) minRegion = 0;
         maxRegion += buffer;
-        String trackListString = rootUrl + "/jbrowse/?loc=";
+        String trackListString = Annotator.getRootUrl()+ "jbrowse/?loc=";
         trackListString += selectedSequence;
         trackListString += ":" + minRegion + ".." + maxRegion;
         trackListString += "&";
@@ -295,8 +281,7 @@ public class MainPanel extends Composite {
     }
 
     public void updateGenomicViewer() {
-        String trackListString = rootUrl + "/jbrowse/?loc=";
-//        String selectedSequence =
+        String trackListString = Annotator.getRootUrl()+ "jbrowse/?loc=";
         GWT.log("get selected sequence: " + currentSequence.getName());
         trackListString += currentSequence.getName();
 
@@ -311,61 +296,6 @@ public class MainPanel extends Composite {
         frame.setUrl(trackListString);
     }
 
-    /**
-     * could use an sequence callback . . . however, this element needs to use the callback directly.
-     */
-//    public void loadReferenceSequences() {
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-////                sequenceOracle.clear();
-////                sequenceList.setText("");
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                JSONArray array = returnValue.isArray();
-//
-//
-//                for (int i = 0; i < array.size(); i++) {
-//                    JSONObject object = array.get(i).isObject();
-//                    SequenceInfo sequenceInfo = new SequenceInfo();
-//                    sequenceInfo.setName(object.get("name").isString().stringValue());
-//                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
-//                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-//                    if (object.get("default") != null) {
-//                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
-//                    }
-////                    sequenceOracle.add(sequenceInfo.getName());
-//                    if (sequenceInfo.isDefault()) {
-//                        GWT.log("setting name to default: " + sequenceInfo.getName());
-////                        sequenceList.setText(sequenceInfo.getName());
-//                        currentSequenceName = sequenceInfo.getName();
-//                    }
-//                    else if (currentSequenceName != null && sequenceInfo.getName().equals(currentSequenceName)) {
-//                        GWT.log("setting name: " + currentSequenceName);
-////                        sequenceList.setText(sequenceInfo.getName());
-//                        currentSequenceName = sequenceInfo.getName();
-//                    }
-//                }
-//
-//                if (array.size() > 0) {
-//                    if (currentSequenceName == null) {
-//                        currentSequenceName = array.get(0).isObject().get("name").isString().stringValue();
-//                    }
-//                }
-//                currentSequenceDisplay.setHTML(currentSequenceName);
-//
-//                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentSequenceName, currentOrganism);
-//                Annotator.eventBus.fireEvent(contextSwitchEvent);
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Window.alert("Error loading organisms");
-//            }
-//        };
-//        // TODO: move to a javscript function in iFrame?
-//        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
-//
-//    }
     public void setAppState(AppStateInfo appStateInfo) {
         organismInfoList = appStateInfo.getOrganismList();
         currentSequenceList = appStateInfo.getCurrentSequenceList();
@@ -388,7 +318,7 @@ public class MainPanel extends Composite {
     }
 
     public void getAppState() {
-        String url = rootUrl + "/annotator/getAppState";
+        String url = Annotator.getRootUrl()+ "annotator/getAppState";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -397,9 +327,6 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
                 setAppState(appStateInfo);
-//                 OrganismChangeEvent.Action.LOADED_ORGANISMS
-//                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
-//                Annotator.eventBus.fireEvent(contextSwitchEvent);
             }
 
             @Override
@@ -417,59 +344,6 @@ public class MainPanel extends Composite {
 
     }
 
-    /**
-     * could use an organism callback . . . however, this element needs to use the callback directly.
-     */
-//    public void loadOrganisms() {
-//        String url = rootUrl + "/organism/findAllOrganisms";
-//        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-//        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                JSONArray array = returnValue.isArray();
-//
-//                for (int i = 0; i < array.size(); i++) {
-//                    JSONObject object = array.get(i).isObject();
-//                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
-////                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-//                    if (organismInfo.isCurrent()) {
-//                        currentOrganismId = Long.parseLong(organismInfo.getId());
-//                        currentOrganism = organismInfo;
-//                        currentOrganismDisplay.setHTML(currentOrganism.getName());
-////                        trackInfoList.setSelectedIndex(i);
-//                    }
-//                }
-//
-//                if (currentOrganismId == null && array.size() > 0) {
-//                    JSONObject rootObject = array.get(0).isObject();
-//                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
-//                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
-//                    currentOrganismDisplay.setHTML(currentOrganism.getName());
-////                    trackInfoList.setSelectedIndex(0);
-//                }
-//                updatePermissionsForOrganism();
-//
-//                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(currentOrganism);
-//                Annotator.eventBus.fireEvent(contextSwitchEvent);
-////                loadReferenceSequences();
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Window.alert("Error loading organisms");
-//            }
-//        };
-//        try {
-//            builder.setCallback(requestCallback);
-//            builder.send();
-//        } catch (RequestException e) {
-//            // Couldn't connect to server
-//            Window.alert(e.getMessage());
-//        }
-//
-//    }
     @UiHandler("dockOpenClose")
     void handleClick(ClickEvent event) {
         toggleOpen();
@@ -535,9 +409,9 @@ public class MainPanel extends Composite {
     }
 
 
-    public void setRootUrl(String rootUrl) {
-        this.rootUrl = rootUrl;
-    }
+//    public void setRootUrl(String rootUrl) {
+//        this.rootUrl = rootUrl;
+//    }
 
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {

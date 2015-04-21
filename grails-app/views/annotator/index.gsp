@@ -16,9 +16,9 @@
 
     <script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>
     <script>
+        %{--rootUrl: '${applicationContext.servletContext.getContextPath()}'--}%
         var Options = {
-            rootUrl: '${applicationContext.servletContext.getContextPath()}'
-            , showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
+            showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
             ,userId: '${userKey}'
         };
     </script>

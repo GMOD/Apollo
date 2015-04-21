@@ -57,8 +57,6 @@ public class AnnotatorPanel extends Composite {
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
 
     Dictionary dictionary = Dictionary.getDictionary("Options");
-    String rootUrl = dictionary.get("rootUrl");
-//    private String selectedSequenceName = null;
 
     private Column<AnnotationInfo, String> nameColumn;
     //    private TextColumn<AnnotationInfo> filterColumn;
@@ -407,45 +405,12 @@ public class AnnotatorPanel extends Composite {
 
     }
 
-//    private void loadSequences() {
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                JSONArray array = returnValue.isArray();
-//
-//                if (selectedSequenceName == null && array.size() > 0) {
-//                    selectedSequenceName = array.get(0).isObject().get("name").isString().stringValue();
-//                }
-//                sequenceOracle.clear();
-//                for (int i = 0; i < array.size(); i++) {
-//                    JSONObject object = array.get(i).isObject();
-//                    SequenceInfo sequenceInfo = new SequenceInfo();
-//                    sequenceInfo.setName(object.get("name").isString().stringValue());
-//                    sequenceInfo.setLength((int) object.get("length").isNumber().isNumber().doubleValue());
-//                    sequenceOracle.add(sequenceInfo.getName());
-//                    if (selectedSequenceName.equals(sequenceInfo.getName())) {
-//                        sequenceList.setText(sequenceInfo.getName());
-//                    }
-//                }
-//
-////                reload();
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Window.alert("Error loading organisms");
-//            }
-//        };
-//        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
-//    }
-
     private String getType(JSONObject internalData) {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
     public void loadOrganismAndSequence(String sequenceName){
-        String url = rootUrl + "/annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName +"&request="+requestIndex;
+        String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName +"&request="+requestIndex;
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {

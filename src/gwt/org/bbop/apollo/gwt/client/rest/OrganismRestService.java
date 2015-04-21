@@ -19,7 +19,7 @@ import java.util.List;
 public class OrganismRestService {
 
     public static void loadOrganisms(RequestCallback requestCallback) {
-        RestService.sendRequest(requestCallback, "/organism/findAllOrganisms");
+        RestService.sendRequest(requestCallback, "organism/findAllOrganisms");
     }
 
 
@@ -57,7 +57,7 @@ public class OrganismRestService {
                 Window.alert("error updating organism info: "+exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/organism/updateOrganismInfo", "data=" + organismInfoObject.toString());
+        RestService.sendRequest(requestCallback, "organism/updateOrganismInfo", "data=" + organismInfoObject.toString());
     }
 
     public static void changeOrganism(String newOrganismId) {
@@ -81,16 +81,16 @@ public class OrganismRestService {
         };
         String payload = "data={organismId:'"+newOrganismId+"'}";
 
-        RestService.sendRequest(requestCallback, "/organism/changeOrganism", payload);
+        RestService.sendRequest(requestCallback, "organism/changeOrganism", payload);
 
     }
 
     public static void createOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
-        RestService.sendRequest(requestCallback,"/organism/saveOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
+        RestService.sendRequest(requestCallback,"organism/saveOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
     }
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
-        RestService.sendRequest(requestCallback,"/organism/deleteOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
+        RestService.sendRequest(requestCallback,"organism/deleteOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
     }
 
     public static void switchOrganismById(String newOrganismId) {
@@ -98,18 +98,7 @@ public class OrganismRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-
                 MainPanel.getInstance().setAppState(AppInfoConverter.convertFromJson(returnValue));
-//                Window.alert(returnValue.toString());
-
-//                OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
-//                MainPanel.getInstance().setCurrentOrganism(organismInfo);
-
-//                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
-//                List<OrganismInfo> organismInfoList = new ArrayList<>();
-//                organismInfoList.add(organismInfo);
-//                organismChangeEvent.setOrganismInfoList(organismInfoList);
-//                Annotator.eventBus.fireEvent(organismChangeEvent);
             }
 
             @Override
@@ -118,7 +107,7 @@ public class OrganismRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback,"/annotator/setCurrentOrganism/"+newOrganismId);
+        RestService.sendRequest(requestCallback,"annotator/setCurrentOrganism/"+newOrganismId);
     }
 
     public static void switchSequenceById(String newSequenceId) {
@@ -145,6 +134,6 @@ public class OrganismRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback,"/annotator/setCurrentSequence/"+ newSequenceId);
+        RestService.sendRequest(requestCallback,"annotator/setCurrentSequence/"+ newSequenceId);
     }
 }

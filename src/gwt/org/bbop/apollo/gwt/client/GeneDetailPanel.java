@@ -26,9 +26,6 @@ public class GeneDetailPanel extends Composite {
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, GeneDetailPanel> {
     }
 
-    Dictionary dictionary = Dictionary.getDictionary("Options");
-    String rootUrl = dictionary.get("rootUrl");
-
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameField;
@@ -84,7 +81,7 @@ public class GeneDetailPanel extends Composite {
 
 
     private void updateGene() {
-        String url = rootUrl + "/annotator/updateFeature";
+        String url = Annotator.getRootUrl() + "annotator/updateFeature";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();

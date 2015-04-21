@@ -43,8 +43,6 @@ public class ExonDetailPanel extends Composite {
     interface ExonDetailPanelUiBinder extends UiBinder<Widget, ExonDetailPanel> {
     }
 
-    Dictionary dictionary = Dictionary.getDictionary("Options");
-    String rootUrl = dictionary.get("rootUrl");
     int inputFmin, inputFmax;
     int fivePrimeValue, threePrimeValue;
     private AnnotationInfo internalAnnotationInfo;
@@ -281,7 +279,7 @@ public class ExonDetailPanel extends Composite {
 
 
     private void updateFeatureLocation() {
-        String url = rootUrl + "/annotator/updateFeatureLocation";
+        String url = Annotator.getRootUrl() + "annotator/updateFeatureLocation";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
@@ -350,7 +348,7 @@ public class ExonDetailPanel extends Composite {
     }
 
     private void updateFeatureLocation(final AnnotationInfo originalInfo) {
-        String url = rootUrl + "/annotator/updateFeatureLocation";
+        String url = Annotator.getRootUrl()+ "annotator/updateFeatureLocation";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
