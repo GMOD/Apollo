@@ -81,7 +81,7 @@ The defaults are generally sufficient, but as noted above, you can override any 
 apollo-config.groovy file, e.g. you can add override configuration any given parameter as follows:
 
     grails {
-        apollo.get_translation_code =1 
+        apollo.get_translation_code = 1 
         apollo {
              use_cds_for_new_transcripts = true
              default_minimum_intron_size = 1
@@ -120,9 +120,8 @@ commonly used and can be easily configured via the config file, with the general
 
 Note: Any arbitrary search tool can be specified using this syntax, i.e. the blat_nuc and blat_prot are just recommended
 defaults. You could have your own section with multiple different parameters, or even code your own search_class if it
-implements the SequenceSearchTool interface. Also note: the tmp_dir is normally a system predefined unless tmp_dir is
-used.
-
+implements the SequenceSearchTool interface. Also note: the tmp_dir is normally a system predefined folder, so it is not
+normally necessary to define it.
 
 ### Supported annotation types
 
@@ -160,8 +159,8 @@ Todo
 
 #### Upgrading existing JBrowse data stores
 
-The JBrowse data stores have remained stable, so there you don't have to upgrade the JBrowse data tracks to use
-Web Apollo 2.0.
+It is not necessary to upgrade the JBrowse data tracks to use Web Apollo 2.0, you can just point to the data directory
+from your previous instances from the Organism panel.
 
 ##### Sequence alterations updating
 
