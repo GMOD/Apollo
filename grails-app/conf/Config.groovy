@@ -176,14 +176,14 @@ apollo {
             search_exe = "/usr/local/bin/blat"
             search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
             name = "Blat nucleotide"
-            tmp_dir = "/opt/apollo/honeybee/tmp"
+            tmp_dir = "/opt/apollo/tmp"
             params = ""
         }
         blat_prot {
             search_exe = "/usr/local/bin/blat"
             search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
             name = "Blat protein"
-            tmp_dir = "/opt/apollo/honeybee/tmp"
+            tmp_dir = "/opt/apollo/tmp"
             params = ""
         }
     }
