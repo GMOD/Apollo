@@ -310,6 +310,23 @@ public class OrganismPanel extends Composite {
     }
 
 
+    @UiHandler("species")
+    public void handleSpeciesChange(ChangeEvent changeEvent) {
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setSpecies(species.getText());
+            updateOrganismInfo();
+        }
+    }
+
+    @UiHandler("genus")
+    public void handleGenusChange(ChangeEvent changeEvent) {
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setGenus(genus.getText());
+            updateOrganismInfo();
+        }
+    }
+
+
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
         if(singleSelectionModel.getSelectedObject()!=null) {

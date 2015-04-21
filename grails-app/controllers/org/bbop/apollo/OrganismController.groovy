@@ -89,13 +89,15 @@ class OrganismController {
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
         log.debug "updating feature ${params.data}"
-//                        {"data":{"id":"14", "name":"Honey Bee7", "directory":"/opt/another.apollo/jbrowse/data"}}
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
         log.debug "jsonObject ${organismJson}"
         Organism organism = Organism.findById(organismJson.id)
         log.debug "found an organism ${organism}"
         if (organism) {
             organism.commonName = organismJson.name
+            organism.blatdb = organismJson.blatdb
+            organism.species = organismJson.species
+            organism.genus = organismJson.genus
 
             boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
             log.debug "directoryChanged ${directoryChanged}"
