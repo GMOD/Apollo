@@ -7,6 +7,7 @@ import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.editor.AnnotationEditor
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.Strand
 
 //@GrailsCompileStatic
 @Transactional
@@ -421,20 +422,22 @@ class ExonService {
                 ,uniqueName: cds.uniqueName + "_tmpFlankRegion"
         ).save()
 
-
-
         List <Exon> exons = transcriptService.getSortedExons(transcript)
+        if (exon.strand == Strand.NEGATIVE.value) {
+            Collections.reverse(exons)
+        }
+        
         for (Exon e in exons) {
-            // why bother through this loop if, right after this loop, the fmin and fmax are altered according to cds fmin and fmax
-//            if (e.equals(exon)) {
-//                break // WHAT?
-//            }
+            //getting length of the previous exon to calculate phase of current exon
+            if (e.equals(exon)) {
+                break
+            }
             if (!featureService.overlaps(e, cds, true)) {
                 continue
             }
             int fmin = e.fmin < cds.fmin ? cds.fmin : e.fmin
             int fmax = e.fmax > cds.fmax ? cds.fmax : e.fmax
-            length = fmin < fmax ? fmax - fmin : fmin - fmax
+            length += fmin < fmax ? fmax - fmin : fmin - fmax
         }
         
         FeatureLocation flankingRegionLocation = new FeatureLocation(
@@ -452,41 +455,4 @@ class ExonService {
         }
         return residues
     }
-    
-    // Legacy code
-//    private String getCodingSequenceInPhase(AnnotationEditor editor, Exon exon, boolean removePartialCodons) {
-//        Transcript transcript = exon.getTranscript();
-//        CDS cds = transcript.getCDS();
-//        if (cds == null || !exon.overlaps(cds)) {
-//            return "";
-//        }
-//        int length = 0;
-//        FlankingRegion flankingRegion = new FlankingRegion(null, null, false, false, null, exon.getConfiguration()); - create FR
-//        flankingRegion.setFeatureLocation(new FeatureLocation()); - set new Feature Location for FR
-//        flankingRegion.getFeatureLocation().setSourceFeature(exon.getFeatureLocation().getSourceFeature()); - set sequence source as that of exon
-//        flankingRegion.setStrand(exon.getStrand()); - set strand as that of exon
-//        List<Exon> exons = BioObjectUtil.createSortedFeatureListByLocation(transcript.getExons(), true); - get all exons for transcript
-//        for (Exon e : exons) { for each exon
-//            if (e.equals(exon)) {
-//                break; - if exon is equal to exon, break? but why?
-//            }
-//            if (!e.overlaps(cds)) {
-//                continue; if exon doesn't overlaps CDS feature then continue iteration
-//            }
-//            int fmin = e.getFmin() < cds.getFmin() ? cds.getFmin() : e.getFmin();
-//            int fmax = e.getFmax() > cds.getFmax() ? cds.getFmax() : e.getFmax();
-//            flankingRegion.setFmin(fmin);
-//            flankingRegion.setFmax(fmax);
-//            length += editor.getSession().getResiduesWithAlterationsAndFrameshifts(flankingRegion).length();
-//        }
-//        flankingRegion.setFmin(exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin());
-//        flankingRegion.setFmax(exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax());
-//        String residues = editor.getSession().getResiduesWithAlterationsAndFrameshifts(flankingRegion);
-//        if (removePartialCodons) {
-//            int phase = length % 3 == 0 ? 0 : 3 - (length % 3);
-//            residues = residues.substring(phase);
-//            residues = residues.substring(0, residues.length() - (residues.length() % 3));
-//        }
-//        return residues;
-//    }
 }
