@@ -18,6 +18,7 @@ class SequenceSearchService {
     }
 
     def searchSequence(JSONObject input, String database) {
+
         String ret=input.get('search').get('key')
         JSONObject searchUtils=configWrapperService.getSequenceSearchTools().get(ret)
         searchUtils.put("database",database)
