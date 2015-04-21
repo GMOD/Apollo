@@ -18,6 +18,7 @@ public class BlatCommandLine extends SequenceSearchTool {
     private String blatBin;
     private String database;
     private String blatUserOptions;
+    private String tmpDir;
     private boolean removeTmpDir;
     protected String [] blatOptions;
     
@@ -32,6 +33,7 @@ public class BlatCommandLine extends SequenceSearchTool {
             else { /* unset */ }
             if(config.has("removeTmpDir")) {removeTmpDir=config.getBoolean("removeTmpDir"); }
             else { removeTmpDir=true; }
+            if(config.has("tmp_dir")) {tmpDir=config.getString("tmp_dir"); }
         } catch (Exception e) {
             throw new SequenceSearchToolException("Error parsing configuration: " + e.getMessage(), e);
         }
@@ -41,10 +43,16 @@ public class BlatCommandLine extends SequenceSearchTool {
     @Override
     public Collection<BlastAlignment> search(String uniqueToken, String query, String databaseId) throws SequenceSearchToolException {
         File dir = null;
+        Path p = null;
         try {
-            Path p = Files.createTempDirectory("blat_tmp");
-            System.out.println(p.toString());
+            if(tmpDir==null) {
+                p = Files.createTempDirectory("blat_tmp");
+            }
+            else {
+                p = Files.createTempDirectory(new File(tmpDir).toPath(),"blat_tmp");
+            }
             dir = p.toFile();
+            System.out.println(p.toString());
 
             return runSearch(dir, query, databaseId);
         }
