@@ -2,9 +2,10 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">On GitHub</a>
 
-Web Apollo 2.0 includes some basic configuration parameters that are specified a groovy file.  The most important
-parameters are the database parameters in order to get Web Apollo up and running. Other options are also available too,
-but note that many parameters can also be configured via the web interface
+Web Apollo 2.0 includes some basic configuration parameters that are specified in configuration files. The most
+important parameters are the database parameters in order to get Web Apollo up and running. Other options besides the
+database parameters can be configured via the config files, but note that many parameters can also be configured via the
+web interface.
 
 Note: Configuration options may change over time, as more configuration items are integrated into the web interface.
 
@@ -49,14 +50,12 @@ defined in the Config.groovy file:
                 search_exe = "/usr/local/bin/blat"
                 search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
                 name = "Blat nucleotide"
-                tmp_dir = "/opt/apollo/honeybee/tmp"
                 params = ""
             }
             blat_prot {
                 search_exe = "/usr/local/bin/blat"
                 search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
                 name = "Blat protein"
-                tmp_dir = "/opt/apollo/honeybee/tmp"
                 params = ""
             }
         }
@@ -107,20 +106,23 @@ commonly used and can be easily configured via the config file, with the general
             search_exe = "/usr/local/bin/blat"
             search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
             name = "Blat nucleotide"
-            tmp_dir = "/opt/apollo/honeybee/tmp"
             params = ""
         }
         blat_prot {
             search_exe = "/usr/local/bin/blat"
             search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
             name = "Blat protein"
-            tmp_dir = "/opt/apollo/honeybee/tmp"
             params = ""
+            // tmp_dir = /custom/tmp/dir
         }
     }
 
-Note: These defaults are normally sufficient, but you may want to configure your own command line parameters and tmp
-directory for BLAT tool.
+
+Note: Any arbitrary search tool can be specified using this syntax, i.e. the blat_nuc and blat_prot are just recommended
+defaults. You could have your own section with multiple different parameters, or even code your own search_class if it
+implements the SequenceSearchTool interface. Also note: the tmp_dir is normally a system predefined unless tmp_dir is
+used.
+
 
 ### Supported annotation types
 

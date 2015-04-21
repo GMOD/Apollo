@@ -21,7 +21,9 @@ class SequenceSearchService {
 
         String ret=input.get('search').get('key')
         JSONObject searchUtils=configWrapperService.getSequenceSearchTools().get(ret)
-        searchUtils.put("database",database)
+        if(database != "") searchUtils.put("database",database)
+        else return "{error: 'Error'}"
+
         def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'), true, false )?.newInstance()
         searcher.parseConfiguration(searchUtils)
         Collection<TabDelimittedAlignment> results=searcher.search('blat',
