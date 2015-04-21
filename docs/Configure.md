@@ -2,9 +2,10 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">On GitHub</a>
 
-Web Apollo 2.0 includes some basic configuration parameters that are specified a groovy file.  The most important
-parameters are the database parameters in order to get Web Apollo up and running. Other options are also available too,
-but note that many parameters can also be configured via the web interface
+Web Apollo 2.0 includes some basic configuration parameters that are specified in configuration files. The most
+important parameters are the database parameters in order to get Web Apollo up and running. Other options besides the
+database parameters can be configured via the config files, but note that many parameters can also be configured via the
+web interface.
 
 Note: Configuration options may change over time, as more configuration items are integrated into the web interface.
 
