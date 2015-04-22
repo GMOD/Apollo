@@ -1,3 +1,9 @@
+sudo: false
+cache:
+  directories:
+    - extlib/
+    - $HOME/.cpanm/
+    - $HOME/.grails/
 language: groovy
 script:
     - ant gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
