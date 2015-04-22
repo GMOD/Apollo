@@ -117,44 +117,57 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getDataAdapters() {
-        log.debug "get data adapters !! ${params}"
+//        log.debug "get data adapters !! ${params}"
+//        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+//
+//
+//        JSONArray dataAdaptersArray = new JSONArray();
+//        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+//
+//        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
+//            render returnObject
+//            return
+//        }
+//
+//        log.debug "# of data adapters ${DataAdapter.count}"
+//        for (DataAdapter dataAdapter in DataAdapter.all) {
+//            log.debug "adding data adatapter ${dataAdapter}"
+//            // data-adapters are embedded in groups
+//            // TODO: incorporate groups at some point, just children of the original . . .
+//            JSONObject dataAdapterJSON = new JSONObject()
+//            dataAdaptersArray.put(dataAdapterJSON)
+//            dataAdapterJSON.put(REST_KEY, dataAdapter.key)
+//            dataAdapterJSON.put(REST_PERMISSION, dataAdapter.permission)
+//            dataAdapterJSON.put(REST_OPTIONS, dataAdapter.options)
+//            JSONArray dataAdapterGroupArray = new JSONArray();
+//            // handles groups
+//            if (dataAdapter.dataAdapters) {
+//                dataAdapterJSON.put(REST_DATA_ADAPTERS, dataAdapterGroupArray)
+//
+//                for (da in dataAdapter.dataAdapters) {
+//                    JSONObject dataAdapterChild = new JSONObject()
+//                    dataAdapterChild.put(REST_KEY, da.key)
+//                    dataAdapterChild.put(REST_PERMISSION, da.permission)
+//                    dataAdapterChild.put(REST_OPTIONS, da.options)
+//                    dataAdapterGroupArray.put(dataAdapterChild)
+//                }
+//            }
+//        }
+//        log.debug "returning data adapters  ${returnObject}"
+
+        // temporary workaround
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-
-
-        JSONArray dataAdaptersArray = new JSONArray();
-        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+        String jsonString = "[{\"permission\":1,\"key\":\"GFF3\",\"options\":\"output=file&format=gzip&type=GFF3\"},{\"permission\":1,\"key\":\"FASTA\",\"data_adapters\":[{\"permission\":1,\"key\":\"peptide\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=peptide\"},{\"permission\":1,\"key\":\"cDNA\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cdna\"},{\"permission\":1,\"key\":\"CDS\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cds\"}]}]"
+        JSONArray dataAdaptersArray = new JSONArray()
 
         if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
+            returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
             render returnObject
             return
         }
-
-        log.debug "# of data adapters ${DataAdapter.count}"
-        for (DataAdapter dataAdapter in DataAdapter.all) {
-            log.debug "adding data adatapter ${dataAdapter}"
-            // data-adapters are embedded in groups
-            // TODO: incorporate groups at some point, just children of the original . . .
-            JSONObject dataAdapterJSON = new JSONObject()
-            dataAdaptersArray.put(dataAdapterJSON)
-            dataAdapterJSON.put(REST_KEY, dataAdapter.key)
-            dataAdapterJSON.put(REST_PERMISSION, dataAdapter.permission)
-            dataAdapterJSON.put(REST_OPTIONS, dataAdapter.options)
-            JSONArray dataAdapterGroupArray = new JSONArray();
-            // handles groups
-            if (dataAdapter.dataAdapters) {
-                dataAdapterJSON.put(REST_DATA_ADAPTERS, dataAdapterGroupArray)
-
-                for (da in dataAdapter.dataAdapters) {
-                    JSONObject dataAdapterChild = new JSONObject()
-                    dataAdapterChild.put(REST_KEY, da.key)
-                    dataAdapterChild.put(REST_PERMISSION, da.permission)
-                    dataAdapterChild.put(REST_OPTIONS, da.options)
-                    dataAdapterGroupArray.put(dataAdapterChild)
-                }
-            }
-        }
-        log.debug "returning data adapters  ${returnObject}"
-
+        dataAdaptersArray = JSON.parse(jsonString) as JSONArray
+        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+        println "===> RETURN OBJ FOR DA : ${returnObject.toString()}"
         render returnObject
     }
 

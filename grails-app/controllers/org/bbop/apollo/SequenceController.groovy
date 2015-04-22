@@ -221,6 +221,7 @@ class SequenceController {
             // HQL for a single sequence or selected sequences
             sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences])
         }
+        println "::: sequenceList: ${sequenceList}"
         log.debug "# of sequences to export ${sequenceList.size()}"
 
         List<String> ontologyIdList = [Gene.class.name]

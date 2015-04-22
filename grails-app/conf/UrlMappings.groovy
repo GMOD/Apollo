@@ -41,5 +41,7 @@ class UrlMappings {
         }
         "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params){
         }
+        "/IOService"(controller:"IOService",action: "handleOperation",params:params){
+        }
     }
 }
