@@ -278,6 +278,14 @@ define([
                     if(typeof window.parent.getEmbeddedVersion == 'function') {
                         if(window.parent.getEmbeddedVersion()=='ApolloGwt-1.0') {
                             console.log('Registering embedded system with ApolloGwt-1.0.');
+
+                            track.gview.browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                                window.parent.handleNavigationEvent("nav",event);
+                            }));
+                            //track.gview.browser.subscribe('/jbrowse/v1/n/navigate', function(event){
+                            //    window.parent.handleNavigationEvent("nav",event);
+                            //});
+
                             var sendTracks = function (trackList, visibleTrackNames) {
                                 var filteredTrackList = [];
                                 for (var trackConfigIndex in trackList) {

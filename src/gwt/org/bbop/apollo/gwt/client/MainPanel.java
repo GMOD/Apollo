@@ -471,6 +471,10 @@ public class MainPanel extends Composite {
         userGroupPanel.reload();
     }
 
+    public static void handleNavigationEvent(String name, JavaScriptObject javaScriptObject) {
+        Window.alert("handlign nav event for "+name + " and "+javaScriptObject.toSource());
+    }
+
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
@@ -478,6 +482,7 @@ public class MainPanel extends Composite {
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
         $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
+        $wnd.handleNavigationEvent = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleNavigationEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {
                 return 'ApolloGwt-1.0';
