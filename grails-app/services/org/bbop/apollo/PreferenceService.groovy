@@ -1,6 +1,9 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 @Transactional
 class PreferenceService {
@@ -55,6 +58,9 @@ class PreferenceService {
             userOrganismPreference.currentOrganism = true ;
             userOrganismPreference.save()
         }
+        Session session = SecurityUtils.subject.getSession(false)
+        String organismJBrowseDirectory = session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+
         setOtherCurrentOrganismsFalse(userOrganismPreference,user)
     }
 
@@ -78,6 +84,9 @@ class PreferenceService {
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()
         }
+        Session session = SecurityUtils.subject.getSession(false)
+        String organismJBrowseDirectory = session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+
         setOtherCurrentOrganismsFalse(userOrganismPreference,user)
     }
 
@@ -97,6 +106,9 @@ class PreferenceService {
         if(!sequence){
             throw new AnnotationException("Sequence name is invalid ${sequenceName}")
         }
+
+        Session session = SecurityUtils.subject.getSession(false)
+        String organismJBrowseDirectory = session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,sequence.organism.directory)
 
         userOrganismPreference.sequence = sequence
         userOrganismPreference.setStartbp(startBp)
