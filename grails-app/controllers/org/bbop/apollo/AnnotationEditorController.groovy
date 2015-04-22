@@ -167,7 +167,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
         dataAdaptersArray = JSON.parse(jsonString) as JSONArray
         returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
-        println "===> RETURN OBJ FOR DA : ${returnObject.toString()}"
+        log.debug "return object from getDataAdapters: ${returnObject.toString()}"
         render returnObject
     }
 

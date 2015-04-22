@@ -43,5 +43,7 @@ class UrlMappings {
         }
         "/IOService"(controller:"IOService",action: "handleOperation",params:params){
         }
+        "/IOService/download"(controller:"IOService",action: "download", params:params)
+        
     }
 }

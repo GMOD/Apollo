@@ -19,44 +19,56 @@ class IOServiceController extends AbstractApolloController {
     def index() { }
     
     def handleOperation(String track, String operation) {
-        println "Requested parameterMap: ${request.parameterMap.keySet()}"
-        println "upstream params: ${params}"
-        println "OPERATION: ${operation}"
-        println "TYPE: ${params.adapter}"
-        
+        log.debug "Requested parameterMap: ${request.parameterMap.keySet()}"
+        log.debug "upstream params: ${params}"
         //JSONObject postObject = findPost()
         //operation = postObject.get(REST_OPERATION)
-        //TODO: Currently not using the findPost() because the input params is not of the proper format
-        
+        //TODO: Currently not using the findPost()
         def mappedAction = underscoreToCamelCase(operation)
         forward action: "${mappedAction}", params: params
     }
     
     def write() {
+        log.debug("params to IOService::write(): ${params}")
         String typeOfExport = params.type
-        String sequenceType
         String sequenceName = params.tracks.substring("Annotations-".size())
+        String fileName
+        String sequenceType
         List<String> ontologyIdList = [Gene.class.name]
         def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList])
-        File outputFile = File.createTempFile ("Annotations-" + sequenceName, "." + typeOfExport.toLowerCase())
-
+        File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
+        
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
+            fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
             gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
         } else if (typeOfExport == "FASTA") {
             // call fastaHandlerService
             sequenceType = params.seqType
+            fileName = "Annotations-" + sequenceName + "." + sequenceType + "." + typeOfExport.toLowerCase()
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
         }
-        JSONObject jsonObject = new JSONObject()
-        jsonObject.put("filePath", outputFile.path)
-        jsonObject.put("exportType", typeOfExport)
-        jsonObject.put("sequenceType", sequenceType)
-        redirect(controller: 'sequence', action: 'exportHandler', params: jsonObject)
-//        println "TEST RESOURCE LOCATOR: ${grailsResourceLocator.findResourceForURI(outputFile.toURI().toString())}"
-//        render {
-//            div(id: "downloadDiv", outputFile.path)
-//            
-//        }
+
+        //generating a html fragment with the link for download that can be rendered on client side
+        String htmlResponseString = "<html><head></head><body><iframe name='hidden_iframe' style='display:none'></iframe><a href='@DOWNLOAD_LINK_URL@' target='hidden_iframe'>@DOWNLOAD_LINK@</a></body></html>"
+        String downloadLinkUrl = 'IOService/download/?filePath=' + URLEncoder.encode(outputFile.path) + "&fileType=" + typeOfExport + "&fileName=" + URLEncoder.encode(fileName)
+        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK_URL@", downloadLinkUrl)
+        htmlResponseString = htmlResponseString.replace("@DOWNLOAD_LINK@", fileName)
+        
+        render text: htmlResponseString, contentType: "text/html", encoding: "UTF-8"
+    }
+    
+    def download() {
+        def file = new File(params.filePath)
+        if (!file.exists()) { return }
+        response.contentType = "txt"
+        //TODO: Support for gzipped output
+        String fileName = params.fileName
+        response.setHeader("Content-disposition", "attachment; filename=${fileName}")
+        def outputStream = response.outputStream
+        outputStream << file.text
+        outputStream.flush()
+        outputStream.close()
+        file.delete()
     }
 }
