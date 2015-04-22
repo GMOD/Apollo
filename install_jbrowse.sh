@@ -24,10 +24,10 @@ fi;
 ( set -x;
   chmod +x web-app/jbrowse/bin/cpanm
   cd web-app/jbrowse
-  bin/cpanm -v --notest -l extlib/ --installdeps .< /dev/null;
-  bin/cpanm -v --notest -l extlib/ --installdeps .< /dev/null;
+  bin/cpanm -v --notest -l ../../extlib/ --installdeps .< /dev/null;
+  bin/cpanm -v --notest -l ../../extlib/ --installdeps .< /dev/null;
   set -e;
-  bin/cpanm -v --notest -l extlib/ --installdeps .< /dev/null;
+  bin/cpanm -v --notest -l ../../extlib/ --installdeps .< /dev/null;
   cd -
   cp -r web-app/jbrowse/bin/ bin;
   chmod +x bin/*.pl;
