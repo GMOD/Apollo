@@ -250,6 +250,7 @@ public class TrackPanel extends Composite {
 
     @UiHandler("nameSearchBox")
     public void doSearch(KeyUpEvent keyUpEvent) {
+
         filterList();
     }
 
@@ -289,6 +290,19 @@ public class TrackPanel extends Composite {
     public static void updateTracks(String jsonString) {
         JSONArray returnValueObject = JSONParser.parseStrict(jsonString).isArray();
         updateTracks(returnValueObject);
+    }
+
+    public List<String> getTrackList(){
+        if(trackInfoList.size()==0){
+            reload() ;
+        }
+        List<String> trackListArray = new ArrayList<>();
+        for(TrackInfo trackInfo : trackInfoList){
+            if(trackInfo.getVisible()){
+                trackListArray.add(trackInfo.getName());
+            }
+        }
+        return trackListArray;
     }
 
     public static void updateTracks(JSONArray array) {

@@ -39,14 +39,13 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
     private boolean toggleOpen = true;
-//    private String rootUrl;
+    //    private String rootUrl;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
@@ -63,7 +62,7 @@ public class MainPanel extends Composite {
     private static Integer currentEndBp; // list of organisms for user
     private static List<OrganismInfo> organismInfoList; // list of organisms for user
 
-    private static boolean handlingNavEvent = false ;
+    private static boolean handlingNavEvent = false;
 
 
     private static MainPanel instance;
@@ -195,7 +194,7 @@ public class MainPanel extends Composite {
     }
 
     private void loginUser() {
-        String url = Annotator.getRootUrl()+"user/checkLogin";
+        String url = Annotator.getRootUrl() + "user/checkLogin";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -253,7 +252,7 @@ public class MainPanel extends Composite {
         minRegion -= buffer;
         if (minRegion < 0) minRegion = 0;
         maxRegion += buffer;
-        String trackListString = Annotator.getRootUrl()+ "jbrowse/?loc=";
+        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
         trackListString += selectedSequence;
         trackListString += ":" + minRegion + ".." + maxRegion;
         trackListString += "&";
@@ -265,13 +264,16 @@ public class MainPanel extends Composite {
         trackListString += "&highlight=&tracklist=0";
         GWT.log("set string: " + trackListString);
         GWT.log("get string: " + frame.getUrl());
+        currentStartBp = minRegion ;
+        currentEndBp = maxRegion ;
+
         if (!frame.getUrl().contains(trackListString)) {
             frame.setUrl(trackListString);
         }
     }
 
     public void updateGenomicViewer() {
-        String trackListString = Annotator.getRootUrl()+ "jbrowse/?loc=";
+        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
         GWT.log("get selected sequence: " + currentSequence.getName());
         trackListString += currentSequence.getName();
 
@@ -292,11 +294,11 @@ public class MainPanel extends Composite {
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
 
-        if(currentSequence!=null){
+        if (currentSequence != null) {
             currentSequenceDisplay.setHTML(currentSequence.getName());
         }
 
-        if(currentOrganism!=null){
+        if (currentOrganism != null) {
             currentOrganismDisplay.setHTML(currentOrganism.getName());
         }
 
@@ -308,7 +310,7 @@ public class MainPanel extends Composite {
     }
 
     public void getAppState() {
-        String url = Annotator.getRootUrl()+ "annotator/getAppState";
+        String url = Annotator.getRootUrl() + "annotator/getAppState";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -410,7 +412,32 @@ public class MainPanel extends Composite {
 
     @UiHandler("generateLink")
     public void generateLink(ClickEvent clickEvent) {
-        UrlDialogBox urlDialogBox = new UrlDialogBox(frame.getUrl());
+        //        http://localhost:8080/apollo/annotator/?loc=GroupUn1774%3A1..3022&highlight=&tracklist=0&tracks=DNA%2CAnnotations%2CFgenesh%2CGeneID%2CNCBI%20Gnomon
+        String url = Annotator.getRootUrl();
+        url += "annotator/";
+        // TODO: I need to get the current location
+//        url += "loc=" + currentSequence.getName() + ":1..1000";
+        if(currentStartBp!=null){
+            url += "?loc=" + currentSequence.getName() + ":"+currentStartBp+".."+currentEndBp;
+        }
+        else{
+            url += "?loc=" + currentSequence.getName() + ":"+currentSequence.getStart()+".."+currentSequence.getEnd();
+        }
+        url += "&organism="+currentOrganism.getId();
+        url += "&highlight=0";
+        url += "&tracklist=0";
+        url += "&tracks=";
+
+        List<String> trackList = trackPanel.getTrackList();
+        for (int i = 0; i < trackList.size(); i++) {
+            url += trackList.get(i);
+            if (i < trackList.size() - 1) {
+                url += ",";
+            }
+        }
+        UrlDialogBox urlDialogBox = new UrlDialogBox(url);
+
+//        UrlDialogBox urlDialogBox = new UrlDialogBox(frame.getUrl());
         urlDialogBox.setWidth("600px");
 
         urlDialogBox.show();
@@ -463,13 +490,14 @@ public class MainPanel extends Composite {
 
     /**
      * currRegion:{"start":6000,"end":107200,"ref":"chrI"}
+     *
      * @param payload
      */
     public static void handleNavigationEvent(String payload) {
-        if(handlingNavEvent) return ;
+        if (handlingNavEvent) return;
 
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
-        GWT.log("event hapened: "+navEvent.toString());
+        GWT.log("event hapened: " + navEvent.toString());
 
         final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
@@ -478,11 +506,11 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                handlingNavEvent = false ;
+                handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start ;
-                currentEndBp = end ;
+                currentStartBp = start;
+                currentEndBp = end;
                 currentSequenceDisplay.setHTML(currentSequence.getName());
 
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
@@ -490,8 +518,8 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                handlingNavEvent = false ;
-                Window.alert("failed to set JBrowse sequence: "+exception);
+                handlingNavEvent = false;
+                Window.alert("failed to set JBrowse sequence: " + exception);
             }
         };
 
