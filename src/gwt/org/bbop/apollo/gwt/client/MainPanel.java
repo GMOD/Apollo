@@ -251,22 +251,21 @@ public class MainPanel extends Composite {
 
 
     public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-//        Window.alert("updating the genomic region: "+selectedSequence+" - minRegion"+minRegion + " maxRegion: "+maxRegion);
-//        Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.5);
-//        minRegion -= buffer;
-//        if (minRegion < 0) minRegion = 0;
-//        maxRegion += buffer;
+        GWT.log("updating the genomic region: "+selectedSequence+" - minRegion"+minRegion + " maxRegion: "+maxRegion);
+
+        Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.2);
+        minRegion -= buffer;
+        if (minRegion < 0) minRegion = 0;
+        maxRegion += buffer;
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
         trackListString += selectedSequence;
-//        trackListString += ":" + minRegion + ".." + maxRegion;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 //        trackListString += "&";
 //        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
 //            trackListString += URL.encodeQueryString(trackInfo.getName());
 //            trackListString += "&";
 //        }
-        trackListString = trackListString.substring(0, trackListString.length() - 1);
         trackListString += "&highlight=&tracklist=0";
         GWT.log("set string: " + trackListString);
         GWT.log("get string: " + frame.getUrl());
