@@ -59,7 +59,13 @@ public class MainPanel extends Composite {
     private static OrganismInfo currentOrganism;
     private static List<SequenceInfo> currentSequenceList; // sequence list for current organisms
     private static SequenceInfo currentSequence;
+    private static Integer currentStartBp; // list of organisms for user
+    private static Integer currentEndBp; // list of organisms for user
     private static List<OrganismInfo> organismInfoList; // list of organisms for user
+
+    private static boolean handlingNavEvent = false ;
+
+
     private static MainPanel instance;
 
 
@@ -103,7 +109,7 @@ public class MainPanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.Label currentOrganismDisplay;
     @UiField
-    Label currentSequenceDisplay;
+    static Label currentSequenceDisplay;
 
 
     public static MainPanel getInstance() {
@@ -460,14 +466,36 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleNavigationEvent(String payload) {
+        if(handlingNavEvent) return ;
+
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
         GWT.log("event hapened: "+navEvent.toString());
 
-        Integer fmin = (int) navEvent.get("start").isNumber().doubleValue();
-        Integer fmax = (int) navEvent.get("end").isNumber().doubleValue();
+        final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
+        final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                handlingNavEvent = false ;
+                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
+                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
+                currentStartBp = start ;
+                currentEndBp = end ;
+                currentSequenceDisplay.setHTML(currentSequence.getName());
 
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                handlingNavEvent = false ;
+                Window.alert("failed to set JBrowse sequence: "+exception);
+            }
+        };
+
+        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
 
 
     }

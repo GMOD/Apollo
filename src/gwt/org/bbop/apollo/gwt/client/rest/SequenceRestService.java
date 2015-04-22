@@ -61,4 +61,7 @@ public class SequenceRestService {
     }
 
 
+    public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
+        RestService.sendRequest(requestCallback, "sequence/setCurrentSequenceLocation/?name="+sequenceNameString+"&startbp="+start+"&endbp="+end);
+    }
 }

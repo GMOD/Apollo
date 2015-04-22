@@ -7,8 +7,6 @@ import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import java.nio.file.Paths
-import java.nio.file.Files
 
 import static org.springframework.http.HttpStatus.*
 
@@ -26,6 +24,34 @@ class SequenceController {
     def permissionService
 
     def permissions() {
+
+    }
+
+
+    @Transactional
+    def setCurrentSequenceLocation() {
+        User currentUser = permissionService.currentUser
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser,true)
+        if(!userOrganismPreference){
+            userOrganismPreference = UserOrganismPreference.findByUser(currentUser)
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true )
+        }
+        if(!userOrganismPreference){
+            throw new AnnotationException("Organism preference is not set for user")
+        }
+
+        Sequence sequence = Sequence.findByNameAndOrganism(params.name,userOrganismPreference.organism)
+        if(!sequence){
+            throw new AnnotationException("Sequence name is invalid ${params.name}")
+        }
+
+        userOrganismPreference.sequence = sequence
+        userOrganismPreference.setStartbp(params.startbp as Integer)
+        userOrganismPreference.setEndbp(params.endbp as Integer)
+        userOrganismPreference.save(flush: true )
+
+        render userOrganismPreference.sequence as JSON
 
     }
 
@@ -47,7 +73,6 @@ class SequenceController {
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
 
         if(!userOrganismPreference){
-            println "creating a new one!"
             userOrganismPreference = new UserOrganismPreference(
                     user:currentUser
                     ,organism: organism
@@ -56,15 +81,11 @@ class SequenceController {
             ).save(insert:true,flush:true,failOnError: true)
         }
         else{
-            println "updating an old one!!"
             userOrganismPreference.sequence = sequenceInstance
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush:true,failOnError: true)
         }
         UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
-
-        println "has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
-
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
