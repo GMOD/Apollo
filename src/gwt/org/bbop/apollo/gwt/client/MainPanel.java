@@ -471,10 +471,19 @@ public class MainPanel extends Composite {
         userGroupPanel.reload();
     }
 
+    /**
+     * currRegion:{"start":6000,"end":107200,"ref":"chrI"}
+     * @param payload
+     */
     public static void handleNavigationEvent(String payload) {
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
         GWT.log("event hapened: "+navEvent.toString());
-//        Window.alert("handlign nav event for "+name + " and "+javaScriptObject.toSource());
+
+        Integer fmin = (int) navEvent.get("start").isNumber().doubleValue();
+        Integer fmax = (int) navEvent.get("end").isNumber().doubleValue();
+        String sequenceNameString = navEvent.get("ref").isString().stringValue();
+
+
     }
 
     public static native void exportStaticMethod() /*-{

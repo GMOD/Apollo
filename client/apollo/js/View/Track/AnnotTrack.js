@@ -280,8 +280,7 @@ define([
                             console.log('Registering embedded system with ApolloGwt-1.0.');
 
                             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                                //console.log("nav:"+currRegion);
-                                window.parent.handleNavigationEvent(JSON.stringify(this.refSeq));
+                                window.parent.handleNavigationEvent(JSON.stringify(currRegion));
                             }));
 
                             var sendTracks = function (trackList, visibleTrackNames) {
