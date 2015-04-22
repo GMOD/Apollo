@@ -29,6 +29,7 @@ class OrganismController {
         log.debug "id: ${organismJson.id}"
         Organism organism = Organism.findById(organismJson.id as Long)
         if (organism) {
+            UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
             organism.delete()
         }
         render findAllOrganisms()
