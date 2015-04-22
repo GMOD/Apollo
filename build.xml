@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!--<project name="Web Apollo" default="usage" basedir=".">-->
 <project name="Web Apollo" default="usage" basedir=".">
     <!-- Arguments to gwtc and devmode targets -->
     <property name="gwt.args" value=""/>
@@ -27,7 +26,6 @@
     <!--</target>-->
 
     <target name="javac" description="Compile java source to bytecode">
-        <!--<mkdir dir="war/WEB-INF/classes"/>-->
         <mkdir dir="target/classes/gwt"/>
         <javac srcdir="src/gwt" includes="**" encoding="utf-8"
                destdir="target/classes/gwt"
@@ -94,7 +92,6 @@
 
 
     <property name="apollo.webapp.directory" location="web-app" relative="true" basedir="."/>
-
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
     <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
@@ -104,20 +101,12 @@
     <property name="webapp.apollo.plugin.uncompressed.test.file"
               location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
-    <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
     <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
     <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
     <property name="jbrowse.release.version" value="1.11.6-release"/>
-    <property name="jbrowse.download.file.name" value="JBrowse-1.11.6-dev"/>
-
-    <!--<property name="jbrowse.download.url" value="${jbrowse.github}/archive/${jbrowse.release.version}"/>-->
-    <property name="jbrowse.download.url" value="http://jbrowse.org/releases/JBrowse-1.11.5-dev.zip"/>
-    <property name="jbrowse.download.file" value="${basedir}/${jbrowse.release.version}"/>
-    <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
-    <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
 
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
@@ -125,17 +114,6 @@
     <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
     <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
     <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled"/>
-
-    <target name="get.project.version" description="Get the project version from Maven">
-        <exec executable="sh" failifexecutionfails="false" outputproperty="project.version">
-            <arg value="-c"/>
-            <arg line="'mvn validate | grep Building | cut -d &quot; &quot; -f 4'"/>
-        </exec>
-    </target>
-
-    <target name="check.project.version" depends="get.project.version">
-        <echo>${project.version}</echo>
-    </target>
 
     <target name="build.jbrowse" description="Build JBrowse using the build/Makefile">
         <exec executable="sh" failifexecutionfails="false">
@@ -203,28 +181,12 @@
             <arg value="${jbrowse.github}"/>
             <arg value="${jbrowse.download.directory}"/>
         </exec>
-        <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <arg value="tags/${jbrowse.release.version}"/>
         </exec>
     </target>
 
-    <!--    NOTE: this does not contain the additional libraries needed.-->
-    <target name="git.download" unless="jbrowse.git.present"
-            description="Downloads static release, but static release does not have other libraries">
-        <delete dir="${jbrowse.download.directory}"/>
-        <delete dir="${jbrowse.download.file.name}"/>
-
-        <get src="${jbrowse.download.url}" dest="${jbrowse.download.file}"/>
-        <delete dir="${jbrowse.download.file.name}"/>
-        <unzip src="${jbrowse.download.file}" dest="${basedir}"/>
-        <delete dir="${jbrowse.download.directory}"/>
-        <move todir="${jbrowse.download.directory}">
-            <fileset dir="${jbrowse.download.file.name}"/>
-        </move>
-        <delete dir="${jbrowse.download.file.name}"/>
-    </target>
 
     <target name="usage">
         <exec executable="./apollo" failifexecutionfails="false" errorproperty=""/>
@@ -232,9 +194,6 @@
 
     <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present"
             unless="jbrowse.perl.installed">
-        <!--<exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">-->
-        <!--<arg value="${jbrowse.git.directory}"/>-->
-        <!--</exec>-->
         <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true"
               errorproperty="jbrowse-fail">
             <arg value="${jbrowse.download.directory}"/>
@@ -258,8 +217,6 @@
 
 
     <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
-
-        <!--<antcall target="git.download"/>-->
         <antcall target="git.clone"/>
         <antcall target="copy.apollo.plugin.jbrowse"/>
 
@@ -287,9 +244,7 @@
 
     <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
             description="Copy client into webapp plugin directory.">
-        <!--<target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.git.present"-->
-        <echo>copying plugin to webapp ...</echo>
-        <!--<copy todir="${jbrowse.download.directory}/plugins/WebApollo" failonerror="true">-->
+        <echo>Copying WebApollo plugin to jbrowse webapp ...</echo>
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
