@@ -143,8 +143,6 @@ public class OrganismPanel extends Composite {
                     if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
                         // TODO: set the organism here
                         OrganismRestService.switchOrganismById(orgId);
-//                        ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(singleSelectionModel.getSelectedObject());
-//                        Annotator.eventBus.fireEvent(contextSwitchEvent);
                     }
                 }
             }
@@ -227,6 +225,8 @@ public class OrganismPanel extends Composite {
             if(clearSelections){
                 clearSelections();
             }
+            MainPanel.getInstance().getOrganismInfoList().clear();
+            MainPanel.getInstance().setOrganismInfoList(organismInfoList);
             setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
@@ -280,7 +280,7 @@ public class OrganismPanel extends Composite {
         dataGrid.setSelectionModel(singleSelectionModel);
         newButton.setEnabled(true);
         setSelectedInfo(singleSelectionModel.getSelectedObject());
-        setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
+        setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
     }
 
     @UiHandler("deleteButton")
