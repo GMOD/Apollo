@@ -435,21 +435,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getSequenceSearchTools() {
         log.debug "getSequenceSearchTools ${params.data}"
-        JSONArray sequenceSearchToolsArray = new JSONArray();
-        configWrapperService.getSequenceSearchTools().each { k, v ->
-            sequenceSearchToolsArray.put(k);
-        }
-        JSONObject sequenceSearchToolsContainer = new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray);
-        render sequenceSearchToolsContainer.toString()
+        render sequenceSearchService.getSequenceSearchTools()
     }
 
     def searchSequence() {
-        println "sequenceSearch ${params.data}"
+        log.debug "sequenceSearch ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-//        Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
-//        Organism organism = Organism.findById(organismId)
-        println "Organis to string:  ${organism as JSON}"
         render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
     }
 

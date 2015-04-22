@@ -27,10 +27,10 @@ public class BlatCommandLine extends SequenceSearchTool {
         try {
             if(config.has("search_exe")) { blatBin = config.getString("search_exe"); }
             else { throw new SequenceSearchToolException("No blat exe specified"); }
-            if(config.has("database")) {database = config.getString("database"); }
+            if(config.has("database")&&config.getString("database")!="") {database = config.getString("database"); }
             else { throw new SequenceSearchToolException("No database configured"); }
             if(config.has("params")) {blatUserOptions = config.getString("params");}
-            else { /* unset */ }
+            else { /* no extra params needed */ }
             if(config.has("removeTmpDir")) {removeTmpDir=config.getBoolean("removeTmpDir"); }
             else { removeTmpDir=true; }
             if(config.has("tmp_dir")) {tmpDir=config.getString("tmp_dir"); }
@@ -52,7 +52,6 @@ public class BlatCommandLine extends SequenceSearchTool {
                 p = Files.createTempDirectory(new File(tmpDir).toPath(),"blat_tmp");
             }
             dir = p.toFile();
-            System.out.println(p.toString());
 
             return runSearch(dir, query, databaseId);
         }
@@ -97,7 +96,6 @@ public class BlatCommandLine extends SequenceSearchTool {
         log.println("Command:");
         for (String arg : commands) {
             log.print(arg + " ");
-            System.out.println(arg + " ");
         }
         ProcessBuilder pb = new ProcessBuilder(commands);
         Process p = pb.start();
