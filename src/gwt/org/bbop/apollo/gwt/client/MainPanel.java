@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -248,44 +249,78 @@ public class MainPanel extends Composite {
 
 
     public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+//        Window.alert("updating the genomic region: "+selectedSequence+" - minRegion"+minRegion + " maxRegion: "+maxRegion);
         Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.5);
         minRegion -= buffer;
         if (minRegion < 0) minRegion = 0;
+
         maxRegion += buffer;
         String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
         trackListString += selectedSequence;
-        trackListString += ":" + minRegion + ".." + maxRegion;
+//        trackListString += ":" + minRegion + ".." + maxRegion;
+        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&";
         for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
-            trackListString += trackInfo.getName();
+            trackListString += URL.encodeQueryString(trackInfo.getName());
             trackListString += "&";
         }
         trackListString = trackListString.substring(0, trackListString.length() - 1);
         trackListString += "&highlight=&tracklist=0";
         GWT.log("set string: " + trackListString);
         GWT.log("get string: " + frame.getUrl());
-        currentStartBp = minRegion ;
-        currentEndBp = maxRegion ;
+//        currentStartBp = minRegion ;
+//        currentEndBp = maxRegion ;
 
-        if (!frame.getUrl().contains(trackListString)) {
-            frame.setUrl(trackListString);
-        }
+        final String finalString = trackListString;
+//            @Override
+//            public void execute() {
+//                if(!trackPanel.getTrackList().isEmpty()){
+//                    frame.setUrl(finalString);
+//                }
+//            }
+
+//        Window.alert("final string!"+finalString);
+        frame.setUrl(finalString);
+
+        Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if(!trackPanel.getTrackList().isEmpty()){
+                    frame.setUrl(finalString);
+                    return false ;
+                }
+                else{
+                    return true ;
+                }
+
+            }
+        });
+
+//        if (!frame.getUrl().contains(trackListString)) {
+//        }
     }
 
     public void updateGenomicViewer() {
-        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
-        GWT.log("get selected sequence: " + currentSequence.getName());
-        trackListString += currentSequence.getName();
+//        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
+//        GWT.log("get selected sequence: " + currentSequence.getName());
+//        trackListString += currentSequence.getName();
 
-        trackListString += "&";
-        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
-            trackListString += trackInfo.getName();
-            trackListString += "&";
+        if (currentStartBp != null && currentEndBp != null) {
+            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp);
+        } else {
+            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd());
         }
-        trackListString = trackListString.substring(0, trackListString.length() - 1);
-        trackListString += "&highlight=&tracklist=0";
-        GWT.log("set string: " + trackListString);
-        frame.setUrl(trackListString);
+
+
+//        trackListString += "&";
+//        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
+//            trackListString += trackInfo.getName();
+//            trackListString += "&";
+//        }
+//        trackListString = trackListString.substring(0, trackListString.length() - 1);
+//        trackListString += "&highlight=&tracklist=0";
+//        GWT.log("set string: " + trackListString);
+//        frame.setUrl(trackListString);
     }
 
     public void setAppState(AppStateInfo appStateInfo) {
@@ -293,6 +328,8 @@ public class MainPanel extends Composite {
         currentSequenceList = appStateInfo.getCurrentSequenceList();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
+        currentStartBp = appStateInfo.getCurrentStartBp();
+        currentEndBp = appStateInfo.getCurrentEndBp();
 
         if (currentSequence != null) {
             currentSequenceDisplay.setHTML(currentSequence.getName());
@@ -414,16 +451,15 @@ public class MainPanel extends Composite {
     public void generateLink(ClickEvent clickEvent) {
         //        http://localhost:8080/apollo/annotator/?loc=GroupUn1774%3A1..3022&highlight=&tracklist=0&tracks=DNA%2CAnnotations%2CFgenesh%2CGeneID%2CNCBI%20Gnomon
         String url = Annotator.getRootUrl();
-        url += "annotator/";
+        url += "annotator/loadLink";
         // TODO: I need to get the current location
 //        url += "loc=" + currentSequence.getName() + ":1..1000";
-        if(currentStartBp!=null){
-            url += "?loc=" + currentSequence.getName() + ":"+currentStartBp+".."+currentEndBp;
+        if (currentStartBp != null) {
+            url += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+        } else {
+            url += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
         }
-        else{
-            url += "?loc=" + currentSequence.getName() + ":"+currentSequence.getStart()+".."+currentSequence.getEnd();
-        }
-        url += "&organism="+currentOrganism.getId();
+        url += "&organism=" + currentOrganism.getId();
         url += "&highlight=0";
         url += "&tracklist=0";
         url += "&tracks=";

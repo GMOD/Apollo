@@ -19,35 +19,47 @@ class AnnotatorController {
     def annotatorService
     def preferenceService
 
-    def index() {
+    /**
+     * Loads the shared link and moves over:
+     * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations
+     * @return
+     */
+    def loadLink(){
+        println "loading LINKL has organism . . . "
 
-
-        println "params ${params}"
-
-
-        //        loc:Group1.3:1..1000,
-        //        tracks:Reference sequence,Fgenesh,GeneID,NCBI Gnomon,User-created Annotations
-        // tracklist:0, highlight:0
-        // organism:5650
-        // , format:null, controller:annotator
-        String uuid = UUID.randomUUID().toString()
-        if (params.organism) {
+        try {
+            Organism organism = Organism.findById(params.organism as Long)
+            println "loading org . . . ${organism}"
+            String location = params.loc
+            String[] splitString = location.split(":")
+            println "splitString : ${splitString}"
+            String sequenceString = splitString[0]
+            Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
+            String[] minMax = splitString[1].split("\\.\\.")
+            println "minMax: ${minMax}"
+            int fmin, fmax
             try {
-                Organism organism = Organism.findById(params.organism as Long)
-                String location = params.loc
-                String sequenceString = location.split(":")[0]
-                Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
-                String fmin = location.split(":")[1].split("..")[0]
-                String fmax = location.split(":")[1].split("..")[1]
-                preferenceService.setCurrentSequence(permissionService.currentUser, sequence)
+                fmin = minMax[0] as Integer
+                fmax = minMax[1] as Integer
             } catch (e) {
-                log.error "problem parsing the string ${e}"
+                log.error "error parsing ${e}"
+                fmin = sequence.start
+                mfax = sequence.end
             }
-
-            redirect controller: "annotator", action: "index",model:[userKey: uuid]
-            return
+            println "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
+//            preferenceService.setCurrentSequence(permissionService.currentUser, sequence)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+            preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)
+        } catch (e) {
+            log.error "problem parsing the string ${e}"
         }
 
+        redirect uri: "/annotator/index"
+    }
+
+    def index() {
+        println "loading the index"
+        String uuid = UUID.randomUUID().toString()
         Organism.all.each {
             log.info it.commonName
         }

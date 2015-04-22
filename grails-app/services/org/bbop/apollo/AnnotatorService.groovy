@@ -78,6 +78,13 @@ class AnnotatorService {
 
 //
         appStateObject.put("currentSequenceList",sequenceArray)
+
+
+        if(currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp){
+            appStateObject.put("currentStartBp",currentUserOrganismPreference.startbp)
+            appStateObject.put("currentEndBp",currentUserOrganismPreference.endbp)
+        }
+
 //        appStateObject.put("currentSequenceList",currrentUserOrganismPreference.organism.sequences)
 
 //        println "appState obj ${appStateObject as JSON}"

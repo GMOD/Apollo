@@ -222,9 +222,9 @@ public class OrganismPanel extends Composite {
         public void onResponseReceived(Request request, Response response) {
             List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
             dataGrid.setSelectionModel(singleSelectionModel);
-            if(clearSelections){
-                clearSelections();
-            }
+//            if(clearSelections){
+//                clearSelections();
+//            }
             MainPanel.getInstance().getOrganismInfoList().clear();
             MainPanel.getInstance().setOrganismInfoList(organismInfoList);
             setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);

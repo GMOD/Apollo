@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public class AppStateInfo implements HasJSON{
     private List<OrganismInfo> organismList ;
     private SequenceInfo currentSequence ;
     private List<SequenceInfo> currentSequenceList ;
+    private Integer currentStartBp;
+    private Integer currentEndBp;
 
     public OrganismInfo getCurrentOrganism() {
         return currentOrganism;
@@ -71,8 +74,30 @@ public class AppStateInfo implements HasJSON{
             }
             returnObject.put("organismList",organismListArray);
         }
+        if(currentStartBp!=null){
+            returnObject.put("currentStartBp", new JSONNumber(currentStartBp));
+        }
+        if(currentEndBp!=null){
+            returnObject.put("currentEndBp", new JSONNumber(currentEndBp));
+        }
 
 
         return returnObject ;
+    }
+
+    public Integer getCurrentStartBp() {
+        return currentStartBp;
+    }
+
+    public void setCurrentStartBp(Integer currentStartBp) {
+        this.currentStartBp = currentStartBp;
+    }
+
+    public Integer getCurrentEndBp() {
+        return currentEndBp;
+    }
+
+    public void setCurrentEndBp(Integer currentEndBp) {
+        this.currentEndBp = currentEndBp;
     }
 }

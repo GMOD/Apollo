@@ -55,7 +55,11 @@ class PreferenceService {
             userOrganismPreference.currentOrganism = true ;
             userOrganismPreference.save()
         }
-        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+        setOtherCurrentOrganismsFalse(userOrganismPreference,user)
+    }
+
+    def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId and pref.user = :user ",[prefId:userOrganismPreference.id,user:user])
     }
 
     def setCurrentSequence(User user,Sequence sequence) {
@@ -74,6 +78,30 @@ class PreferenceService {
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()
         }
-        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+        setOtherCurrentOrganismsFalse(userOrganismPreference,user)
+    }
+
+    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, int startBp, int endBp) {
+        User currentUser = permissionService.currentUser
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser,true)
+        if(!userOrganismPreference){
+            userOrganismPreference = UserOrganismPreference.findByUser(currentUser)
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true )
+        }
+        if(!userOrganismPreference){
+            throw new AnnotationException("Organism preference is not set for user")
+        }
+
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,userOrganismPreference.organism)
+        if(!sequence){
+            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
+        }
+
+        userOrganismPreference.sequence = sequence
+        userOrganismPreference.setStartbp(startBp)
+        userOrganismPreference.setEndbp(endBp)
+        userOrganismPreference.save(flush: true )
+
     }
 }

@@ -22,6 +22,7 @@ class SequenceController {
     def fastaHandlerService
     def gff3HandlerService
     def permissionService
+    def preferenceService
 
     def permissions() {
 
@@ -30,29 +31,11 @@ class SequenceController {
 
     @Transactional
     def setCurrentSequenceLocation() {
-        User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser,true)
-        if(!userOrganismPreference){
-            userOrganismPreference = UserOrganismPreference.findByUser(currentUser)
-            userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save(flush: true )
-        }
-        if(!userOrganismPreference){
-            throw new AnnotationException("Organism preference is not set for user")
-        }
 
-        Sequence sequence = Sequence.findByNameAndOrganism(params.name,userOrganismPreference.organism)
-        if(!sequence){
-            throw new AnnotationException("Sequence name is invalid ${params.name}")
-        }
-
-        userOrganismPreference.sequence = sequence
-        userOrganismPreference.setStartbp(params.startbp as Integer)
-        userOrganismPreference.setEndbp(params.endbp as Integer)
-        userOrganismPreference.save(flush: true )
+//        render userOrganismPreference.sequence as JSON
+        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name,params.startbp as Integer,params.endbp as Integer)
 
         render userOrganismPreference.sequence as JSON
-
     }
 
     /**
@@ -85,7 +68,7 @@ class SequenceController {
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush:true,failOnError: true)
         }
-        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference,currentUser)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)

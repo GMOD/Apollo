@@ -489,7 +489,6 @@ class PermissionService {
         if (inputObject.has("track")) {
             trackName = fixTrackHeader(inputObject.track)
         }
-        println "trackName ${trackName}"
 
         // this is for testing only
         if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {

@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.user.client.Window;
 
 import java.util.ArrayList;
 import java.util.List;
