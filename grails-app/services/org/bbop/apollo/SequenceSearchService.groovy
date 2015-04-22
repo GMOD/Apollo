@@ -16,10 +16,23 @@ class SequenceSearchService {
     def serviceMethod() {
 
     }
+
+
+    /*todo: use json builder instead of JSON objects
+    def getSequenceSearchTools() {
+        JsonBuilder json = new JsonBuilder ()
+        JSONArray sequenceSearchToolsArray = new JSONArray()
+        json.sequence_search_tools configWrapperService.getSequenceSearchTools(), { k,v ->
+            k
+        }
+        println json.toString()
+        return json.toString()
+    }*/
+
     def getSequenceSearchTools() {
         JSONArray sequenceSearchToolsArray = new JSONArray();
         configWrapperService.getSequenceSearchTools().each { k, v ->
-            sequenceSearchToolsArray.put(k);
+            sequenceSearchToolsArray.put(v.name);
         }
         return new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray).toString();
     }
@@ -34,7 +47,7 @@ class SequenceSearchService {
         Collection<TabDelimittedAlignment> results=searcher.search('blat',
                 input.get('search').residues,
                 input.get('search').database_id)
-        JSONArray arr=new JSONArray()
+
         JsonBuilder json = new JsonBuilder ()
         json.matches results, { TabDelimittedAlignment result ->
             "identity" result.percentId
