@@ -30,8 +30,7 @@ public class Annotator implements EntryPoint {
      * This is the entry point method.
      */
     public void onModuleLoad() {
-        MainPanel mainPanel = MainPanel.getInstance(this);
-
+        MainPanel mainPanel = MainPanel.getInstance();
 //        Dictionary dictionary = Dictionary.getDictionary("Options");
 //        String rootUrl = dictionary.get("rootUrl");
 //        mainPanel.setRootUrl(rootUrl);

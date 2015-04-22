@@ -55,12 +55,11 @@ public class MainPanel extends Composite {
 //    public static Long currentOrganismId = null;
 //    public static String currentSequenceName = null;
 
-    private UserInfo currentUser;
-    private OrganismInfo currentOrganism;
-    private List<SequenceInfo> currentSequenceList; // sequence list for current organisms
-    private SequenceInfo currentSequence;
-    private List<OrganismInfo> organismInfoList; // list of organisms for user
-    private Annotator rootAnnotator;
+    private static UserInfo currentUser;
+    private static OrganismInfo currentOrganism;
+    private static List<SequenceInfo> currentSequenceList; // sequence list for current organisms
+    private static SequenceInfo currentSequence;
+    private static List<OrganismInfo> organismInfoList; // list of organisms for user
     private static MainPanel instance;
 
 
@@ -108,39 +107,24 @@ public class MainPanel extends Composite {
 
 
     public static MainPanel getInstance() {
-        if (instance != null) {
-            return instance;
-        } else {
-            Window.alert("No instance available . . initialized?");
-            return null;
-        }
-    }
-
-    public static MainPanel getInstance(Annotator annotator) {
         if (instance == null) {
-            instance = new MainPanel(annotator);
+            instance = new MainPanel();
         }
         return instance;
     }
 
 
-    MainPanel(Annotator annotator) {
-        this.rootAnnotator = annotator;
+    MainPanel() {
         instance = this;
         exportStaticMethod();
-//        sequenceList = new SuggestBox(sequenceOracle);
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
 
         GWT.log("name: " + frame.getName());
         frame.getElement().setAttribute("id", frame.getName());
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
-//        rootUrl = dictionary.get("rootUrl");
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
-
-
 
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
@@ -482,6 +466,8 @@ public class MainPanel extends Composite {
         Integer fmin = (int) navEvent.get("start").isNumber().doubleValue();
         Integer fmax = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
+
+
 
 
     }
