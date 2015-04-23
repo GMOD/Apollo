@@ -5,6 +5,7 @@ cache:
     - extlib/
     - $HOME/.cpanm/
     - $HOME/.grails/
+    - $HOME/.m2/
     - jbrowse-download/
 script:
     - ant gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app --stacktrace
