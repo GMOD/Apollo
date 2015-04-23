@@ -62,7 +62,7 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.default_minimum_intron_size
     }
 
-    Map<String,String> getSequenceSearchTools() {
+    def getSequenceSearchTools() {
         return grailsApplication.config.apollo.sequence_search_tools
     }
 

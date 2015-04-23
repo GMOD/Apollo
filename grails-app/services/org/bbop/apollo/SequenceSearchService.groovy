@@ -18,24 +18,16 @@ class SequenceSearchService {
     }
 
 
-    /*todo: use json builder instead of JSON objects
     def getSequenceSearchTools() {
+        def set=configWrapperService.getSequenceSearchTools()
         JsonBuilder json = new JsonBuilder ()
-        JSONArray sequenceSearchToolsArray = new JSONArray()
-        json.sequence_search_tools configWrapperService.getSequenceSearchTools(), { k,v ->
-            k
+        json.sequence_search_tools set.keySet(), { k ->
+            label k
+            name set[k].name
         }
-        println json.toString()
         return json.toString()
-    }*/
-
-    def getSequenceSearchTools() {
-        JSONArray sequenceSearchToolsArray = new JSONArray();
-        configWrapperService.getSequenceSearchTools().each { k, v ->
-            sequenceSearchToolsArray.put(v.name);
-        }
-        return new JSONObject().put("sequence_search_tools", sequenceSearchToolsArray).toString();
     }
+
     def searchSequence(JSONObject input, String database) {
 
         String ret=input.get('search').get('key')

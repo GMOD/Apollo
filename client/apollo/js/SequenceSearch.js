@@ -1,8 +1,17 @@
 define( [
             'dojo/_base/declare',
+            'dojo/_base/array',
+            'dojo/dom-construct',
+            'dojo/dom-attr',
+            'dojo/dom',
             'jquery'
 ], 
-    function( declare, $ ) {
+    function( declare,
+        array,
+        domConstruct,
+        domAttr,
+        dom,
+        $ ) {
 
 return declare(null, {
 constructor: function(contextPath) {
@@ -22,10 +31,26 @@ searchSequence: function(trackName, refSeqName, starts) {
     var contextPath = this.contextPath;
     var redirectCallback = this.redirectCallback;
     var errorCallback = this.errorCallback;
-    
+    /*
+    <div class="search_sequence">
+        <div class="search_sequence_tools">
+            <select class="search_sequence_tools_select" />
+            <div class="search_sequence_area">
+                <div class="search_sequence_label">Enter sequence</div>
+                <div><textarea class="search_sequence_input"></textarea></div>
+                <div class="search_all_ref_seqs_area">
+                <input type="checkbox" class="search_all_ref_seqs_checkbox">Search all genomic sequences</div>
+                <div><button>Search</button></div>
+            </div>
+            <div class="search_sequence_message">No matches found</div>
+            <div><img class="waiting_image" src="plugins/WebApollo/img/loading.gif" /></div>
+        </div>
+    </div>
+    */
+
     var content = dojo.create("div", { className: "search_sequence" });
     var sequenceToolsDiv = dojo.create("div", { className: "search_sequence_tools" }, content);
-    var sequenceToolsSelect = dojo.create("select", { className: "search_sequence_tools_select" }, sequenceToolsDiv);
+    var sequenceToolsSelect = dojo.create("select", {className: "search_sequence_tools_select"}, sequenceToolsDiv);
     var sequenceDiv = dojo.create("div", { className: "search_sequence_area" }, content);
     var sequenceLabel = dojo.create("div", { className: "search_sequence_label", innerHTML: "Enter sequence" }, sequenceDiv);
     var sequenceFieldDiv = dojo.create("div", { }, sequenceDiv);
@@ -58,8 +83,12 @@ searchSequence: function(trackName, refSeqName, starts) {
     var getSequenceSearchTools = function() {
         var ok = false;
         var operation = "get_sequence_search_tools";
+        var request={
+            "track": trackName,
+            "operation": operation 
+        };
         dojo.xhrPost( {
-            postData: '{ "track": "' + trackName + '", "operation": "' + operation + '" }', 
+            postData: JSON.stringify(request), 
             url: contextPath + "/AnnotationEditorService",
             sync: true,
             handleAs: "json",
@@ -69,10 +98,10 @@ searchSequence: function(trackName, refSeqName, starts) {
                     ok = false;
                     return;
                 }
-                for (var i = 0; i < response.sequence_search_tools.length; ++i) {
-                    dojo.create("option", { innerHTML: response.sequence_search_tools[i] }, sequenceToolsSelect);
-                }
                 ok = true;
+                array.forEach(response.sequence_search_tools,function(tool) {
+                    dojo.create("option", { innerHTML: tool.name, id: tool.label }, sequenceToolsSelect);
+                });
             },
             error: function(response, ioArgs) {
                 errorCallback(response);
@@ -101,7 +130,7 @@ searchSequence: function(trackName, refSeqName, starts) {
             var postobj={
                 "track": trackName,
                 "search": {
-                    "key": sequenceToolsSelect.value,
+                    "key": sequenceToolsSelect.options[sequenceToolsSelect.selectedIndex].id,
                     "residues": residues.replace(/(\r\n|\n|\r)/gm,"")
                 },
                 "operation": operation
