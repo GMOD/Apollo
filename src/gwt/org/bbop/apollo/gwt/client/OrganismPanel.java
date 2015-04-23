@@ -226,7 +226,7 @@ public class OrganismPanel extends Composite {
 //                clearSelections();
 //            }
             MainPanel.getInstance().getOrganismInfoList().clear();
-            MainPanel.getInstance().setOrganismInfoList(organismInfoList);
+            MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
             setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);

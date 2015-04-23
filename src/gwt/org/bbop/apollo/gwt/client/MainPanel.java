@@ -32,6 +32,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +60,11 @@ public class MainPanel extends Composite {
 
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
-    private static List<SequenceInfo> currentSequenceList; // sequence list for current organisms
+    private static List<SequenceInfo> currentSequenceList = new ArrayList<>(); // sequence list for current organisms
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // list of organisms for user
     private static Integer currentEndBp; // list of organisms for user
-    private static List<OrganismInfo> organismInfoList; // list of organisms for user
+    private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
 
     private static boolean handlingNavEvent = false;
 
