@@ -455,6 +455,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "sequenceSearch ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        println "Organism to string:  ${organism as JSON}"
         render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
     }
 
