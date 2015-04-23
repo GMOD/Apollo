@@ -11,7 +11,7 @@ public class UrlDialogBox extends DialogBox{
 
     private VerticalPanel panel = new VerticalPanel();
     private HorizontalPanel buttonPanel = new HorizontalPanel();
-    private Anchor urlView = new Anchor();
+    private TextArea urlView = new TextArea();
     private Button closeButton = new Button("OK");
 
     public UrlDialogBox(String url){
@@ -20,8 +20,9 @@ public class UrlDialogBox extends DialogBox{
         buttonPanel.setCellHorizontalAlignment(closeButton,HasHorizontalAlignment.ALIGN_CENTER);
         buttonPanel.setWidth("100%");
 
-        urlView.setHref(url);
-        urlView.setHTML(url);
+        urlView.setCharacterWidth(100);
+        urlView.setEnabled(false);
+        urlView.setText(url);
 
         panel.add(urlView);
         panel.add(buttonPanel);
