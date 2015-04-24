@@ -3,7 +3,6 @@ language: groovy
 cache:
   directories:
     - extlib/
-    - $HOME/.cpanm/
     - $HOME/.grails/
     - $HOME/.m2/
     - jbrowse-download/
