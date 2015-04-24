@@ -175,6 +175,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getHistoryForFeatures() {
         log.debug "getting history !! ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String trackName = fixTrackHeader(inputObject.track)
         Sequence sequence = Sequence.findByName(trackName)
@@ -218,7 +219,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 history.put(historyItem);
             }
-            historyContainer.getJSONArray(FeatureStringEnum.FEATURES.values).put(jsonFeature);
+            historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature);
         }
 
         render historyContainer as JSON
