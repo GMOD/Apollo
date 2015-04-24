@@ -34,6 +34,11 @@ class DataAdapter {
     // [{featureType:"sequence:mRNA"},{featureType:"sequence:transcript"}]
     String featureTypeString
 
+    static mapping = {
+        key column: "data_adapter_key"
+    }
+
+
     // chado //
 //    String hibernateConfig
 }
