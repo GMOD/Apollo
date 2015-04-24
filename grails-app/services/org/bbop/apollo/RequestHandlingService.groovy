@@ -1444,7 +1444,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(uniqueName)
             if (feature) {
                 // is this a bug?
-                isUpdateOperation = isUpdateOperation || featureService.deleteFeature(feature, modifiedFeaturesUniqueNames);
+                isUpdateOperation = featureService.deleteFeature(feature, modifiedFeaturesUniqueNames) || isUpdateOperation;
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
                 if (modifiedFeaturesList == null) {
                     modifiedFeaturesList = new ArrayList<>()
