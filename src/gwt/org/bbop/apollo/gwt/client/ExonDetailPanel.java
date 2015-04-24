@@ -104,7 +104,15 @@ public class ExonDetailPanel extends Composite {
         typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getType();
+                String annotationTypeString = annotationInfo.getType();
+                if(annotationTypeString.equals("non_canonical_five_prime_splice_site")){
+                    annotationTypeString = "NC 5' splice";
+                }
+                else
+                if(annotationTypeString.equals("non_canonical_three_prime_splice_site")){
+                    annotationTypeString = "NC 3' splice";
+                }
+                return annotationTypeString;
             }
         };
         typeColumn.setSortable(true);

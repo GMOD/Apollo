@@ -717,6 +717,36 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     }
 
+    void "should be able to delete multiple exons"(){
+
+        given: "the GB40800-RA"
+        String gb40800 = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":160307,\"fmax\":162089,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40800-RA\",\"children\":[{\"location\":{\"fmin\":160307,\"fmax\":160485,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":161876,\"fmax\":162089,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":160307,\"fmax\":160628,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":160961,\"fmax\":161035,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":161365,\"fmax\":161454,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":161556,\"fmax\":161660,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":161746,\"fmax\":162089,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":160485,\"fmax\":161876,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40800) as JSONObject
+
+        when: "we add GB40800-RA"
+        requestHandlingService.addTranscript(jsonAddTranscriptObject2)
+
+        then: "we should see 1 genes, 1 transcript, 5 exons, 1 CDS, no noncanonical splice sites"
+        assert Gene.count ==1
+        assert MRNA.count ==1
+        assert CDS.count ==1
+        assert Exon.count ==5
+        assert NonCanonicalFivePrimeSpliceSite.count ==1
+        assert NonCanonicalThreePrimeSpliceSite.count ==1
+
+
+        when: "we add GB40800-RA"
+        requestHandlingService.addTranscript(jsonAddTranscriptObject2)
+
+        then: "we should see 2 genes, 2 transcripts, 10 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        def allFeatures = Feature.all
+        assert Gene.count ==2
+        assert MRNA.count ==2
+        assert CDS.count ==2
+        assert Exon.count ==10
+        assert NonCanonicalFivePrimeSpliceSite.count ==1
+        assert NonCanonicalThreePrimeSpliceSite.count ==1
+    }
 
 
 
