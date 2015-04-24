@@ -268,20 +268,8 @@ public class MainPanel extends Composite {
 //            trackListString += "&";
 //        }
         trackListString += "&highlight=&tracklist=0";
-        GWT.log("set string: " + trackListString);
-        GWT.log("get string: " + frame.getUrl());
-//        currentStartBp = minRegion ;
-//        currentEndBp = maxRegion ;
 
         final String finalString = trackListString;
-//            @Override
-//            public void execute() {
-//                if(!trackPanel.getTrackList().isEmpty()){
-//                    frame.setUrl(finalString);
-//                }
-//            }
-
-//        Window.alert("final string!"+finalString);
         frame.setUrl(finalString);
 
         Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
@@ -303,26 +291,11 @@ public class MainPanel extends Composite {
     }
 
     public void updateGenomicViewer() {
-//        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
-//        GWT.log("get selected sequence: " + currentSequence.getName());
-//        trackListString += currentSequence.getName();
-
         if (currentStartBp != null && currentEndBp != null) {
             updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp);
         } else {
             updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd());
         }
-
-
-//        trackListString += "&";
-//        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
-//            trackListString += trackInfo.getName();
-//            trackListString += "&";
-//        }
-//        trackListString = trackListString.substring(0, trackListString.length() - 1);
-//        trackListString += "&highlight=&tracklist=0";
-//        GWT.log("set string: " + trackListString);
-//        frame.setUrl(trackListString);
     }
 
     public void setAppState(AppStateInfo appStateInfo) {

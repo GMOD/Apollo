@@ -17,6 +17,7 @@ class JbrowseController {
 
     def sequenceService
     def permissionService
+    def preferenceService
 
 
     // is typically checking for trackData.json
@@ -34,9 +35,17 @@ class JbrowseController {
     }
 
     private String getJBrowseDirectoryForSession() {
-        // TODO: move to shiro
-        Session session = SecurityUtils.subject.getSession(false)
-        String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+
+        // faster, but not reliable
+//        Session session = SecurityUtils.subject.getSession(false)
+//        String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+
+        long startTime = System.currentTimeMillis()
+        String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
+        long stopTime = System.currentTimeMillis()
+        // this is about 0.004 ms per request .. .
+        log.debug "total time to grab preference ${(stopTime-startTime)/1000f}"
+
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
