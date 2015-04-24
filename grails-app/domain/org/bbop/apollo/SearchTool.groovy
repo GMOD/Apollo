@@ -12,4 +12,8 @@ class SearchTool {
     String databasePath
     String options
     boolean removeTempDirectory
+    static mapping = {
+        key column: "search_key"
+    }
+
 }
