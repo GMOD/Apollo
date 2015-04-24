@@ -1454,18 +1454,13 @@ class RequestHandlingService {
             }
         }
 
-//        featureService.updateModifiedFeaturesAfterDelete(modifiedFeaturesUniqueNames, isUpdateOperation)
         for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
             String uniqueName = entry.getKey();
-            // needed only for managing transaction history
-//            List<Feature> deletedFeatures = entry.getValue();
             Feature feature = Feature.findByUniqueName(uniqueName);
             if (feature == null) {
                 log.info("Feature already deleted");
                 continue;
             }
-//            SimpleObjectIteratorInterface iterator = feature.getWriteableSimpleObjects(feature.getConfiguration());
-//            Feature gsolFeature = (Feature) iterator.next();
             if (!isUpdateOperation) {
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
 //
@@ -1475,15 +1470,11 @@ class RequestHandlingService {
                     if (!gene) {
                         gene = transcriptService.getPseudogene(transcript)
                     }
-//                    transcriptService.deleteTranscript(gene, transcript)
                     int numberTranscripts = transcriptService.getTranscripts(gene).size()
                     if (numberTranscripts == 1) {
-//                        editor.deleteFeature(gene);
                         // wouldn't this be a gene?
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
-//                        Feature.deleteAll(topLevelFeature)
-
                         AnnotationEvent annotationEvent = new AnnotationEvent(
                                 features: featureContainer
                                 , sequence: sequence
@@ -1503,19 +1494,9 @@ class RequestHandlingService {
                         fireAnnotationEvent(annotationEvent)
                     }
 
-//                    if (numberTranscripts > 1) {
-//                        gene.save()
-//                    } else {
-//                        featureService.deleteFeatureAndChildren(gene)
-////                        gene.delete(flush: true )
-////                        Gene.deleteAll(gene)
-//                    }
-
                 } else {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
-//                    topLevelFeature.delete(flush: true)
-//                    Feature.deleteAll(topLevelFeature)
 
                     AnnotationEvent annotationEvent = new AnnotationEvent(
                             features: featureContainer
@@ -1524,10 +1505,6 @@ class RequestHandlingService {
                     )
 
                     fireAnnotationEvent(annotationEvent)
-
-//                    feature.delete(flush: true )
-//                    Feature.deleteAll(feature)
-//
                 }
             } else {
                 if (feature instanceof Transcript) {
