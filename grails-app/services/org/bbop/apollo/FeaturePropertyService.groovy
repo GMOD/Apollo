@@ -66,10 +66,11 @@ class FeaturePropertyService {
         return false
     }
 
-    def setFeatureProperty(Feature feature,String type,String value){
+    def setFeatureProperty(Feature feature,String type,String tag,String value){
 
         for(FeatureProperty featureProperty in feature.featureProperties){
             if(featureProperty.type.name == type){
+                featureProperty.tag = tag
                 featureProperty.value = value
                 featureProperty.save(flush: true)
                 return true
@@ -84,6 +85,7 @@ class FeaturePropertyService {
 
     def addProperty(Feature feature, FeatureProperty property) {
         int rank = 0;
+        println "value of FP to add: ${property.value} ${property.tag}"
         for (FeatureProperty fp : feature.getFeatureProperties()) {
             if (fp.getType().equals(property.getType())) {
                 if (fp.getRank() > rank) {
@@ -156,10 +158,10 @@ class FeaturePropertyService {
 //     */
     public void setOwner(Feature feature, String owner) {
 
-        println "looking for owner ${owner}"
+        log.debug "looking for owner ${owner}"
         User user = User.findByUsername(owner)
-        println "owner ${owner} found ${user}"
-        println "feature ${feature}"
+        log.debug "owner ${owner} found ${user}"
+        log.debug "feature ${feature}"
 
         if (user) {
             setOwner(feature, user)

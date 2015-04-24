@@ -149,7 +149,6 @@ public class AnnotationEditorServiceManager {
 		private Overlapper overlapper;
 		private CannedComments cannedComments;
 		private Map<String, SequenceSearchTool> sequenceSearchTools;
-		private Collection<String> sequenceSearchToolsKeys;
 		private Map<String, ServerConfiguration.DataAdapterGroupConfiguration> dataAdapters;
 		private boolean useCDS;
 		private boolean useMemoryStore;
@@ -249,15 +248,6 @@ public class AnnotationEditorServiceManager {
 				}
 				if (serverConfig.getCannedComments() != null) {
 					cannedComments = new CannedComments((InputStream)servletContext.getResourceAsStream(serverConfig.getCannedComments()));
-				}
-				sequenceSearchTools = new HashMap<String, SequenceSearchTool>();
-				sequenceSearchToolsKeys = new ArrayList<String>();
-				for (ServerConfiguration.SequenceSearchToolConfiguration conf : serverConfig.getSequenceSearchTools()) {
-					SequenceSearchTool sequenceSearchTool = (SequenceSearchTool)Class.forName(conf.getClassName()).newInstance();
-					sequenceSearchTool.parseConfiguration((InputStream)servletContext.getResourceAsStream(conf.getConfigFilename()));
-					sequenceSearchTool.setBioObjectConfiguration(bioObjectConfiguration);
-					sequenceSearchTools.put(conf.getKey(), sequenceSearchTool);
-					sequenceSearchToolsKeys.add(conf.getKey());
 				}
 				dataAdapters = serverConfig.getDataAdapters();
 				useCDS = serverConfig.getUseCDS();

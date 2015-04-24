@@ -204,9 +204,9 @@ class TranscriptService {
      */
     public void setCDS(Feature feature, CDS cds, boolean replace = true) {
         if (replace) {
-            println "replacing CDS on feature"
+            log.debug "replacing CDS on feature"
             if (featureRelationshipService.setChildForType(feature, cds)) {
-                println "returning "
+                log.debug "returning "
                 return
             }
         }
@@ -219,9 +219,9 @@ class TranscriptService {
         ).save(insert: true, failOnError: true)
 
 
-        println "fr: ${fr}"
-        println "feature: ${feature}"
-        println "cds: ${cds}"
+        log.debug "fr: ${fr}"
+        log.debug "feature: ${feature}"
+        log.debug "cds: ${cds}"
         feature.addToParentFeatureRelationships(fr)
         cds.addToChildFeatureRelationships(fr)
 
@@ -231,8 +231,8 @@ class TranscriptService {
 
     def addExon(Transcript transcript, Exon exon) {
 
-        println "exon feature lcoations ${exon.featureLocation}"
-        println "transcript feature lcoations ${transcript.featureLocation}"
+        log.debug "exon feature lcoations ${exon.featureLocation}"
+        log.debug "transcript feature lcoations ${transcript.featureLocation}"
         if (exon.getFeatureLocation().getFmin() < transcript.getFeatureLocation().getFmin()) {
             transcript.getFeatureLocation().setFmin(exon.getFeatureLocation().getFmin());
         }
@@ -254,18 +254,18 @@ class TranscriptService {
         gene.save()
 
         int initialSize = transcript.parentFeatureRelationships?.size() ?: 0
-        println "initial size: ${initialSize}" // 3
+        log.debug "initial size: ${initialSize}" // 3
         featureRelationshipService.addChildFeature(transcript, exon, false)
         int finalSize = transcript.parentFeatureRelationships?.size()
-        println "final size: ${finalSize}" // 4 (+1 exon)
+        log.debug "final size: ${finalSize}" // 4 (+1 exon)
 
 
         featureService.removeExonOverlapsAndAdjacencies(transcript)
-        println "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
+        log.debug "post remove exons: ${transcript.parentFeatureRelationships?.size()}" // 6 (+2 splice sites)
 //
 //        // if the exon is removed during a merge, then we will get a null-pointer
         updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
-        println "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
+        log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
     }
     
     Transcript getParentTranscriptForFeature(Feature feature) {
@@ -304,23 +304,23 @@ class TranscriptService {
         FeatureLocation transcriptFeatureLocation = transcript.featureLocation
         transcriptFeatureLocation.fmax = leftExon.fmax
         FeatureLocation splitFeatureLocation = splitTranscript.featureLocation
-        println "right1: ${rightExon.featureLocation}"
+        log.debug "right1: ${rightExon.featureLocation}"
         splitFeatureLocation.fmin = rightExon.featureLocation.fmin
-        println "right2: ${rightExon.featureLocation}"
+        log.debug "right2: ${rightExon.featureLocation}"
         for (Exon exon : exons) {
             FeatureLocation exonFeatureLocation = exon.featureLocation
             FeatureLocation leftFeatureLocation = leftExon.featureLocation
             if (exonFeatureLocation.fmin > leftFeatureLocation.getFmin()) {
-                println "right3: ${rightExon.featureLocation}"
+                log.debug "right3: ${rightExon.featureLocation}"
 //                featureRelationshipService.removeFeatureRelationship()
 //                exonService.deleteExon(transcript, exon);
                 if (exon.equals(rightExon)) {
                     featureRelationshipService.removeFeatureRelationship(transcript,rightExon)
-                    println "right4: ${rightExon.featureLocation}"
+                    log.debug "right4: ${rightExon.featureLocation}"
                     addExon(splitTranscript, rightExon);
                 } else {
                     featureRelationshipService.removeFeatureRelationship(transcript,exon)
-                    println "right5: ${rightExon.featureLocation}"
+                    log.debug "right5: ${rightExon.featureLocation}"
                     addExon(splitTranscript, exon);
                 }
             }

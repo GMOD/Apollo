@@ -80,14 +80,14 @@ class FeatureService {
                 and {
                     le("fmin", location.fmin)
                     gt("fmax", location.fmin)
-                    if(compareStrands){
+                    if (compareStrands) {
                         eq("strand", location.strand)
                     }
                 }
                 and {
                     lt("fmin", location.fmax)
                     ge("fmax", location.fmax)
-                    if(compareStrands){
+                    if (compareStrands) {
                         eq("strand", location.strand)
                     }
                 }
@@ -96,57 +96,6 @@ class FeatureService {
 
         return results*.feature.unique()
     }
-
-//        if (strandsOverlap &&
-//                (thisFmin <= otherFmin && thisFmax > otherFmin ||
-//                        thisFmin >= otherFmin && thisFmin < otherFmax))
-
-//        int low = 0;
-//        int high = Feature.count - 1;
-//        int index = -1;
-//        while (low <= high) {
-//            int mid = (low + ((high - low) / 2)).intValue();
-//            Feature.all.get(mid)
-//            Feature feature = Feature.all.get(mid)
-//            if (feature == null) {
-////                uniqueNameToStoredUniqueName.remove(features.get(mid).getUniqueName());
-////                features.remove(mid);
-//                return getOverlappingFeatures(location, compareStrands);
-//            }
-//            if (overlaps(feature.featureLocation, location, compareStrands)) {
-//                index = mid;
-//                break;
-//            } else if (feature.getFeatureLocation().getFmin() < location.getFmin()) {
-//                low = mid + 1;
-//            } else {
-//                high = mid - 1;
-//            }
-//        }
-//        if (index >= -1) {
-//            for (int i = index; i >= 0; --i) {
-//                Feature feature = Feature.all.get(i)
-//                if (feature == null) {
-////                    uniqueNameToStoredUniqueName.remove(features.get(i).getUniqueName());
-////                    features.remove(i);
-//                    return getOverlappingFeatures(location, compareStrands);
-//                }
-//                if (overlaps(feature.featureLocation, location, compareStrands)) {
-//                    overlappingFeatures.addFirst(feature);
-//                } else {
-//                    break;
-//                }
-//            }
-//            for (int i = index + 1; i < Feature.count; ++i) {
-//                Feature feature = Feature.all.get(i)
-//                if (overlaps(feature.featureLocation, location, compareStrands)) {
-//                    overlappingFeatures.addLast(feature);
-//                } else {
-//                    break;
-//                }
-//            }
-//        }
-//    return overlappingFeatures;
-//}
 
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
@@ -159,49 +108,33 @@ class FeatureService {
         }
 
         // TODO: this may be a mistake, is different than the original code
-        // you are iterating through all of the children in order to set the SourceFeature and analsysis
-//        for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
+        // you are iterating through all of the children in order to set the SourceFeature and analysis
+        // for (FeatureRelationship fr : gsolFeature.getChildFeatureRelationships()) {
         for (FeatureRelationship fr : gsolFeature.getParentFeatureRelationships()) {
             updateNewGsolFeatureAttributes(fr.getChildFeature(), sequence);
         }
     }
 
-//    private setOwner(Feature feature,String owner){
-//        println "looking for owner ${owner}"
-//        User user = User.findByUsername(owner)
-//        println "owner ${owner} found ${user}"
-//        println "feature ${feature}"
-//
-//        if (user) {
-//            setOwner(feature, user)
-//        } else {
-//            log.error("User ${owner} not found, just adding")
-//        }
-//
-//    }
-
-    private setOwner(Feature feature,User owner){
+    private setOwner(Feature feature, User owner) {
+        println "setting owner for feature ${feature} to ${owner}"
         feature.addToOwners(owner)
     }
-
 
     /**
      * From Gene.addTranscript
      * @param jsonTranscript
-     * @param trackName
      * @param isPseudogene
      * @return
      */
-    def generateTranscript(JSONObject jsonTranscript, String trackName, boolean isPseudogene = false) {
+    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean isPseudogene = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
         log.debug "gene ${gene}"
-        trackName = trackName.startsWith("Annotations-") ? trackName.substring("Annotations-".size()) : trackName
         Transcript transcript = null
         boolean useCDS = configWrapperService.useCDS()
 
-        Sequence sequence = Sequence.findByName(trackName)
+        User owner = permissionService.findUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
             log.debug "has gene: ${gene}"
@@ -211,7 +144,7 @@ class FeatureService {
             }
 
             // todo, make work
-            setOwner(transcript, permissionService.findUser(jsonTranscript));
+            setOwner(transcript, owner);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -231,20 +164,14 @@ class FeatureService {
                     log.debug "found an overlpaping gene ${tmpGene}"
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
                     updateNewGsolFeatureAttributes(tmpTranscript, sequence);
-//                    Transcript tmpTranscript = (Transcript) BioObjectUtil.createBioObject(gsolTranscript, bioObjectConfiguration);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
                     }
-//                    setOwner(tmpTranscript, (String) session.getAttribute("username"));
-                    setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
-//                    // TODO: make good code
-//                    String username = null
-//                    try {
-//                        username = SecurityUtils?.subject?.principal
-//                        featurePropertyService.setOwner(transcript, username);
-//                    } catch (e) {
-//                        log.error(e)
-//                    }
+                    //wasn't working --colin
+                    //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
+
+                    //this one is working, but was marked as needing improvement
+                    setOwner(tmpTranscript, owner);
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
@@ -263,9 +190,6 @@ class FeatureService {
                         break;
                     } else {
                         featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
-//                        tmpTranscript.delete(flush: true)
-//                        deleteFeature(tmpTranscript)
-//                        transcriptService.deleteTranscript(tmpGene,tmpTranscript)
                         log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                     }
                 } else {
@@ -289,7 +213,6 @@ class FeatureService {
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
-
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
 
@@ -311,9 +234,15 @@ class FeatureService {
             gene.save(insert: true)
             transcript.save(flush: true)
 
-            if(!grails.util.Environment.TEST){
-                setOwner(gene, permissionService.findUser(jsonTranscript));
-                setOwner(transcript, permissionService.findUser(jsonTranscript));
+            // doesn't work well for testing
+            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                if (owner) {
+                    setOwner(gene, owner);
+                    setOwner(transcript, owner);
+                } else {
+                    log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
+                }
             }
 //            String username = null
 //            try {
@@ -1169,7 +1098,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
                 log.debug "NO name using unique name"
-                gsolFeature.name = gsolFeature.uniqueName
+                gsolFeature.name = gsolFeature.uniqueName+"-${type.get('name')}"
             }
 
             gsolFeature.save(failOnError: true)
@@ -1189,7 +1118,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else if (jsonFeature.has(FeatureStringEnum.RESIDUES.value) && gsolFeature instanceof SequenceAlteration) {
                 sequenceService.setResiduesForFeature(gsolFeature, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
             }
-
 
 //            gsolFeature.save(failOnError: true)
 
@@ -1231,7 +1159,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
 //                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
                     gsolProperty.setType(cvTerm);
-                    gsolProperty.setValue(property.getString(FeatureStringEnum.VALUE.value));
+                    String[] propertySet = property.getString(FeatureStringEnum.VALUE.value).split(FeatureStringEnum.TAG_VALUE_DELIMITER.value)
+                    gsolProperty.setTag(propertySet[0]);
+                    gsolProperty.setValue(propertySet[1]);
                     gsolProperty.setFeature(gsolFeature);
                     int rank = 0;
                     for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {
@@ -1323,7 +1253,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
             case RepeatRegion.ontologyId: return new RepeatRegion()
-            case FlankingRegion.ontologyId : return new FlankingRegion()
+            case FlankingRegion.ontologyId: return new FlankingRegion()
             case Insertion.ontologyId: return new Insertion()
             case Deletion.ontologyId: return new Deletion()
             case Substitution.ontologyId: return new Substitution()
@@ -1358,7 +1288,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case CDS.cvTerm.toUpperCase(): return CDS.ontologyId
                 case Intron.cvTerm.toUpperCase(): return Intron.ontologyId
                 case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
+                case TransposableElement.alternateCvTerm.toUpperCase():
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
+                case RepeatRegion.alternateCvTerm.toUpperCase():
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
                 case FlankingRegion.cvTerm.toUpperCase(): return FlankingRegion.ontologyId
                 case Insertion.cvTerm.toUpperCase(): return Insertion.ontologyId
@@ -1432,13 +1364,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String residueString = null
 
         if (feature instanceof Transcript) {
-            println "===> in getResiduesWithAlterations() feature is of type Transcript; calling getResiduesFromTranscript()"
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
         } else if (feature instanceof CDS) {
-            println "===> in getResiduesWithAlterations() feature is of type CDS; calling getResiduesFromCDS()"
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
         } else {
-            println "===> in getResiduesWithAlterations() feature is of type ${feature.class}; calling getResiduesFromFeature()"
             residueString = sequenceService.getResiduesFromFeature(feature)
         }
         if (sequenceAlterations.size() == 0) {
@@ -1677,18 +1606,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             gsolFeature.attach()
 
-            if(gsolFeature.owners){
-                String ownerString =""
-                for(owner in gsolFeature.owners){
-                    ownerString +=  gsolFeature.owner.username + " "
+            if (gsolFeature.owners) {
+                String ownerString = ""
+                for (owner in gsolFeature.owners) {
+                    ownerString += gsolFeature.owner.username + " "
                 }
                 jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), ownerString?.trim());
-            }
-            else
-            if(gsolFeature.owner){
+            } else if (gsolFeature.owner) {
                 jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), gsolFeature.owner.username);
-            }
-            else{
+            } else {
                 jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), "None");
             }
 //            gsolFeature.featureLocations.each {
@@ -1978,4 +1904,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
+    boolean typeHasChildren(Feature feature) {
+        def f = Feature.get(feature.id)
+        boolean hasChildren = !(f instanceof Exon) && !(f instanceof CDS) && !(f instanceof SpliceSite)
+        log.debug "type ${f.ontologyId}, ${f.cvTerm}->${f.name} has children ${hasChildren}"
+        return hasChildren
+    }
 }

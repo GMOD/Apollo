@@ -89,7 +89,7 @@
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
-                        <b:Row>
+                        <b:Row ui:field="userRow1" visible="false">
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="First Name"/>
                             </b:Column>
@@ -103,7 +103,7 @@
                                 <gwt:TextBox ui:field="lastName" styleName="{style.tableValue}"/>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
+                        <b:Row ui:field="userRow2" visible="false">
                             <b:Column size="MD_2">
                                 <gwt:HTML styleName="{style.tableKeyName}" text="Email"/>
                             </b:Column>
@@ -128,8 +128,8 @@
                         <b:Row>
                             <b:Column size="MD_6">
                                 <gwt:Button text="Create" ui:field="createButton"/>
-                                <gwt:Button text="Cancel" ui:field="cancelButton" enabled="false"/>
-                                <gwt:Button text="Delete" ui:field="deleteButton" enabled="false"/>
+                                <gwt:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false"/>
+                                <gwt:Button text="Delete" ui:field="deleteButton" enabled="false"  visible="false"/>
                                 <gwt:Button text="Save" ui:field="saveButton" visible="false"/>
                             </b:Column>
                         </b:Row>
@@ -146,7 +146,7 @@
                                 <!--<b:Column size="MD_2">-->
                             </b:Column>
                             <b:Column size="MD_1">
-                                <b:Button ui:field="addGroupButton" text="Add"/>
+                                <b:Button ui:field="addGroupButton" icon="PLUS" color="blue"/>
                             </b:Column>
                             <!--</b:Row>-->
                             <!--<b:Row>-->

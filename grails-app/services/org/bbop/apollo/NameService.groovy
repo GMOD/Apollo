@@ -17,13 +17,13 @@ class NameService {
     String generateUniqueName(Feature thisFeature,String principalName = null ) {
         if(thisFeature.name) {
             if (thisFeature instanceof Transcript) {
-                println "instance of transcript"
+                log.debug "instance of transcript"
                 if(!principalName){
                     Gene gene = transcriptService.getGene((Transcript) thisFeature)
-                    println "transcript has gene ${gene}"
+                    log.debug "transcript has gene ${gene}"
                     if(!gene){
                         gene = transcriptService.getPseudogene((Transcript) thisFeature)
-                        println "transcript has pseudogene ${gene}"
+                        log.debug "transcript has pseudogene ${gene}"
                     }
                     principalName = gene.name
                 }
@@ -40,7 +40,7 @@ class NameService {
                 return transcriptName
             } else
             if (thisFeature instanceof Gene) {
-                println "instance of Gene"
+                log.debug "instance of Gene"
                 if(!principalName){
                     principalName = ((Gene) thisFeature).name
                 }
@@ -58,7 +58,7 @@ class NameService {
                 return newGeneName
             }
             if (thisFeature instanceof Exon) {
-                println "instance of Exon"
+                log.debug "instance of Exon"
                 if(!principalName){
                     principalName = ((Exon) thisFeature).name
                 }
@@ -73,9 +73,9 @@ class NameService {
                 return exonName
             }
             else{
-                println "using source string"
+                log.debug "using source string"
                 String sourceString = thisFeature.name.replaceAll("[_\\.0-9]","")
-                println "source string ${sourceString}"
+                log.debug "source string ${sourceString}"
                 UUID.fromString(sourceString).toString()
             }
         }

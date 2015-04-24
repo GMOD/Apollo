@@ -7,7 +7,6 @@ import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import java.nio.file.Paths
 
 import static org.springframework.http.HttpStatus.*
 
@@ -20,163 +19,182 @@ class SequenceController {
     def sequenceService
     def featureService
     def transcriptService
-    
-    def permissions(){
+    def fastaHandlerService
+    def gff3HandlerService
+    def permissionService
+    def preferenceService
+
+    def permissions() {
 
     }
 
-    def index3(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(),username:'demo@demo.gov',isAdmin:'true']
+
+    @Transactional
+    def setCurrentSequenceLocation() {
+
+//        render userOrganismPreference.sequence as JSON
+        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name,params.startbp as Integer,params.endbp as Integer)
+
+        render userOrganismPreference.sequence as JSON
     }
 
-    def index2(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(),username:'demo@demo.gov',isAdmin:'true']
-    }
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count(),username:'demo@demo.gov',isAdmin:'true']
-    }
+    /**
+     * ID is the organism ID
+     * Sequence is the default sequence name
+     *
+     * If no sequence name is set, pull the preferences, otherwise just choose a random one.
+     * @param id
+     * @param sequenceName
+     * @return
+     */
+    @Transactional
+    def setCurrentSequence(Sequence sequenceInstance) {
+        log.debug "setting default sequences: ${params}"
+        Organism organism = sequenceInstance.organism
 
-    def websocketTest(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond Sequence.list(params), model: [sequenceInstanceCount: Sequence.count()]
-    }
-//
-    def show(Sequence sequenceInstance) {
-//        respond sequenceInstance
-        if (sequenceInstance == null) {
-            notFound()
-            return
+        User currentUser = permissionService.currentUser
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
+
+        if(!userOrganismPreference){
+            userOrganismPreference = new UserOrganismPreference(
+                    user:currentUser
+                    ,organism: organism
+                    ,sequence: sequenceInstance
+                    ,currentOrganism: true
+            ).save(insert:true,flush:true,failOnError: true)
         }
-        respond sequenceInstance, model: [featureLocations: FeatureLocation.findAllBySequence(sequenceInstance)]
-    }
+        else{
+            userOrganismPreference.sequence = sequenceInstance
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush:true,failOnError: true)
+        }
+        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference,currentUser)
 
-    def create() {
-        respond new Sequence(params)
-    }
-//
-//    def retrieveSequences(Organism organism){
-//    }
-
-    def setDefaultSequence(Long id,String sequenceName){
-        println "setting default sequences: ${params}"
         Session session = SecurityUtils.subject.getSession(false)
-        Sequence sequence = Sequence.findByName(sequenceName)
-        Organism organism = Organism.findById(id)
-        if(!sequence){
-            if(organism){
-                sequence = organism.sequences.iterator().next()
-            }
-            else{
-                log.error "default sequence not found ${sequenceName}"
-                return
-            }
-        }
-//        Organism organism = sequence.organism
-//        HttpSession session = request.session
-        session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,sequence.name)
-        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value,sequence.name)
-        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-        session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,sequence.organismId)
-        render sequenceName as String
+        session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
+        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
+        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+        session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
+
+
+        render userOrganismPreference.sequence.name as String
     }
+
+    /**
+     * ID is the organism ID
+     * Sequence is the default sequence name
+     *
+     * If no sequence name is set, pull the preferences, otherwise just choose a random one.
+     * @param id
+     * @param sequenceName
+     * @return
+     */
+//    @Transactional
+//    def setDefaultSequence(Long id, String sequenceName) {
+//        log.debug "setting default sequences: ${params}"
+//        Organism organism = Organism.findById(id)
+//        println "SETTIGN DEFAULT SEQUENCES ${id} -> ${organism.commonName} -> ${sequenceName}"
+//        if(!organism){
+//            throw new AnnotationException("Invalid organism id ${id}")
+//        }
+//
+//        Sequence sequence = null
+//
+//        if(sequenceName){
+//            sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+//        }
+//
+//        User currentUser = permissionService.currentUser
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
+//        if(!sequence && !sequenceName && userOrganismPreference){
+//            sequence = Sequence.findByNameAndOrganism(userOrganismPreference.defaultSequence,organism)
+//        }
+//
+//        if(!sequence){
+//                sequence = organism.sequences.iterator().next()
+//        }
+//
+//        println "sequence found ${sequence} for ${sequenceName} and rg ${organism.commonName}"
+//
+//
+//        if(!userOrganismPreference){
+//            println "creating a new one!"
+//            userOrganismPreference = new UserOrganismPreference(
+//                    user:currentUser
+//                    ,organism: organism
+//                    ,defaultSequence: sequence.name
+//                    ,currentOrganism: true
+//            ).save(insert:true,flush:true,failOnError: true)
+//        }
+//        else{
+//            println "updating an old one!!"
+////            userOrganismPreference.refresh()
+//            userOrganismPreference.defaultSequence = sequence.name
+//            userOrganismPreference.currentOrganism = true
+//            userOrganismPreference.save(flush:true,failOnError: true)
+//        }
+//        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+//
+//        println "has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
+//
+//
+//        Session session = SecurityUtils.subject.getSession(false)
+//        session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequence.name)
+//        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
+//        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+//        session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
+//
+//
+//        render userOrganismPreference.defaultSequence as String
+//    }
 
     @Transactional
     def loadSequences(Organism organism) {
+        println "LOADING SEQUENCES ${organism.commonName}"
         log.info "loading sequences for organism ${organism}"
-        if(!organism.sequences){
+        if (!organism.sequences) {
             sequenceService.loadRefSeqs(organism)
         }
 
-        String defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
-        log.info "loading default sequence from session: ${defaultName}"
+        User currentUser = permissionService.currentUser
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
+//        String defaultName
+        if(userOrganismPreference?.sequence?.name){
+//            defaultName = userOrganismPreference.defaultSequence
+            userOrganismPreference.currentOrganism = true
+            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,userOrganismPreference.sequence.name)
+            userOrganismPreference.save(flush:true)
+        }
+        else{
+//            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
+            userOrganismPreference = new UserOrganismPreference(
+                    user:currentUser
+                    ,organism: organism
+                    ,currentOrganism: true
+                    ,sequence: organism.sequences.iterator().next()
+//                    ,defaultSequence: defaultName
+                    ,
+            ).save(insert:true,flush:true)
+        }
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+
+//        log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
-        for(Sequence sequence in organism.sequences){
+        for (Sequence sequence in organism.sequences) {
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put("id",sequence.id)
-            jsonObject.put("name",sequence.name)
-            jsonObject.put("length",sequence.length)
-            jsonObject.put("start",sequence.start)
-            jsonObject.put("end",sequence.end)
-            jsonObject.put("default",defaultName && defaultName==sequence.name)
-            if(defaultName==sequence.name){
-                log.info "setting the default sequence: ${jsonObject.get("default")}"
-            }
+            jsonObject.put("id", sequence.id)
+            jsonObject.put("name", sequence.name)
+            jsonObject.put("length", sequence.length)
+            jsonObject.put("start", sequence.start)
+            jsonObject.put("end", sequence.end)
+//            jsonObject.put("default", defaultName && defaultName == sequence.name)
+//            if (defaultName == sequence.name) {
+//                log.info "setting the default sequence: ${jsonObject.get("default")}"
+//            }
             sequenceArray.put(jsonObject)
         }
 
         render sequenceArray as JSON
-    }
-
-    @Transactional
-    def save(Sequence sequenceInstance) {
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-
-        if (sequenceInstance.hasErrors()) {
-            respond sequenceInstance.errors, view: 'create'
-            return
-        }
-
-        sequenceInstance.save flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.created.message', args: [message(code: 'sequence.label', default: 'Sequence'), sequenceInstance.id])
-                redirect sequenceInstance
-            }
-            '*' { respond sequenceInstance, [status: CREATED] }
-        }
-    }
-
-    def edit(Sequence sequenceInstance) {
-        respond sequenceInstance
-    }
-
-    @Transactional
-    def update(Sequence sequenceInstance) {
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-
-        if (sequenceInstance.hasErrors()) {
-            respond sequenceInstance.errors, view: 'edit'
-            return
-        }
-
-        sequenceInstance.save flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
-                redirect sequenceInstance
-            }
-            '*' { respond sequenceInstance, [status: OK] }
-        }
-    }
-
-    @Transactional
-    def delete(Sequence sequenceInstance) {
-
-        if (sequenceInstance == null) {
-            notFound()
-            return
-        }
-
-        sequenceInstance.delete flush: true
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'Track.label', default: 'Sequence'), sequenceInstance.id])
-                redirect action: "index", method: "GET"
-            }
-            '*' { render status: NO_CONTENT }
-        }
     }
 
     protected void notFound() {
@@ -188,48 +206,61 @@ class SequenceController {
             '*' { render status: NOT_FOUND }
         }
     }
-    
 
+    @Transactional
     def exportSequences() {
-        println "export sequences ${request.JSON} -> ${params}"
+        log.debug "export sequences ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
-        String pathToOutputFile = ""
-        
-        for(String sequence : dataObject.sequences.name) {
-            println "===>${sequence}"
-            println "${Sequence.findByName(sequence)}"
-            for(Sequence eachSeq in Sequence.findByName(sequence)) {
-                // for each sequence in the params
-                println "===> eachSeQ: ${eachSeq.name}"
-                List<FeatureLocation> testList = sequenceService.getFeatureLocations(eachSeq)
-                JSONObject requestObject = new JSONObject()
-                // create a request object
-                println "CREATED JSON : ${requestObject}"
-                requestObject.put("operation", "get_gff3")
-                requestObject.put("track", "Annotations-" + eachSeq.name)
+        String typeOfExport = dataObject.type
+        String sequenceType = dataObject.sequenceType
+        String exportAllSequences = dataObject.exportAllSequences
 
-                JSONArray featuresObjectArray = new JSONArray()
-                for (FeatureLocation entity in testList) {
-                    if(entity.feature.class.cvTerm == Gene.cvTerm) {
-                        println "${entity.feature}"
-                        JSONObject featureUniqueName = new JSONObject()
-                        featureUniqueName.put('uniquename', entity.feature.uniqueName)
-                        featuresObjectArray.add(featureUniqueName)
-                        requestObject.put("features", featuresObjectArray)
-                    }
-                }
-                File outputFile = File.createTempFile("Annotations-" + eachSeq.name, ".gff3")
-                sequenceService.getGff3ForFeature(requestObject, outputFile) // fetching Gff3 for each chromosome
-                pathToOutputFile = Paths.get(outputFile.getPath())
-                println "The output is located at ${pathToOutputFile}"
-
-            }
-
+        def sequences = dataObject.sequences.name
+        def sequenceList
+        if (exportAllSequences == "true") {
+            // HQL for all sequences
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl order by s.name asc ")
         }
-        // TODO: call methods here and generate url
-        // use sequenceServices to export the object and then generate a URL
+        else {
+            // HQL for a single sequence or selected sequences
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences])
+        }
+        println "::: sequenceList: ${sequenceList}"
+        log.debug "# of sequences to export ${sequenceList.size()}"
+
+        List<String> ontologyIdList = [Gene.class.name]
+        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList])
+        File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
+        
+        if (typeOfExport == "GFF3") {
+            // call gff3HandlerService
+            gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
+        } else if (typeOfExport == "FASTA") {
+            // call fastaHandlerService
+            fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)
+        }
         JSONObject jsonObject = new JSONObject()
-        jsonObject.put("url",pathToOutputFile)
+        jsonObject.put("filePath", outputFile.path)
+        jsonObject.put("exportType", typeOfExport)
+        jsonObject.put("sequenceType", sequenceType)
         render jsonObject as JSON
+    }
+
+    def exportHandler() {
+        log.debug "params to exportHandler: ${params}"
+        String pathToFile = params.filePath
+        def file = new File(pathToFile)
+        response.contentType = "txt"
+        if (params.exportType == "GFF3") {
+            response.setHeader("Content-disposition", "attachment; filename=Annotations.gff3")
+        } else if (params.exportType == "FASTA") {
+            response.setHeader("Content-disposition", "attachment; filename=Annotations.fasta")
+        }
+        def outputStream = response.outputStream
+        outputStream << file.text
+        outputStream.flush()
+        outputStream.close()
+        file.delete()
+
     }
 }

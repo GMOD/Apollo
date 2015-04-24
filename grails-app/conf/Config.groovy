@@ -2,11 +2,6 @@
 // config files can be ConfigSlurper scripts, Java properties files, or classes
 // in the classpath in ConfigSlurper format
 
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
-
 // if (System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
@@ -17,27 +12,21 @@ eventCompileStart = {
 }
 
 grails.config.locations = [
-        "file:./${appName}-config.groovy" // dev only
-        ,"classpath:${appName}-config.groovy" // for production deployment
+        "file:./${appName}-config.groovy"        // dev only
+        ,"classpath:${appName}-config.groovy"    // for production deployment
         ,"classpath:${appName}-config.properties"
-        ,"file:/tmp/${appName}-config.groovy"
 ]
 
-//grails.assetsminifyJs = true
+// if (System.properties["${appName}.config.location"]) {
+//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
+// }
+
+
+
 grails.assets.minifyJs = false
 grails.assets.minifyCss = false
 grails.assets.enableSourceMaps = true
-
-// this works
 grails.assets.bundle=false
-
-//grails.assets.minifyOptions = [
-//        languageMode     : 'ES5',
-//        targetLanguage   : 'ES5', //Can go from ES6 to ES5 for those bleeding edgers
-//        optimizationLevel: 'SIMPLE' //Or ADVANCED or WHITESPACE_ONLY
-//]
-
-
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
@@ -132,103 +121,123 @@ log4j.main = {
     //}
 
     error 'org.codehaus.groovy.grails.web.servlet',        // controllers
-            'org.codehaus.groovy.grails.web.pages',          // GSP
-            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-            'org.codehaus.groovy.grails.commons',            // core / classloading
-            'org.codehaus.groovy.grails.plugins',            // plugins
-            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-            'org.springframework',
-            'org.hibernate',
-            'net.sf.ehcache.hibernate'
-
+          'org.codehaus.groovy.grails.web.pages',          // GSP
+          'org.codehaus.groovy.grails.web.sitemesh',       // layouts
+          'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+          'org.codehaus.groovy.grails.web.mapping',        // URL mapping
+          'org.codehaus.groovy.grails.commons',            // core / classloading
+          'org.codehaus.groovy.grails.plugins',            // plugins
+          'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+          'org.springframework',
+          'org.hibernate',
+          'net.sf.ehcache.hibernate'
+    
 //    trace 'org.hibernate.type'
 //    debug 'org.hibernate.SQL'
 
-    info 'grails.app'
-//    debug 'grails.app'
+//    info 'grails.app'
+    debug 'grails.app'
 
-//    debug 'grails.app.controllers.org.bbop.apollo'
-//    debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'
-//    info 'grails.app.services'
-//    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
-
-//    debug 'grails.app.jobs'
-//    debug 'grails.app.taglib'
-//    debug 'grails.app.taglib.edu.uoregon.nic.nemo.portal'
-//    debug 'grails.app.controllers'
-//    debug 'grails.app.services'
-//    debug 'grails.app.services.edu.uoregon.nic.nemo.portal.OntologyService'
-//    debug 'grails.app.services.edu.uoregon.nic.nemo.portal.DataStubService'
-//    debug 'grails.app.services.edu.uoregon.nic.nemo.portal.UserService'
-//    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
-//    debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal.TermController'
+    //trace 'org.hibernate.type'
+    //debug 'org.hibernate.SQL'
+    //debug 'grails.app'
+    //debug 'grails.app.controllers.org.bbop.apollo'
+    //debug 'grails.app.controllers.org.bbop.apollo.JbrowseController'
+    //info  'grails.app.services'
+    //debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
+    //debug 'grails.app.jobs'
+    //debug 'grails.app.taglib'
+    //debug 'grails.app.taglib.edu.uoregon.nic.nemo.portal'
+    //debug 'grails.app.controllers'
+    //debug 'grails.app.services'
+    //debug 'grails.app.services.edu.uoregon.nic.nemo.portal.OntologyService'
+    //debug 'grails.app.services.edu.uoregon.nic.nemo.portal.DataStubService'
+    //debug 'grails.app.services.edu.uoregon.nic.nemo.portal.UserService'
+    //debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal'
+    //debug 'grails.app.controllers.edu.uoregon.nic.nemo.portal.TermController'
 }
 
 //grails.gorm.default.constraints = {
 //    '*'(nullable: true)
 //}
-grails.gorm.failOnError = true
 //grails.datastore.gorm.GormInstanceApi.copy = cloneForDomains ;
-
-apollo.jbrowse.data.directory = "/opt/apollo/jbrowse/data"
-
-apollo.default_minimum_intron_size = 1
-apollo.history_size = 0
-apollo.overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
-apollo.track_name_comparator = "/config/track_name_comparator.js"
-apollo.use_cds_for_new_transcripts = true
-apollo.user_pure_memory_store = true
-apollo.translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
-apollo.is_partial_translation_allowed = false // unused so far
-//apollo.get_translation_code = -1
-apollo.get_translation_code = 1
-
-// TODO: should come from config or via preferences database
-apollo.splice_donor_sites = [ "GT"]
-apollo.splice_acceptor_sites = [ "AG"]
-apollo.gff3.source= "."
-apollo.bootstrap = false
-
-apollo.info_editor = {
-    feature_types = "default"
-    attributes = true
-    dbxrefs = true
-    pubmed_ids = true
-    go_ids = true
-    comments = true
-}
-
+grails.gorm.failOnError = true
 // https://github.com/zyro23/grails-spring-websocket
 // websocket info
 grails.tomcat.nio = true
 grails.tomcat.scan.enabled = true
 
+// default apollo settings
+apollo {
+    default_minimum_intron_size = 1
+    history_size = 0
+    overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
+    track_name_comparator = "/config/track_name_comparator.js"
+    use_cds_for_new_transcripts = true
+    user_pure_memory_store = true
+    translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
+    is_partial_translation_allowed = false // unused so far
+    get_translation_code = 1
+    sequence_search_tools {
+        blat_nuc {
+            search_exe = "/usr/local/bin/blat"
+            search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
+            name = "Blat nucleotide"
+            params = ""
+        }
+        blat_prot {
+            search_exe = "/usr/local/bin/blat"
+            search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide"
+            name = "Blat protein"
+            params = ""
+            //tmp_dir = "/opt/apollo/tmp"
+        }
+    }
+
+    // TODO: should come from config or via preferences database
+    splice_donor_sites = [ "GT"]
+    splice_acceptor_sites = [ "AG"]
+    gff3.source= "."
+    bootstrap = false
+
+    info_editor = {
+        feature_types = "default"
+        attributes = true
+        dbxrefs = true
+        pubmed_ids = true
+        go_ids = true
+        comments = true
+    }
+}
+
+
 
 
 // from: http://grails.org/plugin/audit-logging
+// may end up going away
 auditLog {
-//    // note, this disables the audit log
+    //note, this disables the audit log
     disabled = true
-//    verbose = true // verbosely log all changed values to db
-    logIds = true  // log db-ids of associated objects.
-//    // Note: if you change next 2 properties, you must update your database schema!
-////    tablename = 'my_audit' // table name for audit logs.
-//    largeValueColumnTypes = true // use large column db types for oldValue/newValue.
-////    TRUNCATE_LENGTH = 1000
-//    cacheDisabled = true
-//    logFullClassName = true
-////    replacementPatterns = ["local.example.xyz.":""] // replace with empty string.
-////    actorClosure = { request, session ->
-////        // SpringSecurity Core 1.1.2
-////        if (request.applicationContext.springSecurityService.principal instanceof java.lang.String){
-////            return request.applicationContext.springSecurityService.principal
-////        }
-////        def username = request.applicationContext.springSecurityService.principal?.username
-////        if (SpringSecurityUtils.isSwitched()){
-////            username = SpringSecurityUtils.switchedUserOriginalUsername+" AS "+username
-////        }
-////        return username
-////    }
+    //verbose = true // verbosely log all changed values to db
+//    logIds = true  // log db-ids of associated objects.
+
+    // Note: if you change next 2 properties, you must update your database schema!
+
+    //tablename = 'my_audit'         // table name for audit logs.
+    //largeValueColumnTypes = true   // use large column db types for oldValue/newValue.
+    //TRUNCATE_LENGTH = 1000
+    //cacheDisabled = true
+    //logFullClassName = true
+    //replacementPatterns = ["local.example.xyz.":""] // replace with empty string.
+    //actorClosure = { request, session ->
+    //    // SpringSecurity Core 1.1.2
+    //    if (request.applicationContext.springSecurityService.principal instanceof java.lang.String){
+    //        return request.applicationContext.springSecurityService.principal
+    //    }
+    //    def username = request.applicationContext.springSecurityService.principal?.username
+    //    if (SpringSecurityUtils.isSwitched()){
+    //        username = SpringSecurityUtils.switchedUserOriginalUsername+" AS "+username
+    //    }
+    //    return username
+    //}
 }

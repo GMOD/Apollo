@@ -6,10 +6,6 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -31,10 +27,7 @@ import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -51,12 +44,16 @@ public class SequencePanel extends Composite {
     TextBox maxFeatureLength;
     @UiField
     ListBox organismList;
+    // TODO: a hack of a backing object fro the organism List
+    // key is the ID as we can have a dupe org?
+    Map<String, OrganismInfo> organismInfoMap = new TreeMap<>();
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<SequenceInfo> dataGrid = new DataGrid<SequenceInfo>(20, tablecss);
     @UiField(provided = true)
-    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);;
+    SimplePager pager = new SimplePager(SimplePager.TextLocation.CENTER);
+    ;
 
     @UiField
     HTML sequenceName;
@@ -72,15 +69,15 @@ public class SequencePanel extends Composite {
     Button exportSingleButton;
     @UiField
     TextBox nameSearchBox;
-    @UiField
-    org.gwtbootstrap3.client.ui.Label viewableLabel;
+    //    @UiField
+//    org.gwtbootstrap3.client.ui.Label viewableLabel;
     @UiField
     HTML sequenceLength;
     @UiField
     Button exportGff3Button;
     @UiField
     Button exportFastaButton;
-//    @UiField
+    //    @UiField
 //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
@@ -91,7 +88,7 @@ public class SequencePanel extends Composite {
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
-    private PermissionEnum highestPermission = PermissionEnum.NONE;
+    private Boolean exportAll = false;
 
     public SequencePanel() {
 
@@ -143,6 +140,7 @@ public class SequencePanel extends Composite {
         dataGrid.addColumn(lengthColumn, "Length");
 
         dataGrid.setColumnWidth(0, "80px");
+        dataGrid.setColumnWidth(2, "80px");
 
         dataGrid.setSelectionModel(multiSelectionModel);
         multiSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -164,7 +162,7 @@ public class SequencePanel extends Composite {
         pager.setDisplay(dataGrid);
 
 
-        SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
+//        SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
 
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -197,14 +195,58 @@ public class SequencePanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
                 if (sequenceInfoSet.size() == 1) {
-                    SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-                    ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismList.getSelectedValue());
-                    Annotator.eventBus.fireEvent(contextSwitchEvent);
+                    final SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
+                    final OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
+
+                    // TODO: set the default here!
+                    RequestCallback requestCallback = new RequestCallback() {
+                        @Override
+                        public void onResponseReceived(Request request, Response response) {
+                            if(sequenceInfo!=null) {
+                                OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+                            }
+//                            ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
+//                            Annotator.eventBus.fireEvent(contextSwitchEvent);
+                        }
+
+                        @Override
+                        public void onError(Request request, Throwable exception) {
+                            Window.alert("Error setting current sequence: "+exception);
+                        }
+                    };
+                    SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
+
                 }
             }
         }, DoubleClickEvent.getType());
 
-        loadOrganisms(organismList);
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+                    sequenceInfoList.clear();
+                    sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
+
+                    OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
+
+                    organismList.clear();
+                    organismInfoMap.clear();
+                    List<OrganismInfo> organismInfoList = MainPanel.getInstance().getOrganismInfoList();
+                    for (int i = 0; i < organismInfoList.size(); i++) {
+                        OrganismInfo organismInfo = organismInfoList.get(i);
+                        organismList.addItem(organismInfo.getName(), organismInfo.getId());
+                        organismInfoMap.put(organismInfo.getId(), organismInfo);
+                        if(organismInfo.getId().equals(currentOrganism.getId())){
+                            organismList.setSelectedIndex(i);
+                        }
+                    }
+                    reload();
+
+                } else {
+                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
+                }
+            }
+        });
 
         Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE,
                 new SequenceLoadEventHandler() {
@@ -212,7 +254,7 @@ public class SequencePanel extends Composite {
                     public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
                         filterSequences();
                         if (sequenceInfoList.size() > 0) {
-                            exportAllButton.setEnabled(highestPermission.getRank()>=PermissionEnum.EXPORT.getRank());
+                            exportAllButton.setEnabled(MainPanel.highestPermission.getRank() >= PermissionEnum.EXPORT.getRank());
                             exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
                         } else {
                             exportAllButton.setEnabled(false);
@@ -226,18 +268,18 @@ public class SequencePanel extends Composite {
                 new UserChangeEventHandler() {
                     @Override
                     public void onUserChanged(UserChangeEvent authenticationEvent) {
-                        switch(authenticationEvent.getAction()){
+                        switch (authenticationEvent.getAction()) {
                             case PERMISSION_CHANGED:
                                 PermissionEnum hiPermissionEnum = authenticationEvent.getHighestPermission();
-                                if(MainPanel.isCurrentUserAdmin()){
+                                if (MainPanel.getInstance().isCurrentUserAdmin()) {
                                     hiPermissionEnum = PermissionEnum.ADMINISTRATE;
                                 }
                                 boolean allowExport = false;
-                                switch(hiPermissionEnum){
+                                switch (hiPermissionEnum) {
                                     case ADMINISTRATE:
                                     case WRITE:
                                     case EXPORT:
-                                        allowExport= true ;
+                                        allowExport = true;
                                         break;
                                     // default is false
                                 }
@@ -249,6 +291,7 @@ public class SequencePanel extends Composite {
                     }
                 }
         );
+
     }
 
     private void updatedExportSelectedButton() {
@@ -280,7 +323,7 @@ public class SequencePanel extends Composite {
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         filterSequences();
     }
-    
+
     @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
     // Disabling exportChadoButton for future release (Apollo 2.0 alpha2)
     // @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
@@ -304,7 +347,10 @@ public class SequencePanel extends Composite {
 
     @UiHandler(value = {"organismList"})
     public void handleOrganismChange(ChangeEvent changeEvent) {
-        reload();
+        selectedCount = 0;
+        multiSelectionModel.clear();
+        updatedExportSelectedButton();
+        OrganismRestService.switchOrganismById(organismList.getSelectedValue());
     }
 
 
@@ -339,6 +385,7 @@ public class SequencePanel extends Composite {
     }
 
     private void exportValues(List<SequenceInfo> sequenceInfoList) {
+        GWT.log(organismList.getSelectedValue());
         Integer organismId = Integer.parseInt(organismList.getSelectedValue());
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setId(organismId.toString());
@@ -350,7 +397,8 @@ public class SequencePanel extends Composite {
             type = exportGff3Button.getText();
         } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
-        } 
+        }
+        GWT.log("Type selected is " + type);
 //        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
 //            type = exportChadoButton.getText();
 //        }
@@ -359,12 +407,17 @@ public class SequencePanel extends Composite {
         exportPanel.setOrganismInfo(organismInfo);
         exportPanel.setSequenceList(sequenceInfoList);
         exportPanel.setType(type);
+        exportPanel.setExportAll(exportAll);
+        if (type.equals("FASTA")) {
+            exportPanel.renderFastaSelection();
+        }
         exportPanel.show();
-        exportPanel.generateLink();
+//        exportPanel.generateLink();
     }
 
     @UiHandler("exportSelectedButton")
     public void exportSelectedHandler(ClickEvent clickEvent) {
+        exportAll = false;
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
         for (SequenceInfo sequenceInfo : sequenceInfoList) {
             if (sequenceInfo.getSelected()) {
@@ -378,15 +431,18 @@ public class SequencePanel extends Composite {
 
     @UiHandler("exportSingleButton")
     public void exportSingleHandler(ClickEvent clickEvent) {
+        exportAll = false;
         SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
         sequenceInfoList1.add(sequenceInfo);
+        GWT.log("single export of " + sequenceInfoList1.size());
         exportValues(sequenceInfoList1);
 
     }
 
     @UiHandler("exportAllButton")
     public void exportAllHandler(ClickEvent clickEvent) {
+        exportAll = true;
         GWT.log("exporting gff3");
 
         exportValues(sequenceInfoList);
@@ -425,56 +481,59 @@ public class SequencePanel extends Composite {
 //            filteredSequenceList.addAll(sequenceInfoList);
 //        }
 
-        GWT.log("filtered size: " + filteredSequenceList.size());
-        viewableLabel.setText(filteredSequenceList.size() + "");
+//        GWT.log("filtered size: " + filteredSequenceList.size());
+//        viewableLabel.setText(filteredSequenceList.size() + "");
 
     }
 
-    /**
-     * could use an organism callback . . . however, this element needs to use the callback directly.
-     *
-     * @param trackInfoList
-     */
-    public void loadOrganisms(final ListBox trackInfoList) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-                trackInfoList.clear();
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    OrganismInfo organismInfo = new OrganismInfo();
-                    organismInfo.setId(object.get("id").isNumber().toString());
-                    organismInfo.setName(object.get("commonName").isString().stringValue());
-                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
-                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
-                    organismInfo.setNumFeatures(0);
-                    organismInfo.setNumTracks(0);
-                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-
-        OrganismRestService.loadOrganisms(requestCallback);
-
-    }
+//    /**
+//     * could use an organism callback . . . however, this element needs to use the callback directly.
+//     *
+//     * @param trackInfoList
+//     */
+//    public void loadOrganisms(final ListBox trackInfoList) {
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+//                JSONArray array = returnValue.isArray();
+//
+//                trackInfoList.clear();
+//                organismInfoMap.clear();
+//                for (int i = 0; i < array.size(); i++) {
+//                    JSONObject object = array.get(i).isObject();
+//                    OrganismInfo organismInfo = new OrganismInfo();
+//                    organismInfo.setId(object.get("id").isNumber().toString());
+//                    organismInfo.setName(object.get("commonName").isString().stringValue());
+//                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
+//                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
+//                    organismInfo.setNumFeatures(0);
+//                    organismInfo.setNumTracks(0);
+//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
+//                    organismInfoMap.put(organismInfo.getId(), organismInfo);
+//                }
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Window.alert("Error loading organisms");
+//            }
+//        };
+//
+//        OrganismRestService.loadOrganisms(requestCallback);
+//
+//    }
 
     public void reload() {
-        GWT.log("item count: " + organismList.getItemCount());
-        if (organismList.getItemCount() > 0) {
-            Long organismListId = Long.parseLong(organismList.getSelectedValue());
-            GWT.log("list id: " + organismListId);
-            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
-        } else {
-            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
-        }
+        filterSequences();
+//        Window.alert("reloading sequence panel");
+
+//            sequenceInfoList = MainPanel.getInstance().getCurrentSequenceList();
+//            Long organismListId = Long.parseLong(organismList.getSelectedValue());
+//            GWT.log("list id: " + organismListId);
+//            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
+//        } else {
+//            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.getInstance().getCurrentOrganism().getId());
     }
 
 }

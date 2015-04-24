@@ -12,6 +12,12 @@ define.amd.jQuery = true;
 define(
        [
            'dojo/_base/declare',
+           'dojo/_base/lang',
+           'dojo/dom-construct',
+           'dojo/dom-class',
+           'dojo/query',
+           'dojo/_base/window',
+           'dojo/_base/array',
            'dijit/Menu',
            'dijit/MenuItem',
            'dijit/MenuSeparator',
@@ -21,28 +27,53 @@ define(
            'dijit/DropDownMenu',
            'dijit/form/Button',
            'JBrowse/Plugin',
-           './FeatureEdgeMatchManager',
-           './FeatureSelectionManager',
-           './TrackConfigTransformer',
-           './View/Track/AnnotTrack',
-           './View/TrackList/Hierarchical',
-           './View/TrackList/Faceted',
-           './InformationEditor',
+           'WebApollo/FeatureEdgeMatchManager',
+           'WebApollo/FeatureSelectionManager',
+           'WebApollo/TrackConfigTransformer',
+           'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/TrackList/Hierarchical',
+           'WebApollo/View/TrackList/Faceted',
+           'WebApollo/InformationEditor',
+           'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
+           'JBrowse/CodonTable',
            'lazyload/lazyload'
        ],
-    function( declare, dijitMenu,dijitMenuItem, dijitMenuSeparator, dijitCheckedMenuItem, dijitPopupMenuItem, dijitDropDownButton, dijitDropDownMenu, dijitButton, JBPlugin,
-              FeatureEdgeMatchManager, FeatureSelectionManager, TrackConfigTransformer, AnnotTrack, Hierarchical, Faceted, InformationEditor, GFF3Driver,LazyLoad ) {
+    function( declare,
+            lang,
+            domConstruct,
+            domClass,
+            query,
+            win,
+            array,
+            dijitMenu,
+            dijitMenuItem,
+            dijitMenuSeparator,
+            dijitCheckedMenuItem,
+            dijitPopupMenuItem,
+            dijitDropDownButton,
+            dijitDropDownMenu,
+            dijitButton,
+            JBPlugin,
+            FeatureEdgeMatchManager,
+            FeatureSelectionManager,
+            TrackConfigTransformer,
+            AnnotTrack,
+            Hierarchical,
+            Faceted,
+            InformationEditor,
+            HelpMixin,
+            GFF3Driver,
+            CodonTable,
+            LazyLoad ) {
 
-return declare( JBPlugin,
+return declare( [JBPlugin, HelpMixin],
 {
 
     constructor: function( args ) {
         console.log("loaded WebApollo plugin");
         var thisB = this;
-        this.colorCdsByFrame = false;
         this.searchMenuInitialized = false;
-        this.showTrackLabel = true ;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -58,15 +89,12 @@ return declare( JBPlugin,
         });
 
         // Checking for cookie for determining the color scheme of WebApollo
-        if (document.cookie.indexOf("Scheme=Dark") === -1) {
-            this.changeCssScheme = false;
+        if (browser.cookie("Scheme")=="Dark") {
+            domClass.add(win.body(), "Dark");
         }
-        else {
-            this.changeCssScheme = true;
-            LazyLoad.css('plugins/WebApollo/css/maker_darkbackground.css');
+        if (browser.cookie("colorCdsByFrame")=="true") {
+            domClass.add(win.body(), "colorCds");
         }
-
-
         if (browser.config.favicon) {
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
@@ -96,137 +124,14 @@ return declare( JBPlugin,
 
         FeatureEdgeMatchManager.addSelectionManager(this.featSelectionManager);
         FeatureEdgeMatchManager.addSelectionManager(this.annotSelectionManager);
-
-        this.addNavigationOptions();
-
-        // add a global menu option for setting CDS color
-        var cds_frame_toggle = new dijitCheckedMenuItem(
-                {
-                    label: "Color by CDS frame",
-                    checked: false,
-                    onClick: function(event) {
-                        thisB.colorCdsByFrame = cds_frame_toggle.checked;
-                        browser.view.redrawTracks();
-                    }
-                });
-        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
-
-        //Adding a global menu option for changing CSS color scheme
-        var box_check;
-        if (this.changeCssScheme) {
-            box_check = true;
-        }
-        else {
-            box_check = false;
-        }
-
-        var css_frame_menu = new dijitMenu();
-
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Light",
-                    onClick: function (event) {
-                        document.cookie = "Scheme=Light";
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-        css_frame_menu.addChild(
-            new dijitMenuItem({
-                    label: "Dark",
-                    onClick: function (event) {
-                        document.cookie = "Scheme=Dark";
-                        window.location.reload();
-                    }
-                }
-            )
-        );
-
-
-        var css_frame_toggle = new dijitPopupMenuItem(
-            {
-                label: "Color Scheme"
-                ,popup: css_frame_menu
-            });
-
-        browser.addGlobalMenuItem('view', css_frame_toggle);
-
-        this.addStrandFilterOptions();
-
-
-        if (browser.config.show_nav) {
-            //var helpUrl = browser.config.helpUrl;
-//            var guideUrl = "http://genomearchitect.org/webapollo/docs/webapollo_user_guide.pdf";
-//            var wikiUrl = "http://www.gmod.org/wiki/WebApollo";
-            var jbrowseUrl = "http://jbrowse.org";
-            //browser.addGlobalMenuItem( 'help',
-            //                        new dijitMenuItem(
-            //                            {
-            //                                id: 'menubar_apollo_quickstart',
-            //                                label: 'General',
-            //                                onClick: function()  { window.open(helpUrl,'help_window').focus(); }
-            //                            })
-            //                      );
-           /*
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_userguide',
-                                            label: 'User Guide',
-                                            onClick: function()  { window.open(guideUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_apollo_wiki',
-                                            label: 'Wiki',
-                                            onClick: function()  { window.open(wikiUrl,'help_window').focus(); }
-                                        })
-                                  );
-*/
-            browser.addGlobalMenuItem( 'help',
-                                    new dijitMenuItem(
-                                        {
-                                            id: 'menubar_powered_by_jbrowse',
-                                            label: 'Powered by JBrowse',
-                                            // iconClass: 'jbrowseIconHelp', 
-                                            onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
-                                        })
-                                  );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_web_service_api',
-                        label: 'Web Service API',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_users_guide',
-                        label: 'Apollo User\'s Guide',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("http://genomearchitect.org/web_apollo_user_guide",'help_window').focus();
-                        }
-                    })
-            );
-            browser.addGlobalMenuItem( 'help',
-                new dijitMenuItem(
-                    {
-                        id: 'menubar_apollo_version',
-                        label: 'Get Version',
-                        // iconClass: 'jbrowseIconHelp',
-                        onClick: function()  {
-                            window.open("../version.jsp",'help_window').focus();
-                        }
-                    })
-            );
-        }
+           
+        if(!browser.config.quickHelp)
+        {
+            browser.config.quickHelp = {
+                "title": "Web Apollo Help",
+                "content": this.defaultHelp()
+            }
+        };
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -255,11 +160,7 @@ return declare( JBPlugin,
         // transform track configs from vanilla JBrowse to WebApollo:
         // type: "JBrowse/View/Track/HTMLFeatures" ==> "WebApollo/View/Track/DraggableHTMLFeatures"
         //
-        var track_configs = browser.config.tracks;
-        for (var i=0; i<track_configs.length; i++)  {
-            var track_config = track_configs[i];
-            this.trackTransformer.transform(track_config);
-        }
+        array.forEach(browser.config.tracks,function(e) { thisB.trackTransformer.transform(e); });
 
         // update track selector to WebApollo's if needed
         // if no track selector set, use WebApollo's Hierarchical selector
@@ -275,28 +176,34 @@ return declare( JBPlugin,
             browser.config.trackSelector.type = 'WebApollo/View/TrackList/Faceted';
         }
 
+
+        if(browser.config.show_nav&&browser.config.show_menu) {
+            this.createMenus();
+        }
+                
+
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
-            // dojo.connect( browser.browserWidget, "resize", thisB, 'onResize' );
             if (browser.poweredByLink)  {
                 dojo.disconnect(browser.poweredBy_clickHandle);
                 browser.poweredByLink.innerHTML = '<img src=\"plugins/WebApollo/img/ApolloLogo_100x36.png\" height=\"25\" />';
                 browser.poweredByLink.href = 'http://genomearchitect.org/';
                 browser.poweredByLink.target = "_blank";
             }
+            if(browser.config.show_nav&&browser.config.show_menu) {
+                // the fileDialog element is only initialized if the navigation bar exists
+                var customGff3Driver = declare(GFF3Driver,   {
+                    constructor: function( args ) {
+                        this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
+                    }
+                });
+                browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+                thisB.postCreateMenus();
+            }
+
+
 
             // Initialize information editor with similar style to track selector
-            /*browser.informationEditor=new InformationEditor(
-                dojo.mixin(
-                        dojo.clone( browser.config.bookmarkPanel ) || {},
-                        {
-                            browser: browser,
-                            title: "Info Editor"
-                        }
-                )
-            );
-            browser.tabContainer.addChild(browser.informationEditor);
-            */
             var view = browser.view;
             view.oldOnResize = view.onResize;
 
@@ -304,10 +211,6 @@ return declare( JBPlugin,
               *    bug appears in Chrome, not Firefox, unsure of other browsers
               */
             view.onResize = function() {
-                // detect if zoomed into base level
-                // var fullZoom = (view.pxPerBp == view.maxPxPerBp);
-                // if showing residues (full zoom), then pxPerBp == maxPxPerBp
-                //     probably shouldn't ever have pxPerBp > maxPxPerBp, but catching and considereing as fullZoom as well, just in case
                 var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
                 var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
                 var oldCharSize = thisB.getSequenceCharacterSize();
@@ -316,14 +219,11 @@ return declare( JBPlugin,
                 var charWidthChanged = (newCharSize.width != oldCharSize.width);
                 var charWidth = newCharSize.width;
                 if (charWidthChanged) {
-                    // if charWidth changed, need to change maxPxPerBp to match
-                    // console.log("residues font size changed, new char width = " + newCharSize.width);
                     if (! browser.config.view) { browser.config.view = {}; }
                     browser.config.view.maxPxPerBp = charWidth;
                     view.maxPxPerBp = charWidth;
                 }
                 if (charWidthChanged && fullZoom) {
-                    // console.log("at full zoom, trying font size fix");
                     view.pxPerBp = view.maxPxPerBp;
                     view.oldOnResize();
                     thisB.browserZoomFix(centerBp);
@@ -332,20 +232,24 @@ return declare( JBPlugin,
                     view.oldOnResize();
                 }
             };
+            
 
-            var customGff3Driver = dojo.declare("ApolloGFF3Driver", GFF3Driver,   {
-                constructor: function( args ) {
-                    this.storeType = 'WebApollo/Store/SeqFeature/ApolloGFF3';
-                }
-            });
-            // browser.registerExtraFileDriver(customGff3Driver);
-            browser.fileDialog.addFileTypeDriver(new customGff3Driver());
+
 
         });
+        this.monkeyPatchRegexPlugin();
 
 
     },
-
+    updateLabels: function() {
+        if(!this._showLabels) {
+            query('.track-label').style('visibility','hidden');
+        }
+        else {
+            query('.track-label').style('visibility','visible');
+        }
+        this.browser.view.updateScroll();
+    },
 
     /**
      *  Hack to try and fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
@@ -403,16 +307,15 @@ return declare( JBPlugin,
         view.showCoarse();
     },
 
-
     plusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == 1 || strand == '+')  { return true; }
+        if (strand == 1 || strand == '+' || !strand)  { return true; }
         else  { return false; }
     },
 
     minusStrandFilter: function(feature)  {
         var strand = feature.get('strand');
-        if (strand == -1 || strand == '-')  { return true; }
+        if (strand == -1 || strand == '-' || !strand)  { return true; }
         else  { return false; }
     },
     passAllFilter: function(feature)  {  return true; },
@@ -428,7 +331,6 @@ return declare( JBPlugin,
                     onClick: function(event) {
                         var plus = plus_strand_toggle.checked;
                         var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
                         if (plus && minus)  {
                             browser.setFeatureFilter(thisB.passAllFilter);
                         }
@@ -452,7 +354,6 @@ return declare( JBPlugin,
                     onClick: function(event) {
                         var plus = plus_strand_toggle.checked;
                         var minus = minus_strand_toggle.checked;
-                        console.log("plus: ", plus, " minus: ", minus);
                         if (plus && minus)  {
                             browser.setFeatureFilter(thisB.passAllFilter);
                         }
@@ -469,74 +370,8 @@ return declare( JBPlugin,
                         }
                 });
         browser.addGlobalMenuItem( 'view', minus_strand_toggle );
-        var hide_track_label_toggle = new dijitCheckedMenuItem(
-            {
-                label: "Show track label",
-                checked: this.showTrackLabel,
-                onClick: function(event) {
-                    if(hide_track_label_toggle.checked){
-                        $('.track-label').show();
-                        this.showTrackLabel = true ;
-                    }
-                    else{
-                        $('.track-label').hide();
-                        this.showTrackLabel = false ;
-                    }
-                }
-            });
-
-        if(this.showTrackLabel){
-            $('.track-label').show();
-        }
-        else{
-            $('.track-label').hide();
-        }
-
-        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
-        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
     },
-    addNavigationOptions: function()  {
-        var thisB = this;
-        var browser = this.browser;
-        //var select_Tracks = new dijitMenuItem(
-        //    {
-        //        label: "Sequences",
-        //        onClick: function(event) {
-        //            window.open('../sequence', '_blank');
-        //        }
-        //    });
-        //browser.addGlobalMenuItem( 'view', select_Tracks );
-        //var select_Organisms= new dijitMenuItem(
-        //    {
-        //        label: "Organisms",
-        //        onClick: function(event) {
-        //            window.open('../organism', '_blank');
-        //        }
-        //    });
-        //browser.addGlobalMenuItem( 'view', select_Organisms );
-        //var select_Permissions = new dijitMenuItem(
-        //    {
-        //        label: "Permissions",
-        //        onClick: function(event) {
-        //            window.open('../permissions', '_blank');
-        //        }
-        //    });
-        //browser.addGlobalMenuItem( 'view', select_Permissions);
-        //var recent_Changes = new dijitMenuItem(
-        //    {
-        //        label: "Changes",
-        //        onClick: function(event) {
-        //            window.open('../changes', '_blank');
-        //        }
-        //    });
-        //browser.addGlobalMenuItem( 'view', recent_Changes );
-        //browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
-    },
-
-    /**
-     * hacking addition of a "tools" menu to standard JBrowse menubar,
-     *    with a "Search Sequence" dropdown
-     */
+        
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) {
             var webapollo = this;
@@ -551,25 +386,12 @@ return declare( JBPlugin,
                                                 }) );
             this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
 
-
-            //this.browser.addGlobalMenuItem( 'tools',
-            //    new dijitMenuItem(
-            //        {
-            //            id: 'menubar_apollo_seqsearch',
-            //            label: "Search sequence",
-            //            onClick: function() {
-            //                webapollo.getAnnotTrack().searchSequence();
-            //            }
-            //        }) );
-            //this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
         }
 
-        // move Tool menu in front of Help menu (Help should always be last menu?)
-        // Dojo weirdness: actual menu pulldown get assigned "widgetid" equal to "id" passed when creating dijit DropDownButton
-        var $toolsMenu = $('.menu[widgetid="dropdownbutton_tools"');
-        //this.$tools_menu = $('#dropdownbutton_tools').parent().parent();   // gives same result...
-        var $helpMenu = $('.menu[widgetid="dropdownbutton_help"');
-        $toolsMenu.insertBefore($helpMenu);
+        // move Tool menu in front of Help menu
+        var toolsMenu = dijit.byId('dropdownbutton_tools');
+        var helpMenu = dijit.byId('dropdownbutton_help');
+        domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
         this.searchMenuInitialized = true;
     },
 
@@ -594,9 +416,6 @@ return declare( JBPlugin,
                                     title: 'user logged in: UserName',
                                     dropDown: userMenu
                             });
-            // if add 'menu' class, button will be placed on left side of menubar instead (because of 'float: left'
-            //     styling in CSS rule for 'menu' class
-            // dojo.addClass( loginButton.domNode, 'menu' );
         }
         else  {
             loginButton = new dijitButton(
@@ -642,7 +461,6 @@ return declare( JBPlugin,
             for (var i = 0; i < tracks.length; i++)  {
                 // should be doing instanceof here, but class setup is not being cooperative
                 if (tracks[i].isWebApolloSequenceTrack)  {
-                    // console.log("seq track refseq: " + tracks[i].refSeq.name);
                     return tracks[i];
                 }
             }
@@ -726,26 +544,142 @@ return declare( JBPlugin,
 
         $head.prepend(favicon1);
         $head.prepend(favicon2);
+    },
+    monkeyPatchRegexPlugin: function() {
+        //use var to avoid optimizer
+        var plugin='RegexSequenceSearch/Store/SeqFeature/RegexSearch';
+        require([plugin], function(RegexSearch) {
+            lang.extend(RegexSearch,{
+                translateSequence:function( sequence, frameOffset ) {
+                    var slicedSeq = sequence.slice( frameOffset );
+                    slicedSeq = slicedSeq.slice( 0, Math.floor( slicedSeq.length / 3 ) * 3);
+
+                    var translated = "";
+                    var codontable=new CodonTable();
+                    var codons=codontable.generateCodonTable(codontable.defaultCodonTable);
+                    for(var i = 0; i < slicedSeq.length; i += 3) {
+                        var nextCodon = slicedSeq.slice(i, i + 3);
+                        translated = translated + codons[nextCodon];
+                    }
+
+                    return translated;
+                }
+            });
+        });
+    },
+    // createMenus adds new menu items and is run before the initView milestone
+    createMenus: function() {
+        var browser=this.browser;
+        var thisB=this;
+        
+
+                // add a global menu option for setting CDS color
+        var cds_frame_toggle = new dijitCheckedMenuItem(
+                {
+                    label: "Color by CDS frame",
+                    checked: browser.cookie("colorCdsByFrame")=="true",
+                    onClick: function(event) {
+                        if(this.get("checked")) domClass.add(win.body(), "colorCds");
+                        else domClass.remove(win.body(),"colorCds");
+                        browser.cookie("colorCdsByFrame", this.get("checked")?"true":"false");
+                    }
+                });
+        browser.addGlobalMenuItem( 'view', cds_frame_toggle );
+
+        var css_frame_menu = new dijitMenu();
+
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Light",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Light");
+                        domClass.remove(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Dark",
+                    onClick: function (event) {
+                        browser.cookie("Scheme","Dark");
+                        domClass.add(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+
+
+        var css_frame_toggle = new dijitPopupMenuItem(
+            {
+                label: "Color Scheme"
+                ,popup: css_frame_menu
+            });
+
+        browser.addGlobalMenuItem('view', css_frame_toggle);
+
+        this.addStrandFilterOptions();
+
+        this._showLabels=(browser.cookie("showTrackLabel")||"true")=="true"
+        var hide_track_label_toggle = new dijitCheckedMenuItem(
+            {
+                label: "Show track label",
+                checked: this._showLabels,
+                onClick: function(event) {
+                    thisB._showLabels=this.get("checked");
+                    browser.cookie("showTrackLabel",this.get("checked")?"true":"false");
+                    thisB.updateLabels();
+                }
+            });
+        browser.addGlobalMenuItem( 'view', hide_track_label_toggle);
+        browser.addGlobalMenuItem( 'view', new dijitMenuSeparator());
+        browser.subscribe('/jbrowse/v1/n/tracks/visibleChanged', dojo.hitch(this,"updateLabels"));
+
+    },
+    // postCreateMenu is run after initView for convenience of ordering new items
+    postCreateMenus: function() {
+        var browser=this.browser;
+        var help=dijit.byId("menubar_generalhelp");
+
+        help.set("label", "Web Apollo Help");
+        help.set("iconClass", null);
+        var jbrowseUrl = "http://jbrowse.org";
+        browser.addGlobalMenuItem( 'help',
+                                new dijitMenuItem(
+                                    {
+                                        id: 'menubar_powered_by_jbrowse',
+                                        label: 'Powered by JBrowse',
+                                        // iconClass: 'jbrowseIconHelp', 
+                                        onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
+                                    })
+                              );
+        // TODO: add back when complete
+        //browser.addGlobalMenuItem( 'help',
+        //    new dijitMenuItem(
+        //        {
+        //            id: 'menubar_web_service_api',
+        //            label: 'Web Service API',
+        //            // iconClass: 'jbrowseIconHelp',
+        //            onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
+        //        })
+        //);
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_apollo_version',
+                    label: 'Get Version',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  {
+                        window.open("../version.jsp",'help_window').focus();
+                    }
+                })
+        );
+        this.updateLabels();
     }
 
-});
 
 });
 
 });
-//var sendTrackUpdate = function(track,command){
-//    console.log('calling function '+command);
-//    if(command=="show"){
-//        console.log('trying to show the track: '+track);
-//        this.browser.publish( '/jbrowse/v1/v/tracks/show', [track] );
-//    }
-//    else
-//    if(command=="hide"){
-//        console.log('trying to hide the track: '+track);
-//        this.browser.publish( '/jbrowse/v1/v/tracks/hide', [track] );
-//    }
-//    else{
-//        console.log('cont sure what command is supposed to be: '+command);
-//    }
-//};
 
+});

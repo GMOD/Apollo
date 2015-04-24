@@ -13,18 +13,16 @@ class UserController {
     def permissionService
     def userService
 
-    def index() {}
-
     def loadUsers() {
         JSONArray returnArray = new JSONArray()
 
         def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-        println "allowable organisms ${allowableOrganisms.size()}"
+        log.debug "allowable organisms ${allowableOrganisms.size()}"
 
         List<String> allUserGroups = UserGroup.all.name
         Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        println "total permission list ${userOrganismPermissionList.size()}"
+        log.debug "total permission list ${userOrganismPermissionList.size()}"
         for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
             List<UserOrganismPermission> userOrganismPermissionListTemp = userOrganismPermissionMap.get(userOrganismPermission.user.username)
             if (userOrganismPermissionListTemp == null) {
@@ -33,15 +31,14 @@ class UserController {
             userOrganismPermissionListTemp.add(userOrganismPermission)
             userOrganismPermissionMap.put(userOrganismPermission.user.username, userOrganismPermissionListTemp)
         }
-        println "org permission map ${userOrganismPermissionMap.size()}"
+        log.debug "org permission map ${userOrganismPermissionMap.size()}"
         for (v in userOrganismPermissionMap) {
-            println "${v.key} ${v.value}"
+            log.debug "${v.key} ${v.value}"
         }
 
         User.all.each {
             def userObject = new JSONObject()
 
-//            userObject.putAll(it.properties)
             userObject.userId = it.id
             userObject.username = it.username
             userObject.firstName = it.firstName
@@ -49,7 +46,7 @@ class UserController {
             Role role = userService.getHighestRole(it)
             userObject.role = role?.name
 
-            println "groups ${it.userGroups} for ${it.username}"
+            log.debug "groups ${it.userGroups} for ${it.username}"
 
 
             JSONArray groupsArray = new JSONArray()
@@ -76,11 +73,10 @@ class UserController {
             JSONArray organismPermissionsArray = new JSONArray()
             def userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            println "lsit retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
+            log.debug "lsit retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
                 if (userOrganismPermission.organism in allowableOrganisms) {
                     JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                     organismJSON.put("organism", userOrganismPermission.organism.commonName)
                     organismJSON.put("permissions", userOrganismPermission.permissions)
                     organismJSON.put("userId", userOrganismPermission.userId)
@@ -91,20 +87,17 @@ class UserController {
             }
 
             // if an organism has permissions
-//            Set<Organism> organismList = permissionService.getOrganisms(it).findAll(){
             Set<Organism> organismList = allowableOrganisms.findAll() {
                 !organismsWithPermissions.contains(it.id)
             }
-            println "organisms with permissions ${organismsWithPermissions.size()}"
-            println "organisms list ${organismList.size()}"
+            log.debug "organisms with permissions ${organismsWithPermissions.size()}"
+            log.debug "organisms list ${organismList.size()}"
 
             for (Organism organism in organismList) {
                 JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                 organismJSON.put("organism", organism.commonName)
                 organismJSON.put("permissions", "[]")
                 organismJSON.put("userId", it.id)
-//                organismJSON.put("id",null)
                 organismPermissionsArray.add(organismJSON)
             }
 
@@ -121,7 +114,6 @@ class UserController {
         def currentUser = permissionService.currentUser
         if (currentUser) {
             def userObject = new JSONObject()
-//            userObject.putAll(it.properties)
             userObject.userId = currentUser.id
             userObject.username = currentUser.username
             userObject.firstName = currentUser.firstName
@@ -175,8 +167,8 @@ class UserController {
     }
 
     String mergePermissions(String permissions1, String permissions2) {
-        println "permissions1: ${permissions1}"
-        println "permissions2: ${permissions2}"
+        log.debug "permissions1: ${permissions1}"
+        log.debug "permissions2: ${permissions2}"
         JSONArray permissions1Array = JSON.parse(permissions1) as JSONArray
         JSONArray permissions2Array = JSON.parse(permissions2) as JSONArray
 
@@ -195,13 +187,13 @@ class UserController {
 
         String finalPermissionsString = returnArray.toString()
 
-        println "final permission string ${finalPermissionsString}"
+        log.debug "final permission string ${finalPermissionsString}"
 
         return finalPermissionsString
     }
 
     def addUserToGroup() {
-        println "adding user to group ${request.JSON} -> ${params}"
+        log.debug "adding user to group ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = User.findById(dataObject.userId)
@@ -211,7 +203,7 @@ class UserController {
     }
 
     def removeUserFromGroup() {
-        println "removing user from group ${request.JSON} -> ${params}"
+        log.debug "removing user from group ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = User.findById(dataObject.userId)
@@ -221,8 +213,16 @@ class UserController {
     }
 
     def createUser() {
-        println "creating user ${request.JSON} -> ${params}"
+        log.debug "creating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
+        if(User.findByUsername(dataObject.email)!=null) {
+            JSONObject error = new JSONObject()
+            error.put("error","User already exists. Please enter a new username")
+            render error.toString()
+
+            return
+        }
+
         User user = new User(
                 firstName: dataObject.firstName
                 , lastName: dataObject.lastName
@@ -233,7 +233,7 @@ class UserController {
 
         String roleString = dataObject.role
         Role role = Role.findByName(roleString.toUpperCase())
-        println "adding role: ${role}"
+        log.debug "adding role: ${role}"
         user.addToRoles(role)
         role.addToUsers(user)
         role.save()
@@ -243,7 +243,7 @@ class UserController {
     }
 
     def deleteUser() {
-        println "deleting user ${request.JSON} -> ${params}"
+        log.debug "deleting user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         User user = User.findById(dataObject.userId)
         user.userGroups.each { it ->
@@ -274,7 +274,6 @@ class UserController {
             }
             Role role = Role.findByName(roleString.toUpperCase())
             user.addToRoles(role)
-//            user.save()
         }
 
         user.save(flush: true)
@@ -296,25 +295,25 @@ class UserController {
      */
     def updateOrganismPermission() {
         JSONObject dataObject = JSON.parse(params.data)
-        println "json data ${dataObject}"
+        log.debug "json data ${dataObject}"
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
 
         User user = User.findById(dataObject.userId)
         Organism organism = Organism.findByCommonName(dataObject.organism)
-        println "found ${userOrganismPermission}"
+        log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {
             userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
         }
 
         if (!userOrganismPermission) {
-            println "creating new permissions! "
+            log.debug "creating new permissions! "
             userOrganismPermission = new UserOrganismPermission(
                     user: User.findById(dataObject.userId)
                     , organism: Organism.findByCommonName(dataObject.organism)
                     , permissions: "[]"
             ).save(insert: true)
-            println "created new permissions! "
+            log.debug "created new permissions! "
         }
 
 

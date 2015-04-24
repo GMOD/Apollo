@@ -20,6 +20,7 @@ public class AnnotationInfo {
     private Integer strand;
     private List<String> noteList = new ArrayList<>();
     private String sequence;
+    private Integer phase;
     private String owner;
 
     public String getOwner() {
@@ -127,5 +128,13 @@ public class AnnotationInfo {
 
     public String getSequence() {
         return sequence;
+    }
+
+    public Integer getPhase() {
+        return phase;
+    }
+
+    public void setPhase(Integer phase) {
+        this.phase = phase;
     }
 }

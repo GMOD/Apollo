@@ -75,7 +75,11 @@
         .username {
             display: inline-table;
             font-size: smaller;
+        }
 
+        .navigation-display {
+            margin-left: 5px;
+            margin-right: 5px;
         }</ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -86,13 +90,13 @@
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
-                        <gwt:HTML text="Organism" styleName="{style.details-list-title}"/>
-                        <gwt:ListBox ui:field="organismList" styleName="{style.details-list}"/>
-                        <gwt:HTML text="Ref Sequence" styleName="{style.details-list-title}"/>
-                        <gwt:SuggestBox ui:field="sequenceList" styleName="{style.details-list}"/>
-                        
-                        <gwt:HTML ui:field="userName" styleName="{style.username}"/>
-                        <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
+                        <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
+                        <b:Label ui:field="currentOrganismDisplay" addStyleNames="{style.navigation-display}"/>
+                        <b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>
+                        <b:Panel styleName="pull-right">
+                            <gwt:HTML ui:field="userName" styleName="{style.username}"/>
+                            <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
+                        </b:Panel>
                     </gwt:FlowPanel>
                 </gwt:north>
                 <gwt:west size="20">

@@ -103,7 +103,6 @@ public class AnnotationEditorService extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         try {
-//            ServerConfiguration serverConfig = new ServerConfiguration(getServletContext().getResourceAsStream("/config/config.xml"));
             ServerConfiguration serverConfig = new ServerConfiguration(getServletContext());
 
             InputStream gbolMappingStream = getServletContext().getResourceAsStream(serverConfig.getGBOLMappingFile());
@@ -183,20 +182,7 @@ public class AnnotationEditorService extends HttpServlet {
             if (serverConfig.getCannedComments() != null) {
                 cannedComments = new CannedComments((InputStream) getServletContext().getResourceAsStream(serverConfig.getCannedComments()));
             }
-            sequenceSearchTools = new HashMap<String, SequenceSearchTool>();
-            sequenceSearchToolsKeys = new ArrayList<String>();
-            for (ServerConfiguration.SequenceSearchToolConfiguration conf : serverConfig.getSequenceSearchTools()) {
-                SequenceSearchTool sequenceSearchTool = (SequenceSearchTool) Class.forName(conf.getClassName()).newInstance();
-                InputStream inputStream = (InputStream) getServletContext().getResourceAsStream(conf.getConfigFilename());
-                if (inputStream == null) {
-                    logger.error(conf.getConfigFilename() + " does not exist or is empty.");
-                } else {
-                    sequenceSearchTool.parseConfiguration(inputStream);
-                    sequenceSearchTool.setBioObjectConfiguration(bioObjectConfiguration);
-                    sequenceSearchTools.put(conf.getKey(), sequenceSearchTool);
-                    sequenceSearchToolsKeys.add(conf.getKey());
-                }
-            }
+            
             dataAdapters = serverConfig.getDataAdapters();
             useCDS = serverConfig.getUseCDS();
             useMemoryStore = serverConfig.getUseMemoryStore();
@@ -256,8 +242,6 @@ public class AnnotationEditorService extends HttpServlet {
             String operation = json.getString("operation");
             String track = json.getString("track");
 
-            SessionData sessionData = getSessionData(track);
-            AnnotationEditor editor = sessionData.getEditor();
 
             response.setContentType("application/json");
             /*
@@ -273,6 +257,7 @@ public class AnnotationEditorService extends HttpServlet {
                 out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream()));
             }
             */
+
             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(response.getOutputStream()));
 
             if (!operationsNotRequiringLogin.contains(operation)) {
@@ -298,6 +283,8 @@ public class AnnotationEditorService extends HttpServlet {
                 if (json.has("update_datastore") && !json.getBoolean("update_datastore")) {
                     updateDataStore = false;
                 }
+                SessionData sessionData = getSessionData(track);
+                AnnotationEditor editor = sessionData.getEditor();
                 AbstractDataStore dataStore = updateDataStore ? sessionData.getDataStore() : null;
                 AbstractHistoryStore historyStore = updateDataStore ? sessionData.getHistoryStore() : null;
 
@@ -822,12 +809,11 @@ public class AnnotationEditorService extends HttpServlet {
 
                 //get_translation_table
                 if (operation.equals("get_translation_table")) {
-                    getTranslationTable(editor, track, out);
+                    getTranslationTable(track, out);
                 }
 
             }
             // end of operations not needing login
-
             /*
             if (compress) {
                 response.addHeader("Content-encoding", "gzip");
@@ -837,6 +823,7 @@ public class AnnotationEditorService extends HttpServlet {
                 out.flush();
             }
             */
+
             out.flush();
 
         } catch (JSONException e) {
@@ -877,7 +864,6 @@ public class AnnotationEditorService extends HttpServlet {
     }
 
     private void getGff3(AnnotationEditor editor, JSONArray features, BufferedWriter out)  throws JSONException, IOException {
-//        JSONObject featureContainer = createJSONFeatureContainer();
         File tempFile = File.createTempFile("feature",".gff3");
 
         // TODO: use specified metadata?
@@ -2032,8 +2018,9 @@ public class AnnotationEditorService extends HttpServlet {
         out.write(annotationInfoEditorConfigContainer.toString());
     }
 
-    private void getTranslationTable(AnnotationEditor editor, String track, BufferedWriter out) throws JSONException, IOException {
-        SequenceUtil.TranslationTable translationTable = editor.getConfiguration().getTranslationTable();
+    private void getTranslationTable(String track, BufferedWriter out) throws JSONException, IOException {
+        SequenceUtil.TranslationTable translationTable = trackToTranslationTable.get(track);
+        if(translationTable==null) throw new IOException("Error");
         JSONObject ttable = new JSONObject();
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue());
@@ -3701,7 +3688,7 @@ public class AnnotationEditorService extends HttpServlet {
                 if (gbolFeature instanceof Transcript && ((Transcript) gbolFeature).isProteinCoding()) {
                     String rawSequence = editor.getSession().getResiduesWithAlterationsAndFrameshifts(((Transcript) gbolFeature).getCDS());
                     sequence = SequenceUtil.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Transcript) gbolFeature).getCDS().getStopCodonReadThrough() != null);
-                    if (sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
+                    if (sequence.length()>0&&sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
                         sequence = sequence.substring(0, sequence.length() - 1);
                     }
                     int idx;
@@ -3715,7 +3702,7 @@ public class AnnotationEditorService extends HttpServlet {
                 } else if (gbolFeature instanceof Exon && ((Exon) gbolFeature).getTranscript().isProteinCoding()) {
                     String rawSequence = getCodingSequenceInPhase(editor, (Exon) gbolFeature, true);
                     sequence = SequenceUtil.translateSequence(rawSequence, editor.getConfiguration().getTranslationTable(), true, ((Exon) gbolFeature).getTranscript().getCDS().getStopCodonReadThrough() != null);
-                    if (sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
+                    if (sequence.length()>0&&sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
                         sequence = sequence.substring(0, sequence.length() - 1);
                     }
                     int idx;

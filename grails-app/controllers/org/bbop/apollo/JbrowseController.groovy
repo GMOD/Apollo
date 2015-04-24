@@ -8,6 +8,7 @@ import org.bbop.apollo.sequence.Range
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import static org.springframework.http.HttpStatus.*
 
 //@CompileStatic
 class JbrowseController {
@@ -15,26 +16,9 @@ class JbrowseController {
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
 
     def sequenceService
+    def permissionService
+    def preferenceService
 
-//    def index() {
-//
-//        // this should serve the index.html wherever jbrowse is
-//        File file = new File(".")
-//        log.debug  file.absolutePath
-//
-//        File file = new File("")
-//
-//    }
-
-//    @MessageMapping("/topic/TrackListReturn")
-//    def allTracks(String input) {
-//        println "GETTING ALL TRACKS 2 ${input}"
-//        JSONObject inputObject = new JSONObject()
-//        inputObject.command = "list"
-//        println "returnString = ${returnString}"
-//        render returnString as JSON
-////            return "i[${inputString}]"
-//    }
 
     // is typically checking for trackData.json
     def tracks(String jsonFile, String trackName, String groupName) {
@@ -44,15 +28,24 @@ class JbrowseController {
         if (!file.exists()) {
             log.error("Could not get tracks file " + fileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
         render file.text
     }
 
     private String getJBrowseDirectoryForSession() {
-        // TODO: move to shiro
-        Session session = SecurityUtils.subject.getSession(false)
-        String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+
+        // faster, but not reliable
+//        Session session = SecurityUtils.subject.getSession(false)
+//        String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+
+        long startTime = System.currentTimeMillis()
+        String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
+        long stopTime = System.currentTimeMillis()
+        // this is about 0.004 ms per request .. .
+        log.debug "total time to grab preference ${(stopTime-startTime)/1000f}"
+
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
@@ -61,7 +54,28 @@ class JbrowseController {
                 }
 
                 if (organism.sequences) {
+
+                    User user = permissionService.currentUser
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
+                    if(userOrganismPreference ==null){
+                        println "creating a new one!"
+                        userOrganismPreference = new UserOrganismPreference(
+                                user: user
+                                ,organism: organism
+                                ,sequence: sequence
+                                ,currentOrganism: true
+                        ).save(insert:true,flush:true)
+                    }
+                    else{
+                        println "updating an old one!!"
+                        userOrganismPreference.sequence = sequence
+                        userOrganismPreference.currentOrganism = true
+                        userOrganismPreference.save()
+                    }
+
+                    println "222 - has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
+
                     organismJBrowseDirectory = organism.directory
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
                     session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
@@ -86,6 +100,7 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
         render file.text
@@ -104,6 +119,7 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("Could not get ${absoluteFilePath}");
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
         render file.text
@@ -146,8 +162,17 @@ class JbrowseController {
         if (!file.exists()) {
             log.error("Could not get seq file " + file.absolutePath);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
             return;
         }
+
+        String eTag = createHashFromFile(file);
+        String dateString = formatLastModifiedDate(file);
+        response.setHeader("ETag", eTag);
+        response.setHeader("Last-Modified", dateString);
+        response.setContentType("application/json");
+
+
         render file.text
     }
 
@@ -215,7 +240,7 @@ class JbrowseController {
 //                return;
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
-                response.setContentType("contentType: ${mimeType}");
+                response.setContentType(mimeType);
 
                 // Open the file and output streams
                 FileInputStream fis = new FileInputStream(file);
@@ -305,7 +330,7 @@ class JbrowseController {
 
         }
 
-        response.setContentType("contentType: ${mimeType}");
+        response.setContentType(mimeType);
 //        }
 
         // Set content size

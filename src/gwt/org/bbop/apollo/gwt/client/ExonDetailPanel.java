@@ -2,8 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
@@ -27,9 +26,11 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -42,26 +43,36 @@ public class ExonDetailPanel extends Composite {
     interface ExonDetailPanelUiBinder extends UiBinder<Widget, ExonDetailPanel> {
     }
 
-    Dictionary dictionary = Dictionary.getDictionary("Options");
-    String rootUrl = dictionary.get("rootUrl");
-//    private JSONObject internalData;
+    int inputFmin, inputFmax;
+    int fivePrimeValue, threePrimeValue;
     private AnnotationInfo internalAnnotationInfo;
-
+    private AnnotationInfo annotationInfoWithTopLevelFeature;
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
-    @UiField
-    TextBox maxField;
-    @UiField
-    TextBox minField;
+
     @UiField
     Button positiveStrandValue;
     @UiField
     Button negativeStrandValue;
-
+    @UiField
+    TextBox fivePrimeField;
+    @UiField
+    TextBox threePrimeField;
+    @UiField
+    Button increaseFivePrime;
+    @UiField
+    Button decreaseFivePrime;
+    @UiField
+    Button increaseThreePrime;
+    @UiField
+    Button decreaseThreePrime;
+    
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     HTML notePanel;
+//    @UiField
+//    Button phaseButton;
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
@@ -93,7 +104,15 @@ public class ExonDetailPanel extends Composite {
         typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getType();
+                String annotationTypeString = annotationInfo.getType();
+                if(annotationTypeString.equals("non_canonical_five_prime_splice_site")){
+                    annotationTypeString = "NC 5' splice";
+                }
+                else
+                if(annotationTypeString.equals("non_canonical_three_prime_splice_site")){
+                    annotationTypeString = "NC 3' splice";
+                }
+                return annotationTypeString;
             }
         };
         typeColumn.setSortable(true);
@@ -101,7 +120,7 @@ public class ExonDetailPanel extends Composite {
         startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getMin();
+                return getDisplayMin(annotationInfo.getMin());
             }
         };
         startColumn.setSortable(true);
@@ -161,14 +180,18 @@ public class ExonDetailPanel extends Composite {
 
 
     public void updateData(AnnotationInfo annotationInfo){
-        GWT.log("updating data: " + annotationInfo.getName());
         if(annotationInfo==null) return ;
+        //displayAnnotationInfo(annotationInfo);
+        getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
         GWT.log("sublist: " + annotationInfo.getAnnotationInfoSet().size());
         for(AnnotationInfo annotationInfo1 : annotationInfo.getAnnotationInfoSet()){
             GWT.log("adding: "+annotationInfo1.getName());
             annotationInfoList.add(annotationInfo1);
         }
+
+        // TODO: calculate phases
+//        calculatePhaseOnList(annotationInfoList);
 
         GWT.log("should be showing: " + annotationInfoList.size());
 
@@ -177,17 +200,44 @@ public class ExonDetailPanel extends Composite {
         }
         dataGrid.redraw();
     }
+    
+    private void calculatePhaseOnList(List<AnnotationInfo> annotationInfoList) {
+        // get the CDS annotionInfo . .
+//        int length = 0;
+//        for (Exon exon : exons) {
+//            if (!exon.overlaps(cds)) {
+//                continue;
+//            }
+//            int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
+//            int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
+//            String phase;
+//            if (length % 3 == 0) {
+//                phase = "0";
+//            }
+//            else if (length % 3 == 1) {
+//                phase = "2";
+//            }
+//            else {
+//                phase = "1";
+//            }
+//            length += fmax - fmin;
+//            GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
+//            entry.setAttributes(extractAttributes(cds));
+//            gffEntries.add(entry);
+//        }
+
+    }
 
     public void updateDetailData(AnnotationInfo annotationInfo) {
+        // updates the detail section (3' and 5' coordinates) when user clicks on any of the types in the table.
+        // mRNA information is not available
         this.internalAnnotationInfo = annotationInfo;
         GWT.log("updating exon detail panel");
 //        GWT.log(internalData.toString());
 //        nameField.setText(internalData.get("name").isString().stringValue());
 
 //        JSONObject locationObject = this.internalData.get("location").isObject();
-        minField.setText(internalAnnotationInfo.getMin().toString());
-        maxField.setText(internalAnnotationInfo.getMax().toString());
-
+        coordinatesToPrime(annotationInfo.getMin(), annotationInfo.getMax());
         if (internalAnnotationInfo.getStrand() > 0) {
             positiveStrandValue.setType(ButtonType.PRIMARY);
             negativeStrandValue.setType(ButtonType.DEFAULT);
@@ -195,6 +245,8 @@ public class ExonDetailPanel extends Composite {
             positiveStrandValue.setType(ButtonType.DEFAULT);
             negativeStrandValue.setType(ButtonType.PRIMARY);
         }
+
+//        phaseButton.setText(internalAnnotationInfo.getPhase());
 
         SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
         for(String note : annotationInfo.getNoteList()){
@@ -208,18 +260,10 @@ public class ExonDetailPanel extends Composite {
         setVisible(true);
     }
 
-    @UiHandler("minField")
-    void handleMinChange(ChangeEvent e) {
-        internalAnnotationInfo.setMin(Integer.parseInt(minField.getText()));
-        updateFeatureLocation();
+    public void redrawExonTable(){
+        dataGrid.redraw();
     }
-
-    @UiHandler("maxField")
-    void handleMaxChange(ChangeEvent e) {
-        internalAnnotationInfo.setMax(Integer.parseInt(maxField.getText()));
-        updateFeatureLocation();
-    }
-
+    
     // we would only ever enable these for the gene . . . not sure if we want this here
 //    @UiHandler("positiveStrandValue")
     void handlePositiveStrand(ClickEvent e) {
@@ -243,7 +287,7 @@ public class ExonDetailPanel extends Composite {
 
 
     private void updateFeatureLocation() {
-        String url = rootUrl + "/annotator/updateFeatureLocation";
+        String url = Annotator.getRootUrl() + "annotator/updateFeatureLocation";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
@@ -251,47 +295,296 @@ public class ExonDetailPanel extends Composite {
         sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
         builder.setRequestData(sb.toString());
-        enableFields(false);
+//        enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 GWT.log("return value: "+returnValue.toString());
 //                Window.alert("successful update: "+returnValue);
-                enableFields(true);
+//                enableFields(true);
                 Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
                 Window.alert("Error updating exon: " + exception);
+//                enableFields(true);
+            }
+        };
+        try {
+            builder.setCallback(requestCallback);
+            builder.send();
+//            enableFields(true);
+        } catch (RequestException e) {
+            // Couldn't connect to server
+            Window.alert(e.getMessage());
+//            enableFields(true);
+        }
+
+    }
+
+//    private void enableFields(boolean enabled) {
+////        minField.setEnabled(enabled && editable);
+//        maxField.setEnabled(enabled && editable);
+////        positiveStrandValue.setEnabled(enabled);
+////        negativeStrandValue.setEnabled(enabled);
+//    }
+//
+//
+    private void enableFields(boolean enabled) {
+        decreaseFivePrime.setEnabled(enabled);
+        increaseFivePrime.setEnabled(enabled);
+        decreaseThreePrime.setEnabled(enabled);
+        increaseThreePrime.setEnabled(enabled);
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable ;
+
+//        maxField.setEnabled(this.editable);
+//        minField.setEnabled(this.editable);
+    }
+
+    public boolean isEditableType(String type) {
+        if (type.equals("CDS") || type.equals("exon")) {
+            return true; 
+        }
+        else {
+            return false;
+        }
+    }
+
+    private void updateFeatureLocation(final AnnotationInfo originalInfo) {
+        String url = Annotator.getRootUrl()+ "annotator/updateFeatureLocation";
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        StringBuilder sb = new StringBuilder();
+        sb.append("data=" + AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
+        final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
+        builder.setRequestData(sb.toString());
+        enableFields(false);
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                GWT.log("return value: " + returnValue.toString());
+                enableFields(true);
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                updateDetailData(updatedInfo);
+                redrawExonTable();
+                
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                //todo: handling different types of errors
+                Window.alert("Error updating exon: " + exception);
+                coordinatesToPrime(originalInfo.getMin(), originalInfo.getMax());
                 enableFields(true);
             }
         };
         try {
             builder.setCallback(requestCallback);
             builder.send();
-            enableFields(true);
         } catch (RequestException e) {
-            // Couldn't connect to server
             Window.alert(e.getMessage());
             enableFields(true);
         }
-
+    }
+    
+    private int getDisplayMin(int min) {
+        // increases the fmin by 1 for display since coordinates are handled as zero-based on server-side
+        return min + 1;
     }
 
-    private void enableFields(boolean enabled) {
-        minField.setEnabled(enabled && editable);
-        maxField.setEnabled(enabled && editable);
-//        positiveStrandValue.setEnabled(enabled);
-//        negativeStrandValue.setEnabled(enabled);
+    @UiHandler("decreaseFivePrime")
+    public void decreaseFivePrimePosition(ClickEvent e) {
+        try {
+            fivePrimeValue = Integer.parseInt(fivePrimeField.getText()) - 1; // intended action
+            threePrimeValue = Integer.parseInt(threePrimeField.getText());
+        } catch (Exception error) {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            return;
+        }
+        
+        if (verifyOperation()) {
+            triggerUpdate(fivePrimeValue, threePrimeValue);
+        }
+    }
+    
+    @UiHandler("increaseFivePrime")
+    public void increaseFivePrimePosition(ClickEvent e) {
+        try {
+            fivePrimeValue = Integer.parseInt(fivePrimeField.getText()) + 1; // intended action
+            threePrimeValue = Integer.parseInt(threePrimeField.getText());
+        } catch (Exception error) {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            return;
+        }
+
+        if (verifyOperation()) {
+            triggerUpdate(fivePrimeValue, threePrimeValue);
+        }
+    }
+    
+    @UiHandler("fivePrimeField")
+    public void fivePrimeTextEntry(KeyDownEvent k) {
+        if (k.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            try {
+                fivePrimeValue = Integer.parseInt(fivePrimeField.getText());
+                threePrimeValue = Integer.parseInt(threePrimeField.getText());
+            } catch (Exception error) {
+                coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+                return;
+            }
+
+            if (verifyOperation()) {
+                triggerUpdate(fivePrimeValue, threePrimeValue);
+            } else {
+                coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            }
+        }
+    }
+    
+    @UiHandler("fivePrimeField")
+    public void fivePrimeTextFocus(BlurEvent b) {
+        try {
+            fivePrimeValue = Integer.parseInt(fivePrimeField.getText());
+            threePrimeValue = Integer.parseInt(threePrimeField.getText());
+        } catch (Exception error) {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            return;
+        }
+
+        if (verifyOperation()) {
+            triggerUpdate(fivePrimeValue, threePrimeValue);
+        }
+        else {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+        }
+    }
+    
+    @UiHandler("decreaseThreePrime")
+    public void decreaseThreePrimePosition(ClickEvent e) {
+        try {
+            fivePrimeValue = Integer.parseInt(fivePrimeField.getText());
+            threePrimeValue = Integer.parseInt(threePrimeField.getText()) - 1; // intended action
+        } catch (Exception error) {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            return;
+        }
+
+        if (verifyOperation()) {
+            triggerUpdate(fivePrimeValue, threePrimeValue);
+        }
+    }
+    
+    @UiHandler("increaseThreePrime")
+    public void increaseThreePrime(ClickEvent e) {
+        try {
+            fivePrimeValue = Integer.parseInt(fivePrimeField.getText());
+            threePrimeValue = Integer.parseInt(threePrimeField.getText()) + 1; // intended action
+        } catch (Exception error) {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            return;
+        }
+
+        if (verifyOperation()) {
+            triggerUpdate(fivePrimeValue, threePrimeValue);
+        }
+    }
+    
+    @UiHandler("threePrimeField")
+    public void threePrimeTextEntry(KeyDownEvent k) {
+        if (k.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            try {
+                fivePrimeValue = Integer.parseInt(fivePrimeField.getText());
+                threePrimeValue = Integer.parseInt(threePrimeField.getText());
+            } catch (Exception error) {
+                coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+                return;
+            }
+
+            if (verifyOperation()) {
+                triggerUpdate(fivePrimeValue, threePrimeValue);
+            }
+            else {
+                coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            }
+        }
+    }
+    
+    @UiHandler("threePrimeField")
+    public void threePrimeTextFocus(BlurEvent b) {
+        try {
+            fivePrimeValue = Integer.parseInt(fivePrimeField.getText());
+            threePrimeValue = Integer.parseInt(threePrimeField.getText());
+        } catch (Exception error) {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+            return;
+        }
+
+        if (verifyOperation()) {
+            triggerUpdate(fivePrimeValue, threePrimeValue);
+        }
+        else {
+            coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
+        }
+    }
+    
+    public boolean verifyOperation() {
+        if (!isEditableType(this.internalAnnotationInfo.getType())) { return false; }
+        primeToCoordinates(this.fivePrimeValue, this.threePrimeValue);
+        if (!(this.inputFmin < this.internalAnnotationInfo.getMax()) || !(this.inputFmax > this.internalAnnotationInfo.getMin())) {
+            return false;
+        }
+        if (!verifyBoundaries(this.internalAnnotationInfo)) { return false; };
+        return true;
+    }
+    
+    public void triggerUpdate(int fivePrimeValue, int threePrimeValue) {
+        final AnnotationInfo originalInfo = this.internalAnnotationInfo;
+        fivePrimeField.setText(Integer.toString(fivePrimeValue));
+        this.internalAnnotationInfo.setMin(this.inputFmin);
+        threePrimeField.setText(Integer.toString(threePrimeValue));
+        this.internalAnnotationInfo.setMax(this.inputFmax);
+        updateFeatureLocation(originalInfo);
     }
 
+    public void primeToCoordinates(int fivePrimeFieldValue, int threePrimeFieldValue) {
+        if (this.internalAnnotationInfo.getStrand() == 1) {
+            this.inputFmin = fivePrimeFieldValue - 1;
+            this.inputFmax = threePrimeFieldValue;
+        }
+        else {
+            this.inputFmin = threePrimeFieldValue - 1;
+            this.inputFmax = fivePrimeFieldValue;
+        }
+    }
+    
+    public void coordinatesToPrime(int fmin, int fmax) {
+        if (this.internalAnnotationInfo.getStrand() == 1) {
+            this.fivePrimeField.setText(Integer.toString(fmin + 1));
+            this.threePrimeField.setText(Integer.toString(fmax));
+        }
+        else {
+            this.fivePrimeField.setText(Integer.toString(fmax));
+            this.threePrimeField.setText(Integer.toString(fmin + 1));
+        }
+    }
 
-    public void setEditable(boolean editable) {
-        this.editable = editable ;
-
-        maxField.setEnabled(this.editable);
-        minField.setEnabled(this.editable);
+    private void getAnnotationInfoWithTopLevelFeature(AnnotationInfo annotationInfo) {
+        this.annotationInfoWithTopLevelFeature = annotationInfo;
+    }
+    
+    private boolean verifyBoundaries(AnnotationInfo annotationInfo) {
+        if (this.inputFmin >= annotationInfoWithTopLevelFeature.getMin() && this.inputFmax <= annotationInfoWithTopLevelFeature.getMax()) {
+            return true;
+        }
+        else {
+            GWT.log("Cannot extend beyond the boundaries of the mRNA");
+            return false;
+        }
     }
 }

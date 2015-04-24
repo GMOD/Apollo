@@ -26,7 +26,7 @@ class GroupController {
         Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 
         List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        println "total permission list ${groupOrganismPermissionList.size()}"
+        log.debug "total permission list ${groupOrganismPermissionList.size()}"
         for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList){
             List<GroupOrganismPermission> groupOrganismPermissionListTemp =  groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
             if(groupOrganismPermissionListTemp==null){
@@ -35,9 +35,9 @@ class GroupController {
             groupOrganismPermissionListTemp.add(groupOrganismPermission)
             groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
         }
-        println "org permission map ${groupOrganismPermissionMap.size()}"
+        log.debug "org permission map ${groupOrganismPermissionMap.size()}"
         for(v in groupOrganismPermissionMap){
-            println "${v.key} ${v.value}"
+            log.debug "${v.key} ${v.value}"
         }
 
 
@@ -65,7 +65,7 @@ class GroupController {
             JSONArray organismPermissionsArray = new JSONArray()
             def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            println "lsit retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
+            log.debug "lsit retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
             for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
                 if(groupOrganismPermission.organism in allowableOrganisms){
                     JSONObject organismJSON = new JSONObject()
@@ -83,8 +83,8 @@ class GroupController {
             Set<Organism> organismList = allowableOrganisms.findAll(){
                 !organismsWithPermissions.contains(it.id)
             }
-            println "organisms with permissions ${organismsWithPermissions.size()}"
-            println "organisms list ${organismList.size()}"
+            log.debug "organisms with permissions ${organismsWithPermissions.size()}"
+            log.debug "organisms list ${organismList.size()}"
 
             for(Organism organism in organismList){
                 JSONObject organismJSON = new JSONObject()
@@ -107,9 +107,9 @@ class GroupController {
     }
 
     def createGroup(){
-        println "creating user ${request.JSON} -> ${params}"
+        log.debug "creating user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
-        println "dataObject ${dataObject}"
+        log.debug "dataObject ${dataObject}"
 
         UserGroup group = new UserGroup(
                 name: dataObject.name
@@ -121,7 +121,7 @@ class GroupController {
     }
 
     def deleteGroup(){
-        println "deleting user ${request.JSON} -> ${params}"
+        log.debug "deleting user ${request.JSON} -> ${params}"
         JSONObject dataObject = JSON.parse(params.data)
         UserGroup group = UserGroup.findById(dataObject.id)
         group.users.each { it ->
@@ -136,9 +136,9 @@ class GroupController {
 
     def updateGroup(){
 
-        println "json: ${request.JSON}"
-        println "params: ${params}"
-        println "params.data: ${params.data}"
+        log.debug "json: ${request.JSON}"
+        log.debug "params: ${params}"
+        log.debug "params.data: ${params.data}"
         JSONObject dataObject = JSON.parse(params.data)
         UserGroup group = UserGroup.findById(dataObject.id)
         // the only thing that can really change
@@ -153,25 +153,25 @@ class GroupController {
      */
     def updateOrganismPermission(){
         JSONObject dataObject = JSON.parse(params.data)
-        println "json data ${dataObject}"
+        log.debug "json data ${dataObject}"
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
 
 
         UserGroup group = UserGroup.findById(dataObject.groupId)
         Organism organism =  Organism.findByCommonName(dataObject.organism)
-        println "found ${groupOrganismPermission}"
+        log.debug "found ${groupOrganismPermission}"
         if(!groupOrganismPermission){
             groupOrganismPermission = GroupOrganismPermission.findByGroupAndOrganism(group,organism)
         }
 
         if(!groupOrganismPermission){
-            println "creating new permissions! "
+            log.debug "creating new permissions! "
             groupOrganismPermission = new GroupOrganismPermission(
                     group: UserGroup.findById(dataObject.groupId)
                     ,organism: Organism.findByCommonName(dataObject.organism)
                     ,permissions: "[]"
             ).save(insert: true)
-            println "created new permissions! "
+            log.debug "created new permissions! "
         }
 
 

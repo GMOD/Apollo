@@ -69,9 +69,9 @@
                     <b:Column size="MD_6" styleName="{style.widgetPanel}">
                         <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
                     </b:Column>
-                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
-                        <b:Label ui:field="viewableLabel"/>
-                    </b:Column>
+                    <!--<b:Column size="MD_2" styleName="{style.widgetPanel}">-->
+                        <!--<b:Label ui:field="viewableLabel"/>-->
+                    <!--</b:Column>-->
                 </b:Row>
                 <b:Row>
                     <b:Column size="MD_2">
@@ -90,13 +90,13 @@
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_3">
-                        <b:TextBox ui:field="minFeatureLength"/>
+                        <b:TextBox ui:field="minFeatureLength" placeholder="Minimum"/>
                     </b:Column>
                     <!--<b:Column size="MD_1">-->
                     <!--<gwt:HTML text="-"/>-->
                     <!--</b:Column>-->
                     <b:Column size="MD_3">
-                        <b:TextBox ui:field="maxFeatureLength"/>
+                        <b:TextBox ui:field="maxFeatureLength" placeholder="Maximum"/>
                     </b:Column>
                 </b:Row>
                 <b:Row>
@@ -107,9 +107,10 @@
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:ButtonGroup>
-                        <b:Button ui:field="exportAllButton" size="EXTRA_SMALL" text="All"/>
-                        <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected" enabled="false"/>
-                        <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single"/>
+                            <b:Button ui:field="exportAllButton" size="EXTRA_SMALL" text="All"/>
+                            <b:Button ui:field="exportSelectedButton" size="EXTRA_SMALL" text="Selected"
+                                      enabled="false"/>
+                            <b:Button ui:field="exportSingleButton" size="EXTRA_SMALL" text="Single"/>
                         </b:ButtonGroup>
                     </b:Column>
                     <b:Column size="MD_5" marginTop="8">
@@ -130,8 +131,9 @@
                         <table style="width:100%">
                             <tr>
                                 <td style="width:20%">
-                                    <b:Button ui:field="selectSelectedButton" size="EXTRA_SMALL" enabled="false" icon="CHECK_CIRCLE" marginLeft="10"/>
-                                        </td>
+                                    <b:Button ui:field="selectSelectedButton" size="EXTRA_SMALL" enabled="false"
+                                              icon="CHECK_CIRCLE" marginLeft="10" visible="false"/>
+                                </td>
                                 <td align="center">
                                     <cellview:SimplePager ui:field="pager" styleName="{style.pager}"/>
                                 </td>

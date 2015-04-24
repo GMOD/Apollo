@@ -91,12 +91,6 @@
                             <b:Column size="MD_1">
                                 <b:Button ui:field="createButton" icon="PLUS" color="BLUE"/>
                             </b:Column>
-                            <b:Column size="MD_2">
-                                <b:Button ui:field="cancelButton" text="Cancel" visible="false"/>
-                            </b:Column>
-                            <b:Column size="MD_2">
-                                <b:Button ui:field="saveButton" icon="SAVE" text="Save" visible="false"/>
-                            </b:Column>
                         </b:Row>
                         <b:Row>
                             <b:Column size="MD_6" styleName="{style.paddedTable}">

@@ -17,6 +17,7 @@ public class AnnotationInfoChangeEvent extends GwtEvent<AnnotationInfoChangeEven
         UPDATE,
         INSERT,
         DELETE,
+        SET_FOCUS,
     }
 
     public AnnotationInfoChangeEvent(AnnotationInfo annotationInfo,Action action){

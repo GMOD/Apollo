@@ -30,9 +30,6 @@ public class TranscriptDetailPanel extends Composite {
 
     interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> { }
 
-    Dictionary dictionary = Dictionary.getDictionary("Options");
-    String rootUrl = dictionary.get("rootUrl");
-
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
 
     @UiField
@@ -45,8 +42,15 @@ public class TranscriptDetailPanel extends Composite {
     InputGroupAddon locationField;
     @UiField
     InputGroupAddon userField;
+    @UiField
+    InputGroupAddon sequenceField;
 
     private Boolean editable = false ;
+
+    public TranscriptDetailPanel() {
+        initWidget(ourUiBinder.createAndBindUi(this));
+    }
+
 
     @UiHandler("nameField")
     void handleNameChange(ChangeEvent e) {
@@ -54,12 +58,6 @@ public class TranscriptDetailPanel extends Composite {
         updateTranscript();
     }
 
-//    @UiHandler("symbolField")
-//    void handleSymbolChange(ChangeEvent e) {
-////        Window.alert("symbol field changed: "+e);
-//        internalAnnotationInfo.setSymbol(symbolField.getText());
-//        updateTranscript();
-//    }
 
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
@@ -67,9 +65,6 @@ public class TranscriptDetailPanel extends Composite {
         updateTranscript();
     }
 
-    public TranscriptDetailPanel() {
-        initWidget(ourUiBinder.createAndBindUi(this));
-    }
 
 
     public void updateData(AnnotationInfo annotationInfo) {
@@ -77,9 +72,11 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
+        sequenceField.setText(internalAnnotationInfo.getSequence());
 
         if (internalAnnotationInfo.getMin() != null) {
-            String locationText = internalAnnotationInfo.getMin().toString();
+//            String locationText = internalAnnotationInfo.getMin().toString();
+            String locationText = Integer.toString(internalAnnotationInfo.getMin() + 1);
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();
             locationText += " strand(";
@@ -96,7 +93,7 @@ public class TranscriptDetailPanel extends Composite {
     }
 
     private void updateTranscript() {
-        String url = rootUrl + "/annotator/updateFeature";
+        String url = Annotator.getRootUrl() + "annotator/updateFeature";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();

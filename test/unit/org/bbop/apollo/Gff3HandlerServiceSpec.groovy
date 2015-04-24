@@ -28,10 +28,10 @@ class Gff3HandlerServiceSpec extends Specification {
     }
 
     def cleanup() {
-        println "deleting sequence: ${Sequence.deleteAll(Sequence.all)}"
-        println "deleting feature Relationships: ${FeatureRelationship.deleteAll(FeatureRelationship.all)}"
-        println "deleting feature locations: ${FeatureLocation.deleteAll(FeatureLocation.all)}"
-        println "deleting features: ${Feature.deleteAll(Feature.all)}"
+        log.debug "deleting sequence: ${Sequence.deleteAll(Sequence.all)}"
+        log.debug "deleting feature Relationships: ${FeatureRelationship.deleteAll(FeatureRelationship.all)}"
+        log.debug "deleting feature locations: ${FeatureLocation.deleteAll(FeatureLocation.all)}"
+        log.debug "deleting features: ${Feature.deleteAll(Feature.all)}"
     }
  
     @Ignore // moved to a integration test
@@ -63,13 +63,13 @@ class Gff3HandlerServiceSpec extends Specification {
 
         then: "We should have at least one new gene"
         assert Gene.count == 1
-        println "${tempFile.absolutePath}"
+        log.debug "${tempFile.absolutePath}"
         service.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
-        //println "===> Finally the output: ${tempFileText}"
+        //log.debug "===> Finally the output: ${tempFileText}"
 
         assert tempFileText.length()>0
-        println tempFileText
+        log.debug tempFileText
 
         assert tempFileText == "##gff-version 3\n##sequence-region Group-1.10 201 1000\nGroup-1.10\t.\tGene\t201\t1000\t\t+\t\tName=Bob;ID=abc123\n###\n"
     }
@@ -98,7 +98,7 @@ class Gff3HandlerServiceSpec extends Specification {
         
         gene.addToFeatureLocations(geneFeatureLocation)
 //        gene.save()
-//        println gene.toString()
+//        log.debug gene.toString()
         
         MRNA mrna = new MRNA(
                 name: "Bob-mRNA",
@@ -249,11 +249,11 @@ class Gff3HandlerServiceSpec extends Specification {
         mrna.addToParentFeatureRelationships(cdsThreeFeatureRelationship)
         cdsThree.addToChildFeatureRelationships(cdsThreeFeatureRelationship)
         
-        println "Statistics:\nExon: ${Exon.count}\nMRNA:${MRNA.count}\nCDS:${CDS.count}\nGene:${Gene.count}"
-        println "Gene parent features: ${gene.parentFeatureRelationships}"
-        println "Gene child features: ${gene.childFeatureRelationships}"
-        println "mRNA parent features: ${mrna.parentFeatureRelationships}"
-        println "mRNA child features: ${mrna.childFeatureRelationships}"
+        log.debug "Statistics:\nExon: ${Exon.count}\nMRNA:${MRNA.count}\nCDS:${CDS.count}\nGene:${Gene.count}"
+        log.debug "Gene parent features: ${gene.parentFeatureRelationships}"
+        log.debug "Gene child features: ${gene.childFeatureRelationships}"
+        log.debug "mRNA parent features: ${mrna.parentFeatureRelationships}"
+        log.debug "mRNA child features: ${mrna.childFeatureRelationships}"
         List<Feature> featuresToWrite = new ArrayList<>()
         featuresToWrite.add(mrna)
 
@@ -278,22 +278,22 @@ class Gff3HandlerServiceSpec extends Specification {
       
         int count = 0 
         for(FeatureRelationship featureRelationship in thisMRNA.parentFeatureRelationships){
-            println "${count} parent: ${featureRelationship.parentFeature}"
-            println "${count} child: ${featureRelationship.childFeature}"
+            log.debug "${count} parent: ${featureRelationship.parentFeature}"
+            log.debug "${count} child: ${featureRelationship.childFeature}"
             ++count
         }
         
         assert thisMRNA.parentFeatureRelationships.size()==6
 
 //        when: "we write the feature to test"
-//        println "${tempFile.absolutePath}"
+//        log.debug "${tempFile.absolutePath}"
 //        service.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
 //        String tempFileText = tempFile.text
 //
 //        then: "we should get a valid gff3 file"
-//        println "===> Finally the output: ${tempFileText}"
+//        log.debug "===> Finally the output: ${tempFileText}"
 //        assert tempFileText.length()>0
-//        println tempFileText
+//        log.debug tempFileText
 
     }
 }

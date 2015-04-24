@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.util.Environment
 import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -34,9 +35,8 @@ class PermissionService {
         return trackList.trim()
     }
 
-    boolean isUserAdmin(User user ){
+    boolean isUserAdmin(User user) {
         for (Role role in user.roles) {
-            println "researcher roles? ${role.name}"
             if (role.name == UserService.ADMIN) {
                 return true
             }
@@ -48,7 +48,7 @@ class PermissionService {
         String currentUserName = SecurityUtils.subject.principal
         if (currentUserName) {
             User researcher = User.findByUsername(currentUserName)
-            if(isUserAdmin(researcher)){
+            if (isUserAdmin(researcher)) {
                 return true
             }
         }
@@ -181,6 +181,9 @@ class PermissionService {
 
     public List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
         Set<PermissionEnum> permissions = new HashSet<>()
+        if(isUserAdmin(user)){
+            permissions.addAll(PermissionEnum.ADMINISTRATE as List)
+        }
 
         List<UserOrganismPermission> userPermissionList = UserOrganismPermission.findAllByOrganismAndUser(organism, user)
         for (UserOrganismPermission userPermission in userPermissionList) {
@@ -342,7 +345,7 @@ class PermissionService {
     }
 
     PermissionEnum findHighestEnum(List<PermissionEnum> permissionEnums) {
-        PermissionEnum highestValue  = PermissionEnum.NONE
+        PermissionEnum highestValue = PermissionEnum.NONE
         permissionEnums.each { it ->
             highestValue = it.rank > highestValue.rank ? it : highestValue
         }
@@ -364,7 +367,7 @@ class PermissionService {
      * @param jsonTranscript
      * @return
      */
-    User findUser(JSONObject jsonTranscript){
+    User findUser(JSONObject jsonTranscript) {
         String userName = findUserName(jsonTranscript)
         return userName ? User.findByUsername(userName) : null
     }
@@ -374,54 +377,218 @@ class PermissionService {
      * @param jsonTranscript
      * @return
      */
-    String findUserName(JSONObject jsonTranscript){
-        if(jsonTranscript.containsKey(FeatureStringEnum.USERNAME.value)){
+    String findUserName(JSONObject jsonTranscript) {
+        if (jsonTranscript.containsKey(FeatureStringEnum.USERNAME.value)) {
             return jsonTranscript.getString(FeatureStringEnum.USERNAME.value)
-        }
-        else{
+        } else {
             try {
                 return SecurityUtils.subject.principal?.toString()
             } catch (e) {
-                log.error "find to find user for session"
+                log.error "trying to find user for session"
                 return null
             }
         }
     }
 
-    JSONObject copyUserName(JSONObject fromJSON,JSONObject toJSON){
-        if(fromJSON.containsKey(FeatureStringEnum.USERNAME.value)){
-            toJSON.put(FeatureStringEnum.USERNAME.value,fromJSON.getString(FeatureStringEnum.USERNAME.value))
+    JSONObject copyUserName(JSONObject fromJSON, JSONObject toJSON) {
+        if (fromJSON.containsKey(FeatureStringEnum.USERNAME.value)) {
+            toJSON.put(FeatureStringEnum.USERNAME.value, fromJSON.getString(FeatureStringEnum.USERNAME.value))
+        } else {
+            log.error "No username to copy from ${fromJSON}"
         }
         return toJSON
     }
 
     def getOrganismsForCurrentUser() {
-        User currentUser = currentUser
-        if (currentUser) {
-            return getOrganisms(currentUser)
+        User thisUser = currentUser
+        if (thisUser) {
+            return getOrganisms(thisUser)
         }
         return []
     }
 
+    private static String fixTrackHeader(String trackInput) {
+        return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
+    }
 
-//    def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){
-    def checkPermissions(JSONObject jsonObject,Organism organism,PermissionEnum requiredPermissionEnum) {
+    /**
+     * This method finds the proper username with their proper organism for the current organism.
+     *
+     * If there are no preferences, that is okay, we'll create one from the permissions.
+     *
+     * If there are no permissions then the result is the same . . we throw an exception.
+     *
+     * @param inputObject
+     * @param requiredPermissionEnum
+     * @return
+     */
+    Organism checkPermissionsForOrganism(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+        Organism organism
 
-        if(Environment.current == Environment.TEST && !jsonObject.containsKey(FeatureStringEnum.USERNAME.value)){
+        // this is for testing only
+        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+            return null
+        }
+
+        //def session = RequestContextHolder.currentRequestAttributes().getSession()
+        String username
+        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
+            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
+        }
+        if (!username) {
+            username = SecurityUtils.subject.principal
+        }
+        if (!username) {
+            throw new PermissionException("Unable to find a username to check")
+        }
+
+
+        User user = User.findByUsername(username)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
+
+        if (!userOrganismPreference) {
+            userOrganismPreference = UserOrganismPreference.findByUser(user)
+        }
+
+        if (!userOrganismPreference) {
+            UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
+            organism = userOrganismPermission.organism
+
+            userOrganismPreference = new UserOrganismPreference(
+                    user: user
+                    , organism: organism
+                    , currentOrganism: true
+                    , sequence: organism.sequences.iterator().next()
+            ).save(insert: true)
+        }
+
+        organism = userOrganismPreference.organism
+
+        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+
+        if (highestValue.rank < requiredPermissionEnum.rank) {
+            //return false
+            throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+        }
+
+        return organism
+    }
+
+    /**
+     * This method finds the proper username with their proper organism for the current organism.
+     *
+     * If there are no preferences, that is okay, we'll create one from the permissions.
+     *
+     * If there are no permissions then the result is the same . . we throw an exception.
+     *
+     * @param inputObject
+     * @param requiredPermissionEnum
+     * @return
+     */
+    Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+        Organism organism
+        String trackName = null
+        if (inputObject.has("track")) {
+            trackName = fixTrackHeader(inputObject.track)
+        }
+
+        // this is for testing only
+        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+            Sequence sequence = trackName ? Sequence.findByName(trackName) : null
+            return sequence
+        }
+
+
+        //def session = RequestContextHolder.currentRequestAttributes().getSession()
+        String username
+        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
+            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
+        }
+        if (!username) {
+            username = SecurityUtils.subject.principal
+        }
+        if (!username) {
+            throw new PermissionException("Unable to find a username to check")
+        }
+
+
+        User user = User.findByUsername(username)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
+
+        if (!userOrganismPreference) {
+            userOrganismPreference = UserOrganismPreference.findByUser(user)
+        }
+
+        if (!userOrganismPreference) {
+            // find a random organism based on sequence
+            Sequence sequence = Sequence.findByName(trackName)
+            organism  = sequence.organism
+
+            userOrganismPreference = new UserOrganismPreference(
+                    user: user
+                    , organism: organism
+                    , currentOrganism: true
+                    , sequence: sequence
+            ).save(insert: true)
+        }
+
+        organism = userOrganismPreference.organism
+
+        List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
+        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+
+        if (highestValue.rank < requiredPermissionEnum.rank) {
+            //return false
+            throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
+        }
+//        Sequence returnSequence = Sequence.findByNameAndOrganism(trackName, organism)
+//        return trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
+        return trackName ? userOrganismPreference.sequence : null
+    }
+
+    Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
+        try {
+            Session session = SecurityUtils.subject.getSession(false)
+            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+            Integer permission = permissions.get(SecurityUtils.subject.principal)
+            PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
+
+            if (sessionPermissionsEnum == null) {
+                log.warn "No permissions found in session"
+                return false
+            }
+
+            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
+                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
+                return false
+            }
+            return true
+        } catch (e) {
+            log.error "Error checking permissions from session ${e}"
+            return false
+        }
+
+    }
+
+    //def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){
+    def checkPermissions(JSONObject jsonObject, Organism organism, PermissionEnum requiredPermissionEnum) {
+
+        if (Environment.current == Environment.TEST && !jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) {
             return true
         }
 
-//        def session = RequestContextHolder.currentRequestAttributes().getSession()
+        //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
 
 
         User user = User.findByUsername(username)
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-       PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
-        if(highestValue.rank<requiredPermissionEnum.rank){
-//            return false
+        if (highestValue.rank < requiredPermissionEnum.rank) {
+            //return false
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 //        else{
@@ -440,4 +607,34 @@ class PermissionService {
 //        }
 //        return false
     }
+
+    UserOrganismPreference getCurrentOrganismPreference(){
+        User currentUser = getCurrentUser()
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, true)
+        if (userOrganismPreference) {
+            return userOrganismPreference
+        }
+
+        // find another one
+        userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser, false)
+        if (userOrganismPreference) {
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true)
+            return userOrganismPreference
+        }
+
+        def organisms = getOrganisms(currentUser)
+        if(!organisms){
+            throw new PermissionException("User ${currentUser} does not have permission for any organisms.")
+        }
+        Organism organism = organisms?.iterator()?.next()
+//            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
+        userOrganismPreference = new UserOrganismPreference(
+                user: currentUser
+                , currentOrganism: true
+                , organism: organism
+        ).save(insert: true, flush: true)
+        return userOrganismPreference
+    }
+
 }

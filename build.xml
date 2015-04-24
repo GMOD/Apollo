@@ -1,236 +1,119 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<project name="Annotator" default="build" basedir=".">
-  <!-- Arguments to gwtc and devmode targets -->
-  <property name="gwt.args" value="" />
+<project name="Web Apollo" default="usage" basedir=".">
+    <!-- Arguments to gwtc and devmode targets -->
+    <property name="gwt.args" value=""/>
 
-  <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="gwt-sdk" />
+    <!-- Configure path to GWT SDK -->
+    <property name="gwt.sdk" location="gwt-sdk"/>
 
-  <path id="project.class.path">
-    <pathelement location="target/classes/gwt"/>
-    <pathelement location="lib/gwt"/>
-    <pathelement location="${gwt.sdk}/gwt-user.jar"/>
-    <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
-    <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
-    <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
-    <!--<pathelement location="${gwt.sdk}/restygwt-1.4.jar"/>-->
-    <fileset dir="lib/gwt" includes="**/*.jar"/>
-    <!-- Add any additional non-server libs (such as JUnit) here -->
-  </path>
+    <path id="project.class.path">
+        <pathelement location="target/classes/gwt"/>
+        <pathelement location="lib/gwt"/>
+        <pathelement location="${gwt.sdk}/gwt-user.jar"/>
+        <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
+        <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+        <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+        <!--<pathelement location="${gwt.sdk}/restygwt-1.4.jar"/>-->
+        <fileset dir="lib/gwt" includes="**/*.jar"/>
+        <!-- Add any additional non-server libs (such as JUnit) here -->
+    </path>
 
-  <!--<target name="libs" description="Copy libs to WEB-INF/lib">-->
+    <!--<target name="libs" description="Copy libs to WEB-INF/lib">-->
     <!--<mkdir dir="war/WEB-INF/lib" />-->
     <!--<copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />-->
     <!--<copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />-->
     <!--&lt;!&ndash; Add any additional server libs that need to be copied &ndash;&gt;-->
-  <!--</target>-->
+    <!--</target>-->
 
-  <target name="javac" description="Compile java source to bytecode">
-    <!--<mkdir dir="war/WEB-INF/classes"/>-->
-    <mkdir dir="target/classes/gwt"/>
-    <javac srcdir="src/gwt" includes="**" encoding="utf-8"
-        destdir="target/classes/gwt"
-        source="1.7" target="1.7" nowarn="true"
-        debug="true" debuglevel="lines,vars,source">
-      <classpath refid="project.class.path"/>
-    </javac>
-    <copy todir="target/classes">
-      <fileset dir="src" excludes="**/*.java"/>
-    </copy>
-  </target>
+    <target name="javac" description="Compile java source to bytecode">
+        <mkdir dir="target/classes/gwt"/>
+        <javac srcdir="src/gwt" includes="**" encoding="utf-8"
+               destdir="target/classes/gwt"
+               source="1.7" target="1.7" nowarn="true"
+               debug="true" debuglevel="lines,vars,source">
+            <classpath refid="project.class.path"/>
+        </javac>
+        <copy todir="target/classes">
+            <fileset dir="src" excludes="**/*.java"/>
+        </copy>
+    </target>
 
-  <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
-    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="256m">
-      <classpath>
-        <pathelement location="src/gwt"/>
-        <path refid="project.class.path"/>
-      </classpath>
-      <arg line="-war"/>
-      <arg value="web-app"/>
-      <arg line="-style"/>
-      <arg value="PRETTY"/>
-      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-      <arg line="${gwt.args}"/>
-      <arg value="org.bbop.apollo.gwt.Annotator"/>
-    </java>
-  </target>
+    <target name="gwtc" depends="copy-resources,javac" description="GWT compile to JavaScript (production mode)">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="256m">
+            <classpath>
+                <pathelement location="src/gwt"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <arg line="-war"/>
+            <arg value="web-app"/>
+            <arg line="-style"/>
+            <arg value="PRETTY"/>
+            <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+            <arg line="${gwt.args}"/>
+            <arg value="org.bbop.apollo.gwt.Annotator"/>
+        </java>
+    </target>
 
-  <target name="devmode" depends="javac" description="Run development mode (pass -Dgwt.args=-nosuperDevMode to fallback to classic DevMode)">
-    <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode" maxmemory="1g">
-      <classpath>
-        <pathelement location="src/gwt"/>
-        <path refid="project.class.path"/>
-        <pathelement location="${gwt.sdk}/gwt-codeserver.jar"/>
-      </classpath>
-      <arg value="-startupUrl"/>
-      <arg value="http://localhost:8080/apollo/annotator/"/>
-      <!--<arg value="/apollo/annotator/"/>-->
-      <arg line="-war"/>
-      <arg value="web-app"/>
-      <!-- Additional arguments like -style PRETTY, -logLevel DEBUG or -nosuperDevMode -->
-      <arg line="${gwt.args}"/>
-      <arg value="org.bbop.apollo.gwt.Annotator"/>
-      <arg value="org.bbop.apollo.gwt.Annotator"/>
-    </java>
-  </target>
+    <target name="devmode" depends="copy-resources,javac"
+            description="Run development mode (pass -Dgwt.args=-nosuperDevMode to fallback to classic DevMode)">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode" maxmemory="1g">
+            <classpath>
+                <pathelement location="src/gwt"/>
+                <path refid="project.class.path"/>
+                <pathelement location="${gwt.sdk}/gwt-codeserver.jar"/>
+            </classpath>
+            <arg value="-startupUrl"/>
+            <arg value="http://localhost:8080/apollo/annotator/"/>
+            <!--<arg value="/apollo/annotator/"/>-->
+            <arg line="-war"/>
+            <arg value="web-app"/>
+            <!-- Additional arguments like -style PRETTY, -logLevel DEBUG or -nosuperDevMode -->
+            <arg line="${gwt.args}"/>
+            <arg value="org.bbop.apollo.gwt.Annotator"/>
+            <arg value="org.bbop.apollo.gwt.Annotator"/>
+        </java>
+    </target>
 
-<!--
-Test targets suppressed because -junit argument was not specified when running webAppCreator.
 
-  <target name="javac.tests" depends="javac" description="Compiles test code">
-    <javac srcdir="test" includes="**" encoding="utf-8"
-      source="1.7" target="1.7" nowarn="true"
-      destdir="war/WEB-INF/classes"
-      debug="true" debuglevel="lines,vars,source">
-      <classpath location="path_to_the_junit_jar"/>
-      <classpath refid="project.class.path"/>
-    </javac>
-  </target>
-  
-  <target name="test.dev" depends="javac.tests" description="Run development mode tests">
-    <mkdir dir="reports/htmlunit.dev" />
-    <junit fork="yes" printsummary="yes" haltonfailure="yes" maxmemory="256m">
-      <sysproperty key="gwt.args" value="-logLevel WARN -war www-test" />
-      <sysproperty key="java.awt.headless" value="true" />
-      <classpath>
-        <pathelement location="src" />
-        <pathelement location="test" />
-        <path refid="project.class.path" />
-        <pathelement location="/Users/ndunn/Downloads/gwt-2.7.0/validation-api-1.0.0.GA.jar" />
-        <pathelement location="/Users/ndunn/Downloads/gwt-2.7.0/validation-api-1.0.0.GA-sources.jar" />
-        <pathelement location="path_to_the_junit_jar" />
-      </classpath>
-      <batchtest todir="reports/htmlunit.dev" >
-        <fileset dir="test" >
-          <include name="**/*Test.java" />
-        </fileset>
-      </batchtest>
-      <formatter type="plain" />
-      <formatter type="xml" />
-    </junit>
-  </target>
+    <target name="build" depends="gwtc" description="Build this project"/>
 
-  <target name="test.prod" depends="javac.tests" description="Run production mode tests">
-    <mkdir dir="reports/htmlunit.prod" />
-    <junit fork="yes" printsummary="yes" haltonfailure="yes" maxmemory="256m">
-      <sysproperty key="gwt.args" value="-prod -logLevel WARN -war www-test" />
-      <sysproperty key="java.awt.headless" value="true" />
-      <classpath>
-        <pathelement location="src" />
-        <pathelement location="test" />
-        <path refid="project.class.path" />
-        <pathelement location="/Users/ndunn/Downloads/gwt-2.7.0/validation-api-1.0.0.GA.jar" />
-        <pathelement location="/Users/ndunn/Downloads/gwt-2.7.0/validation-api-1.0.0.GA-sources.jar" />
-        <pathelement location="path_to_the_junit_jar" />
-      </classpath>
-      <batchtest todir="reports/htmlunit.prod" >
-        <fileset dir="test" >
-          <include name="**/*Test.java" />
-        </fileset>
-      </batchtest>
-      <formatter type="plain" />
-      <formatter type="xml" />
-    </junit>
-  </target>
-
-  <target name="test" description="Run development and production mode tests">
-    <antcall target="test.dev" />
-    <antcall target="test.prod" />
-  </target>
--->
-
-  <target name="build" depends="gwtc" description="Build this project" />
-
-  <!--<target name="war" depends="build" description="Create a war file">-->
-    <!--<zip destfile="Annotator.war" basedir="war"/>-->
-  <!--</target>-->
-
-  <target name="clean" description="Cleans this project">
+    <target name="clean" description="Cleans this project">
         <delete dir="${apollo.jbrowse.directory}"/>
         <exec executable="grails" failifexecutionfails="" errorproperty="">
             <arg value="clean"/>
         </exec>
-<!--    <delete dir="web-app/WEB-INF/deploy" failonerror="false" />-->
-<!--    <delete dir="web-app/annotator" failonerror="false" />-->
-<!--    <delete dir="target/classes/gwt" failonerror="false" />-->
-  </target>
+    </target>
 
-  <target name="clean-all" depends="clean" description="Cleans this project">
-<!--        <delete dir="${apollo.jbrowse.directory}"/>-->
-<!--        <exec executable="mvn" failifexecutionfails="" errorproperty="">-->
-<!--            <arg value="clean"/>-->
-<!--        </exec>-->
-    <delete dir="web-app/WEB-INF/deploy" failonerror="false" />
-    <delete dir="web-app/annotator" failonerror="false" />
-    <delete dir="target/classes/gwt" failonerror="false" />
-  </target>
-
-<!--    <target name="clean" description="">-->
-<!--        <delete dir="${apollo.jbrowse.directory}"/>-->
-<!--        <exec executable="mvn" failifexecutionfails="" errorproperty="">-->
-<!--            <arg value="clean"/>-->
-<!--        </exec>-->
-<!--    </target>-->
-
-    <!--APOLLO_ROOT_DIRECTORY=$(BASEDIR)-->
-    <!--APOLLO_BUILD_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)-->
-    <!--APOLLO_WEBAPP_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/src/main/webapp-->
-    <!--APOLLO_JBROWSE_DIRECTORY=$(APOLLO_WEBAPP_DIRECTORY)/jbrowse-->
-    <!--JBROWSE_GIT_DIRECTORY=$(APOLLO_ROOT_DIRECTORY)/jbrowse-github-->
-    <!--JBROWSE_GITHUB=https://github.com/GMOD/jbrowse-->
-    <!--JBROWSE_VERSION=dev-->
-    <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
-    <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
+    <target name="clean-all" depends="clean" description="Cleans this project">
+        <delete dir="web-app/WEB-INF/deploy" failonerror="false"/>
+        <delete dir="web-app/annotator" failonerror="false"/>
+        <delete dir="target/classes/gwt" failonerror="false"/>
+    </target>
 
 
     <property name="apollo.webapp.directory" location="web-app" relative="true" basedir="."/>
-    <property name="apollo.resources.directory" location="web-app" relative="true" basedir="."/>
-
     <property name="apollo.jbrowse.directory" location="${apollo.webapp.directory}/jbrowse"/>
     <property name="apollo.client.directory" location="${basedir}/client/apollo" basedir="." relative="true"/>
     <property name="apollo.plugin.directory" location="${apollo.jbrowse.directory}/plugins/WebApollo"/>
     <property name="jbrowse.download.directory" location="jbrowse-download"/>
     <property name="jbrowse.webapp.test.file" location="${apollo.jbrowse.directory}/src/dojo/dojo.js"/>
     <property name="webapp.apollo.plugin.test.file" location="${apollo.plugin.directory}/js/main.js"/>
-    <property name="webapp.apollo.plugin.uncompressed.test.file" location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
+    <property name="webapp.apollo.plugin.uncompressed.test.file"
+              location="${apollo.plugin.directory}/js/main.js.uncompressed.js"/>
     <property name="scripts.directory" location="scripts"/>
-    <property name="version.template.file" location="${scripts.directory}/version-template.jsp"/>
-    <property name="version.file" location="${apollo.webapp.directory}/version.jsp"/>
     <property name="jbrowse.git.test.file" location="${jbrowse.download.directory}/src/dojo/dojo.js"/>
-    <!--<property name="jbrowse.github"  />-->
     <property name="jbrowse.github" value="https://github.com/gmod/jbrowse"/>
     <property name="jbrowse.version" value="dev"/>
     <property name="jbrowse.perl.dependency.test.file" value="bin/flatfile-to-json.pl"/>
 
-    <property name="jbrowse.release.version" value="1.11.5-release"/>
-    <property name="jbrowse.download.file.name" value="JBrowse-1.11.5-dev"/>
-
-    <!--<property name="jbrowse.download.url" value="${jbrowse.github}/archive/${jbrowse.release.version}"/>-->
-    <property name="jbrowse.download.url" value="http://jbrowse.org/releases/JBrowse-1.11.5-dev.zip"/>
-    <property name="jbrowse.download.file" value="${basedir}/${jbrowse.release.version}"/>
-    <!--GIT_VERSION=`git rev-parse \-\-verify HEAD`-->
-    <!--POM_VERSION=`mvn validate | grep Building | cut -d' ' -f4`-->
-
+    <property name="jbrowse.release.version" value="1.11.6-release"/>
 
     <available file=".git" type="dir" property="git.present"/>
     <available file="${jbrowse.git.test.file}" type="file" property="jbrowse.git.present"/>
     <available file="${jbrowse.webapp.test.file}" type="file" property="jbrowse.webapp.installed"/>
     <available file="${webapp.apollo.plugin.test.file}" type="file" property="apollo.plugin.installed"/>
     <available file="${jbrowse.perl.dependency.test.file}" type="file" property="jbrowse.perl.installed"/>
-    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled" />
-
-    <!--<property name="pom.version" value="${mypom.properties.apollo.version}"/>-->
-
-    <target name="get.project.version" description="Get the project version from Maven">
-        <exec executable="sh" failifexecutionfails="false" outputproperty="project.version">
-            <arg value="-c"/>
-            <arg line="'mvn validate | grep Building | cut -d &quot; &quot; -f 4'"/>
-        </exec>
-    </target>
-
-    <target name="check.project.version" depends="get.project.version">
-        <echo>${project.version}</echo>
-    </target>
+    <available file="${webapp.apollo.plugin.uncompressed.test.file}" type="file" property="jbrowse.precompiled"/>
 
     <target name="build.jbrowse" description="Build JBrowse using the build/Makefile">
         <exec executable="sh" failifexecutionfails="false">
@@ -239,27 +122,39 @@ Test targets suppressed because -junit argument was not specified when running w
         </exec>
     </target>
 
-    <target name="unoptimized" description="unoptimized" depends="git.clone,copy.apollo.plugin.jbrowse,install-version">
+    <target name="unoptimized" description="unoptimized" depends="git.clone,copy.apollo.plugin.jbrowse">
         <copy todir="${apollo.jbrowse.directory}">
-            <fileset dir="${jbrowse.download.directory}"/>
+            <fileset dir="${jbrowse.download.directory}">
+                <not>
+                    <filename name="sample_data/**"/>
+                    <filename name="tests/**"/>
+                </not>
+            </fileset>
         </copy>
         <delete dir="${apollo.jbrowse.directory}/.git"/>
         <echo>${jbrowse.download.directory}</echo>
     </target>
 
-    <target name="release" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+    <target name="release" description=""
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
         </exec>
         <move todir="${apollo.jbrowse.directory}">
-            <fileset dir="JBrowse-${jbrowse.version}"/>
+            <fileset dir="JBrowse-${jbrowse.version}">
+                <not>
+                    <filename name="sample_data/**"/>
+                    <filename name="tests/**"/>
+                </not>
+    </fileset>
         </move>
         <delete file="JBrowse-${jbrowse.version}.zip"/>
         <delete file="JBrowse-${jbrowse.version}"/>
     </target>
 
-    <target name="debug" description="" depends="clean,git.clone,copy.apollo.plugin.jbrowse,install-version,build.jbrowse">
+    <target name="debug" description=""
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}-dev.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}-dev.zip"/>
@@ -269,7 +164,7 @@ Test targets suppressed because -junit argument was not specified when running w
         </move>
         <delete file="JBrowse-${jbrowse.version}-dev.zip"/>
         <delete dir="JBrowse-${jbrowse.version}-dev"/>
-    </target>  
+    </target>
 
 
     <target name="git.clean" description="Remove all unstaged files from ${basedir}">
@@ -286,38 +181,22 @@ Test targets suppressed because -junit argument was not specified when running w
             <arg value="${jbrowse.github}"/>
             <arg value="${jbrowse.download.directory}"/>
         </exec>
-        <!-- commenting out since the '1.11.5-release' tag for JBrowse doesn't include the 'release-notest' target in build/Makefile -->
-<!--         <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
+        <exec executable="git" failifexecutionfails="false" errorproperty="" dir="${jbrowse.download.directory}">
             <arg value="checkout"/>
             <arg value="tags/${jbrowse.release.version}"/>
-        </exec> -->
+        </exec>
     </target>
-<!--    NOTE: this does not contain the additional libraries needed.-->
-    <target name="git.download" unless="jbrowse.git.present" description="Downloads static release, but static release does not have other libraries">
-		<delete dir="${jbrowse.download.directory}"/>
-		<delete dir="${jbrowse.download.file.name}"/>
 
-		<get src="${jbrowse.download.url}" dest="${jbrowse.download.file}" />
-		<delete dir="${jbrowse.download.file.name}"/>
-		<unzip src="${jbrowse.download.file}" dest="${basedir}"/>
-		<delete dir="${jbrowse.download.directory}"/>
-		<move todir="${jbrowse.download.directory}">
-			<fileset dir="${jbrowse.download.file.name}"/>
-		</move>
-		<delete dir="${jbrowse.download.file.name}"/>
-    </target>
 
     <target name="usage">
         <exec executable="./apollo" failifexecutionfails="false" errorproperty=""/>
     </target>
 
-    <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present" unless="jbrowse.perl.installed">
-        <!--<exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">-->
-            <!--<arg value="${jbrowse.git.directory}"/>-->
-        <!--</exec>-->
-        <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true" errorproperty="jbrowse-fail">
-<!--             <arg value="${jbrowse.download.directory}"/>
-            <arg value="${jbrowse.download.directory}"/> -->
+    <target name="install.jbrowse.perl" description="Install jbrowse." if="jbrowse.git.present"
+            unless="jbrowse.perl.installed">
+        <exec executable="./install_jbrowse.sh" failifexecutionfails="true" failonerror="true"
+              errorproperty="jbrowse-fail">
+            <arg value="${jbrowse.download.directory}"/>
         </exec>
     </target>
 
@@ -336,38 +215,8 @@ Test targets suppressed because -junit argument was not specified when running w
         </condition>
     </target>
 
-    <!--<property name="release.is.snapshot" value="${project.version}"/>-->
-    <condition property="release.is.snapshot">
-        <contains substring="SNAPSHOT" string="${project.version}" casesensitive="true"/>
-    </condition>
 
-    <target name="install-no-release-version"  if="${release.is.snapshot}">
-        <echo>IS SNAPSHOT ${project.version}</echo>
-        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
-            <filterset>
-                <filter token="POM_VERSION" value="${project.version}"/>
-                <filter token="GITHUB_VERSION" value=""/>
-            </filterset>
-        </copy>
-    </target>
-
-    <target name="install-release-version"  unless="${release.is.snapshot}">
-        <echo>IS RELEASE ${project.version}</echo>
-        <copy file="${version.template.file}" tofile="${version.file}" overwrite="true">
-            <filterset>
-                <filter token="POM_VERSION" value="${project.version}"/>
-                <filter token="GITHUB_VERSION" value="tag/${project.version}"/>
-            </filterset>
-        </copy>
-    </target>
-
-    <target name="install-version" depends="git.revision,install-release-version,install-no-release-version">
-        <!--echo "<a href='https://github.com/GMOD/Apollo/commit/$(GMOD_VERSION)' target='_blank'>Version: $(POM_VERSION)</a>" > $(APOLLO_WEBAPP_DIRECTORY)/version.jsp-->
-    </target>
-
-    <target name="setup-jbrowse"  unless="jbrowse.webapp.installed">
-
-        <!--<antcall target="git.download"/>-->
+    <target name="setup-jbrowse" unless="jbrowse.webapp.installed">
         <antcall target="git.clone"/>
         <antcall target="copy.apollo.plugin.jbrowse"/>
 
@@ -376,7 +225,11 @@ Test targets suppressed because -junit argument was not specified when running w
         <delete dir="${apollo.jbrowse.directory}"/>
 
         <copy todir="${apollo.jbrowse.directory}">
-            <fileset dir="${jbrowse.download.directory}"/>
+            <fileset dir="${jbrowse.download.directory}">
+                <not>
+                    <filename name="sample_data/**"/>
+                </not>
+            </fileset>
         </copy>
         <antcall target="install.jbrowse.perl"/>
 
@@ -389,26 +242,17 @@ Test targets suppressed because -junit argument was not specified when running w
         </copy>
     </target>
 
-    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed" description="Copy client into webapp plugin directory.">
-        <echo>copying plugin to webapp ...</echo>
+    <target name="copy.apollo.plugin.webapp" unless="jbrowse.precompiled" if="jbrowse.webapp.installed"
+            description="Copy client into webapp plugin directory.">
+        <echo>Copying WebApollo plugin to jbrowse webapp ...</echo>
         <copy todir="${apollo.jbrowse.directory}/plugins/WebApollo" failonerror="true">
             <fileset dir="${apollo.client.directory}"/>
         </copy>
     </target>
 
-    <target name="copy-web-apollo-config">
-        <echo>copying config ...</echo>
-        <copy failonerror="false" file="config.xml" tofile="${apollo.webapp.directory}/config/config.xml" />
-        <copy failonerror="false" file="config.properties" tofile="${apollo.webapp.directory}/config/config.properties" />
-        <copy failonerror="false" file="canned_comments.xml" tofile="${apollo.webapp.directory}/config/canned_comments.xml" />
-        <copy failonerror="false" file="blat_config.xml" tofile="${apollo.webapp.directory}/config/blat_config.xml" />
-        <copy failonerror="false" file="hibernate.xml" tofile="${apollo.webapp.directory}/config/hibernate.xml" />
-        <copy failonerror="false" file="log4j2.json" tofile="${apollo.resources.directory}/log4j2.json" />
-        <copy failonerror="false" file="log4j2-test.json" tofile="${apollo.resources.directory}/log4j2-test.json"/>
-    </target>
 
-
-    <target name="copy-resources" depends="copy-web-apollo-config,copy.apollo.plugin.webapp,install-version,setup-jbrowse"
+    <target name="copy-resources"
+            depends="copy.apollo.plugin.webapp,setup-jbrowse"
             description="This is called externally by shell script.">
 
     </target>

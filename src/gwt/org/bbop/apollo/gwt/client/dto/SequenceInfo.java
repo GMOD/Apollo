@@ -8,7 +8,7 @@ import org.bbop.apollo.gwt.client.comparators.AlphanumericSorter;
 /**
  * Created by ndunn on 12/18/14.
  */
-public class SequenceInfo implements Comparable<SequenceInfo>{
+public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
 
     private AlphanumericSorter alphanumericSorter = new AlphanumericSorter();
 
@@ -89,8 +89,11 @@ public class SequenceInfo implements Comparable<SequenceInfo>{
 
     public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", new JSONNumber(id));
         jsonObject.put("name", new JSONString(name));
-
+        jsonObject.put("start", new JSONNumber(start));
+        jsonObject.put("end", new JSONNumber(end));
+        jsonObject.put("length", new JSONNumber(length));
         return jsonObject;
 
     }

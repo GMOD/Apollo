@@ -1,10 +1,11 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -16,18 +17,20 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
+import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -47,6 +50,8 @@ public class OrganismPanel extends Composite {
     private static OrganismBrowserPanelUiBinder ourUiBinder = GWT.create(OrganismBrowserPanelUiBinder.class);
     @UiField
     TextBox organismName;
+    @UiField
+    TextBox blatdb;
     @UiField
     TextBox genus;
     @UiField
@@ -72,6 +77,7 @@ public class OrganismPanel extends Composite {
     Button reloadButton;
 
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
+    private List<OrganismInfo> organismInfoList = dataProvider.getList();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
@@ -83,49 +89,64 @@ public class OrganismPanel extends Composite {
                 return employee.getName();
             }
         };
-        organismNameColumn.setSortable(true);
-
         Column<OrganismInfo, Number> annotationsNameColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumFeatures();
             }
         };
-        annotationsNameColumn.setSortable(true);
         Column<OrganismInfo, Number> sequenceColumn = new Column<OrganismInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(OrganismInfo object) {
                 return object.getNumSequences();
             }
         };
+
         sequenceColumn.setSortable(true);
+        organismNameColumn.setSortable(true);
+        annotationsNameColumn.setSortable(true);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                dataProvider.setList(organismChangeEvent.organismInfoList);
+                organismInfoList.clear();
+                organismInfoList.addAll(MainPanel.getInstance().getOrganismInfoList());
+//                dataProvider.setList(organismChangeEvent.organismInfoList);
             }
         });
 
         dataGrid.setLoadingIndicator(new HTML("Calculating Annotations ... "));
-
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
-        dataGrid.addColumn(sequenceColumn, "Sequences");
+        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
 
 
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if(singleSelectionModel.getSelectedObject()!=null) {
+                if (singleSelectionModel.getSelectedObject() != null) {
                     setSelectedInfo(singleSelectionModel.getSelectedObject());
-                    setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
+                    setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
                 }
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
 
         dataProvider.addDataDisplay(dataGrid);
+
+
+        dataGrid.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                if (singleSelectionModel.getSelectedObject() != null) {
+                    String orgId = singleSelectionModel.getSelectedObject().getId();
+                    if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
+                        // TODO: set the organism here
+                        OrganismRestService.switchOrganismById(orgId);
+                    }
+                }
+            }
+        }, DoubleClickEvent.getType());
 
         List<OrganismInfo> trackInfoList = dataProvider.getList();
 
@@ -159,6 +180,8 @@ public class OrganismPanel extends Composite {
         }
         organismName.setText(organismInfo.getName());
         organismName.setEnabled(true);
+        blatdb.setText(organismInfo.getBlatDb());
+        blatdb.setEnabled(true);
         genus.setText(organismInfo.getGenus());
         genus.setEnabled(true);
         species.setText(organismInfo.getSpecies());
@@ -197,11 +220,13 @@ public class OrganismPanel extends Composite {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
-            List<OrganismInfo> organismInfoList = OrganismRestService.convertJSONStringToOrganismInfoList(response.getText());
+            List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
             dataGrid.setSelectionModel(singleSelectionModel);
-            if(clearSelections){
-                clearSelections();
-            }
+//            if(clearSelections){
+//                clearSelections();
+//            }
+            MainPanel.getInstance().getOrganismInfoList().clear();
+            MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
             setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
@@ -220,6 +245,7 @@ public class OrganismPanel extends Composite {
         genus.setText("");
         species.setText("");
         sequenceFile.setText("");
+        blatdb.setText("");
         validDirectory.setVisible(false);
         newButton.setEnabled(false);
     }
@@ -232,12 +258,13 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
-        setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
+        setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
         organismInfo.setGenus(genus.getText());
         organismInfo.setSpecies(species.getText());
+        organismInfo.setBlatDb(blatdb.getText());
         createButton.setEnabled(false);
         createButton.setText("Processing");
         OrganismRestService.createOrganism(new UpdateInfoListCallback(true), organismInfo);
@@ -249,17 +276,18 @@ public class OrganismPanel extends Composite {
         sequenceFile.setText("");
         species.setText("");
         genus.setText("");
+        blatdb.setText("");
         dataGrid.setSelectionModel(singleSelectionModel);
         newButton.setEnabled(true);
         setSelectedInfo(singleSelectionModel.getSelectedObject());
-        setDefaultButtonState(singleSelectionModel.getSelectedObject()!=null);
+        setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
     }
 
     @UiHandler("deleteButton")
     public void handleDeleteOrganism(ClickEvent clickEvent) {
         if(Window.confirm("Delete organism: "+singleSelectionModel.getSelectedObject().getName())){
             deleteButton.setEnabled(false);
-            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true),singleSelectionModel.getSelectedObject());
+            OrganismRestService.deleteOrganism(new UpdateInfoListCallback(true), singleSelectionModel.getSelectedObject());
             setNoSelection();
         }
     }
@@ -272,6 +300,32 @@ public class OrganismPanel extends Composite {
             updateOrganismInfo();
         }
     }
+
+    @UiHandler("blatdb")
+    public void handleBlatDbChange(ChangeEvent changeEvent) {
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setBlatDb(blatdb.getText());
+            updateOrganismInfo();
+        }
+    }
+
+
+    @UiHandler("species")
+    public void handleSpeciesChange(ChangeEvent changeEvent) {
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setSpecies(species.getText());
+            updateOrganismInfo();
+        }
+    }
+
+    @UiHandler("genus")
+    public void handleGenusChange(ChangeEvent changeEvent) {
+        if(singleSelectionModel.getSelectedObject()!=null) {
+            singleSelectionModel.getSelectedObject().setGenus(genus.getText());
+            updateOrganismInfo();
+        }
+    }
+
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
@@ -291,27 +345,37 @@ public class OrganismPanel extends Composite {
     }
 
     private void updateOrganismInfo(boolean forceReload) {
-        OrganismRestService.updateOrganismInfo(singleSelectionModel.getSelectedObject(),forceReload);
+        OrganismRestService.updateOrganismInfo(singleSelectionModel.getSelectedObject(), forceReload);
     }
 
 
-    public List<OrganismInfo> reload() {
-        List<OrganismInfo> trackInfoList = dataProvider.getList();
-        OrganismRestService.loadOrganisms(trackInfoList);
-
-        return trackInfoList;
+    public void reload() {
+        dataGrid.redraw();
+//        List<OrganismInfo> trackInfoList = dataProvider.getList();
+//        OrganismRestService.loadOrganisms(trackInfoList);
+//
+//        return trackInfoList;
     }
+
+//    public List<OrganismInfo> reload() {
+//        List<OrganismInfo> trackInfoList = dataProvider.getList();
+//        OrganismRestService.loadOrganisms(trackInfoList);
+//
+//        return trackInfoList;
+//    }
     // Clear textboxes and make them unselectable
     private void setNoSelection() {
         organismName.setText("");
         sequenceFile.setText("");
         species.setText("");
         genus.setText("");
+        blatdb.setText("");
 
         sequenceFile.setEnabled(false);
         organismName.setEnabled(false);
         genus.setEnabled(false);
         species.setEnabled(false);
+        blatdb.setEnabled(false);
 
         annotationCount.setText("");
         validDirectory.setVisible(false);
@@ -347,15 +411,18 @@ public class OrganismPanel extends Composite {
         cancelButton.setEnabled(true);
         deleteButton.setVisible(false);
 
+
         organismName.setText("");
         sequenceFile.setText("");
         genus.setText("");
         species.setText("");
+        blatdb.setText("");
         validDirectory.setVisible(false);
         organismName.setEnabled(true);
         sequenceFile.setEnabled(true);
         genus.setEnabled(true);
         species.setEnabled(true);
+        blatdb.setEnabled(true);
     }
     public void setThinkingInterface(){
     }

@@ -10,24 +10,26 @@ class Organism {
         species nullable: true
         genus nullable: true
         valid nullable: true
+        blatdb nullable: true
+        commonName nullable: false
     }
 
-//     Integer organismId;
-     String abbreviation;
-     String genus;
-     String species;
-     String commonName;
-     String comment;
-     Boolean valid
-
+    //Integer organismId;
+    String abbreviation;
+    String genus;
+    String species;
+    String commonName;
+    String comment;
+    Boolean valid;
+    String blatdb;
     String directory
 
     static hasMany = [
-            organismProperties: OrganismProperty
-            ,organismDBXrefs: OrganismDBXref
-            ,sequences: Sequence
-            ,userPermissions: UserOrganismPermission
-            ,groupPermissions: GroupOrganismPermission
+        organismProperties: OrganismProperty
+        ,organismDBXrefs: OrganismDBXref
+        ,sequences: Sequence
+        ,userPermissions: UserOrganismPermission
+        ,groupPermissions: GroupOrganismPermission
     ]
 
     public String getTrackList(){

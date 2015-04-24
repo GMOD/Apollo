@@ -5,26 +5,27 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.client.Annotator;
 
 /**
  * Created by ndunn on 1/14/15.
  */
 public class RestService {
 
-    public static void sendRequest(String url,String data){
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                GWT.log("response received: "+response.getText());
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                GWT.log("error on request: "+exception);
-            }
-        };
-        sendRequest(requestCallback,url,data);
-    }
+//    public static void sendRequest(String url,String data){
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                GWT.log("response received: "+response.getText());
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                GWT.log("error on request: "+exception);
+//            }
+//        };
+//        sendRequest(requestCallback,url,data);
+//    }
 
     public static void sendRequest(RequestCallback requestCallback,String url){
         sendRequest(requestCallback,url,(String) null);
@@ -36,8 +37,7 @@ public class RestService {
     }
 
     public static void sendRequest(RequestCallback requestCallback,String url,String data){
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        String rootUrl = dictionary.get("rootUrl");
+        String rootUrl = Annotator.getRootUrl();
         if(!url.startsWith(rootUrl)){
             url = rootUrl+url;
         }

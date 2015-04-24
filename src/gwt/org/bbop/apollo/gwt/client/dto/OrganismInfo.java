@@ -5,11 +5,12 @@ import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 
 /**
  * Created by ndunn on 12/18/14.
  */
-public class OrganismInfo {
+public class OrganismInfo implements HasJSON{
 
     // permanent key
     private String id;
@@ -20,25 +21,29 @@ public class OrganismInfo {
     private String genus ;
     private String species ;
     private String directory ;
+    private String blatdb ;
 
     private Integer numFeatures ;
     private Integer numSequences;
     private Integer numTracks;
     private Boolean valid ;
-    private boolean current;
+    private Boolean current;
 
     public OrganismInfo(){
 
     }
 
+
     public OrganismInfo(String name) {
         this.name = name;
+    }
 
-        this.numFeatures = (int) Math.round(Math.random()*200) ;
-        this.numSequences = (int) Math.round(Math.random()*200) ;
-        this.numTracks = (int) Math.round(Math.random()*200) ;
-        this.genus="";
-        this.species="";
+    public String getBlatDb() {
+        return blatdb;
+    }
+
+    public void setBlatDb(String blatdb) {
+        this.blatdb = blatdb;
     }
 
     public String getGenus() {
@@ -123,27 +128,31 @@ public class OrganismInfo {
 
     public JSONObject toJSON() {
         JSONObject payload = new JSONObject();
-        GWT.log("paylout in");
-        payload.put("id",new JSONString(id));
-        GWT.log("A");
-        payload.put("name",new JSONString(name));
-        GWT.log("B");
-        payload.put("directory",new JSONString(directory));
-        GWT.log("C");
-        payload.put("current",JSONBoolean.getInstance(current));
-        GWT.log("D");
+
+        if(id!=null) {
+            payload.put("id", new JSONString(id));
+        }
+        if(name!=null) {
+            payload.put("name", new JSONString(name));
+        }
+        if(directory!=null) {
+            payload.put("directory", new JSONString(directory));
+        }
+        if(current!=null) {
+            payload.put("current", JSONBoolean.getInstance(current));
+        }
+        if(blatdb!=null) {
+            payload.put("blatdb", new JSONString(blatdb));
+        }
         if(genus!=null){
             payload.put("genus",new JSONString(genus));
         }
-        GWT.log("E");
         if(species!=null){
             payload.put("species",new JSONString(species));
         }
-        GWT.log("F");
         if(valid!=null){
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
-        GWT.log("paylout out!");
 
         return payload;
     }

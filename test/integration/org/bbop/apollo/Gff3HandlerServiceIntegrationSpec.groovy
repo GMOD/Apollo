@@ -215,13 +215,11 @@ class Gff3HandlerServiceIntegrationSpec extends IntegrationSpec {
         assert thisMRNA.parentFeatureRelationships.size() == 6
 
         when: "we write the feature to test"
-        println "${tempFile.absolutePath}"
+        log.debug "${tempFile.absolutePath}"
         gff3HandlerService.writeFeaturesToText(tempFile.absolutePath,featuresToWrite,".")
         String tempFileText = tempFile.text
 
         then: "we should get a valid gff3 file"
         assert tempFileText.length() > 0
-        println tempFileText
-
     }
 }

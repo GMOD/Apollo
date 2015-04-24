@@ -43,11 +43,21 @@ public class ServerConfiguration {
     private ServletContext servletContext ;
 //    private Collection<AnnotationInfoEditorConfiguration> annotationInfoEditors;
 
+    /**
+     * @deprecated
+     * @param configuration
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
     public ServerConfiguration(InputStream configuration) throws ParserConfigurationException, SAXException, IOException {
         throw new RuntimeException("No longer supported");
     }
 
-    public ServerConfiguration(String xmlFileName) throws  ParserConfigurationException, SAXException, IOException {
+    /**
+    * @deprecated
+    **/
+      public ServerConfiguration(String xmlFileName) throws  ParserConfigurationException, SAXException, IOException {
         this(new FileInputStream(xmlFileName));
     }
 
@@ -214,7 +224,7 @@ public class ServerConfiguration {
         logger.debug("real path: " + servletContext.getRealPath("."));
         if(currentDirectory.getAbsolutePath().startsWith("/")){
             currentDirectory = new File(servletContext.getRealPath("."));
-            logger.debug("curretn directory reset: " + currentDirectory);
+            logger.debug("current directory reset: " + currentDirectory);
             logger.debug("exists: " + currentDirectory.exists());
             logger.debug("is directory: " + currentDirectory.isDirectory());
         }

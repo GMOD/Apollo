@@ -47,10 +47,6 @@ public class GroupPanel extends Composite {
     @UiField
     Button deleteButton;
     @UiField
-    Button saveButton;
-    @UiField
-    Button cancelButton;
-    @UiField
     Button createButton;
     //    @UiField(provided = true)
 //    FlexTable userData = new DataGrid<UserInfo>(10,tablecss);
@@ -158,8 +154,6 @@ public class GroupPanel extends Composite {
                         selectionModel.clear();
                         setSelectedGroup();
                         reload();
-                        saveButton.setVisible(false);
-                        cancelButton.setVisible(false);
                         createButton.setEnabled(true);
                         break;
 //                    case REMOVE_USER_FROM_GROUP:
@@ -181,35 +175,25 @@ public class GroupPanel extends Composite {
         }
     }
 
-    @UiHandler("saveButton")
-    public void saveGroup(ClickEvent clickEvent) {
-        GroupInfo groupInfo = getGroupFromUI();
-        GroupRestService.addNewGroup(groupInfo);
-    }
 
     private GroupInfo getGroupFromUI() {
+        String groupName = name.getText().trim();
+        if(groupName.length()<3){
+            Window.alert("Group must be at least 3 characters long");
+            return null ;
+        }
         GroupInfo groupInfo = new GroupInfo();
-        groupInfo.setName(name.getText());
+        groupInfo.setName(groupName);
         return groupInfo;
     }
 
     @UiHandler("createButton")
     public void createGroup(ClickEvent clickEvent) {
-        selectedGroupInfo = null;
-        selectionModel.clear();
+        GroupInfo groupInfo = getGroupFromUI();
 
-        cancelButton.setVisible(true);
-        deleteButton.setVisible(false);
-        saveButton.setVisible(true);
-        createButton.setEnabled(false);
-    }
+        if(groupInfo==null) return ;
 
-    @UiHandler("cancelButton")
-    public void cancelCreate(ClickEvent clickEvent) {
-        name.setText("");
-        cancelButton.setVisible(false);
-        saveButton.setVisible(false);
-        createButton.setEnabled(true);
+        GroupRestService.addNewGroup(groupInfo);
     }
 
     @UiHandler("name")

@@ -83,6 +83,14 @@
         <b:Row>
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
+                    <b:InputGroupAddon>Ref Sequence</b:InputGroupAddon>
+                    <b:InputGroupAddon ui:field="sequenceField"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row>
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
                     <b:InputGroupAddon>Owner</b:InputGroupAddon>
                     <b:InputGroupAddon ui:field="userField"/>
                 </b:InputGroup>

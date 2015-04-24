@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -14,30 +15,68 @@ class AnnotatorController {
 
     def featureService
     def requestHandlingService
+    def permissionService
+    def annotatorService
+    def preferenceService
+
+    /**
+     * Loads the shared link and moves over:
+     * http://localhost:8080/apollo/annotator/loadLink?loc=chrII:302089..337445&organism=23357&highlight=0&tracklist=0&tracks=Reference%20sequence,User-created%20Annotations
+     * @return
+     */
+    def loadLink(){
+        println "loading LINKL has organism . . . "
+
+        try {
+            Organism organism = Organism.findById(params.organism as Long)
+            println "loading org . . . ${organism}"
+            String location = params.loc
+            String[] splitString = location.split(":")
+            println "splitString : ${splitString}"
+            String sequenceString = splitString[0]
+            Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
+            String[] minMax = splitString[1].split("\\.\\.")
+            println "minMax: ${minMax}"
+            int fmin, fmax
+            try {
+                fmin = minMax[0] as Integer
+                fmax = minMax[1] as Integer
+            } catch (e) {
+                log.error "error parsing ${e}"
+                fmin = sequence.start
+                mfax = sequence.end
+            }
+            println "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
+//            preferenceService.setCurrentSequence(permissionService.currentUser, sequence)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+            preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)
+        } catch (e) {
+            log.error "problem parsing the string ${e}"
+        }
+
+        redirect uri: "/annotator/index"
+    }
 
     def index() {
+        println "loading the index"
         String uuid = UUID.randomUUID().toString()
         Organism.all.each {
-            println it.commonName
+            log.info it.commonName
         }
-        [userKey:uuid]
+        [userKey: uuid]
     }
-
-    def demo() {
-    }
-
     /**
      * updates shallow properties of gene / feature
      * @return
      */
     @Transactional
     def updateFeature() {
-        println "updating feature ${params.data}"
+        log.info "updating feature ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        println "uqnieuname 2: ${data.uniquename}"
-        println "rendered data ${data as JSON}"
+        log.info "uqnieuname 2: ${data.uniquename}"
+        log.info "rendered data ${data as JSON}"
         Feature feature = Feature.findByUniqueName(data.uniquename)
-        println "foiund feature: "+feature
+        log.info "foiund feature: " + feature
 
         feature.name = data.name
         feature.symbol = data.symbol
@@ -45,7 +84,7 @@ class AnnotatorController {
 
         feature.save(flush: true, failOnError: true)
 
-        println "saved!! "
+        log.info "saved!! "
 
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         if (feature instanceof Gene) {
@@ -74,10 +113,10 @@ class AnnotatorController {
 
 
     def updateFeatureLocation() {
-        println "updating exon ${params.data}"
+        log.info "updating exon ${params.data}"
         def data = JSON.parse(params.data.toString()) as JSONObject
-        println "uqnieuname 2: ${data.uniquename}"
-        println "rendered data ${data as JSON}"
+        log.info "uqnieuname 2: ${data.uniquename}"
+        log.info "rendered data ${data as JSON}"
         Feature exon = Feature.findByUniqueName(data.uniquename)
         exon.featureLocation.fmin = data.fmin
         exon.featureLocation.fmax = data.fmax
@@ -113,70 +152,81 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    def findAnnotationsForSequence(String sequenceName,String request) {
+    def findAnnotationsForSequence(String sequenceName, String request) {
         JSONObject returnObject = createJSONFeatureContainer()
+        if (sequenceName && !Sequence.countByName(sequenceName)) return
 
-        Sequence sequence = Sequence.findByName(sequenceName)
+        if (sequenceName) {
+            returnObject.track = sequenceName
+        }
+
+        Sequence sequence
+        Organism organism
+        if (returnObject.has("track")) {
+            sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+            organism = sequence.organism
+        } else {
+            organism = permissionService.checkPermissionsForOrganism(returnObject, PermissionEnum.READ)
+        }
+        // find all features for current organism
+
         Integer index = Integer.parseInt(request)
 
         // TODO: should only be returning the top-level features
         List<Feature> allFeatures
-        if(!sequence){
-            // find all features for current organism
-            Session session = SecurityUtils.subject.getSession(false)
-            String organismIdString = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value)
-            Long organismId
+        if (!sequence) {
             try {
-                organismId = Long.parseLong(organismIdString?.trim())
-                allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o.id = :organismId",[organismId:organismId])
-                println "found features ${allFeatures.size()} -> ${organismId}"
+                allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
             } catch (e) {
-                log.error "error parsing ${organismIdString}, returning no features ${e}"
                 allFeatures = new ArrayList<>()
+                log.error(e)
             }
-
-
-        }
-        else{
-            allFeatures = Feature.executeQuery("select distinct f from Feature f join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s where s.name = :sequenceName and f.childFeatureRelationships is empty",[sequenceName: sequenceName])
+        } else {
+            allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
         }
 
         for (Feature feature in allFeatures) {
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
-        returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(),index+1)
+        returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)
 
         // TODO: do checks here
         render returnObject
 
     }
 
-    def what(String data) {
-        println params
-        println data
-        def dataObject = JSON.parse(data)
-        println dataObject
-        println dataObject.thekey
+    def version() {}
 
-        render dataObject.thekey
+    /**
+     * TODO: return an AnnotatorStateInfo object
+     */
+    @Transactional
+    def getAppState() {
+        render annotatorService.getAppState() as JSON
     }
 
-    def search(String data) {
-        println params
-        println data
-        def dataObject = JSON.parse(data)
-        println dataObject
-        println dataObject.query
+    /**
+     * TODO: return an AnnotatorStateInfo object
+     */
+    @Transactional
+    def setCurrentOrganism(Organism organismInstance) {
+        // set the current organism
+        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance)
+        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
+        render annotatorService.getAppState() as JSON
+    }
 
-        // do stuff
-        String result = ['pax6a-001', 'pax6a-002']
+    /**
+     * TODO: return an AnnotatorStateInfo object
+     */
+    @Transactional
+    def setCurrentSequence(Sequence sequenceInstance) {
+        // set the current organism and sequence Id (if both)
+        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance)
+        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, sequenceInstance.organism.directory)
 
-        dataObject.result = result
-
-//        println "return object ${dataObject} vs ${dataObject as JSON}"
-
-        render dataObject as JSON
+        render annotatorService.getAppState() as JSON
     }
 
 }

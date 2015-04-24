@@ -5,13 +5,14 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by ndunn on 12/18/14.
  */
-public class GroupInfo {
+public class GroupInfo implements HasJSON{
 
     private String name;
     private Integer numberOfUsers;
@@ -19,7 +20,7 @@ public class GroupInfo {
     private Integer numberSequences;
     private Long id;
     private List<UserInfo> userInfoList;
-    private Map<String, GroupOrganismPermissionInfo> organismPermissionMap;
+    private Map<String, GroupOrganismPermissionInfo> organismPermissionMap = new HashMap<>();
 
 //    public GroupInfo(String name){
 //        this.name = name ;
@@ -98,7 +99,7 @@ public class GroupInfo {
         int index = 0 ;
         for(String organism : organismPermissionMap.keySet()){
             JSONObject orgPermission = new JSONObject();
-            orgPermission.put(organism,new JSONString(organismPermissionMap.get(organism).toJSON()));
+            orgPermission.put(organism,organismPermissionMap.get(organism).toJSON());
             organismPermissions.set(index,orgPermission);
             ++index ;
         }

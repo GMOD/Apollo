@@ -9,7 +9,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum;
 /**
  * Created by ndunn on 3/24/15.
  */
-abstract class OrganismPermissionInfo {
+abstract class OrganismPermissionInfo implements HasJSON{
 
     String organismName;
     Long id;

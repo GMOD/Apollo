@@ -93,13 +93,13 @@
             padding-left: 0;
         }</ui:style>
     <gwt:SplitLayoutPanel>
-        <gwt:north size="180">
+        <gwt:north size="100">
             <!--<gwt:HTML text="filterPanel"/>-->
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row styleName="{style.rowPadding}">
                     <b:Column size="MD_3">
                         <gwt:HTML>
-                            <h6>Ref Sequence</h6>
+                            <h6>Ref Sequence(s)</h6>
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_5">
@@ -111,7 +111,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox" addStyleNames="{style.searchBox}"/>
+                                    <b:TextBox placeholder="Search Annotation Name" width="300px" ui:field="nameSearchBox" addStyleNames="{style.searchBox}"/>
                                 </td>
                                 <td>
                                     <b:ListBox ui:field="typeList" width="150px" addStyleNames="{style.typeList}"/>
@@ -136,14 +136,14 @@
                 <!--<gwt:HTML>-->
                 <!--<hr/>-->
                 <!--</gwt:HTML>-->
-                <b:Row styleName="{style.rowSpacing}">
-                    <b:Column size="MD_4">
-                        <b:ListBox ui:field="userField"/>
-                    </b:Column>
-                    <b:Column size="MD_4">
-                        <b:ListBox ui:field="groupField"/>
-                    </b:Column>
-                </b:Row>
+                <!--<b:Row styleName="{style.rowSpacing}">-->
+                    <!--<b:Column size="MD_4">-->
+                        <!--<b:ListBox ui:field="userField"/>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_4">-->
+                        <!--<b:ListBox ui:field="groupField"/>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
                 <b:Row visible="false">
                     <b:Column size="MD_4">
                         <gwt:HTML styleName="{style.internalHeader}">

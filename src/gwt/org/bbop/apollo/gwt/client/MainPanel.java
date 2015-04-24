@@ -2,9 +2,11 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsonUtils;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.LoadEvent;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
@@ -25,9 +27,12 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,27 +43,39 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
 
-
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
-
     private boolean toggleOpen = true;
-    private String rootUrl;
+    //    private String rootUrl;
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
-    private static UserInfo currentUser; // the current logged-in user
-    private static OrganismInfo currentOrganism; // the current logged-in user
-    public static Long currentOrganismId = null;
-    public static String currentSequenceId = null;
+    // should I use a getter, or is this fine?
+    static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
+//    public static Long currentOrganismId = null;
+//    public static String currentSequenceName = null;
+
+    private static UserInfo currentUser;
+    private static OrganismInfo currentOrganism;
+    private static List<SequenceInfo> currentSequenceList = new ArrayList<>(); // sequence list for current organisms
+    private static SequenceInfo currentSequence;
+    private static Integer currentStartBp; // list of organisms for user
+    private static Integer currentEndBp; // list of organisms for user
+    private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
+
+    private static boolean handlingNavEvent = false;
+
+
+    private static MainPanel instance;
+
 
     // debug
     private Boolean showFrame = false;
     private int maxUsernameLength = 15;
+
 
     @UiField
     Button dockOpenClose;
@@ -83,10 +100,6 @@ public class MainPanel extends Composite {
     @UiField
     static TabLayoutPanel detailTabs;
     @UiField
-    static ListBox organismList;
-    @UiField(provided = true)
-    static SuggestBox sequenceList;
-    @UiField
     FlowPanel westPanel;
     @UiField
     PreferencePanel preferencePanel;
@@ -94,106 +107,74 @@ public class MainPanel extends Composite {
     Button logoutButton;
     @UiField
     HTML userName;
+    @UiField
+    Button generateLink;
+    @UiField
+    org.gwtbootstrap3.client.ui.Label currentOrganismDisplay;
+    @UiField
+    static Label currentSequenceDisplay;
 
 
+    public static MainPanel getInstance() {
+        if (instance == null) {
+            instance = new MainPanel();
+        }
+        return instance;
+    }
 
 
-    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
-
-
-    public MainPanel() {
+    MainPanel() {
+        instance = this;
         exportStaticMethod();
-        sequenceList = new SuggestBox(sequenceOracle);
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
 
         GWT.log("name: " + frame.getName());
         frame.getElement().setAttribute("id", frame.getName());
 
         Dictionary dictionary = Dictionary.getDictionary("Options");
-        rootUrl = dictionary.get("rootUrl");
         showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
-
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+        Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                switch (organismChangeEvent.getAction()) {
-                    case LOADED_ORGANISMS:
-                        List<OrganismInfo> organismInfoList = organismChangeEvent.getOrganismInfoList();
-                        organismList.clear();
-                        for (OrganismInfo organismInfo : organismInfoList) {
-                            organismList.addItem(organismInfo.getName(), organismInfo.getId());
-                        }
-                        break;
-                    case CHANGED_ORGANISM:
-                        currentOrganism = organismChangeEvent.getOrganismInfoList().get(0);
-                        updateGenomicViewer();
-                        loadReferenceSequences(true);
-                        updatePermissionsForOrganism();
+            public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
+                switch (annotationInfoChangeEvent.getAction()) {
+                    case SET_FOCUS:
+                        AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
+                        updateGenomicViewerForLocation(annotationInfo.getSequence(), annotationInfo.getMin(), annotationInfo.getMax());
                         break;
                 }
             }
-
         });
 
-        Annotator.eventBus.addHandler(ContextSwitchEvent.TYPE, new ContextSwitchEventHandler() {
-
-            @Override
-            public void onContextSwitched(ContextSwitchEvent contextSwitchEvent) {
-                // need to set this before calling the sequence
-                currentOrganismId = Long.parseLong(contextSwitchEvent.getOrganismInfo().getId());
-                String sequenceName = contextSwitchEvent.getSequenceInfo().getName();
-
-                for(int i = 0 ; i < organismList.getItemCount() ; i++){
-                    organismList.setItemSelected(i, currentOrganismId.toString().equals(organismList.getValue(i)));
-                }
-                sequenceList.setText(sequenceName);
-
-
-                RequestCallback requestCallback = new RequestCallback() {
-                    @Override
-                    public void onResponseReceived(Request request, Response response) {
-                        String sequenceName = response.getText();
-                        sequenceList.setText(sequenceName);
-                        updateGenomicViewer();
-                    }
-
-                    @Override
-                    public void onError(Request request, Throwable exception) {
-                        Window.alert("Error setting default sequence: " + exception);
-                    }
-                };
-                SequenceRestService.setDefaultSequence(requestCallback,sequenceName);
-            }
-        });
 
         loginUser();
     }
 
+
     private void updatePermissionsForOrganism() {
         GWT.log(currentUser.getOrganismPermissionMap().keySet().toString());
         String globalRole = currentUser.getRole();
+        GWT.log("global: " + globalRole);
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
-        GWT.log("global: "+globalRole);
-        if(userOrganismPermissionInfo==null) {
-            return;
-        }
-        GWT.log("organism: "+userOrganismPermissionInfo.toJSON().toString());
-        PermissionEnum highestPermission = userOrganismPermissionInfo.getHighestPermission();
-        if(globalRole.equals("admin")){
+        if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
+        } else {
+            highestPermission = PermissionEnum.NONE;
+        }
+        if (userOrganismPermissionInfo != null) {
+            GWT.log("organism: " + userOrganismPermissionInfo.toJSON().toString());
+            highestPermission = userOrganismPermissionInfo.getHighestPermission();
         }
 
-        switch(highestPermission){
+        switch (highestPermission) {
             case ADMINISTRATE:
                 GWT.log("setting to ADMINISTRATE permissions");
                 detailTabs.getTabWidget(TabPanelIndex.USERS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.GROUPS.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(true);
                 detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(true);
-                break ;
+                break;
             case WRITE:
                 GWT.log("setting to WRITE permissions");
             case EXPORT:
@@ -209,15 +190,15 @@ public class MainPanel extends Composite {
                 detailTabs.getTabWidget(TabPanelIndex.ORGANISM.index).getParent().setVisible(false);
                 detailTabs.getTabWidget(TabPanelIndex.PREFERENCES.index).getParent().setVisible(false);
 
-                break ;
+                break;
         }
 
-        UserChangeEvent userChangeEvent = new UserChangeEvent(UserChangeEvent.Action.PERMISSION_CHANGED,highestPermission);
+        UserChangeEvent userChangeEvent = new UserChangeEvent(UserChangeEvent.Action.PERMISSION_CHANGED, highestPermission);
         Annotator.eventBus.fireEvent(userChangeEvent);
     }
 
     private void loginUser() {
-        String url = rootUrl + "/user/checkLogin";
+        String url = Annotator.getRootUrl() + "user/checkLogin";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -225,24 +206,26 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
-                    loadOrganisms(organismList);
+                    getAppState();
+//                    loadOrganisms();
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
                     String displayName = currentUser.getEmail();
 
-                    userName.setHTML(displayName.length()>maxUsernameLength?
+                    userName.setHTML(displayName.length() > maxUsernameLength ?
                             displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
+//                    userName.setHTML(displayName.length()>maxUsernameLength?
+//                            displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
-                    if(hasUsers){
+                    if (hasUsers) {
                         currentUser = null;
                         logoutButton.setVisible(false);
                         LoginDialog loginDialog = new LoginDialog();
                         loginDialog.center();
                         loginDialog.show();
-                    }
-                    else{
+                    } else {
                         currentUser = null;
                         logoutButton.setVisible(false);
                         RegisterDialog registerDialog = new RegisterDialog();
@@ -268,131 +251,86 @@ public class MainPanel extends Composite {
     }
 
 
-    @UiHandler("organismList")
-    public void changeOrganism(ChangeEvent event) {
-        String selectedValue = organismList.getSelectedValue();
-        currentOrganismId = Long.parseLong(selectedValue);
-        sequenceList.setText("");
-        sequenceOracle.clear();
-        OrganismRestService.changeOrganism(selectedValue);
-    }
+    public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+        GWT.log("updating the genomic region: "+selectedSequence+" - minRegion"+minRegion + " maxRegion: "+maxRegion);
 
-    @UiHandler("sequenceList")
-    public void changeSequence(SelectionEvent<SuggestOracle.Suggestion> event) {
-        updateGenomicViewer();
-        SequenceRestService.setDefaultSequence(sequenceList.getText());
+        Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.2);
+        minRegion -= buffer;
+        if (minRegion < 0) minRegion = 0;
+        maxRegion += buffer;
+
+        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
+        trackListString += selectedSequence;
+        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+//        trackListString += "&";
+//        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
+//            trackListString += URL.encodeQueryString(trackInfo.getName());
+//            trackListString += "&";
+//        }
+        trackListString += "&highlight=&tracklist=0";
+
+        final String finalString = trackListString;
+        frame.setUrl(finalString);
+
+        Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if(!trackPanel.getTrackList().isEmpty()){
+                    frame.setUrl(finalString);
+                    return false ;
+                }
+                else{
+                    return true ;
+                }
+
+            }
+        });
+
+//        if (!frame.getUrl().contains(trackListString)) {
+//        }
     }
 
     public void updateGenomicViewer() {
-        String trackListString = rootUrl + "/jbrowse/?loc=";
-        String selectedSequence = sequenceList.getText();
-        GWT.log("get selected sequence: " + selectedSequence);
-        trackListString += selectedSequence;
-
-        trackListString += "&";
-        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
-            trackListString += trackInfo.getName();
-            trackListString += "&";
+        if (currentStartBp != null && currentEndBp != null) {
+            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp);
+        } else {
+            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd());
         }
-        trackListString = trackListString.substring(0, trackListString.length() - 1);
-        trackListString += "&highlight=&tracklist=0";
-        GWT.log("set string: " + trackListString);
-        frame.setUrl(trackListString);
     }
 
-    public void loadReferenceSequences() {
-        loadReferenceSequences(false);
+    public void setAppState(AppStateInfo appStateInfo) {
+        organismInfoList = appStateInfo.getOrganismList();
+        currentSequenceList = appStateInfo.getCurrentSequenceList();
+        currentSequence = appStateInfo.getCurrentSequence();
+        currentOrganism = appStateInfo.getCurrentOrganism();
+        currentStartBp = appStateInfo.getCurrentStartBp();
+        currentEndBp = appStateInfo.getCurrentEndBp();
+
+        if (currentSequence != null) {
+            currentSequenceDisplay.setHTML(currentSequence.getName());
+        }
+
+        if (currentOrganism != null) {
+            currentOrganismDisplay.setHTML(currentOrganism.getName());
+        }
+
+        updatePermissionsForOrganism();
+
+        updateGenomicViewer();
+
+        Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
     }
 
-    /**
-     * could use an sequence callback . . . however, this element needs to use the callback directly.
-     */
-    public void loadReferenceSequences(final boolean loadFirstSequence) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                sequenceOracle.clear();
-                sequenceList.setText("");
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    SequenceInfo sequenceInfo = new SequenceInfo();
-                    sequenceInfo.setName(object.get("name").isString().stringValue());
-                    sequenceInfo.setStart((int) object.get("start").isNumber().doubleValue());
-                    sequenceInfo.setEnd((int) object.get("end").isNumber().doubleValue());
-                    if (object.get("default") != null) {
-                        sequenceInfo.setDefault(object.get("default").isBoolean().booleanValue());
-                    }
-                    sequenceOracle.add(sequenceInfo.getName());
-                    if (sequenceInfo.isDefault()) {
-                        GWT.log("setting name to default: " + sequenceInfo.getName());
-                        sequenceList.setText(sequenceInfo.getName());
-                        currentSequenceId = sequenceInfo.getName();
-                    } else if (sequenceList.getText().isEmpty() && currentSequenceId != null && sequenceInfo.getName().equals(currentSequenceId)) {
-                        GWT.log("setting name: " + currentSequenceId);
-                        sequenceList.setText(sequenceInfo.getName());
-                        currentSequenceId = sequenceInfo.getName();
-                    }
-                }
-
-                if (array.size() > 0) {
-                    if (currentSequenceId == null) {
-                        currentSequenceId = array.get(0).isObject().get("name").isString().stringValue();
-                    }
-                }
-
-                ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceList.getText(), organismList.getSelectedValue());
-                Annotator.eventBus.fireEvent(contextSwitchEvent);
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        // TODO: move to a javscript function in iFrame?
-        SequenceRestService.loadSequences(requestCallback, MainPanel.currentOrganismId);
-
-    }
-
-    /**
-     * could use an organism callback . . . however, this element needs to use the callback directly.
-     *
-     * @param trackInfoList
-     */
-    public void loadOrganisms(final ListBox trackInfoList) {
-        String url = rootUrl + "/organism/findAllOrganisms";
+    public void getAppState() {
+        String url = Annotator.getRootUrl() + "annotator/getAppState";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                JSONArray array = returnValue.isArray();
-
-                for (int i = 0; i < array.size(); i++) {
-                    JSONObject object = array.get(i).isObject();
-                    OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(object);
-                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-                    if (organismInfo.isCurrent()) {
-                        currentOrganismId = Long.parseLong(organismInfo.getId());
-                        currentOrganism = organismInfo ;
-                        trackInfoList.setSelectedIndex(i);
-                    }
-                }
-
-                if (currentOrganismId == null && array.size() > 0) {
-                    JSONObject rootObject = array.get(0).isObject();
-                    currentOrganismId = (long) rootObject.get("id").isNumber().doubleValue();
-                    currentOrganism = OrganismInfoConverter.convertFromJson(rootObject);
-                    trackInfoList.setSelectedIndex(0);
-                }
-                updatePermissionsForOrganism();
-
-                loadReferenceSequences(true);
+                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
+                AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
+                setAppState(appStateInfo);
             }
 
             @Override
@@ -475,13 +413,45 @@ public class MainPanel extends Composite {
     }
 
 
-    public void setRootUrl(String rootUrl) {
-        this.rootUrl = rootUrl;
-    }
+//    public void setRootUrl(String rootUrl) {
+//        this.rootUrl = rootUrl;
+//    }
 
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
+    }
+
+    @UiHandler("generateLink")
+    public void generateLink(ClickEvent clickEvent) {
+        //        http://localhost:8080/apollo/annotator/?loc=GroupUn1774%3A1..3022&highlight=&tracklist=0&tracks=DNA%2CAnnotations%2CFgenesh%2CGeneID%2CNCBI%20Gnomon
+        String url = Annotator.getRootUrl();
+        url += "annotator/loadLink";
+        // TODO: I need to get the current location
+//        url += "loc=" + currentSequence.getName() + ":1..1000";
+        if (currentStartBp != null) {
+            url += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+        } else {
+            url += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+        }
+        url += "&organism=" + currentOrganism.getId();
+        url += "&highlight=0";
+        url += "&tracklist=0";
+        url += "&tracks=";
+
+        List<String> trackList = trackPanel.getTrackList();
+        for (int i = 0; i < trackList.size(); i++) {
+            url += trackList.get(i);
+            if (i < trackList.size() - 1) {
+                url += ",";
+            }
+        }
+        UrlDialogBox urlDialogBox = new UrlDialogBox(url);
+
+//        UrlDialogBox urlDialogBox = new UrlDialogBox(frame.getUrl());
+        urlDialogBox.setWidth("600px");
+
+        urlDialogBox.show();
     }
 
     @UiHandler("logoutButton")
@@ -489,28 +459,21 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
-    public static UserInfo getCurrentUser() {
-        return currentUser;
-    }
 
     public static String executeFunction(String name) {
         return executeFunction(name, JavaScriptObject.createObject());
     }
 
     public static String executeFunction(String name, JavaScriptObject dataObject) {
-        GWT.log("should be executing a function of some sort " + annotrackFunctionMap + " for name: " + name);
         JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
         if (targetFunction == null) {
             return "function " + name + " not found";
         }
-        GWT.log("function found!: " + targetFunction);
         return executeFunction(targetFunction, dataObject);
     }
 
 
     public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
-        console.log('trying to execute a function: ' + targetFunction);
-        console.log('with data: ' + data);
         return targetFunction(data);
     }-*/;
 
@@ -536,6 +499,46 @@ public class MainPanel extends Composite {
         userGroupPanel.reload();
     }
 
+    /**
+     * currRegion:{"start":6000,"end":107200,"ref":"chrI"}
+     *
+     * @param payload
+     */
+    public static void handleNavigationEvent(String payload) {
+        if (handlingNavEvent) return;
+
+        JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
+        GWT.log("event hapened: " + navEvent.toString());
+
+        final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
+        final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
+        String sequenceNameString = navEvent.get("ref").isString().stringValue();
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                handlingNavEvent = false;
+                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
+                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
+                currentStartBp = start;
+                currentEndBp = end;
+                currentSequenceDisplay.setHTML(currentSequence.getName());
+
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                handlingNavEvent = false;
+                Window.alert("failed to set JBrowse sequence: " + exception);
+            }
+        };
+
+        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+
+
+    }
+
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
@@ -543,6 +546,7 @@ public class MainPanel extends Composite {
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
         $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
+        $wnd.handleNavigationEvent = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleNavigationEvent(Ljava/lang/String;));
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {
                 return 'ApolloGwt-1.0';
@@ -567,8 +571,48 @@ public class MainPanel extends Composite {
 
     }
 
-    public static boolean isCurrentUserAdmin() {
+    public boolean isCurrentUserAdmin() {
         return (currentUser != null && currentUser.getRole().equals("admin"));
+    }
+
+    public UserInfo getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(UserInfo currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public OrganismInfo getCurrentOrganism() {
+        return currentOrganism;
+    }
+
+    public void setCurrentOrganism(OrganismInfo currentOrganism) {
+        this.currentOrganism = currentOrganism;
+    }
+
+    public List<SequenceInfo> getCurrentSequenceList() {
+        return currentSequenceList;
+    }
+
+    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
+        this.currentSequenceList = currentSequenceList;
+    }
+
+    public SequenceInfo getCurrentSequence() {
+        return currentSequence;
+    }
+
+    public void setCurrentSequence(SequenceInfo currentSequence) {
+        this.currentSequence = currentSequence;
+    }
+
+    public List<OrganismInfo> getOrganismInfoList() {
+        return organismInfoList;
+    }
+
+    public void setOrganismInfoList(List<OrganismInfo> organismInfoList) {
+        this.organismInfoList = organismInfoList;
     }
 
 }

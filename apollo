@@ -7,10 +7,11 @@ function usage(){
     echo "Commands:";
     echo "";
     echo "deploy:    Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "run:       Runs from current directory debug mode (non-minimized javascript).";
+    echo "devmode:       Runs from current directory debug mode (non-minimized javascript).";
+    echo "run-local: Runs from current directory, but not in dev-mode.";
     echo "test:      Runs test-suite.";
     echo "debug:     Runs from current directory in debug mode (non-minimized javascript).";
-    #echo "release:   Builds in release mode (minimized javascript). (advanced)";
+    echo "release:   Builds in release mode (minimized javascript). (advanced)";
     echo "compile:   Compiled the build.";
     echo "clean:     Removes class files.";
     echo "clean-all: Removes class files and jbrowse files.";
@@ -20,8 +21,8 @@ function usage(){
 
 
 if [[ $# == 0 || $1 == help || $1 == --help ]]; then
-   usage
-   exit 1;
+    usage
+    exit 1;
 fi
 
 function check_node(){
@@ -52,11 +53,6 @@ function check_perldependencies(){
 }
 
 function check_configs_for_release(){
-    make_executable=$(which make)
-    if ! [ -x "$make_executable" ] ; then
-        echo "You must install 'Make' to do a release of web apollo."
-        exit 1 ;
-    fi
     ant_executable=$(which ant)
     if ! [ -x "$ant_executable" ] ; then
         echo "You must install 'Ant' to do a release of web apollo."
@@ -67,58 +63,43 @@ function check_configs_for_release(){
 
 function check_configs(){
 
-	grails_executeable=$(which grails)
-	git_executable=$(which git)
+    grails_executeable=$(which grails)
+    git_executable=$(which git)
 
-	if ! [ -x "$grails_executeable" ] ; then
-	   echo "You must install 'grails' to install web apollo."
-	   exit 1 ;
-	fi
-	if ! [ -x "$git_executable" ] ; then
-	   echo "You must install 'git' to install web apollo."
-	   exit 1 ;
-	fi
+    if ! [ -x "$grails_executeable" ] ; then
+       echo "You must install 'grails' to install web apollo."
+       exit 1 ;
+    fi
+    if ! [ -x "$git_executable" ] ; then
+       echo "You must install 'git' to install web apollo."
+       exit 1 ;
+    fi
 
-#    if [ ! -e "./config.xml" ]; then
-#       echo "No config.xml found, exiting."
-#       echo "You must copy and sample_config.xml to config.xml in order to build."
-#       exit 1;
-#    fi
-
-#    if [ ! -e "./canned_comments.xml" ]; then
-#       echo "No canned_comments.xml found, exiting."
-#       echo "You must copy and sample_canned_comments.xml to canned_comments.xml in order to build."
-#       exit 1;
-#    fi
-
-#    if [ ! -e "./config.properties" ]; then
-#       echo "No config.properties found, exiting."
-#       echo "You must copy and sample_config.properties to config.properties in order to build."
-#       exit 1;
-#    fi
 }
 
 
 
-if [[ $1 == "run" ]];then
+if [[ $1 == "devmode" ]];then
     # should call the copy target first
     check_configs
     ant devmode &
-	grails -reloading run-app  
-#    mvn tomcat7:run
+    grails -reloading run-app  
+elif [[ $1 == "run-local" ]];then
+    # should call the copy target first
+    check_configs
+    ant gwtc && grails run-app
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
     check_configs
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    #mvn tomcat7:run
-	grails -reloading debug 
+    ant devmode &
+    grails -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
     # should call the copy target first
     grails test-app
-#    mvn test
 elif [[ $1 == "test-unit" ]];then
     # should call the copy target first
     grails test-app :unit
@@ -126,39 +107,31 @@ elif [[ $1 == "test-unit" ]];then
 elif [[ $1 == "deploy" ]];then
     # should call the copy target first
     check_configs
-	# this makes it globally availab le
-	rm -f src/java/apollo-config.groovy
+    # this makes it globally available
+    rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
-    ant gwtc &&  grails war 
-#    mvn package
+    #grails deploy
+    ant gwtc &&  grails war
 elif [[ $1 == "release" ]];then
-   # should call the copy target first
-   check_configs
-   check_configs_for_release
-   ant release
-   ant gwtc
-   grails war
-#   mvn package
-    # make -f build/Makefile release
-    # make -f build/Makefile create-precompiled
+    # should call the copy target first
+    check_configs
+    check_configs_for_release
+    ant clean-all release copy-resources gwtc && grails war
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
-#    mvn compile
     ant gwtc && grails compile
 elif [[ $1 == "clean-all" ]];then
     # should call the copy target first
     rm -rf bin
     rm -rf jbrowse-download
+    rm -rf JBrowse-dev
     rm -rf src/main/webapp/jbrowse
     rm -f *.zip
-     # remove in webapp, as well? 
-	ant clean-all
-	grails clean 
-#    mvn clean
+    ant clean-all
+    grails clean 
 elif [[ $1 == "clean" ]];then
     # should call the copy target first
-    grails clean 
-#    mvn clean
+    ant clean &&  grails clean
 else
     usage
 fi

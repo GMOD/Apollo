@@ -15,12 +15,14 @@ class FeatureProperty implements Ontological{
 //        feature nullable: true
         value nullable: false // unique? . . or unique for feature?
         rank nullable: true
+        tag nullable: true,blank: false  // this will be null for generic properties
     }
 
 //    Integer featurePropertyId;
     CVTerm type;
     // I think a FeatureProperty can be associated with more than one
     Feature feature;
+    String tag;
     String value;
     int rank;
 
@@ -88,17 +90,17 @@ class FeatureProperty implements Ontological{
 //        return cloned;
 //    }
 
-    String getValue(){
-        if(value.contains(TAG_VALUE_DELIMITER)){
-            return value.split(TAG_VALUE_DELIMITER)[1]
-        }
-        return value
-    }
-
-    String getTag() {
-        if(value.contains(TAG_VALUE_DELIMITER)){
-            return value.split(TAG_VALUE_DELIMITER)[0]
-        }
-        return ""
-    }
+//    String getValue(){
+//        if(value.contains(TAG_VALUE_DELIMITER)){
+//            return value.split(TAG_VALUE_DELIMITER)[1]
+//        }
+//        return value
+//    }
+//
+//    String getTag() {
+//        if(value.contains(TAG_VALUE_DELIMITER)){
+//            return value.split(TAG_VALUE_DELIMITER)[0]
+//        }
+//        return ""
+//    }
 }

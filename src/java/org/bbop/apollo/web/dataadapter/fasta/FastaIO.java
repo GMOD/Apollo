@@ -66,7 +66,7 @@ public class FastaIO {
             if (gbolFeature instanceof Transcript && ((Transcript)gbolFeature).isProteinCoding()) {
                 String rawSequence = session.getResiduesWithAlterationsAndFrameshifts(((Transcript)gbolFeature).getCDS());
                 sequence = SequenceUtil.translateSequence(rawSequence, translationTable, true, ((Transcript)gbolFeature).getCDS().getStopCodonReadThrough() != null);
-                if (sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
+                if (sequence.length()>0&&sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
                     sequence = sequence.substring(0, sequence.length() - 1);
                 }
                 int idx;
@@ -81,7 +81,7 @@ public class FastaIO {
             else if (gbolFeature instanceof Exon && ((Exon)gbolFeature).getTranscript().isProteinCoding()) {
                 String rawSequence = getCodingSequenceInPhase(session, (Exon)gbolFeature, true);
                 sequence = SequenceUtil.translateSequence(rawSequence, translationTable, true, ((Exon)gbolFeature).getTranscript().getCDS().getStopCodonReadThrough() != null);
-                if (sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
+                if (sequence.length()>0&&sequence.charAt(sequence.length() - 1) == TranslationTable.STOP.charAt(0)) {
                     sequence = sequence.substring(0, sequence.length() - 1);
                 }
                 int idx;

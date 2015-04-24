@@ -8,8 +8,10 @@
 }
 
 .dataGridLastColumn {
-
+  text-align: right;
 }
+
+
 
 .dataGridFooter {
     border-top: 2px solid #6f7277;

@@ -1,47 +1,47 @@
-Building WebApollo
+Building Web Apollo 2.0
 --------------------
 
-<a href="https://github.com/GMOD/Apollo/blob/master/docs/Build.md">On GitHub</a>
+While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of
+Web Apollo 2.0 can help you to optimize and improve your deployed instances.
 
-To build WebApollo, we will first edit the configuration files, and *then* run Maven to create a WAR package.
 
-### Before you build
+## Pre-requisites for Javascript minimization
+In addition to the system [pre-requisites](Prerequisites.md), the javascript compilation will use NodeJS, which can be
+installed from a package manager on many platforms.
 
-You need to configure your instance using a config.properties and a
-config.xml file, which are copied into the war file.
+    # install nodejs (debian/ubuntu)
+    sudo apt-get install git nodejs
+    # install nodejs (centOS/redhat)
+    sudo yum install epel-release
+    sudo yum install git npm
+    # install nodejs (macOSX/homebrew)
+    brew install node
 
--   Copy the sample config / logging files to the right location. You can use the sample_config.xml defaults but make sure to edit config.properties
 
-<!-- blank code comment -->
+Additionally some extra Perl modules are needed, which can be downloaded with cpanm or similar:
 
-    cp sample_config.properties config.properties
-    cp sample_config.xml config.xml
-    cp sample_log4j2.json log4j2.json
-    cp sample_log4j2-test.json log4j2-test.json
+    cpanm DateTime Text::Markdown
 
--   Edit the config.properties file to point to the appropriate directories. A sample config might look like:
 
-<!-- blank comment comment -->
+## Performing the javascript minimization
 
-    jbrowse.data=/apollo/data
-    datastore.directory=/apollo/annotations
-    database.url=jdbc:postgresql:web_apollo_users
-    database.username=postgres_user
-    database.password=postgres_password
-    organism=Pythium ultimum
+The current preferred method for building a release with Javascript minimization is
 
-**IMPORTANT: the jbrowse.data directory should not be placed
-anywhere inside the Tomcat webapps folder, not even using
-symlinks!! To avoid data loss when doing Tomcat Undeploy operations,
-users are advised not to be modifying the contents of the webapps folder
-for anything besides deploying new WAR files**
+    apollo release
 
-### Building the servlet
 
-Web Apollo uses maven to create a WAR package which bundles your config files. After setting up the config, you can use the command:
 
-    ./apollo deploy
+## Performing active development
 
-This will produce the a WAR file in WEB\_APOLLO\_DIR/target/ (e.g. target/apollo-1.0-SNAPSHOT.war) that is ready to deploy. See [deploying webapollo](Deploy.md) for the next steps for deploying.
+To perform active development of the codebase, use
 
-Alternatively, developers or user's with custom builds are advised to review the [developer's guide](Developer.md) for further instructions on creating their own builds.
+    apollo debug
+    
+This will launch a temporary instance Apollo using `ant devmode` so that any changes to the Java or Javascript files will be pick up any changes that you make to the Java files
+during the process.
+
+
+Alternatively, a basic temporary server without devmode can be initialized with
+
+    apollo run-app
+

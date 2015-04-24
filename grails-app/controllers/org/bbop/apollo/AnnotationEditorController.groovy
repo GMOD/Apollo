@@ -48,11 +48,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def permissionService
     def overlapperService
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
+    def preferenceService
+    def sequenceSearchService
 
-//    List<AnnotationEventListener> listenerList = new ArrayList<>()
-    public AnnotationEditorController() {
-//        dataListenerHandler.addDataStoreChangeListener(this);
-    }
 
     def index() {
         log.debug "bang "
@@ -65,11 +63,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
         log.debug "${operation} -> ${mappedAction}"
-        track = postObject.get(REST_TRACK)
+//        track = postObject.get(REST_TRACK)
 
         // TODO: hack needs to be fixed
 //        track = fixTrackHeader(track)
-        println "Controller: " + params.controller
+        log.debug "Controller: " + params.controller
 
         forward action: "${mappedAction}", params: [data: postObject]
     }
@@ -82,30 +80,28 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
         // TODO: wire into actual user table
-        println "principal: " + SecurityUtils.subject.principal
+        log.debug "principal: " + SecurityUtils.subject.principal
         String username = SecurityUtils.subject.principal
         int permission = PermissionEnum.NONE.value
         if (username) {
 
-            println "input username ${username}"
+            log.debug "input username ${username}"
 
             User user = User.findByUsername(username)
+            log.debug "found a user ${user} for username: ${username}"
 
-            println "attribute names: "
-            session.attributeNames.each { println it }
-            Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
-            Map<String, Integer> permissions
-            if (organismId) {
-                Organism organism = Organism.findById(organismId)
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
-                println " permission list size: " + permissionEnumList
-                permission = permissionService.findHighestEnumValue(permissionEnumList)
-                permissions = new HashMap<>()
-                permissions.put(username, permission)
-            } else {
+//            session.attributeNames.each { log.debug it }
+//            Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
+            Organism organism = preferenceService.getCurrentOrganism(user)
+            if (!organism) {
                 log.error "somehow no organism shown, getting for all"
-                permissions = permissionService.getPermissionsForUser(user)
             }
+            Map<String, Integer> permissions
+            List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
+            permission = permissionService.findHighestEnumValue(permissionEnumList)
+            permissions = new HashMap<>()
+            permissions.put(username, permission)
+            permissions = permissionService.getPermissionsForUser(user)
             if (permissions) {
                 session.setAttribute("permissions", permissions);
             }
@@ -113,74 +109,66 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 permission = permissions.values().iterator().next();
             }
         }
+
         returnObject.put(REST_PERMISSION, permission)
         returnObject.put(REST_USERNAME, username)
 
         render returnObject
     }
 
-    private Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
-        try {
-            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-            Integer permission = permissions.get(SecurityUtils.subject.principal)
-            PermissionEnum sessionPermissionsEnum = permissionService.isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
-
-            if (sessionPermissionsEnum == null) {
-                log.warn "No permissions found in session"
-                return false
-            }
-
-            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
-                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
-                return false
-            }
-            return true
-        } catch (e) {
-            log.error "Error checking permissions from session ${e}"
-            return false
-        }
-
-    }
 
     def getDataAdapters() {
-        log.debug "get data adapters !! ${params}"
+//        log.debug "get data adapters !! ${params}"
+//        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+//
+//
+//        JSONArray dataAdaptersArray = new JSONArray();
+//        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+//
+//        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
+//            render returnObject
+//            return
+//        }
+//
+//        log.debug "# of data adapters ${DataAdapter.count}"
+//        for (DataAdapter dataAdapter in DataAdapter.all) {
+//            log.debug "adding data adatapter ${dataAdapter}"
+//            // data-adapters are embedded in groups
+//            // TODO: incorporate groups at some point, just children of the original . . .
+//            JSONObject dataAdapterJSON = new JSONObject()
+//            dataAdaptersArray.put(dataAdapterJSON)
+//            dataAdapterJSON.put(REST_KEY, dataAdapter.key)
+//            dataAdapterJSON.put(REST_PERMISSION, dataAdapter.permission)
+//            dataAdapterJSON.put(REST_OPTIONS, dataAdapter.options)
+//            JSONArray dataAdapterGroupArray = new JSONArray();
+//            // handles groups
+//            if (dataAdapter.dataAdapters) {
+//                dataAdapterJSON.put(REST_DATA_ADAPTERS, dataAdapterGroupArray)
+//
+//                for (da in dataAdapter.dataAdapters) {
+//                    JSONObject dataAdapterChild = new JSONObject()
+//                    dataAdapterChild.put(REST_KEY, da.key)
+//                    dataAdapterChild.put(REST_PERMISSION, da.permission)
+//                    dataAdapterChild.put(REST_OPTIONS, da.options)
+//                    dataAdapterGroupArray.put(dataAdapterChild)
+//                }
+//            }
+//        }
+//        log.debug "returning data adapters  ${returnObject}"
+
+        // temporary workaround
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        String jsonString = "[{\"permission\":1,\"key\":\"GFF3\",\"options\":\"output=file&format=gzip&type=GFF3\"},{\"permission\":1,\"key\":\"FASTA\",\"data_adapters\":[{\"permission\":1,\"key\":\"peptide\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=peptide\"},{\"permission\":1,\"key\":\"cDNA\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cdna\"},{\"permission\":1,\"key\":\"CDS\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cds\"}]}]"
+        JSONArray dataAdaptersArray = new JSONArray()
 
-
-        JSONArray dataAdaptersArray = new JSONArray();
-        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
-
-        if (!checkPermissions(PermissionEnum.EXPORT)) {
+        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
+            returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
             render returnObject
             return
         }
-
-        log.debug "# of data adapters ${DataAdapter.count}"
-        for (DataAdapter dataAdapter in DataAdapter.all) {
-            log.debug "adding data adatapter ${dataAdapter}"
-            // data-adapters are embedded in groups
-            // TODO: incorporate groups at some point, just children of the original . . .
-            JSONObject dataAdapterJSON = new JSONObject()
-            dataAdaptersArray.put(dataAdapterJSON)
-            dataAdapterJSON.put(REST_KEY, dataAdapter.key)
-            dataAdapterJSON.put(REST_PERMISSION, dataAdapter.permission)
-            dataAdapterJSON.put(REST_OPTIONS, dataAdapter.options)
-            JSONArray dataAdapterGroupArray = new JSONArray();
-            // handles groups
-            if (dataAdapter.dataAdapters) {
-                dataAdapterJSON.put(REST_DATA_ADAPTERS, dataAdapterGroupArray)
-
-                for (da in dataAdapter.dataAdapters) {
-                    JSONObject dataAdapterChild = new JSONObject()
-                    dataAdapterChild.put(REST_KEY, da.key)
-                    dataAdapterChild.put(REST_PERMISSION, da.permission)
-                    dataAdapterChild.put(REST_OPTIONS, da.options)
-                    dataAdapterGroupArray.put(dataAdapterChild)
-                }
-            }
-        }
-        log.debug "returning data adapters  ${returnObject}"
-
+        dataAdaptersArray = JSON.parse(jsonString) as JSONArray
+        returnObject.put(REST_DATA_ADAPTERS, dataAdaptersArray)
+        log.debug "return object from getDataAdapters: ${returnObject.toString()}"
         render returnObject
     }
 
@@ -309,14 +297,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def setExonBoundaries() {
-        println "setting exon boundaries ${params}"
+        log.debug "setting exon boundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setExonBoundaries(inputObject)
     }
 
 
     def addExon() {
-        println "adding exon ${params}"
+        log.debug "adding exon ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.addExon(inputObject)
     }
@@ -328,31 +316,31 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      *{"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
      */
     def addTranscript() {
-        println "AEC::adding transcript ${params}"
+        log.debug "AEC::adding transcript ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.addTranscript(inputObject)
     }
 
     def duplicateTranscript() {
-        println "AEC::set translation start ${params}"
+        log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.duplicateTranscript(inputObject)
     }
 
     def setTranslationStart() {
-        println "AEC::set translation start ${params}"
+        log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setTranslationStart(inputObject)
     }
 
     def setTranslationEnd() {
-        println "AEC::set translation end ${params}"
+        log.debug "AEC::set translation end ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setTranslationEnd(inputObject)
     }
 
     def setBoundaries() {
-        println "AEC::set boundaries ${params}"
+        log.debug "AEC::set boundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         render requestHandlingService.setBoundaries(inputObject)
     }
@@ -360,13 +348,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 /**
  *
  * Should return of form:
- *{"features": [{"location": {"fmin": 511,
- "strand": - 1,
- "fmax": 656},
- "parent_type": {"name": "gene",
- "cv": {"name": "sequence"}},
- "name": "gnl|Amel_4.5|TA31.1_00029673-1",
- * @return
+ *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
+ * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
  */
     def getFeatures() {
 
@@ -375,27 +358,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render requestHandlingService.getFeatures(returnObject)
     }
 
-//    private void fireDataStoreChange(DataStoreChangeEvent... events) {
-//        AbstractDataStoreManager.getInstance().fireDataStoreChange(events);
-//    }
-
     def getInformation() {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if (!checkPermissions(PermissionEnum.WRITE)) {
+        if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
             return
         }
-//        JSONArray jsonFeatures = new JSONArray()
-//        featureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
             Feature gbolFeature = Feature.findByName(uniqueName)
-//            Date timeAccessioned = gbolFeature.getTimeAccessioned();
-//            String owner = gbolFeature.getOwner().getOwner();
             JSONObject info = new JSONObject();
             info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
             info.put("time_accessioned", gbolFeature.lastUpdated)
@@ -407,8 +382,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 parentIds += it.getUniqueName();
             }
-//            for (AbstractSingleLocationBioFeature feature : gbolFeature.getParents()) {
-//            }
             if (parentIds.length() > 0) {
                 info.put("parent_ids", parentIds);
             }
@@ -417,27 +390,34 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
 
         render featureContainer
-//        out.write(featureContainer.toString());
+    }
+
+/**
+ * Provided if not coming thorugh a websocket
+ * @param jsonObject
+ * @return
+ */
+    private def fixUserName(JSONObject jsonObject) {
+        if (jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
+
+        String username = SecurityUtils.subject.principal
+        jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
     def getSequenceAlterations() {
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+
+        fixUserName(returnObject)
+
+        Sequence sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
-
-        String trackName = fixTrackHeader(returnObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
-        // TODO: get alternations from session
+        // TODO: get alterations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
                 , [sequence: sequence, sequenceTypes: sequenceTypes])
-//        FeatureLocation.findAllBySequence(sequence)
-//        Insertion.findAllByFeatureLocations
-//        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
-//            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
-//        }
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
@@ -445,28 +425,26 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
+
     def getOrganism() {
-        String organismName = session.getAttribute(FeatureStringEnum.ORGANISM.value)
-        if (organismName) {
-            Organism organism = Organism.findByCommonName(organismName)
-            if (organism) {
-                render organism as JSON
-                return
-            }
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        if(organism){
+            render organism as JSON
         }
-        render new JSONObject()
+        else {
+            render new JSONObject()
+        }
     }
 
-    /**
-     * TODO: link to the database for real config values
-     * @return
-     */
+/**
+ * TODO: link to the database for real config values
+ * @return
+ */
     def getAnnotationInfoEditorConfiguration() {
-        println "getting the config "
+        log.debug "getting the config "
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
-//        for (ServerConfiguration.AnnotationInfoEditorConfiguration annotationInfoEditorConfiguration : annotationInfoEditorConfigurations.values()) {
         JSONObject annotationInfoEditorConfig = new JSONObject();
         annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
         if (configWrapperService.hasStatus()) {
@@ -475,34 +453,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             Status.all.each { status ->
                 statusArray.add(status.value)
             }
-//                for (String status : annotationInfoEditorConfiguration.getStatus()) {
-//                    annotationInfoEditorConfig.append("status", status);
-//                }
         }
-//            if (annotationInfoEditorConfiguration.hasDbxrefs()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasAttributes()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasPubmedIds()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasGoIds()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASGOIDS.value, true);
-//            }
-//            if (annotationInfoEditorConfiguration.hasComments()) {
         annotationInfoEditorConfig.put(FeatureStringEnum.HASCOMMENTS.value, true);
-//            }
         JSONArray supportedTypes = new JSONArray();
         supportedTypes.add(FeatureStringEnum.DEFAULT.value)
         annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
-//            for (String supportedType : annotationInfoEditorConfiguration.getSupportedFeatureTypes()) {
-//                supportedTypes.put(supportedType);
-//            }
-//        }
-//        out.write(annotationInfoEditorConfigContainer.toString());
-        println "return config ${annotationInfoEditorConfigContainer}"
+        log.debug "return config ${annotationInfoEditorConfigContainer}"
         render annotationInfoEditorConfigContainer
     }
 
@@ -574,56 +534,79 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getSequence() {
-        println "REQUEST TO ACE: ${params.data}"
-        if (!checkPermissions(PermissionEnum.EXPORT)) {
+        log.debug "getSequence ${params.data}"
+        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         JSONObject featureContainer = createJSONFeatureContainer()
-        JSONObject sequenceObject = sequenceService.getSequenceForFeature(inputObject)
+        JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
         featureContainer.getJSONArray("features").put(sequenceObject)
         render featureContainer
     }
 
+    def getSequenceSearchTools() {
+        log.debug "getSequenceSearchTools ${params.data}"
+        render sequenceSearchService.getSequenceSearchTools()
+    }
+
+    def searchSequence() {
+        log.debug "sequenceSearch ${params.data}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        println "Organism to string:  ${organism as JSON}"
+        render sequenceSearchService.searchSequence(inputObject, organism.getBlatdb())
+    }
+
+
     def getGff3() {
-        if (!checkPermissions(PermissionEnum.EXPORT)) {
+        log.debug "getGff3 ${params.data}"
+        if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {
             render new JSONObject() as JSON
             return
         }
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        File outputFile = File.createTempFile("feature", ".gff3");
-        sequenceService.getGff3ForFeature(inputObject, outputFile)
-        Charset encoding = Charset.defaultCharset()
-        byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))
-        String gff3String = new String(encoded, encoding)
-        outputFile.delete() // deleting temp file
-        render gff3String
+        try {
+            File outputFile = File.createTempFile("feature", ".gff3");
+            sequenceService.getGff3ForFeature(inputObject, outputFile)
+            Charset encoding = Charset.defaultCharset()
+            byte[] encoded = Files.readAllBytes(Paths.get(outputFile.getAbsolutePath()))
+            String gff3String = new String(encoded, encoding)
+            outputFile.delete() // deleting temp file
+            render gff3String
+
+        } catch (IOException e) {
+            log.debug("Cannot create a temp file for 'get GFF3' operation")
+            e.printStackTrace()
+        }
     }
 
     def getAnnotationInfoEditorData() {
-        if (!checkPermissions(PermissionEnum.WRITE)) {
+        Sequence sequence
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        try {
+            sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        } catch (e) {
+            log.error(e)
             render new JSONObject() as JSON
             return
         }
 
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-        println "sequence ${sequence} for track ${trackName}"
+
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
 
         JSONObject returnObject = createJSONFeatureContainer()
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            println "input json feature ${jsonFeature}"
+            log.debug "input json feature ${jsonFeature}"
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            println "feature converted? ${feature}"
-            println "retrieved feature ${feature.name} ${feature.uniqueName}"
+            log.debug "feature converted? ${feature}"
+            log.debug "retrieved feature ${feature.name} ${feature.uniqueName}"
             JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
 
             if (feature.symbol) newFeature.put(FeatureStringEnum.SYMBOL.value, feature.symbol)
@@ -684,13 +667,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
-
         log.debug "AEC::root element: ${rootElement as JSON}"
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
 
         String operationName = underscoreToCamelCase(operation)
         log.debug "operationName: ${operationName}"
-//        handleOperation(track,operation)
         def p = task {
             switch (operationName) {
                 case "setToDownstreamDonor": requestHandlingService.setDonor(rootElement, false)
@@ -707,7 +688,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     requestHandlingService.getClass().getMethods().each { method ->
                         if (method.name == operationName) {
                             foundMethod = true
-                            println "found the method ${operationName}"
+                            log.debug "found the method ${operationName}"
                             Feature.withNewSession {
                                 returnString = method.invoke(requestHandlingService, rootElement)
                             }
@@ -729,16 +710,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
             return sendError(ae, principal.name)
-//            return new JSONObject() as JSON
         }
 
     }
 
-    // TODO: handle errors without broadcasting
+// TODO: handle errors without broadcasting
     protected def sendError(AnnotationException exception, String username) {
-        println "excrption ${exception}"
-        println "excrption message ${exception.messaged}"
-        println "username ${username}"
+        log.debug "excrption ${exception}"
+        log.debug "excrption message ${exception.message}"
+        log.debug "username ${username}"
 
         JSONObject errorObject = new JSONObject()
         errorObject.put(REST_OPERATION, FeatureStringEnum.ERROR.name())
@@ -751,12 +731,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @SendTo("/topic/AnnotationNotification")
     protected String sendAnnotationEvent(String returnString) {
-        println "AEC::return operations sent . . ${returnString?.size()}"
+        log.debug "AEC::return operations sent . . ${returnString?.size()}"
         return returnString
     }
 
     synchronized void handleChangeEvent(AnnotationEvent... events) {
-        println "handingling event ${events.length}"
+        log.debug "handingling event ${events.length}"
         if (events.length == 0) {
             return;
         }
@@ -779,4 +759,5 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         sendAnnotationEvent(operations.toString())
 
     }
+
 }

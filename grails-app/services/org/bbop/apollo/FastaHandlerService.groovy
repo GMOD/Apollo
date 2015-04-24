@@ -1,10 +1,9 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.sequence.Strand
+import org.codehaus.groovy.grails.web.json.JSONObject
+import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
-
-
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
@@ -19,9 +18,10 @@ public class FastaHandlerService {
     private File file;
     private PrintWriter out;
     private Mode mode;
-    private int numResiduesPerLine;
+    private int numResiduesPerLine = 60;
 
     def sequenceService
+    def transcriptService
     def featurePropertyService
 
     public enum Mode {
@@ -38,28 +38,31 @@ public class FastaHandlerService {
 //        this(path, mode, Format.TEXT);
 //    }
 //
-    public FastaHandlerService(String path, Mode mode, Format format) throws IOException {
-        numResiduesPerLine = 60;
-        this.mode = mode;
-        file = new File(path);
-        file.createNewFile();
-        if (mode == Mode.READ) {
-            if (!file.canRead()) {
-                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath());
-            }
-        }
-        if (mode == Mode.WRITE) {
-            if (!file.canWrite()) {
-                throw new IOException("Cannot write FATA to: " + file.getAbsolutePath());
-            }
-            switch (format) {
-            case Format.TEXT:
-                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
-                break;
-            case Format.GZIP:
-                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
-            }
-        }
+//    public FastaHandlerService(String path, Mode mode, Format format) throws IOException {
+//        numResiduesPerLine = 60;
+//        this.mode = mode;
+//        file = new File(path);
+//        file.createNewFile();
+//        if (mode == Mode.READ) {
+//            if (!file.canRead()) {
+//                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath());
+//            }
+//        }
+//        if (mode == Mode.WRITE) {
+//            if (!file.canWrite()) {
+//                throw new IOException("Cannot write FATA to: " + file.getAbsolutePath());
+//            }
+//            switch (format) {
+//            case Format.TEXT:
+//                out = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+//                break;
+//            case Format.GZIP:
+//                out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
+//            }
+//        }
+//    }
+    
+    public FastaHandlerService() {
     }
     
     public void close() {
@@ -71,8 +74,32 @@ public class FastaHandlerService {
         }
     }
     
-    public void writeFeatures(Collection<? extends Feature> features, String seqType, Set<String> metaDataToExport) throws IOException {
+    public void writeFeatures(Collection<Feature> features, String seqType, Set<String> metaDataToExport, String path, Mode mode, Format format) throws IOException {
+        this.mode = mode
+        file = new File(path)
+        file.createNewFile()
+        if(mode == Mode.READ) {
+            if (!file.canRead()) {
+                throw new IOException("Cannot read FASTA file: " + file.getAbsolutePath())
+            }
+        }
+        if(mode == Mode.WRITE) {
+            if(!file.canWrite()) {
+                throw new IOException("Cannot write FASTA to file: " + file.getAbsolutePath())
+            }
+            switch(format) {
+                case Format.TEXT:
+                    out = new PrintWriter(new BufferedWriter(new FileWriter(file)))
+                    break
+                case Format.GZIP:
+                    out = new PrintWriter(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))))
+                    break
+            }
+            
+        }
         writeFeatures(features.iterator(), seqType, metaDataToExport);
+        out.flush()
+        out.close()
     }
     
     public void writeFeatures(Iterator<? extends Feature> iterator, String seqType, Set<String> metaDataToExport) throws IOException {
@@ -81,14 +108,28 @@ public class FastaHandlerService {
         }
         while (iterator.hasNext()) {
             Feature feature = iterator.next();
-            writeFeature(feature, seqType, metaDataToExport);
+            def transcriptList = transcriptService.getTranscripts(feature)
+            for (Transcript transcript in transcriptList) {
+                writeFeature(transcript, seqType, metaDataToExport);
+            }
         }
     }
     
     public void writeFeature(Feature feature, String seqType, Set<String> metaDataToExport) {
-
-        int featureLength = sequenceService.getResiduesFromFeature(feature).length()
-        String defline = String.format(">%s (%s) %d residues [%s]", feature.getUniqueName(), feature.cvTerm, featureLength, seqType);
+        String seq = null
+        seq = sequenceService.getSequenceForFeature(feature, seqType, 0)
+        int featureLength = seq.length()
+        String strand
+        
+        if (feature.getStrand() == Strand.POSITIVE.getValue()) {
+            strand = Strand.POSITIVE.getDisplay()
+        } else if (feature.getStrand() == Strand.NEGATIVE.getValue()) {
+            strand = Strand.NEGATIVE.getDisplay()
+        } else {
+            strand = "."
+        }
+        //int featureLength = sequenceService.getResiduesFromFeature(feature).length()
+        String defline = String.format(">%s (%s) %d residues [%s:%d-%d %s strand] [%s]", feature.getUniqueName(), feature.cvTerm, featureLength, feature.getFeatureLocation().getSequence().name, feature.fmin + 1, feature.fmax, strand, seqType);
         if (!metaDataToExport.isEmpty()) {
             boolean first = true;
             if (metaDataToExport.contains("name") && feature.getName() != null) {
@@ -238,7 +279,7 @@ public class FastaHandlerService {
             }
         }
         out.println(defline);
-        String seq = sequenceService.getResiduesFromFeature(feature)
+//        String seq = sequenceService.getResiduesFromFeature(feature)
         for (int i = 0; i < seq.length(); i += numResiduesPerLine) {
             int endIdx = i + numResiduesPerLine;
             out.println(seq.substring(i, endIdx > seq.length() ? seq.length() : endIdx));

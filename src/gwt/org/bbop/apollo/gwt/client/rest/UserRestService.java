@@ -26,10 +26,10 @@ public class UserRestService {
 
 
     public static void login(RequestCallback requestCallback, JSONObject data) {
-        RestService.sendRequest(requestCallback, "/Login", data.toString());
+        RestService.sendRequest(requestCallback, "Login", data.toString());
     }
 
-    public static void registerAdmin(String username, String password, Boolean rememberMe) {
+    public static void registerAdmin(String username, String password, Boolean rememberMe, String firstName, String lastName) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -46,11 +46,13 @@ public class UserRestService {
         jsonObject.put("username", new JSONString(username));
         jsonObject.put("password", new JSONString(password));
         jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
+        jsonObject.put("firstName", new JSONString(firstName));
+        jsonObject.put("lastName", new JSONString(lastName));
         registerAdmin(requestCallback, jsonObject);
     }
 
     public static void registerAdmin(RequestCallback requestCallback, JSONObject data) {
-        RestService.sendRequest(requestCallback, "/login/registerAdmin", data);
+        RestService.sendRequest(requestCallback, "login/registerAdmin", data);
     }
 
     public static void login(String username, String password, Boolean rememberMe) {
@@ -74,7 +76,7 @@ public class UserRestService {
     }
 
     public static void loadUsers(RequestCallback requestCallback) {
-        RestService.sendRequest(requestCallback, "/user/loadUsers/");
+        RestService.sendRequest(requestCallback, "user/loadUsers/");
     }
 
     public static void loadUsers(final List<UserInfo> userInfoList) {
@@ -106,7 +108,7 @@ public class UserRestService {
     }
 
     public static void logout(RequestCallback requestCallback) {
-        RestService.sendRequest(requestCallback, "/Login?operation=logout");
+        RestService.sendRequest(requestCallback, "Login?operation=logout");
     }
 
     public static void logout() {
@@ -137,7 +139,7 @@ public class UserRestService {
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
-        RestService.sendRequest(requestCallback, "/user/updateUser", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "user/updateUser", "data=" + jsonObject.toString());
     }
 
     public static void deleteUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
@@ -153,7 +155,7 @@ public class UserRestService {
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
-        RestService.sendRequest(requestCallback, "/user/deleteUser", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "user/deleteUser", "data=" + jsonObject.toString());
     }
 
     public static void createUser(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
@@ -169,7 +171,7 @@ public class UserRestService {
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
-        RestService.sendRequest(requestCallback, "/user/createUser", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "user/createUser", "data=" + jsonObject.toString());
 
     }
 
@@ -190,7 +192,7 @@ public class UserRestService {
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
         jsonObject.put("group", new JSONString(groupName));
-        RestService.sendRequest(requestCallback, "/user/removeUserFromGroup", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "user/removeUserFromGroup", "data=" + jsonObject.toString());
     }
 
     public static void addUserToGroup(final String groupName, final UserInfo selectedUserInfo) {
@@ -210,7 +212,7 @@ public class UserRestService {
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
         jsonObject.put("group", new JSONString(groupName));
-        RestService.sendRequest(requestCallback, "/user/addUserToGroup", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "user/addUserToGroup", "data=" + jsonObject.toString());
     }
 
     public static void updateOrganismPermission(UserOrganismPermissionInfo object) {
@@ -226,6 +228,6 @@ public class UserRestService {
                 Window.alert("Error updating permissions: " + exception);
             }
         };
-        RestService.sendRequest(requestCallback, "/user/updateOrganismPermission", "data=" + object.toJSON().toString());
+        RestService.sendRequest(requestCallback, "user/updateOrganismPermission", "data=" + object.toJSON().toString());
     }
 }

@@ -146,7 +146,6 @@ boolean isAdmin = false;
 if (username != null) {
     for (ServerConfiguration.TrackConfiguration track : tracks) {
         Integer permission = permissions.get(track.getName());
-        System.out.println("count ["+count+"] / maximum ["+maximum +"]");
         if (permission == null && count < maximum) {
             permission = 0;
         }
@@ -181,7 +180,7 @@ if (username != null) {
                 AbstractSingleLocationBioFeature gbolFeature=(AbstractSingleLocationBioFeature)BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
                 ArrayList<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore);
                 for (String s : record) {
-                    out.println("eecent_changes.push(" + s + ");\n");
+                    out.println("recent_changes.push(" + s + ");\n");
                     ++count ;
                 }
             }
@@ -669,10 +668,8 @@ function open_user_manager_dialog() {
             }
         %>
 
-    </ul>
-    </li>
     <%
-        }
+//        }
         if (username != null) {
     %>
     <li><a id="user_item"><span class='usericon'></span><%=username%>

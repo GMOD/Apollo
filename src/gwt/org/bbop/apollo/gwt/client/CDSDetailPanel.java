@@ -26,8 +26,6 @@ public class CDSDetailPanel extends Composite {
     interface ExonDetailPanelUiBinder extends UiBinder<Widget, CDSDetailPanel> {
     }
 
-    Dictionary dictionary = Dictionary.getDictionary("Options");
-    String rootUrl = dictionary.get("rootUrl");
     private JSONObject internalData;
 
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
@@ -126,7 +124,7 @@ public class CDSDetailPanel extends Composite {
 
 
     private void updateExon(JSONObject internalData) {
-        String url = rootUrl + "/annotator/updateExon";
+        String url = Annotator.getRootUrl()+ "annotator/updateExon";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         StringBuilder sb = new StringBuilder();
