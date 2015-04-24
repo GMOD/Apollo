@@ -11,6 +11,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -158,6 +160,16 @@ public class AnnotatorPanel extends Composite {
                 reload();
             }
         });
+
+        sequenceList.addValueChangeHandler(new ValueChangeHandler<String>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<String> event) {
+                if(sequenceList.getText()==null || sequenceList.getText().trim().length()==0){
+                    reload();
+                }
+            }
+        });
+
 
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
