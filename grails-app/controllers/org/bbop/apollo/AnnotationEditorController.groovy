@@ -86,31 +86,36 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             log.debug "input username ${username}"
 
             User user = User.findByUsername(username)
+            log.debug "found a user ${user} for username: ${username}"
 
-            log.debug "attribute names: "
-            session.attributeNames.each { log.debug it }
-            Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
-            Map<String, Integer> permissions
-            if (organismId) {
-                Organism organism = Organism.findById(organismId)
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
-                log.debug " permission list size: " + permissionEnumList
-                permission = permissionService.findHighestEnumValue(permissionEnumList)
-                permissions = new HashMap<>()
-                permissions.put(username, permission)
-            } else {
+//            session.attributeNames.each { log.debug it }
+//            Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
+            Organism organism = preferenceService.getCurrentOrganism(user)
+            if (!organism) {
                 log.error "somehow no organism shown, getting for all"
-                permissions = permissionService.getPermissionsForUser(user)
             }
+            Map<String, Integer> permissions
+            List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
+            println " permission list size: " + permissionEnumList
+            permission = permissionService.findHighestEnumValue(permissionEnumList)
+            permissions = new HashMap<>()
+            permissions.put(username, permission)
+            println "foiund higest permission: ${permission}"
+            permissions = permissionService.getPermissionsForUser(user)
+            println "getting permiossons for user : ${permissions}"
             if (permissions) {
                 session.setAttribute("permissions", permissions);
             }
             if (permissions.values().size() > 0) {
                 permission = permissions.values().iterator().next();
+                println "getting higest one hopeffuly : ${permissions} -> ${permission} from ${permissions.size()}"
             }
         }
+
         returnObject.put(REST_PERMISSION, permission)
         returnObject.put(REST_USERNAME, username)
+
+        println "return object rendered ${returnObject as JSON}"
 
         render returnObject
     }
@@ -238,12 +243,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render requestHandlingService.setBoundaries(inputObject)
     }
 
-    /**
-     *
-     * Should return of form:
-     *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
-     * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
-     */
+/**
+ *
+ * Should return of form:
+ *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
+ * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
+ */
     def getFeatures() {
 
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
@@ -285,13 +290,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
-    /**
-     * Provided if not coming thorugh a websocket
-     * @param jsonObject
-     * @return
-     */
+/**
+ * Provided if not coming thorugh a websocket
+ * @param jsonObject
+ * @return
+ */
     private def fixUserName(JSONObject jsonObject) {
-        if(jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
+        if (jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
 
         String username = SecurityUtils.subject.principal
         jsonObject.put(FeatureStringEnum.USERNAME.value, username)
@@ -311,11 +316,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         // TODO: get alterations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
                 , [sequence: sequence, sequenceTypes: sequenceTypes])
-        //        FeatureLocation.findAllBySequence(sequence)
-        //        Insertion.findAllByFeatureLocations
-        //        for (SequenceAlteration alteration : editor.getSession().getSequenceAlterations()) {
-        //            jsonFeatures.put(JSONUtil.convertBioFeatureToJSON(alteration));
-        //        }
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
@@ -325,21 +325,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getOrganism() {
-        String organismName = session.getAttribute(FeatureStringEnum.ORGANISM.value)
-        if (organismName) {
-            Organism organism = Organism.findByCommonName(organismName)
-            if (organism) {
-                render organism as JSON
-                return
-            }
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        if(organism){
+            render organism as JSON
         }
-        render new JSONObject()
+        else {
+            render new JSONObject()
+        }
     }
 
-    /**
-     * TODO: link to the database for real config values
-     * @return
-     */
+/**
+ * TODO: link to the database for real config values
+ * @return
+ */
     def getAnnotationInfoEditorConfiguration() {
         log.debug "getting the config "
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
@@ -614,7 +612,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
-    // TODO: handle errors without broadcasting
+// TODO: handle errors without broadcasting
     protected def sendError(AnnotationException exception, String username) {
         log.debug "excrption ${exception}"
         log.debug "excrption message ${exception.message}"
@@ -657,4 +655,5 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         sendAnnotationEvent(operations.toString())
 
     }
+
 }

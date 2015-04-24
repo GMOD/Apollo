@@ -181,6 +181,9 @@ class PermissionService {
 
     public List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
         Set<PermissionEnum> permissions = new HashSet<>()
+        if(isUserAdmin(user)){
+            permissions.addAll(PermissionEnum.ADMINISTRATE as List)
+        }
 
         List<UserOrganismPermission> userPermissionList = UserOrganismPermission.findAllByOrganismAndUser(organism, user)
         for (UserOrganismPermission userPermission in userPermissionList) {
