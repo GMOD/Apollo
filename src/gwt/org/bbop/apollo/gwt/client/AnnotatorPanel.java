@@ -9,6 +9,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -161,10 +162,10 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
-        sequenceList.addValueChangeHandler(new ValueChangeHandler<String>() {
+        sequenceList.addKeyUpHandler(new KeyUpHandler() {
             @Override
-            public void onValueChange(ValueChangeEvent<String> event) {
-                if(sequenceList.getText()==null || sequenceList.getText().trim().length()==0){
+            public void onKeyUp(KeyUpEvent event) {
+                if (sequenceList.getText() == null || sequenceList.getText().trim().length() == 0) {
                     reload();
                 }
             }
