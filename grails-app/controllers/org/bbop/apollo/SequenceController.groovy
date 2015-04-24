@@ -80,73 +80,6 @@ class SequenceController {
         render userOrganismPreference.sequence.name as String
     }
 
-    /**
-     * ID is the organism ID
-     * Sequence is the default sequence name
-     *
-     * If no sequence name is set, pull the preferences, otherwise just choose a random one.
-     * @param id
-     * @param sequenceName
-     * @return
-     */
-//    @Transactional
-//    def setDefaultSequence(Long id, String sequenceName) {
-//        log.debug "setting default sequences: ${params}"
-//        Organism organism = Organism.findById(id)
-//        println "SETTIGN DEFAULT SEQUENCES ${id} -> ${organism.commonName} -> ${sequenceName}"
-//        if(!organism){
-//            throw new AnnotationException("Invalid organism id ${id}")
-//        }
-//
-//        Sequence sequence = null
-//
-//        if(sequenceName){
-//            sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
-//        }
-//
-//        User currentUser = permissionService.currentUser
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
-//        if(!sequence && !sequenceName && userOrganismPreference){
-//            sequence = Sequence.findByNameAndOrganism(userOrganismPreference.defaultSequence,organism)
-//        }
-//
-//        if(!sequence){
-//                sequence = organism.sequences.iterator().next()
-//        }
-//
-//        println "sequence found ${sequence} for ${sequenceName} and rg ${organism.commonName}"
-//
-//
-//        if(!userOrganismPreference){
-//            println "creating a new one!"
-//            userOrganismPreference = new UserOrganismPreference(
-//                    user:currentUser
-//                    ,organism: organism
-//                    ,defaultSequence: sequence.name
-//                    ,currentOrganism: true
-//            ).save(insert:true,flush:true,failOnError: true)
-//        }
-//        else{
-//            println "updating an old one!!"
-////            userOrganismPreference.refresh()
-//            userOrganismPreference.defaultSequence = sequence.name
-//            userOrganismPreference.currentOrganism = true
-//            userOrganismPreference.save(flush:true,failOnError: true)
-//        }
-//        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
-//
-//        println "has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
-//
-//
-//        Session session = SecurityUtils.subject.getSession(false)
-//        session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequence.name)
-//        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
-//        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-//        session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
-//
-//
-//        render userOrganismPreference.defaultSequence as String
-//    }
 
     @Transactional
     def loadSequences(Organism organism) {
@@ -158,21 +91,17 @@ class SequenceController {
 
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
-//        String defaultName
         if(userOrganismPreference?.sequence?.name){
-//            defaultName = userOrganismPreference.defaultSequence
             userOrganismPreference.currentOrganism = true
             request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,userOrganismPreference.sequence.name)
             userOrganismPreference.save(flush:true)
         }
         else{
-//            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
             userOrganismPreference = new UserOrganismPreference(
                     user:currentUser
                     ,organism: organism
                     ,currentOrganism: true
                     ,sequence: organism.sequences.iterator().next()
-//                    ,defaultSequence: defaultName
                     ,
             ).save(insert:true,flush:true)
         }
@@ -262,5 +191,11 @@ class SequenceController {
         outputStream.close()
         file.delete()
 
+    }
+
+    def lookupSequenceByName(String q){
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        def sequences = Sequence.findAllByNameIlikeAndOrganism(q+"%",organism,["sort":"name","order":"asc","max":20]).collect(){ it.name }
+        render sequences as JSON
     }
 }

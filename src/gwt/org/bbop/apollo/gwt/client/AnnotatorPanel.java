@@ -59,10 +59,7 @@ public class AnnotatorPanel extends Composite {
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
 
-    Dictionary dictionary = Dictionary.getDictionary("Options");
-
     private Column<AnnotationInfo, String> nameColumn;
-    //    private TextColumn<AnnotationInfo> filterColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
     long requestIndex = 0;
@@ -71,11 +68,6 @@ public class AnnotatorPanel extends Composite {
     TextBox nameSearchBox;
     @UiField(provided = true)
     SuggestBox sequenceList;
-
-
-//    Tree.Resources tablecss = GWT.create(Tree.Resources.class);
-    //    @UiField(provided = true)
-//    Tree features = new Tree(tablecss);
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -98,18 +90,13 @@ public class AnnotatorPanel extends Composite {
     Button cdsButton;
     @UiField
     Button stopCodonButton;
-//    @UiField
-//    ListBox userField;
-//    @UiField
-//    ListBox groupField;
 
 
-    private MultiWordSuggestOracle sequenceOracle = new MultiWordSuggestOracle();
+    private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static ListDataProvider<AnnotationInfo> dataProvider = new ListDataProvider<>();
     private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
     private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
-    //    private List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
     private static Boolean transcriptSelected;
