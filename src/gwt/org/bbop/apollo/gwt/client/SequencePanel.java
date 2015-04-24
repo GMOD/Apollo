@@ -202,7 +202,9 @@ public class SequencePanel extends Composite {
                     RequestCallback requestCallback = new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
-                            OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+                            if(sequenceInfo!=null) {
+                                OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+                            }
 //                            ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
 //                            Annotator.eventBus.fireEvent(contextSwitchEvent);
                         }
