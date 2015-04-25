@@ -8,6 +8,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -17,6 +18,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  * to the proper service classes.
  *
  * Its goal is to replace a a lot of the layers in AnnotationEditorController
+ *
+ * Furethermore, this handles requests for websocket, which come in via a different mehcanism than the controller
  */
 //@GrailsCompileStatic
 @Transactional
@@ -36,6 +39,7 @@ class RequestHandlingService {
     def overlapperService
     def permissionService
     def featurePropertyService
+    def featureEventService
 
 
     def brokerMessagingTemplate
@@ -512,6 +516,9 @@ class RequestHandlingService {
             // should automatically write to history
             transcript.save(flush: true)
             transcriptList.add(transcript)
+
+
+            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,transcript)
         }
 
 //        sequence.save(flush: true)
@@ -519,6 +526,9 @@ class RequestHandlingService {
         transcriptList.each { transcript ->
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
         }
+
+
+
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject

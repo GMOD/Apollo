@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 @Transactional
 class FeatureRelationshipService {
 
+    def featureEventService
 
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
         List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
@@ -194,6 +195,7 @@ class FeatureRelationshipService {
                 deleteFeatureAndChildren(featureRelationship.childFeature)
             }
         }
+        featureEventService.deleteHistory(feature)
         feature.delete()
 
 

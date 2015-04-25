@@ -19,9 +19,9 @@ class TranscriptService {
     def featureRelationshipService
     def exonService
     def nameService
-    def requestHandlingService
     def nonCanonicalSplitSiteService
     def sequenceService
+    def featureEventService
 
     /** Retrieve the CDS associated with this transcript.  Uses the configuration to determine
      *  which child is a CDS.  The CDS object is generated on the fly.  Returns <code>null</code>
@@ -405,6 +405,8 @@ class TranscriptService {
 //            transcript2.parentFeatureRelationships.clear()
 //            transcript2.childFeatureRelationships.clear()
 //            transcript2.save(flush: true )
+            featureEventService.deleteHistory(transcript2)
+
             transcript2.delete(flush: true)
         } else {
             featureService.deleteFeature(transcript2);
