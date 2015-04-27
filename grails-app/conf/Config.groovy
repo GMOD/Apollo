@@ -180,7 +180,7 @@ apollo {
     get_translation_code = 1
     sequence_search_tools {
         blat_nuc {
-            search_exe = "/usr/local/bin/blat2"
+            search_exe = "/usr/local/bin/blat"
             search_class = "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide"
             name = "Blat nucleotide"
             params = ""
