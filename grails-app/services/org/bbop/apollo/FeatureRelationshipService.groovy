@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 @Transactional
 class FeatureRelationshipService {
 
+    def featureEventService
 
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
         List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
@@ -185,7 +186,13 @@ class FeatureRelationshipService {
      * @return
      */
     def deleteFeatureAndChildren(Feature feature) {
-        
+
+        Feature.withNewTransaction {
+//            featureEventService.deleteHistory(featureId)
+//            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
+            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
+        }
+
         if(feature.parentFeatureRelationships){
             def parentFeatureRelationships = feature.parentFeatureRelationships
             Iterator<FeatureRelationship> featureRelationshipIterator = parentFeatureRelationships.iterator()

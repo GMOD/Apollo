@@ -7,7 +7,6 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
-import org.bbop.apollo.web.util.JSONUtil
 
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -172,14 +171,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
+    /**
+     * {"features":[{"history":[{"operation":"ADD_TRANSCRIPT","editor":"demo","features":[{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"GB48495-RA","children":[{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"92B60BEAD109A624CEF0FCEB35B43626","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1429620837934,"parent_id":"9F9DC83A33887BCF8A04602BA64400DE"},{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"uniquename":"9F9DC83A33887BCF8A04602BA64400DE-CDS","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1429620837936,"parent_id":"9F9DC83A33887BCF8A04602BA64400DE"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"9F9DC83A33887BCF8A04602BA64400DE","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1429620837936,"parent_id":"B17EAF82B869C17A0F37A2B12E552E9C"}],"current":true,"date":"4/21/15 5:53 AM"}],"uniquename":"9F9DC83A33887BCF8A04602BA64400DE"}]}
+     * @return
+     */
     def getHistoryForFeatures() {
         log.debug "getting history !! ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.READ)
+        permissionService.checkPermissions(inputObject,PermissionEnum.READ)
 
         JSONObject historyContainer = createJSONFeatureContainer();
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -191,11 +192,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //            Feature  gbolFeature = getFeature(editor, jsonFeature);
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureTransaction> transactionList = FeatureTransaction.findAllByFeature(feature)
+            List<FeatureEvent> transactionList = FeatureEvent.findAllByFeature(feature)
 //            TransactionList transactionList = historyStore.getTransactionListForFeature(jsonFeature.getString("uniquename"));
             for (int j = 0; j < transactionList.size(); ++j) {
 //                Transaction transaction = transactionList.get(j);
-                FeatureTransaction transaction = transactionList.get(j);
+                FeatureEvent transaction = transactionList.get(j);
                 JSONObject historyItem = new JSONObject();
                 historyItem.put(REST_OPERATION, transaction.operation.toString());
 //                historyItem.put("editor", transaction.getEditor());

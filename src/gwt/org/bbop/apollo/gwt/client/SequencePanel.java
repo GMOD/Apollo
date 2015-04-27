@@ -162,8 +162,6 @@ public class SequencePanel extends Composite {
         pager.setDisplay(dataGrid);
 
 
-//        SequenceRestService.loadSequences(sequenceInfoList, MainPanel.currentOrganismId);
-
         ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
         dataGrid.addColumnSortHandler(sortHandler);
 
@@ -477,63 +475,11 @@ public class SequencePanel extends Composite {
                 filteredSequenceList.add(sequenceInfo);
             }
         }
-//        else {
-//            filteredSequenceList.addAll(sequenceInfoList);
-//        }
-
-//        GWT.log("filtered size: " + filteredSequenceList.size());
-//        viewableLabel.setText(filteredSequenceList.size() + "");
-
     }
 
-//    /**
-//     * could use an organism callback . . . however, this element needs to use the callback directly.
-//     *
-//     * @param trackInfoList
-//     */
-//    public void loadOrganisms(final ListBox trackInfoList) {
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                JSONArray array = returnValue.isArray();
-//
-//                trackInfoList.clear();
-//                organismInfoMap.clear();
-//                for (int i = 0; i < array.size(); i++) {
-//                    JSONObject object = array.get(i).isObject();
-//                    OrganismInfo organismInfo = new OrganismInfo();
-//                    organismInfo.setId(object.get("id").isNumber().toString());
-//                    organismInfo.setName(object.get("commonName").isString().stringValue());
-//                    organismInfo.setNumSequences((int) Math.round(object.get("sequences").isNumber().doubleValue()));
-//                    organismInfo.setDirectory(object.get("directory").isString().stringValue());
-//                    organismInfo.setNumFeatures(0);
-//                    organismInfo.setNumTracks(0);
-//                    trackInfoList.addItem(organismInfo.getName(), organismInfo.getId());
-//                    organismInfoMap.put(organismInfo.getId(), organismInfo);
-//                }
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Window.alert("Error loading organisms");
-//            }
-//        };
-//
-//        OrganismRestService.loadOrganisms(requestCallback);
-//
-//    }
 
     public void reload() {
         filterSequences();
-//        Window.alert("reloading sequence panel");
-
-//            sequenceInfoList = MainPanel.getInstance().getCurrentSequenceList();
-//            Long organismListId = Long.parseLong(organismList.getSelectedValue());
-//            GWT.log("list id: " + organismListId);
-//            SequenceRestService.loadSequences(sequenceInfoList, organismListId);
-//        } else {
-//            SequenceRestService.loadSequences(sequenceInfoList, MainPanel.getInstance().getCurrentOrganism().getId());
     }
 
 }

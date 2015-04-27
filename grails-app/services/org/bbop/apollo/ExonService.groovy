@@ -18,6 +18,7 @@ class ExonService {
     def featureService
     def featureRelationshipService
     def sequenceService
+    def overlapperService
     def nameService
 
     /** Retrieve the transcript that this exon is associated with.  Uses the configuration to
@@ -413,7 +414,7 @@ class ExonService {
     String getCodingSequenceInPhase(Exon exon, boolean removePartialCodons) {
         Transcript transcript = getTranscript(exon)
         CDS cds = transcriptService.getCDS(transcript)
-        if (cds == null || !featureService.overlaps(exon, cds, true)) {
+        if (cds == null || !overlapperService.overlaps(exon, cds, true)) {
             return ""
         }
         int length = 0
