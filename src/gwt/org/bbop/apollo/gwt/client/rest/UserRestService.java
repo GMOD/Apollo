@@ -59,7 +59,14 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.Location.reload();
+                JSONValue j=JSONParser.parseStrict(response.getText());
+                JSONObject o=j.isObject();
+                if(o.get("error")!=null) {
+                    Window.alert(o.get("error").isString().stringValue());
+                }
+                else {
+                    Window.Location.reload();
+                }
             }
 
             @Override
@@ -93,9 +100,7 @@ public class UserRestService {
                     UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
                     userInfoList.add(userInfo);
                 }
-
                 Annotator.eventBus.fireEvent(new UserChangeEvent(UserChangeEvent.Action.USERS_RELOADED));
-
             }
 
             @Override
@@ -220,7 +225,6 @@ public class UserRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 GWT.log("success");
-//                loadUsers(userInfoList);
             }
 
             @Override

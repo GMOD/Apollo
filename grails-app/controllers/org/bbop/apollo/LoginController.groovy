@@ -3,6 +3,8 @@ package org.bbop.apollo
 import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.AuthenticationException
+import org.apache.shiro.authc.IncorrectCredentialsException
+import org.apache.shiro.authc.UnknownAccountException
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.session.Session
@@ -52,7 +54,6 @@ class LoginController extends AbstractApolloController {
         try {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-//            response.sendError(HttpServletResponse.SC_BAD_REQUEST, new JSONObject().put("error", e.getMessage()).toString());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write(new JSONObject().put("error", e.getMessage()).toString());
         }
@@ -86,9 +87,6 @@ class LoginController extends AbstractApolloController {
                 ,lastName: jsonObj.lastName
         ).save()
         user.addToRoles(adminRole)
-
-//        params.data.username = username
-//        params.data.password = password
         return login()
     }
 
@@ -107,14 +105,14 @@ class LoginController extends AbstractApolloController {
         String username = jsonObj.username
         String password = jsonObj.password
         Boolean rememberMe = jsonObj.rememberMe
-        
+
         def authToken = new UsernamePasswordToken(username, password as String)
 
         // Support for "remember me"
         if (rememberMe) {
             authToken.rememberMe = true
         }
-        log.debug "remembmerMe: ${rememberMe}"
+        log.debug "rememberMe: ${rememberMe}"
         log.debug "authToken : ${authToken.rememberMe}"
 
         // If a controller redirected to this page, redirect back
@@ -128,7 +126,8 @@ class LoginController extends AbstractApolloController {
             if (savedRequest.queryString) targetUri = targetUri + '?' + savedRequest.queryString
         }
 
-        try{
+        try {
+
             // Perform the actual login. An AuthenticationException
             // will be thrown if the username is unrecognised or the
             // password is incorrect.
@@ -137,42 +136,23 @@ class LoginController extends AbstractApolloController {
             subject.login(authToken)
             log.debug "IS AUTHENTICATED: " + subject.isAuthenticated()
             log.debug "has a session ${session}"
-            log.debug "LOGIN SESSIN ${SecurityUtils.subject.getSession(false).id}"
+            log.debug "LOGIN SESSION ${SecurityUtils.subject.getSession(false).id}"
 
-//            HttpSession session = request.getSession();
             session.setAttribute("username", username);
             session.setAttribute("permissions", new HashMap<String, Integer>());
 
-            // should this be <context>/annotator/index?
-//            log.info "Redirecting to '${targetUri}'."
-//            redirect(uri: targetUri)
-//            redirect(uri: "/annotator/index")
-//            response.sendRedirect("/apollo/annotator/index")
-            
             User user = User.findByUsername(username)
 
 
-//            int permission = 0
-//            // TODO: should be per organism
+            //int permission = 0
+            // TODO: should be per organism
             Map<String, Integer> permissions = permissionService.getPermissionsForUser(user)
             if(permissions){
                 session.setAttribute("permissions", permissions);
             }
-//            if (permissions.values().size() > 0) {
-//                permission = permissions.values().iterator().next();
-//            }
             JSONObject responseJSON = new JSONObject();
-//            responseJSON.put("url", "/apollo/annotator/index").put("sessionId", session.getId());
             render responseJSON as JSON
-//            response.getWriter().write(responseJSON.toString());
-        }
-        catch (AuthenticationException ex){
-            // Authentication failed, so display the appropriate message
-            // on the login page.
-//            log.info "Authentication failure for user '${params.username}'."
-//            flash.message = message(code: "login.failed")
-            
-
+        } catch(IncorrectCredentialsException ex) {
             // Keep the username and "remember me" setting so that the
             // user doesn't have to enter them again.
             def m = [ username: jsonObj.username ]
@@ -184,30 +164,47 @@ class LoginController extends AbstractApolloController {
             if (jsonObj.targetUri) {
                 m["targetUri"] = jsonObj.targetUri
             }
-
+            m.error="Incorrect login"
+            log.debug "BLAHBLA"
             // Now redirect back to the login page.
-//            redirect(action: "login", params: m)
-            sendError(response,ex)
+            //redirect(action: "login", params: m)
+            render m as JSON
+        } catch(UnknownAccountException ex) {
+
+            def m = [ username: jsonObj.username ]
+            if (jsonObj.rememberMe) {
+                m["rememberMe"] = true
+            }
+
+            // Remember the target URI too.
+            if (jsonObj.targetUri) {
+                m["targetUri"] = jsonObj.targetUri
+            }
+            m.error="Unknown account"
+            render m as JSON
+
+        } catch ( AuthenticationException ae ) {
+
+            def m = [ username: jsonObj.username ]
+            if (jsonObj.rememberMe) {
+                m["rememberMe"] = true
+            }
+
+            // Remember the target URI too.
+            if (jsonObj.targetUri) {
+                m["targetUri"] = jsonObj.targetUri
+            }
+            m.error="Unknown authentication erro"
+            render m as JSON
+            //unexpected condition - error?
         }
     }
 
 
 
     def logout(){
-        log.debug "doing the logOUT"
-//        if (request.getSession(false)) {
-//            try {
-//                request.getSession(false).invalidate();
-//            } catch (e) {
-//                log.error "error invalidating session ${e}"
-//            }
-//        }
-        log.debug "LOGOUT SESSIN ${SecurityUtils?.subject?.getSession(false)?.id}"
+        log.debug "LOGOUT SESSION ${SecurityUtils?.subject?.getSession(false)?.id}"
         SecurityUtils.subject.logout()
-
-//        webRequest.getCurrentRequest().session = null
-//        response.status = HttpServletResponse.SC_OK
-//        render {result:"OK"} as JSON
         render new JSONObject() as JSON
     }
     
