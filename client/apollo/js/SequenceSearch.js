@@ -94,6 +94,10 @@ searchSequence: function(trackName, refSeqName, starts) {
             handleAs: "json",
             timeout: 5000 * 1000, // Time in milliseconds
             load: function(response, ioArgs) {
+                if(response.error) {
+                    ok = false;
+                    alert(response.error);
+                }
                 if (response.sequence_search_tools.length == 0) {
                     ok = false;
                     return;
@@ -146,6 +150,10 @@ searchSequence: function(trackName, refSeqName, starts) {
                 timeout: 5000 * 1000, // Time in milliseconds
                 load: function(response, ioArgs) {
                     dojo.style(waitingDiv, { display: "none"} );
+                    if(response.error) {
+                        alert(response.error);
+                        return;
+                    }
                     while (matches.hasChildNodes()) {
                         matches.removeChild(matches.lastChild);
                     }
