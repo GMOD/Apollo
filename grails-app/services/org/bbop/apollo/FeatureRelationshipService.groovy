@@ -186,7 +186,13 @@ class FeatureRelationshipService {
      * @return
      */
     def deleteFeatureAndChildren(Feature feature) {
-        
+
+        Feature.withNewTransaction {
+//            featureEventService.deleteHistory(featureId)
+//            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
+            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
+        }
+
         if(feature.parentFeatureRelationships){
             def parentFeatureRelationships = feature.parentFeatureRelationships
             Iterator<FeatureRelationship> featureRelationshipIterator = parentFeatureRelationships.iterator()
@@ -195,7 +201,6 @@ class FeatureRelationshipService {
                 deleteFeatureAndChildren(featureRelationship.childFeature)
             }
         }
-        featureEventService.deleteHistory(feature)
         feature.delete()
 
 

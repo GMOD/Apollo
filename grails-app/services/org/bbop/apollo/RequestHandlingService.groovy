@@ -356,49 +356,6 @@ class RequestHandlingService {
 
         Set<Feature> featureSet = new HashSet<>()
 
-        /**
-         * TODO: this should be one single query
-         */
-        // 1. - handle genes
-//        List<Gene> topLevelGenes = Gene.executeQuery("select f from Gene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-//        for (Gene gene : topLevelGenes) {
-//            for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-//                log.debug "Getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-//                featureSet.add(transcript)
-//            }
-//        }
-////
-//        // 1b. - handle psuedogenes
-//        List<Pseudogene> listOfPseudogenes = Pseudogene.executeQuery("select f from Pseudogene f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-//        for (Gene gene : listOfPseudogenes) {
-//            for (Transcript transcript : transcriptService.getTranscripts(gene)) {
-//                log.debug " getting transcript ${transcript.uniqueName} for gene ${gene.uniqueName} "
-//                featureSet.add(transcript)
-//            }
-//        }
-//
-//        // handle repeat regions
-//        List<RepeatRegion> listOfRepeatRegions = RepeatRegion.executeQuery("select f from RepeatRegion f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-//        for (RepeatRegion repeatRegion : listOfRepeatRegions) {
-//            log.debug " getting repeat region ${repeatRegion.uniqueName} "
-//            featureSet.add(repeatRegion)
-//        }
-//
-//        // handle transposable elements
-//        List<TransposableElement> listOfTransposableElements = TransposableElement.executeQuery("select f from TransposableElement f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-//        for (TransposableElement transposableElement : listOfTransposableElements) {
-//            log.debug " getting transposable element ${transposableElement.uniqueName} "
-//            featureSet.add(transposableElement)
-//        }
-//
-        // Note: I don' think we ever want this . . . but came from older code.
-        // 2. - handle transcripts
-//        List<Transcript> topLevelTranscripts = Transcript.executeQuery("select f from Transcript f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty ", [sequence: sequence])
-//        log.debug "# of top level features ${topLevelTranscripts.size()}"
-//        for (Transcript transcript1 in topLevelTranscripts) {
-//            featureSet.add(transcript1)
-//        })
-
 
         List<Feature> topLevelTranscripts = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and f.childFeatureRelationships is empty and f.class in (:viewableAnnotationList)", [sequence: sequence,viewableAnnotationList:viewableAnnotationList])
         log.debug "# of top level features ${topLevelTranscripts.size()}"

@@ -405,7 +405,7 @@ class TranscriptService {
 //            transcript2.parentFeatureRelationships.clear()
 //            transcript2.childFeatureRelationships.clear()
 //            transcript2.save(flush: true )
-            featureEventService.deleteHistory(transcript2)
+            featureEventService.deleteHistory(transcript2.id)
 
             transcript2.delete(flush: true)
         } else {

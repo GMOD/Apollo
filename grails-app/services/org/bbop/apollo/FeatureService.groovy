@@ -1160,8 +1160,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
                     gsolProperty.setType(cvTerm);
                     String[] propertySet = property.getString(FeatureStringEnum.VALUE.value).split(FeatureStringEnum.TAG_VALUE_DELIMITER.value)
-                    gsolProperty.setTag(propertySet[0]);
-                    gsolProperty.setValue(propertySet[1]);
+                    if (propertySet.length > 1) {
+                        gsolProperty.setTag(propertySet[0]);
+                        gsolProperty.setValue(propertySet[1]);
+                    } else if (propertySet.length == 1) {
+                        gsolProperty.setValue(propertySet[0]);
+
+                    }
                     gsolProperty.setFeature(gsolFeature);
                     int rank = 0;
                     for (FeatureProperty fp : gsolFeature.getFeatureProperties()) {

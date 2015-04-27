@@ -20,8 +20,8 @@ class FeatureEventService {
 
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
-                ,feature: feature
-                ,operation: featureOperation
+                ,featureId: feature.id
+                ,operation: featureOperation.name()
                 ,current: true
                 ,dateCreated: new Date()
                 ,lastUpdated: new Date()
@@ -31,7 +31,7 @@ class FeatureEventService {
 
     }
 
-    def deleteHistory(Feature feature) {
-        FeatureEvent.deleteAll(FeatureEvent.findAllByFeature(feature))
+    def deleteHistory(Long featureId) {
+        FeatureEvent.deleteAll(FeatureEvent.findAllByFeatureId(featureId))
     }
 }
