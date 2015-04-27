@@ -72,8 +72,6 @@ public class SequencePanel extends Composite {
     Button exportSingleButton;
     @UiField
     TextBox nameSearchBox;
-    //    @UiField
-//    org.gwtbootstrap3.client.ui.Label viewableLabel;
     @UiField
     HTML sequenceLength;
     @UiField
@@ -85,10 +83,8 @@ public class SequencePanel extends Composite {
     @UiField
     Button selectSelectedButton;
 
-    //    private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
-    //    private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
@@ -100,27 +96,27 @@ public class SequencePanel extends Composite {
         ;
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
+//
+//        Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
+//            @Override
+//            public Boolean getValue(SequenceInfo object) {
+//                return object.getSelected();
+//            }
+//        };
+//        selectColumn.setSortable(true);
 
-        Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
-            @Override
-            public Boolean getValue(SequenceInfo object) {
-                return object.getSelected();
-            }
-        };
-        selectColumn.setSortable(true);
-
-        selectColumn.setFieldUpdater(new FieldUpdater<SequenceInfo, Boolean>() {
-            @Override
-            public void update(int index, SequenceInfo object, Boolean value) {
-                selectedCount += value ? 1 : -1;
-                if (selectedCount > 0) {
-                } else {
-                    selectedCount = 0;
-                }
-                object.setSelected(value);
-                updatedExportSelectedButton();
-            }
-        });
+//        selectColumn.setFieldUpdater(new FieldUpdater<SequenceInfo, Boolean>() {
+//            @Override
+//            public void update(int index, SequenceInfo object, Boolean value) {
+//                selectedCount += value ? 1 : -1;
+//                if (selectedCount > 0) {
+//                } else {
+//                    selectedCount = 0;
+//                }
+//                object.setSelected(value);
+//                updatedExportSelectedButton();
+//            }
+//        });
 
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
@@ -139,12 +135,12 @@ public class SequencePanel extends Composite {
         lengthColumn.setSortable(true);
 
 
-        dataGrid.addColumn(selectColumn, "Selected");
+//        dataGrid.addColumn(selectColumn, "Selected");
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
 
-        dataGrid.setColumnWidth(0, "80px");
-        dataGrid.setColumnWidth(2, "80px");
+//        dataGrid.setColumnWidth(0, "80px");
+        dataGrid.setColumnWidth(1, "100px");
 
         dataGrid.setSelectionModel(multiSelectionModel);
         multiSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -157,6 +153,13 @@ public class SequencePanel extends Composite {
                 } else {
                     setSequenceInfo(null);
                 }
+                if(selectedSequenceInfo.size()>0){
+                    exportSelectedButton.setText("Selected ("+selectedSequenceInfo.size()+")");
+                }
+                else{
+                    exportSelectedButton.setText("Selected");
+                }
+                exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
 
                 selectSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
             }
@@ -186,9 +189,9 @@ public class SequencePanel extends Composite {
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 if (nameSortInfo.getColumn().isSortable()) {
-                    Column <SequenceInfo, ?> sortColumn = (Column <SequenceInfo, ?>) sortList.get(0).getColumn();
+                    Column<SequenceInfo, ?> sortColumn = (Column<SequenceInfo, ?>) sortList.get(0).getColumn();
                     Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-                    String searchColumnString = columnIndex==1 ? "name" : "length";
+                    String searchColumnString = columnIndex == 0 ? "name" : "length";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
                     SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
@@ -209,7 +212,6 @@ public class SequencePanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
-
 
 
         // have to use a special handler instead of UiHandler for this type
@@ -320,7 +322,7 @@ public class SequencePanel extends Composite {
     private void updatedExportSelectedButton() {
         if (selectedCount > 0) {
             exportSelectedButton.setEnabled(true);
-            exportSelectedButton.setText("Selected (" + selectedCount + ")");
+            exportSelectedButton.setText("Selected (" + multiSelectionModel.getSelectedSet().size()+ ")");
         } else {
             exportSelectedButton.setEnabled(false);
             exportSelectedButton.setText("None Selected");
@@ -444,10 +446,9 @@ public class SequencePanel extends Composite {
     public void exportSelectedHandler(ClickEvent clickEvent) {
         exportAll = false;
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
-        for (SequenceInfo sequenceInfo : sequenceInfoList) {
-            if (sequenceInfo.getSelected()) {
-                sequenceInfoList1.add(sequenceInfo);
-            }
+        Window.alert("selected to export: " + multiSelectionModel.getSelectedSet().size());
+        for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
+            sequenceInfoList1.add(sequenceInfo);
         }
 
         GWT.log("adding selected: " + sequenceInfoList1.size());
@@ -472,7 +473,6 @@ public class SequencePanel extends Composite {
 
         exportValues(sequenceInfoList);
     }
-
 
 
     public void reload() {
