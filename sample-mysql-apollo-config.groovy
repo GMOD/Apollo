@@ -7,7 +7,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo-production"
+            url = "jdbc:mysql://localhost/apollo"
         }
     }
     test {
@@ -17,7 +17,7 @@ environments {
             password = "<CHANGEME>"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            url = "jdbc:mysql://localhost/apollo-production"
+            url = "jdbc:mysql://localhost/apollo-test"
         }
     }
     production {
