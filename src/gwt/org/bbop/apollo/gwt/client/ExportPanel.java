@@ -70,7 +70,12 @@ public class ExportPanel extends DialogBox{
 
     public void setSequenceList(List<SequenceInfo> sequenceList) {
         this.sequenceList = sequenceList;
-        sequenceInfoLabel.setHTML(this.sequenceList.size() + " exported ");
+        if(exportAll){
+            sequenceInfoLabel.setHTML("All exported ");
+        }
+        else{
+            sequenceInfoLabel.setHTML(this.sequenceList.size() + " exported ");
+        }
     }
     
     public void setExportAll(Boolean exportAll) {

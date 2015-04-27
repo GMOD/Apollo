@@ -60,10 +60,6 @@ public class SequencePanel extends Composite {
 
     @UiField
     HTML sequenceName;
-    //    @UiField
-//    HTML sequenceStart;
-//    @UiField
-//    HTML sequenceStop;
     @UiField
     Button exportAllButton;
     @UiField
@@ -84,7 +80,6 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
-    private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
@@ -249,9 +244,6 @@ public class SequencePanel extends Composite {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-//                    sequenceInfoList.clear();
-//                    sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
-
                     OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
 
                     organismList.clear();
@@ -272,22 +264,6 @@ public class SequencePanel extends Composite {
                 }
             }
         });
-
-        Annotator.eventBus.addHandler(SequenceLoadEvent.TYPE,
-                new SequenceLoadEventHandler() {
-                    @Override
-                    public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
-//                        filterSequences();
-                        if (sequenceInfoList.size() > 0) {
-                            exportAllButton.setEnabled(MainPanel.highestPermission.getRank() >= PermissionEnum.EXPORT.getRank());
-                            exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
-                        } else {
-                            exportAllButton.setEnabled(false);
-                            exportAllButton.setText("None Available");
-                        }
-                    }
-                }
-        );
 
         Annotator.eventBus.addHandler(UserChangeEvent.TYPE,
                 new UserChangeEventHandler() {
@@ -411,7 +387,7 @@ public class SequencePanel extends Composite {
         return true;
     }
 
-    private void exportValues(List<SequenceInfo> sequenceInfoList) {
+    private void exportValues(List<SequenceInfo> sequenceInfoList ) {
         GWT.log(organismList.getSelectedValue());
         Integer organismId = Integer.parseInt(organismList.getSelectedValue());
         OrganismInfo organismInfo = new OrganismInfo();
@@ -439,14 +415,12 @@ public class SequencePanel extends Composite {
             exportPanel.renderFastaSelection();
         }
         exportPanel.show();
-//        exportPanel.generateLink();
     }
 
     @UiHandler("exportSelectedButton")
     public void exportSelectedHandler(ClickEvent clickEvent) {
         exportAll = false;
         List<SequenceInfo> sequenceInfoList1 = new ArrayList<>();
-        Window.alert("selected to export: " + multiSelectionModel.getSelectedSet().size());
         for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
             sequenceInfoList1.add(sequenceInfo);
         }
@@ -471,7 +445,7 @@ public class SequencePanel extends Composite {
         exportAll = true;
         GWT.log("exporting gff3");
 
-        exportValues(sequenceInfoList);
+        exportValues(new ArrayList<SequenceInfo>());
     }
 
 
