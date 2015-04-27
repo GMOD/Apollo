@@ -64,4 +64,12 @@ public class SequenceRestService {
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
         RestService.sendRequest(requestCallback, "sequence/setCurrentSequenceLocation/?name="+sequenceNameString+"&startbp="+start+"&endbp="+end);
     }
+
+    public static void getSequenceForOffsetAndMaxSortName(RequestCallback requestCallback, String text, int start, int length, Boolean sortNameAscending) {
+        RestService.sendRequest(requestCallback, "sequence/getSequences/?name="+text+"&start="+start+"&length="+length+"&sort=name&asc="+sortNameAscending);
+    }
+
+    public static void getSequenceForOffsetAndMaxSortLength(RequestCallback requestCallback, String text, int start, int length, Boolean sortLengthAscending) {
+        RestService.sendRequest(requestCallback, "sequence/getSequences/?name="+text+"&start="+start+"&length="+length+"&sort=length&asc="+sortLengthAscending);
+    }
 }

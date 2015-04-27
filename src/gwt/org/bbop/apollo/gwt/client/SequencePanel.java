@@ -6,6 +6,8 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -17,6 +19,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -82,9 +85,10 @@ public class SequencePanel extends Composite {
     @UiField
     Button selectSelectedButton;
 
-    private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
+    //    private ListDataProvider<SequenceInfo> dataProvider = new ListDataProvider<>();
+    private AsyncDataProvider<SequenceInfo> dataProvider;
     private List<SequenceInfo> sequenceInfoList = new ArrayList<>();
-    private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
+    //    private List<SequenceInfo> filteredSequenceList = dataProvider.getList();
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
     private SequenceInfo selectedSequenceInfo = null;
     private Integer selectedCount = 0;
@@ -93,7 +97,7 @@ public class SequencePanel extends Composite {
     public SequencePanel() {
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
+        ;
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
 
@@ -158,34 +162,77 @@ public class SequencePanel extends Composite {
             }
         });
 
+        dataProvider = new AsyncDataProvider<SequenceInfo>() {
+            @Override
+            protected void onRangeChanged(HasData<SequenceInfo> display) {
+                final Range range = display.getVisibleRange();
+                final ColumnSortList sortList = dataGrid.getColumnSortList();
+                final int start = range.getStart();
+                final int length = range.getLength();
+
+                RequestCallback requestCallback = new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
+                        dataGrid.setRowData(start, SequenceInfoConverter.convertFromJsonArray(jsonArray));
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        Window.alert("error getting sequence info: " + exception);
+                    }
+                };
+
+
+                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
+                if (nameSortInfo.getColumn().isSortable()) {
+                    Boolean sortNameAscending = nameSortInfo.isAscending();
+                    SequenceRestService.getSequenceForOffsetAndMaxSortName(requestCallback, nameSearchBox.getText(), start, length, sortNameAscending);
+                }
+                nameSortInfo = sortList.get(1);
+                if (nameSortInfo.getColumn().isSortable()) {
+                    Boolean sortLengthAscending = nameSortInfo.isAscending();
+                    SequenceRestService.getSequenceForOffsetAndMaxSortLength(requestCallback, nameSearchBox.getText(), start, length, sortLengthAscending);
+                }
+
+            }
+        };
+
+        ColumnSortEvent.AsyncHandler columnSortHandler = new ColumnSortEvent.AsyncHandler(dataGrid);
+        dataGrid.addColumnSortHandler(columnSortHandler);
+        dataGrid.getColumnSortList().push(nameColumn);
+        dataGrid.getColumnSortList().push(lengthColumn);
+
+
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
 
 
-        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
-        dataGrid.addColumnSortHandler(sortHandler);
-
-        sortHandler.setComparator(selectColumn, new Comparator<SequenceInfo>() {
-                    @Override
-                    public int compare(SequenceInfo o1, SequenceInfo o2) {
-                        return o1.getSelected().compareTo(o2.getSelected());
-                    }
-                }
-        );
-        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
-                    @Override
-                    public int compare(SequenceInfo o1, SequenceInfo o2) {
-                        return o1.compareTo(o2);
-                    }
-                }
-        );
-        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
-                    @Override
-                    public int compare(SequenceInfo o1, SequenceInfo o2) {
-                        return o1.getLength() - o2.getLength();
-                    }
-                }
-        );
+//        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
+//        ColumnSortEvent.AsyncHandler<SequenceInfo> sortHandler = new ColumnSortEvent.AsyncHandler<SequenceInfo>(dataProvider);
+//        dataGrid.addColumnSortHandler(sortHandler);
+//
+//        sortHandler.setComparator(selectColumn, new Comparator<SequenceInfo>() {
+//                    @Override
+//                    public int compare(SequenceInfo o1, SequenceInfo o2) {
+//                        return o1.getSelected().compareTo(o2.getSelected());
+//                    }
+//                }
+//        );
+//        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
+//                    @Override
+//                    public int compare(SequenceInfo o1, SequenceInfo o2) {
+//                        return o1.compareTo(o2);
+//                    }
+//                }
+//        );
+//        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
+//                    @Override
+//                    public int compare(SequenceInfo o1, SequenceInfo o2) {
+//                        return o1.getLength() - o2.getLength();
+//                    }
+//                }
+//        );
 
         // have to use a special handler instead of UiHandler for this type
         dataGrid.addDomHandler(new DoubleClickHandler() {
@@ -194,13 +241,13 @@ public class SequencePanel extends Composite {
                 Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
                 if (sequenceInfoSet.size() == 1) {
                     final SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-                    final OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
+//                    final OrganismInfo organismInfo = organismInfoMap.get(organismList.getSelectedValue());
 
                     // TODO: set the default here!
                     RequestCallback requestCallback = new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
-                            if(sequenceInfo!=null) {
+                            if (sequenceInfo != null) {
                                 OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
                             }
 //                            ContextSwitchEvent contextSwitchEvent = new ContextSwitchEvent(sequenceInfo.getName(), organismInfo);
@@ -209,7 +256,7 @@ public class SequencePanel extends Composite {
 
                         @Override
                         public void onError(Request request, Throwable exception) {
-                            Window.alert("Error setting current sequence: "+exception);
+                            Window.alert("Error setting current sequence: " + exception);
                         }
                     };
                     SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
@@ -234,7 +281,7 @@ public class SequencePanel extends Composite {
                         OrganismInfo organismInfo = organismInfoList.get(i);
                         organismList.addItem(organismInfo.getName(), organismInfo.getId());
                         organismInfoMap.put(organismInfo.getId(), organismInfo);
-                        if(organismInfo.getId().equals(currentOrganism.getId())){
+                        if (organismInfo.getId().equals(currentOrganism.getId())) {
                             organismList.setSelectedIndex(i);
                         }
                     }
@@ -250,7 +297,7 @@ public class SequencePanel extends Composite {
                 new SequenceLoadEventHandler() {
                     @Override
                     public void onSequenceLoaded(SequenceLoadEvent sequenceLoadEvent) {
-                        filterSequences();
+//                        filterSequences();
                         if (sequenceInfoList.size() > 0) {
                             exportAllButton.setEnabled(MainPanel.highestPermission.getRank() >= PermissionEnum.EXPORT.getRank());
                             exportAllButton.setText("All (" + sequenceInfoList.size() + ")");
@@ -319,7 +366,7 @@ public class SequencePanel extends Composite {
 
     @UiHandler(value = {"nameSearchBox", "minFeatureLength", "maxFeatureLength"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
-        filterSequences();
+//        filterSequences();
     }
 
     @UiHandler(value = {"exportGff3Button", "exportFastaButton"})
@@ -448,38 +495,38 @@ public class SequencePanel extends Composite {
     }
 
 
-    private void filterSequences() {
-        GWT.log("original size: " + sequenceInfoList.size());
-        filteredSequenceList.clear();
-
-        String nameText = nameSearchBox.getText().toLowerCase();
-        String minLengthText = minFeatureLength.getText();
-        String maxLengthText = maxFeatureLength.getText();
-        Long minLength = Long.MIN_VALUE;
-        Long maxLength = Long.MAX_VALUE;
-
-
-        if (minLengthText.length() > 0) {
-            minLength = Long.parseLong(minLengthText);
-        }
-
-        if (maxLengthText.length() > 0) {
-            maxLength = Long.parseLong(maxLengthText);
-        }
-
-        for (SequenceInfo sequenceInfo : sequenceInfoList) {
-            if (sequenceInfo.getName().toLowerCase().contains(nameText)
-                    && sequenceInfo.getLength() >= minLength
-                    && sequenceInfo.getLength() <= maxLength
-                    ) {
-                filteredSequenceList.add(sequenceInfo);
-            }
-        }
-    }
+//    private void filterSequences() {
+//        GWT.log("original size: " + sequenceInfoList.size());
+//        filteredSequenceList.clear();
+//
+//        String nameText = nameSearchBox.getText().toLowerCase();
+//        String minLengthText = minFeatureLength.getText();
+//        String maxLengthText = maxFeatureLength.getText();
+//        Long minLength = Long.MIN_VALUE;
+//        Long maxLength = Long.MAX_VALUE;
+//
+//
+//        if (minLengthText.length() > 0) {
+//            minLength = Long.parseLong(minLengthText);
+//        }
+//
+//        if (maxLengthText.length() > 0) {
+//            maxLength = Long.parseLong(maxLengthText);
+//        }
+//
+//        for (SequenceInfo sequenceInfo : sequenceInfoList) {
+//            if (sequenceInfo.getName().toLowerCase().contains(nameText)
+//                    && sequenceInfo.getLength() >= minLength
+//                    && sequenceInfo.getLength() <= maxLength
+//                    ) {
+//                filteredSequenceList.add(sequenceInfo);
+//            }
+//        }
+//    }
 
 
     public void reload() {
-        filterSequences();
+//        filterSequences();
     }
 
 }

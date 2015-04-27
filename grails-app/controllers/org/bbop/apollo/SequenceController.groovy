@@ -33,7 +33,7 @@ class SequenceController {
     def setCurrentSequenceLocation() {
 
 //        render userOrganismPreference.sequence as JSON
-        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name,params.startbp as Integer,params.endbp as Integer)
+        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, params.startbp as Integer, params.endbp as Integer)
 
         render userOrganismPreference.sequence as JSON
     }
@@ -53,22 +53,21 @@ class SequenceController {
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
 
-        if(!userOrganismPreference){
+        if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
-                    user:currentUser
-                    ,organism: organism
-                    ,sequence: sequenceInstance
-                    ,currentOrganism: true
-            ).save(insert:true,flush:true,failOnError: true)
-        }
-        else{
+                    user: currentUser
+                    , organism: organism
+                    , sequence: sequenceInstance
+                    , currentOrganism: true
+            ).save(insert: true, flush: true, failOnError: true)
+        } else {
             userOrganismPreference.sequence = sequenceInstance
             userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save(flush:true,failOnError: true)
+            userOrganismPreference.save(flush: true, failOnError: true)
         }
-        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference,currentUser)
+        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -90,22 +89,21 @@ class SequenceController {
         }
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser,organism)
-        if(userOrganismPreference?.sequence?.name){
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
+        if (userOrganismPreference?.sequence?.name) {
             userOrganismPreference.currentOrganism = true
-            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value,userOrganismPreference.sequence.name)
-            userOrganismPreference.save(flush:true)
-        }
-        else{
+            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.sequence.name)
+            userOrganismPreference.save(flush: true)
+        } else {
             userOrganismPreference = new UserOrganismPreference(
-                    user:currentUser
-                    ,organism: organism
-                    ,currentOrganism: true
-                    ,sequence: organism.sequences.iterator().next()
+                    user: currentUser
+                    , organism: organism
+                    , currentOrganism: true
+                    , sequence: organism.sequences.iterator().next()
                     ,
-            ).save(insert:true,flush:true)
+            ).save(insert: true, flush: true)
         }
-        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ",[prefId:userOrganismPreference.id])
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ", [prefId: userOrganismPreference.id])
 
 //        log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
@@ -149,8 +147,7 @@ class SequenceController {
         if (exportAllSequences == "true") {
             // HQL for all sequences
             sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl order by s.name asc ")
-        }
-        else {
+        } else {
             // HQL for a single sequence or selected sequences
             sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences])
         }
@@ -160,7 +157,7 @@ class SequenceController {
         List<String> ontologyIdList = [Gene.class.name]
         def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList])
         File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
-        
+
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
@@ -193,9 +190,29 @@ class SequenceController {
 
     }
 
-    def lookupSequenceByName(String q){
+    def lookupSequenceByName(String q) {
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-        def sequences = Sequence.findAllByNameIlikeAndOrganism(q+"%",organism,["sort":"name","order":"asc","max":20]).collect(){ it.name }
+        def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
+            it.name
+        }
         render sequences as JSON
     }
+
+    def getSequences(String name,Integer start,Integer length,String sort,Boolean asc){
+//    def getSequences() {
+//        println "params ${params}"
+        println "getting sequences ${name} ${start},${length},${sort},${asc}"
+
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        List<Sequence> sequences
+        if(name){
+            sequences = Sequence.findAllByOrganismAndNameIlike(organism,"%${name}%",[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
+        }
+        else{
+            sequences = Sequence.findAllByOrganism(organism,[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
+        }
+        println "rurning size: ${sequences.size()}"
+        render sequences as JSON
+    }
+
 }
