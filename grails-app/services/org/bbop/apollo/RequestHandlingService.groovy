@@ -1346,9 +1346,9 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             // pull transcript name and put it in the top if not there
-            if (!jsonFeature.containsKey(FeatureStringEnum.NAME.value)) {
+            if (!jsonFeature.containsKey(FeatureStringEnum.NAME.value) && jsonFeature.containsKey(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray childArray = jsonFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                if (childArray?.size() == 1) {
+                if (childArray?.size() == 1 && childArray.getJSONObject(0).containsKey(FeatureStringEnum.NAME.value)) {
                     jsonFeature.put(FeatureStringEnum.NAME.value, childArray.getJSONObject(0).getString(FeatureStringEnum.NAME.value))
                 }
             }
