@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
@@ -424,7 +425,6 @@ class FeatureService {
         }
         return false;
     }
-
 
 
     def calculateCDS(Transcript transcript) {
@@ -1098,7 +1098,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
             } else {
                 log.debug "NO name using unique name"
-                gsolFeature.name = gsolFeature.uniqueName+"-${type.get('name')}"
+                gsolFeature.name = gsolFeature.uniqueName + "-${type.get('name')}"
             }
 
             gsolFeature.save(failOnError: true)
@@ -1606,17 +1606,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             gsolFeature.attach()
 
+            String finalOwnerString = ""
             if (gsolFeature.owners) {
                 String ownerString = ""
                 for (owner in gsolFeature.owners) {
                     ownerString += gsolFeature.owner.username + " "
                 }
-                jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), ownerString?.trim());
+                finalOwnerString = ownerString?.trim()
             } else if (gsolFeature.owner) {
-                jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), gsolFeature.owner.username);
+                finalOwnerString = gsolFeature?.owner?.username
             } else {
-                jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), "None");
+                finalOwnerString = "None"
             }
+            jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
 //            gsolFeature.featureLocations.each {
 //                it.attach()
 //            }
@@ -1678,9 +1680,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                }
             }
             Collection<FeatureProperty> gsolFeatureProperties = gsolFeature.getFeatureProperties();
+//            properties: [{value: "demo", type: {name: "owner", cv: {name: "feature_property"}}}]
+
+            JSONArray properties = new JSONArray();
+            jsonFeature.put(FeatureStringEnum.PROPERTIES.value, properties);
             if (gsolFeatureProperties) {
-                JSONArray properties = new JSONArray();
-                jsonFeature.put(FeatureStringEnum.PROPERTIES.value, properties);
                 for (FeatureProperty property : gsolFeatureProperties) {
                     JSONObject jsonProperty = new JSONObject();
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
@@ -1698,6 +1702,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     properties.put(jsonProperty);
                 }
             }
+            JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
+            properties.put(ownerProperty)
+
+
             Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
             if (gsolFeatureDbxrefs) {
                 JSONArray dbxrefs = new JSONArray();
