@@ -471,43 +471,12 @@ public class SequencePanel extends Composite {
         GWT.log("exporting gff3");
 
         exportValues(sequenceInfoList);
-//        Annotator.eventBus.fireEvent(new ExportEvent(ExportEvent.Action.EXPORT_READY, ExportEvent.Flavor.GFF3, organismInfo, selectedSequenceInfoArrayList));
     }
 
-
-//    private void filterSequences() {
-//        GWT.log("original size: " + sequenceInfoList.size());
-//        filteredSequenceList.clear();
-//
-//        String nameText = nameSearchBox.getText().toLowerCase();
-//        String minLengthText = minFeatureLength.getText();
-//        String maxLengthText = maxFeatureLength.getText();
-//        Long minLength = Long.MIN_VALUE;
-//        Long maxLength = Long.MAX_VALUE;
-//
-//
-//        if (minLengthText.length() > 0) {
-//            minLength = Long.parseLong(minLengthText);
-//        }
-//
-//        if (maxLengthText.length() > 0) {
-//            maxLength = Long.parseLong(maxLengthText);
-//        }
-//
-//        for (SequenceInfo sequenceInfo : sequenceInfoList) {
-//            if (sequenceInfo.getName().toLowerCase().contains(nameText)
-//                    && sequenceInfo.getLength() >= minLength
-//                    && sequenceInfo.getLength() <= maxLength
-//                    ) {
-//                filteredSequenceList.add(sequenceInfo);
-//            }
-//        }
-//    }
 
 
     public void reload() {
         dataGrid.redraw();
-//        filterSequences();
     }
 
 }
