@@ -198,20 +198,18 @@ class SequenceController {
         render sequences as JSON
     }
 
-    def getSequences(String name,Integer start,Integer length,String sort,Boolean asc){
-//    def getSequences() {
-//        println "params ${params}"
-        println "getting sequences ${name} ${start},${length},${sort},${asc}"
+    def getSequences(String name,Integer start,Integer length,String sort,Boolean asc,Integer minFeatureLength  ,Integer maxFeatureLength ){
 
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+        minFeatureLength = minFeatureLength ?: 0
+        maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
         List<Sequence> sequences
-        if(name){
-            sequences = Sequence.findAllByOrganismAndNameIlike(organism,"%${name}%",[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
-        }
-        else{
-            sequences = Sequence.findAllByOrganism(organism,[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
-        }
-        println "rurning size: ${sequences.size()}"
+//        if(name){
+            sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism,"%${name}%",minFeatureLength,maxFeatureLength,[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
+//        }
+//        else{
+//            sequences = Sequence.findAllByOrganism(organism,[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
+//        }
         render sequences as JSON
     }
 

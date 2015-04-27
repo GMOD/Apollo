@@ -23,17 +23,17 @@ import java.util.List;
  */
 public class SequenceRestService {
 
-    public static void setCurrentSequence(RequestCallback requestCallback,SequenceInfo sequenceInfo) {
-        RestService.sendRequest(requestCallback, "sequence/setCurrentSequence/"+sequenceInfo.getId());
+    public static void setCurrentSequence(RequestCallback requestCallback, SequenceInfo sequenceInfo) {
+        RestService.sendRequest(requestCallback, "sequence/setCurrentSequence/" + sequenceInfo.getId());
     }
 
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type",new JSONString(exportPanel.getType()));
-        jsonObject.put("sequenceType",new JSONString(exportPanel.getSequenceType()));
+        jsonObject.put("type", new JSONString(exportPanel.getType()));
+        jsonObject.put("sequenceType", new JSONString(exportPanel.getSequenceType()));
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
         JSONArray jsonArray = new JSONArray();
-        for(SequenceInfo sequenceInfo : exportPanel.getSequenceList()){
+        for (SequenceInfo sequenceInfo : exportPanel.getSequenceList()) {
             jsonArray.set(jsonArray.size(), sequenceInfo.toJSON());
         }
         jsonObject.put("sequences", jsonArray);
@@ -46,30 +46,42 @@ public class SequenceRestService {
                 String filePath = responseObject.get("filePath").isString().stringValue();
                 String exportType = responseObject.get("exportType").isString().stringValue();
                 String sequenceType = responseObject.get("sequenceType").isString().stringValue();
-                String exportUrl =  Annotator.getRootUrl() + "sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType ;
+                String exportUrl = Annotator.getRootUrl() + "sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType;
                 exportPanel.setExportUrl(exportUrl);
 //                Window.open(rootUrl + "/sequence/exportHandler/?filePath=" + filePath + "&exportType=" + exportType + "&sequenceType=" + sequenceType, "_blank", "");
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("boo: "+exception);
+                Window.alert("boo: " + exception);
             }
         };
 
-        RestService.sendRequest(requestCallback, "sequence/exportSequences/","data="+jsonObject.toString());
+        RestService.sendRequest(requestCallback, "sequence/exportSequences/", "data=" + jsonObject.toString());
     }
 
 
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
-        RestService.sendRequest(requestCallback, "sequence/setCurrentSequenceLocation/?name="+sequenceNameString+"&startbp="+start+"&endbp="+end);
+        RestService.sendRequest(requestCallback, "sequence/setCurrentSequenceLocation/?name=" + sequenceNameString + "&startbp=" + start + "&endbp=" + end);
     }
 
-    public static void getSequenceForOffsetAndMaxSortName(RequestCallback requestCallback, String text, int start, int length, Boolean sortNameAscending) {
-        RestService.sendRequest(requestCallback, "sequence/getSequences/?name="+text+"&start="+start+"&length="+length+"&sort=name&asc="+sortNameAscending);
+    public static void getSequenceForOffsetAndMax(RequestCallback requestCallback, String text, int start, int length, String sortBy,Boolean sortNameAscending, String minFeatureLengthText, String maxFeatureLengthText) {
+        String searchString = "sequence/getSequences/?name=" + text + "&start=" + start + "&length=" + length ;
+        if(sortBy!=null && sortBy.length()>1){
+            searchString += "&sort="+sortBy+"&asc=" + sortNameAscending;
+        }
+        try {
+            searchString += "&minFeatureLength=" + Integer.parseInt(minFeatureLengthText);
+        } catch (NumberFormatException nfe) {
+            //
+        }
+        try {
+            searchString += "&maxFeatureLength=" + Integer.parseInt(maxFeatureLengthText);
+        } catch (NumberFormatException nfe) {
+            //
+        }
+        RestService.sendRequest(requestCallback, searchString);
     }
 
-    public static void getSequenceForOffsetAndMaxSortLength(RequestCallback requestCallback, String text, int start, int length, Boolean sortLengthAscending) {
-        RestService.sendRequest(requestCallback, "sequence/getSequences/?name="+text+"&start="+start+"&length="+length+"&sort=length&asc="+sortLengthAscending);
-    }
+
 }

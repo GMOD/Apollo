@@ -187,12 +187,12 @@ public class SequencePanel extends Composite {
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 if (nameSortInfo.getColumn().isSortable()) {
                     Boolean sortNameAscending = nameSortInfo.isAscending();
-                    SequenceRestService.getSequenceForOffsetAndMaxSortName(requestCallback, nameSearchBox.getText(), start, length, sortNameAscending);
+                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "name", sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
                 nameSortInfo = sortList.get(1);
                 if (nameSortInfo.getColumn().isSortable()) {
                     Boolean sortLengthAscending = nameSortInfo.isAscending();
-                    SequenceRestService.getSequenceForOffsetAndMaxSortLength(requestCallback, nameSearchBox.getText(), start, length, sortLengthAscending);
+                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "length", sortLengthAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
 
             }
@@ -208,31 +208,6 @@ public class SequencePanel extends Composite {
         pager.setDisplay(dataGrid);
 
 
-//        ColumnSortEvent.ListHandler<SequenceInfo> sortHandler = new ColumnSortEvent.ListHandler<SequenceInfo>(filteredSequenceList);
-//        ColumnSortEvent.AsyncHandler<SequenceInfo> sortHandler = new ColumnSortEvent.AsyncHandler<SequenceInfo>(dataProvider);
-//        dataGrid.addColumnSortHandler(sortHandler);
-//
-//        sortHandler.setComparator(selectColumn, new Comparator<SequenceInfo>() {
-//                    @Override
-//                    public int compare(SequenceInfo o1, SequenceInfo o2) {
-//                        return o1.getSelected().compareTo(o2.getSelected());
-//                    }
-//                }
-//        );
-//        sortHandler.setComparator(nameColumn, new Comparator<SequenceInfo>() {
-//                    @Override
-//                    public int compare(SequenceInfo o1, SequenceInfo o2) {
-//                        return o1.compareTo(o2);
-//                    }
-//                }
-//        );
-//        sortHandler.setComparator(lengthColumn, new Comparator<SequenceInfo>() {
-//                    @Override
-//                    public int compare(SequenceInfo o1, SequenceInfo o2) {
-//                        return o1.getLength() - o2.getLength();
-//                    }
-//                }
-//        );
 
         // have to use a special handler instead of UiHandler for this type
         dataGrid.addDomHandler(new DoubleClickHandler() {
@@ -366,6 +341,8 @@ public class SequencePanel extends Composite {
 
     @UiHandler(value = {"nameSearchBox", "minFeatureLength", "maxFeatureLength"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+
 //        filterSequences();
     }
 
@@ -526,6 +503,7 @@ public class SequencePanel extends Composite {
 
 
     public void reload() {
+        dataGrid.redraw();
 //        filterSequences();
     }
 
