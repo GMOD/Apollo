@@ -186,14 +186,17 @@ public class SequencePanel extends Composite {
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
                 if (nameSortInfo.getColumn().isSortable()) {
+                    Column <SequenceInfo, ?> sortColumn = (Column <SequenceInfo, ?>) sortList.get(0).getColumn();
+                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
+                    String searchColumnString = columnIndex==1 ? "name" : "length";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
-                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "name", sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
+                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
                 }
-                nameSortInfo = sortList.get(1);
-                if (nameSortInfo.getColumn().isSortable()) {
-                    Boolean sortLengthAscending = nameSortInfo.isAscending();
-                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "length", sortLengthAscending, minFeatureLength.getText(), maxFeatureLength.getText());
-                }
+//                nameSortInfo = sortList.get(1)
+//                if (nameSortInfo.getColumn().isSortable()) {
+//                    Boolean sortLengthAscending = nameSortInfo.isAscending();
+//                    SequenceRestService.getSequenceForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, "length", sortLengthAscending, minFeatureLength.getText(), maxFeatureLength.getText());
+//                }
 
             }
         };
@@ -244,8 +247,8 @@ public class SequencePanel extends Composite {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-                    sequenceInfoList.clear();
-                    sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
+//                    sequenceInfoList.clear();
+//                    sequenceInfoList.addAll(MainPanel.getInstance().getCurrentSequenceList());
 
                     OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
 

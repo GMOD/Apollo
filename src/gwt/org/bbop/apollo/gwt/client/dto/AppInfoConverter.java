@@ -18,7 +18,7 @@ public class AppInfoConverter {
         if(object.get("currentSequence")!=null ){
             appStateInfo.setCurrentSequence(SequenceInfoConverter.convertFromJson(object.isObject().get("currentSequence").isObject()));
         }
-        appStateInfo.setCurrentSequenceList(SequenceInfoConverter.convertFromJsonArray(object.isObject().get("currentSequenceList").isArray()));
+//        appStateInfo.setCurrentSequenceList(SequenceInfoConverter.convertFromJsonArray(object.isObject().get("currentSequenceList").isArray()));
 
         appStateInfo.setOrganismList(OrganismInfoConverter.convertFromJsonArray(object.get("organismList").isArray()));
         if(object.containsKey("currentStartBp")){

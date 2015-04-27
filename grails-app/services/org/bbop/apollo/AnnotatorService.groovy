@@ -56,28 +56,28 @@ class AnnotatorService {
         appStateObject.put("currentSequence",currentUserOrganismPreference.sequence)
 //
 //
-        JSONArray sequenceArray = new JSONArray()
-        for (Sequence sequence in currentUserOrganismPreference.organism.sequences) {
-//            println "seq i . . ${sequence as JSON}"
-            JSONObject jsonObject = new JSONObject()
-            jsonObject.put("id", sequence.id)
-            jsonObject.put("name", sequence.name)
-            jsonObject.put("length", sequence.length)
-            jsonObject.put("start", sequence.start)
-            jsonObject.put("end", sequence.end)
-
-
-
-//            jsonObject.put("sequence", sequence as JSON)
-//            jsonObject.put("default", defaultName && defaultName == sequence.name)
-//            if (defaultName == sequence.name) {
-//                log.info "setting the default sequence: ${jsonObject.get("default")}"
-//            }
-            sequenceArray.put(jsonObject)
-        }
-
+//        JSONArray sequenceArray = new JSONArray()
+//        for (Sequence sequence in currentUserOrganismPreference.organism.sequences) {
+////            println "seq i . . ${sequence as JSON}"
+//            JSONObject jsonObject = new JSONObject()
+//            jsonObject.put("id", sequence.id)
+//            jsonObject.put("name", sequence.name)
+//            jsonObject.put("length", sequence.length)
+//            jsonObject.put("start", sequence.start)
+//            jsonObject.put("end", sequence.end)
 //
-        appStateObject.put("currentSequenceList",sequenceArray)
+//
+//
+////            jsonObject.put("sequence", sequence as JSON)
+////            jsonObject.put("default", defaultName && defaultName == sequence.name)
+////            if (defaultName == sequence.name) {
+////                log.info "setting the default sequence: ${jsonObject.get("default")}"
+////            }
+//            sequenceArray.put(jsonObject)
+//        }
+//
+////
+//        appStateObject.put("currentSequenceList",sequenceArray)
 
 
         if(currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp){

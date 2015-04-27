@@ -60,7 +60,7 @@ public class MainPanel extends Composite {
 
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
-    private static List<SequenceInfo> currentSequenceList = new ArrayList<>(); // sequence list for current organisms
+//    private static List<SequenceInfo> currentSequenceList = new ArrayList<>(); // sequence list for current organisms
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // list of organisms for user
     private static Integer currentEndBp; // list of organisms for user
@@ -300,7 +300,7 @@ public class MainPanel extends Composite {
 
     public void setAppState(AppStateInfo appStateInfo) {
         organismInfoList = appStateInfo.getOrganismList();
-        currentSequenceList = appStateInfo.getCurrentSequenceList();
+//        currentSequenceList = appStateInfo.getCurrentSequenceList();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
@@ -591,13 +591,13 @@ public class MainPanel extends Composite {
         this.currentOrganism = currentOrganism;
     }
 
-    public List<SequenceInfo> getCurrentSequenceList() {
-        return currentSequenceList;
-    }
-
-    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
-        this.currentSequenceList = currentSequenceList;
-    }
+//    public List<SequenceInfo> getCurrentSequenceList() {
+//        return currentSequenceList;
+//    }
+//
+//    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
+//        this.currentSequenceList = currentSequenceList;
+//    }
 
     public SequenceInfo getCurrentSequence() {
         return currentSequence;

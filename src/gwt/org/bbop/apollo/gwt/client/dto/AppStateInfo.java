@@ -14,7 +14,7 @@ public class AppStateInfo implements HasJSON{
     private OrganismInfo currentOrganism ;
     private List<OrganismInfo> organismList ;
     private SequenceInfo currentSequence ;
-    private List<SequenceInfo> currentSequenceList ;
+//    private List<SequenceInfo> currentSequenceList ;
     private Integer currentStartBp;
     private Integer currentEndBp;
 
@@ -42,13 +42,13 @@ public class AppStateInfo implements HasJSON{
         this.currentSequence = currentSequence;
     }
 
-    public List<SequenceInfo> getCurrentSequenceList() {
-        return currentSequenceList;
-    }
-
-    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
-        this.currentSequenceList = currentSequenceList;
-    }
+//    public List<SequenceInfo> getCurrentSequenceList() {
+//        return currentSequenceList;
+//    }
+//
+//    public void setCurrentSequenceList(List<SequenceInfo> currentSequenceList) {
+//        this.currentSequenceList = currentSequenceList;
+//    }
 
     @Override
     public JSONObject toJSON() {
@@ -60,13 +60,13 @@ public class AppStateInfo implements HasJSON{
         if(currentSequence!=null){
             returnObject.put("currentSequence",currentSequence.toJSON());
         }
-        if(currentSequenceList!=null){
-            JSONArray sequenceListArray = new JSONArray();
-            for(SequenceInfo sequenceInfo : currentSequenceList){
-                sequenceListArray.set(sequenceListArray.size(),sequenceInfo.toJSON());
-            }
-            returnObject.put("currentSequenceList",sequenceListArray);
-        }
+//        if(currentSequenceList!=null){
+//            JSONArray sequenceListArray = new JSONArray();
+//            for(SequenceInfo sequenceInfo : currentSequenceList){
+//                sequenceListArray.set(sequenceListArray.size(),sequenceInfo.toJSON());
+//            }
+//            returnObject.put("currentSequenceList",sequenceListArray);
+//        }
         if(organismList!=null){
             JSONArray organismListArray = new JSONArray();
             for(OrganismInfo organismInfo : organismList){
