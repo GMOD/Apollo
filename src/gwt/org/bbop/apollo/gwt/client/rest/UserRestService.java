@@ -167,7 +167,14 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                loadUsers(userInfoList);
+                JSONValue v=JSONParser.parseStrict(response.getText());
+                JSONObject o=v.isObject();
+                if(o.get("error")!=null) {
+                    Window.alert(o.get("error").isString().stringValue());
+                }
+                else {
+                    loadUsers(userInfoList);
+                }
             }
 
             @Override

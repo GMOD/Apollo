@@ -38,7 +38,7 @@
         </copy>
     </target>
 
-    <target name="gwtc" depends="copy-resources,javac" description="GWT compile to JavaScript (production mode)">
+    <target name="gwtc" depends="javac" description="GWT compile to JavaScript (production mode)">
         <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler" maxmemory="256m">
             <classpath>
                 <pathelement location="src/gwt"/>
@@ -135,7 +135,7 @@
     </target>
 
     <target name="release" description=""
-            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse">
+            depends="clean,git.clone,copy.apollo.plugin.jbrowse,build.jbrowse,install.jbrowse.perl">
         <copy file="${jbrowse.download.directory}/JBrowse-${jbrowse.version}.zip" todir="${basedir}"/>
         <exec executable="unzip" failifexecutionfails="false" errorproperty="">
             <arg value="JBrowse-${jbrowse.version}.zip"/>
@@ -145,10 +145,10 @@
                 <not>
                     <filename name="sample_data/**"/>
                 </not>
-    </fileset>
+            </fileset>
         </move>
         <delete file="JBrowse-${jbrowse.version}.zip"/>
-        <delete file="JBrowse-${jbrowse.version}"/>
+        <delete dir="JBrowse-${jbrowse.version}"/>
     </target>
 
     <target name="debug" description=""

@@ -87,7 +87,7 @@ if [[ $1 == "devmode" ]];then
 elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
-    ant gwtc && grails run-app
+    ant copy-resources gwtc && grails run-app
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
@@ -111,7 +111,7 @@ elif [[ $1 == "deploy" ]];then
     rm -f src/java/apollo-config.groovy
     cp apollo-config.groovy src/java/apollo-config.groovy
     #grails deploy
-    ant gwtc &&  grails war
+    ant copy-resources gwtc &&  grails war
 elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
