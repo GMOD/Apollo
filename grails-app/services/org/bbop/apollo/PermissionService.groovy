@@ -210,7 +210,6 @@ class PermissionService {
         for (GroupOrganismPermission groupPermission in groupPermissionList) {
             JSONArray jsonArray = JSON.parse(groupPermission.permissions) as JSONArray
             for (int i = 0; i < jsonArray.size(); i++) {
-//                String permission = jsonArray.getJSONObject(i).toString()
                 String permission = jsonArray.getString(i)
                 PermissionEnum permissionEnum = PermissionEnum.getValueForString(permission)
                 permissions.add(permissionEnum)
