@@ -583,6 +583,8 @@ class RequestHandlingService {
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(featureService.getTopLevelFeature(transcript), false)
+
         boolean readThroughStopCodon = transcriptJSONObject.getBoolean(FeatureStringEnum.READTHROUGH_STOP_CODON.value);
         featureService.calculateCDS(transcript, readThroughStopCodon);
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -599,8 +601,10 @@ class RequestHandlingService {
             )
             fireAnnotationEvent(annotationEvent)
         }
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(featureService.getTopLevelFeature(transcript), false)
+        featureEventService.addNewFeatureEvent(readThroughStopCodon ? FeatureOperation.SET_READTHROUGH_STOP_CODON : FeatureOperation.UNSET_READTHROUGH_STOP_CODON,transcript.uniqueName,oldJsonObject,newJsonObject )
 
-        JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(featureService.getTopLevelFeature(transcript), false));
+        JSONObject returnObject = createJSONFeatureContainer(newJsonObject);
 
         return returnObject
     }
