@@ -30,56 +30,68 @@ class SequenceSearchService {
 
     def searchSequence(JSONObject input, String database) {
 
-        String ret=input.get('search').get('key')
-        JSONObject searchUtils=configWrapperService.getSequenceSearchTools().get(ret)
-        searchUtils.put("database",database)
 
-        def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'), true, false )?.newInstance()
-        searcher.parseConfiguration(searchUtils)
-        Collection<TabDelimittedAlignment> results=searcher.search('blat',
-                input.get('search').residues,
-                input.get('search').database_id)
+        try {
+            String ret=input.get('search').get('key')
+            JSONObject searchUtils=configWrapperService.getSequenceSearchTools().get(ret)
+            searchUtils.put("database",database)
 
-        JsonBuilder json = new JsonBuilder ()
-        json.matches results, { TabDelimittedAlignment result ->
-            "identity" result.percentId
-            "significance" result.eValue
-            "subject"({
-                "location" ({
-                    "fmin" result.subjectStart
-                    "fmax" result.subjectEnd
-                    "strand" result.subjectStrand
-                })
-                "feature" ({
-                    "uniquename" result.subjectId
-                    "type"({
-                        "name" "region"
-                        "cv" ({
-                            "name" "sequence"
+            // dynamically allocate a search_class
+            def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'), true, false )?.newInstance()
+
+            // pass configuration
+            searcher.parseConfiguration(searchUtils)
+
+            Collection<TabDelimittedAlignment> results = searcher.search('searchid',
+                    input.get('search').residues,
+                    input.get('search').database_id)
+
+            JsonBuilder json = new JsonBuilder ()
+            json.matches results, { TabDelimittedAlignment result ->
+                "identity" result.percentId
+                "significance" result.eValue
+                "subject"({
+                    "location" ({
+                        "fmin" result.subjectStart
+                        "fmax" result.subjectEnd
+                        "strand" result.subjectStrand
+                    })
+                    "feature" ({
+                        "uniquename" result.subjectId
+                        "type"({
+                            "name" "region"
+                            "cv" ({
+                                "name" "sequence"
+                            })
                         })
                     })
                 })
-            })
-            "query"({
-                "location" ({
-                    "fmin" result.queryStart
-                    "fmax" result.queryEnd
-                    "strand" result.queryStrand
-                })
-                "feature" ({
-                    "uniquename" result.queryId
-                    "type" ({
-                        "name" "region"
-                        "cv"({
-                            "name" "sequence"
+                "query"({
+                    "location" ({
+                        "fmin" result.queryStart
+                        "fmax" result.queryEnd
+                        "strand" result.queryStrand
+                    })
+                    "feature" ({
+                        "uniquename" result.queryId
+                        "type" ({
+                            "name" "region"
+                            "cv"({
+                                "name" "sequence"
+                            })
                         })
                     })
                 })
-            })
 
-            rawscore result.bitscore
+                rawscore result.bitscore
+            }
+            return json.toString()
         }
-        return json.toString()
+        catch(Exception e) {
+            def obj=new JSONObject()
+            obj.put("error",e.getMessage())
+            return obj.toString()
+        }
     }
 
 
