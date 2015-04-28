@@ -53,14 +53,9 @@ public class MainPanel extends Composite {
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
-    // should I use a getter, or is this fine?
     static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
-//    public static Long currentOrganismId = null;
-//    public static String currentSequenceName = null;
-
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
-//    private static List<SequenceInfo> currentSequenceList = new ArrayList<>(); // sequence list for current organisms
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // list of organisms for user
     private static Integer currentEndBp; // list of organisms for user
@@ -110,7 +105,7 @@ public class MainPanel extends Composite {
     @UiField
     Button generateLink;
     @UiField
-    org.gwtbootstrap3.client.ui.Label currentOrganismDisplay;
+    static Label currentOrganismDisplay;
     @UiField
     static Label currentSequenceDisplay;
 
