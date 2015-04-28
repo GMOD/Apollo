@@ -243,7 +243,7 @@ public class Gff3HandlerService {
     private Map<String, String> extractAttributes(WriteObject writeObject, Feature feature) {
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put(FeatureStringEnum.EXPORT_ID.value, encodeString(feature.getUniqueName()));
-        if (feature.getName() != null && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
+        if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
         if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
@@ -302,13 +302,14 @@ public class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.EXPORT_DBXREF.value, dbxrefs.toString());
             }
         }
-        if (feature.getDescription() != null && writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value)) {
+        if (feature.getDescription() != null && !isBlank(feature.getDescription()) && writeObject.attributesToExport.contains(FeatureStringEnum.DESCRIPTION.value)) {
+            
             attributes.put(FeatureStringEnum.DESCRIPTION.value, encodeString(feature.getDescription()));
         }
         if (feature.getStatus() != null && writeObject.attributesToExport.contains(FeatureStringEnum.STATUS.value)) {
             attributes.put(FeatureStringEnum.STATUS.value, encodeString(feature.getStatus().value));
         }
-        if (feature.getSymbol() != null && writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
+        if (feature.getSymbol() != null && !isBlank(feature.getSymbol()) && writeObject.attributesToExport.contains(FeatureStringEnum.SYMBOL.value)) {
             attributes.put(FeatureStringEnum.SYMBOL.value, encodeString(feature.getSymbol()));
         }
         //TODO: Ontology_term
@@ -364,7 +365,15 @@ public class Gff3HandlerService {
         TEXT,
         GZIP
     }
-
+    
+    private boolean isBlank(String attributeValue) {
+        if (attributeValue == "") {
+            return true
+        }
+        else {
+            return false
+        }
+    }
 
     private class WriteObject {
         File file;
