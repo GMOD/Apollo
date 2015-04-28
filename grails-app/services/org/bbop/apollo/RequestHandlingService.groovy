@@ -1289,6 +1289,7 @@ class RequestHandlingService {
         Exon exon = (Exon) Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value);
         Transcript transcript = exonService.getTranscript(exon)
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
 
 
         Exon splitExon = exonService.splitExon(exon, exonLocation.getInt(FeatureStringEnum.FMAX.value), exonLocation.getInt(FeatureStringEnum.FMIN.value))
@@ -1299,7 +1300,12 @@ class RequestHandlingService {
 
         exon.save()
         transcript.save(flush: true)
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript));
+
+
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+        JSONObject featureContainer = createJSONFeatureContainer(newJsonObject);
+
+        featureEventService.addNewFeatureEvent(FeatureOperation.SPLIT_EXON,transcript.uniqueName,oldJsonObject,newJsonObject)
 
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -1529,6 +1535,8 @@ class RequestHandlingService {
 //        Exon exon = (Exon) getFeature(editor, jsonExon);
         JSONObject jsonExon = featuresArray.getJSONObject(0)
         Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
+        Transcript transcript = exonService.getTranscript(exon)
+        JSONObject  oldJsonTranscript = featureService.convertFeatureToJSON(transcript)
 //        Transcript oldTranscript = cloneTranscript(exon.getTranscript());
 //        JSONObject exonLocation = jsonExon.getJSONObject("location");
         JSONObject exonLocation = jsonExon.getJSONObject(FeatureStringEnum.LOCATION.value)
@@ -1547,7 +1555,6 @@ class RequestHandlingService {
 //        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
         featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
 //        calculateCDS(editor, exon.getTranscript());
-        Transcript transcript = exonService.getTranscript(exon)
         featureService.calculateCDS(transcript)
 //        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
@@ -1559,8 +1566,12 @@ class RequestHandlingService {
         exon.save(failOnError: true)
         splitExon.save(failOnError: true, flush: true)
 
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
 //        JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript))
+        JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
+
+        featureEventService.addNewFeatureEvent(FeatureOperation.SPLIT_EXON,transcript.uniqueName,oldJsonTranscript,newJsonObject)
+
 //        out.write(featureContainer.toString());
 //        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
         AnnotationEvent annotationEvent = new AnnotationEvent(
