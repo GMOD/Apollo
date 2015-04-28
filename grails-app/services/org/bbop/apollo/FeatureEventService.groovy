@@ -13,42 +13,66 @@ class FeatureEventService {
     def permissionService
     def featureService
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation,Feature feature){
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature) {
         if (Environment.current == Environment.TEST) {
-            return addNewFeatureEvent(featureOperation,feature,null)
+            return addNewFeatureEventWithUser(featureOperation, feature, null)
         }
-         addNewFeatureEvent(featureOperation,feature,permissionService.currentUser)
+        addNewFeatureEventWithUser(featureOperation, feature, permissionService.currentUser)
     }
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation,Feature feature,User user){
-
-        JSONObject jsonObject = featureService.convertFeatureToJSON(feature)
-
-        FeatureEvent featureEvent = FeatureEvent.findByUniqueNameAndId(feature.uniqueName,feature.id)
-
-        if(!featureEvent){
-            JSONArray newFeatureArray = new JSONArray()
-            newFeatureArray.add(jsonObject)
-            featureEvent = new FeatureEvent(
-                    editor: user
-                    ,uniqueName: feature.uniqueName
-                    ,operation: featureOperation.name()
-                    ,current: true
-                    ,newFeaturesJsonArray: newFeatureArray.toString()
-                    ,oldFeaturesJsonArray: new JSONArray().toString()
-                    ,dateCreated: new Date()
-                    ,lastUpdated: new Date()
-            ).save()
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject) {
+        if (Environment.current == Environment.TEST) {
+            return addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, (User) null)
         }
-        else{
-            JSONArray newJSONArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
-            newJSONArray.put(jsonObject)
-            featureEvent.newFeaturesJsonArray = newJSONArray.toString()
-            featureEvent.save()
-        }
+        addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, permissionService.currentUser)
+    }
+
+    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject, User user) {
+
+        FeatureEvent featureEvent
+        JSONArray newFeatureArray = new JSONArray()
+        newFeatureArray.add(jsonObject)
+        featureEvent = new FeatureEvent(
+                editor: user
+                , uniqueName: uniqueName
+                , operation: featureOperation.name()
+                , current: true
+                , newFeaturesJsonArray: newFeatureArray.toString()
+                , oldFeaturesJsonArray: new JSONArray().toString()
+                , dateCreated: new Date()
+                , lastUpdated: new Date()
+        ).save()
 
         return featureEvent
 
+    }
+
+    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, User user) {
+        return addNewFeatureEventWithUser(featureOperation, feature.uniqueName, featureService.convertFeatureToJSON(feature), user)
+    }
+
+
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject,JSONObject newJsonObject) {
+        return addNewFeatureEventWithUser(featureOperation,uniqueName,oldJsonObject,newJsonObject,permissionService.currentUser)
+    }
+
+    def addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
+        JSONArray newFeatureArray = new JSONArray()
+        newFeatureArray.add(newJsonObject)
+        JSONArray oldFeatureArray = new JSONArray()
+        oldFeatureArray.add(oldJsonObject)
+        FeatureEvent featureEvent = new FeatureEvent(
+                editor: user
+                , uniqueName: uniqueName
+                , operation: featureOperation.name()
+                , current: true
+                , newFeaturesJsonArray: newFeatureArray.toString()
+                , oldFeaturesJsonArray: oldFeatureArray.toString()
+                , dateCreated: new Date()
+                , lastUpdated: new Date()
+        ).save()
+
+        return featureEvent
     }
 
     def deleteHistory(String uniqueName) {

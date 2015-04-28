@@ -518,9 +518,11 @@ class RequestHandlingService {
             featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMIN.value), true)
         }
         transcript.save()
+
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
-//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
+        JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
+        featureEventService.addNewFeatureEvent( setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START,transcript.uniqueName,transcriptJSONObject,newJSONObject)
+        JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
         if (sequence) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -555,8 +557,13 @@ class RequestHandlingService {
             featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
         }
         transcript.save()
+
+        JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
+        featureEventService.addNewFeatureEvent( setStart ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END,transcript.uniqueName,transcriptJSONObject,newJSONObject)
+        JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
+
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
+//        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false));
 //        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
 
         if (sequence) {
@@ -1368,13 +1375,16 @@ class RequestHandlingService {
                    }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     transcript.name = nameService.generateUniqueName(transcript)
-//                    transcript.uniqueName = transcript.name
                     transcript.uniqueName = nameService.generateUniqueName()
 
-                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));
+                    JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
+                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,transcript.uniqueName,jsonObject)
+                    returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
                 }
             } else {
-                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(newFeature));
+                JSONObject jsonObject = featureService.convertFeatureToJSON(newFeature)
+                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,newFeature.uniqueName,jsonObject)
+                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
             }
         }
 
