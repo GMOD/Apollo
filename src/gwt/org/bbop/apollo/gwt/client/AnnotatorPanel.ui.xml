@@ -204,6 +204,7 @@
                         <b:Row>
                             <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
                             <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
+                            <apollo:RepeatRegionDetailPanel ui:field="repeatRegionDetailPanel" visible="false"/>
                             <!--<apollo:ExonDetailPanel ui:field="exonDetailPanel" visible="false"/>-->
                             <!--<apollo:CDSDetailPanel ui:field="cdsDetailPanel" visible="false"/>-->
                         </b:Row>
