@@ -8,6 +8,7 @@ public enum FeatureStringEnum {
         FEATURE_PROPERTY,
         PARENT_ID,
         USERNAME,
+        EDITOR,
         TYPE,
         PARENT_TYPE,
         PROPERTIES,

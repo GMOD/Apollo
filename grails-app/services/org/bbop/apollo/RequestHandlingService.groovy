@@ -485,8 +485,6 @@ class RequestHandlingService {
         }
 
 
-
-
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
                 , sequence: sequence
@@ -1367,7 +1365,7 @@ class RequestHandlingService {
                         if (transcriptService.getCDS(transcript) != null) {
                             featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
                         }
-                    }
+                   }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     transcript.name = nameService.generateUniqueName(transcript)
 //                    transcript.uniqueName = transcript.name

@@ -192,7 +192,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //            Feature  gbolFeature = getFeature(editor, jsonFeature);
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureEvent> transactionList = FeatureEvent.findAllByFeatureId(feature.id)
+            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName)
 //            TransactionList transactionList = historyStore.getTransactionListForFeature(jsonFeature.getString("uniquename"));
             for (int j = 0; j < transactionList.size(); ++j) {
 //                Transaction transaction = transactionList.get(j);
@@ -200,6 +200,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 JSONObject historyItem = new JSONObject();
                 historyItem.put(REST_OPERATION, transaction.operation.toString());
 //                historyItem.put("editor", transaction.getEditor());
+                historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor().username);
                 historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
 //                if (j == transactionList.current) {
                 if (transactionList.current) {
@@ -208,19 +209,25 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 JSONArray historyFeatures = new JSONArray();
                 historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
 
-                // TODO: this needs to be functional
-//                for (Feature f : transaction.newFeatures) {
-//                    if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
+                if(transaction.newFeaturesJsonArray){
+                    JSONArray newFeaturesJsonArray =(JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
+                    for ( int featureIndex  = 0 ; featureIndex < newFeaturesJsonArray.size() ; featureIndex++) {
+                        JSONObject featureJsonObject = newFeaturesJsonArray.get(featureIndex)
+                        // TODO: this needs to be functional
+                        if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT.name())) {
 ////                        if (gbolFeature.overlaps(f)) {
 //                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
 ////                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
 //                            historyFeatures.put(featureService.convertFeatureToJSON(f));
-//                        }
+                        throw new RuntimeException("split transcript operations not supported yet")
+                        }
 //                    } else {
 //                        historyFeatures.put(featureService.convertFeatureToJSON(f));
+                        historyFeatures.put(featureJsonObject);
 //                    }
-//                }
-                history.put(historyItem);
+                    }
+                    history.put(historyItem);
+                }
             }
             historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature);
         }

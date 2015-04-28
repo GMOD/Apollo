@@ -8,13 +8,22 @@ class FeatureEvent {
     Date dateCreated
     Date lastUpdated
     User editor
-//    Feature feature // parent
-    Long featureId
+    String uniqueName // from feature
     String operation
     Boolean current
 
+    String newFeaturesJsonArray
+    String oldFeaturesJsonArray
+
     static constraints = {
         editor nullable: true
+        newFeaturesJsonArray nullable: true
+        oldFeaturesJsonArray nullable: true
+    }
+
+    static mapping = {
+        newFeaturesJsonArray type: "text"
+        oldFeaturesJsonArray type: "text"
     }
 
 //    static hasOne = [
