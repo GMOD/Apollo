@@ -1254,6 +1254,7 @@ class RequestHandlingService {
         Exon exon1 = (Exon) Exon.findByUniqueName(features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value));
         Exon exon2 = (Exon) Exon.findByUniqueName(features.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value));
         Transcript transcript1 = exonService.getTranscript(exon1)
+        JSONObject oldJsonObject= featureService.convertFeatureToJSON(transcript1)
 //        Transcript oldTransript = transcript1.generateClone()
 //        Transcript oldTranscript = cloneTranscript(transcript);
 //        editor.mergeExons(exon1, exon2);
@@ -1266,8 +1267,10 @@ class RequestHandlingService {
         transcript1.save(flush: true)
         exon1.save(flush: true)
 
-        JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript1))
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript1)
+        JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
 
+        featureEventService.addNewFeatureEvent(FeatureOperation.MERGE_EXONS,transcript1.uniqueName,oldJsonObject,newJsonObject)
 
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
