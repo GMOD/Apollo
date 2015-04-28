@@ -83,7 +83,7 @@ public class TrackPanel extends Composite {
         dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
         // TODO: on-click . . . if not Clicked
-        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
+        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(false, false)) {
 
 
             @Override
