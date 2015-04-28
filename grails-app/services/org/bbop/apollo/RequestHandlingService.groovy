@@ -619,8 +619,9 @@ class RequestHandlingService {
 
         Transcript.withNewSession {
             for (int i = 0; i < features.length(); ++i) {
-                String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
-                Exon exon = Exon.findByName(uniqueName)
+                JSONObject oldJsonObject = features.getJSONObject(i)
+                String uniqueName = oldJsonObject.getString(FeatureStringEnum.UNIQUENAME.value);
+                Exon exon = Exon.findByUniqueName(uniqueName)
                 Transcript transcript = exonService.getTranscript(exon)
 
                 if (upstreamDonor) {
@@ -635,8 +636,9 @@ class RequestHandlingService {
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
                 transcript.save()
-
-                transcriptArray.add(featureService.convertFeatureToJSON(transcript))
+                JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+                transcriptArray.add(newJsonObject)
+                featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,oldJsonObject,newJsonObject)
             }
         }
 
@@ -665,8 +667,9 @@ class RequestHandlingService {
 
         Transcript.withNewSession {
             for (int i = 0; i < features.length(); ++i) {
-                String uniqueName = features.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value);
-                Exon exon = Exon.findByName(uniqueName)
+                JSONObject oldJsonObject = features.getJSONObject(i)
+                String uniqueName = oldJsonObject.getString(FeatureStringEnum.UNIQUENAME.value);
+                Exon exon = Exon.findByUniqueName(uniqueName)
                 Transcript transcript = exonService.getTranscript(exon)
                 if (upstreamDonor) {
                     exonService.setToUpstreamDonor(exon)
@@ -680,8 +683,9 @@ class RequestHandlingService {
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
                 transcript.save()
-
-                transcriptArray.add(featureService.convertFeatureToJSON(transcript))
+                JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
+                transcriptArray.add(newJsonObject)
+                featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,oldJsonObject,newJsonObject)
             }
         }
 

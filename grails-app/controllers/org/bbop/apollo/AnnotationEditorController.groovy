@@ -381,7 +381,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
-            Feature gbolFeature = Feature.findByName(uniqueName)
+            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
             JSONObject info = new JSONObject();
             info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
             info.put("time_accessioned", gbolFeature.lastUpdated)
