@@ -6,10 +6,7 @@ import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -84,6 +81,8 @@ public class AnnotatorPanel extends Composite {
     static TranscriptDetailPanel transcriptDetailPanel;
     @UiField
     static ExonDetailPanel exonDetailPanel;
+    @UiField
+    static RepeatRegionDetailPanel repeatRegionDetailPanel;
     @UiField
     static TabLayoutPanel tabPanel;
     @UiField
@@ -194,6 +193,7 @@ public class AnnotatorPanel extends Composite {
                                 transcriptDetailPanel.setEditable(editable);
                                 geneDetailPanel.setEditable(editable);
                                 exonDetailPanel.setEditable(editable);
+                                repeatRegionDetailPanel.setEditable(editable);
                                 reload();
                                 break;
                         }
@@ -251,6 +251,7 @@ public class AnnotatorPanel extends Composite {
         GWT.log("annoation type: " + type);
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
+        repeatRegionDetailPanel.setVisible(false);
         switch (type) {
             case "gene":
             case "pseduogene":
@@ -265,6 +266,12 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo);
 //                exonDetailPanel.setVisible(true);
+                break;
+            case "transposable_element":
+            case "repeat_region":
+                repeatRegionDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.selectTab(0);
                 break;
 //            case "exon":
 //                exonDetailPanel.updateData(annotationInfo);
@@ -374,8 +381,25 @@ public class AnnotatorPanel extends Composite {
         dataGrid.setColumnWidth(0, "70%");
         dataGrid.setColumnWidth(1, "15%");
         dataGrid.setColumnWidth(2, "15%");
-
-
+        
+        dataGrid.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                //Set<AnnotationInfo> annotationInfoSet = selectionModel.getSelectedSet();
+                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
+                if (annotationInfo != null) {
+                    GWT.log(annotationInfo.toString());
+                    String type = annotationInfo.getType();
+                    if(type.equals("repeat_region") || type.equals("transposable_element")) {
+                        repeatRegionDetailPanel.updateData(annotationInfo);
+                        updateAnnotationInfo(annotationInfo);
+                        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+                        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+                    }
+                }
+            }
+        }, ClickEvent.getType());
+        
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
         dataGrid.addColumnSortHandler(sortHandler);
 
@@ -406,7 +430,7 @@ public class AnnotatorPanel extends Composite {
 
 
     }
-
+    
     private String getType(JSONObject internalData) {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
