@@ -462,19 +462,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload() {
-
         loadOrganismAndSequence(sequenceList.getText());
-
-//        sequenceOracle.clear();
-//        for(SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()){
-//            sequenceOracle.add(sequenceInfo.getName());
-//        }
-
-//        if (selectedSequenceName == null) {
-//            selectedSequenceName = MainPanel.getInstance().getCurrentSequence();
-//            loadSequences();
-//        }
-//
     }
 
     private void filterList() {
@@ -604,9 +592,6 @@ public class AnnotatorPanel extends Composite {
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
 
-        // TODO: delete this .. just for demo version
-        Random random = new Random();
-
         public CustomTableBuilder() {
             super(dataGrid);
         }
@@ -628,7 +613,6 @@ public class AnnotatorPanel extends Composite {
         }
 
         private void buildAnnotationRow(final AnnotationInfo rowValue, int absRowIndex, boolean showTranscripts) {
-//            final SingleSelectionModel<AnnotationInfo> selectionModel = (SingleSelectionModel<AnnotationInfo>) dataGrid.getSelectionModel();
 
             TableRowBuilder row = startRow();
             TableCellBuilder td = row.startTD();
@@ -641,7 +625,6 @@ public class AnnotatorPanel extends Composite {
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
                 HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
-//                updateAnnotationInfo(rowValue);
                 td.html(htmlString);
             } else {
                 renderCell(td, createContext(0), nameColumn, rowValue);

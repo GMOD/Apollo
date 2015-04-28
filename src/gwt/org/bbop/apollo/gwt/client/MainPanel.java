@@ -507,6 +507,9 @@ public class MainPanel extends Composite {
     public static void handleNavigationEvent(String payload) {
         if (handlingNavEvent) return;
 
+        if(detailTabs.getSelectedIndex()==0){
+            annotatorPanel.reload();
+        }
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
         GWT.log("event hapened: " + navEvent.toString());
 
