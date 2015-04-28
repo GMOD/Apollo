@@ -124,10 +124,8 @@ public class OrganismPanel extends Composite {
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if (singleSelectionModel.getSelectedObject() != null) {
-                    setSelectedInfo(singleSelectionModel.getSelectedObject());
-                    setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
-                }
+                setSelectedInfo(singleSelectionModel.getSelectedObject());
+                setDefaultButtonState(singleSelectionModel.getSelectedObject() != null);
             }
         });
         dataGrid.setSelectionModel(singleSelectionModel);
