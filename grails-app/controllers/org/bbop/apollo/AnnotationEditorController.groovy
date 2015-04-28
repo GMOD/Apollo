@@ -192,7 +192,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //            Feature  gbolFeature = getFeature(editor, jsonFeature);
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureEvent> transactionList = FeatureEvent.findAllByFeature(feature)
+            List<FeatureEvent> transactionList = FeatureEvent.findAllByFeatureId(feature.id)
 //            TransactionList transactionList = historyStore.getTransactionListForFeature(jsonFeature.getString("uniquename"));
             for (int j = 0; j < transactionList.size(); ++j) {
 //                Transaction transaction = transactionList.get(j);
@@ -207,17 +207,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 JSONArray historyFeatures = new JSONArray();
                 historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
-                for (Feature f : transaction.newFeatures) {
-                    if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
-//                        if (gbolFeature.overlaps(f)) {
-                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
-//                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
-                            historyFeatures.put(featureService.convertFeatureToJSON(f));
-                        }
-                    } else {
-                        historyFeatures.put(featureService.convertFeatureToJSON(f));
-                    }
-                }
+
+                // TODO: this needs to be functional
+//                for (Feature f : transaction.newFeatures) {
+//                    if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
+////                        if (gbolFeature.overlaps(f)) {
+//                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
+////                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
+//                            historyFeatures.put(featureService.convertFeatureToJSON(f));
+//                        }
+//                    } else {
+//                        historyFeatures.put(featureService.convertFeatureToJSON(f));
+//                    }
+//                }
                 history.put(historyItem);
             }
             historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature);
