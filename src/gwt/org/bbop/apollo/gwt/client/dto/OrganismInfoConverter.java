@@ -24,7 +24,7 @@ public class OrganismInfoConverter {
             organismInfo.setNumSequences(0);
         }
         if (object.get("annotationCount") != null) {
-            organismInfo.setNumFeatures((int) Math.round(object.get("annotationCount").isNumber().doubleValue()));
+            organismInfo.setNumFeatures((int) object.get("annotationCount").isNumber().doubleValue());
         } else {
             organismInfo.setNumFeatures(0);
         }
@@ -45,9 +45,7 @@ public class OrganismInfoConverter {
             organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
         }
         organismInfo.setCurrent(object.get("currentOrganism")!=null && object.get("currentOrganism").isBoolean().booleanValue());
-        organismInfo.setNumFeatures(0);
         organismInfo.setNumTracks(0);
-
 
         return organismInfo;
     }
@@ -56,7 +54,8 @@ public class OrganismInfoConverter {
         List<OrganismInfo> organismInfoList = new ArrayList<>();
 
         for (int i = 0; i < organismList.size(); i++) {
-            organismInfoList.add(convertFromJson(organismList.get(i).isObject()));
+            OrganismInfo organismInfo = convertFromJson(organismList.get(i).isObject());
+            organismInfoList.add(organismInfo);
         }
 
         return organismInfoList;
