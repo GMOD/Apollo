@@ -741,17 +741,17 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer()
 
         for (int i = 0; i < features.length(); ++i) {
-            JSONObject jsonFeature = features.getJSONObject(i);
-            if (!jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
+            JSONObject oldJsonFeature = features.getJSONObject(i);
+            if (!oldJsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 continue;
             }
-            JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
+            JSONObject jsonLocation = oldJsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
             int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
             int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            Exon exon = Exon.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            Exon exon = Exon.findByUniqueName(oldJsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             Transcript transcript = exonService.getTranscript(exon)
 
 
@@ -778,8 +778,9 @@ class RequestHandlingService {
 
             transcript.save()
 
-
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false));
+            JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,oldJsonFeature,newJsonObject)
 
         }
 
@@ -803,17 +804,17 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainerFromFeatures()
 
         for (int i = 0; i < features.length(); ++i) {
-            JSONObject jsonFeature = features.getJSONObject(i);
-            if (!jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
+            JSONObject oldJsonFeature = features.getJSONObject(i);
+            if (!oldJsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 continue;
             }
-            JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
+            JSONObject jsonLocation = oldJsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
             int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
             int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            Feature feature = Feature.findByUniqueName(oldJsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
 //            editor.setBoundaries(feature, fmin, fmax);
             FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
 
@@ -821,7 +822,9 @@ class RequestHandlingService {
             featureLocation.fmax = fmax
             feature.save()
 
-            returnObject.getJSONArray("features").put(featureService.convertFeatureToJSON(feature, false));
+            JSONObject newJsonFeature = featureService.convertFeatureToJSON(feature, false)
+            returnObject.getJSONArray("features").put(newJsonFeature);
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_BOUNDARIES,feature.uniqueName,oldJsonFeature,newJsonFeature)
         }
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
