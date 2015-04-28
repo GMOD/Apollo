@@ -474,6 +474,30 @@ class PermissionService {
         return organism
     }
 
+
+    User getActiveUser(JSONObject inputObject){
+
+        if (Environment.current == Environment.TEST && !inputObject.containsKey(FeatureStringEnum.USERNAME.value)) {
+            return null
+        }
+
+        //def session = RequestContextHolder.currentRequestAttributes().getSession()
+        String username
+        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
+            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
+        }
+        if (!username) {
+            username = SecurityUtils.subject.principal
+        }
+        if (!username) {
+            throw new PermissionException("Unable to find a username to check")
+        }
+
+
+        User user = User.findByUsername(username)
+        return user
+
+    }
     /**
      * This method finds the proper username with their proper organism for the current organism.
      *
@@ -498,21 +522,8 @@ class PermissionService {
             return sequence
         }
 
+        User user = getActiveUser(inputObject)
 
-        //def session = RequestContextHolder.currentRequestAttributes().getSession()
-        String username
-        if (inputObject.has(FeatureStringEnum.USERNAME.value)) {
-            username = inputObject.getString(FeatureStringEnum.USERNAME.value)
-        }
-        if (!username) {
-            username = SecurityUtils.subject.principal
-        }
-        if (!username) {
-            throw new PermissionException("Unable to find a username to check")
-        }
-
-
-        User user = User.findByUsername(username)
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
 
         if (!userOrganismPreference) {

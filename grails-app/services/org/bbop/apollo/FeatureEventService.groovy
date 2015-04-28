@@ -14,26 +14,19 @@ class FeatureEventService {
     def permissionService
     def featureService
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature) {
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature,User user) {
         if (Environment.current == Environment.TEST) {
             return addNewFeatureEventWithUser(featureOperation, feature, null)
         }
-        addNewFeatureEventWithUser(featureOperation, feature, feature.owner)
+        addNewFeatureEventWithUser(featureOperation, feature,user)
     }
 
-    User extractUser(JSONObject jsonObject){
-        if (Environment.current == Environment.TEST) {
-            return null
-        }
-        String username = jsonObject.getString(FeatureStringEnum.USERNAME.value) ?: permissionService.currentUser.username
-        return User.findByUsername(username)
-    }
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject) {
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject,User user) {
         if (Environment.current == Environment.TEST) {
             return addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, (User) null)
         }
-        addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, extractUser(jsonObject))
+        addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, user)
     }
 
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject, User user) {
@@ -61,11 +54,11 @@ class FeatureEventService {
     }
 
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject,JSONObject newJsonObject) {
-        return addNewFeatureEventWithUser(featureOperation,uniqueName,oldJsonObject,newJsonObject,extractUser(oldJsonObject))
-    }
+//    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject,JSONObject newJsonObject) {
+//        return addNewFeatureEventWithUser(featureOperation,uniqueName,oldJsonObject,newJsonObject,User user)
+//    }
 
-    def addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject, JSONObject newJsonObject, User user ) {
+    def addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject, JSONObject newJsonObject, User user ) {
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(newJsonObject)
         JSONArray oldFeatureArray = new JSONArray()
