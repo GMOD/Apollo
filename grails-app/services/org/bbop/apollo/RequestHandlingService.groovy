@@ -1211,9 +1211,9 @@ class RequestHandlingService {
             if (feature instanceof Transcript) {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature);
             } else {
-//                feature = featureService.flipFeatureStrand(feature);
                 feature = featureService.flipStrand(feature)
             }
+            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND,feature)
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
