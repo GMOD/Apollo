@@ -401,6 +401,7 @@ class RequestHandlingService {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
         Transcript transcript = Transcript.findByUniqueName(uniqueName)
+        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
 
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
@@ -434,9 +435,11 @@ class RequestHandlingService {
 //        transcript.attach()
 
         // TODO: one of these two versions . . .
-        JSONObject returnObject = createJSONFeatureContainer(featureService.convertFeatureToJSON(transcript, false))
+        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
+        JSONObject returnObject = createJSONFeatureContainer(newJsonObject)
 //        JSONObject returnObject = featureService.convertFeatureToJSON(transcript,false)
-//
+        
+        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_EXON,transcript.uniqueName,oldJsonObject,newJsonObject)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
