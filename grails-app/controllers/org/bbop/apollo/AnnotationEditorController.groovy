@@ -49,6 +49,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
     def preferenceService
     def sequenceSearchService
+    def featureEventService
 
 
     def index() {
@@ -244,8 +245,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
+            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value)? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
+            int count = inputObject.containsKey(FeatureStringEnum.COUNT.value)? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
+            featureEventService.undo(jsonFeature, count,confirm )
 
 //            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 //                continue;
@@ -271,8 +273,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
+//            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+//            Feature feature = Feature.findByUniqueName(uniqueName)
+            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value)? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
+            int count = inputObject.containsKey(FeatureStringEnum.COUNT.value)? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
+            featureEventService.redo(jsonFeature, count,confirm )
 
 //            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 //                continue;

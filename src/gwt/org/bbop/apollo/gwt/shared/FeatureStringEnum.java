@@ -42,6 +42,8 @@ public enum FeatureStringEnum {
         OLD_NON_RESERVED_PROPERTIES,
         NEW_NON_RESERVED_PROPERTIES,
         LOCATION,
+        COUNT,
+        CONFIRM,
         FMIN,
         FMAX,
         IS_FMIN_PARTIAL,
