@@ -120,10 +120,10 @@ public class AnnotatorPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if (transcriptSelected) {
-                    transcriptSelected = false;
-                    return;
-                }
+//                if (transcriptSelected) {
+//                    transcriptSelected = false;
+//                    return;
+//                } //commented out to enable behavior for top-level features
                 AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
                 GWT.log(selectionModel.getSelectedObject().getName());
                 updateAnnotationInfo(annotationInfo);
