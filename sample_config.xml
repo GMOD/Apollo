@@ -54,6 +54,8 @@
 		<authentication_class>org.bbop.apollo.web.user.encryptedlocaldb.EncryptedLocalDbUserAuthentication</authentication_class>
 		<!-- If the database is unencrypted (older default).  -->
 		<!--<authentication_class>org.bbop.apollo.web.user.localdb.LocalDbUserAuthentication</authentication_class>-->
+        <!-- If using an upstream authentication method (OAuth, BrowserID, etc...), automatically add users to the database on first login -->
+        <!--<auto_add_users>true</auto_add_users>-->
 
 	</user>
 
@@ -93,6 +95,46 @@
 			<acceptor_site>AG</acceptor_site>
 		</splice_sites>
 
+
+        <!-- Authentication methods which use upstream authentication servers
+             (e.g. OAuth, BrowserID, RemoteUser) may define a list of default
+             permissions to be granted on first login to users.
+
+             These are only relevant if
+
+                 <auto_add_users>true</auto_add_users>
+
+            is set above in the <user/> section. Authentication "groups" may be
+            configured to apply batch permissions to users or domains.
+
+            Users should contain one or more <user> block with a username/email
+            as is appropriate for the selected authentication method.
+
+            Domains should contain one or more <domain> block. Will only be
+            functional if usernames have an @ in them.
+
+            Permissions can be granted by adding the xml tags:
+
+              - <read/>
+              - <write/>
+              - <publish/>
+             -->
+        <!--
+        <default_permissions>
+            <auto_grant>
+                <users>
+                    <user>username@fqdn.edu</user>
+                    <user>username2@fqdn.edu</user>
+                </users>
+                <domains>
+                    <domain>@university.edu</domain>
+                </domains>
+                <read />
+                <publish />
+            </auto_grant>
+        </default_permissions>
+        -->
+
 	</tracks>
 
 	<!-- path to file containing canned comments XML -->
@@ -120,7 +162,7 @@
 				<status_flag>Needs review</status_flag>
 			</status>
 			-->
-			
+
 			<!-- display generic attributes section -->
 			<attributes />
 
@@ -239,7 +281,7 @@
 
 				<!-- class for data adapter plugin -->
 				<class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
-				
+
 				<!-- required permission for using data adapter
 				available options are: read, write, publish -->
 				<permission>read</permission>
@@ -259,7 +301,7 @@
 
 				<!-- class for data adapter plugin -->
 				<class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
-				
+
 				<!-- required permission for using data adapter
 				available options are: read, write, publish -->
 				<permission>read</permission>
@@ -279,7 +321,7 @@
 
 				<!-- class for data adapter plugin -->
 				<class>org.bbop.apollo.web.dataadapter.fasta.FastaDataAdapter</class>
-				
+
 				<!-- required permission for using data adapter
 				available options are: read, write, publish -->
 				<permission>read</permission>
