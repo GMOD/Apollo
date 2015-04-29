@@ -1446,9 +1446,14 @@ class RequestHandlingService {
             if (feature) {
                 if (feature instanceof Exon) {
                     Transcript transcript = exonService.getTranscript((Exon) feature)
-                    oldFeatureMap.put(transcript.uniqueName, featureService.convertFeatureToJSON(transcript))
+                    // if its the same transcript, we don't want to overwrite it
+                    if(!oldFeatureMap.containsKey(transcript.uniqueName)){
+                        oldFeatureMap.put(transcript.uniqueName, featureService.convertFeatureToJSON(transcript))
+                    }
                 } else {
-                    oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
+                    if(!oldFeatureMap.containsKey(feature.uniqueName)) {
+                        oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
+                    }
                 }
 //                oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
                 // is this a bug?
