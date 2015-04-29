@@ -271,7 +271,6 @@ public class AnnotatorPanel extends Composite {
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.selectTab(0);
                 break;
 //            case "exon":
 //                exonDetailPanel.updateData(annotationInfo);
@@ -391,10 +390,9 @@ public class AnnotatorPanel extends Composite {
                     GWT.log(annotationInfo.toString());
                     String type = annotationInfo.getType();
                     if(type.equals("repeat_region") || type.equals("transposable_element")) {
-                        repeatRegionDetailPanel.updateData(annotationInfo);
-                        updateAnnotationInfo(annotationInfo);
                         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
                         Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+                        updateAnnotationInfo(annotationInfo);
                     }
                 }
             }
