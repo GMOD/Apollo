@@ -199,7 +199,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //                Transaction transaction = transactionList.get(j);
                 FeatureEvent transaction = transactionList.get(j);
                 JSONObject historyItem = new JSONObject();
-                historyItem.put(REST_OPERATION, transaction.operation.toString());
+                historyItem.put(REST_OPERATION, transaction.operation.name());
 //                historyItem.put("editor", transaction.getEditor());
                 historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor().username);
                 historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));

@@ -15,22 +15,22 @@ class FeatureEventService {
     def featureService
     def requestHandlingService
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature, User user) {
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature,JSONObject inputCommand, User user) {
         if (Environment.current == Environment.TEST) {
-            return addNewFeatureEventWithUser(featureOperation, feature, null)
+            return addNewFeatureEventWithUser(featureOperation, feature,inputCommand, null)
         }
-        addNewFeatureEventWithUser(featureOperation, feature, user)
+        addNewFeatureEventWithUser(featureOperation, feature, inputCommand, user)
     }
 
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject, User user) {
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject inputCommand,JSONObject jsonObject, User user) {
         if (Environment.current == Environment.TEST) {
-            return addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, (User) null)
+            return addNewFeatureEventWithUser(featureOperation, uniqueName, inputCommand,jsonObject, (User) null)
         }
-        addNewFeatureEventWithUser(featureOperation, uniqueName, jsonObject, user)
+        addNewFeatureEventWithUser(featureOperation, uniqueName, inputCommand,jsonObject, user)
     }
 
-    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject jsonObject, User user) {
+    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName,JSONObject commandObject, JSONObject jsonObject, User user) {
 
         FeatureEvent featureEvent
         JSONArray newFeatureArray = new JSONArray()
@@ -40,6 +40,7 @@ class FeatureEventService {
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
                 , current: true
+                , originalJsonCommand: commandObject.toString()
                 , newFeaturesJsonArray: newFeatureArray.toString()
                 , oldFeaturesJsonArray: new JSONArray().toString()
                 , dateCreated: new Date()
@@ -50,15 +51,16 @@ class FeatureEventService {
 
     }
 
-    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, User user) {
-        return addNewFeatureEventWithUser(featureOperation, feature.uniqueName, featureService.convertFeatureToJSON(feature), user)
+    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature,JSONObject inputCommand, User user) {
+        return addNewFeatureEventWithUser(featureOperation, feature.uniqueName, inputCommand,featureService.convertFeatureToJSON(feature), user)
     }
+
 
 //    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject,JSONObject newJsonObject) {
 //        return addNewFeatureEventWithUser(featureOperation,uniqueName,oldJsonObject,newJsonObject,User user)
 //    }
 
-    def addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
+    def addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName,JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(newJsonObject)
         JSONArray oldFeatureArray = new JSONArray()
@@ -68,6 +70,7 @@ class FeatureEventService {
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
                 , current: true
+                , originalJsonCommand: inputCommand.toString()
                 , newFeaturesJsonArray: newFeatureArray.toString()
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
                 , dateCreated: new Date()
@@ -129,18 +132,30 @@ class FeatureEventService {
 //        setPreviousTransactionForFeature(uniqueName, count+1)
 
         switch(featureEvent.operation){
-            case FeatureOperation.ADD_FEATURE.name():
+            case FeatureOperation.ADD_FEATURE:
+                requestHandlingService.deleteFeature((JSONObject) JSON.parse(featureEvent.originalJsonCommand))
                 break;
-            case FeatureOperation.SET_EXON_BOUNDARIES.name():
-                JSONArray oldFeatureArray =  (JSONArray) JSON.parse(featureEvent.getOldFeaturesJsonArray())
-                println "json array = ${oldFeatureArray as JSON}"
-                for(int i = 0 ; i < oldFeatureArray.size() ; i++){
-//                    println "json object ${oldFeatureArray.getJSONObject(i) as JSON}"
-//                    JSONArray featuresArray =  (JSONArray) oldFeatureArray.getJSONObject(i).get(FeatureStringEnum.FEATURES.value)
-//                    // typically this is going to be the top-level transcript
-//                    Transcript transcript  = (Transcript) featureService.convertJSONToFeatureInferSequence(oldFeatureArray.getJSONObject(i))
-//                    transcript.save(flush: true)
+            case FeatureOperation.DELETE_FEATURE:
+                requestHandlingService.addFeature( (JSONObject) JSON.parse(featureEvent.originalJsonCommand))
+                break;
+            case FeatureOperation.SET_EXON_BOUNDARIES:
+                JSONObject originalCommand = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
+                println "original command : ${originalCommand as JSON}"
+                JSONArray features = originalCommand.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+                println "old features now: ${JSON.parse(featureEvent.oldFeaturesJsonArray) as JSON}"
+
+                JSONObject originalExon = ((JSONArray) JSON.parse(featureEvent.oldFeaturesJsonArray)).getJSONObject(0)
+                println "original exon ${originalExon as JSON}"
+
+                for(int i = 0 ; i < features.size() ; i++){
+                    JSONObject featureObject = features.getJSONObject(i)
+                    featureObject.put(FeatureStringEnum.LOCATION.value,originalExon.getJSONObject(FeatureStringEnum.LOCATION.value))
                 }
+
+                println "final command : ${originalCommand as JSON}"
+                requestHandlingService.setExonBoundaries( originalCommand)
+
                 break;
             default:
                 println "unadled operation "

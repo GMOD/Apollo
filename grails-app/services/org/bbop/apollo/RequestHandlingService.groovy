@@ -478,7 +478,7 @@ class RequestHandlingService {
             transcriptList.add(transcript)
 
 
-            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,transcript,permissionService.getActiveUser(inputObject))
+            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,transcript,inputObject,permissionService.getActiveUser(inputObject))
         }
 
 //        sequence.save(flush: true)
@@ -784,7 +784,9 @@ class RequestHandlingService {
 
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
-            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,oldTranscriptJsonObject,newJsonObject,permissionService.getActiveUser(inputObject))
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,inputObject,oldTranscriptJsonObject,newJsonObject,permissionService.getActiveUser(inputObject))
+            println "previous json object ${oldTranscriptJsonObject}"
+            println "input json command ${inputObject}"
 
         }
 
@@ -828,7 +830,7 @@ class RequestHandlingService {
 
             JSONObject newJsonFeature = featureService.convertFeatureToJSON(feature, false)
             returnObject.getJSONArray("features").put(newJsonFeature);
-            featureEventService.addNewFeatureEvent(FeatureOperation.SET_BOUNDARIES,feature.uniqueName,oldJsonFeature,newJsonFeature,permissionService.getActiveUser(inputObject))
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_BOUNDARIES,feature.uniqueName,inputObject,oldJsonFeature,newJsonFeature,permissionService.getActiveUser(inputObject))
         }
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -1235,7 +1237,7 @@ class RequestHandlingService {
             } else {
                 feature = featureService.flipStrand(feature)
             }
-            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND,feature,permissionService.getActiveUser(inputObject))
+            featureEventService.addNewFeatureEvent(FeatureOperation.FLIP_STRAND,feature,inputObject,permissionService.getActiveUser(inputObject))
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
         }
 
