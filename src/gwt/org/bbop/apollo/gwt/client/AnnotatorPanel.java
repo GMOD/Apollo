@@ -260,6 +260,11 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.selectTab(0);
                 break;
+            case "Transcript":
+                transcriptDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                exonDetailPanel.updateData(annotationInfo);
+                break;
             case "mRNA":
             case "miRNA":
             case "tRNA":
