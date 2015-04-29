@@ -6,6 +6,7 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -13,6 +14,7 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -51,12 +53,11 @@ public class GroupPanel extends Composite {
     //    @UiField(provided = true)
 //    FlexTable userData = new DataGrid<UserInfo>(10,tablecss);
     @UiField
+    TabLayoutPanel userDetailTab;
+    @UiField
     FlexTable userData;
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
-
-    //    @UiField
-//    FlexTable trackPermissions;
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
@@ -185,6 +186,11 @@ public class GroupPanel extends Composite {
         GroupInfo groupInfo = new GroupInfo();
         groupInfo.setName(groupName);
         return groupInfo;
+    }
+    @UiHandler("userDetailTab")
+    void onTabSelection(SelectionEvent<Integer> event) {
+        organismPermissionsGrid.redraw();
+
     }
 
     @UiHandler("createButton")

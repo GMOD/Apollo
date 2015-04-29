@@ -14,6 +14,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -218,6 +220,12 @@ public class UserPanel extends Composite {
             }
         });
     }
+    @UiHandler("userDetailTab")
+    void onTabSelection(SelectionEvent<Integer> event) {
+        organismPermissionsGrid.redraw();
+    }
+
+
 
     private void createOrganismPermissionsTable() {
         TextColumn<UserOrganismPermissionInfo> organismNameColumn = new TextColumn<UserOrganismPermissionInfo>() {
