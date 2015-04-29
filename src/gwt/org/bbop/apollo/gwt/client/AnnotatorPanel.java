@@ -241,7 +241,7 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("ncRNA");
         typeList.addItem("rRNA");
         typeList.addItem("miRNA");
-        typeList.addItem("transposable_elements");
+        typeList.addItem("transposable_element");
         typeList.addItem("repeat_region");
         // TODO: add rest
     }
@@ -254,14 +254,19 @@ public class AnnotatorPanel extends Composite {
         repeatRegionDetailPanel.setVisible(false);
         switch (type) {
             case "gene":
-            case "pseduogene":
+            case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
 //                exonDetailPanel.setVisible(false);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.selectTab(0);
                 break;
             case "mRNA":
+            case "miRNA":
             case "tRNA":
+            case "rRNA":
+            case "snRNA":
+            case "snoRNA":
+            case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo);
@@ -269,6 +274,7 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "transposable_element":
             case "repeat_region":
+                fireAnnotationInfoChangeEvent(annotationInfo);
                 repeatRegionDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
@@ -282,7 +288,13 @@ public class AnnotatorPanel extends Composite {
                 GWT.log("not sure what to do with " + type);
         }
     }
-
+    
+    public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
+        // this method is for firing AnnotationInfoChangeEvent for single level features such as transposable_element and repeat_region
+        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+    }
+    
     @UiHandler("stopCodonButton")
     // switch betwen states
     public void handleStopCodonStuff(ClickEvent clickEvent) {
@@ -380,23 +392,24 @@ public class AnnotatorPanel extends Composite {
         dataGrid.setColumnWidth(0, "70%");
         dataGrid.setColumnWidth(1, "15%");
         dataGrid.setColumnWidth(2, "15%");
-        
-        dataGrid.addDomHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                //Set<AnnotationInfo> annotationInfoSet = selectionModel.getSelectedSet();
-                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
-                if (annotationInfo != null) {
-                    GWT.log(annotationInfo.toString());
-                    String type = annotationInfo.getType();
-                    if(type.equals("repeat_region") || type.equals("transposable_element")) {
-                        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-                        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-                        updateAnnotationInfo(annotationInfo);
-                    }
-                }
-            }
-        }, ClickEvent.getType());
+
+        // Adding a clickHandler to dataGrid prevents the expand behavior of gene, pseudogene
+//        dataGrid.addDomHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                Set<AnnotationInfo> annotationInfoSet = selectionModel.getSelectedSet();
+//                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
+//                if (annotationInfo != null) {
+//                    GWT.log(annotationInfo.toString());
+//                    String type = annotationInfo.getType();
+//                    if(type.equals("repeat_region") || type.equals("transposable_element")) {
+//                        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+//                        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
+//                        updateAnnotationInfo(annotationInfo);
+//                    }
+//                }
+//            }
+//        }, ClickEvent.getType());
         
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -593,7 +606,6 @@ public class AnnotatorPanel extends Composite {
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
         transcriptSelected = true;
-
         // 1 - get the correct gene
         AnnotationInfo annotationInfo = filteredAnnotationList.get(geneIndex);
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
