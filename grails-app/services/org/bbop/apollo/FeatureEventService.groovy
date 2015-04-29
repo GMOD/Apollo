@@ -80,9 +80,15 @@ class FeatureEventService {
         FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
     }
 
+    /**
+     * Count of 0 is the most recent
+     * @param uniqueName
+     * @param count
+     * @return
+     */
     FeatureEvent getPastEvent(String uniqueName, int count) {
         FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName",[uniqueName: uniqueName])
-        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"asc",max:1,offset:count])
+        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:count])
         featureEvent.current = true
         featureEvent.save(flush: true)
         return featureEvent
@@ -93,14 +99,14 @@ class FeatureEventService {
     }
 
     /**
-     * Set the "count" one back to be current and return it
+     * Count of 0 is the very FIRST one
      * @param uniqueName
      * @param count
      * @return
      */
     FeatureEvent getFutureEvent(String uniqueName, int count) {
         FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName",[uniqueName: uniqueName])
-        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:count])
+        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"asc",max:1,offset:count])
         featureEvent.current = true
         featureEvent.save(flush: true)
         return featureEvent
