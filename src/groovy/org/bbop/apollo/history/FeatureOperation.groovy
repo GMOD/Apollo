@@ -26,4 +26,8 @@ enum FeatureOperation {
     SET_READTHROUGH_STOP_CODON,
     UNSET_READTHROUGH_STOP_CODON,
     SET_BOUNDARIES
+
+    public String toLower(){
+        return name().toLowerCase()
+    }
 }

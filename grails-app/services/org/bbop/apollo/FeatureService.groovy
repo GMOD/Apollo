@@ -1596,7 +1596,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject();
         try {
-//            jsonFeature.put("type", convertCVTermToJSON(gsolFeature.getType()));
+
             jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
             jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
             if (gsolFeature.getName() != null) {

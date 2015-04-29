@@ -212,8 +212,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
                 if(transaction.newFeaturesJsonArray){
                     JSONArray newFeaturesJsonArray =(JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
+                    println "array: ${newFeaturesJsonArray as JSON}"
+                    println "size : ${newFeaturesJsonArray.size()}"
                     for ( int featureIndex  = 0 ; featureIndex < newFeaturesJsonArray.size() ; featureIndex++) {
-                        JSONObject featureJsonObject = newFeaturesJsonArray.get(featureIndex)
+                        println "josn object ${featureIndex }"
+                        JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
                         // TODO: this needs to be functional
                         if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT.name())) {
 ////                        if (gbolFeature.overlaps(f)) {

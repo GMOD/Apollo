@@ -134,6 +134,7 @@ class ExonService {
             }
         }
 
+        FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp.feature.id = :exonId",[exonId:exon.id])
         Exon.executeUpdate("delete from Exon e where e.id = :exonId",[exonId:exon.id])
 //        Exon.deleteAll(exon)
         transcript.save(flush: true)
