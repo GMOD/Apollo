@@ -87,8 +87,8 @@ public class TrackPanel extends Composite {
 
 
             @Override
-            public Boolean getValue(TrackInfo employee) {
-                return employee.getVisible();
+            public Boolean getValue(TrackInfo track) {
+                return track.getVisible();
             }
         };
 
@@ -119,25 +119,16 @@ public class TrackPanel extends Composite {
 
         TextColumn<TrackInfo> nameColumn = new TextColumn<TrackInfo>() {
             @Override
-            public String getValue(TrackInfo employee) {
-                return employee.getName();
+            public String getValue(TrackInfo track) {
+                return track.getName();
             }
         };
         nameColumn.setSortable(true);
 
 
-//        TextColumn<TrackInfo> typeColumn = new TextColumn<TrackInfo>() {
-//            @Override
-//            public String getValue(TrackInfo employee) {
-//                return employee.getType();
-//            }
-//        };
-//        typeColumn.setSortable(true);
-
 
         dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(nameColumn, "Name");
-//        dataGrid.addColumn(typeColumn, "Type");
         dataGrid.setColumnWidth(0, "10%");
         dataGrid.setSelectionModel(singleSelectionModel);
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -185,16 +176,12 @@ public class TrackPanel extends Composite {
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
-//            trackCount.setText("");
-//            trackDensity.setText("");
         } else {
             trackName.setText(selectedTrackInfo.getName());
             trackType.setText(selectedTrackInfo.getType());
             optionTree.clear();
             JSONObject jsonObject = selectedTrackInfo.getPayload();
             setOptionDetails(jsonObject);
-//            trackCount.setText(selectedTrackInfo.get);
-//            trackDensity.setText("");
         }
     }
 

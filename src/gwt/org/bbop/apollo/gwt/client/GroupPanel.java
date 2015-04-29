@@ -69,10 +69,6 @@ public class GroupPanel extends Composite {
     private List<GroupOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
     private ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo> sortHandler = new ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo>(permissionProviderList);
 
-//    private ListDataProvider<UserInfo> userDataProvider = new ListDataProvider<>();
-//    private List<UserInfo> userInfoList = userDataProvider.getList();
-//    private ColumnSortEvent.ListHandler<UserInfo> userSortHandler = new ColumnSortEvent.ListHandler<>(userInfoList);
-
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
@@ -107,12 +103,6 @@ public class GroupPanel extends Composite {
             }
         });
 
-//        List<GroupInfo> trackInfoList = dataProvider.getList();
-//
-//        for (String user : DataGenerator.getGroups()) {
-//            trackInfoList.add(new GroupInfo(user));
-//        }
-
         dataGrid.addColumnSortHandler(groupSortHandler);
         groupSortHandler.setComparator(firstNameColumn, new Comparator<GroupInfo>() {
             @Override
@@ -136,14 +126,6 @@ public class GroupPanel extends Composite {
             @Override
             public void onGroupChanged(GroupChangeEvent userChangeEvent) {
                 switch (userChangeEvent.getAction()) {
-//                    case ADD_USER_TO_GROUP:
-//                        availableGroupList.removeItem(availableGroupList.getSelectedIndex());
-//                        if (availableGroupList.getItemCount() > 0) {
-//                            availableGroupList.setSelectedIndex(0);
-//                        }
-//                        String group = userChangeEvent.getGroup();
-//                        addGroupToUi(group);
-//                        break;
                     case RELOAD_GROUPS:
                         selectedGroupInfo = null;
                         selectionModel.clear();
@@ -157,10 +139,6 @@ public class GroupPanel extends Composite {
                         reload();
                         createButton.setEnabled(true);
                         break;
-//                    case REMOVE_USER_FROM_GROUP:
-//                        removeGroupFromUI(userChangeEvent.getGroup());
-//                        break;
-
                 }
             }
         });

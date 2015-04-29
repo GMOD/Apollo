@@ -121,39 +121,14 @@ class OrganismController {
         }
     }
 
-    //
-
-//    @Transactional
-//    def switchAppOrganism(Organism organismInstance) {
-////        log.debug "found the organism ${organism}"
-////        session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-////        session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-//
-//        preferenceService.setCurrentOrganism(permissionService.currentUser,organismInstance)
-//
-////        render organism as JSON
-//
-//        render annotatorService.getAppState
-//    }
-
     def findAllOrganisms() {
 
         def organismList = permissionService.getOrganismsForCurrentUser()
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
         Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
-//        request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value) == organism.directory
-
-        log.debug "organism list: ${organismList}"
-
-        log.debug "finding all organisms: ${Organism.count}"
-
         JSONArray jsonArray = new JSONArray()
         for (def organism in organismList) {
-            log.debug "TEST123"
-            log.debug organism
-//            Integer geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism o where o.id=:organismId", ["organismId": organism.id])[0]
-
             Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
             JSONObject jsonObject = [
                     id             : organism.id,
