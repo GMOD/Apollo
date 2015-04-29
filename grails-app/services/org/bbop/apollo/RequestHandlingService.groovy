@@ -1364,6 +1364,7 @@ class RequestHandlingService {
 
     def addFeature(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getActiveUser(inputObject)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
@@ -1398,12 +1399,12 @@ class RequestHandlingService {
                     transcript.uniqueName = nameService.generateUniqueName()
 
                     JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
-                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,transcript.uniqueName,jsonObject)
+                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,transcript.uniqueName,jsonObject,user)
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
                 }
             } else {
                 JSONObject jsonObject = featureService.convertFeatureToJSON(newFeature)
-                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,newFeature.uniqueName,jsonObject)
+                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,newFeature.uniqueName,jsonObject,user)
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
             }
         }
