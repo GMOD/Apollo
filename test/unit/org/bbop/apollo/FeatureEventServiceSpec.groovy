@@ -36,11 +36,11 @@ class FeatureEventServiceSpec extends Specification {
         FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:1])
         then:"we should see an add_exon event"
         assert FeatureEvent.count==7
-        assert featureEvent.operation==FeatureOperation.ADD_EXON.name()
+        assert featureEvent.operation==FeatureOperation.ADD_EXON
         when: "we query the last event"
         featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:0])
         then:"we should see merge transct"
-        assert featureEvent.operation==FeatureOperation.MERGE_TRANSCRIPTS.name()
+        assert featureEvent.operation==FeatureOperation.MERGE_TRANSCRIPTS
     }
 
     void "make sure we sort okay for future events from the last "() {
@@ -48,10 +48,10 @@ class FeatureEventServiceSpec extends Specification {
         FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"asc",max:1,offset:1])
         then:"we should see split transcript event"
         assert FeatureEvent.count==7
-        assert featureEvent.operation==FeatureOperation.SPLIT_TRANSCRIPT.name()
+        assert featureEvent.operation==FeatureOperation.SPLIT_TRANSCRIPT
         when: "we query the first event"
         featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"asc",max:1,offset:0])
         then:"we should see add feature"
-        assert featureEvent.operation==FeatureOperation.ADD_FEATURE.name()
+        assert featureEvent.operation==FeatureOperation.ADD_FEATURE
     }
 }
