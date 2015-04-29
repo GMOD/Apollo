@@ -744,18 +744,19 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer()
 
         for (int i = 0; i < features.length(); ++i) {
-            JSONObject oldJsonFeature = features.getJSONObject(i);
-            if (!oldJsonFeature.has(FeatureStringEnum.LOCATION.value)) {
+            JSONObject locationCommand = features.getJSONObject(i);
+            if (!locationCommand.has(FeatureStringEnum.LOCATION.value)) {
                 continue;
             }
-            JSONObject jsonLocation = oldJsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);
+            JSONObject jsonLocation = locationCommand.getJSONObject(FeatureStringEnum.LOCATION.value);
             int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
             int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
             if (fmin < 0 || fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
-            Exon exon = Exon.findByUniqueName(oldJsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            Exon exon = Exon.findByUniqueName(locationCommand.getString(FeatureStringEnum.UNIQUENAME.value))
             Transcript transcript = exonService.getTranscript(exon)
+            JSONObject oldTranscriptJsonObject = featureService.convertFeatureToJSON(transcript)
 
 
             FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
@@ -783,7 +784,7 @@ class RequestHandlingService {
 
             JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
-            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,oldJsonFeature,newJsonObject,permissionService.getActiveUser(inputObject))
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,transcript.uniqueName,oldTranscriptJsonObject,newJsonObject,permissionService.getActiveUser(inputObject))
 
         }
 

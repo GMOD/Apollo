@@ -115,13 +115,14 @@ class FeatureEventService {
     }
 
     def undo(JSONObject inputObject, int count, boolean confirm) {
+        println "undo count ${count}"
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         // TODO: I think that this gives up if you are already at the most recent transaction
 //        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 //            continue;
 //        }
 
-        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count)
+        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count-1)
 
         println "feature event gotten ${featureEvent.operation}"
         // set current to one past then
@@ -134,10 +135,10 @@ class FeatureEventService {
                 JSONArray oldFeatureArray =  (JSONArray) JSON.parse(featureEvent.getOldFeaturesJsonArray())
                 println "json array = ${oldFeatureArray as JSON}"
                 for(int i = 0 ; i < oldFeatureArray.size() ; i++){
-                    println "json object ${oldFeatureArray.getJSONObject(i) as JSON}"
+//                    println "json object ${oldFeatureArray.getJSONObject(i) as JSON}"
 //                    JSONArray featuresArray =  (JSONArray) oldFeatureArray.getJSONObject(i).get(FeatureStringEnum.FEATURES.value)
 //                    // typically this is going to be the top-level transcript
-//                    Transcript transcript  = (Transcript) featureService.convertJSONToFeatureInferSequence(featuresArray.get(0))
+//                    Transcript transcript  = (Transcript) featureService.convertJSONToFeatureInferSequence(oldFeatureArray.getJSONObject(i))
 //                    transcript.save(flush: true)
                 }
                 break;
