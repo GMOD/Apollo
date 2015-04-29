@@ -81,7 +81,11 @@ class FeatureEventService {
     }
 
     FeatureEvent getPastEvent(String uniqueName, int count) {
-
+        FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName",[uniqueName: uniqueName])
+        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"asc",max:1,offset:count])
+        featureEvent.current = true
+        featureEvent.save(flush: true)
+        return featureEvent
     }
 
     int historySize(String uniqueName) {
@@ -95,21 +99,36 @@ class FeatureEventService {
      * @return
      */
     FeatureEvent getFutureEvent(String uniqueName, int count) {
-        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName,[sort:"dateCreated",order:"desc"])
+        FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName",[uniqueName: uniqueName])
+        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:count])
+        featureEvent.current = true
+        featureEvent.save(flush: true)
+        return featureEvent
     }
 
     def undo(JSONObject inputObject, int count, boolean confirm) {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-        // I think that this gives up if you are already at the most recent transaction
+        // TODO: I think that this gives up if you are already at the most recent transaction
 //        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 //            continue;
 //        }
 
         FeatureEvent featureEvent = getPastEvent(uniqueName, count)
+        // set current to one past then
+        getPastEvent(uniqueName, count+1)
+
+        switch(featureEvent.operation){
+            case FeatureOperation.ADD_FEATURE:
+                break;
+            default:
+                println "unadled operation "
+                break ;
+        }
+
     }
 
     def redo(JSONObject inputObject, int count, boolean confirm) {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-        List<FeatureEvent> featureEventList = FeatureEvent.findByUniqueName(uniqueName)
+        FeatureEvent featureEvent = getFutureEvent(uniqueName, count)
     }
 }
