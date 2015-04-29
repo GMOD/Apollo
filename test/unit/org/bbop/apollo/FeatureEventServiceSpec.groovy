@@ -51,7 +51,7 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEvent.operation==FeatureOperation.SPLIT_TRANSCRIPT.name()
         when: "we query the last event"
         featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:0])
-        then:"we should see merge transct"
-        assert featureEvent.operation==FeatureOperation.ADD_FEATURE.name()
+        then:"we should see merge transcript"
+        assert featureEvent.operation==FeatureOperation.MERGE_TRANSCRIPTS.name()
     }
 }
