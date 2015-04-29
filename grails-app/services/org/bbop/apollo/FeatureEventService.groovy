@@ -13,6 +13,7 @@ class FeatureEventService {
 
     def permissionService
     def featureService
+    def requestHandlingService
 
     FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, Feature feature, User user) {
         if (Environment.current == Environment.TEST) {
@@ -80,13 +81,17 @@ class FeatureEventService {
         FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
     }
 
+    int historySize(String uniqueName) {
+        FeatureEvent.countByUniqueName(uniqueName)
+    }
+
     /**
      * Count of 0 is the most recent
      * @param uniqueName
      * @param count
      * @return
      */
-    FeatureEvent getPastEvent(String uniqueName, int count) {
+    FeatureEvent setPreviousTransactionForFeature(String uniqueName, int count) {
         FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName",[uniqueName: uniqueName])
         FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"desc",max:1,offset:count])
         featureEvent.current = true
@@ -94,9 +99,6 @@ class FeatureEventService {
         return featureEvent
     }
 
-    int historySize(String uniqueName) {
-        FeatureEvent.countByUniqueName(uniqueName)
-    }
 
     /**
      * Count of 0 is the very FIRST one
@@ -104,7 +106,7 @@ class FeatureEventService {
      * @param count
      * @return
      */
-    FeatureEvent getFutureEvent(String uniqueName, int count) {
+    FeatureEvent getNextTransactionsForFeature(String uniqueName, int count) {
         FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName",[uniqueName: uniqueName])
         FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName,[sort:"dateCreated",order:"asc",max:1,offset:count])
         featureEvent.current = true
@@ -119,12 +121,25 @@ class FeatureEventService {
 //            continue;
 //        }
 
-        FeatureEvent featureEvent = getPastEvent(uniqueName, count)
+        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count)
+
+        println "feature event gotten ${featureEvent.operation}"
         // set current to one past then
-        getPastEvent(uniqueName, count+1)
+//        setPreviousTransactionForFeature(uniqueName, count+1)
 
         switch(featureEvent.operation){
-            case FeatureOperation.ADD_FEATURE:
+            case FeatureOperation.ADD_FEATURE.name():
+                break;
+            case FeatureOperation.SET_EXON_BOUNDARIES.name():
+                JSONArray oldFeatureArray =  (JSONArray) JSON.parse(featureEvent.getOldFeaturesJsonArray())
+                println "json array = ${oldFeatureArray as JSON}"
+                for(int i = 0 ; i < oldFeatureArray.size() ; i++){
+                    println "json object ${oldFeatureArray.getJSONObject(i) as JSON}"
+//                    JSONArray featuresArray =  (JSONArray) oldFeatureArray.getJSONObject(i).get(FeatureStringEnum.FEATURES.value)
+//                    // typically this is going to be the top-level transcript
+//                    Transcript transcript  = (Transcript) featureService.convertJSONToFeatureInferSequence(featuresArray.get(0))
+//                    transcript.save(flush: true)
+                }
                 break;
             default:
                 println "unadled operation "
@@ -135,6 +150,6 @@ class FeatureEventService {
 
     def redo(JSONObject inputObject, int count, boolean confirm) {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-        FeatureEvent featureEvent = getFutureEvent(uniqueName, count)
+        FeatureEvent featureEvent = getNextTransactionsForFeature(uniqueName, count)
     }
 }

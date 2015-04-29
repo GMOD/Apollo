@@ -1923,4 +1923,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         log.debug "type ${f.ontologyId}, ${f.cvTerm}->${f.name} has children ${hasChildren}"
         return hasChildren
     }
+
+    def convertJSONToFeatureInferSequence(JSONObject jsonObject) {
+        String uniqueName = jsonObject.getString(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(uniqueName)
+        Sequence sequence = feature.featureLocation.sequence
+        return convertJSONToFeature(jsonObject,sequence)
+    }
 }

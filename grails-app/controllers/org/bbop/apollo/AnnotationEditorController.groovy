@@ -193,7 +193,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //            Feature  gbolFeature = getFeature(editor, jsonFeature);
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName)
+            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName,[sort:"dateCreated",order:"asc"])
 //            TransactionList transactionList = historyStore.getTransactionListForFeature(jsonFeature.getString("uniquename"));
             for (int j = 0; j < transactionList.size(); ++j) {
 //                Transaction transaction = transactionList.get(j);
@@ -236,63 +236,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render historyContainer as JSON
     }
 
-    def undo() {
-        log.debug "doing undo !! ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-        for (int i = 0; i < featuresArray.size(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
-            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value)? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
-            int count = inputObject.containsKey(FeatureStringEnum.COUNT.value)? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
-            featureEventService.undo(jsonFeature, count,confirm )
-
-//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
-//                continue;
-//            }
-//            for (int j = 0; j < count; ++j) {
-//                historyStore.setToNextTransactionForFeature(uniqueName);
-//            }
-//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
-//            if (transaction == null) {
-//                return;
-//            }
-
-        }
-        render new JSONObject() as JSON
-    }
-
-    def redo() {
-        log.debug "doing redo !! ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        String trackName = fixTrackHeader(inputObject.track)
-        Sequence sequence = Sequence.findByName(trackName)
-        permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
-        for (int i = 0; i < featuresArray.size(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
-//            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-//            Feature feature = Feature.findByUniqueName(uniqueName)
-            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value)? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
-            int count = inputObject.containsKey(FeatureStringEnum.COUNT.value)? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
-            featureEventService.redo(jsonFeature, count,confirm )
-
-//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
-//                continue;
-//            }
-//            for (int j = 0; j < count; ++j) {
-//                historyStore.setToNextTransactionForFeature(uniqueName);
-//            }
-//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
-//            if (transaction == null) {
-//                return;
-//            }
-        }
-
-        render new JSONObject() as JSON
-    }
 
     def getTranslationTable() {
         log.debug "get translation table!! ${params}"

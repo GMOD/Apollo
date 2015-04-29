@@ -1258,14 +1258,10 @@ class RequestHandlingService {
         Exon exon2 = (Exon) Exon.findByUniqueName(features.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value));
         Transcript transcript1 = exonService.getTranscript(exon1)
         JSONObject oldJsonObject= featureService.convertFeatureToJSON(transcript1)
-//        Transcript oldTransript = transcript1.generateClone()
-//        Transcript oldTranscript = cloneTranscript(transcript);
-//        editor.mergeExons(exon1, exon2);
         exonService.mergeExons(exon1, exon2)
         featureService.calculateCDS(transcript1);
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1);
         // rename?
-//        updateTranscriptAttributes(exon1.getTranscript());
 
         transcript1.save(flush: true)
         exon1.save(flush: true)
@@ -1558,14 +1554,10 @@ class RequestHandlingService {
             returnContainer.put("alert", "Unable to find canonical splice sites.");
             return returnContainer
         }
-//        updateNewGbolFeatureAttributes(splitExon, trackToSourceFeature.get(track));
         featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
-//        calculateCDS(editor, exon.getTranscript());
         featureService.calculateCDS(transcript)
-//        findNonCanonicalAcceptorDonorSpliceSites(editor, exon.getTranscript());
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
-//        updateTranscriptAttributes(exon.getTranscript());
         transcript.name = transcript.name ?: nameService.generateUniqueName(transcript)
 
         transcript.save(failOnError: true)
@@ -1573,13 +1565,10 @@ class RequestHandlingService {
         splitExon.save(failOnError: true, flush: true)
 
         JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript)
-//        JSONObject featureContainer = createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(exon.getTranscript()));
         JSONObject featureContainer = createJSONFeatureContainer(newJsonObject)
 
         featureEventService.addNewFeatureEvent(FeatureOperation.SPLIT_EXON,transcript.uniqueName,oldJsonTranscript,newJsonObject,permissionService.getActiveUser(inputObject))
 
-//        out.write(featureContainer.toString());
-//        fireDataStoreChange(featureContainer, track, DataStoreChangeEvent.Operation.UPDATE);
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
                 , sequence: sequence
@@ -1622,8 +1611,6 @@ class RequestHandlingService {
             Set<Transcript> gene1Transcripts = new HashSet<Transcript>();
             Set<Transcript> gene2Transcripts = new HashSet<Transcript>();
 
-            // TODO:
-//            List<Transcript> transcripts = BioObjectUtil.createSortedFeatureListByLocation(gene1.getTranscripts(), false);
             List<Transcript> transcripts = transcriptService.getTranscriptsSortedByFeatureLocation(gene1, false)
             gene1Transcripts.add(transcripts.get(0))
 
@@ -1649,27 +1636,6 @@ class RequestHandlingService {
                     break;
                 }
             }
-//            /*
-//            for (Transcript t : transcripts) {
-//                if (t.getFmin() < splitTranscript.getFmin()) {
-//                    if (overlapper.overlaps(t, splitTranscript)) {
-//                        gene2Transcripts.add(t);
-//                    }
-//                    else {
-//                        gene1Transcripts.add(t);
-//                    }
-//                }
-//                else {
-//                    gene2Transcripts.add(t);
-//                }
-//            }
-//            */
-
-            // we delete transcripts that belong on the other gene
-//            for (Transcript t : gene2Transcripts) {
-//                featureRelationshipService.removeFeatureRelationship(gene1,t)
-////                transcriptService.deleteTranscript(gene1, t)
-//            }
 
             gene1.featureLocation.fmax = exon1.featureLocation.fmax
             gene1.save(flush: true)
@@ -1689,17 +1655,13 @@ class RequestHandlingService {
 
             // we delete transcripts that belong on the other gene
             for (Transcript t : gene2Transcripts) {
-//                featureRelationshipService.removeFeatureRelationship(gene1,t)
                 transcriptService.deleteTranscript(gene1, t)
             }
             log.debug "NAME OF TRANSCRIPT 2: ${transcript2.name}"
             transcript2.parentFeatureRelationships.each { it ->
                 it.childFeature.delete()
-//                featureRelationshipService.removeFeatureRelationship(transcript2)
             }
             transcript2.delete()
-//            featureService.deleteFeature(transcript2)
-//            transcriptService.deleteTranscript(gene1, transcript2)
 
             // we add any other transcripts to the correct gene
             for (Transcript t : gene2Transcripts) {
@@ -1710,15 +1672,10 @@ class RequestHandlingService {
                     addTranscriptJSONObject.put(FeatureStringEnum.FEATURES.value, addTranscriptFeaturesArray)
                     addTranscriptJSONObject.put("track", inputObject.track)
                     addTranscript(addTranscriptJSONObject)
-//                    addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(t), track, geneNameAdapter, gene1.isPseudogene());
                 }
             }
 
-//            transcript2.delete()
             addTranscript(addSplitTranscriptJSONObject)
-
-//            splitTranscript = addTranscript(editor, session, JSONUtil.convertBioFeatureToJSON(splitTranscript), track, geneNameAdapter, gene1.isPseudogene());
-//
         }
 
         JSONObject updateContainer = createJSONFeatureContainer();
@@ -1730,28 +1687,13 @@ class RequestHandlingService {
         }
 
         transcript1.save(flush: true)
-//        transcript2.delete(flush: True)
-
-//        Transcript exon1Transcript = exonService.getTranscript(exon1)
         Feature topLevelExonFeature = featureService.getTopLevelFeature(transcript1)
         JSONObject returnContainer = createJSONFeatureContainerFromFeatures(topLevelExonFeature)
-//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(exon1.getTranscript()))).toString());
-//
-//        JSONObject addContainer = createJSONFeatureContainerFromFeatures(transcript2);
-//        JSONObject addContainer =createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(splitTranscript));
 
         List<Transcript> exon1Transcripts = transcriptService.getTranscripts(transcriptService.getGene(transcript1))
         for (Transcript t : exon1Transcripts) {
             updateContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(t));
         }
-
-//
-//        fireDataStoreChange(new DataStoreChangeEvent(this, updateContainer, track, DataStoreChangeEvent.Operation.UPDATE), new DataStoreChangeEvent(this, addContainer, track, DataStoreChangeEvent.Operation.ADD));
-//        AnnotationEvent addAnnotationEvent = new AnnotationEvent(
-//                features: addContainer
-//                , sequence: sequence
-//                , operation: AnnotationEvent.Operation.ADD
-//        )
 
         AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
                 features: updateContainer
@@ -1759,7 +1701,6 @@ class RequestHandlingService {
                 , operation: AnnotationEvent.Operation.UPDATE
         )
 
-//        fireAnnotationEvent(addAnnotationEvent, updateAnnotationEvent)
         fireAnnotationEvent(updateAnnotationEvent)
 
 
@@ -1781,23 +1722,13 @@ class RequestHandlingService {
         }
         Gene gene2 = transcriptService.getGene(transcript2)
 
-//        editor.mergeTranscripts(transcript1, transcript2);
         transcriptService.mergeTranscripts(transcript1, transcript2)
-
         featureService.calculateCDS(transcript1)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
 
         Gene gene1 = transcriptService.getGene(transcript1)
 
         if (gene1 != gene2) {
-//            JSONObject deleteObject = new JSONObject()
-//            deleteObject.put("track",inputObject.track)
-//            JSONArray deleteFeaturesArray = new JSONArray()
-//            JSONObject gene2JsonObject = new JSONObject()
-//            gene2JsonObject.put(FeatureStringEnum.UNIQUENAME.value,gene2.uniqueName)
-//            deleteFeaturesArray.add(gene2JsonObject)
-//            deleteObject.put(FeatureStringEnum.FEATURES.value,deleteFeaturesArray)
-//            deleteFeature(deleteObject)
             gene2.delete()
         }
 
@@ -1806,7 +1737,6 @@ class RequestHandlingService {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
 
-//        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript1))).toString());
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
 
         List<Transcript> gene1Transcripts = transcriptService.getTranscripts(gene1)
@@ -1853,5 +1783,55 @@ class RequestHandlingService {
         fireAnnotationEvent(annotationEvent)
 
         return featureContainer
+    }
+
+    def undo(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value)? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
+            int count = inputObject.containsKey(FeatureStringEnum.COUNT.value)? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
+            featureEventService.undo(jsonFeature, count,confirm )
+
+//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
+//                continue;
+//            }
+//            for (int j = 0; j < count; ++j) {
+//                historyStore.setToNextTransactionForFeature(uniqueName);
+//            }
+//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
+//            if (transaction == null) {
+//                return;
+//            }
+
+        }
+        return new JSONObject()
+    }
+
+    def redo(JSONObject inputObject) {
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        for (int i = 0; i < featuresArray.size(); ++i) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+//            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+//            Feature feature = Feature.findByUniqueName(uniqueName)
+            boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value)? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
+            int count = inputObject.containsKey(FeatureStringEnum.COUNT.value)? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
+            featureEventService.redo(jsonFeature, count,confirm )
+
+//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
+//                continue;
+//            }
+//            for (int j = 0; j < count; ++j) {
+//                historyStore.setToNextTransactionForFeature(uniqueName);
+//            }
+//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
+//            if (transaction == null) {
+//                return;
+//            }
+        }
+
+        return new JSONObject()
     }
 }
