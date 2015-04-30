@@ -73,10 +73,22 @@ class NameService {
                 return exonName
             }
             else{
-                log.debug "using source string"
-                String sourceString = thisFeature.name.replaceAll("[_\\.0-9]","")
-                log.debug "source string ${sourceString}"
-                UUID.fromString(sourceString).toString()
+                if(!principalName){
+                    principalName = thisFeature.name
+                }
+                Integer exonNumber = 1
+                String exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
+                Feature exon = Feature.findByName(exonName)
+                while (exon != null) {
+                    exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
+                    exon = Feature.findByName(exonName)
+                    ++exonNumber
+                }
+                return exonName
+//                log.debug "using source string"
+//                String sourceString = thisFeature.name.replaceAll("[_\\.0-9]","")
+//                log.debug "source string ${sourceString}"
+//                UUID.fromString(sourceString).toString()
             }
         }
         else{

@@ -90,7 +90,7 @@ class PreferenceService {
         setOtherCurrentOrganismsFalse(userOrganismPreference,user)
     }
 
-    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, int startBp, int endBp) {
+    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp) {
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser,true)
         if(!userOrganismPreference){
@@ -111,8 +111,8 @@ class PreferenceService {
         String organismJBrowseDirectory = session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,sequence.organism.directory)
 
         userOrganismPreference.sequence = sequence
-        userOrganismPreference.setStartbp(startBp)
-        userOrganismPreference.setEndbp(endBp)
+        userOrganismPreference.setStartbp(startBp ?: 0 )
+        userOrganismPreference.setEndbp(endBp ?: sequence.end)
         userOrganismPreference.save(flush: true )
 
     }

@@ -201,25 +201,26 @@ public class AnnotatorPanel extends Composite {
                 }
         );
 
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-            @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                GWT.log("OnOrganismChanged");
-                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-                    sequenceOracle.clear();
-//                    for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
-//                        sequenceOracle.add(sequenceInfo.getName());
+        // TODO: not sure if this was necessary, leaving it here until it fails
+//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+//            @Override
+//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+//                GWT.log("OnOrganismChanged");
+//                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+//                    sequenceOracle.clear();
+////                    for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
+////                        sequenceOracle.add(sequenceInfo.getName());
+////                    }
+//                    if(MainPanel.getInstance().getCurrentSequence()!=null) {
+//                        sequenceList.setText(MainPanel.getInstance().getCurrentSequence().getName());
+//                        loadOrganismAndSequence(MainPanel.getInstance().getCurrentSequence().getName());
 //                    }
-                    if(MainPanel.getInstance().getCurrentSequence()!=null) {
-                        sequenceList.setText(MainPanel.getInstance().getCurrentSequence().getName());
-                        loadOrganismAndSequence(MainPanel.getInstance().getCurrentSequence().getName());
-                    }
-                }
-                else{
-                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
-                }
-            }
-        });
+//                }
+//                else{
+//                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
+//                }
+//            }
+//        });
 
     }
 
@@ -371,7 +372,16 @@ public class AnnotatorPanel extends Composite {
         typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getType();
+
+                String type = annotationInfo.getType();
+                switch (type){
+                    case "repeat_region":
+                        return "repeat reg";
+                    case "transposable_element":
+                        return "transp elem";
+                    default:
+                        return type ;
+                }
             }
         };
         typeColumn.setSortable(true);
@@ -425,7 +435,7 @@ public class AnnotatorPanel extends Composite {
         sortHandler.setComparator(nameColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getName().compareTo(o2.getName());
+                return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
 
@@ -433,7 +443,7 @@ public class AnnotatorPanel extends Composite {
         sortHandler.setComparator(typeColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getType().compareTo(o2.getType());
+                return o1.getType().compareToIgnoreCase(o2.getType());
             }
         });
 

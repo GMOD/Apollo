@@ -45,11 +45,11 @@ public class SequencePanel extends Composite {
     TextBox minFeatureLength;
     @UiField
     TextBox maxFeatureLength;
-    @UiField
-    ListBox organismList;
+//    @UiField
+//    ListBox organismList;
     // TODO: a hack of a backing object fro the organism List
     // key is the ID as we can have a dupe org?
-    Map<String, OrganismInfo> organismInfoMap = new TreeMap<>();
+//    Map<String, OrganismInfo> organismInfoMap = new TreeMap<>();
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -244,19 +244,19 @@ public class SequencePanel extends Composite {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-                    OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
-
-                    organismList.clear();
-                    organismInfoMap.clear();
-                    List<OrganismInfo> organismInfoList = MainPanel.getInstance().getOrganismInfoList();
-                    for (int i = 0; i < organismInfoList.size(); i++) {
-                        OrganismInfo organismInfo = organismInfoList.get(i);
-                        organismList.addItem(organismInfo.getName(), organismInfo.getId());
-                        organismInfoMap.put(organismInfo.getId(), organismInfo);
-                        if (organismInfo.getId().equals(currentOrganism.getId())) {
-                            organismList.setSelectedIndex(i);
-                        }
-                    }
+//                    OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
+//
+//                    organismList.clear();
+//                    organismInfoMap.clear();
+//                    List<OrganismInfo> organismInfoList = MainPanel.getInstance().getOrganismInfoList();
+//                    for (int i = 0; i < organismInfoList.size(); i++) {
+//                        OrganismInfo organismInfo = organismInfoList.get(i);
+//                        organismList.addItem(organismInfo.getName(), organismInfo.getId());
+//                        organismInfoMap.put(organismInfo.getId(), organismInfo);
+//                        if (organismInfo.getId().equals(currentOrganism.getId())) {
+//                            organismList.setSelectedIndex(i);
+//                        }
+//                    }
                     reload();
 
                 } else {
@@ -348,13 +348,13 @@ public class SequencePanel extends Composite {
         }
     }
 
-    @UiHandler(value = {"organismList"})
-    public void handleOrganismChange(ChangeEvent changeEvent) {
-        selectedCount = 0;
-        multiSelectionModel.clear();
-        updatedExportSelectedButton();
-        OrganismRestService.switchOrganismById(organismList.getSelectedValue());
-    }
+//    @UiHandler(value = {"organismList"})
+//    public void handleOrganismChange(ChangeEvent changeEvent) {
+//        selectedCount = 0;
+//        multiSelectionModel.clear();
+//        updatedExportSelectedButton();
+//        OrganismRestService.switchOrganismById(organismList.getSelectedValue());
+//    }
 
 
     @UiHandler("selectSelectedButton")
@@ -388,11 +388,11 @@ public class SequencePanel extends Composite {
     }
 
     private void exportValues(List<SequenceInfo> sequenceInfoList ) {
-        GWT.log(organismList.getSelectedValue());
-        Integer organismId = Integer.parseInt(organismList.getSelectedValue());
-        OrganismInfo organismInfo = new OrganismInfo();
-        organismInfo.setId(organismId.toString());
-        organismInfo.setName(organismList.getSelectedItemText());
+//        GWT.log(organismList.getSelectedValue());
+//        Integer organismId = Integer.parseInt(organismList.getSelectedValue());
+        OrganismInfo organismInfo = MainPanel.getInstance().getCurrentOrganism();
+//        organismInfo.setId(organismId.toString());
+//        organismInfo.setName(organismList.getSelectedItemText());
 
         // get the type based on the active button
         String type = null;

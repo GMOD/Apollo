@@ -73,16 +73,16 @@
                         <!--<b:Label ui:field="viewableLabel"/>-->
                     <!--</b:Column>-->
                 </b:Row>
-                <b:Row>
-                    <b:Column size="MD_2">
-                        <gwt:HTML>
-                            <h5>Organism</h5>
-                        </gwt:HTML>
-                    </b:Column>
-                    <b:Column size="MD_4">
-                        <b:ListBox ui:field="organismList" width="200px"/>
-                    </b:Column>
-                </b:Row>
+                <!--<b:Row>-->
+                    <!--<b:Column size="MD_2">-->
+                        <!--<gwt:HTML>-->
+                            <!--<h5>Organism</h5>-->
+                        <!--</gwt:HTML>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_4">-->
+                        <!--<b:ListBox ui:field="organismList" width="200px"/>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
                 <b:Row paddingTop="4">
                     <b:Column size="MD_2">
                         <gwt:HTML>
