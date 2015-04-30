@@ -137,7 +137,47 @@ class FeatureEventService {
                 requestHandlingService.addFeature((JSONObject) JSON.parse(featureEvent.originalJsonCommand))
                 break;
             case FeatureOperation.ADD_EXON:
-                requestHandlingService.deleteExon((JSONObject) JSON.parse(featureEvent.originalJsonCommand))
+                // add exon expects:
+                // feature 0 = transcript
+                // feature 1 = exon 1 to delete
+                // feature 2 = exon 2 to delete
+                // etc. etc.
+                // correlate commands:  features[ uniquename:"AAA",uniquename:"BBB"] // etc.
+                // to what is in children: of the transcript in the transcript features . . .
+//                JSONObject command = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
+                JSONObject jsonObject = ((JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)).getJSONObject(0)
+                println "oroginal object : ${jsonObject as JSON}"
+                JSONObject command = JSON.parse(featureEvent.originalJsonCommand)
+
+                Set<String>  exonsToDelete = new HashSet<>()
+                JSONArray exonArray = command.getJSONArray(FeatureStringEnum.FEATURES.value)
+                // we have to find the exon to delete based on start and stop location
+
+            // TODO: find exon to delete based on location
+//                for(int i = 0 ; i < exonArray.size() ;i++){
+//                    exonsToDelete.add(exonArray.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value))
+//                }
+                // add exon expects:
+                // feature 0 = transcript
+                // feature 1 = exon 1 to add
+                // feature 2 = exon 2 to add
+                // etc. etc.
+                // correlate commands:  features[ uniquename:"AAA",uniquename:"BBB"] // etc.
+                // to what is in children: of the transcript in the transcript features . . .
+                JSONArray featuresArray = new JSONArray()
+                JSONObject transcriptObject = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+                featuresArray.add(transcriptObject)
+                JSONArray childrenArray = transcriptObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+                for(int i =0 ; i < childrenArray.size() ;i++){
+                    JSONObject childObject = childrenArray.getJSONObject(i)
+                    if(exonsToDelete.contains(childObject.getString(FeatureStringEnum.UNIQUENAME.value))){
+                        featuresArray.add(childObject)
+                    }
+                }
+
+                command.put(FeatureStringEnum.FEATURES.value, featuresArray)
+                command.put(AnnotationEditorController.REST_OPERATION, FeatureOperation.DELETE_EXON.toLower())
+                requestHandlingService.deleteExon(command)
                 break;
             case FeatureOperation.DELETE_EXON:
                 println "olf features json array = ${featureEvent.oldFeaturesJsonArray}"
@@ -169,7 +209,6 @@ class FeatureEventService {
 
                 command.put(FeatureStringEnum.FEATURES.value, featuresArray)
                 command.put(AnnotationEditorController.REST_OPERATION, FeatureOperation.ADD_EXON.toLower())
-                println "oroginal command: ${command as JSON}"
 //                        {"operation":"delete_feature","username":"ndunn@me.com","track":"Annotations-Group1.1","features":[{"date_creation":1430346621566,"location":{"fmin":992748,"strand":1,"fmax":993041},"sequence":"Group1.1","name":"6fa9b21c-39fe-4f20-8d21-476c8de2f63d-exon","parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"owner":"None","properties":[{"value":"None","type":{"name":"owner","cv":{"name":"feature_property"}}}],"type":{"name":"exon","cv":{"name":"sequence"}},"uniquename":"6fa9b21c-39fe-4f20-8d21-476c8de2f63d","notes":[],"date_last_modified":1430346621663,"parent_id":"93f6958e-b3c6-4761-8f4b-c6e570194b34"}]}
 //                        { \"track\": \"Annotations-Group1.1\", \"features\": [ {\"uniquename\": \"93f6958e-b3c6-4761-8f4b-c6e570194b34\"}, {\"location\":{\"fmin\":992748,\"fmax\":993041,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}], \"operation\": \"add_exon\" }
 

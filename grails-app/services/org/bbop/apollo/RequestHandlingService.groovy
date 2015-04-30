@@ -438,7 +438,7 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer(newJsonObject)
 //        JSONObject returnObject = featureService.convertFeatureToJSON(transcript,false)
 
-        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_EXON, transcript.uniqueName, oldJsonObject, newJsonObject, permissionService.getActiveUser(inputObject))
+        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_EXON, transcript.uniqueName, inputObject,oldJsonObject, newJsonObject, permissionService.getActiveUser(inputObject))
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: returnObject
