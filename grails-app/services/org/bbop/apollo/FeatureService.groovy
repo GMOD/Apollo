@@ -144,7 +144,6 @@ class FeatureService {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
 
-            // todo, make work
             setOwner(transcript, owner);
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {

@@ -435,7 +435,7 @@ public class AnnotatorPanel extends Composite {
         sortHandler.setComparator(nameColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getName().compareTo(o2.getName());
+                return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
 
@@ -443,7 +443,7 @@ public class AnnotatorPanel extends Composite {
         sortHandler.setComparator(typeColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getType().compareTo(o2.getType());
+                return o1.getType().compareToIgnoreCase(o2.getType());
             }
         });
 

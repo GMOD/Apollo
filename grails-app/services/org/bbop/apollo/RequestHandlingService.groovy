@@ -1381,6 +1381,7 @@ class RequestHandlingService {
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
+            featureService.setOwner(newFeature, user);
             newFeature.save(insert: true, flush: true)
 
             if (newFeature instanceof Gene) {
@@ -1397,6 +1398,7 @@ class RequestHandlingService {
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     transcript.name = nameService.generateUniqueName(transcript)
                     transcript.uniqueName = nameService.generateUniqueName()
+                    featureService.setOwner(transcript,user)
 
                     JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
                     featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE,transcript.uniqueName,jsonObject,user)
