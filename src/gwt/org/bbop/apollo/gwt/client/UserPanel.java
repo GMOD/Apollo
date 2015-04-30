@@ -14,6 +14,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -29,10 +30,8 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,8 +45,6 @@ public class UserPanel extends Composite {
     }
 
     private static UserBrowserPanelUiBinder ourUiBinder = GWT.create(UserBrowserPanelUiBinder.class);
-    //    @UiField
-//    HTML userGroupHTML;
     @UiField
     TextBox firstName;
     @UiField
@@ -80,9 +77,6 @@ public class UserPanel extends Composite {
     org.gwtbootstrap3.client.ui.Button addGroupButton;
     @UiField
     TabLayoutPanel userDetailTab;
-    //    @UiField(provided = true)
-//    com.google.gwt.user.client.ui.DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid;
-//    @UiField FlexTable organismPermissions;
     @UiField(provided = true)
     DataGrid<UserOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
     @UiField(provided = true)
@@ -105,12 +99,10 @@ public class UserPanel extends Composite {
     private List<UserOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
     private ColumnSortEvent.ListHandler<UserOrganismPermissionInfo> sortHandler = new ColumnSortEvent.ListHandler<UserOrganismPermissionInfo>(permissionProviderList);
 
+
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
-//        userGroupHTML.setHTML("<div class='label label-default'>USDA i5K</div>");
-
-        // TODO: grab from server or use constants
         if (roleList.getItemCount() == 0) {
             roleList.addItem("user");
             roleList.addItem("admin");
@@ -164,9 +156,9 @@ public class UserPanel extends Composite {
             }
         });
 
+
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
-
 
         createOrganismPermissionsTable();
 
@@ -218,6 +210,12 @@ public class UserPanel extends Composite {
             }
         });
     }
+    @UiHandler("userDetailTab")
+    void onTabSelection(SelectionEvent<Integer> event) {
+        organismPermissionsGrid.redraw();
+    }
+
+
 
     private void createOrganismPermissionsTable() {
         TextColumn<UserOrganismPermissionInfo> organismNameColumn = new TextColumn<UserOrganismPermissionInfo>() {
@@ -330,7 +328,6 @@ public class UserPanel extends Composite {
         organismPermissionsGrid.addColumn(exportColumn, "Export");
         organismPermissionsGrid.addColumn(readColumn, "Read");
         permissionProvider.addDataDisplay(organismPermissionsGrid);
-
     }
 
 
@@ -354,7 +351,6 @@ public class UserPanel extends Composite {
             setCurrentUserInfoFromUI();
             UserRestService.updateUser(userInfoList, selectedUserInfo);
         }
-        // if it is to be created then we don't care
     }
 
 
@@ -419,8 +415,6 @@ public class UserPanel extends Composite {
             filteredUserInfoList.addAll(userInfoList);
         }
         GWT.log("filtered size: " + filteredUserInfoList.size());
-//        viewableLabel.setText(filteredSequenceList.size() + "");
-
     }
 
 
@@ -445,7 +439,7 @@ public class UserPanel extends Composite {
             firstName.setText("");
             lastName.setText("");
             email.setText("");
-//
+
             deleteButton.setEnabled(false);
             deleteButton.setVisible(false);
             roleList.setVisible(false);
@@ -485,7 +479,6 @@ public class UserPanel extends Composite {
             passwordRow.setVisible(currentUser.getRole().equals("admin") || selectedUserInfo.getEmail().equals(currentUser.getEmail()));
 
             roleList.setVisible(true);
-
             for (int i = 0; i < roleList.getItemCount(); i++) {
                 roleList.setItemSelected(i, selectedUserInfo.getRole().equals(roleList.getItemText(i)));
             }
@@ -495,19 +488,16 @@ public class UserPanel extends Composite {
             // if user is admin, but not self, then make editable
             roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin") && currentUser.getUserId() != selectedUserInfo.getUserId());
 
-//            groupTable.clear();
             groupTable.removeAllRows();
             List<String> groupList = selectedUserInfo.getGroupList();
-            for (int i = 0; i < groupList.size(); i++) {
-                String group = groupList.get(i);
+            for (String group : groupList) {
                 addGroupToUi(group);
             }
 
 
             availableGroupList.clear();
             List<String> localAvailableGroupList = selectedUserInfo.getAvailableGroupList();
-            for (int i = 0; i < localAvailableGroupList.size(); i++) {
-                String availableGroup = localAvailableGroupList.get(i);
+            for (String availableGroup : localAvailableGroupList) {
                 availableGroupList.addItem(availableGroup);
             }
 
@@ -530,15 +520,11 @@ public class UserPanel extends Composite {
 
     private void removeGroupFromUI(String group) {
         int rowToRemove = -1;
-//        Window.alert("row count: "+groupTable.getRowCount());
         for (int row = 0; rowToRemove < 0 && row < groupTable.getRowCount(); ++row) {
-//            Window.alert("cell count for row: "+row+ " -> "+groupTable.getCellCount(row));
-//            if(groupTable.getCellCount(row)>1){
             RemoveGroupButton removeGroupButton = (RemoveGroupButton) groupTable.getWidget(row, 0);
             if (removeGroupButton.getGroupName().equals(group)) {
                 rowToRemove = row;
             }
-//            }
         }
         if (rowToRemove >= 0) {
             groupTable.removeRow(rowToRemove);

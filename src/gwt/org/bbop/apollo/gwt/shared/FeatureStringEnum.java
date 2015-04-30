@@ -21,7 +21,7 @@ public enum FeatureStringEnum {
         EXON("Exon"),
         GENE("Gene"),
         PSEUDOGENE("Pseudogene"),
-        STOP_CODON_READTHROUGH("StopCodonReadThrough"),
+        STOP_CODON_READTHROUGH("stop_codon_read_through"),
         STOP_CODON_READHTHROUGH_SUFFIX("-stop_codon_read_through"),
         READTHROUGH_STOP_CODON,
         TRANSCRIPT("Transcript"),

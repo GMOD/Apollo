@@ -6,6 +6,7 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -13,6 +14,7 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -51,12 +53,11 @@ public class GroupPanel extends Composite {
     //    @UiField(provided = true)
 //    FlexTable userData = new DataGrid<UserInfo>(10,tablecss);
     @UiField
+    TabLayoutPanel userDetailTab;
+    @UiField
     FlexTable userData;
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4,tablecss);
-
-    //    @UiField
-//    FlexTable trackPermissions;
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
@@ -67,10 +68,6 @@ public class GroupPanel extends Composite {
     private ListDataProvider<GroupOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
     private List<GroupOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
     private ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo> sortHandler = new ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo>(permissionProviderList);
-
-//    private ListDataProvider<UserInfo> userDataProvider = new ListDataProvider<>();
-//    private List<UserInfo> userInfoList = userDataProvider.getList();
-//    private ColumnSortEvent.ListHandler<UserInfo> userSortHandler = new ColumnSortEvent.ListHandler<>(userInfoList);
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -106,12 +103,6 @@ public class GroupPanel extends Composite {
             }
         });
 
-//        List<GroupInfo> trackInfoList = dataProvider.getList();
-//
-//        for (String user : DataGenerator.getGroups()) {
-//            trackInfoList.add(new GroupInfo(user));
-//        }
-
         dataGrid.addColumnSortHandler(groupSortHandler);
         groupSortHandler.setComparator(firstNameColumn, new Comparator<GroupInfo>() {
             @Override
@@ -135,14 +126,6 @@ public class GroupPanel extends Composite {
             @Override
             public void onGroupChanged(GroupChangeEvent userChangeEvent) {
                 switch (userChangeEvent.getAction()) {
-//                    case ADD_USER_TO_GROUP:
-//                        availableGroupList.removeItem(availableGroupList.getSelectedIndex());
-//                        if (availableGroupList.getItemCount() > 0) {
-//                            availableGroupList.setSelectedIndex(0);
-//                        }
-//                        String group = userChangeEvent.getGroup();
-//                        addGroupToUi(group);
-//                        break;
                     case RELOAD_GROUPS:
                         selectedGroupInfo = null;
                         selectionModel.clear();
@@ -156,10 +139,6 @@ public class GroupPanel extends Composite {
                         reload();
                         createButton.setEnabled(true);
                         break;
-//                    case REMOVE_USER_FROM_GROUP:
-//                        removeGroupFromUI(userChangeEvent.getGroup());
-//                        break;
-
                 }
             }
         });
@@ -185,6 +164,11 @@ public class GroupPanel extends Composite {
         GroupInfo groupInfo = new GroupInfo();
         groupInfo.setName(groupName);
         return groupInfo;
+    }
+    @UiHandler("userDetailTab")
+    void onTabSelection(SelectionEvent<Integer> event) {
+        organismPermissionsGrid.redraw();
+
     }
 
     @UiHandler("createButton")

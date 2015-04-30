@@ -24,6 +24,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.TextBox;
+import com.google.gwt.dom.client.BrowserEvents;
+import com.google.gwt.view.client.CellPreviewEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -82,15 +84,27 @@ public class TrackPanel extends Composite {
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
-        // TODO: on-click . . . if not Clicked
-        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(false, false)) {
-
-
+        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
             @Override
-            public Boolean getValue(TrackInfo employee) {
-                return employee.getVisible();
+            public Boolean getValue(TrackInfo track) {
+                return track.getVisible();
             }
         };
+        dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TrackInfo>() {
+
+            @Override
+            public void onCellPreview(final CellPreviewEvent<TrackInfo> event) {
+
+                if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+
+
+                    final TrackInfo value = event.getValue();
+                    final Boolean state = !event.getDisplay().getSelectionModel().isSelected(value);
+                    event.getDisplay().getSelectionModel().setSelected(value, state);
+                    event.setCanceled(true);
+                }
+            }
+        });
 
         showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
             /**
@@ -119,25 +133,16 @@ public class TrackPanel extends Composite {
 
         TextColumn<TrackInfo> nameColumn = new TextColumn<TrackInfo>() {
             @Override
-            public String getValue(TrackInfo employee) {
-                return employee.getName();
+            public String getValue(TrackInfo track) {
+                return track.getName();
             }
         };
         nameColumn.setSortable(true);
 
 
-//        TextColumn<TrackInfo> typeColumn = new TextColumn<TrackInfo>() {
-//            @Override
-//            public String getValue(TrackInfo employee) {
-//                return employee.getType();
-//            }
-//        };
-//        typeColumn.setSortable(true);
-
 
         dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(nameColumn, "Name");
-//        dataGrid.addColumn(typeColumn, "Type");
         dataGrid.setColumnWidth(0, "10%");
         dataGrid.setSelectionModel(singleSelectionModel);
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -185,16 +190,12 @@ public class TrackPanel extends Composite {
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
-//            trackCount.setText("");
-//            trackDensity.setText("");
         } else {
             trackName.setText(selectedTrackInfo.getName());
             trackType.setText(selectedTrackInfo.getType());
             optionTree.clear();
             JSONObject jsonObject = selectedTrackInfo.getPayload();
             setOptionDetails(jsonObject);
-//            trackCount.setText(selectedTrackInfo.get);
-//            trackDensity.setText("");
         }
     }
 
