@@ -145,33 +145,28 @@ class FeatureEventService {
                 // correlate commands:  features[ uniquename:"AAA",uniquename:"BBB"] // etc.
                 // to what is in children: of the transcript in the transcript features . . .
 //                JSONObject command = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
-                JSONObject jsonObject = ((JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)).getJSONObject(0)
-                println "oroginal object : ${jsonObject as JSON}"
+                JSONObject transcriptObject = ((JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)).getJSONObject(0)
+                println "oroginal object : ${transcriptObject as JSON}"
                 JSONObject command = JSON.parse(featureEvent.originalJsonCommand)
-
-                Set<String>  exonsToDelete = new HashSet<>()
+                // first one is transcript and then the exons that were added, which we need to grab the locations of
                 JSONArray exonArray = command.getJSONArray(FeatureStringEnum.FEATURES.value)
                 // we have to find the exon to delete based on start and stop location
-
-            // TODO: find exon to delete based on location
-//                for(int i = 0 ; i < exonArray.size() ;i++){
-//                    exonsToDelete.add(exonArray.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value))
-//                }
-                // add exon expects:
-                // feature 0 = transcript
-                // feature 1 = exon 1 to add
-                // feature 2 = exon 2 to add
-                // etc. etc.
-                // correlate commands:  features[ uniquename:"AAA",uniquename:"BBB"] // etc.
-                // to what is in children: of the transcript in the transcript features . . .
                 JSONArray featuresArray = new JSONArray()
-                JSONObject transcriptObject = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
+//                JSONObject transcriptObject = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
                 featuresArray.add(transcriptObject)
                 JSONArray childrenArray = transcriptObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                for(int i =0 ; i < childrenArray.size() ;i++){
+                for (int i = 0; i < childrenArray.size(); i++) {
                     JSONObject childObject = childrenArray.getJSONObject(i)
-                    if(exonsToDelete.contains(childObject.getString(FeatureStringEnum.UNIQUENAME.value))){
-                        featuresArray.add(childObject)
+                    //
+                    if (childObject.getJSONObject(FeatureStringEnum.TYPE.value).getString("name") == "exon") {
+                        JSONObject locationObject = childObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+                        for (int j = 1; j < exonArray.size(); j++) {
+                            JSONObject exonObject = exonArray.getJSONObject(j)
+                            Boolean objectsAreSameLocation = compareLocationObjects(locationObject, exonObject.getJSONObject(FeatureStringEnum.LOCATION.value))
+                            if (objectsAreSameLocation) {
+                                featuresArray.add(childObject)
+                            }
+                        }
                     }
                 }
 
@@ -183,10 +178,10 @@ class FeatureEventService {
                 println "olf features json array = ${featureEvent.oldFeaturesJsonArray}"
                 JSONObject jsonObject = ((JSONArray) JSON.parse(featureEvent.oldFeaturesJsonArray)).getJSONObject(0)
                 println "oroginal object : ${jsonObject as JSON}"
-                JSONObject command = JSON.parse(featureEvent.originalJsonCommand)
-                Set<String>  exonsToAdd = new HashSet<>()
+                JSONObject command = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
+                Set<String> exonsToAdd = new HashSet<>()
                 JSONArray exonArray = command.getJSONArray(FeatureStringEnum.FEATURES.value)
-                for(int i = 0 ; i < exonArray.size() ;i++){
+                for (int i = 0; i < exonArray.size(); i++) {
                     exonsToAdd.add(exonArray.getJSONObject(i).getString(FeatureStringEnum.UNIQUENAME.value))
                 }
                 // add exon expects:
@@ -200,9 +195,9 @@ class FeatureEventService {
                 JSONObject transcriptObject = jsonObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0)
                 featuresArray.add(transcriptObject)
                 JSONArray childrenArray = transcriptObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                for(int i =0 ; i < childrenArray.size() ;i++){
+                for (int i = 0; i < childrenArray.size(); i++) {
                     JSONObject childObject = childrenArray.getJSONObject(i)
-                    if(exonsToAdd.contains(childObject.getString(FeatureStringEnum.UNIQUENAME.value))){
+                    if (exonsToAdd.contains(childObject.getString(FeatureStringEnum.UNIQUENAME.value))) {
                         featuresArray.add(childObject)
                     }
                 }
@@ -239,6 +234,15 @@ class FeatureEventService {
                 break;
         }
 
+    }
+
+    private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
+        int fmin1 = locationA.getInt(FeatureStringEnum.FMIN.value)
+        int fmin2 = locationB.getInt(FeatureStringEnum.FMIN.value)
+        if (locationA.getInt(FeatureStringEnum.FMIN.value) != locationB.getInt(FeatureStringEnum.FMIN.value)) return false
+        if (locationA.getInt(FeatureStringEnum.FMAX.value) != locationB.getInt(FeatureStringEnum.FMAX.value)) return false
+        if (locationA.getInt(FeatureStringEnum.STRAND.value) != locationB.getInt(FeatureStringEnum.STRAND.value)) return false
+        return true
     }
 
     def redo(JSONObject inputObject, int count, boolean confirm) {
