@@ -91,6 +91,16 @@
             font-size: smaller;
         }
 
+        .lookup-display {
+            margin-left: 5px;
+            margin-right: 5px;
+            display: inline-table;
+            background-color: gray;
+            color: white;
+            font-size: smaller;
+            height: 20px;
+        }
+
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -104,7 +114,8 @@
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" addStyleNames="{style.dropdown-display}"/>
                         <!--<b:Label ui:field="currentOrganismDisplay" addStyleNames="{style.navigation-display}"/>-->
-                        <b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>
+                        <!--<b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>-->
+                        <gwt:SuggestBox ui:field="sequenceSuggestBox" addStyleNames="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
                             <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>

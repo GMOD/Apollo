@@ -201,25 +201,26 @@ public class AnnotatorPanel extends Composite {
                 }
         );
 
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-            @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                GWT.log("OnOrganismChanged");
-                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-                    sequenceOracle.clear();
-//                    for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
-//                        sequenceOracle.add(sequenceInfo.getName());
+        // TODO: not sure if this was necessary, leaving it here until it fails
+//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+//            @Override
+//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+//                GWT.log("OnOrganismChanged");
+//                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+//                    sequenceOracle.clear();
+////                    for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
+////                        sequenceOracle.add(sequenceInfo.getName());
+////                    }
+//                    if(MainPanel.getInstance().getCurrentSequence()!=null) {
+//                        sequenceList.setText(MainPanel.getInstance().getCurrentSequence().getName());
+//                        loadOrganismAndSequence(MainPanel.getInstance().getCurrentSequence().getName());
 //                    }
-                    if(MainPanel.getInstance().getCurrentSequence()!=null) {
-                        sequenceList.setText(MainPanel.getInstance().getCurrentSequence().getName());
-                        loadOrganismAndSequence(MainPanel.getInstance().getCurrentSequence().getName());
-                    }
-                }
-                else{
-                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
-                }
-            }
-        });
+//                }
+//                else{
+//                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
+//                }
+//            }
+//        });
 
     }
 

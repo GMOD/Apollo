@@ -32,9 +32,16 @@ class SequenceController {
     @Transactional
     def setCurrentSequenceLocation() {
 
-//        render userOrganismPreference.sequence as JSON
-        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, params.startbp as Integer, params.endbp as Integer)
 
+        Integer start, end
+        try {
+            start = params.startbp as Integer
+            end = params.endbp as Integer
+        } catch (e) {
+        }
+
+//        render userOrganismPreference.sequence as JSON
+        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, start , end)
         render userOrganismPreference.sequence as JSON
     }
 

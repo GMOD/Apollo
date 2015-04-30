@@ -6,6 +6,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONObject;
@@ -71,7 +72,7 @@ public class MainPanel extends Composite {
     @UiField
     Button dockOpenClose;
     @UiField(provided = false)
-    NamedFrame frame;
+    static NamedFrame frame;
     @UiField
     static AnnotatorPanel annotatorPanel;
     @UiField
@@ -102,10 +103,14 @@ public class MainPanel extends Composite {
     Button generateLink;
 //    @UiField
 //    static Label currentOrganismDisplay;
-    @UiField
-    static Label currentSequenceDisplay;
+//    @UiField
+//    static Label currentSequenceDisplay;
     @UiField
     com.google.gwt.user.client.ui.ListBox organismListBox;
+    @UiField(provided = true)
+    static SuggestBox sequenceSuggestBox;
+
+    private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
 
     public static MainPanel getInstance() {
@@ -118,6 +123,7 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
+        sequenceSuggestBox = new SuggestBox(sequenceOracle);
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -140,8 +146,42 @@ public class MainPanel extends Composite {
             }
         });
 
+        sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            @Override
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                setCurrentSequenceAndRefresh( sequenceSuggestBox.getText().trim() ,null,null);
+            }
+        });
+
 
         loginUser();
+    }
+
+    private static void setCurrentSequenceAndRefresh(String sequenceNameString, final Integer start, final Integer end) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                handlingNavEvent = false;
+                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
+                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
+                currentStartBp = start!=null ? start : 0 ;
+                currentEndBp = end!=null ? end : currentSequence.getEnd();
+
+                sequenceSuggestBox.setText(currentSequence.getName());
+
+                updateGenomicViewer();
+
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                handlingNavEvent = false;
+                Window.alert("failed to set JBrowse sequence: " + exception);
+            }
+        };
+
+        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
     }
 
 
@@ -244,7 +284,7 @@ public class MainPanel extends Composite {
     }
 
 
-    public void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
         GWT.log("updating the genomic region: "+selectedSequence+" - minRegion"+minRegion + " maxRegion: "+maxRegion);
 
         Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.2);
@@ -283,7 +323,7 @@ public class MainPanel extends Composite {
 //        }
     }
 
-    public void updateGenomicViewer() {
+    public static void updateGenomicViewer() {
         if (currentStartBp != null && currentEndBp != null) {
             updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp);
         } else {
@@ -300,8 +340,11 @@ public class MainPanel extends Composite {
         currentEndBp = appStateInfo.getCurrentEndBp();
 
         if (currentSequence != null) {
-            currentSequenceDisplay.setHTML(currentSequence.getName());
+//            currentSequenceDisplay.setHTML(currentSequence.getName());
+            sequenceSuggestBox.setText(currentSequence.getName());
         }
+
+
 
         organismListBox.clear();
         for(OrganismInfo organismInfo : organismInfoList){
@@ -520,9 +563,17 @@ public class MainPanel extends Composite {
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
         GWT.log("event hapened: " + navEvent.toString());
 
+
         final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
+
+        setCurrentSequence(sequenceNameString,start,end);
+
+
+    }
+
+    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -530,9 +581,11 @@ public class MainPanel extends Composite {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start;
-                currentEndBp = end;
-                currentSequenceDisplay.setHTML(currentSequence.getName());
+                currentStartBp = start!=null ? start : 0 ;
+                currentEndBp = end!=null ? end : currentSequence.getEnd();
+
+                sequenceSuggestBox.setText(currentSequence.getName());
+//                currentSequenceDisplay.setHTML(currentSequence.getName());
 
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
             }
@@ -545,8 +598,6 @@ public class MainPanel extends Composite {
         };
 
         SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
-
-
     }
 
     public static native void exportStaticMethod() /*-{
