@@ -376,7 +376,7 @@ public class AnnotatorPanel extends Composite {
                 String type = annotationInfo.getType();
                 switch (type){
                     case "repeat_region":
-                        return "repeast reg";
+                        return "repeat reg";
                     case "transposable_element":
                         return "transp elem";
                     default:
