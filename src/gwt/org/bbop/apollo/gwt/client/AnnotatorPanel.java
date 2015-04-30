@@ -372,7 +372,16 @@ public class AnnotatorPanel extends Composite {
         typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getType();
+
+                String type = annotationInfo.getType();
+                switch (type){
+                    case "repeat_region":
+                        return "repeast region";
+                    case "transposable_element":
+                        return "transp element";
+                    default:
+                        return type ;
+                }
             }
         };
         typeColumn.setSortable(true);
