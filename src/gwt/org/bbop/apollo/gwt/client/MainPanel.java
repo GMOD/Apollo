@@ -17,6 +17,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
+import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -302,6 +303,7 @@ public class MainPanel extends Composite {
             currentSequenceDisplay.setHTML(currentSequence.getName());
         }
 
+        organismListBox.clear();
         for(OrganismInfo organismInfo : organismInfoList){
             organismListBox.addItem(organismInfo.getName(),organismInfo.getId());
             if(currentOrganism.getId().equals(organismInfo.getId())){
@@ -355,7 +357,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("organismListBox")
     void handleOrganismChange(ChangeEvent changeEvent) {
-        Window.alert("changing organism");
+        OrganismRestService.switchOrganismById(organismListBox.getSelectedValue());
     }
 
 
