@@ -1340,7 +1340,12 @@ class RequestHandlingService {
             Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
 
             exonService.deleteExon(transcript, exon);
-            Exon.deleteAll(exon)
+
+            exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
+            if(exon){
+                exon.delete(flush:true)
+            }
+//            Exon.deleteAll(exon,flush: true)
         }
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)

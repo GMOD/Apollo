@@ -172,7 +172,9 @@ class FeatureEventService {
 
                 command.put(FeatureStringEnum.FEATURES.value, featuresArray)
                 command.put(AnnotationEditorController.REST_OPERATION, FeatureOperation.DELETE_EXON.toLower())
-                requestHandlingService.deleteExon(command)
+                Feature.withNewTransaction {
+                    return requestHandlingService.deleteExon(command)
+                }
                 break;
             case FeatureOperation.DELETE_EXON:
                 println "olf features json array = ${featureEvent.oldFeaturesJsonArray}"
@@ -208,7 +210,7 @@ class FeatureEventService {
 //                        { \"track\": \"Annotations-Group1.1\", \"features\": [ {\"uniquename\": \"93f6958e-b3c6-4761-8f4b-c6e570194b34\"}, {\"location\":{\"fmin\":992748,\"fmax\":993041,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}], \"operation\": \"add_exon\" }
 
 
-                requestHandlingService.addExon(command)
+                return requestHandlingService.addExon(command)
                 break;
             case FeatureOperation.SET_EXON_BOUNDARIES:
                 JSONObject originalCommand = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
@@ -226,7 +228,7 @@ class FeatureEventService {
                 }
 
                 println "final command : ${originalCommand as JSON}"
-                requestHandlingService.setExonBoundaries(originalCommand)
+                return requestHandlingService.setExonBoundaries(originalCommand)
 
                 break;
             default:
@@ -237,8 +239,6 @@ class FeatureEventService {
     }
 
     private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
-        int fmin1 = locationA.getInt(FeatureStringEnum.FMIN.value)
-        int fmin2 = locationB.getInt(FeatureStringEnum.FMIN.value)
         if (locationA.getInt(FeatureStringEnum.FMIN.value) != locationB.getInt(FeatureStringEnum.FMIN.value)) return false
         if (locationA.getInt(FeatureStringEnum.FMAX.value) != locationB.getInt(FeatureStringEnum.FMAX.value)) return false
         if (locationA.getInt(FeatureStringEnum.STRAND.value) != locationB.getInt(FeatureStringEnum.STRAND.value)) return false
