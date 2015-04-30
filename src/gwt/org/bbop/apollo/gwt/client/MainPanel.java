@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
@@ -23,7 +24,9 @@ import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
+import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.constants.Pull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,10 +99,12 @@ public class MainPanel extends Composite {
     HTML userName;
     @UiField
     Button generateLink;
-    @UiField
-    static Label currentOrganismDisplay;
+//    @UiField
+//    static Label currentOrganismDisplay;
     @UiField
     static Label currentSequenceDisplay;
+    @UiField
+    com.google.gwt.user.client.ui.ListBox organismListBox;
 
 
     public static MainPanel getInstance() {
@@ -297,9 +302,17 @@ public class MainPanel extends Composite {
             currentSequenceDisplay.setHTML(currentSequence.getName());
         }
 
-        if (currentOrganism != null) {
-            currentOrganismDisplay.setHTML(currentOrganism.getName());
+        for(OrganismInfo organismInfo : organismInfoList){
+            organismListBox.addItem(organismInfo.getName(),organismInfo.getId());
+            if(currentOrganism.getId().equals(organismInfo.getId())){
+                organismListBox.setSelectedIndex(organismListBox.getItemCount()-1);
+            }
         }
+
+//        if (currentOrganism != null) {
+//            // TODO: fix
+//            currentOrganismDisplay.setHTML(currentOrganism.getName());
+//        }
 
         updatePermissionsForOrganism();
 
@@ -340,8 +353,13 @@ public class MainPanel extends Composite {
         toggleOpen();
     }
 
+    @UiHandler("organismListBox")
+    void handleOrganismChange(ChangeEvent changeEvent) {
+        Window.alert("changing organism");
+    }
 
-    @UiHandler("detailTabs")
+
+        @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
         reloadTabPerIndex(event.getSelectedItem());
     }
