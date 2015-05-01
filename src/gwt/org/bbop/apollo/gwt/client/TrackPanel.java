@@ -234,20 +234,6 @@ public class TrackPanel extends Composite {
         return treeItem;
     }
 
-//    private native void publishUpdate(JSONObject jsonObject) /*-{
-//        $wnd.sendTrackUpdate(jsonObject);
-//    }-*/;
-
-//    private static native JavaScriptObject loadTracks() /*-{
-//        console.log('into loadtracks returned');
-//        var allTracks = $wnd.getAllTracks();
-//        console.log('all tracks returned');
-//        console.log(allTracks);
-//        if(allTracks==undefined){
-//            return null ;
-//        }
-//        return allTracks;
-//    }-*/;
 
     @UiHandler("nameSearchBox")
     public void doSearch(KeyUpEvent keyUpEvent) {
@@ -259,10 +245,8 @@ public class TrackPanel extends Composite {
         String text = nameSearchBox.getText();
         GWT.log("input list: " + trackInfoList.size());
         filteredTrackInfoList.clear();
-        TrackInfo trackInfo;
         GWT.log(trackInfoList.get(2).toString());
-        for (int i = 0; i < trackInfoList.size(); i++) {
-            trackInfo = trackInfoList.get(i);
+        for (TrackInfo trackInfo : trackInfoList) {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);
             }
@@ -329,34 +313,6 @@ public class TrackPanel extends Composite {
         }
         GWT.log("info list: " + trackInfoList.size());
         filterList();
-    }
-
-
-    public void loadTracks(final List<TrackInfo> trackInfoList) {
-        String url = Annotator.getRootUrl() + "jbrowse/data/trackList.json";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseLenient(response.getText());
-                JSONObject returnValueObject = returnValue.isObject();
-                updateTracks(returnValueObject.get("tracks").isArray());
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Window.alert("Error loading organisms");
-            }
-        };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            // Couldn't connect to server
-            Window.alert(e.getMessage());
-        }
-
     }
 
 }
