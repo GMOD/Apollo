@@ -1,5 +1,6 @@
 define([
         'dojo/_base/declare',
+        'dojo/_base/array',
         'jquery',
         'jqueryui/draggable',
         'jqueryui/droppable',
@@ -41,6 +42,7 @@ define([
         'dojo/data/ObjectStore'
     ],
     function (declare,
+        array,
         $,
         draggable,
         droppable,
@@ -261,9 +263,6 @@ define([
                 },
 
                 createAnnotationChangeListener: function (numTry) {
-                    //this.listener = new SockJS(context_path, this);
-                    //console.log('creating change listener: ' + numTry);
-                    // https://github.com/zyro23/grails-spring-websocket
                     this.listener = new SockJS(context_path+"/stomp");
                     this.client = Stomp.over(this.listener);
                     this.client.debug = function(str){
@@ -303,28 +302,20 @@ define([
                             };
 
                             var handleTrackVisibility = function (trackInfo) {
-                                //console.log(trackInfo);
-
-
                                 var command = trackInfo.command;
-                                //console.log(command);
-
                                 if (command == "show") {
-                                    //console.log('trying to show the track: ' + trackInfo);
                                     track.gview.browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
                                 }
                                 else if (command == "hide") {
-                                    //console.log('trying to hide the track: '+trackInfo);
                                     track.gview.browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
                                 }
                                 else if (command == "list") {
-                                    //console.log('AnnotTrack:: calling sending tracks');
                                     var trackList = browser.trackConfigsByName;
                                     var visibleTrackNames = browser.view.visibleTrackNames();
                                     sendTracks(trackList, visibleTrackNames);
                                 }
                                 else {
-                                    console.log('cont sure what command is supposed to be: ' + command);
+                                    console.log('unknown command: ' + command);
                                 }
                             };
 
@@ -342,24 +333,10 @@ define([
                     client.connect({}, function () {
 
                         // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        //var location = dojo.doc.location;
-                        //console.log('location: ' + location);
-                        //var userId = dojo.queryToObject(location).userId;
-                        //console.log('location: ' + location);
-
                         client.subscribe("/topic/AnnotationNotification", function (message) {
-                            //console.log('NOTIFIED of ANNOT CHANGE');
-
-                            // for some reason have to parse this twice
-                            //console.log('input message: '+message);
-                            //console.log('input message.body: '+message.body);
-                            //console.log('input JSON.parse(message.body): '+JSON.parse(message.body));
-
                             var changeData;
 
                             try {
-                                //console.log('input JSON.pare(JSON.parse(message.body)): '+JSON.parse(JSON.parse(message.body)));
-
                                 changeData = JSON.parse(JSON.parse(message.body));
 
                                 if (track.verbose_server_notification) {
@@ -367,11 +344,9 @@ define([
                                     console.log(JSON.stringify(changeData));
                                 }
 
-
-                                // TODO: handle errors without broadcasting
                                 if (changeData.operation == "ERROR" && changeData.username == track.username) {
                                     alert(changeData.error_message);
-                                    return ;
+                                    return;
                                 }
 
                                 if (changeData.operation == "ADD") {
@@ -393,23 +368,18 @@ define([
                                 else if (changeData.operation == "UPDATE") {
                                     if (changeData.sequenceAlterationEvent) {
                                         track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                                        // track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                        // track.getSequenceTrack().annotationsAddedNotification(changeData.features);
                                     }
                                     else {
                                         track.annotationsUpdatedNotification(changeData.features);
-                                        // track.annotationsDeletedNotification(changeData.features);
-                                        // track.annotationsAddedNotification(changeData.features);
                                     }
                                 }
                                 else {
-                                    console.log('unknown command: ' + changeData.operation);
-                                    // unknown command from server, null-op?
+                                    console.log('unknown command: ', changeData.operation);
                                 }
 
                                 track.changed();
                             } catch (e) {
-                                console.log('not JSON ' + e + ' ignoring callback: ' + message.body);
+                                console.log('not JSON ', e, ' ignoring callback: ', message.body);
                             }
 
                         });
@@ -954,11 +924,9 @@ define([
                         var fmin = undefined;
                         var fmax = undefined;
                         featureToAdd.set('subfeatures', new Array());
-                        console.log('# of subfeatures: ' + subfeatures.length);
-                        for (var i = 0; i < subfeatures.length; ++i) {
-                            var subfeature = subfeatures[i];
+                        array.forEach(subfeatures,function(subfeature) {
                             if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
-                                continue;
+                                return;
                             }
                             var dragfeat = JSONUtils.makeSimpleFeature(subfeature);
                             dragfeat.set("strand", strand);
@@ -971,21 +939,21 @@ define([
                                 fmax = childFmax;
                             }
                             featureToAdd.get("subfeatures").push(dragfeat);
-                        }
+                        });
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
                         featuresToAdd.push(afeat);
 
-                        console.log('almost adding features?: ' + featureToAdd);
+                        console.log('add_transcript', featureToAdd);
 
                         
-                        var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_transcript" }';
-                        console.log('target track? : ' + target_track);
-                        console.log('posting: ' + postData);
-                        target_track.executeUpdateOperation(postData);
-                        console.log('POSTED: ' + postData);
-
+                        var postData = {
+                            "track": target_track.getUniqueTrackName(),
+                            "features": featuresToAdd,
+                            "operation": "add_transcript"
+                        };
+                        target_track.executeUpdateOperation(JSON.stringify(postData));
                     };
 
                     console.log('process: ' + strand);
