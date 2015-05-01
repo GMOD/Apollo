@@ -63,17 +63,16 @@ public class TrackPanel extends Composite {
     Tree optionTree;
 
 
+
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
-
     private SingleSelectionModel<TrackInfo> singleSelectionModel = new SingleSelectionModel<TrackInfo>();
-
-    private TrackInfo selectedTrackInfo = null;
-
+    private boolean trackSelectionFix; // this fixes the fact that firefox requires two clicks to select a CheckboxCell
 
     public TrackPanel() {
         exportStaticMethod();
+        trackSelectionFix=true;
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
@@ -96,8 +95,7 @@ public class TrackPanel extends Composite {
             public void onCellPreview(final CellPreviewEvent<TrackInfo> event) {
 
                 if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-
-
+                    trackSelectionFix=false;
                     final TrackInfo value = event.getValue();
                     final Boolean state = !event.getDisplay().getSelectionModel().isSelected(value);
                     event.getDisplay().getSelectionModel().setSelected(value, state);
@@ -148,7 +146,8 @@ public class TrackPanel extends Composite {
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                setTrackInfo(singleSelectionModel.getSelectedObject());
+                if(!trackSelectionFix) setTrackInfo(singleSelectionModel.getSelectedObject());
+                trackSelectionFix=true;
             }
         });
 
@@ -167,8 +166,9 @@ public class TrackPanel extends Composite {
         sortHandler.setComparator(showColumn, new Comparator<TrackInfo>() {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
-                if (o1.getVisible() == o2.getVisible()) return 0;
-                if (o1.getVisible() && !o2.getVisible()) {
+                if (o1.getVisible() == o2.getVisible()) {
+                    return 0;
+                }  else if (o1.getVisible()) {
                     return 1;
                 } else {
                     return -1;
@@ -185,16 +185,16 @@ public class TrackPanel extends Composite {
     }
 
     private void setTrackInfo(TrackInfo selectedObject) {
-        selectedTrackInfo = selectedObject;
-        if (selectedTrackInfo == null) {
+        GWT.log("Testing");
+        if (selectedObject == null) {
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
         } else {
-            trackName.setText(selectedTrackInfo.getName());
-            trackType.setText(selectedTrackInfo.getType());
+            trackName.setText(selectedObject.getName());
+            trackType.setText(selectedObject.getType());
             optionTree.clear();
-            JSONObject jsonObject = selectedTrackInfo.getPayload();
+            JSONObject jsonObject = selectedObject.getPayload();
             setOptionDetails(jsonObject);
         }
     }
@@ -245,9 +245,11 @@ public class TrackPanel extends Composite {
         String text = nameSearchBox.getText();
         GWT.log("input list: " + trackInfoList.size());
         filteredTrackInfoList.clear();
-        GWT.log(trackInfoList.get(2).toString());
         for (TrackInfo trackInfo : trackInfoList) {
-            if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) && !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)) {
+            // filter refseq and annottrack
+            if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
+                    !isReferenceSequence(trackInfo) &&
+                    !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);
             }
         }
