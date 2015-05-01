@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -247,6 +248,7 @@ public class GroupPanel extends Composite {
             }
         });
 
+        organismPermissionsGrid.setEmptyTableWidget(new Label("Please select a user to view organism permissions"));
         organismPermissionsGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(organismNameColumn, new Comparator<GroupOrganismPermissionInfo>() {
             @Override
