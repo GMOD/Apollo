@@ -36,10 +36,6 @@ class JbrowseController {
 
     private String getJBrowseDirectoryForSession() {
 
-        // faster, but not reliable
-//        Session session = SecurityUtils.subject.getSession(false)
-//        String organismJBrowseDirectory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
-
         long startTime = System.currentTimeMillis()
         String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
         long stopTime = System.currentTimeMillis()
@@ -59,7 +55,7 @@ class JbrowseController {
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
                     if(userOrganismPreference ==null){
-                        println "creating a new one!"
+                        log.debug "creating a new one!"
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 ,organism: organism
@@ -68,13 +64,11 @@ class JbrowseController {
                         ).save(insert:true,flush:true)
                     }
                     else{
-                        println "updating an old one!!"
+                        log.debug "updating an old one!!"
                         userOrganismPreference.sequence = sequence
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }
-
-                    println "222 - has a current organism ${UserOrganismPreference.countByCurrentOrganism(true)}"
 
                     organismJBrowseDirectory = organism.directory
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
@@ -88,11 +82,9 @@ class JbrowseController {
 
         return organismJBrowseDirectory
     }
-/**
- * For returning seq/refSeqs.json
- */
+
+
     def namesFiles(String directory, String jsonFile) {
-//        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
         log.debug "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
@@ -111,10 +103,8 @@ class JbrowseController {
      */
     def names(String fileName) {
         log.debug "names"
-//        String dataDirectory = grailsApplication.config.apollo.jbrowse.data.directory
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${fileName}.json"
-        println "names ${fileName}  ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         if (!file.exists()) {
             log.warn("Could not get ${absoluteFilePath}");
@@ -125,27 +115,11 @@ class JbrowseController {
         render file.text
     }
 
-//    /**
-//     * For returning seq/refSeqs.json
-//     */
-//    def meta(){
-//        log.debug  "meta"
-//        String fileName = grailsApplication.config.apollo.jbrowse.data.directory
-//        File file = new File(fileName+"/names/meta.json");
-//        if(!file.exists()){
-//            log.error("Could not get names/meta.json file " + fileName);
-//            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-//            return;
-//        }
-//        render file.text
-//    }
-
     /**
      * For returning seq/refSeqs.json
      */
     def seq() {
         log.debug "seq"
-//        String fileName = grailsApplication.config.apollo.jbrowse.data.directory
         String fileName = getJBrowseDirectoryForSession()
         File file = new File(fileName + "/seq/refSeqs.json");
         if (!file.exists()) {
@@ -181,36 +155,26 @@ class JbrowseController {
     }
 
     def bam(String fileName) {
-        println "bam! ${fileName}"
         return data("bam/" + fileName)
     }
 
     /**
-     * Has to handle a number of routes based on selected genome or just use the default otherwise.
+     * Has to handle a number of routes for the data directory.
      *
+     * e.g. --
      * trackList.json
-     * tracks.conf . . .  should be a .json
+     * tracks.conf
      * names/meta.json
-     * . .  pass-through for css . . . good to change
-     * refSeq.json  (good to store in database)
-     * 7.json  ??
-     *
-     * .. .  and original:
-     //     * data/tracks/Hsal_OGSv3.3/Group1.1/trackData.json
+     * refSeq.json
      * data/tracks/<track>/<annotation>/trackData.json
-     *
-     * data/tracks/Amel_4.5_brain_ovary.gff/Group1.1/lf-1.json  ?? a GFF to json manipulation
-     *
+     * data/tracks/Amel_4.5_brain_ovary.gff/Group1.1/lf-1.json
      * data/bigwig/<fileName>.bw
-     *
-     *
      */
     def data(String fileName) {
-        log.debug "data"
         String dataDirectory = getJBrowseDirectoryForSession()
         log.debug "dataDir: ${dataDirectory}"
 
-//        log.debug  "fileName ${fileName}"
+        //log.debug  "fileName ${fileName}"
         log.debug "URI: " + request.getRequestURI()
         log.debug "URL: " + request.getRequestURL()
         log.debug "pathInfo: " + request.getPathInfo()
@@ -218,12 +182,7 @@ class JbrowseController {
         log.debug "params: " + params
 
         String dataFileName = dataDirectory + "/" + fileName
-
-        log.debug "data directory: ${dataFileName}"
-
         File file = new File(dataFileName);
-
-        println "file path abs ${file.absolutePath}"
 
         if (!file.exists()) {
             log.error("Could not get data directory: " + dataFileName);
@@ -236,8 +195,6 @@ class JbrowseController {
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
             log.info("No input MIME type of " + fileName);
-//                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                return;
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
@@ -247,7 +204,7 @@ class JbrowseController {
                 OutputStream out = response.getOutputStream();
 
                 // Copy the contents of the file to the output stream
-                byte[] buf = new byte[1024];
+                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
                 int count = 0;
                 while ((count = fis.read(buf)) >= 0) {
                     out.write(buf, 0, count);
@@ -266,11 +223,8 @@ class JbrowseController {
             } else {
                 log.error("Could not get MIME type of " + fileName + " falling back to text/plain");
                 mimeType = "text/plain";
-//                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//                return;
             }
         }
-        println "mimeType ${mimeType}"
 
         if (isCacheableFile(fileName)) {
             String eTag = createHashFromFile(file);
@@ -281,8 +235,6 @@ class JbrowseController {
         }
 
         String range = request.getHeader("range");
-//        logger.debug("range: " + range);
-
         long length = file.length();
         Range full = new Range(0, length - 1, length);
 
@@ -295,7 +247,6 @@ class JbrowseController {
             if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*\$")) {
                 response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                 response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-//                response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                 return;
             } else {
                 // If any valid If-Range header, then process each part of byte range.
@@ -318,11 +269,8 @@ class JbrowseController {
                         if (start > end) {
                             response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
                             response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-//                            response.setStatus(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
                             return;
                         }
-
-                        // Add range.
                         ranges.add(new Range(start, end, length));
                     }
                 }
@@ -331,14 +279,7 @@ class JbrowseController {
         }
 
         response.setContentType(mimeType);
-//        }
-
-        // Set content size
-//        response.setContentLength((int) file.length());
-
         if (ranges.isEmpty() || ranges.get(0) == full) {
-            // Set content type
-
             // Set content size
             response.setContentLength((int) file.length());
 
@@ -357,7 +298,6 @@ class JbrowseController {
         } else if (ranges.size() == 1) {
             // Return single part of file.
             Range r = ranges.get(0);
-//            response.setContentType(contentType);
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.

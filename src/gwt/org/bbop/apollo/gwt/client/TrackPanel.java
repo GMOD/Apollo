@@ -185,7 +185,6 @@ public class TrackPanel extends Composite {
     }
 
     private void setTrackInfo(TrackInfo selectedObject) {
-        GWT.log("Testing");
         if (selectedObject == null) {
             trackName.setText("");
             trackType.setText("");
