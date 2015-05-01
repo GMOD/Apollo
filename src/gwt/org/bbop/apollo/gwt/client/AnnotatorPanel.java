@@ -98,7 +98,6 @@ public class AnnotatorPanel extends Composite {
     private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
-    private static Boolean transcriptSelected;
 
 
     public AnnotatorPanel() {
@@ -106,11 +105,8 @@ public class AnnotatorPanel extends Composite {
         sequenceList = new SuggestBox(sequenceOracle);
         sequenceList.getElement().setAttribute("placeHolder", "All Reference Sequences");
         dataGrid.setWidth("100%");
-
-//        dataGrid.setEmptyTableWidget(new Label("Loading"));
-        initializeTable();
-
         dataGrid.setTableBuilder(new CustomTableBuilder());
+        initializeTable();
 
 
         dataProvider.addDataDisplay(dataGrid);
@@ -120,10 +116,6 @@ public class AnnotatorPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-//                if (transcriptSelected) {
-//                    transcriptSelected = false;
-//                    return;
-//                } //commented out to enable behavior for top-level features
                 AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
                 GWT.log(selectionModel.getSelectedObject().getName());
                 updateAnnotationInfo(annotationInfo);
@@ -249,7 +241,7 @@ public class AnnotatorPanel extends Composite {
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
         String type = annotationInfo.getType();
-        GWT.log("annoation type: " + type);
+        GWT.log("annotation type: " + type);
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
@@ -302,7 +294,7 @@ public class AnnotatorPanel extends Composite {
     }
     
     @UiHandler("stopCodonButton")
-    // switch betwen states
+    // switch between states
     public void handleStopCodonStuff(ClickEvent clickEvent) {
         if (stopCodonButton.getIcon().equals(IconType.BAN)) {
             stopCodonButton.setIcon(IconType.WARNING);
@@ -318,7 +310,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     @UiHandler("cdsButton")
-    // switch betwen states
+    // switch between states
     public void handleCdsStuff(ClickEvent clickEvent) {
         if (cdsButton.getIcon().equals(IconType.BAN)) {
             cdsButton.setIcon(IconType.WARNING);
@@ -483,15 +475,9 @@ public class AnnotatorPanel extends Composite {
 
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
-//                    GWT.log(object.toString());
-
                     AnnotationInfo annotationInfo = generateAnnotationInfo(object);
                     annotationInfoList.add(annotationInfo);
                 }
-
-//                features.setAnimationEnabled(true);
-                GWT.log("# of annottions: " + filteredAnnotationList.size());
-
                 filterList();
                 dataGrid.redraw();
             }
@@ -556,7 +542,6 @@ public class AnnotatorPanel extends Composite {
     private AnnotationInfo generateAnnotationInfo(JSONObject object, boolean processChildren) {
         AnnotationInfo annotationInfo = new AnnotationInfo();
         annotationInfo.setName(object.get("name").isString().stringValue());
-//        GWT.log("top-level processing: " + annotationInfo.getName());
         annotationInfo.setType(object.get("type").isObject().get("name").isString().stringValue());
         if (object.get("symbol") != null) {
             annotationInfo.setSymbol(object.get("symbol").isString().stringValue());
@@ -620,7 +605,6 @@ public class AnnotatorPanel extends Composite {
 
     // TODO: need to cache these or retrieve from the backend
     public static void displayTranscript(int geneIndex, String uniqueName) {
-        transcriptSelected = true;
         // 1 - get the correct gene
         AnnotationInfo annotationInfo = filteredAnnotationList.get(geneIndex);
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
