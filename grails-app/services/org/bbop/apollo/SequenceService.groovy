@@ -233,7 +233,7 @@ class SequenceService {
                 log.debug "Fetching peptide sequence for selected exon: ${gbolFeature}"
                 String rawSequence = exonService.getCodingSequenceInPhase((Exon) gbolFeature, true)
                 sequence = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))) != null)
-                if (sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                if (sequence.length()>0 && sequence.charAt(sequence.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     sequence = sequence.substring(0, sequence.length() - 1)
                 }
                 int idx
