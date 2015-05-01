@@ -263,7 +263,11 @@ define([
                 },
 
                 createAnnotationChangeListener: function (numTry) {
-                    this.listener = new SockJS(context_path+"/stomp");
+                    //this.listener = new SockJS(context_path+"/stomp");
+                    var stomp_url = window.location.href ;
+                    var index = stomp_url.search('/jbrowse');
+                    stomp_url = stomp_url.substr(0,index) + '/stomp/';
+                    this.listener = new SockJS(stomp_url);
                     this.client = Stomp.over(this.listener);
                     this.client.debug = function(str){
                         if(this.verbose_server_notification){
