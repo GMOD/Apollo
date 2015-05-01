@@ -87,6 +87,11 @@ class FeatureEventService {
         FeatureEvent.countByUniqueName(uniqueName)
     }
 
+
+    List<FeatureEvent> getRecentFeatureEvents(String uniqueName, int count) {
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: count])
+        return featureEventList
+    }
     /**
      * Count of 0 is the most recent
      * @param uniqueName
@@ -115,20 +120,7 @@ class FeatureEventService {
         return featureEvent
     }
 
-    def undo(JSONObject inputObject, int count, boolean confirm) {
-        println "undo count ${count}"
-        String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-        // TODO: I think that this gives up if you are already at the most recent transaction
-//        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
-//            continue;
-//        }
-
-        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
-
-        println "feature event gotten ${featureEvent.operation}"
-        // set current to one past then
-//        setPreviousTransactionForFeature(uniqueName, count+1)
-
+    private JSONObject undoFeatureEvent(FeatureEvent featureEvent){
         switch (featureEvent.operation) {
             case FeatureOperation.ADD_FEATURE:
                 requestHandlingService.deleteFeature((JSONObject) JSON.parse(featureEvent.originalJsonCommand))
@@ -235,6 +227,28 @@ class FeatureEventService {
                 println "unadled operation "
                 break;
         }
+    }
+
+    private JSONObject undoRecentFeatureEvents(List<FeatureEvent> featureEventList){
+        for(FeatureEvent featureEvent in featureEventList){
+            undoFeatureEvent(featureEvent)
+        }
+    }
+
+    def undo(JSONObject inputObject, int count, boolean confirm) {
+        println "undo count ${count}"
+        String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
+        // TODO: I think that this gives up if you are already at the most recent transaction
+//        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
+//            continue;
+//        }
+
+//        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
+//        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
+        List<FeatureEvent> featureEventList = getRecentFeatureEvents(uniqueName,count-1)
+
+//        println "feature event gotten ${featureEvent.operation}"
+        undoRecentFeatureEvents(featureEventList)
 
     }
 

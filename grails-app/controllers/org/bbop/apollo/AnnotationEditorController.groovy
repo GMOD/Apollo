@@ -45,11 +45,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def transcriptService
     def exonService
     def permissionService
-    def overlapperService
-//    DataListenerHandler dataListenerHandler = DataListenerHandler.getInstance()
     def preferenceService
     def sequenceSearchService
-    def featureEventService
 
 
     def index() {
