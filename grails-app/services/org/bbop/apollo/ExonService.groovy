@@ -401,7 +401,6 @@ class ExonService {
         leftFeatureLocation.save()
         rightFeatureLocation.save()
 
-///
         Transcript transcript = getTranscript(leftExon)
         transcriptService.addExon(transcript,rightExon)
 
@@ -435,7 +434,7 @@ class ExonService {
             if (e.equals(exon)) {
                 break
             }
-            if (!featureService.overlaps(e, cds, true)) {
+            if (!overlapperService.overlaps(e, cds, true)) {
                 continue
             }
             int fmin = e.fmin < cds.fmin ? cds.fmin : e.fmin

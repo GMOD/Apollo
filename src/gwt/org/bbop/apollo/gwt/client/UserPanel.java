@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -111,8 +112,8 @@ public class UserPanel extends Composite {
 
         TextColumn<UserInfo> firstNameColumn = new TextColumn<UserInfo>() {
             @Override
-            public String getValue(UserInfo employee) {
-                return employee.getName();
+            public String getValue(UserInfo user) {
+                return user.getName();
             }
         };
         firstNameColumn.setSortable(true);
@@ -129,16 +130,16 @@ public class UserPanel extends Composite {
 
         Column<UserInfo, String> secondNameColumn = new Column<UserInfo, String>(new ClickableTextCell(anchorRenderer)) {
             @Override
-            public String getValue(UserInfo employee) {
-                return employee.getEmail();
+            public String getValue(UserInfo user) {
+                return user.getEmail();
             }
         };
         secondNameColumn.setSortable(true);
 
         TextColumn<UserInfo> thirdNameColumn = new TextColumn<UserInfo>() {
             @Override
-            public String getValue(UserInfo employee) {
-                return employee.getRole();
+            public String getValue(UserInfo user) {
+                return user.getRole();
             }
         };
         thirdNameColumn.setSortable(true);
@@ -250,6 +251,8 @@ public class UserPanel extends Composite {
         });
 
         organismPermissionsGrid.addColumnSortHandler(sortHandler);
+        organismPermissionsGrid.setEmptyTableWidget(new Label("Please select a user to view organism permissions"));
+
         sortHandler.setComparator(organismNameColumn, new Comparator<UserOrganismPermissionInfo>() {
             @Override
             public int compare(UserOrganismPermissionInfo o1, UserOrganismPermissionInfo o2) {
