@@ -11,7 +11,7 @@ class PreferenceService {
     def permissionService
 
     Organism getCurrentOrganismForCurrentUser(){
-        return getCurrentOrganism(permissionService.currentUser)
+        return permissionService.currentUser==null?null:getCurrentOrganism(permissionService.currentUser);
     }
 
     /**
@@ -63,8 +63,8 @@ class PreferenceService {
 
     def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
         UserOrganismPreference.executeUpdate(
-                "update UserOrganismPreference  pref set pref.currentOrganism = false"+
-                "where pref.id != :prefId and pref.user = :user ",
+                "update UserOrganismPreference  pref set pref.currentOrganism = false "+
+                "where pref.id != :prefId and pref.user = :user",
                 [prefId:userOrganismPreference.id,user:user])
     }
 
