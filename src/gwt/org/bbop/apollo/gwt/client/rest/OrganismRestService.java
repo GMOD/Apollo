@@ -4,6 +4,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.client.LoadingDialog;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.AppInfoConverter;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -94,15 +95,18 @@ public class OrganismRestService {
     }
 
     public static void switchOrganismById(String newOrganismId) {
+        final LoadingDialog loadingDialog = new LoadingDialog();
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 MainPanel.getInstance().setAppState(AppInfoConverter.convertFromJson(returnValue));
+                loadingDialog.hide();
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
+                loadingDialog.hide();
                 Window.alert("Error changing organisms");
             }
         };

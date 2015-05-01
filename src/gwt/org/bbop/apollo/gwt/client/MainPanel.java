@@ -149,7 +149,7 @@ public class MainPanel extends Composite {
         sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                setCurrentSequenceAndRefresh( sequenceSuggestBox.getText().trim() ,null,null);
+                setCurrentSequenceAndRefresh(sequenceSuggestBox.getText().trim(), null, null);
             }
         });
 
@@ -370,9 +370,11 @@ public class MainPanel extends Composite {
         String url = Annotator.getRootUrl() + "annotator/getAppState";
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        final LoadingDialog loadingDialog = new LoadingDialog();
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                loadingDialog.hide();
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
                 setAppState(appStateInfo);
@@ -380,6 +382,7 @@ public class MainPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
+                loadingDialog.hide();
                 Window.alert("Error loading organisms");
             }
         };
@@ -387,6 +390,7 @@ public class MainPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
+            loadingDialog.hide();
             // Couldn't connect to server
             Window.alert(e.getMessage());
         }
@@ -568,7 +572,7 @@ public class MainPanel extends Composite {
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
-        setCurrentSequence(sequenceNameString,start,end);
+        setCurrentSequence(sequenceNameString, start, end);
 
 
     }
