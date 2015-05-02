@@ -37,7 +37,8 @@ class SequenceSearchService {
             searchUtils.put("database",database)
 
             // dynamically allocate a search_class
-            def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'), true, false )?.newInstance()
+//            def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'), true, false )?.newInstance()
+            def searcher=this.class.classLoader.loadClass( searchUtils.get('search_class'))?.newInstance()
 
             // pass configuration
             searcher.parseConfiguration(searchUtils)
