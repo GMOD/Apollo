@@ -60,6 +60,7 @@ class FeaturePropertyService {
 //        Comment comment =  Comment.findByTypeAndFeatureAndValue(commentCVTerm,feature,commentString)
         Comment comment = Comment.findByFeatureAndValue(feature, commentString)
         if (comment) {
+            feature.removeFromFeatureProperties(comment)
             Comment.deleteAll(comment)
             return true
         }
