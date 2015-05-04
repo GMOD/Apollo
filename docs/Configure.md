@@ -25,7 +25,9 @@ environment will be automatically selected depending on how it is run, e.g:
 * `apollo run-local` or `apollo debug` for a development environment
 * `apollo test` for a test environment
 
-Note: additional general configuration from the "Main configuration" can also be added to your apollo-config.groovy.
+*Note:* additional general configuration from the "Main configuration" can also be added to your apollo-config.groovy.
+
+*Note:* to deploy on tomcat you *NEED* to have a configured `apollo-config` file copied from one of the samples.
 
 ### Main configuration
 
