@@ -47,5 +47,35 @@ If you get this error, then you may need to re-run `apollo deploy` or even do a 
 
 ### Differences between JBrowse and WebApollo
 
-
 The "linkTemplate" track configuration parameter in JBrowse is overridden by WebApollo's feature edge matcher and drag and drop functions. It is recommended to use menuTemplate instead.
+
+### Complaints about 8080 being in use
+
+Please check that you don't already have a tomcat running ``netstat -tan | grep 8080``.  
+Sometimes tomcat does not exit properly.  ``ps -ef | grep java`` and then ``kill -9`` the offending processing.
+
+### Unable to open the h2 / default database for writing
+
+```
+SEVERE: Unable to create initial connections of pool.
+org.h2.jdbc.JdbcSQLException: Error opening database: "Could not save properties /var/lib/tomcat7/prodDb.lock.db" [8000-176]
+```
+
+This is due to the production server trying to write an h2 instance in an area it doesn't have permissions to.
+If you use H2 (which is great for testing or single-user user, but not for full-blown production) make sure that:
+
+- you can write to the specified data directory for production.  Here is the default from ```DataSource.groovy```:
+
+            url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            
+which will write a db file to ```/tmp/prodDB.db```.  If you don't specify an absolute path it will try to write in the same directory
+that tomcat is running in e.g., ``/var/lib/tomcat7/``.
+
+The solution is to copy over one of the ``sample-XXX-config.groovy`` files to ``apollo-config.groovy`` in your home directory and configure for your needs.
+
+<a href="https://github.com/GMOD/Apollo/blob/master/docs/Configure.md">More detail on configuration</a> of the ``apollo-config.groovy`` file.
+
+
+
+ 
+
