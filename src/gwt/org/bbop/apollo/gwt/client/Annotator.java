@@ -12,8 +12,6 @@ import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.ExportEvent;
 import org.bbop.apollo.gwt.client.event.ExportEventHandler;
-import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
-import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 //import org.realityforge.gwt.websockets.client.WebSocket;
 //import org.realityforge.gwt.websockets.client.WebSocketListenerAdapter;
 
@@ -31,20 +29,11 @@ public class Annotator implements EntryPoint {
      */
     public void onModuleLoad() {
         MainPanel mainPanel = MainPanel.getInstance();
-//        Dictionary dictionary = Dictionary.getDictionary("Options");
-//        String rootUrl = dictionary.get("rootUrl");
-//        mainPanel.setRootUrl(rootUrl);
-
         RootLayoutPanel rp = RootLayoutPanel.get();
         rp.add(mainPanel);
         rp.setWidgetTopHeight(mainPanel, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
 
-//        eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//            }
-//        });
     }
 
     public static String getRootUrl(){

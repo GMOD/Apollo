@@ -187,20 +187,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
 
-//            Feature  gbolFeature = getFeature(editor, jsonFeature);
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
             List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName,[sort:"dateCreated",order:"asc"])
-//            TransactionList transactionList = historyStore.getTransactionListForFeature(jsonFeature.getString("uniquename"));
             for (int j = 0; j < transactionList.size(); ++j) {
-//                Transaction transaction = transactionList.get(j);
                 FeatureEvent transaction = transactionList.get(j);
                 JSONObject historyItem = new JSONObject();
                 historyItem.put(REST_OPERATION, transaction.operation.name());
-//                historyItem.put("editor", transaction.getEditor());
                 historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor().username);
                 historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
-//                if (j == transactionList.current) {
                 if (transactionList.current) {
                     historyItem.put(FeatureStringEnum.CURRENT.value, true);
                 }
@@ -212,7 +207,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     println "array: ${newFeaturesJsonArray as JSON}"
                     println "size : ${newFeaturesJsonArray.size()}"
                     for ( int featureIndex  = 0 ; featureIndex < newFeaturesJsonArray.size() ; featureIndex++) {
-                        println "josn object ${featureIndex }"
+                        println "json object ${featureIndex }"
                         JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
                         // TODO: this needs to be functional
                         if (transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT.name())) {
