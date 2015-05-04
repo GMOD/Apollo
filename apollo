@@ -6,16 +6,16 @@ function usage(){
     echo "";
     echo "Commands:";
     echo "";
-    echo "deploy:    Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "devmode:       Runs from current directory debug mode (non-minimized javascript).";
-    echo "run-local: Runs from current directory, but not in dev-mode.";
-    echo "test:      Runs test-suite.";
-    echo "debug:     Runs from current directory in debug mode (non-minimized javascript).";
-    echo "release:   Builds in release mode (minimized javascript). (advanced)";
-    echo "compile:   Compiled the build.";
-    echo "clean:     Removes class files.";
-    echo "clean-all: Removes class files and jbrowse files.";
-    echo "help:      This message.";
+    echo "deploy:           Builds Unoptimized war file (no processing of javascript) into the target directory.";
+    echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
+    echo "test:             Runs test-suite.";
+    echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
+    echo "release:          Builds in release mode (minimized javascript). (advanced)";
+    echo "compile:          Compiled the build.";
+    echo "clean:            Removes class files.";
+    echo "clean-all:        Removes class files and jbrowse files.";
+    echo "help:             This message.";
 };
 
 
@@ -87,7 +87,11 @@ if [[ $1 == "devmode" ]];then
 elif [[ $1 == "run-local" ]];then
     # should call the copy target first
     check_configs
-    ant copy-resources gwtc && grails run-app
+	if [[ $# == 2 ]]; then
+        ant copy-resources gwtc && grails -Dserver.port=$2 run-app
+	else
+        ant copy-resources gwtc && grails run-app
+	fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
     OLD_MAVEN_OPTS=$MAVEN_OPTS
