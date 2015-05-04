@@ -524,6 +524,7 @@ class RequestHandlingService {
 
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
         JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
+        
         featureEventService.addNewFeatureEvent( setStart ? FeatureOperation.SET_TRANSLATION_START : FeatureOperation.UNSET_TRANSLATION_START,transcript.uniqueName,inputObject,transcriptJSONObject,newJSONObject,permissionService.getActiveUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
@@ -550,19 +551,19 @@ class RequestHandlingService {
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
-        boolean setStart = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
-        if (!setStart) {
+        boolean setEnd = transcriptJSONObject.has(FeatureStringEnum.LOCATION.value);
+        if (!setEnd) {
             CDS cds = transcriptService.getCDS(transcript)
             cdsService.setManuallySetTranslationEnd(cds, false)
             featureService.calculateCDS(transcript)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            featureService.setTranslationStart(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
+            featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
         }
         transcript.save()
 
         JSONObject newJSONObject = featureService.convertFeatureToJSON(transcript, false)
-        featureEventService.addNewFeatureEvent( setStart ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END,transcript.uniqueName,inputObject,transcriptJSONObject,newJSONObject,permissionService.getActiveUser(inputObject))
+        featureEventService.addNewFeatureEvent( setEnd ? FeatureOperation.SET_TRANSLATION_END : FeatureOperation.UNSET_TRANSLATION_END,transcript.uniqueName,inputObject,transcriptJSONObject,newJSONObject,permissionService.getActiveUser(inputObject))
         JSONObject featureContainer = createJSONFeatureContainer(newJSONObject);
 
 //        out.write(createJSONFeatureContainer(JSONUtil.convertBioFeatureToJSON(getTopLevelFeatureForTranscript(transcript))).toString());
