@@ -120,6 +120,8 @@ elif [[ $1 == "release" ]];then
     # should call the copy target first
     check_configs
     check_configs_for_release
+    rm -f src/java/apollo-config.groovy
+    cp apollo-config.groovy src/java/apollo-config.groovy
     ant clean-all release gwtc && grails war
 elif [[ $1 == "compile" ]];then
     # should call the copy target first
