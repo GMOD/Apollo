@@ -360,6 +360,7 @@ define([
                                     else {
                                         track.annotationsAddedNotification(changeData.features);
                                     }
+                                    window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
                                 }
                                 else if (changeData.operation == "DELETE") {
                                     if (changeData.sequenceAlterationEvent) {
@@ -368,6 +369,7 @@ define([
                                     else {
                                         track.annotationsDeletedNotification(changeData.features);
                                     }
+                                    window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
                                 }
                                 else if (changeData.operation == "UPDATE") {
                                     if (changeData.sequenceAlterationEvent) {
@@ -376,6 +378,7 @@ define([
                                     else {
                                         track.annotationsUpdatedNotification(changeData.features);
                                     }
+                                    window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
                                 }
                                 else {
                                     console.log('unknown command: ', changeData.operation);

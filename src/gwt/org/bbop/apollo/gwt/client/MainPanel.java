@@ -14,6 +14,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -154,8 +155,8 @@ public class MainPanel extends Composite {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start!=null ? start : 0 ;
-                currentEndBp = end!=null ? end : currentSequence.getEnd();
+                currentStartBp = start != null ? start : 0;
+                currentEndBp = end != null ? end : currentSequence.getEnd();
                 sequenceSuggestBox.setText(currentSequence.getName());
                 updateGenomicViewer();
             }
@@ -268,7 +269,7 @@ public class MainPanel extends Composite {
 
 
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-        GWT.log("updating the genomic region: "+selectedSequence+" - minRegion"+minRegion + " maxRegion: "+maxRegion);
+        GWT.log("updating the genomic region: " + selectedSequence + " - minRegion" + minRegion + " maxRegion: " + maxRegion);
 
         Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.2);
         minRegion -= buffer;
@@ -286,12 +287,11 @@ public class MainPanel extends Composite {
         Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
-                if(!trackPanel.getTrackList().isEmpty()){
+                if (!trackPanel.getTrackList().isEmpty()) {
                     frame.setUrl(finalString);
-                    return false ;
-                }
-                else{
-                    return true ;
+                    return false;
+                } else {
+                    return true;
                 }
 
             }
@@ -318,12 +318,11 @@ public class MainPanel extends Composite {
         }
 
 
-
         organismListBox.clear();
-        for(OrganismInfo organismInfo : organismInfoList){
-            organismListBox.addItem(organismInfo.getName(),organismInfo.getId());
-            if(currentOrganism.getId().equals(organismInfo.getId())){
-                organismListBox.setSelectedIndex(organismListBox.getItemCount()-1);
+        for (OrganismInfo organismInfo : organismInfoList) {
+            organismListBox.addItem(organismInfo.getName(), organismInfo.getId());
+            if (currentOrganism.getId().equals(organismInfo.getId())) {
+                organismListBox.setSelectedIndex(organismListBox.getItemCount() - 1);
             }
         }
 
@@ -433,7 +432,6 @@ public class MainPanel extends Composite {
     }
 
 
-
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
     }
@@ -518,7 +516,7 @@ public class MainPanel extends Composite {
     public static void handleNavigationEvent(String payload) {
         if (handlingNavEvent) return;
 
-        if(detailTabs.getSelectedIndex()==0){
+        if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
@@ -534,6 +532,49 @@ public class MainPanel extends Composite {
 
     }
 
+    /**
+     * Features array handed in
+     *
+     * @param payload
+     */
+    public static void handleFeatureAdded(String payload) {
+//        if (handlingNavEvent) return;
+        if (detailTabs.getSelectedIndex() == 0) {
+            annotatorPanel.reload();
+        }
+    }
+
+    /**
+     * Features array handed in
+     *
+     * @param payload
+     */
+    public static void handleFeatureDeleted(String payload) {
+//        if (handlingNavEvent) return;
+
+        if (detailTabs.getSelectedIndex() == 0) {
+            Scheduler.get().scheduleDeferred(new Command() {
+                @Override
+                public void execute() {
+                    annotatorPanel.reload();
+                }
+            });
+        }
+
+    }
+
+    /**
+     * Features array handed in
+     *
+     * @param payload
+     */
+    public static void handleFeatureUpdated(String payload) {
+//        if (handlingNavEvent) return;
+        if (detailTabs.getSelectedIndex() == 0) {
+            annotatorPanel.reload();
+        }
+    }
+
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
 
         RequestCallback requestCallback = new RequestCallback() {
@@ -542,8 +583,8 @@ public class MainPanel extends Composite {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start!=null ? start : 0 ;
-                currentEndBp = end!=null ? end : currentSequence.getEnd();
+                currentStartBp = start != null ? start : 0;
+                currentEndBp = end != null ? end : currentSequence.getEnd();
 
                 sequenceSuggestBox.setText(currentSequence.getName());
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
@@ -567,6 +608,9 @@ public class MainPanel extends Composite {
         $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
         $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.handleNavigationEvent = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleNavigationEvent(Ljava/lang/String;));
+        $wnd.handleFeatureAdded = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureAdded(Ljava/lang/String;));
+        $wnd.handleFeatureDeleted = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureDeleted(Ljava/lang/String;));
+        $wnd.handleFeatureUpdated = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureUpdated(Ljava/lang/String;));
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {
                 return 'ApolloGwt-1.0';
