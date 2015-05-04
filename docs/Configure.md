@@ -156,8 +156,37 @@ To avoid this (performance may be affected and firewalls perfer web sockets):
 - every modern web browsers support web sockets  (http://caniuse.com/#feat=websockets)
 - Jetty, and Tomcat (7 and 8) both support web sockets unless VERY old so everytyhing should just work.
 
+Assuming that Tomcat / Jetty is serving from the same host on the standard port 8080.
+
 #### Apache Proxy 
 
+There are many ways to do proxy apache to tomcat.   Using proxy-html.conf (make sure its activated and installed) add lines similar to these.
+To proxy websockets explicity you need mod_proxy_wstunnel (typically built in):  http://httpd.apache.org/docs/2.4/mod/mod_proxy_wstunnel.html
+
+First uncomment it (on a mac) or use a2enmod enable it (on ubuntu / debian):
+
+    LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
+
+
+In http.conf or proxy-html.conf add the lines:
+
+    ProxyRequests     off
+    ProxyPreserveHost on
+    
+    ProxyPass "/apollo/stomp"  "ws://localhost:8080/apollo/stomp"
+    ProxyPassReverse "/apollo/stomp" "ws://localhost:8080/apollo/stomp"
+    
+    <Proxy *>
+         Order deny,allow
+         Allow from all
+    </Proxy>
+    
+    
+    
+    ProxyPass  /apollo http://localhost:8080/apollo
+    ProxyPassReverse  /apollo http://localhost:8080/apollo
+    ProxyPassReverseCookiePath  / http://localhost:8080/apollo
+    
 
 
 #### Nginx Proxy (from version 1.4 on)
