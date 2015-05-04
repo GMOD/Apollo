@@ -144,6 +144,47 @@ supports the following "higher level" types (from the Sequence Ontology):
 * sequence:transposable_element
 
 
+### Apache / Nginx Configuration
+
+Often time admins will put Apache or Nginx in front of a servlet container (e.g., Tomcat, Jetty) and proxy calls.  
+This is not necessary, but it is a very standard configuration.  
+
+One change (from previous verions) is support for web sockets.  We use the SockJS library, which will downgrade to 
+long-polling if web sockets are not available. 
+
+To avoid this (performance may be affected and firewalls perfer web sockets):
+- every modern web browsers support web sockets  (http://caniuse.com/#feat=websockets)
+- Jetty, and Tomcat (7 and 8) both support web sockets unless VERY old so everytyhing should just work.
+
+#### Apache Proxy 
+
+
+
+#### Nginx Proxy (from version 1.4 on)
+
+Your setup may vary, but setting the upgrade headers is the key part and .
+
+    map $http_upgrade $connection_upgrade {
+            default upgrade;
+            ''      close;
+    }
+    
+    
+    server {
+        ## Main
+        listen   80;
+        server_name  myserver;
+        
+        # . . . other settings
+        location /ApolloSever {
+            # . . . other settings
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            proxy_pass      http://127.0.0.1:8080;
+        }
+    }
+
 
 ### Data adapters
 
