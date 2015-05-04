@@ -62,10 +62,6 @@ public class MainPanel extends Composite {
 
 
     private static MainPanel instance;
-
-
-    // debug
-    private Boolean showFrame = false;
     private int maxUsernameLength = 15;
 
 
@@ -101,10 +97,6 @@ public class MainPanel extends Composite {
     HTML userName;
     @UiField
     Button generateLink;
-//    @UiField
-//    static Label currentOrganismDisplay;
-//    @UiField
-//    static Label currentSequenceDisplay;
     @UiField
     com.google.gwt.user.client.ui.ListBox organismListBox;
     @UiField(provided = true)
@@ -130,9 +122,6 @@ public class MainPanel extends Composite {
 
         GWT.log("name: " + frame.getName());
         frame.getElement().setAttribute("id", frame.getName());
-
-        Dictionary dictionary = Dictionary.getDictionary("Options");
-        showFrame = dictionary.get("showFrame") != null && dictionary.get("showFrame").contains("true");
 
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
@@ -167,11 +156,8 @@ public class MainPanel extends Composite {
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
                 currentStartBp = start!=null ? start : 0 ;
                 currentEndBp = end!=null ? end : currentSequence.getEnd();
-
                 sequenceSuggestBox.setText(currentSequence.getName());
-
                 updateGenomicViewer();
-
             }
 
             @Override
@@ -240,7 +226,6 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     getAppState();
-//                    loadOrganisms();
                     logoutButton.setVisible(true);
                     currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
@@ -248,8 +233,6 @@ public class MainPanel extends Composite {
 
                     userName.setHTML(displayName.length() > maxUsernameLength ?
                             displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
-//                    userName.setHTML(displayName.length()>maxUsernameLength?
-//                            displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
                     if (hasUsers) {
@@ -295,11 +278,6 @@ public class MainPanel extends Composite {
         String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-//        trackListString += "&";
-//        for (TrackInfo trackInfo : TrackPanel.dataProvider.getList()) {
-//            trackListString += URL.encodeQueryString(trackInfo.getName());
-//            trackListString += "&";
-//        }
         trackListString += "&highlight=&tracklist=0";
 
         final String finalString = trackListString;
@@ -318,9 +296,6 @@ public class MainPanel extends Composite {
 
             }
         });
-
-//        if (!frame.getUrl().contains(trackListString)) {
-//        }
     }
 
     public static void updateGenomicViewer() {
@@ -333,14 +308,12 @@ public class MainPanel extends Composite {
 
     public void setAppState(AppStateInfo appStateInfo) {
         organismInfoList = appStateInfo.getOrganismList();
-//        currentSequenceList = appStateInfo.getCurrentSequenceList();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
         currentEndBp = appStateInfo.getCurrentEndBp();
 
         if (currentSequence != null) {
-//            currentSequenceDisplay.setHTML(currentSequence.getName());
             sequenceSuggestBox.setText(currentSequence.getName());
         }
 
@@ -353,11 +326,6 @@ public class MainPanel extends Composite {
                 organismListBox.setSelectedIndex(organismListBox.getItemCount()-1);
             }
         }
-
-//        if (currentOrganism != null) {
-//            // TODO: fix
-//            currentOrganismDisplay.setHTML(currentOrganism.getName());
-//        }
 
         updatePermissionsForOrganism();
 
@@ -408,7 +376,7 @@ public class MainPanel extends Composite {
     }
 
 
-        @UiHandler("detailTabs")
+    @UiHandler("detailTabs")
     public void onSelection(SelectionEvent<Integer> event) {
         reloadTabPerIndex(event.getSelectedItem());
     }
@@ -454,10 +422,8 @@ public class MainPanel extends Composite {
         }
 
         if (toggleOpen) {
-            // close
             closePanel();
         } else {
-            // open
             openPanel();
         }
 
@@ -467,10 +433,6 @@ public class MainPanel extends Composite {
     }
 
 
-//    public void setRootUrl(String rootUrl) {
-//        this.rootUrl = rootUrl;
-//    }
-
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
@@ -478,11 +440,8 @@ public class MainPanel extends Composite {
 
     @UiHandler("generateLink")
     public void generateLink(ClickEvent clickEvent) {
-        //        http://localhost:8080/apollo/annotator/?loc=GroupUn1774%3A1..3022&highlight=&tracklist=0&tracks=DNA%2CAnnotations%2CFgenesh%2CGeneID%2CNCBI%20Gnomon
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
-        // TODO: I need to get the current location
-//        url += "loc=" + currentSequence.getName() + ":1..1000";
         if (currentStartBp != null) {
             url += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
         } else {
@@ -501,8 +460,6 @@ public class MainPanel extends Composite {
             }
         }
         UrlDialogBox urlDialogBox = new UrlDialogBox(url);
-
-//        UrlDialogBox urlDialogBox = new UrlDialogBox(frame.getUrl());
         urlDialogBox.setWidth("600px");
 
         urlDialogBox.show();
@@ -565,7 +522,7 @@ public class MainPanel extends Composite {
             annotatorPanel.reload();
         }
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
-        GWT.log("event hapened: " + navEvent.toString());
+        GWT.log("Caught event: " + navEvent.toString());
 
 
         final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
@@ -589,8 +546,6 @@ public class MainPanel extends Composite {
                 currentEndBp = end!=null ? end : currentSequence.getEnd();
 
                 sequenceSuggestBox.setText(currentSequence.getName());
-//                currentSequenceDisplay.setHTML(currentSequence.getName());
-
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
             }
 

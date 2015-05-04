@@ -119,16 +119,9 @@ public class OrganismRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-//                Window.alert(returnValue.toString());
                 MainPanel.getInstance().setAppState(AppInfoConverter.convertFromJson(returnValue));
 
-//                OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
-//                MainPanel.getInstance().setCurrentOrganism(organismInfo);
-
                 OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
-//                List<OrganismInfo> organismInfoList = new ArrayList<>();
-//                organismInfoList.add(organismInfo);
-//                organismChangeEvent.setOrganismInfoList(organismInfoList);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
             }
 
