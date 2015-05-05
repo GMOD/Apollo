@@ -25,14 +25,12 @@ class AnnotatorController {
      * @return
      */
     def loadLink(){
-        println "loading LINKL has organism . . . "
-
         try {
             Organism organism = Organism.findById(params.organism as Long)
-            println "loading org . . . ${organism}"
+            log.debug "loading org . . . ${organism}"
             String location = params.loc
             String[] splitString = location.split(":")
-            println "splitString : ${splitString}"
+            log.debug "splitString : ${splitString}"
             String sequenceString = splitString[0]
             Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
             String[] minMax = splitString[1].split("\\.\\.")
@@ -44,9 +42,9 @@ class AnnotatorController {
             } catch (e) {
                 log.error "error parsing ${e}"
                 fmin = sequence.start
-                mfax = sequence.end
+                fmax = sequence.end
             }
-            println "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
+            log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
 //            preferenceService.setCurrentSequence(permissionService.currentUser, sequence)
             preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
             preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)

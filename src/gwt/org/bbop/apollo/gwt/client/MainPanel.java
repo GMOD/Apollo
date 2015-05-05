@@ -147,7 +147,7 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
-    private static void setCurrentSequenceAndRefresh(String sequenceNameString, final Integer start, final Integer end) {
+    private static void setCurrentSequenceAndRefresh(final String sequenceNameString, final Integer start, final Integer end) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -159,6 +159,7 @@ public class MainPanel extends Composite {
                 currentEndBp = end != null ? end : currentSequence.getEnd();
                 sequenceSuggestBox.setText(currentSequence.getName());
                 updateGenomicViewer();
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
             }
 
             @Override
@@ -331,7 +332,13 @@ public class MainPanel extends Composite {
 
         updateGenomicViewer();
 
-        Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+                return false ;
+            }
+        } ,200);
     }
 
     public void getAppState() {
@@ -517,9 +524,6 @@ public class MainPanel extends Composite {
     public static void handleNavigationEvent(String payload) {
         if (handlingNavEvent) return;
 
-        if (detailTabs.getSelectedIndex() == 0) {
-            annotatorPanel.reload();
-        }
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
         GWT.log("Caught event: " + navEvent.toString());
 
@@ -530,6 +534,9 @@ public class MainPanel extends Composite {
 
         setCurrentSequence(sequenceNameString, start, end);
 
+        if (detailTabs.getSelectedIndex() == 0) {
+            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
+        }
 
     }
 
@@ -588,7 +595,7 @@ public class MainPanel extends Composite {
                 currentEndBp = end != null ? end : currentSequence.getEnd();
 
                 sequenceSuggestBox.setText(currentSequence.getName());
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS,currentSequence.getName()));
             }
 
             @Override

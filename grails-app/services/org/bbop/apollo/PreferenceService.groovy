@@ -56,12 +56,13 @@ class PreferenceService {
         }
         else{
             userOrganismPreference.currentOrganism = true ;
-            userOrganismPreference.save()
+            userOrganismPreference.save(flush: true)
         }
         setOtherCurrentOrganismsFalse(userOrganismPreference,user)
+//        userOrganismPreference.save(flush: true)
     }
 
-    def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
+    private def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
         UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false "+
                 "where pref.id != :prefId and pref.user = :user",
@@ -103,6 +104,7 @@ class PreferenceService {
         if(!sequence) {
             throw new AnnotationException("Sequence name is invalid ${sequenceName}")
         }
+
 
         userOrganismPreference.sequence = sequence
         userOrganismPreference.setStartbp(startBp ?: 0 )

@@ -135,8 +135,8 @@ log4j.main = {
 //    trace 'org.hibernate.type'
 //    debug 'org.hibernate.SQL'
 
-//    info 'grails.app'
-    debug 'grails.app'
+    warn 'grails.app'
+//    debug 'grails.app'
 
     //trace 'org.hibernate.type'
     //debug 'org.hibernate.SQL'

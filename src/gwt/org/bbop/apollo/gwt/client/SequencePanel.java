@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONArray;
@@ -13,6 +14,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
@@ -91,27 +93,6 @@ public class SequencePanel extends Composite {
         ;
         dataGrid.setWidth("100%");
         dataGrid.setEmptyTableWidget(new Label("Loading"));
-//
-//        Column<SequenceInfo, Boolean> selectColumn = new Column<SequenceInfo, Boolean>(new CheckboxCell(true, false)) {
-//            @Override
-//            public Boolean getValue(SequenceInfo object) {
-//                return object.getSelected();
-//            }
-//        };
-//        selectColumn.setSortable(true);
-
-//        selectColumn.setFieldUpdater(new FieldUpdater<SequenceInfo, Boolean>() {
-//            @Override
-//            public void update(int index, SequenceInfo object, Boolean value) {
-//                selectedCount += value ? 1 : -1;
-//                if (selectedCount > 0) {
-//                } else {
-//                    selectedCount = 0;
-//                }
-//                object.setSelected(value);
-//                updatedExportSelectedButton();
-//            }
-//        });
 
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
@@ -244,21 +225,12 @@ public class SequencePanel extends Composite {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-//                    OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
-//
-//                    organismList.clear();
-//                    organismInfoMap.clear();
-//                    List<OrganismInfo> organismInfoList = MainPanel.getInstance().getOrganismInfoList();
-//                    for (int i = 0; i < organismInfoList.size(); i++) {
-//                        OrganismInfo organismInfo = organismInfoList.get(i);
-//                        organismList.addItem(organismInfo.getName(), organismInfo.getId());
-//                        organismInfoMap.put(organismInfo.getId(), organismInfo);
-//                        if (organismInfo.getId().equals(currentOrganism.getId())) {
-//                            organismList.setSelectedIndex(i);
-//                        }
-//                    }
-                    reload();
-
+                    Scheduler.get().scheduleDeferred(new Command() {
+                        @Override
+                        public void execute() {
+                            reload();
+                        }
+                    });
                 } else {
                     GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
                 }
@@ -450,6 +422,7 @@ public class SequencePanel extends Composite {
 
 
     public void reload() {
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         dataGrid.redraw();
     }
 

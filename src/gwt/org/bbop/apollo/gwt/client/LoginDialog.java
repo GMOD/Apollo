@@ -38,7 +38,8 @@ public class LoginDialog extends DialogBox {
         grid.setHTML(1, 0, "Password");
         grid.setWidget(1, 1, passwordTextBox);
         panel.add(grid);
-        
+
+        username.setFocus(true);
 
         horizontalPanel.add(rememberMeCheckBox);
         horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));

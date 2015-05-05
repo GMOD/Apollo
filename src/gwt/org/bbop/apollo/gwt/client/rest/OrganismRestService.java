@@ -47,7 +47,7 @@ public class OrganismRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.CHANGED_ORGANISM);
+                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
                 List<OrganismInfo> organismInfoList  = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
                 organismChangeEvent.setOrganismInfoList(organismInfoList);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
@@ -68,7 +68,7 @@ public class OrganismRestService {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
 
-                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.CHANGED_ORGANISM);
+                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
                 List<OrganismInfo> organismInfoList = new ArrayList<OrganismInfo>();
                 organismInfoList.add(organismInfo);
                 organismChangeEvent.setOrganismInfoList(organismInfoList);

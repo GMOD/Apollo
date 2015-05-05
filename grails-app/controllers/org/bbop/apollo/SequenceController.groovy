@@ -32,16 +32,15 @@ class SequenceController {
     @Transactional
     def setCurrentSequenceLocation() {
 
-
         Integer start, end
         try {
             start = params.startbp as Integer
             end = params.endbp as Integer
-        } catch (e) {
+        } catch (NumberFormatException e) {
+            //  we can ignore this specific excpetion as null is an acceptable value for start / end
         }
 
-//        render userOrganismPreference.sequence as JSON
-        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, start , end)
+        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, start, end)
         render userOrganismPreference.sequence as JSON
     }
 
@@ -194,7 +193,6 @@ class SequenceController {
         outputStream.flush()
         outputStream.close()
         file.delete()
-
     }
 
     def lookupSequenceByName(String q) {
@@ -205,18 +203,12 @@ class SequenceController {
         render sequences as JSON
     }
 
-    def getSequences(String name,Integer start,Integer length,String sort,Boolean asc,Integer minFeatureLength  ,Integer maxFeatureLength ){
-
+    def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
         minFeatureLength = minFeatureLength ?: 0
         maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
         List<Sequence> sequences
-//        if(name){
-            sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism,"%${name}%",minFeatureLength,maxFeatureLength,[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
-//        }
-//        else{
-//            sequences = Sequence.findAllByOrganism(organism,[offset:start,max: length,sort:sort,order:asc ? "asc":"desc"])
-//        }
+        sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength, [offset: start, max: length, sort: sort, order: asc ? "asc" : "desc"])
         render sequences as JSON
     }
 

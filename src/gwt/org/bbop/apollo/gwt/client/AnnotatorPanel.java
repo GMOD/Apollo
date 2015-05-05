@@ -1,18 +1,20 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -26,17 +28,14 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
@@ -51,6 +50,7 @@ import java.util.*;
  * Created by ndunn on 12/17/14.
  */
 public class AnnotatorPanel extends Composite {
+
     interface AnnotatorPanelUiBinder extends UiBinder<com.google.gwt.user.client.ui.Widget, AnnotatorPanel> {
     }
 
@@ -194,10 +194,13 @@ public class AnnotatorPanel extends Composite {
         );
 
         // TODO: not sure if this was necessary, leaving it here until it fails
-//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                GWT.log("OnOrganismChanged");
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+                if(organismChangeEvent.getAction()== OrganismChangeEvent.Action.LOADED_ORGANISMS){
+                    sequenceList.setText(organismChangeEvent.getCurrentSequence());
+                    reload();
+                }
 //                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
 //                    sequenceOracle.clear();
 ////                    for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
@@ -211,8 +214,8 @@ public class AnnotatorPanel extends Composite {
 //                else{
 //                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
 //                }
-//            }
-//        });
+            }
+        });
 
     }
 
@@ -496,6 +499,7 @@ public class AnnotatorPanel extends Composite {
         }
 
     }
+
 
     public void reload() {
         loadOrganismAndSequence(sequenceList.getText());
