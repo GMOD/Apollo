@@ -44,6 +44,9 @@ class FeatureService {
     public
     static FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
+        if(jsonLocation.has(FeatureStringEnum.ID.value)){
+            gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
+        }
         gsolLocation.setFmin(jsonLocation.getInt(FeatureStringEnum.FMIN.value));
         gsolLocation.setFmax(jsonLocation.getInt(FeatureStringEnum.FMAX.value));
         gsolLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
@@ -1106,6 +1109,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             String ontologyId = convertJSONToOntologyId(type)
             gsolFeature = generateFeatureForType(ontologyId)
 
+            if (jsonFeature.has(FeatureStringEnum.ID.value)) {
+                gsolFeature.setId(jsonFeature.getLong(FeatureStringEnum.ID.value));
+            }
+
             if (jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)) {
                 gsolFeature.setUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value));
             } else {
@@ -1644,6 +1651,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         JSONObject jsonFeature = new JSONObject();
         try {
 
+            if(gsolFeature.id){
+                jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+            }
             jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
             jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
             if (gsolFeature.getName() != null) {
@@ -1795,6 +1805,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     JSONObject convertFeatureLocationToJSON(FeatureLocation gsolFeatureLocation) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
+        if (gsolFeatureLocation.id) {
+            jsonFeatureLocation.put(FeatureStringEnum.ID.value, gsolFeatureLocation.id);
+        }
         jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, gsolFeatureLocation.getFmin());
         jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, gsolFeatureLocation.getFmax());
         if (gsolFeatureLocation.isIsFminPartial()) {
@@ -1971,10 +1984,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return hasChildren
     }
 
-    def convertJSONToFeatureInferSequence(JSONObject jsonObject) {
-        String uniqueName = jsonObject.getString(FeatureStringEnum.UNIQUENAME.value)
-        Feature feature = Feature.findByUniqueName(uniqueName)
-        Sequence sequence = feature.featureLocation.sequence
-        return convertJSONToFeature(jsonObject,sequence)
-    }
+//    def convertJSONToFeatureInferSequence(JSONObject jsonObject) {
+//        String uniqueName = jsonObject.getString(FeatureStringEnum.UNIQUENAME.value)
+//        Feature feature = Feature.findByUniqueName(uniqueName)
+//        Sequence sequence = feature.featureLocation.sequence
+//        return convertJSONToFeature(jsonObject,sequence)
+//    }
 }

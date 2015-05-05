@@ -4,6 +4,7 @@ package org.bbop.apollo.gwt.shared;
  * Created by ndunn on 4/2/15.
  */
 public enum FeatureStringEnum {
+        ID("id"),
         FEATURES,
         FEATURE_PROPERTY,
         PARENT_ID,
