@@ -143,15 +143,18 @@ public class MainPanel extends Composite {
         sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                setCurrentSequenceAndRefresh(sequenceSuggestBox.getText().trim(), null, null);
+                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null,true);
             }
         });
 
 
         loginUser();
     }
+    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
+        setCurrentSequence(sequenceNameString,start,end,false);
+    }
 
-    private static void setCurrentSequenceAndRefresh(final String sequenceNameString, final Integer start, final Integer end) {
+    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end,final boolean updateViewer) {
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -162,8 +165,12 @@ public class MainPanel extends Composite {
                 currentStartBp = start != null ? start : 0;
                 currentEndBp = end != null ? end : currentSequence.getEnd();
                 sequenceSuggestBox.setText(currentSequence.getName());
-                updateGenomicViewer();
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
+
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS,currentSequence.getName()));
+
+                if(updateViewer){
+                    updateGenomicViewer();
+                }
             }
 
             @Override
@@ -173,8 +180,35 @@ public class MainPanel extends Composite {
             }
         };
 
+        handlingNavEvent = true ;
+
         SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
     }
+
+//    private static void setCurrentSequenceAndRefresh(final String sequenceNameString, final Integer start, final Integer end) {
+//
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                handlingNavEvent = false;
+//                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
+//                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
+//                currentStartBp = start != null ? start : 0;
+//                currentEndBp = end != null ? end : currentSequence.getEnd();
+//                sequenceSuggestBox.setText(currentSequence.getName());
+//                updateGenomicViewer();
+//                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                handlingNavEvent = false;
+//                Window.alert("failed to set JBrowse sequence: " + exception);
+//            }
+//        };
+//
+//        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+//    }
 
 
     private void updatePermissionsForOrganism() {
@@ -342,7 +376,7 @@ public class MainPanel extends Composite {
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
                 return false ;
             }
-        } ,200);
+        } ,500);
     }
 
     public void getAppState() {
@@ -563,9 +597,9 @@ public class MainPanel extends Composite {
 
         setCurrentSequence(sequenceNameString, start, end);
 
-        if (detailTabs.getSelectedIndex() == 0) {
-            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
-        }
+//        if (detailTabs.getSelectedIndex() == 0) {
+//            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
+//        }
 
     }
 
@@ -612,30 +646,6 @@ public class MainPanel extends Composite {
         }
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
-
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                handlingNavEvent = false;
-                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
-                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start != null ? start : 0;
-                currentEndBp = end != null ? end : currentSequence.getEnd();
-
-                sequenceSuggestBox.setText(currentSequence.getName());
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS,currentSequence.getName()));
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                handlingNavEvent = false;
-                Window.alert("failed to set JBrowse sequence: " + exception);
-            }
-        };
-
-        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
-    }
 
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
@@ -692,13 +702,13 @@ public class MainPanel extends Composite {
         this.currentOrganism = currentOrganism;
     }
 
-    public SequenceInfo getCurrentSequence() {
-        return currentSequence;
-    }
+//    public SequenceInfo getCurrentSequence() {
+//        return currentSequence;
+//    }
 
-    public void setCurrentSequence(SequenceInfo currentSequence) {
-        this.currentSequence = currentSequence;
-    }
+//    public void setCurrentSequence(SequenceInfo currentSequence) {
+//        this.currentSequence = currentSequence;
+//    }
 
     public List<OrganismInfo> getOrganismInfoList() {
         return organismInfoList;

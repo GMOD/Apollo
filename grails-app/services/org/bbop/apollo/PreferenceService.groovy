@@ -88,13 +88,15 @@ class PreferenceService {
         setOtherCurrentOrganismsFalse(userOrganismPreference,user)
     }
 
+    long lastId
+    long lastVersion
+
+
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp) {
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser,true)
         if(!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(currentUser)
-            userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save(flush: true )
         }
         if(!userOrganismPreference) {
             throw new AnnotationException("Organism preference is not set for user")
@@ -105,10 +107,23 @@ class PreferenceService {
             throw new AnnotationException("Sequence name is invalid ${sequenceName}")
         }
 
+        log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
+//        if(userOrganismPreference.id==lastId && userOrganismPreference.version == lastVersion){
+//
+//            throw new AnnotationException("handling dupe version ${lastId} -> ${lastVersion}")
+//        }
+//        else{
+//            println "updated version "
+//            lastId = userOrganismPreference.id
+//            lastVersion = userOrganismPreference.version
+//        }
 
+        userOrganismPreference.refresh()
+
+        userOrganismPreference.currentOrganism = true
         userOrganismPreference.sequence = sequence
         userOrganismPreference.setStartbp(startBp ?: 0 )
         userOrganismPreference.setEndbp(endBp ?: sequence.end)
-        userOrganismPreference.save(flush: true )
+        userOrganismPreference.save()
     }
 }
