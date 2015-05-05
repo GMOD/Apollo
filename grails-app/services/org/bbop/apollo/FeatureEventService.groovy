@@ -229,28 +229,44 @@ class FeatureEventService {
         }
     }
 
-    private JSONObject undoRecentFeatureEvents(List<FeatureEvent> featureEventList){
-        for(FeatureEvent featureEvent in featureEventList){
-            undoFeatureEvent(featureEvent)
-        }
-    }
+//    private JSONObject undoRecentFeatureEvents(List<FeatureEvent> featureEventList){
+//        for(FeatureEvent featureEvent in featureEventList){
+//            undoFeatureEvent(featureEvent)
+//        }
+//    }
 
     def undo(JSONObject inputObject, int count, boolean confirm) {
         println "undo count ${count}"
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(uniqueName)
         // TODO: I think that this gives up if you are already at the most recent transaction
 //        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 //            continue;
 //        }
 
+        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
+        JSONObject oldFeatureJson = featureService.convertFeatureToJSON(feature)
+        requestHandlingService.deleteFeature(oldFeatureJson)
+
+        JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.oldFeaturesJsonArray)
+        for(int i = 0 ; i < jsonArray.size() ; i++){
+            JSONObject jsonFeature = jsonArray.getJSONObject(i)
+            if(featureService.isJsonTranscript(jsonFeature)){
+                requestHandlingService.addTranscript(jsonFeature)
+            }
+            else{
+                requestHandlingService.addFeature(jsonFeature)
+            }
+        }
+
 //        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
-//        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
-        List<FeatureEvent> featureEventList = getRecentFeatureEvents(uniqueName,count-1)
+//        List<FeatureEvent> featureEventList = getRecentFeatureEvents(uniqueName,count-1)
 
 //        println "feature event gotten ${featureEvent.operation}"
-        undoRecentFeatureEvents(featureEventList)
+//        undoRecentFeatureEvents(featureEventList)
 
     }
+
 
     private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
         if (locationA.getInt(FeatureStringEnum.FMIN.value) != locationB.getInt(FeatureStringEnum.FMIN.value)) return false

@@ -1257,6 +1257,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
+    List<String> cvTermTranscriptList = [
+            MRNA.cvTerm,MiRNA.cvTerm,NcRNA.cvTerm,SnoRNA.cvTerm,SnRNA.cvTerm
+            ,RRNA.cvTerm,TRNA.cvTerm,Transcript.cvTerm
+    ]
+
+    boolean isJsonTranscript(JSONObject jsonObject) {
+        JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
+        String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
+        return cvTermTranscriptList.contains(typeString)
+    }
+
+
 // TODO: hopefully change in the client and get rid of this ugly code
     Feature generateFeatureForType(String ontologyId) {
         switch (ontologyId) {

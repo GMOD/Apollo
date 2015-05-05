@@ -88,10 +88,6 @@ class PreferenceService {
         setOtherCurrentOrganismsFalse(userOrganismPreference,user)
     }
 
-    long lastId
-    long lastVersion
-
-
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp) {
         User currentUser = permissionService.currentUser
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(currentUser,true)
