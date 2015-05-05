@@ -550,6 +550,10 @@ class PermissionService {
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
             //return false
+            println "highest value ${highestValue}"
+            println "required permission ${requiredPermissionEnum}"
+            println "highest value display ${highestValue.display}"
+            println "perm dispaly ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 //        Sequence returnSequence = Sequence.findByNameAndOrganism(trackName, organism)

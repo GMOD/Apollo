@@ -269,7 +269,6 @@ public class MainPanel extends Composite {
 
 
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-        GWT.log("updating the genomic region: " + selectedSequence + " - minRegion" + minRegion + " maxRegion: " + maxRegion);
 
         Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.2);
         minRegion -= buffer;
@@ -282,20 +281,22 @@ public class MainPanel extends Composite {
         trackListString += "&highlight=&tracklist=0";
 
         final String finalString = trackListString;
+
         frame.setUrl(finalString);
 
-        Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
-            @Override
-            public boolean execute() {
-                if (!trackPanel.getTrackList().isEmpty()) {
-                    frame.setUrl(finalString);
-                    return false;
-                } else {
-                    return true;
-                }
-
-            }
-        });
+        // was added to support copy and paste, but just bounces interface
+//        Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
+//            @Override
+//            public boolean execute() {
+//                if (!trackPanel.getTrackList().isEmpty()) {
+////                    frame.setUrl(finalString);
+//                    return false;
+//                } else {
+//                    return true;
+//                }
+//
+//            }
+//        });
     }
 
     public static void updateGenomicViewer() {
