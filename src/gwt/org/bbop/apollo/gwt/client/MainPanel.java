@@ -102,6 +102,10 @@ public class MainPanel extends Composite {
     com.google.gwt.user.client.ui.ListBox organismListBox;
     @UiField(provided = true)
     static SuggestBox sequenceSuggestBox;
+    @UiField
+    HTML linkUrl;
+    @UiField
+    FlowPanel linkPanel;
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
@@ -444,8 +448,29 @@ public class MainPanel extends Composite {
         annotrackFunctionMap.put(name, javaScriptObject);
     }
 
+    @UiHandler("closeUrlButton")
+    public void closeUrl(ClickEvent clickEvent){
+        closeLink();
+    }
+
+    public void closeLink(){
+//        linkUrl.setHTML("");
+        linkPanel.setVisible(false);
+        mainSplitPanel.setWidgetSize(linkPanel, 0);
+        mainSplitPanel.animate(100);
+    }
+
     @UiHandler("generateLink")
-    public void generateLink(ClickEvent clickEvent) {
+    public void toggleLink(ClickEvent clickEvent){
+        if(linkPanel.isVisible()) {
+            closeLink();
+        }
+        else{
+            generateLink();
+        }
+    }
+
+    public void generateLink() {
         String url = Annotator.getRootUrl();
         url += "annotator/loadLink";
         if (currentStartBp != null) {
@@ -465,10 +490,14 @@ public class MainPanel extends Composite {
                 url += ",";
             }
         }
-        UrlDialogBox urlDialogBox = new UrlDialogBox(url);
-        urlDialogBox.setWidth("600px");
-
-        urlDialogBox.show();
+        linkUrl.setText(url);
+        linkPanel.setVisible(true);
+        mainSplitPanel.setWidgetSize(linkPanel, 25);
+        mainSplitPanel.animate(100);
+//        UrlDialogBox urlDialogBox = new UrlDialogBox(url);
+//        urlDialogBox.setWidth("600px");
+//
+//        urlDialogBox.show();
     }
 
     @UiHandler("logoutButton")

@@ -103,6 +103,12 @@
 
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
+        <gwt:north size="0">
+            <gwt:FlowPanel ui:field="linkPanel" visible="false" width="100%" styleName="{style.inline}">
+                <b:Button ui:field="closeUrlButton" icon="CLOSE" size="EXTRA_SMALL" />
+                <gwt:HTML ui:field="linkUrl" visible="true" text="something!"  styleName="{style.inline}"/>
+            </gwt:FlowPanel>
+        </gwt:north>
         <gwt:center>
             <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
         </gwt:center>
