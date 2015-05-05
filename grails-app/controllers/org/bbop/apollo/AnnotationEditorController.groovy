@@ -106,6 +106,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 permission = permissions.values().iterator().next();
             }
         }
+//        if(permission > PermissionEnum.ADMINISTRATE.value){
+//            permission = PermissionEnum.ADMINISTRATE.value
+//        }
 
         returnObject.put(REST_PERMISSION, permission)
         returnObject.put(REST_USERNAME, username)
