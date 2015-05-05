@@ -492,7 +492,7 @@ public class MainPanel extends Composite {
         }
         linkUrl.setText(url);
         linkPanel.setVisible(true);
-        mainSplitPanel.setWidgetSize(linkPanel, 25);
+        mainSplitPanel.setWidgetSize(linkPanel, 50);
         mainSplitPanel.animate(100);
 //        UrlDialogBox urlDialogBox = new UrlDialogBox(url);
 //        urlDialogBox.setWidth("600px");

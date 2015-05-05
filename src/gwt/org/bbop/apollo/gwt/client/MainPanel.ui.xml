@@ -101,12 +101,23 @@
             height: 20px;
         }
 
+        .northPanel {
+            display: inline;
+            padding: 2px;
+            background-color: lightgrey;
+        }
+
+        .linkStyle {
+            display: inline;
+            margin-left: 5px;
+            font-size: smaller;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:north size="0">
-            <gwt:FlowPanel ui:field="linkPanel" visible="false" width="100%" styleName="{style.inline}">
+            <gwt:FlowPanel ui:field="linkPanel" visible="false" width="100%" styleName="{style.northPanel}">
                 <b:Button ui:field="closeUrlButton" icon="CLOSE" size="EXTRA_SMALL" />
-                <gwt:HTML ui:field="linkUrl" visible="true" text="something!"  styleName="{style.inline}"/>
+                <gwt:HTML ui:field="linkUrl" visible="true"   styleName="{style.linkStyle}"/>
             </gwt:FlowPanel>
         </gwt:north>
         <gwt:center>
