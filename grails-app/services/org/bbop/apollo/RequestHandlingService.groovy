@@ -558,7 +558,9 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript)
         } else {
             JSONObject jsonCDSLocation = transcriptJSONObject.getJSONObject(FeatureStringEnum.LOCATION.value);
-            featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
+            //featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value), true)
+            //TODO: Should translationStart be allowed to be set automatically?
+            featureService.setTranslationEnd(transcript, jsonCDSLocation.getInt(FeatureStringEnum.FMAX.value))
         }
         transcript.save()
 
