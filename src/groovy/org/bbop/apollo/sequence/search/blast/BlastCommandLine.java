@@ -83,13 +83,16 @@ public class BlastCommandLine extends SequenceSearchTool {
         if (blastOptions != null) {
             for (String option : blastOptions) {
                 commands.add(option);
-                System.out.println(option);
             }
         }
-        commands.add("-db "+databaseArg);
-        commands.add("-query " + queryArg);
-        commands.add("-out "+outputArg);
-        commands.add("-outfmt 6");
+        commands.add("-db");
+        commands.add(databaseArg);
+        commands.add("-query");
+        commands.add(queryArg);
+        commands.add("-out");
+        commands.add(outputArg);
+        commands.add("-outfmt");
+        commands.add("6");
         if (blastUserOptions != null && blastUserOptions.length() > 0) {
             for (String option : blastUserOptions.split("\\s+")) {
                 commands.add(option);
@@ -99,6 +102,8 @@ public class BlastCommandLine extends SequenceSearchTool {
         for (String arg : commands) {
             log.print(arg + " ");
         }
+
+
         ProcessBuilder pb = new ProcessBuilder(commands);
         Process p = pb.start();
         p.waitFor();
