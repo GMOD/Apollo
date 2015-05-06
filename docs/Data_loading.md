@@ -5,14 +5,14 @@ View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Data_loading.md">O
 The data generation pipeline, based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
 is installed automatically from `apollo deploy` or `install_jbrowse.sh`
 
-If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initializedwith the jbrowse
+If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
 perl scripts. If this does not exist, please check setup.log to see where the error might be, check the [troubleshooting
 guide](Troubleshooting.md), and post to apollo@lists.lbl.gov for further assistance.
 
 ### prepare-refseqs.pl
 
 The first step to setup the genome browser is to load the reference genome data. We'll use the `prepare-refseqs.pl`
-script to output to the data directory that we configured in config.properties or config.xml.
+script to output to the data directory that we will point to later in the organism tab.
 
     bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 
