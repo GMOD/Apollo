@@ -94,4 +94,39 @@ class FeatureSpec extends Specification {
         assert featureLocation1.sequence == featureLocation2.sequence
         assert featureLocation1.fmax == featureLocation2.fmax
     }
+
+    void "can I insert a feature with the same id?"(){
+        when: "I create a feature"
+        Feature feature = Feature.first()
+        Long id = feature.id
+
+        then: "should be a total of one valid feature"
+        assert id!=null
+        assert Feature.count == 1
+        assert feature != null
+        assert feature.name == "Sox9a"
+
+        when: "we delete that feature "
+        feature.delete()
+
+        then: "we have no feaures"
+        assert Feature.count == 0
+
+        when: "we create a feature when the same id"
+        Feature feature1 = new Feature(
+                name: "Sox9a"
+                ,uniqueName: "ABC123"
+                ,sequenceLength: 17
+        )
+        // NOTE: this has to be out here
+        feature1.id = id
+        feature1.save(failOnError: true)
+
+        then: "should all be the same"
+        assert feature1.id == id
+        assert Feature.count == 1
+        assert feature1.name == "Sox9a"
+        assert feature != null
+
+    }
 }
