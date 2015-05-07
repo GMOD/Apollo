@@ -202,6 +202,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 if (transaction.current) {
                     historyItem.put(FeatureStringEnum.CURRENT.value, true);
                 }
+                else{
+                    historyItem.put(FeatureStringEnum.CURRENT.value, false);
+                }
                 JSONArray historyFeatures = new JSONArray();
                 historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
 

@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
 import grails.util.Environment
@@ -236,6 +237,7 @@ class FeatureEventService {
 
     def setHistoryState(JSONObject inputObject, int count, boolean confirm) {
 
+
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         log.debug "undo count ${count}"
         if(count<0){
@@ -250,6 +252,7 @@ class FeatureEventService {
         }
 
 
+        Sequence sequence = Feature.findByUniqueName(uniqueName).featureLocation.sequence
 
         JSONObject deleteCommandObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
@@ -261,7 +264,7 @@ class FeatureEventService {
 
         println "feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)} -> ${count}"
         println " final delete JSON ${deleteCommandObject as JSON}"
-        requestHandlingService.deleteFeature(deleteCommandObject)
+        requestHandlingService.deleteFeature(deleteCommandObject,false)
         println "deletion sucess . .  "
         println "2 feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)} -> ${count}"
 
@@ -283,12 +286,24 @@ class FeatureEventService {
 
             addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
+            JSONObject returnObject
             if (featureService.isJsonTranscript(jsonFeature)) {
-                requestHandlingService.addTranscript(addCommandObject)
+                returnObject = requestHandlingService.addTranscript(addCommandObject,false)
             } else {
-                requestHandlingService.addFeature(addCommandObject)
+                returnObject = requestHandlingService.addFeature(addCommandObject,false)
             }
+
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: returnObject
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+
+            requestHandlingService.fireAnnotationEvent(annotationEvent)
         }
+
+
+
     }
 
     /**
