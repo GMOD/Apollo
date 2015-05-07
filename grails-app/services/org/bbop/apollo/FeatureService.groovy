@@ -1107,7 +1107,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
             String ontologyId = convertJSONToOntologyId(type)
+            if(!ontologyId) {
+                log.warn "Feature type not set for ${type}"
+                return null
+            }
+
             gsolFeature = generateFeatureForType(ontologyId)
+            println "gsolFeature ${gsolFeature} for ${ontologyId}"
 
             if (jsonFeature.has(FeatureStringEnum.ID.value)) {
                 gsolFeature.setId(jsonFeature.getLong(FeatureStringEnum.ID.value));
@@ -1152,14 +1158,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     JSONObject childObject = children.getJSONObject(i)
                     log.debug "child object ${childObject}"
                     Feature child = convertJSONToFeature(childObject, sequence);
-                    child.save(failOnError: true)
-                    FeatureRelationship fr = new FeatureRelationship();
-                    fr.setParentFeature(gsolFeature);
-                    fr.setChildFeature(child);
-                    fr.save(failOnError: true)
-                    gsolFeature.addToParentFeatureRelationships(fr);
-                    child.addToChildFeatureRelationships(fr);
-                    child.save()
+                    // if it retuns null, we ignore it
+                    if(child){
+                        child.save(failOnError: true)
+                        FeatureRelationship fr = new FeatureRelationship();
+                        fr.setParentFeature(gsolFeature);
+                        fr.setChildFeature(child);
+                        fr.save(failOnError: true)
+                        gsolFeature.addToParentFeatureRelationships(fr);
+                        child.addToChildFeatureRelationships(fr);
+                        child.save()
+                    }
                     gsolFeature.save()
                 }
             }
@@ -1265,13 +1274,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     List<String> cvTermTranscriptList = [
-            MRNA.cvTerm,MiRNA.cvTerm,NcRNA.cvTerm,SnoRNA.cvTerm,SnRNA.cvTerm
-            ,RRNA.cvTerm,TRNA.cvTerm,Transcript.cvTerm
+            MRNA.cvTerm,MRNA.alternateCvTerm,MiRNA.cvTerm,MiRNA.alternateCvTerm,NcRNA.cvTerm,NcRNA.alternateCvTerm
+            ,SnoRNA.cvTerm,SnoRNA.alternateCvTerm,SnRNA.cvTerm,SnRNA.alternateCvTerm
+            ,RRNA.cvTerm,RRNA.alternateCvTerm,TRNA.cvTerm,TRNA.alternateCvTerm,
+            Transcript.cvTerm
     ]
 
     boolean isJsonTranscript(JSONObject jsonObject) {
+        println "json object delivered ${jsonObject}"
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
+        println "type object delivered ${typeObject}"
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
+        println "tyoeString ${typeString}"
+        println "cvTermTranscxript list : ${cvTermTranscriptList}"
         return cvTermTranscriptList.contains(typeString)
     }
 

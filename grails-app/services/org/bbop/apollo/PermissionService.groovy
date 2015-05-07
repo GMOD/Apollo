@@ -567,7 +567,11 @@ class PermissionService {
         }
 //        Sequence returnSequence = Sequence.findByNameAndOrganism(trackName, organism)
 //        return trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
-        return trackName ? userOrganismPreference.sequence : null
+//        println "trackName ${trackName}"
+//        println "pref ${userOrganismPreference}"
+//        println "pref seq ${userOrganismPreference.sequence.name}"
+//        return trackName ? userOrganismPreference.sequence : null
+        return userOrganismPreference.sequence ?: null
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {

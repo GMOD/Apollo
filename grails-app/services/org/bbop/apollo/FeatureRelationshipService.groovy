@@ -187,11 +187,11 @@ class FeatureRelationshipService {
      */
     def deleteFeatureAndChildren(Feature feature) {
 
-        Feature.withNewTransaction {
-//            featureEventService.deleteHistory(featureId)
-//            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
-            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.uniqueName = :uniqueName",[uniqueName:feature.uniqueName])
-        }
+//        Feature.withNewTransaction {
+////            featureEventService.deleteHistory(featureId)
+////            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.featureId = :featureId",[featureId:feature.id])
+//            FeatureEvent.executeUpdate("delete  from FeatureEvent fe where fe.uniqueName = :uniqueName",[uniqueName:feature.uniqueName])
+//        }
 
         if(feature.parentFeatureRelationships){
             def parentFeatureRelationships = feature.parentFeatureRelationships

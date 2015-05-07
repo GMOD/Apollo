@@ -87,6 +87,14 @@ class FeatureEventService {
         FeatureEvent.countByUniqueName(uniqueName)
     }
 
+    FeatureEvent getCurrentFeatureEvent(String uniqueName ) {
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName,true, [sort: "dateCreated", order: "asc"])
+        if(featureEventList.size()!=1){
+            throw new AnnotationException("Feature event list is the wrong size ${featureEventList?.size()}")
+        }
+        return featureEventList.get(0)
+    }
+
 
     List<FeatureEvent> getRecentFeatureEvents(String uniqueName, int count) {
         List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: count])
@@ -99,7 +107,10 @@ class FeatureEventService {
      * @return
      */
     FeatureEvent setPreviousTransactionForFeature(String uniqueName, int count) {
-        FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
+        println "setting previous transactino for feature ${uniqueName} -> ${count}"
+        println "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
+        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
+        println "updated is ${updated}"
         FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName, [sort: "dateCreated", order: "desc", max: 1, offset: count])
         featureEvent.current = true
         featureEvent.save(flush: true)
@@ -238,26 +249,65 @@ class FeatureEventService {
     def undo(JSONObject inputObject, int count, boolean confirm) {
         println "undo count ${count}"
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-        Feature feature = Feature.findByUniqueName(uniqueName)
+//        Feature feature = Feature.findByUniqueName(uniqueName)
         // TODO: I think that this gives up if you are already at the most recent transaction
 //        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
 //            continue;
 //        }
 
+
+        // TODO: get from newFeaturesArray
+//        FeatureEvent currentFeatureEvent = getCurrentFeatureEvent(uniqueName)
+//        JSONArray jsonArray = (JSONArray) JSON.parse(currentFeatureEvent.newFeaturesJsonArray)
+//        println "jsonArray ${jsonArray as JSON}"
+
+
+//        JSONObject oldFeatureJson = featureService.convertFeatureToJSON(feature)
+        JSONObject deleteCommandObject = new JSONObject()
+        JSONArray featuresArray = new JSONArray()
+        JSONObject featureToDelete = new JSONObject()
+        featureToDelete.put(FeatureStringEnum.UNIQUENAME.value,uniqueName)
+        featuresArray.add(featureToDelete)
+        deleteCommandObject.put(FeatureStringEnum.FEATURES.value,featuresArray)
+        deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
+
+        println "feature event values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
+        println " final delete JSON ${deleteCommandObject as JSON}"
+        requestHandlingService.deleteFeature(deleteCommandObject)
+        println "deletion sucess . .  "
+        println "2 feature event values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
+
         FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
-        JSONObject oldFeatureJson = featureService.convertFeatureToJSON(feature)
-        requestHandlingService.deleteFeature(oldFeatureJson)
+
+        println "final feature event: ${featureEvent}"
+
 
         JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.oldFeaturesJsonArray)
+        println "array to add size: ${jsonArray.size()} "
         for(int i = 0 ; i < jsonArray.size() ; i++){
             JSONObject jsonFeature = jsonArray.getJSONObject(i)
+
+            JSONObject addCommandObject = new JSONObject()
+            JSONArray featuresToAddArray = new JSONArray()
+            featuresToAddArray.add(jsonFeature)
+            addCommandObject.put(FeatureStringEnum.FEATURES.value,featuresToAddArray)
+            addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)
+
+
+            println "add command: ${addCommandObject as JSON}"
+
             if(featureService.isJsonTranscript(jsonFeature)){
-                requestHandlingService.addTranscript(jsonFeature)
+                println "is is transcipt ${addCommandObject as JSON}"
+                requestHandlingService.addTranscript(addCommandObject)
             }
             else{
-                requestHandlingService.addFeature(jsonFeature)
+                println "is feature "
+                requestHandlingService.addFeature(addCommandObject)
             }
+            println "added "
         }
+
+        println "all done "
 
 //        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
 //        List<FeatureEvent> featureEventList = getRecentFeatureEvents(uniqueName,count-1)
@@ -266,7 +316,6 @@ class FeatureEventService {
 //        undoRecentFeatureEvents(featureEventList)
 
     }
-
 
     private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
         if (locationA.getInt(FeatureStringEnum.FMIN.value) != locationB.getInt(FeatureStringEnum.FMIN.value)) return false
