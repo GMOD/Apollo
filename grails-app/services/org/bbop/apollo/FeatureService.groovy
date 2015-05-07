@@ -1188,10 +1188,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
                     FeatureProperty gsolProperty = new FeatureProperty();
-                    CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
-                    CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
+                    if(propertyType.has(FeatureStringEnum.NAME.value)){
+                        CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
+                        CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
 //                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
-                    gsolProperty.setType(cvTerm);
+                        gsolProperty.setType(cvTerm);
+                    }
+                    else{
+                        log.warn "No proper type for the CV is set ${propertyType as JSON}"
+                    }
                     String[] propertySet = property.getString(FeatureStringEnum.VALUE.value).split(FeatureStringEnum.TAG_VALUE_DELIMITER.value)
                     if (propertySet.length > 1) {
                         gsolProperty.setTag(propertySet[0]);
