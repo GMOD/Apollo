@@ -239,13 +239,13 @@ class FeatureEventService {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         log.debug "undo count ${count}"
         if(count<0){
-            log.warn("Can not undo any further")
+            log.warn ("Can not undo any further")
             return
         }
 
-        int total = FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)
-        if(count>total){
-            log.warn("Can not redo any further")
+        int total = FeatureEvent.countByUniqueName(uniqueName)
+        if(count>=total){
+            log.warn ("Can not redo any further")
             return
         }
 
