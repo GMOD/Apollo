@@ -217,7 +217,7 @@ apollo {
 // may end up going away
 auditLog {
     //note, this disables the audit log
-    disabled = true
+//    disabled = true
     //verbose = true // verbosely log all changed values to db
 //    logIds = true  // log db-ids of associated objects.
 

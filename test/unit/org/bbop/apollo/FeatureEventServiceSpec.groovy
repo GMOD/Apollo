@@ -17,8 +17,6 @@ class FeatureEventServiceSpec extends Specification {
 
     // create 5 FeatureEvents
     def setup() {
-
-
         new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE ,uniqueName: uniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
         new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,uniqueName: uniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
         new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,uniqueName: uniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
@@ -29,6 +27,7 @@ class FeatureEventServiceSpec extends Specification {
     }
 
     def cleanup() {
+        FeatureEvent.deleteAll(FeatureEvent.all)
     }
 
     void "make sure we sort okay for previous events from most current"() {
@@ -54,4 +53,50 @@ class FeatureEventServiceSpec extends Specification {
         then:"we should see add feature"
         assert featureEvent.operation==FeatureOperation.ADD_FEATURE
     }
+
+    void "lets get the current index"(){
+        when: "we have multiple feature events"
+        new FeatureEvent(
+                operation: FeatureOperation.ADD_FEATURE
+                ,uniqueName: "AAAA"
+                ,current: false
+                ,dateCreated: new Date()-1
+        ).save()
+        new FeatureEvent(
+                operation: FeatureOperation.ADD_TRANSCRIPT
+                ,uniqueName: "AAAA"
+                ,current: false
+                ,dateCreated: new Date()-2
+        ).save()
+        new FeatureEvent(
+                operation: FeatureOperation.SPLIT_TRANSCRIPT
+                ,uniqueName: "AAAA"
+                ,current: true
+                ,dateCreated: new Date()-3
+        ).save()
+        new FeatureEvent(
+                operation: FeatureOperation.MERGE_TRANSCRIPTS
+                ,uniqueName: "AAAA"
+                ,current: false
+                ,dateCreated: new Date()-4
+        ).save()
+        List<FeatureEvent> mostRecentFeatureEventList = FeatureEvent.findAllByUniqueName("AAAA",[sort:"dateCreated",order:"asc"])
+        List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent("AAAA",true,[sort:"dateCreated",order:"asc"])
+
+
+        then: "we should have 4 valid events"
+        assert FeatureEvent.countByUniqueName("AAAA")==4
+        assert mostRecentFeatureEventList.size()==4
+        assert mostRecentFeatureEventList.get(0).operation==FeatureOperation.ADD_FEATURE
+        assert currentFeatureEventList.size()==1
+        assert currentFeatureEventList.get(0).operation==FeatureOperation.SPLIT_TRANSCRIPT
+
+        when: "we find the current index"
+        int currentIndex = service.getCurrentFeatureEventIndex("AAAA")
+
+        then: "it should match the current index"
+        assert currentIndex==2
+
+    }
+
 }

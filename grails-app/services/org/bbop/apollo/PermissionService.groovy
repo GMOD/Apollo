@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import grails.util.Environment
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
+import org.apache.shiro.web.tags.GuestTag
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -339,6 +340,8 @@ class PermissionService {
             if (user) {
                 return user
             }
+
+            Session session = SecurityUtils.subject.session(false)
         }
         return null
     }

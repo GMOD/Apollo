@@ -50,7 +50,8 @@ class FeatureServiceSpec extends Specification {
         assert ontologyId != null
         assert ontologyId == Exon.ontologyId
     }
-    
+
+
     
     
     

@@ -1281,12 +1281,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     ]
 
     boolean isJsonTranscript(JSONObject jsonObject) {
-        println "json object delivered ${jsonObject}"
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
-        println "type object delivered ${typeObject}"
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
-        println "tyoeString ${typeString}"
-        println "cvTermTranscxript list : ${cvTermTranscriptList}"
         return cvTermTranscriptList.contains(typeString)
     }
 

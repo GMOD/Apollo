@@ -32,10 +32,10 @@ class FeatureEventService {
 
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
 
-        FeatureEvent featureEvent
+        FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = :current where fe.uniqueName = :uniqueName", [current: false, uniqueName: uniqueName]);
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(jsonObject)
-        featureEvent = new FeatureEvent(
+        FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
@@ -46,6 +46,7 @@ class FeatureEventService {
                 , dateCreated: new Date()
                 , lastUpdated: new Date()
         ).save()
+
 
         return featureEvent
 
@@ -64,6 +65,8 @@ class FeatureEventService {
         newFeatureArray.add(newJsonObject)
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldJsonObject)
+
+        FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = 'f' ");
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
                 , uniqueName: uniqueName
@@ -83,35 +86,20 @@ class FeatureEventService {
         FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
     }
 
-    int historySize(String uniqueName) {
-        FeatureEvent.countByUniqueName(uniqueName)
-    }
-
-    FeatureEvent getCurrentFeatureEvent(String uniqueName ) {
-        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName,true, [sort: "dateCreated", order: "asc"])
-        if(featureEventList.size()!=1){
-            throw new AnnotationException("Feature event list is the wrong size ${featureEventList?.size()}")
-        }
-        return featureEventList.get(0)
-    }
-
-
-    List<FeatureEvent> getRecentFeatureEvents(String uniqueName, int count) {
-        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: count])
-        return featureEventList
-    }
     /**
      * Count of 0 is the most recent
      * @param uniqueName
      * @param count
      * @return
      */
-    FeatureEvent setPreviousTransactionForFeature(String uniqueName, int count) {
+    FeatureEvent setTransactionForFeature(String uniqueName, int count) {
         println "setting previous transactino for feature ${uniqueName} -> ${count}"
         println "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
         int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
         println "updated is ${updated}"
-        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName, [sort: "dateCreated", order: "desc", max: 1, offset: count])
+        FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: 1, offset: count])
+        println "featureEvent found ${featureEvent}"
+        println "featureEvent ${featureEvent.operation} -> ${featureEvent.dateCreated}"
         featureEvent.current = true
         featureEvent.save(flush: true)
         return featureEvent
@@ -131,7 +119,7 @@ class FeatureEventService {
         return featureEvent
     }
 
-    private JSONObject undoFeatureEvent(FeatureEvent featureEvent){
+    private JSONObject undoFeatureEvent(FeatureEvent featureEvent) {
         switch (featureEvent.operation) {
             case FeatureOperation.ADD_FEATURE:
                 requestHandlingService.deleteFeature((JSONObject) JSON.parse(featureEvent.originalJsonCommand))
@@ -235,7 +223,7 @@ class FeatureEventService {
 
                 break;
             default:
-                println "unadled operation "
+                println "unhandled operation "
                 break;
         }
     }
@@ -246,77 +234,136 @@ class FeatureEventService {
 //        }
 //    }
 
-    def undo(JSONObject inputObject, int count, boolean confirm) {
-        println "undo count ${count}"
+    def setHistoryState(JSONObject inputObject, int count, boolean confirm) {
+
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-//        Feature feature = Feature.findByUniqueName(uniqueName)
-        // TODO: I think that this gives up if you are already at the most recent transaction
-//        if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
-//            continue;
-//        }
+        log.debug "undo count ${count}"
+        if(count<0){
+            log.warn("Can not undo any further")
+            return
+        }
+
+        int total = FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)
+        if(count>total){
+            log.warn("Can not redo any further")
+            return
+        }
 
 
-        // TODO: get from newFeaturesArray
-//        FeatureEvent currentFeatureEvent = getCurrentFeatureEvent(uniqueName)
-//        JSONArray jsonArray = (JSONArray) JSON.parse(currentFeatureEvent.newFeaturesJsonArray)
-//        println "jsonArray ${jsonArray as JSON}"
 
-
-//        JSONObject oldFeatureJson = featureService.convertFeatureToJSON(feature)
         JSONObject deleteCommandObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
         JSONObject featureToDelete = new JSONObject()
-        featureToDelete.put(FeatureStringEnum.UNIQUENAME.value,uniqueName)
+        featureToDelete.put(FeatureStringEnum.UNIQUENAME.value, uniqueName)
         featuresArray.add(featureToDelete)
-        deleteCommandObject.put(FeatureStringEnum.FEATURES.value,featuresArray)
+        deleteCommandObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
         deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
 
-        println "feature event values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
+        println "feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)} -> ${count}"
         println " final delete JSON ${deleteCommandObject as JSON}"
         requestHandlingService.deleteFeature(deleteCommandObject)
         println "deletion sucess . .  "
-        println "2 feature event values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
+        println "2 feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)} -> ${count}"
 
-        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
+        FeatureEvent featureEvent = setTransactionForFeature(uniqueName, count )
+        println "final feature event: ${featureEvent} ->${featureEvent.operation}"
+        println "current feature events for unique name ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)}"
 
-        println "final feature event: ${featureEvent}"
 
-
-        JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.oldFeaturesJsonArray)
-        println "array to add size: ${jsonArray.size()} "
-        for(int i = 0 ; i < jsonArray.size() ; i++){
+        JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
+        log.debug "array to add size: ${jsonArray.size()} "
+        for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonFeature = jsonArray.getJSONObject(i)
 
             JSONObject addCommandObject = new JSONObject()
             JSONArray featuresToAddArray = new JSONArray()
             featuresToAddArray.add(jsonFeature)
-            addCommandObject.put(FeatureStringEnum.FEATURES.value,featuresToAddArray)
+            addCommandObject.put(FeatureStringEnum.FEATURES.value, featuresToAddArray)
             addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)
 
-            addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value,true)
+            addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
-
-            println "add command: ${addCommandObject as JSON}"
-
-            if(featureService.isJsonTranscript(jsonFeature)){
-                println "is is transcipt ${addCommandObject as JSON}"
+            if (featureService.isJsonTranscript(jsonFeature)) {
                 requestHandlingService.addTranscript(addCommandObject)
-            }
-            else{
-                println "is feature "
+            } else {
                 requestHandlingService.addFeature(addCommandObject)
             }
-            println "added "
+        }
+    }
+
+    /**
+     * Count back from most recent
+     * @param inputObject
+     * @param count
+     * @param confirm
+     * @return
+     */
+    def redo(JSONObject inputObject, int countForward, boolean confirm) {
+        println "redoing ${countForward}"
+        if (countForward == 0) {
+            log.warn "Redo to the same state"
+            return
+        }
+        // count = current - countBackwards
+        String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
+        int currentIndex = getCurrentFeatureEventIndex(uniqueName)
+        int count = currentIndex + countForward
+        println "current Index ${currentIndex}"
+        println "${count} = ${currentIndex}-${countForward}"
+
+        setHistoryState(inputObject, count, confirm)
+    }
+
+    int getCurrentFeatureEventIndex(String uniqueName) {
+        List<FeatureEvent> currentFeatureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
+        if (currentFeatureEventList.size() != 1) {
+            throw new AnnotationException("Feature event list is the wrong size ${currentFeatureEventList?.size()}")
+        }
+        FeatureEvent currentFeatureEvent = currentFeatureEventList.iterator().next()
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc"])
+
+        int index = 0
+        for (FeatureEvent featureEvent in featureEventList) {
+            if (featureEvent.id == currentFeatureEvent.id) {
+                return index
+            }
+            ++index
         }
 
-        println "all done "
+        return -1
+    }
 
-//        FeatureEvent featureEvent = setPreviousTransactionForFeature(uniqueName, count - 1)
-//        List<FeatureEvent> featureEventList = getRecentFeatureEvents(uniqueName,count-1)
+    def undo(JSONObject inputObject, int countBackwards, boolean confirm) {
+        println "undoing ${countBackwards}"
+        if (countBackwards == 0) {
+            log.warn "Undo to the same state"
+            return
+        }
 
-//        println "feature event gotten ${featureEvent.operation}"
-//        undoRecentFeatureEvents(featureEventList)
+        // count = current - countBackwards
+        String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
+        int currentIndex = getCurrentFeatureEventIndex(uniqueName)
+        int count = currentIndex - countBackwards
+        println "${count} = ${currentIndex}-${countBackwards}"
+        setHistoryState(inputObject, count, confirm)
+    }
 
+    int historySize(String uniqueName) {
+        FeatureEvent.countByUniqueName(uniqueName)
+    }
+
+    FeatureEvent getCurrentFeatureEvent(String uniqueName) {
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
+        if (featureEventList.size() != 1) {
+            throw new AnnotationException("Feature event list is the wrong size ${featureEventList?.size()}")
+        }
+        return featureEventList.get(0)
+    }
+
+
+    List<FeatureEvent> getRecentFeatureEvents(String uniqueName, int count) {
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: count])
+        return featureEventList
     }
 
     private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
@@ -326,8 +373,4 @@ class FeatureEventService {
         return true
     }
 
-    def redo(JSONObject inputObject, int count, boolean confirm) {
-        String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
-        FeatureEvent featureEvent = getNextTransactionsForFeature(uniqueName, count)
-    }
 }

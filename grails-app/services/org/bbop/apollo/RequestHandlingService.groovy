@@ -467,12 +467,9 @@ class RequestHandlingService {
         log.info "sequence ${sequence}"
         log.info "RHS::PRE featuresArray ${featuresArray?.size()}"
         boolean suppressHistory = false
-        println "supress history ${inputObject as JSON}"
         if(inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)){
-            println "sup hist ${inputObject.get(FeatureStringEnum.SUPPRESS_HISTORY.value)}"
             suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
         }
-        println "suppress history ${suppressHistory} . . "
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
@@ -1879,45 +1876,23 @@ class RequestHandlingService {
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyUserName(inputObject, jsonFeature )
             featureEventService.undo(jsonFeature, count, confirm)
-
-//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
-//                continue;
-//            }
-//            for (int j = 0; j < count; ++j) {
-//                historyStore.setToNextTransactionForFeature(uniqueName);
-//            }
-//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
-//            if (transaction == null) {
-//                return;
-//            }
-
         }
         return new JSONObject()
     }
 
     def redo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        permissionService.getActiveUser(inputObject)
+        // shuld always be 1, right?
+
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
-//            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-//            Feature feature = Feature.findByUniqueName(uniqueName)
             boolean confirm = inputObject.containsKey(FeatureStringEnum.CONFIRM.value) ? inputObject.getBoolean(FeatureStringEnum.CONFIRM.value) : false
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
+            jsonFeature = permissionService.copyUserName(inputObject, jsonFeature )
             featureEventService.redo(jsonFeature, count, confirm)
-
-//            if (historyStore.getCurrentIndexForFeature(uniqueName) + (count - 1) >= historyStore.getHistorySizeForFeature(uniqueName) - 1) {
-//                continue;
-//            }
-//            for (int j = 0; j < count; ++j) {
-//                historyStore.setToNextTransactionForFeature(uniqueName);
-//            }
-//            Transaction transaction = historyStore.getCurrentTransactionForFeature(uniqueName);
-//            if (transaction == null) {
-//                return;
-//            }
         }
-
         return new JSONObject()
     }
 }

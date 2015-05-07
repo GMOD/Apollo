@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.test.mixin.TestFor
+import org.bbop.apollo.history.FeatureOperation
 import spock.lang.Specification
 
 /**

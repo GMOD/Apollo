@@ -55,7 +55,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def handleOperation(String track, String operation) {
-        // TODO: this is a hack, but it should come through the UrlMapper
+        // TODO: this is a hack, but it should come through the UrlMapp
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
