@@ -293,6 +293,8 @@ class FeatureEventService {
             addCommandObject.put(FeatureStringEnum.FEATURES.value,featuresToAddArray)
             addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)
 
+            addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value,true)
+
 
             println "add command: ${addCommandObject as JSON}"
 

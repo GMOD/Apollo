@@ -466,6 +466,13 @@ class RequestHandlingService {
         log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
         log.info "sequence ${sequence}"
         log.info "RHS::PRE featuresArray ${featuresArray?.size()}"
+        boolean suppressHistory = false
+        println "supress history ${inputObject as JSON}"
+        if(inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)){
+            println "sup hist ${inputObject.get(FeatureStringEnum.SUPPRESS_HISTORY.value)}"
+            suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
+        println "suppress history ${suppressHistory} . . "
 
         List<Transcript> transcriptList = new ArrayList<>()
         for (int i = 0; i < featuresArray.size(); i++) {
@@ -479,7 +486,9 @@ class RequestHandlingService {
             transcriptList.add(transcript)
 
 
-            featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
+            if(!suppressHistory){
+                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT, transcript, inputObject, permissionService.getActiveUser(inputObject))
+            }
         }
 
 //        sequence.save(flush: true)
@@ -1379,6 +1388,11 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
 
+        boolean suppressHistory = false
+        if(inputObject.hasProperty(FeatureStringEnum.SUPPRESS_HISTORY.value)){
+            suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
+
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             // pull transcript name and put it in the top if not there
@@ -1392,7 +1406,7 @@ class RequestHandlingService {
             newFeature.name = nameService.generateUniqueName(newFeature,sequence.name)
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
-            featureService.setOwner(newFeature, user);
+            featurePropertyService.setOwner(newFeature, user);
             newFeature.save(insert: true, flush: true)
 
             if (newFeature instanceof Gene) {
@@ -1409,15 +1423,19 @@ class RequestHandlingService {
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     transcript.name = nameService.generateUniqueName(transcript,sequence.name)
                     transcript.uniqueName = nameService.generateUniqueName()
-                    featureService.setOwner(transcript,user)
+                    featurePropertyService.setOwner(transcript,user)
 
                     JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
-                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, transcript.uniqueName, inputObject,jsonObject, user)
+                    if(!suppressHistory){
+                        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, transcript.uniqueName, inputObject,jsonObject, user)
+                    }
                     returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
                 }
             } else {
                 JSONObject jsonObject = featureService.convertFeatureToJSON(newFeature)
-                featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.uniqueName, inputObject,jsonObject, user)
+                if(!suppressHistory) {
+                    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_FEATURE, newFeature.uniqueName, inputObject, jsonObject, user)
+                }
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonObject);
             }
         }
