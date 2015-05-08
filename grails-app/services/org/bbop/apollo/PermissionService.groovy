@@ -469,7 +469,7 @@ class PermissionService {
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , sequence: organism.sequences.iterator().next()
+                    , sequence: Sequence.findByOrganism(organism)
             ).save(insert: true)
         }
 

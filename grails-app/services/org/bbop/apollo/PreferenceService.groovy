@@ -33,7 +33,7 @@ class PreferenceService {
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
                         ,organism: organism
-                        ,sequence: organism.sequences.iterator().next()
+                        ,sequence: Sequence.findByOrganism(organism)
                 ).save()
             }
 
@@ -51,7 +51,7 @@ class PreferenceService {
                     user: user
                     ,organism: organism
                     ,currentOrganism: true
-                    ,sequence: organism.sequences.iterator().next()
+                    ,sequence: Sequence.findByOrganism(organism)
             ).save(flush:true)
         }
         else{

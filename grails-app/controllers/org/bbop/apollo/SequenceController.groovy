@@ -24,9 +24,7 @@ class SequenceController {
     def permissionService
     def preferenceService
 
-    def permissions() {
-
-    }
+    def permissions() {  }
 
 
     @Transactional
@@ -105,7 +103,7 @@ class SequenceController {
                     user: currentUser
                     , organism: organism
                     , currentOrganism: true
-                    , sequence: organism.sequences.iterator().next()
+                    , sequence: Sequence.findByOrganism(organism)
                     ,
             ).save(insert: true, flush: true)
         }

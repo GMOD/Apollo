@@ -3,12 +3,14 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.hibernate.Hibernate
 
 @Transactional
 class AnnotatorService {
 
     def permissionService
     def requestHandlingService
+    def sessionFactory
 
     def getAppState() {
         JSONObject appStateObject = new JSONObject()
@@ -23,15 +25,16 @@ class AnnotatorService {
         log.debug "finding all organisms: ${Organism.count}"
 
         JSONArray organismArray = new JSONArray()
-        for (def organism in organismList) {
-            Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)",[organism:organism,viewableTypes:requestHandlingService.viewableAnnotationList])[0] as Integer
+        for (Organism organism in organismList) {
+            Integer annotationCount =  Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)",[organism:organism,viewableTypes:requestHandlingService.viewableAnnotationList])[0] as Integer
+            Integer sequenceCount = Sequence.countByOrganism(organism)
             JSONObject jsonObject = [
                     id             : organism.id as Long,
                     commonName     : organism.commonName,
                     blatdb         : organism.blatdb,
                     directory      : organism.directory,
                     annotationCount: annotationCount,
-                    sequences      : organism.sequences?.size(),
+                    sequences      : sequenceCount ,
                     genus          : organism.genus,
                     species        : organism.species,
                     valid          : organism.valid,
@@ -41,43 +44,16 @@ class AnnotatorService {
         }
         appStateObject.put("organismList",organismArray)
         UserOrganismPreference currentUserOrganismPreference =  permissionService.currentOrganismPreference
-//        println "current org ${currrentUserOrganismPreference.organism as JSON}"
-//        appStateObject.put("currentOrganism", currrentUserOrganismPreference.organism as JSON)
-//        appStateObject.put("currentOrganism", convertToJSONobject(currrentUserOrganismPreference.organism) as JSON)
         appStateObject.put("currentOrganism", currentUserOrganismPreference.organism)
-////        Sequence sequence = Sequence.findByOrganismAndName(currrentUserOrganismPreference.organism,currrentUserOrganismPreference.defaultSequence)
 
 
         log.info "the current sequence ${currentUserOrganismPreference.sequence}"
         if(!currentUserOrganismPreference.sequence){
-            currentUserOrganismPreference.sequence = currentUserOrganismPreference.organism.sequences.iterator().next()
+            Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
+            currentUserOrganismPreference.sequence = sequence
             currentUserOrganismPreference.save()
         }
         appStateObject.put("currentSequence",currentUserOrganismPreference.sequence)
-//
-//
-//        JSONArray sequenceArray = new JSONArray()
-//        for (Sequence sequence in currentUserOrganismPreference.organism.sequences) {
-////            println "seq i . . ${sequence as JSON}"
-//            JSONObject jsonObject = new JSONObject()
-//            jsonObject.put("id", sequence.id)
-//            jsonObject.put("name", sequence.name)
-//            jsonObject.put("length", sequence.length)
-//            jsonObject.put("start", sequence.start)
-//            jsonObject.put("end", sequence.end)
-//
-//
-//
-////            jsonObject.put("sequence", sequence as JSON)
-////            jsonObject.put("default", defaultName && defaultName == sequence.name)
-////            if (defaultName == sequence.name) {
-////                log.info "setting the default sequence: ${jsonObject.get("default")}"
-////            }
-//            sequenceArray.put(jsonObject)
-//        }
-//
-////
-//        appStateObject.put("currentSequenceList",sequenceArray)
 
 
         if(currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp){
@@ -85,11 +61,6 @@ class AnnotatorService {
             appStateObject.put("currentEndBp",currentUserOrganismPreference.endbp)
         }
 
-//        appStateObject.put("currentSequenceList",currrentUserOrganismPreference.organism.sequences)
-
-//        println "appState obj ${appStateObject as JSON}"
-
-//        render appStateObject as JSON
 
         return appStateObject
     }
