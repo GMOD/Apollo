@@ -7,6 +7,7 @@ public enum FeatureStringEnum {
         ID("id"),
         FEATURES,
         SUPPRESS_HISTORY,
+        SUPPRESS_EVENTS,
         FEATURE_PROPERTY,
         PARENT_ID,
         USERNAME,

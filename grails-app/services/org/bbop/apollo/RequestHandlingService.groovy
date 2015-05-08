@@ -452,7 +452,7 @@ class RequestHandlingService {
 
     }
 
-    JSONObject addTranscript(JSONObject inputObject,boolean fireEvents = true) {
+    JSONObject addTranscript(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         JSONObject returnObject = createJSONFeatureContainer()
@@ -466,8 +466,12 @@ class RequestHandlingService {
         log.info "sequence ${sequence}"
         log.info "RHS::PRE featuresArray ${featuresArray?.size()}"
         boolean suppressHistory = false
+        boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
             suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
+            suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
         }
 
         List<Transcript> transcriptList = new ArrayList<>()
@@ -494,7 +498,7 @@ class RequestHandlingService {
         }
 
 
-        if (fireEvents) {
+        if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: returnObject
                     , sequence: sequence
@@ -1378,7 +1382,7 @@ class RequestHandlingService {
 
     }
 
-    def addFeature(JSONObject inputObject,boolean fireEvents = true ) {
+    def addFeature(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         println "adding sequence with found sequence ${sequence}"
         User user = permissionService.getActiveUser(inputObject)
@@ -1387,8 +1391,12 @@ class RequestHandlingService {
         JSONObject returnObject = createJSONFeatureContainer()
 
         boolean suppressHistory = false
+        boolean suppressEvents = false
         if (inputObject.hasProperty(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
             suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
+            suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
         }
 
         for (int i = 0; i < featuresArray.size(); i++) {
@@ -1438,7 +1446,7 @@ class RequestHandlingService {
             }
         }
 
-        if (fireEvents) {
+        if (!suppressEvents) {
             AnnotationEvent annotationEvent = new AnnotationEvent(
                     features: returnObject
                     , sequence: sequence
@@ -1456,10 +1464,14 @@ class RequestHandlingService {
      *  From AnnotationEditorService .. . deleteFeature 1 and 2
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
-    def deleteFeature(JSONObject inputObject, boolean fireEvents = true) {
+    def deleteFeature(JSONObject inputObject) {
         println "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         println "had permissions ${inputObject as JSON}"
+        boolean suppressEvents = false
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
+            suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
+        }
 
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1530,7 +1542,7 @@ class RequestHandlingService {
                         Feature topLevelFeature = featureService.getTopLevelFeature(gene)
                         featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
-                        if (fireEvents) {
+                        if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
                                     features: featureContainer
                                     , sequence: sequence
@@ -1543,7 +1555,7 @@ class RequestHandlingService {
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
                         gene.save()
 
-                        if (fireEvents) {
+                        if (!suppressEvents) {
                             AnnotationEvent annotationEvent = new AnnotationEvent(
                                     features: featureContainer
                                     , sequence: sequence
@@ -1573,7 +1585,7 @@ class RequestHandlingService {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
-                    if (fireEvents) {
+                    if (!suppressEvents) {
                         AnnotationEvent annotationEvent = new AnnotationEvent(
                                 features: featureContainer
                                 , sequence: sequence
@@ -1609,7 +1621,7 @@ class RequestHandlingService {
 
 
 
-        if (fireEvents) {
+        if (!suppressEvents) {
             AnnotationEvent finalAnnotationEvent = new AnnotationEvent(
                     features: featureContainer
                     , sequence: sequence

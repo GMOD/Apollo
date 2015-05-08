@@ -261,10 +261,11 @@ class FeatureEventService {
         featuresArray.add(featureToDelete)
         deleteCommandObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
         deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
+        deleteCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
 
         println "feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)} -> ${count}"
         println " final delete JSON ${deleteCommandObject as JSON}"
-        requestHandlingService.deleteFeature(deleteCommandObject,false)
+        requestHandlingService.deleteFeature(deleteCommandObject)
         println "deletion sucess . .  "
         println "2 feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)} -> ${count}"
 
@@ -285,12 +286,13 @@ class FeatureEventService {
             addCommandObject = permissionService.copyUserName(inputObject, addCommandObject)
 
             addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
+            addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
 
             JSONObject returnObject
             if (featureService.isJsonTranscript(jsonFeature)) {
-                returnObject = requestHandlingService.addTranscript(addCommandObject,false)
+                returnObject = requestHandlingService.addTranscript(addCommandObject)
             } else {
-                returnObject = requestHandlingService.addFeature(addCommandObject,false)
+                returnObject = requestHandlingService.addFeature(addCommandObject)
             }
 
             AnnotationEvent annotationEvent = new AnnotationEvent(
