@@ -105,11 +105,8 @@ class OrganismController {
     @Transactional
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
-        log.debug "updating feature ${params.data}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
-        log.debug "jsonObject ${organismJson}"
         Organism organism = Organism.findById(organismJson.id)
-        log.debug "found an organism ${organism}"
         if (organism) {
             organism.commonName = organismJson.name
             organism.blatdb = organismJson.blatdb
@@ -122,15 +119,20 @@ class OrganismController {
                 if (directoryChanged) {
                     organism.directory = organismJson.directory
                 }
-                organism.save(flush: true, insert: false, failOnError: true)
 
                 if (directoryChanged && checkOrganism(organism)) {
+                    organism.save(flush: true, insert: false, failOnError: true)
                     sequenceService.loadRefSeqs(organism)
                 }
-                else {
+                else if(directoryChanged) {
+                    def error=[error: 'problem saving organism: data directory not found. data directory not updated']
+                    render error as JSON
+                    log.error(error.error)
                 }
             } catch (e) {
-                log.error("Problem updating organism info: ${e}")
+                def error= [error: 'problem saving organism: '+e]
+                render error as JSON
+                log.error(error.error)
             }
             render findAllOrganisms()
         } else {

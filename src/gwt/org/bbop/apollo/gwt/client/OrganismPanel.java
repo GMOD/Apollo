@@ -130,7 +130,7 @@ public class OrganismPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 if(!creatingNewOrganism) {
                     loadOrganismInfo();
-                    toggleSelectedTextBoxes();
+                    changeButtonSelection();
                 }
                 else {
                     creatingNewOrganism=false;
@@ -227,13 +227,16 @@ public class OrganismPanel extends Composite {
             JSONObject o=j.isObject();
             if(o.get("error")!=null) {
                 Window.alert(o.get("error").isString().stringValue());
+                changeButtonSelection();
+                setTextEnabled(false);
+                clearTextBoxes();
             }
             else {
                 List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
                 dataGrid.setSelectionModel(singleSelectionModel);
                 MainPanel.getInstance().getOrganismInfoList().clear();
                 MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
-                toggleSelectedTextBoxes();
+                changeButtonSelection();
                 OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
                 organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
@@ -278,7 +281,7 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
-        toggleSelectedTextBoxes();
+        changeButtonSelection();
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -381,11 +384,11 @@ public class OrganismPanel extends Composite {
         deleteButton.setVisible(false);
     }
 
-    public void toggleSelectedTextBoxes() {
-        toggleSelectedTextBoxes(singleSelectionModel.getSelectedObject()!=null);
+    public void changeButtonSelection() {
+        changeButtonSelection(singleSelectionModel.getSelectedObject()!=null);
     }
     // Set the button states/visibility depending on whether there is a selection or not
-    public void toggleSelectedTextBoxes(boolean selection){
+    public void changeButtonSelection(boolean selection){
         if(selection){
             newButton.setEnabled(true);
             newButton.setVisible(true);
