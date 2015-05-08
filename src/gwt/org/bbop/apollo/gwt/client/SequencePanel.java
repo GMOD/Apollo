@@ -47,11 +47,6 @@ public class SequencePanel extends Composite {
     TextBox minFeatureLength;
     @UiField
     TextBox maxFeatureLength;
-//    @UiField
-//    ListBox organismList;
-    // TODO: a hack of a backing object fro the organism List
-    // key is the ID as we can have a dupe org?
-//    Map<String, OrganismInfo> organismInfoMap = new TreeMap<>();
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -228,6 +223,9 @@ public class SequencePanel extends Composite {
                     Scheduler.get().scheduleDeferred(new Command() {
                         @Override
                         public void execute() {
+                            selectedCount = 0 ;
+                            multiSelectionModel.clear();
+                            updatedExportSelectedButton();
                             reload();
                         }
                     });
