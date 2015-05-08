@@ -1777,11 +1777,22 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, generateFeaturePropertyStringForType(property.ontologyId));
                     JSONObject jsonPropertyType = new JSONObject()
+                    if (property instanceof Comment) {
+                        //  TODO: This is a hack
+                        jsonPropertyType.put(FeatureStringEnum.NAME.value, "comment")
+                        JSONObject jsonPropertyTypeCv = new JSONObject()
+                        jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
+                        jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
+                        jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
+                        jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
+                        properties.put(jsonProperty);
+                        continue
+                    }
                     jsonPropertyType.put(FeatureStringEnum.NAME.value, property.type)
                     JSONObject jsonPropertyTypeCv = new JSONObject()
                     jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                     jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
-
+    
                     jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
 //                    jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
