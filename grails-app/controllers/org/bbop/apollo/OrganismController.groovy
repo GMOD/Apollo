@@ -51,7 +51,7 @@ class OrganismController {
         log.debug "organismJSON ${organismJson}"
         log.debug "id: ${organismJson.id}"
         try {
-            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+            permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)
             if(organismJson.get("commonName")==""||organismJson.get("directory")=="") {
                 def error= [error: 'problem saving organism: empty fields detected']
                 render error as JSON
@@ -83,8 +83,6 @@ class OrganismController {
             log.error(error.error)
             return
         }
-
-
         render findAllOrganisms()
     }
 

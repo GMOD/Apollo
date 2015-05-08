@@ -26,15 +26,18 @@ class PreferenceService {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
 
             if(!userOrganismPreference){
-                Organism organism = permissionService.getOrganisms(user).iterator()?.next()
-                if(!organism){
+                Iterator i=permissionService.getOrganisms(user).iterator();
+                if(i.hasNext()) {
+                    Organism organism = i.next()
+                    userOrganismPreference = new UserOrganismPreference(
+                            user: user
+                            , organism: organism
+                            , sequence: Sequence.findByOrganism(organism)
+                    ).save()
+                }
+                else {
                     throw new PermissionException("User has no access to any organisms!")
                 }
-                userOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        ,organism: organism
-                        ,sequence: Sequence.findByOrganism(organism)
-                ).save()
             }
 
             userOrganismPreference.currentOrganism = true

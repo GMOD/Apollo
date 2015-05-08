@@ -11,6 +11,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -375,9 +376,9 @@ public class MainPanel extends Composite {
             @Override
             public boolean execute() {
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS));
-                return false ;
+                return false;
             }
-        } ,500);
+        }, 500);
     }
 
     public void getAppState() {
@@ -388,10 +389,16 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                loadingDialog.hide();
-                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-                AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(returnValue);
-                setAppState(appStateInfo);
+                JSONValue j=JSONParser.parseStrict(response.getText());
+                JSONObject obj=j.isObject();
+                if(obj!=null&&obj.containsKey("error")) {
+                    Window.alert(obj.get("error").isString().stringValue());
+                    loadingDialog.hide();
+                } else {
+                    loadingDialog.hide();
+                    AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(obj);
+                    setAppState(appStateInfo);
+                }
             }
 
             @Override

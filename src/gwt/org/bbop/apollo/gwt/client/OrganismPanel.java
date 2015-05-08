@@ -125,11 +125,7 @@ public class OrganismPanel extends Composite {
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
         dataGrid.addColumn(sequenceColumn, "Ref Sequences");
-        dataGrid.setEmptyTableWidget(new Label("No organisms available. Contact admin to setup permissions"));
-        boolean admin=MainPanel.getInstance().highestPermission==PermissionEnum.ADMINISTRATE;
-        String message=admin? "No organisms available. Specify new organisms using the form field below.":
-                "No organisms available. Plase contact administrator to setup your permissions.";
-        dataGrid.setEmptyTableWidget(new Label(message));
+        dataGrid.setEmptyTableWidget(new Label("No organisms available. Add new organisms using the form field."));
 
 
 

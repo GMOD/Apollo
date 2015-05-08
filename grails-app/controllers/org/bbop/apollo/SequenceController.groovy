@@ -202,12 +202,18 @@ class SequenceController {
     }
 
     def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-        minFeatureLength = minFeatureLength ?: 0
-        maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
-        List<Sequence> sequences
-        sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength, [offset: start, max: length, sort: sort, order: asc ? "asc" : "desc"])
-        render sequences as JSON
+        try {
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+            minFeatureLength = minFeatureLength ?: 0
+            maxFeatureLength = maxFeatureLength ?: Integer.MAX_VALUE
+            List<Sequence> sequences
+            sequences = Sequence.findAllByOrganismAndNameIlikeAndLengthGreaterThanEqualsAndLengthLessThanEquals(organism, "%${name}%", minFeatureLength, maxFeatureLength, [offset: start, max: length, sort: sort, order: asc ? "asc" : "desc"])
+            render sequences as JSON
+        }
+        catch(PermissionException e) {
+            def error=[error: "Error: "+e]
+            render error as JSON
+        }
     }
 
 }

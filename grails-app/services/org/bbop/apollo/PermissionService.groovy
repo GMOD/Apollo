@@ -614,21 +614,6 @@ class PermissionService {
             //return false
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-//        else{
-//            return true
-//        }
-
-//        Map<String,Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.value);
-//        String organism = session.getAttribute(FeatureStringEnum.ORGANISM.value);
-//        PermissionEnum sessionPermissionsEnum = PermissionEnum.getValueForOldInteger(permissions.get(organism))
-//        println "vs sessionPErmision enum: ${sessionPermissionsEnum}"
-//        if(sessionPermissionsEnum!=null && sessionPermissionsEnum.value>=permissionEnum.value){
-//            return true
-//        }
-//        else{
-//            throw new AnnotationException("You do not have ${permissionEnum.display}")
-//        }
-//        return false
     }
 
     UserOrganismPreference getCurrentOrganismPreference(){
@@ -648,10 +633,9 @@ class PermissionService {
 
         def organisms = getOrganisms(currentUser)
         if(!organisms){
-            throw new PermissionException("User ${currentUser} does not have permission for any organisms.")
+            throw new PermissionException("User does not have permission for any organisms.")
         }
         Organism organism = organisms?.iterator()?.next()
-//            defaultName = request.session.getAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value)
         userOrganismPreference = new UserOrganismPreference(
                 user: currentUser
                 , currentOrganism: true
