@@ -22,6 +22,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -36,6 +37,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.bbop.apollo.gwt.shared.PermissionEnum;
 
 import java.util.Comparator;
 import java.util.List;
@@ -123,6 +125,12 @@ public class OrganismPanel extends Composite {
         dataGrid.addColumn(organismNameColumn, "Name");
         dataGrid.addColumn(annotationsNameColumn, "Annotations");
         dataGrid.addColumn(sequenceColumn, "Ref Sequences");
+        dataGrid.setEmptyTableWidget(new Label("No organisms available. Contact admin to setup permissions"));
+        boolean admin=MainPanel.getInstance().highestPermission==PermissionEnum.ADMINISTRATE;
+        String message=admin? "No organisms available. Specify new organisms using the form field below.":
+                "No organisms available. Plase contact administrator to setup your permissions.";
+        dataGrid.setEmptyTableWidget(new Label(message));
+
 
 
         singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -225,13 +233,13 @@ public class OrganismPanel extends Composite {
         public void onResponseReceived(Request request, Response response) {
             JSONValue j=JSONParser.parseStrict(response.getText());
             JSONObject o=j.isObject();
-            if(o.get("error")!=null) {
+            if(o!=null&&o.containsKey("error")) {
                 Window.alert(o.get("error").isString().stringValue());
                 changeButtonSelection();
                 setTextEnabled(false);
                 clearTextBoxes();
-            }
-            else {
+                singleSelectionModel.clear();
+            } else {
                 List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
                 dataGrid.setSelectionModel(singleSelectionModel);
                 MainPanel.getInstance().getOrganismInfoList().clear();
@@ -241,7 +249,6 @@ public class OrganismPanel extends Composite {
                 organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
             }
-
         }
 
         @Override
@@ -385,7 +392,7 @@ public class OrganismPanel extends Composite {
     }
 
     public void changeButtonSelection() {
-        changeButtonSelection(singleSelectionModel.getSelectedObject()!=null);
+        changeButtonSelection(singleSelectionModel.getSelectedObject() != null);
     }
     // Set the button states/visibility depending on whether there is a selection or not
     public void changeButtonSelection(boolean selection){

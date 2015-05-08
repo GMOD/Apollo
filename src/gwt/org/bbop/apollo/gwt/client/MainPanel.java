@@ -240,6 +240,7 @@ public class MainPanel extends Composite {
                 GWT.log("setting to EXPORT permissions");
             case READ:
                 GWT.log("setting to READ permissions");
+                //break; <-- uncomment if want non-admin users to view panels
             case NONE:
             default:
                 GWT.log("setting to no permissions");

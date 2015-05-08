@@ -2,7 +2,7 @@ package org.bbop.apollo
 
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -25,12 +25,21 @@ class OrganismController {
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
-        log.debug "organismJSON ${organismJson}"
-        log.debug "id: ${organismJson.id}"
-        Organism organism = Organism.findById(organismJson.id as Long)
-        if (organism) {
-            UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
-            organism.delete()
+        try {
+            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+
+            log.debug "organismJSON ${organismJson}"
+            log.debug "id: ${organismJson.id}"
+            Organism organism = Organism.findById(organismJson.id as Long)
+            if (organism) {
+                UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
+                organism.delete()
+            }
+        }
+        catch(Exception e) {
+            def error= [error: 'problem deleting organism: '+e]
+            render error as JSON
+            log.error(error.error)
         }
         render findAllOrganisms()
     }
@@ -42,6 +51,7 @@ class OrganismController {
         log.debug "organismJSON ${organismJson}"
         log.debug "id: ${organismJson.id}"
         try {
+            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             if(organismJson.get("commonName")==""||organismJson.get("directory")=="") {
                 def error= [error: 'problem saving organism: empty fields detected']
                 render error as JSON
@@ -68,7 +78,7 @@ class OrganismController {
             organism.save(failOnError: true, flush: true, insert: true)
             sequenceService.loadRefSeqs(organism)
         } catch (e) {
-            def error= [error: 'problem saving organism: invalid data directory specified']
+            def error= [error: 'problem saving organism: '+e]
             render error as JSON
             log.error(error.error)
             return
@@ -106,37 +116,45 @@ class OrganismController {
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
-        Organism organism = Organism.findById(organismJson.id)
-        if (organism) {
-            organism.commonName = organismJson.name
-            organism.blatdb = organismJson.blatdb
-            organism.species = organismJson.species
-            organism.genus = organismJson.genus
+        try {
+            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+            Organism organism = Organism.findById(organismJson.id)
+            if (organism) {
+                organism.commonName = organismJson.name
+                organism.blatdb = organismJson.blatdb
+                organism.species = organismJson.species
+                organism.genus = organismJson.genus
 
-            boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
-            log.debug "directoryChanged ${directoryChanged}"
-            try {
-                if (directoryChanged) {
-                    organism.directory = organismJson.directory
-                }
+                boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
+                log.debug "directoryChanged ${directoryChanged}"
+                try {
+                    if (directoryChanged) {
+                        organism.directory = organismJson.directory
+                    }
 
-                if (directoryChanged && checkOrganism(organism)) {
-                    organism.save(flush: true, insert: false, failOnError: true)
-                    sequenceService.loadRefSeqs(organism)
-                }
-                else if(directoryChanged) {
-                    def error=[error: 'problem saving organism: data directory not found. data directory not updated']
+                    if (directoryChanged && checkOrganism(organism)) {
+                        organism.save(flush: true, insert: false, failOnError: true)
+                        sequenceService.loadRefSeqs(organism)
+                    }
+                    else if(directoryChanged) {
+                        def error=[error: 'problem saving organism: data directory not found. data directory not updated']
+                        render error as JSON
+                        log.error(error.error)
+                    }
+                } catch (e) {
+                    def error= [error: 'problem saving organism: '+e]
                     render error as JSON
                     log.error(error.error)
                 }
-            } catch (e) {
-                def error= [error: 'problem saving organism: '+e]
+                render findAllOrganisms()
+            } else {
+                def error= [error: 'problem saving organism: organism not found']
                 render error as JSON
                 log.error(error.error)
             }
-            render findAllOrganisms()
-        } else {
-            def error= [error: 'problem saving organism: organism not found']
+        }
+        catch(Exception e) {
+            def error= [error: 'problem saving organism: '+e]
             render error as JSON
             log.error(error.error)
         }
