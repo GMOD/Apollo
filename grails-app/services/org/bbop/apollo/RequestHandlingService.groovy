@@ -1779,6 +1779,7 @@ class RequestHandlingService {
                 }
             }
 
+            addSplitTranscriptJSONObject = permissionService.copyUserName(inputObject, addSplitTranscriptJSONObject)
             addTranscript(addSplitTranscriptJSONObject)
         }
 
@@ -1815,8 +1816,8 @@ class RequestHandlingService {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        JSONObject jsonTranscript1 = featuresArray.get(0)
-        JSONObject jsonTranscript2 = featuresArray.get(1)
+        JSONObject jsonTranscript1 = featuresArray.getJSONObject(0)
+        JSONObject jsonTranscript2 = featuresArray.getJSONObject(1)
         Transcript transcript1 = Transcript.findByUniqueName(jsonTranscript1.getString(FeatureStringEnum.UNIQUENAME.value))
         Transcript transcript2 = Transcript.findByUniqueName(jsonTranscript2.getString(FeatureStringEnum.UNIQUENAME.value))
         JSONObject transcript2JSONObject = featureService.convertFeatureToJSON(transcript2)
