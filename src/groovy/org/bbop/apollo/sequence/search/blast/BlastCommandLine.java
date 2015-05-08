@@ -79,7 +79,6 @@ public class BlastCommandLine extends SequenceSearchTool {
         String outputArg = dir.getAbsolutePath() + "/results.tab";
         List<String> commands = new ArrayList<String>();
         commands.add(blastBin);
-        System.out.println( blastBin);
         if (blastOptions != null) {
             for (String option : blastOptions) {
                 commands.add(option);

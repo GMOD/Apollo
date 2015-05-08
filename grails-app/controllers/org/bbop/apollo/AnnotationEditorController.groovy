@@ -53,19 +53,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "bang "
     }
 
-
+    // Map the operation specified in the URL to a controller
     def handleOperation(String track, String operation) {
-        // TODO: this is a hack, but it should come through the UrlMapp
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
         log.debug "${operation} -> ${mappedAction}"
-//        track = postObject.get(REST_TRACK)
-
-        // TODO: hack needs to be fixed
-//        track = fixTrackHeader(track)
         log.debug "Controller: " + params.controller
-
         forward action: "${mappedAction}", params: [data: postObject]
     }
 
@@ -76,19 +70,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         log.debug "getting user permission !! ${params.data}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
 
-        // TODO: wire into actual user table
         log.debug "principal: " + SecurityUtils.subject.principal
         String username = SecurityUtils.subject.principal
         int permission = PermissionEnum.NONE.value
         if (username) {
 
             log.debug "input username ${username}"
-
             User user = User.findByUsername(username)
             log.debug "found a user ${user} for username: ${username}"
 
-//            session.attributeNames.each { log.debug it }
-//            Long organismId = session.getAttribute(FeatureStringEnum.ORGANISM_ID.value) as Long
             Organism organism = preferenceService.getCurrentOrganism(user)
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
@@ -106,9 +96,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 permission = permissions.values().iterator().next();
             }
         }
-//        if(permission > PermissionEnum.ADMINISTRATE.value){
-//            permission = PermissionEnum.ADMINISTRATE.value
-//        }
 
         returnObject.put(REST_PERMISSION, permission)
         returnObject.put(REST_USERNAME, username)
