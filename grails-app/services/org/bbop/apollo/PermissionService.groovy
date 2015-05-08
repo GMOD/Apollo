@@ -561,19 +561,12 @@ class PermissionService {
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
-            //return false
             println "highest value ${highestValue}"
             println "required permission ${requiredPermissionEnum}"
             println "highest value display ${highestValue.display}"
             println "perm dispaly ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-//        Sequence returnSequence = Sequence.findByNameAndOrganism(trackName, organism)
-//        return trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
-//        println "trackName ${trackName}"
-//        println "pref ${userOrganismPreference}"
-//        println "pref seq ${userOrganismPreference.sequence.name}"
-//        return trackName ? userOrganismPreference.sequence : null
         return userOrganismPreference.sequence ?: null
     }
 

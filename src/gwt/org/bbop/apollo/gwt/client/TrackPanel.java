@@ -242,17 +242,14 @@ public class TrackPanel extends Composite {
 
     static void filterList() {
         String text = nameSearchBox.getText();
-        GWT.log("input list: " + trackInfoList.size());
         filteredTrackInfoList.clear();
         for (TrackInfo trackInfo : trackInfoList) {
-            // filter refseq and annottrack
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
                 filteredTrackInfoList.add(trackInfo);
             }
         }
-        GWT.log("filtered list: " + filteredTrackInfoList.size());
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
@@ -312,7 +309,6 @@ public class TrackPanel extends Composite {
             }
             trackInfoList.add(trackInfo);
         }
-        GWT.log("info list: " + trackInfoList.size());
         filterList();
     }
 

@@ -104,15 +104,6 @@ class PreferenceService {
         }
 
         log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
-//        if(userOrganismPreference.id==lastId && userOrganismPreference.version == lastVersion){
-//
-//            throw new AnnotationException("handling dupe version ${lastId} -> ${lastVersion}")
-//        }
-//        else{
-//            println "updated version "
-//            lastId = userOrganismPreference.id
-//            lastVersion = userOrganismPreference.version
-//        }
 
         userOrganismPreference.refresh()
 
