@@ -224,7 +224,7 @@ public class OrganismPanel extends Composite {
             dataGrid.setSelectionModel(singleSelectionModel);
             MainPanel.getInstance().getOrganismInfoList().clear();
             MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
-            toggleSelectedTextBoxes(singleSelectionModel.getSelectedObject() != null);
+            toggleSelectedTextBoxes();
             OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
             organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
             Annotator.eventBus.fireEvent(organismChangeEvent);
@@ -246,7 +246,10 @@ public class OrganismPanel extends Composite {
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
         creatingNewOrganism=true;
+        clearTextBoxes();
+        annotationCount.setText("");
         singleSelectionModel.clear();
+
         createButton.setText("Create Organism");
         newButton.setEnabled(false);
         cancelButton.setEnabled(true);
@@ -259,7 +262,7 @@ public class OrganismPanel extends Composite {
         validDirectory.setVisible(false);
 
 
-        toggleTextEnabled(true);
+        setTextEnabled(true);
     }
 
     @UiHandler("createButton")
@@ -279,9 +282,11 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
-        clearTextBoxes();
         newButton.setEnabled(true);
-        loadOrganismInfo();
+        deleteButton.setVisible(false);
+        createButton.setVisible(false);
+        cancelButton.setVisible(false);
+        setNoSelection();
     }
 
     @UiHandler("deleteButton")
@@ -358,7 +363,7 @@ public class OrganismPanel extends Composite {
     private void setNoSelection() {
 
         clearTextBoxes();
-        toggleTextEnabled(false);
+        setTextEnabled(false);
 
         annotationCount.setText("");
         validDirectory.setVisible(false);
@@ -387,7 +392,7 @@ public class OrganismPanel extends Composite {
     }
 
     //Utility function for toggling the textboxes (gray out)
-    public void toggleTextEnabled(boolean enabled) {
+    public void setTextEnabled(boolean enabled) {
         sequenceFile.setEnabled(enabled);
         organismName.setEnabled(enabled);
         genus.setEnabled(enabled);
