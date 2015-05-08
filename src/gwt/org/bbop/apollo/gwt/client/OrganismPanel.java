@@ -84,12 +84,15 @@ public class OrganismPanel extends Composite {
     boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
 
+    final LoadingDialog loadingDialog;
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private List<OrganismInfo> organismInfoList = dataProvider.getList();
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
+        loadingDialog = new LoadingDialog("Processing ...", null);
+        loadingDialog.hide();
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -250,11 +253,13 @@ public class OrganismPanel extends Composite {
                 savingNewOrganism=false;
                 setNoSelection();
                 changeButtonSelection(false);
+                loadingDialog.hide();
             }
         }
 
         @Override
         public void onError(Request request, Throwable exception) {
+            loadingDialog.hide();
             Window.alert("Error: "+exception);
         }
     }
@@ -305,6 +310,7 @@ public class OrganismPanel extends Composite {
         savingNewOrganism=true;
 
         OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
+        loadingDialog.show();
     }
 
     @UiHandler("cancelButton")
@@ -323,6 +329,7 @@ public class OrganismPanel extends Composite {
             deleteButton.setText("Processing");
             savingNewOrganism=true;
             OrganismRestService.deleteOrganism(new UpdateInfoListCallback(), singleSelectionModel.getSelectedObject());
+            loadingDialog.show();
         }
     }
 
