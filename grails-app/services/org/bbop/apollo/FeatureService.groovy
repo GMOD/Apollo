@@ -556,36 +556,45 @@ class FeatureService {
         if (!transcript) {
             return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate);
         }
-        int currentOffset = 0;
-        for (Exon exon : exonService.getSortedExons(transcript)) {
+        int offset = 0;
+        List<Exon> exons = exonService.getSortedExons(transcript)
+        if (exons.size() == 0) {
+            log.debug "FS::convertLocalCoordinateToSourceCoordinateForCDS() - No exons for given transcript"
+            return convertLocalCoordinateToSourceCoordinateForTranscript(cds, localCoordinate)
+        }
+        if (transcript.strand == Strand.NEGATIVE.value) {
+            exons.reverse()
+        }
+        for (Exon exon : exons) {
             if (!overlapperService.overlaps(cds, exon)) {
-                currentOffset += exon.getLength();
+                println "Exon and CDS don't overlap"
+                offset += exon.getLength();
                 continue;
             }
             else if (overlapperService.overlaps(cds, exon)) {
-                if (exon.fmin > cds.fmin && exon.fmax < cds.fmax) {
+                if (exon.fmin >= cds.fmin && exon.fmax <= cds.fmax) {
                     // exon falls within the boundaries of the CDS
                     continue
                 }
                 else {
                     // exon doesn't overlap completely with the CDS
-                    if (exon.fmin < cds.fmin) {
-                        currentOffset += cds.fmin - exon.fmin
+                    if (exon.fmin < cds.fmin && exon.strand == Strand.POSITIVE.value) {
+                        offset += cds.fmin - exon.fmin
                     }
-                    else if (exon.fmax > cds.fmax ) {
-                        currentOffset += exon.fmax - cds.fmax
+                    else if (exon.fmax > cds.fmax && exon.strand == Strand.NEGATIVE.value) {
+                        offset += exon.fmax - cds.fmax
                     }
                 }
             }
 
             if (exon.getFeatureLocation().getStrand() == Strand.NEGATIVE.value) {
-                currentOffset += exon.getFeatureLocation().getFmax() - exon.getFeatureLocation().getFmax();
+                offset += exon.getFeatureLocation().getFmax() - exon.getFeatureLocation().getFmax();
             } else {
-                currentOffset += exon.getFeatureLocation().getFmin() - exon.getFeatureLocation().getFmin();
+                offset += exon.getFeatureLocation().getFmin() - exon.getFeatureLocation().getFmin();
             }
             break;
         }
-        return convertLocalCoordinateToSourceCoordinateForTranscript(transcript, localCoordinate + currentOffset);
+        return convertLocalCoordinateToSourceCoordinateForTranscript(transcript, localCoordinate + offset);
     }
 
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature,
