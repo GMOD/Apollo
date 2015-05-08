@@ -9,6 +9,9 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -220,14 +223,22 @@ public class OrganismPanel extends Composite {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
-            List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
-            dataGrid.setSelectionModel(singleSelectionModel);
-            MainPanel.getInstance().getOrganismInfoList().clear();
-            MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
-            toggleSelectedTextBoxes();
-            OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
-            organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
-            Annotator.eventBus.fireEvent(organismChangeEvent);
+            JSONValue j=JSONParser.parseStrict(response.getText());
+            JSONObject o=j.isObject();
+            if(o.get("error")!=null) {
+                Window.alert(o.get("error").isString().stringValue());
+            }
+            else {
+                List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
+                dataGrid.setSelectionModel(singleSelectionModel);
+                MainPanel.getInstance().getOrganismInfoList().clear();
+                MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
+                toggleSelectedTextBoxes();
+                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
+                organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
+                Annotator.eventBus.fireEvent(organismChangeEvent);
+            }
+
         }
 
         @Override

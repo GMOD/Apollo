@@ -41,21 +41,37 @@ class OrganismController {
         def organismJson = JSON.parse(params.data.toString()) as JSONObject
         log.debug "organismJSON ${organismJson}"
         log.debug "id: ${organismJson.id}"
-        Organism organism = new Organism(
-                commonName: organismJson.commonName
-                , directory: organismJson.directory
-                , blatdb: organismJson.blatdb
-                , species: organismJson.species
-                , genus: organismJson.genus
-        )
-        log.debug "organism ${organism as JSON}"
-
-        checkOrganism(organism)
         try {
+            if(organismJson.get("commonName")==""||organismJson.get("directory")=="") {
+                def error= [error: 'problem saving organism: empty fields detected']
+                render error as JSON
+                log.error(error.error)
+                return
+            }
+
+
+            Organism organism = new Organism(
+                    commonName: organismJson.commonName
+                    , directory: organismJson.directory
+                    , blatdb: organismJson.blatdb
+                    , species: organismJson.species
+                    , genus: organismJson.genus
+            )
+            log.debug "organism ${organism as JSON}"
+
+            if(!checkOrganism(organism)) {
+                def error= [error: 'problem saving organism: invalid data directory specified']
+                render error as JSON
+                log.error(error.error)
+                return
+            }
             organism.save(failOnError: true, flush: true, insert: true)
             sequenceService.loadRefSeqs(organism)
         } catch (e) {
-            log.error("problem saving organism: " + e)
+            def error= [error: 'problem saving organism: invalid data directory specified']
+            render error as JSON
+            log.error(error.error)
+            return
         }
 
 
@@ -111,13 +127,16 @@ class OrganismController {
                 if (directoryChanged && checkOrganism(organism)) {
                     sequenceService.loadRefSeqs(organism)
                 }
+                else {
+                }
             } catch (e) {
                 log.error("Problem updating organism info: ${e}")
             }
             render findAllOrganisms()
         } else {
-            log.debug "organism not found ${organismJson}"
-            render { text: 'NOT updated' } as JSON
+            def error= [error: 'problem saving organism: organism not found']
+            render error as JSON
+            log.error(error.error)
         }
     }
 
@@ -130,7 +149,6 @@ class OrganismController {
         JSONArray jsonArray = new JSONArray()
         for (def organism in organismList) {
             Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
-//            Integer annotationCount = 0
             Integer sequenceCount = Sequence.countByOrganism(organism)
             JSONObject jsonObject = [
                     id             : organism.id,
