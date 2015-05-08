@@ -193,7 +193,7 @@ public class RecentChangeServlet extends HttpServlet {
                             continue;
                         }
 
-                        JEDatabase dataStore = new JEDatabase(my_database, false);
+                        JEDatabase dataStore = new JEDatabase(my_database, true);
                         JEHistoryDatabase historyDataStore = null;
                         try {
 
@@ -205,7 +205,7 @@ public class RecentChangeServlet extends HttpServlet {
                                 AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
 
                                 if (historyDataStore == null) {
-                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
+                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", true, 0);
                                 }
                                 List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
                                 for (String s : record) {
@@ -224,7 +224,7 @@ public class RecentChangeServlet extends HttpServlet {
                                 AbstractSingleLocationBioFeature gbolFeature = (AbstractSingleLocationBioFeature) BioObjectUtil.createBioObject(feature, bioObjectConfiguration);
 
                                 if (historyDataStore == null) {
-                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", false, 0);
+                                    historyDataStore = new JEHistoryDatabase(my_database + "_history", true , 0);
                                 }
                                 List<String> record = generateFeatureRecord(gbolFeature, track, historyDataStore, request);
                                 for (String s : record) {
@@ -238,6 +238,16 @@ public class RecentChangeServlet extends HttpServlet {
                         } catch (Exception e) {
                             System.err.println("Unable to read database history: " + my_database + "_history:\n" + e.fillInStackTrace());
                         } finally {
+                            try {
+                                if(dataStore!=null){
+                                    dataStore.close();
+                                }
+                                if(historyDataStore!=null){
+                                    historyDataStore.close();
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Unable to close database: " + my_database + "_history:\n" + e.fillInStackTrace());
+                            }
                             dataStore = null;
                             historyDataStore = null;
                         }
