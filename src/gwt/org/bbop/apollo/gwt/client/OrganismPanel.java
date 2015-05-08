@@ -81,7 +81,8 @@ public class OrganismPanel extends Composite {
     @UiField
     Button reloadButton;
 
-    boolean creatingNewOrganism=false;
+    boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
+    boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
 
     private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private List<OrganismInfo> organismInfoList = dataProvider.getList();
@@ -223,14 +224,14 @@ public class OrganismPanel extends Composite {
         validDirectory.setVisible(true);
     }
 
-    private class UpdateInfoListCallback implements  RequestCallback{
+    private class UpdateInfoListCallback implements  RequestCallback {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
-            JSONValue j=JSONParser.parseStrict(response.getText());
-            JSONObject o=j.isObject();
-            if(o!=null&&o.containsKey("error")) {
-                Window.alert(o.get("error").isString().stringValue());
+            JSONValue j = JSONParser.parseStrict(response.getText());
+            JSONObject obj = j.isObject();
+            if (obj != null && obj.containsKey("error")) {
+                Window.alert(obj.get("error").isString().stringValue());
                 changeButtonSelection();
                 setTextEnabled(false);
                 clearTextBoxes();
@@ -245,13 +246,20 @@ public class OrganismPanel extends Composite {
                 organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
             }
+            if(savingNewOrganism) {
+                savingNewOrganism=false;
+                setNoSelection();
+                changeButtonSelection(false);
+            }
         }
 
         @Override
         public void onError(Request request, Throwable exception) {
-            Window.alert("problem handling organism: "+exception);
+            Window.alert("Error: "+exception);
         }
     }
+
+
 
     public void clearSelections(){
         singleSelectionModel.clear();
@@ -268,6 +276,7 @@ public class OrganismPanel extends Composite {
         singleSelectionModel.clear();
 
         createButton.setText("Create Organism");
+        deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
         cancelButton.setEnabled(true);
         createButton.setEnabled(true);
@@ -284,7 +293,6 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("createButton")
     public void handleSaveNewOrganism(ClickEvent clickEvent) {
-        changeButtonSelection();
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
@@ -294,6 +302,8 @@ public class OrganismPanel extends Composite {
 
         createButton.setEnabled(false);
         createButton.setText("Processing");
+        savingNewOrganism=true;
+
         OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
     }
 
@@ -308,10 +318,11 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("deleteButton")
     public void handleDeleteOrganism(ClickEvent clickEvent) {
-        if(Window.confirm("Delete organism: "+singleSelectionModel.getSelectedObject().getName())){
+        if(Window.confirm("Are you sure you want to delete "+singleSelectionModel.getSelectedObject().getName())){
             deleteButton.setEnabled(false);
+            deleteButton.setText("Processing");
+            savingNewOrganism=true;
             OrganismRestService.deleteOrganism(new UpdateInfoListCallback(), singleSelectionModel.getSelectedObject());
-            setNoSelection();
         }
     }
 
