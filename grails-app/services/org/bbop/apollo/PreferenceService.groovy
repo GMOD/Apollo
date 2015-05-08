@@ -33,6 +33,7 @@ class PreferenceService {
                             user: user
                             , organism: organism
                             , sequence: Sequence.findByOrganism(organism)
+                            , currentOrganism: true
                     ).save()
                 }
                 else {
