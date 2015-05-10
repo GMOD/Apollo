@@ -100,6 +100,11 @@ class NameService {
 //    String generateUniqueNameFromSource(Feature sourceFeature,Feature thisFeature) {
 //        UUID.fromString(thisFeature.name.replaceFirst("\\W","")+"::"+sourceFeature.name.replaceFirst("\\W","")).toString()
 //    }
+    /**
+     * @deprecated . . . TODO: should use generateUniqueName and "instanceof Gene
+     * @param newGeneName
+     * @return
+     */
     String generateUniqueGeneName(String newGeneName) {
         String originalName  = newGeneName
         Gene gene = Gene.findByName(originalName)
@@ -111,4 +116,19 @@ class NameService {
         }
         return newGeneName
     }
+
+    boolean isUnique(Organism organism,String name){
+        return 0==((int) Feature.executeQuery("select count(t) from Feature t join t.featureLocation fl join fl.sequence s join s.organism org where org = :org and t.name = :name ",[org:organism,name:name]))
+    }
+
+    String makeUniqueFeatureName(Organism organism,String principalName,PaddingStrategy paddingStrategy){
+        String name
+        int i = 0
+        name = principalName + paddingStrategy.pad(i++)
+        while(!isUnique(organism,name)){
+            name = principalName + paddingStrategy.pad(i++)
+        }
+        return name
+    }
+
 }
