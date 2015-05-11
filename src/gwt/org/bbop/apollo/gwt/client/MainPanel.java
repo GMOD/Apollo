@@ -617,8 +617,8 @@ public class MainPanel extends Composite {
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
-        setCurrentSequence(sequenceNameString, start, end, false,true);
         if (!sequenceNameString.equals(currentSequence.getName())) {
+            setCurrentSequence(sequenceNameString, start, end, false,true);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
                 public boolean execute() {
