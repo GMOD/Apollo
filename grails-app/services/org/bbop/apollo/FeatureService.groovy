@@ -211,10 +211,7 @@ class FeatureService {
 //            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
             String geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
-//            if (Gene.countByName(geneName) > 0) {
-//                geneName = nameService.generateUniqueGeneName(geneName)
-//            }
-            nameService.generateUniqueGeneName(sequence.organism,geneName)
+            geneName = nameService.makeUniqueFeatureName(sequence.organism,geneName,new LetterPaddingStrategy(),true)
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
 //            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);

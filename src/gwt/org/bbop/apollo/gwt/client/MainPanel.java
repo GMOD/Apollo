@@ -593,6 +593,10 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleNavigationEvent(String payload) {
+//        Boolean canBlock = Window.confirm("can block?");
+//        if(canBlock){
+//            return;
+//        }
         if (handlingNavEvent) return;
 
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
@@ -602,6 +606,8 @@ public class MainPanel extends Composite {
         final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
+
+        
 
         setCurrentSequence(sequenceNameString, start, end);
 

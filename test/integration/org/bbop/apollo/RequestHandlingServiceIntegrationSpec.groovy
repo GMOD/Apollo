@@ -636,6 +636,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 0
 
         List<Gene> allGenes = Gene.all
+        assert allGenes.get(0).id != allGenes.get(1).id
         assert allGenes.get(0).name != allGenes.get(1).name
 
     }
