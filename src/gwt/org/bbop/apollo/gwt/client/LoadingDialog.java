@@ -12,12 +12,22 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
  */
 public class LoadingDialog extends Modal{
 
+    private Boolean showOnBuild = true ;
+
+    public LoadingDialog(boolean showOnConstruct){
+        this("Loading ...",null,showOnConstruct);
+    }
+
     public LoadingDialog(){
-        this("Loading ...",null);
+        this("Loading ...",null,true);
     }
 
 
-    public LoadingDialog(String title,String message){
+    public LoadingDialog(String title){
+        this(title,null,true);
+
+    }
+    public LoadingDialog(String title,String message,Boolean showOnConstruct){
         setTitle(title);
         setClosable(false);
         setFade(true);
@@ -29,6 +39,8 @@ public class LoadingDialog extends Modal{
             modalBody.add(content);
             add( modalBody );
         }
-        show();
+        if(showOnConstruct){
+            show();
+        }
     }
 }

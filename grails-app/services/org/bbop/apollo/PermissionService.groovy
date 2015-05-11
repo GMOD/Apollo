@@ -418,6 +418,14 @@ class PermissionService {
         return []
     }
 
+    public static String getSequenceNameFromInput(JSONObject inputObject) {
+        String trackName = null
+        if (inputObject.has("track")) {
+            trackName = fixTrackHeader(inputObject.track)
+        }
+        return trackName
+    }
+
     private static String fixTrackHeader(String trackInput) {
         return !trackInput.startsWith("Annotations-") ? trackInput : trackInput.substring("Annotations-".size())
     }

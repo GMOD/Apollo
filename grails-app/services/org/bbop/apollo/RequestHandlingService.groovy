@@ -38,6 +38,7 @@ class RequestHandlingService {
     def nameService
     def overlapperService
     def permissionService
+    def preferenceService
     def featurePropertyService
     def featureEventService
 
@@ -351,8 +352,18 @@ class RequestHandlingService {
 
     JSONObject getFeatures(JSONObject inputObject) {
 
+
+        String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
-        log.debug "getFeatures -> ${sequence.organism.commonName}"
+        if(sequenceName!=sequence.name){
+            sequence = Sequence.findByNameAndOrganism(sequenceName,sequence.organism)
+            preferenceService.setCurrentSequence(permissionService.getActiveUser(inputObject),sequence)
+        }
+
+
+
+//        if(permissionService.fixTrackHeader(inputObject.))
+        println "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
         Set<Feature> featureSet = new HashSet<>()
 

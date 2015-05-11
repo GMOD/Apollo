@@ -144,18 +144,25 @@ public class MainPanel extends Composite {
         sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null,true);
+                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null, true,false);
             }
         });
 
 
         loginUser();
     }
+
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
-        setCurrentSequence(sequenceNameString,start,end,false);
+        setCurrentSequence(sequenceNameString, start, end, false, false);
     }
 
-    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end,final boolean updateViewer) {
+
+    private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end, final boolean updateViewer, final boolean blocking) {
+
+        final LoadingDialog loadingDialog = new LoadingDialog(false);
+        if (blocking) {
+            loadingDialog.show();
+        }
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -167,23 +174,30 @@ public class MainPanel extends Composite {
                 currentEndBp = end != null ? end : currentSequence.getEnd();
                 sequenceSuggestBox.setText(currentSequence.getName());
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS,currentSequence.getName()));
 
-                if(updateViewer){
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName()));
+
+                if (updateViewer) {
                     updateGenomicViewer();
+                }
+                if (blocking) {
+                    loadingDialog.hide();
                 }
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
                 handlingNavEvent = false;
+                if (blocking) {
+                    loadingDialog.hide();
+                }
                 Window.alert("failed to set JBrowse sequence: " + exception);
             }
         };
 
-        handlingNavEvent = true ;
-
+        handlingNavEvent = true;
         SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+
     }
 
 //    private static void setCurrentSequenceAndRefresh(final String sequenceNameString, final Integer start, final Integer end) {
@@ -389,9 +403,9 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue j=JSONParser.parseStrict(response.getText());
-                JSONObject obj=j.isObject();
-                if(obj!=null&&obj.containsKey("error")) {
+                JSONValue j = JSONParser.parseStrict(response.getText());
+                JSONObject obj = j.isObject();
+                if (obj != null && obj.containsKey("error")) {
                     Window.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
@@ -491,11 +505,11 @@ public class MainPanel extends Composite {
     }
 
     @UiHandler("closeUrlButton")
-    public void closeUrl(ClickEvent clickEvent){
+    public void closeUrl(ClickEvent clickEvent) {
         closeLink();
     }
 
-    public void closeLink(){
+    public void closeLink() {
 //        linkUrl.setHTML("");
         linkPanel.setVisible(false);
         mainSplitPanel.setWidgetSize(linkPanel, 0);
@@ -503,11 +517,10 @@ public class MainPanel extends Composite {
     }
 
     @UiHandler("generateLink")
-    public void toggleLink(ClickEvent clickEvent){
-        if(linkPanel.isVisible()) {
+    public void toggleLink(ClickEvent clickEvent) {
+        if (linkPanel.isVisible()) {
             closeLink();
-        }
-        else{
+        } else {
             generateLink();
         }
     }
@@ -593,23 +606,32 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleNavigationEvent(String payload) {
-//        Boolean canBlock = Window.confirm("can block?");
-//        if(canBlock){
-//            return;
-//        }
-        if (handlingNavEvent) return;
+        if(handlingNavEvent) return ;
 
+        handlingNavEvent = true ;
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
-        GWT.log("Caught event: " + navEvent.toString());
+//        GWT.log("Caught event: " + navEvent.toString());
 
 
         final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
-        
+        setCurrentSequence(sequenceNameString, start, end, false,true);
+        if (!sequenceNameString.equals(currentSequence.getName())) {
+            Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+                @Override
+                public boolean execute() {
+//                    Window.alert("waiting for this to be false: "+handlingNavEvent);
+                    return handlingNavEvent;
+                }
+            },200);
 
-        setCurrentSequence(sequenceNameString, start, end);
+        } else {
+            // asynchrouns
+            setCurrentSequence(sequenceNameString, start, end);
+        }
+
 
 //        if (detailTabs.getSelectedIndex() == 0) {
 //            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
