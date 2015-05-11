@@ -66,8 +66,8 @@ class NameService {
                 if(!principalName){
                     principalName = ((Exon) thisFeature).name
                 }
-                Integer exonNumber = 1
                 return makeUniqueFeatureName(organism,principalName.trim(),new LeftPaddingStrategy())
+//                Integer exonNumber = 1
 //                String exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
 //                Exon exon = Exon.findByName(exonName)
 //                while (exon != null) {
@@ -107,29 +107,35 @@ class NameService {
 //        UUID.fromString(thisFeature.name.replaceFirst("\\W","")+"::"+sourceFeature.name.replaceFirst("\\W","")).toString()
 //    }
     /**
-     * @deprecated . . . TODO: should use generateUniqueName and "instanceof Gene
+//     * @deprecated . . . TODO: should use generateUniqueName and "instanceof Gene
      * @param newGeneName
      * @return
      */
-    String generateUniqueGeneName(String newGeneName) {
-        String originalName  = newGeneName
-        Gene gene = Gene.findByName(originalName)
-        char transcriptLetter = 'a'
-        while (gene != null) {
-            newGeneName = originalName.trim() + transcriptLetter
-            gene = Gene.findByName(newGeneName)
-            ++transcriptLetter
-        }
-        return newGeneName
+    String generateUniqueGeneName(Organism organism,String newGeneName) {
+        return makeUniqueFeatureName(organism,newGeneName,new LetterPaddingStrategy())
+//        if(!isUnique(organism,newGeneName)){
+//
+//        }
+//        return newGeneName
+//        String originalName  = newGeneName
+//        Gene gene = Gene.findByName(originalName)
+//        char transcriptLetter = 'a'
+//        while (gene != null) {
+//            newGeneName = originalName.trim() + transcriptLetter
+//            gene = Gene.findByName(newGeneName)
+//            ++transcriptLetter
+//        }
+//        return newGeneName
     }
 
     boolean isUnique(Organism organism,String name){
-        return 0==((int) Feature.executeQuery("select count(t) from Feature t join t.featureLocation fl join fl.sequence s join s.organism org where org = :org and t.name = :name ",[org:organism,name:name]))
+        List results = (Feature.executeQuery("select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism org where org = :org and f.name = :name ",[org:organism,name:name]))
+        return 0 == (int) results.get(0)
     }
 
     String makeUniqueFeatureName(Organism organism,String principalName,PaddingStrategy paddingStrategy){
         String name
-        int i = 0
+        int i = 1
         name = principalName + paddingStrategy.pad(i++)
         while(!isUnique(organism,name)){
             name = principalName + paddingStrategy.pad(i++)
