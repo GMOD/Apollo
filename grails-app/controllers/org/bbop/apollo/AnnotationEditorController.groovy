@@ -54,7 +54,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def sequenceSearchService
 
 
-
     def index() {
         log.debug "bang "
     }
@@ -200,20 +199,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def addFeature() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addFeature(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def setExonBoundaries() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setExonBoundaries(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -221,10 +218,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def addExon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addExon(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -238,10 +234,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def addTranscript() {
         log.debug "AEC::adding transcript ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addTranscript(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -249,10 +244,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def duplicateTranscript() {
         log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.duplicateTranscript(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -260,10 +254,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def setTranslationStart() {
         log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationStart(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -271,10 +264,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def setTranslationEnd() {
         log.debug "AEC::set translation end ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationEnd(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -282,10 +274,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def setBoundaries() {
         log.debug "AEC::set boundaries ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setBoundaries(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -415,80 +406,72 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
 //        return requestHandlingService.setDescription(inputObject)
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setDescription(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def setSymbol() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setSymbol(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def setReadthroughStopCodon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setReadthroughStopCodon(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def addSequenceAlteration() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addSequenceAlteration(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def deleteSequenceAlteration() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteSequenceAlteration(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def flipStrand() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.flipStrand(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def mergeExons() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.mergeExons(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def splitExon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.splitExon(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -496,50 +479,45 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def deleteFeature() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteFeature(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def deleteExon() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteExon(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def makeIntron() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.makeIntron(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def splitTranscript() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.splitTranscript(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
 
     def mergeTranscripts() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+        if (hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.mergeTranscripts(inputObject)
-        }
-        else{
+        } else {
             render status: HttpStatus.UNAUTHORIZED
         }
     }
@@ -547,7 +525,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getSequence() {
         log.debug "getSequence ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if (!hasPermissions(inputObject,PermissionEnum.EXPORT)) {
+        if (!hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -565,7 +543,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def searchSequence() {
         log.debug "sequenceSearch ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if(!hasPermissions(inputObject,PermissionEnum.READ)) {
+        if (!hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -578,7 +556,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getGff3() {
         log.debug "getGff3 ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        if (!hasPermissions(inputObject,PermissionEnum.EXPORT)) {
+        if (!hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -775,9 +753,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
-    private Boolean hasPermissions(JSONObject jsonObject,PermissionEnum permissionEnum) {
+    private Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         Session session = SecurityUtils.subject.getSession(false)
-        if(!session){
+        if (!session) {
             // login with jsonObject tokens
             println "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
@@ -786,43 +764,42 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 session = subject.getSession(true);
                 println "should have created a session now ${session}"
                 subject.login(authToken)
-                if(!subject.authenticated){
+                if (!subject.authenticated) {
                     log.error "Failed to authenticate user ${jsonObject.username}"
                     return false
                 }
             } catch (Exception ae) {
-                log.error("Problem authenticating: "+ae.fillInStackTrace())
+                log.error("Problem authenticating: " + ae.fillInStackTrace())
                 return false
             }
         }
-        else{
-            println "still has session!"
-        }
+
 
         Organism organism = permissionService.getCurrentOrganismPreference().organism
-        if(jsonObject.organsim){
-            organism = Organism.findById(jsonObject.organism)
-            if(!organism){
-                organism = Organism.findByCommonName(jsonObject.organism)
+        println "passing in an organism ${jsonObject.organism}"
+        if (jsonObject.organism) {
+            Organism thisOrganism = null
+            try {
+                thisOrganism = Organism.findById(jsonObject.organism as Long)
+            } catch (npe) {
+                // obviously not a long type
             }
-            if(!organism){
-                organism = Organism.findByAbbreviation(jsonObject.organism)
+            if (!thisOrganism) {
+                thisOrganism = Organism.findByCommonName(jsonObject.organism)
             }
+            if (!thisOrganism) {
+                thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
+            }
+            if(organism.id!=thisOrganism.id){
+                println "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
+                organism = thisOrganism
+            }
+            println "final orgag ${organism.commonName}"
+            preferenceService.setCurrentOrganism(permissionService.getCurrentUser(), organism)
         }
 
-        return permissionService.checkPermissions(jsonObject,organism,permissionEnum)
+        return permissionService.checkPermissions(jsonObject, organism, permissionEnum)
 
     }
 
-    private def handlePermissions(PermissionEnum permissionEnum,JSONObject inputObject, String methodName) {
-        methodName = StackTraceUtils.sanitize(new Throwable()).stackTrace[4].methodName
-        println "seriously handlign it this way? ${methodName}"
-        if(hasPermissions(inputObject,permissionEnum)) {
-            requestHandlingService.invokeMethod(methodName,inputObject)
-//            render requestHandlingService.$methodName(inputObject)
-        }
-        else{
-            render status: HttpStatus.UNAUTHORIZED
-        }
-    }
 }

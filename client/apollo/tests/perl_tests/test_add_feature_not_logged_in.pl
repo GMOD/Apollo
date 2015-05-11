@@ -16,6 +16,7 @@ my $url;
 my $session_id;
 my $help;
 my $trackname;
+my $organism;
 my $feature_data;
 
 $| = 1;
@@ -28,6 +29,7 @@ sub parse_options {
            "password|p=s"       => \$password,
            "url|U=s"            => \$url,
            "track|t=s"            => \$trackname,
+           "organism|o=s"            => \$organism,
            "prefix|P=s"           => \$annotation_track_prefix,
            "featuredata|F=s"           => \$feature_data,
            "help|h"             => \$help);
@@ -48,11 +50,13 @@ usage: $progname
     --username|-u <username>
     --password|-p <password>
     --track|-t <trackname>
+    [--organism|-o <organism id, commonName, abbrev>]
     [--prefix|-P <trackname>]
 
     U: URL to WebApollo instance
     u: username to access WebApollo
     p: password to access WebApollo
+    o: organism to over-ride (or we user default)
     t: trackname to delete tracks on
     P: annotation track prefix [default: Annotations-]
     F: feature data
@@ -75,8 +79,9 @@ my $track=$annotation_track_prefix.$trackname;
 
 #my $feature_result=`curl --data '{ "username": '$username', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
 
-my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "add_feature" }' $url/AnnotationEditorService 2> /dev/null`;
+#my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "add_feature" }' $url/AnnotationEditorService 2> /dev/null`;
 #my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "delete_feature" }' $url/AnnotationEditorService 2> /dev/null`;
+my $feature_result=`curl --data '{ "username": '$username', "password":'$password',"track": "$track", "features": $feature_data, "operation": "add_transcript","organism": '$organism' }' $url/AnnotationEditorService 2> /dev/null`;
 
 print $feature_result . "\n";
 
