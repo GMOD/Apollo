@@ -81,7 +81,7 @@ class NameService {
                 if(!principalName){
                     principalName = thisFeature.name
                 }
-                return makeUniqueFeatureName(organism,principalName.trim(),new LeftPaddingStrategy())
+                return makeUniqueFeatureName(organism,principalName.trim(),new LetterPaddingStrategy())
 //                Integer exonNumber = 1
 //                String exonName = principalName.trim() + "-" + exonNumber.toString().padLeft(5,"0")
 //                Feature exon = Feature.findByName(exonName)
@@ -135,7 +135,7 @@ class NameService {
 
     String makeUniqueFeatureName(Organism organism,String principalName,PaddingStrategy paddingStrategy){
         String name
-        int i = 1
+        int i = 0
         name = principalName + paddingStrategy.pad(i++)
         while(!isUnique(organism,name)){
             name = principalName + paddingStrategy.pad(i++)

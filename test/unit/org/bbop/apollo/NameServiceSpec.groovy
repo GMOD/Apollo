@@ -15,6 +15,15 @@ class NameServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "a service test"() {
+    void "letter padding strategy should work"() {
+
+        when: "we have 1"
+        LetterPaddingStrategy letterPaddingStrategy = new LetterPaddingStrategy()
+
+        then: "assert a"
+        assert "a" == letterPaddingStrategy.pad(0)
+        assert "b" == letterPaddingStrategy.pad(1)
+        assert "c" == letterPaddingStrategy.pad(2)
+
     }
 }

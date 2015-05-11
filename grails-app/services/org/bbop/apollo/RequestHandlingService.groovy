@@ -1409,7 +1409,9 @@ class RequestHandlingService {
                 }
             }
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
-            newFeature.name = nameService.generateUniqueName(newFeature, sequence.name)
+            String principalName = newFeature.name
+            println "principal name ${principalName}"
+            newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
             featurePropertyService.setOwner(newFeature, user);
@@ -1427,7 +1429,7 @@ class RequestHandlingService {
                         }
                     }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-                    transcript.name = nameService.generateUniqueName(transcript, sequence.name)
+                    transcript.name = nameService.generateUniqueName(transcript, newFeature.name)
                     transcript.uniqueName = nameService.generateUniqueName()
                     featurePropertyService.setOwner(transcript, user)
 
