@@ -581,7 +581,10 @@ class PermissionService {
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
+            println "where did my session go ${session}"
+            println "what are the attriburtes? ${session.attributeKeys}"
             Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+            println "did I get permissions? ${permissions}"
             Integer permission = permissions.get(SecurityUtils.subject.principal)
             PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
@@ -602,7 +605,6 @@ class PermissionService {
 
     }
 
-    //def checkPermissions(PermissionEnum userPermssionEnum,PermissionEnum requiredPermissionEnum){
     def checkPermissions(JSONObject jsonObject, Organism organism, PermissionEnum requiredPermissionEnum) {
 
         if (Environment.current == Environment.TEST && !jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) {
@@ -622,6 +624,8 @@ class PermissionService {
             //return false
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
+
+        return highestValue
     }
 
     UserOrganismPreference getCurrentOrganismPreference(){

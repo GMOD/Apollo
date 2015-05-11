@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.session.Session
+import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import org.apache.shiro.SecurityUtils
@@ -7,6 +10,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
+import org.springframework.http.HttpStatus
 
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -47,6 +51,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def permissionService
     def preferenceService
     def sequenceSearchService
+
+//    def beforeInterceptor = [
+//            action: this.&hasPermissions(), except: 'login'
+//    ]
+
 
 
     def index() {
@@ -160,15 +169,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     /**
-     * {"features":[{"history":[{"operation":"ADD_TRANSCRIPT","editor":"demo","features":[{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"GB48495-RA","children":[{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"92B60BEAD109A624CEF0FCEB35B43626","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1429620837934,"parent_id":"9F9DC83A33887BCF8A04602BA64400DE"},{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"uniquename":"9F9DC83A33887BCF8A04602BA64400DE-CDS","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1429620837936,"parent_id":"9F9DC83A33887BCF8A04602BA64400DE"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"9F9DC83A33887BCF8A04602BA64400DE","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1429620837936,"parent_id":"B17EAF82B869C17A0F37A2B12E552E9C"}],"current":true,"date":"4/21/15 5:53 AM"}],"uniquename":"9F9DC83A33887BCF8A04602BA64400DE"}]}
-     * @return
+     *{"features":[{"history":[{"operation":"ADD_TRANSCRIPT","editor":"demo","features":[{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"GB48495-RA","children":[{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"92B60BEAD109A624CEF0FCEB35B43626","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1429620837934,"parent_id":"9F9DC83A33887BCF8A04602BA64400DE"},{"location":{"fmin":1248,"strand":-1,"fmax":1422},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"uniquename":"9F9DC83A33887BCF8A04602BA64400DE-CDS","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1429620837936,"parent_id":"9F9DC83A33887BCF8A04602BA64400DE"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"9F9DC83A33887BCF8A04602BA64400DE","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1429620837936,"parent_id":"B17EAF82B869C17A0F37A2B12E552E9C"}],"current":true,"date":"4/21/15 5:53 AM"}],"uniquename":"9F9DC83A33887BCF8A04602BA64400DE"}]}* @return
      */
     def getHistoryForFeatures() {
         log.debug "getting history !! ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject,PermissionEnum.READ)
+        permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
         JSONObject historyContainer = createJSONFeatureContainer();
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
@@ -179,7 +187,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName,[sort:"dateCreated",order:"asc"])
+            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
             for (int j = 0; j < transactionList.size(); ++j) {
                 FeatureEvent transaction = transactionList.get(j);
                 JSONObject historyItem = new JSONObject();
@@ -188,16 +196,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
                 if (transaction.current) {
                     historyItem.put(FeatureStringEnum.CURRENT.value, true);
-                }
-                else{
+                } else {
                     historyItem.put(FeatureStringEnum.CURRENT.value, false);
                 }
                 JSONArray historyFeatures = new JSONArray();
                 historyItem.put(FeatureStringEnum.FEATURES.value, historyFeatures);
 
-                if(transaction.newFeaturesJsonArray){
-                    JSONArray newFeaturesJsonArray =(JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
-                    for ( int featureIndex  = 0 ; featureIndex < newFeaturesJsonArray.size() ; featureIndex++) {
+                if (transaction.newFeaturesJsonArray) {
+                    JSONArray newFeaturesJsonArray = (JSONArray) JSON.parse(transaction.newFeaturesJsonArray)
+                    for (int featureIndex = 0; featureIndex < newFeaturesJsonArray.size(); featureIndex++) {
                         JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
                         // TODO: this needs to be functional
                         if (false && transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
@@ -205,7 +212,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
 ////                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
 //                            historyFeatures.put(featureService.convertFeatureToJSON(f));
-                        throw new RuntimeException("split transcript operations not supported yet")
+                            throw new RuntimeException("split transcript operations not supported yet")
                         }
 //                    } else {
 //                        historyFeatures.put(featureService.convertFeatureToJSON(f));
@@ -262,7 +269,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def addTranscript() {
         log.debug "AEC::adding transcript ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-        render requestHandlingService.addTranscript(inputObject)
+        if(hasPermissions(inputObject,PermissionEnum.WRITE)) {
+            render requestHandlingService.addTranscript(inputObject)
+        }
+        else{
+            render status: HttpStatus.UNAUTHORIZED
+        }
     }
 
     def duplicateTranscript() {
@@ -372,10 +384,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     def getOrganism() {
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
-        if(organism){
+        if (organism) {
             render organism as JSON
-        }
-        else {
+        } else {
             render new JSONObject()
         }
     }
@@ -704,4 +715,53 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
+    private Boolean hasPermissions(PermissionEnum permissionEnum) {
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if(!hasPermissions(inputObject,permissionEnum)){
+            render status: HttpStatus.UNAUTHORIZED
+            return false
+        }
+
+        return true
+    }
+
+    private Boolean hasPermissions(JSONObject jsonObject,PermissionEnum permissionEnum) {
+        Session session = SecurityUtils.subject.getSession(false)
+        if(!session){
+            // login with jsonObject tokens
+            println "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
+            try {
+                Subject subject = SecurityUtils.getSubject();
+                session = subject.getSession(true);
+                println "should have created a session now ${session}"
+                subject.login(authToken)
+                if(!subject.authenticated){
+                    log.error "Failed to authenticate user ${jsonObject.username}"
+                    return false
+                }
+            } catch (Exception ae) {
+                log.error("Problem authenticating: "+ae.fillInStackTrace())
+                return false
+            }
+        }
+        else{
+            println "still has session!"
+        }
+
+        Organism organism = permissionService.getCurrentOrganismPreference().organism
+        if(jsonObject.organsim){
+            organism = Organism.findById(jsonObject.organism)
+            if(!organism){
+                organism = Organism.findByCommonName(jsonObject.organism)
+            }
+            if(!organism){
+                organism = Organism.findByAbbreviation(jsonObject.organism)
+            }
+        }
+
+
+        return permissionService.checkPermissions(jsonObject,organism,permissionEnum)
+
+    }
 }

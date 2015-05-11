@@ -69,6 +69,10 @@ my $track=$annotation_track_prefix.$trackname;
 #[{"location":{"fmin":559153,"fmax":559540,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"GB42178-RA","children":[{"location":{"fmin":559153,"fmax":559540,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}}]}]
 
 #my $feature_result=`curl -b cookies.txt -c cookies.txt --data '{ "username": '$username', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
+
+
+#my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
+
 my $feature_result=`curl --data '{ "username": '$username', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
 
 print $feature_result . "\n";
