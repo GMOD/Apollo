@@ -73,7 +73,10 @@ my $track=$annotation_track_prefix.$trackname;
 
 #my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
 
-my $feature_result=`curl --data '{ "username": '$username', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
+#my $feature_result=`curl --data '{ "username": '$username', "track": "$track", "features": $feature_data, "operation": "add_transcript" }' $url/AnnotationEditorService 2> /dev/null`;
+
+my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "add_feature" }' $url/AnnotationEditorService 2> /dev/null`;
+#my $feature_result=`curl --data '{ "username": '$username', "password":'$password', "track": "$track", "features": $feature_data, "operation": "delete_feature" }' $url/AnnotationEditorService 2> /dev/null`;
 
 print $feature_result . "\n";
 
