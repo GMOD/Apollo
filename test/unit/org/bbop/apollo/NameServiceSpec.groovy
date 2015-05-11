@@ -15,6 +15,6 @@ class NameServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void ""() {
+    void "a service test"() {
     }
 }
