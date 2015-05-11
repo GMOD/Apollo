@@ -12,8 +12,8 @@ public class AnnotationInfo {
     private String uniqueName;
     private String name;
     private String type;
-    private Integer min ;
-    private Integer max ;
+    private Integer min;
+    private Integer max;
     private Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
     private String symbol;
     private String description;
@@ -24,6 +24,13 @@ public class AnnotationInfo {
     private String owner;
 
     public String getOwner() {
+        return owner;
+    }
+
+    public String getOwnerString() {
+        if (owner == null) {
+            return "";
+        }
         return owner;
     }
 
@@ -48,10 +55,10 @@ public class AnnotationInfo {
     }
 
     public Integer getLength() {
-        if(min!=null && max!=null){
-            return max - min ;
+        if (min != null && max != null) {
+            return max - min;
         }
-        return -1 ;
+        return -1;
     }
 
     public Integer getMin() {
@@ -78,7 +85,7 @@ public class AnnotationInfo {
         this.uniqueName = uniqueName;
     }
 
-    public void addChildAnnotation(AnnotationInfo annotationInfo){
+    public void addChildAnnotation(AnnotationInfo annotationInfo) {
         annotationInfoSet.add(annotationInfo);
     }
 

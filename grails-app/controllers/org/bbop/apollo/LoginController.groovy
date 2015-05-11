@@ -165,7 +165,6 @@ class LoginController extends AbstractApolloController {
                 m["targetUri"] = jsonObj.targetUri
             }
             m.error="Incorrect login"
-            log.debug "BLAHBLA"
             // Now redirect back to the login page.
             //redirect(action: "login", params: m)
             render m as JSON

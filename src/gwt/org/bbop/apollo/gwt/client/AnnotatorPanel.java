@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
@@ -28,16 +29,21 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -86,9 +92,19 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static TabLayoutPanel tabPanel;
     @UiField
-    Button cdsButton;
+    ListBox userField;
+//    @UiField
+//    ListBox groupField;
+//    @UiField
+//    Row userFilterRow;
     @UiField
-    Button stopCodonButton;
+    SplitLayoutPanel splitPanel;
+    @UiField
+    Container northPanelContainer;
+//    @UiField
+//    Button cdsButton;
+//    @UiField
+//    Button stopCodonButton;
 
 
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -131,7 +147,6 @@ public class AnnotatorPanel extends Composite {
 
         initializeTypes();
         initializeUsers();
-        initializeGroups();
 
         sequenceList.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
@@ -197,34 +212,57 @@ public class AnnotatorPanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                if(organismChangeEvent.getAction()== OrganismChangeEvent.Action.LOADED_ORGANISMS){
+                if (organismChangeEvent.getAction() == OrganismChangeEvent.Action.LOADED_ORGANISMS) {
                     sequenceList.setText(organismChangeEvent.getCurrentSequence());
                     reload();
                 }
-//                if(organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
-//                    sequenceOracle.clear();
-////                    for (SequenceInfo sequenceInfo : MainPanel.getInstance().getCurrentSequenceList()) {
-////                        sequenceOracle.add(sequenceInfo.getName());
-////                    }
-//                    if(MainPanel.getInstance().getCurrentSequence()!=null) {
-//                        sequenceList.setText(MainPanel.getInstance().getCurrentSequence().getName());
-//                        loadOrganismAndSequence(MainPanel.getInstance().getCurrentSequence().getName());
-//                    }
-//                }
-//                else{
-//                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
-//                }
+            }
+        });
+
+
+        userField.setVisible(false);
+//        groupField.setVisible(false);
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if (MainPanel.getInstance().isCurrentUserAdmin()) {
+//                    splitPanel.setWidgetSize(northPanelContainer, 150);
+                    userField.setVisible(true);
+//                    groupField.setVisible(true);
+                } else {
+                    userField.setVisible(false);
+//                    splitPanel.setWidgetSize(northPanelContainer, 100);
+                }
             }
         });
 
     }
 
-    private void initializeGroups() {
-//        groupField.addItem("All Groups");
-    }
 
     private void initializeUsers() {
-//        userField.addItem("All Users");
+        userField.clear();
+        userField.addItem("All Users","");
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+
+                for(int i = 0 ; i < array.size() ; i++){
+                    JSONObject object = array.get(i).isObject();
+                    UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
+                    userField.addItem(userInfo.getName(),userInfo.getEmail());
+                }
+
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error retrieving users: "+exception.fillInStackTrace());
+            }
+        };
+        UserRestService.loadUsers(requestCallback);
     }
 
     private void initializeTypes() {
@@ -237,8 +275,8 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("ncRNA");
         typeList.addItem("rRNA");
         typeList.addItem("miRNA");
-        typeList.addItem("transposable_element");
-        typeList.addItem("repeat_region");
+        typeList.addItem("Transposable Element","transposable_element");
+        typeList.addItem("Repeat Region","repeat_region");
         // TODO: add rest
     }
 
@@ -289,44 +327,44 @@ public class AnnotatorPanel extends Composite {
                 GWT.log("not sure what to do with " + type);
         }
     }
-    
+
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
         // this method is for firing AnnotationInfoChangeEvent for single level features such as transposable_element and repeat_region
         AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
         Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
     }
-    
-    @UiHandler("stopCodonButton")
-    // switch between states
-    public void handleStopCodonStuff(ClickEvent clickEvent) {
-        if (stopCodonButton.getIcon().equals(IconType.BAN)) {
-            stopCodonButton.setIcon(IconType.WARNING);
-            stopCodonButton.setType(ButtonType.WARNING);
-        } else if (stopCodonButton.getIcon().equals(IconType.WARNING)) {
-            stopCodonButton.setIcon(IconType.FILTER);
-            stopCodonButton.setType(ButtonType.PRIMARY);
-        } else {
-            stopCodonButton.setIcon(IconType.BAN);
-            stopCodonButton.setType(ButtonType.DEFAULT);
-        }
-        filterList();
-    }
 
-    @UiHandler("cdsButton")
-    // switch between states
-    public void handleCdsStuff(ClickEvent clickEvent) {
-        if (cdsButton.getIcon().equals(IconType.BAN)) {
-            cdsButton.setIcon(IconType.WARNING);
-            cdsButton.setType(ButtonType.WARNING);
-        } else if (cdsButton.getIcon().equals(IconType.WARNING)) {
-            cdsButton.setIcon(IconType.FILTER);
-            cdsButton.setType(ButtonType.PRIMARY);
-        } else {
-            cdsButton.setIcon(IconType.BAN);
-            cdsButton.setType(ButtonType.DEFAULT);
-        }
-        filterList();
-    }
+//    @UiHandler("stopCodonButton")
+//    // switch between states
+//    public void handleStopCodonStuff(ClickEvent clickEvent) {
+//        if (stopCodonButton.getIcon().equals(IconType.BAN)) {
+//            stopCodonButton.setIcon(IconType.WARNING);
+//            stopCodonButton.setType(ButtonType.WARNING);
+//        } else if (stopCodonButton.getIcon().equals(IconType.WARNING)) {
+//            stopCodonButton.setIcon(IconType.FILTER);
+//            stopCodonButton.setType(ButtonType.PRIMARY);
+//        } else {
+//            stopCodonButton.setIcon(IconType.BAN);
+//            stopCodonButton.setType(ButtonType.DEFAULT);
+//        }
+//        filterList();
+//    }
+//
+//    @UiHandler("cdsButton")
+//    // switch between states
+//    public void handleCdsStuff(ClickEvent clickEvent) {
+//        if (cdsButton.getIcon().equals(IconType.BAN)) {
+//            cdsButton.setIcon(IconType.WARNING);
+//            cdsButton.setType(ButtonType.WARNING);
+//        } else if (cdsButton.getIcon().equals(IconType.WARNING)) {
+//            cdsButton.setIcon(IconType.FILTER);
+//            cdsButton.setType(ButtonType.PRIMARY);
+//        } else {
+//            cdsButton.setIcon(IconType.BAN);
+//            cdsButton.setType(ButtonType.DEFAULT);
+//        }
+//        filterList();
+//    }
 
     private void initializeTable() {
         // View friends.
@@ -369,13 +407,13 @@ public class AnnotatorPanel extends Composite {
             public String getValue(AnnotationInfo annotationInfo) {
 
                 String type = annotationInfo.getType();
-                switch (type){
+                switch (type) {
                     case "repeat_region":
                         return "repeat reg";
                     case "transposable_element":
                         return "transp elem";
                     default:
-                        return type ;
+                        return type;
                 }
             }
         };
@@ -420,7 +458,7 @@ public class AnnotatorPanel extends Composite {
 //                }
 //            }
 //        }, ClickEvent.getType());
-        
+
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
         dataGrid.addColumnSortHandler(sortHandler);
 
@@ -451,13 +489,13 @@ public class AnnotatorPanel extends Composite {
 
 
     }
-    
+
     private String getType(JSONObject internalData) {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
-    public void loadOrganismAndSequence(String sequenceName){
-        String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName +"&request="+requestIndex;
+    public void loadOrganismAndSequence(String sequenceName) {
+        String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName + "&request=" + requestIndex;
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         RequestCallback requestCallback = new RequestCallback() {
@@ -466,11 +504,10 @@ public class AnnotatorPanel extends Composite {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
                 // returns
-                if(localRequestValue<=requestIndex){
+                if (localRequestValue <= requestIndex) {
                     return;
-                }
-                else{
-                    requestIndex = localRequestValue ;
+                } else {
+                    requestIndex = localRequestValue;
                 }
 
                 JSONArray array = returnValue.isObject().get("features").isArray();
@@ -531,10 +568,13 @@ public class AnnotatorPanel extends Composite {
     private boolean searchMatches(AnnotationInfo annotationInfo) {
         String nameText = nameSearchBox.getText();
         String typeText = typeList.getSelectedValue();
+        String userText = userField.getSelectedValue();
         return (
                 (annotationInfo.getName().toLowerCase().contains(nameText.toLowerCase()))
                         &&
                         annotationInfo.getType().toLowerCase().contains(typeText.toLowerCase())
+                &&
+                        annotationInfo.getOwner().toLowerCase().contains(userText)
         );
 
     }
@@ -583,7 +623,7 @@ public class AnnotatorPanel extends Composite {
         return annotationInfo;
     }
 
-    @UiHandler("typeList")
+    @UiHandler( value ={"typeList","userField" })
     public void searchType(ChangeEvent changeEvent) {
         filterList();
     }

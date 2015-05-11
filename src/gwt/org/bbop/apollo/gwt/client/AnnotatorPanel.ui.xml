@@ -76,7 +76,7 @@
         }
 
         .typeList {
-            margin-left: 20px;
+            margin-left: 10px;
         }
 
         .searchBox {
@@ -93,10 +93,10 @@
             padding-left: 0;
         }
     </ui:style>
-    <gwt:SplitLayoutPanel>
+    <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">
             <!--<gwt:HTML text="filterPanel"/>-->
-            <b:Container fluid="true" styleName="{style.northPanel}">
+            <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
                     <b:Column size="MD_3">
                         <gwt:HTML>
@@ -104,7 +104,7 @@
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_5">
-                        <gwt:SuggestBox ui:field="sequenceList" width="200px" />
+                        <gwt:SuggestBox ui:field="sequenceList" width="200px"/>
                     </b:Column>
                 </b:Row>
                 <b:Row>
@@ -112,69 +112,23 @@
                         <table>
                             <tr>
                                 <td>
-                                    <b:TextBox placeholder="Search Annotation Name" width="300px" ui:field="nameSearchBox" addStyleNames="{style.searchBox}"/>
+                                    <b:TextBox placeholder="Search Annotation Name" width="250px"
+                                               ui:field="nameSearchBox" addStyleNames="{style.searchBox}"/>
                                 </td>
                                 <td>
                                     <b:ListBox ui:field="typeList" width="150px" addStyleNames="{style.typeList}"/>
                                 </td>
+                                <td>
+                                    <b:ListBox ui:field="userField"  addStyleNames="{style.typeList}"/>
+                                </td>
                             </tr>
                         </table>
                     </gwt:HTMLPanel>
-                    <!--<b:Column size="MD_3" styleName="{style.widgetPanel}">-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_1">-->
-                        <!--<gwt:HTML>-->
-                            <!--<h6>Type</h6>-->
-                        <!--</gwt:HTML>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_2" styleName="{style.widgetPanel}">-->
-                        <!--<gwt:FlowPanel>-->
-                            <!--<b:Label text="Type"/>-->
-                        <!--</gwt:FlowPanel>-->
-                    <!--</b:Column>-->
 
-                </b:Row>
-                <!--<gwt:HTML>-->
-                <!--<hr/>-->
-                <!--</gwt:HTML>-->
-                <!--<b:Row styleName="{style.rowSpacing}">-->
-                    <!--<b:Column size="MD_4">-->
-                        <!--<b:ListBox ui:field="userField"/>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_4">-->
-                        <!--<b:ListBox ui:field="groupField"/>-->
-                    <!--</b:Column>-->
-                <!--</b:Row>-->
-                <b:Row visible="false">
-                    <b:Column size="MD_4">
-                        <gwt:HTML styleName="{style.internalHeader}">
-                            Checks
-                        </gwt:HTML>
-                    </b:Column>
-                </b:Row>
-                <b:Row visible="false">
-                    <b:Column size="MD_2">
-                        <b:InputGroup>
-                            <b:Button size="EXTRA_SMALL" icon="BAN" text="CDS/3" ui:field="cdsButton"/>
-                        </b:InputGroup>
-                    </b:Column>
-                    <b:Column size="MD_2">
-                        <b:InputGroup>
-                            <b:Button size="EXTRA_SMALL" icon="BAN" text="Stop Codon Readthrough" ui:field="stopCodonButton"/>
-                        </b:InputGroup>
-                    </b:Column>
                 </b:Row>
             </b:Container>
         </gwt:north>
         <gwt:center>
-            <!--<gwt:HTML text="centerPanel "/>-->
-            <!--<gwt:FlowPanel>-->
-            <!--<gwt:ScrollPanel>-->
-            <!--<cellview:DataGrid ui:field="dataGrid" />-->
-            <!--<gwt:Tree ui:field="features" styleName="{style.widgetPanel}"/>-->
-            <!--</gwt:ScrollPanel>-->
-            <!--</gwt:FlowPanel>-->
-
             <gwt:DockLayoutPanel>
                 <gwt:north size="25">
                     <gwt:HTMLPanel>
@@ -192,7 +146,7 @@
                     </gwt:HTMLPanel>
                 </gwt:north>
                 <gwt:center>
-                    <cellview:DataGrid ui:field="dataGrid" />
+                    <cellview:DataGrid ui:field="dataGrid"/>
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
@@ -210,31 +164,31 @@
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <gwt:tab >
+                <gwt:tab>
                     <gwt:header>Coding</gwt:header>
-                    <apollo:ExonDetailPanel ui:field="exonDetailPanel" />
+                    <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
                 </gwt:tab>
 
                 <!--TODO: 2.1-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>DbXref</gwt:header>-->
-                    <!--<gwt:HTML text="dbxref"/>-->
+                <!--<gwt:header>DbXref</gwt:header>-->
+                <!--<gwt:HTML text="dbxref"/>-->
                 <!--</gwt:tab>-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>PubMed</gwt:header>-->
-                    <!--<gwt:HTML text="pubmed stuf"/>-->
+                <!--<gwt:header>PubMed</gwt:header>-->
+                <!--<gwt:HTML text="pubmed stuf"/>-->
                 <!--</gwt:tab>-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>Attributes</gwt:header>-->
-                    <!--<gwt:HTML text="attributes"/>-->
+                <!--<gwt:header>Attributes</gwt:header>-->
+                <!--<gwt:HTML text="attributes"/>-->
                 <!--</gwt:tab>-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>GO Evidence</gwt:header>-->
-                    <!--<gwt:HTML text="go evidence"/>-->
+                <!--<gwt:header>GO Evidence</gwt:header>-->
+                <!--<gwt:HTML text="go evidence"/>-->
                 <!--</gwt:tab>-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>Comments</gwt:header>-->
-                    <!--<gwt:HTML text="comments"/>-->
+                <!--<gwt:header>Comments</gwt:header>-->
+                <!--<gwt:HTML text="comments"/>-->
                 <!--</gwt:tab>-->
 
             </gwt:TabLayoutPanel>

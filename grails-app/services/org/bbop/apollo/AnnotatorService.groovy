@@ -11,7 +11,6 @@ class AnnotatorService {
 
     def permissionService
     def requestHandlingService
-    def sessionFactory
 
     def getAppState() {
         JSONObject appStateObject = new JSONObject()
@@ -60,6 +59,23 @@ class AnnotatorService {
                 appStateObject.put("currentStartBp", currentUserOrganismPreference.startbp)
                 appStateObject.put("currentEndBp", currentUserOrganismPreference.endbp)
             }
+
+
+//            JSONArray userList = new JSONArray()
+//            if(permissionService.isAdmin()){
+//                for(User user in User.all){
+//                    JSONObject jsonObject = [
+//                            userId: user.id
+//                            ,firstName: user.firstName
+//                            ,lastName: user.lastName
+//                            ,username: user.username
+//                            ,role: user.roles.first()
+//                    ]
+//                    userList.add(jsonObject)
+//                }
+//            }
+//            appStateObject.put("userList",userList)
+
 
         }
         catch(PermissionException e) {
