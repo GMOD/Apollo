@@ -12,6 +12,11 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
     def sequenceService
     
     def setup() {
+        Organism organism = new Organism(
+                directory: "/tmp"
+                ,commonName: "sampleAnimal"
+        ).save(flush: true)
+
         Sequence sequence = new Sequence(
                 length: 1405242
                 ,refSeqFile: "adsf"
@@ -19,6 +24,7 @@ class SequenceServiceIntegrationSpec extends IntegrationSpec {
                 ,seqChunkSize: 20000
                 ,start: 0
                 ,end: 1405242
+                ,organism: organism
                 // from (honeybee f78/c6f/0c
                 ,sequenceDirectory: "test/integration/resources/sequences/honeybee-Group1.10/"
                 ,name: "Group1.10"
