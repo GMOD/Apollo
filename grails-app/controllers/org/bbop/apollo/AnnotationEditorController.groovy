@@ -757,12 +757,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         Session session = SecurityUtils.subject.getSession(false)
         if (!session) {
             // login with jsonObject tokens
-            println "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
                 Subject subject = SecurityUtils.getSubject();
                 session = subject.getSession(true);
-                println "should have created a session now ${session}"
                 subject.login(authToken)
                 if (!subject.authenticated) {
                     log.error "Failed to authenticate user ${jsonObject.username}"
@@ -776,7 +775,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
         Organism organism = permissionService.getCurrentOrganismPreference().organism
-        println "passing in an organism ${jsonObject.organism}"
+        log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
             try {
@@ -791,14 +790,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
             }
             if(organism.id!=thisOrganism.id){
-                println "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
+                log.debug "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
                 organism = thisOrganism
             }
-            println "final orgag ${organism.commonName}"
+            log.debug "final organism ${organism.commonName}"
             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(), organism)
         }
 
-        return permissionService.checkPermissions(jsonObject, organism, permissionEnum)
+        return permissionService.checkPermissions(permissionEnum)
 
     }
 

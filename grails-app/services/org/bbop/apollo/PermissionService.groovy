@@ -581,10 +581,7 @@ class PermissionService {
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
-            println "where did my session go ${session}"
-            println "what are the attriburtes? ${session.attributeKeys}"
             Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-            println "did I get permissions? ${permissions}"
             Integer permission = permissions.get(SecurityUtils.subject.principal)
             PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
