@@ -13,8 +13,8 @@ eventCompileStart = {
 
 grails.config.locations = [
         "file:./${appName}-config.groovy"        // dev only
-        ,"classpath:${appName}-config.groovy"    // for production deployment
-        ,"classpath:${appName}-config.properties"
+        , "classpath:${appName}-config.groovy"    // for production deployment
+        , "classpath:${appName}-config.properties"
 ]
 
 // if (System.properties["${appName}.config.location"]) {
@@ -22,11 +22,10 @@ grails.config.locations = [
 // }
 
 
-
 grails.assets.minifyJs = false
 grails.assets.minifyCss = false
 grails.assets.enableSourceMaps = true
-grails.assets.bundle=false
+grails.assets.bundle = false
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
@@ -121,17 +120,17 @@ log4j.main = {
     //}
 
     error 'org.codehaus.groovy.grails.web.servlet',        // controllers
-          'org.codehaus.groovy.grails.web.pages',          // GSP
-          'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-          'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-          'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-          'org.codehaus.groovy.grails.commons',            // core / classloading
-          'org.codehaus.groovy.grails.plugins',            // plugins
-          'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-          'org.springframework',
-          'org.hibernate',
-          'net.sf.ehcache.hibernate'
-    
+            'org.codehaus.groovy.grails.web.pages',          // GSP
+            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
+            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
+            'org.codehaus.groovy.grails.commons',            // core / classloading
+            'org.codehaus.groovy.grails.plugins',            // plugins
+            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+            'org.springframework',
+            'org.hibernate',
+            'net.sf.ehcache.hibernate'
+
 //    trace 'org.hibernate.type'
 //    debug 'org.hibernate.SQL'
 
@@ -195,9 +194,9 @@ apollo {
     }
 
     // TODO: should come from config or via preferences database
-    splice_donor_sites = [ "GT"]
-    splice_acceptor_sites = [ "AG"]
-    gff3.source= "."
+    splice_donor_sites = ["GT"]
+    splice_acceptor_sites = ["AG"]
+    gff3.source = "."
     bootstrap = false
 
     info_editor = {
@@ -208,10 +207,12 @@ apollo {
         go_ids = true
         comments = true
     }
+
+    administrativePanel = [
+            ['label': "Canned Comments", 'link': "/cannedComment/"]
+//            , ['label': "Other Admin", 'link': "/annotator/cannedComments/"]
+    ]
 }
-
-
-
 
 // from: http://grails.org/plugin/audit-logging
 // may end up going away

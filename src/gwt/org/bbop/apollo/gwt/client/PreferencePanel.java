@@ -2,10 +2,12 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.http.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
 import java.util.ArrayList;
@@ -20,42 +22,84 @@ public class PreferencePanel extends Composite {
 
     private static PreferencePanelUiBinder ourUiBinder = GWT.create(PreferencePanelUiBinder.class);
     @UiField
-    FlexTable statusList;
-    @UiField
-    TextBox newStatusField;
-    @UiField
-    Button newStatusButton;
+    HTML adminPanel;
+//    @UiField
+//    FlexTable statusList;
+//    @UiField
+//    TextBox newStatusField;
+//    @UiField
+//    Button newStatusButton;
+
 
     public PreferencePanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
 
 
-        statusList.setHTML(0,0,"Status");
-        statusList.setHTML(0,1,"");
-        statusList.setHTML(0,2,"# of Annotations");
+        String url = "annotator/adminPanel";
+        String rootUrl = Annotator.getRootUrl();
+        if(!url.startsWith(rootUrl)){
+            url = rootUrl+url;
+        }
+        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
 
-        statusList.setHTML(1,0,"Approve");
-        statusList.setHTML(2,0,"Delete");
-        statusList.setHTML(3,0,"Replace");
-        statusList.setHTML(4,0,"Awaiting");
+        try {
+            Request request = builder.sendRequest(null, new RequestCallback() {
 
-//        statusList.setWidget(1, 1, new Button("X"));
-//        statusList.setWidget(2, 1, new Button("X"));
-        statusList.setWidget(3, 1, new Button("X"));
-//        statusList.setWidget(4, 1, new Button("X"));
+                public void onResponseReceived(Request request, Response response) {
+                    if (200 == response.getStatusCode()) {
+                        adminPanel.setHTML(response.getText());
+                        // Process the response in response.getText()
+                    } else {
+                        adminPanel.setHTML("Problem loading admin page");
+                        // Handle the error.  Can get the status text from response.getStatusText()
+                    }
+                }
 
-        statusList.setHTML(1,2,"3");
-        statusList.setHTML(2,2,"4");
-        statusList.setHTML(3,2,"0");
-        statusList.setHTML(4,2,"10");
+
+                public void onError(Request request, Throwable exception) {
+                    Window.alert(exception.toString());
+                }
+            });
+        } catch (RequestException e) {
+            Window.alert(e.toString());
+        }
+
+//        /annotator/adminPanel
+
+
+
     }
 
-    @UiHandler("newStatusButton")
-    public void newStatusButton(ClickEvent clickEvent){
-        String newText = newStatusField.getText();
-        int rowCount = statusList.getRowCount();
-        statusList.setHTML(rowCount,0,newText);
-        statusList.setWidget(rowCount,1, new Button("X"));
-        newStatusField.setText("");
-    }
+//    public PreferencePanel() {
+//        initWidget(ourUiBinder.createAndBindUi(this));
+//
+//
+//        statusList.setHTML(0,0,"Status");
+//        statusList.setHTML(0,1,"");
+//        statusList.setHTML(0,2,"# of Annotations");
+//
+//        statusList.setHTML(1,0,"Approve");
+//        statusList.setHTML(2,0,"Delete");
+//        statusList.setHTML(3,0,"Replace");
+//        statusList.setHTML(4,0,"Awaiting");
+//
+////        statusList.setWidget(1, 1, new Button("X"));
+////        statusList.setWidget(2, 1, new Button("X"));
+//        statusList.setWidget(3, 1, new Button("X"));
+////        statusList.setWidget(4, 1, new Button("X"));
+//
+//        statusList.setHTML(1,2,"3");
+//        statusList.setHTML(2,2,"4");
+//        statusList.setHTML(3,2,"0");
+//        statusList.setHTML(4,2,"10");
+//    }
+//
+//    @UiHandler("newStatusButton")
+//    public void newStatusButton(ClickEvent clickEvent){
+//        String newText = newStatusField.getText();
+//        int rowCount = statusList.getRowCount();
+//        statusList.setHTML(rowCount,0,newText);
+//        statusList.setWidget(rowCount,1, new Button("X"));
+//        newStatusField.setText("");
+//    }
 }

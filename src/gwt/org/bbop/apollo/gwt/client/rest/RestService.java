@@ -12,21 +12,6 @@ import org.bbop.apollo.gwt.client.Annotator;
  */
 public class RestService {
 
-//    public static void sendRequest(String url,String data){
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                GWT.log("response received: "+response.getText());
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                GWT.log("error on request: "+exception);
-//            }
-//        };
-//        sendRequest(requestCallback,url,data);
-//    }
-
     public static void sendRequest(RequestCallback requestCallback,String url){
         sendRequest(requestCallback,url,(String) null);
     }
