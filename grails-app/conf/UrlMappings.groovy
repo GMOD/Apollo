@@ -44,6 +44,7 @@ class UrlMappings {
         "/IOService"(controller:"IOService",action: "handleOperation",params:params){
         }
         "/IOService/download"(controller:"IOService",action: "download", params:params)
-        
+        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
+
     }
 }

@@ -802,4 +802,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     }
 
+    def web_services(){
+        render view: "/web_services"
+    }
+
 }

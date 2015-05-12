@@ -1,0 +1,31 @@
+body {
+  font-size: 1em;
+}
+
+h1 {
+  font-style: bold;
+  font-size: 150%;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+
+h2 {
+  font-style: bold;
+  font-size: 110%;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  margin-top: 25px;
+}
+
+.code {
+  border-style: dashed;
+  border-width: 1px;
+  margin-bottom: 15px;
+  padding: 5px;
+  background: #ffffcc;
+  white-space: pre;
+}
+
+.section {
+  margin-top: 30px;
+}
