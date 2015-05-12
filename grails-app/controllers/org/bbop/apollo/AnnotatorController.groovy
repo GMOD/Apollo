@@ -63,6 +63,18 @@ class AnnotatorController {
         }
         [userKey: uuid]
     }
+
+
+    def adminPanel(){
+        if(permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
+            def administativePanel = grailsApplication.config.apollo.administrativePanel
+            [links:administativePanel]
+        }
+        else{
+            render text:"Unauthorized"
+        }
+    }
+
     /**
      * updates shallow properties of gene / feature
      * @return

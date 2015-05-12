@@ -38,34 +38,37 @@
         }
     </ui:style>
     <b:Container fluid="true" styleName="{style.preferenceContainer}">
-        <b:Row visible="false">
-            <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                <b:Form type="INLINE">
-                    <b:FieldSet>
-                        <b:FormGroup>
-                            <b:InlineCheckBox text="Use CDS for New Transcripts"/>
-                            <b:InlineCheckBox text="Partial Translation Allowed"/>
-                        </b:FormGroup>
-                    </b:FieldSet>
-                </b:Form>
-            </b:Column>
-        </b:Row>
-        <b:Row visible="false">
-            <b:Column size="MD_2" styleName="{style.statusPanel}">
-                <gwt:HTML>
-                    <b>Status</b>
-                </gwt:HTML>
-            </b:Column>
-            <b:Column size="MD_4" styleName="{style.statusPanel}">
-                <gwt:FlexTable ui:field="statusList"/>
-            </b:Column>
-        </b:Row>
-        <b:Row visible="false">
-            <b:Column size="MD_6" styleName="{style.statusPanel}">
-                <gwt:TextBox ui:field="newStatusField"/>
-                <gwt:Button ui:field="newStatusButton" text="Add Status"/>
-            </b:Column>
-        </b:Row>
+        <gwt:HTML ui:field="adminPanel">
+
+        </gwt:HTML>
+        <!--<b:Row visible="false">-->
+            <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
+                <!--<b:Form type="INLINE">-->
+                    <!--<b:FieldSet>-->
+                        <!--<b:FormGroup>-->
+                            <!--<b:InlineCheckBox text="Use CDS for New Transcripts"/>-->
+                            <!--<b:InlineCheckBox text="Partial Translation Allowed"/>-->
+                        <!--</b:FormGroup>-->
+                    <!--</b:FieldSet>-->
+                <!--</b:Form>-->
+            <!--</b:Column>-->
+        <!--</b:Row>-->
+        <!--<b:Row visible="false">-->
+            <!--<b:Column size="MD_2" styleName="{style.statusPanel}">-->
+                <!--<gwt:HTML>-->
+                    <!--<b>Status</b>-->
+                <!--</gwt:HTML>-->
+            <!--</b:Column>-->
+            <!--<b:Column size="MD_4" styleName="{style.statusPanel}">-->
+                <!--<gwt:FlexTable ui:field="statusList"/>-->
+            <!--</b:Column>-->
+        <!--</b:Row>-->
+        <!--<b:Row visible="false">-->
+            <!--<b:Column size="MD_6" styleName="{style.statusPanel}">-->
+                <!--<gwt:TextBox ui:field="newStatusField"/>-->
+                <!--<gwt:Button ui:field="newStatusButton" text="Add Status"/>-->
+            <!--</b:Column>-->
+        <!--</b:Row>-->
     </b:Container>
 
 </ui:UiBinder>
