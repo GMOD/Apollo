@@ -4,7 +4,9 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.util.Environment
 import org.apache.shiro.SecurityUtils
+import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
+import org.apache.shiro.subject.Subject
 import org.apache.shiro.web.tags.GuestTag
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -13,6 +15,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class PermissionService {
+
+    def preferenceService
 
     public static String TRACK_NAME_SPLITTER = "::"
 
@@ -623,6 +627,58 @@ class PermissionService {
         }
 
         return highestValue
+    }
+
+    Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+        // not sure if permissions with translate through or not
+        Session session = SecurityUtils.subject.getSession(false)
+        if (!session) {
+            // login with jsonObject tokens
+            log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
+            try {
+                Subject subject = SecurityUtils.getSubject();
+                session = subject.getSession(true);
+                subject.login(authToken)
+                if (!subject.authenticated) {
+                    log.error "Failed to authenticate user ${jsonObject.username}"
+                    return false
+                }
+            } catch (Exception ae) {
+                log.error("Problem authenticating: " + ae.fillInStackTrace())
+                return false
+            }
+        }
+        else if (!jsonObject.username) {
+            jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
+        }
+
+
+        Organism organism = getCurrentOrganismPreference().organism
+        log.debug "passing in an organism ${jsonObject.organism}"
+        if (jsonObject.organism) {
+            Organism thisOrganism = null
+            try {
+                thisOrganism = Organism.findById(jsonObject.organism as Long)
+            } catch (npe) {
+                // obviously not a long type
+            }
+            if (!thisOrganism) {
+                thisOrganism = Organism.findByCommonName(jsonObject.organism)
+            }
+            if (!thisOrganism) {
+                thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
+            }
+            if(organism.id!=thisOrganism.id){
+                log.debug "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
+                organism = thisOrganism
+            }
+            log.debug "final organism ${organism.commonName}"
+            preferenceService.setCurrentOrganism(getCurrentUser(), organism)
+        }
+
+        return checkPermissions(jsonObject,organism,permissionEnum)
+
     }
 
     UserOrganismPreference getCurrentOrganismPreference(){

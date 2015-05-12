@@ -7,6 +7,7 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.springframework.http.HttpStatus
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -42,6 +43,34 @@ class OrganismController {
             log.error(error.error)
         }
         render findAllOrganisms()
+    }
+
+    /**
+     * web services exposed method
+     * TODO: merge with saveOrganism into a service method
+     * @return
+     */
+    @Transactional
+    def addOrganism(){
+        JSONObject inputObject = request.JSON
+//        println "response.JSON ${request.JSON}"
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.ADMINISTRATE)) {
+            Organism organism = new Organism(
+                    commonName: inputObject.name
+                    ,directory: inputObject.directory
+                    ,blatdb: inputObject.blatdb
+                    ,genus: inputObject.genus ?: ""
+                    ,species: inputObject.species ?: ""
+            ).save()
+            if(checkOrganism(organism)) {
+                organism.save(failOnError: true, flush: true, insert: true)
+            }
+            sequenceService.loadRefSeqs(organism)
+
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+        render new JSONObject() as JSON
     }
 
     @Transactional
@@ -132,14 +161,6 @@ class OrganismController {
             render error as JSON
             log.error(error.error)
         }
-    }
-
-    @Transactional
-    def addOrganism(){
-        println "posting attempting to add organism"
-        println "params ${params}"
-//        println "params.json ${params.json}"
-        render new JSONObject() as JSON
     }
 
     def findAllOrganisms() {
