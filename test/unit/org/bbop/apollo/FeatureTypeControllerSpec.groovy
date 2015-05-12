@@ -5,9 +5,9 @@ package org.bbop.apollo
 import grails.test.mixin.*
 import spock.lang.*
 
-@TestFor(CannedCommentController)
-@Mock(CannedComment)
-class CannedCommentControllerSpec extends Specification {
+@TestFor(FeatureTypeController)
+@Mock(FeatureType)
+class FeatureTypeControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
@@ -21,8 +21,8 @@ class CannedCommentControllerSpec extends Specification {
             controller.index()
 
         then:"The model is correct"
-            !model.cannedCommentInstanceList
-            model.cannedCommentInstanceCount == 0
+            !model.featureTypeInstanceList
+            model.featureTypeInstanceCount == 0
     }
 
     void "Test the create action returns the correct model"() {
@@ -30,7 +30,7 @@ class CannedCommentControllerSpec extends Specification {
             controller.create()
 
         then:"The model is correctly created"
-            model.cannedCommentInstance!= null
+            model.featureTypeInstance!= null
     }
 
     void "Test the save action correctly persists an instance"() {
@@ -38,25 +38,25 @@ class CannedCommentControllerSpec extends Specification {
         when:"The save action is executed with an invalid instance"
             request.contentType = FORM_CONTENT_TYPE
             request.method = 'POST'
-            def cannedComment = new CannedComment()
-            cannedComment.validate()
-            controller.save(cannedComment)
+            def featureType = new FeatureType()
+            featureType.validate()
+            controller.save(featureType)
 
         then:"The create view is rendered again with the correct model"
-            model.cannedCommentInstance!= null
+            model.featureTypeInstance!= null
             view == 'create'
 
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            cannedComment = new CannedComment(params)
+            featureType = new FeatureType(params)
 
-            controller.save(cannedComment)
+            controller.save(featureType)
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/cannedComment/show/1'
+            response.redirectedUrl == '/featureType/show/1'
             controller.flash.message != null
-            CannedComment.count() == 1
+            FeatureType.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
@@ -68,11 +68,11 @@ class CannedCommentControllerSpec extends Specification {
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def cannedComment = new CannedComment(params)
-            controller.show(cannedComment)
+            def featureType = new FeatureType(params)
+            controller.show(featureType)
 
         then:"A model is populated containing the domain instance"
-            model.cannedCommentInstance == cannedComment
+            model.featureTypeInstance == featureType
     }
 
     void "Test that the edit action returns the correct model"() {
@@ -84,11 +84,11 @@ class CannedCommentControllerSpec extends Specification {
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def cannedComment = new CannedComment(params)
-            controller.edit(cannedComment)
+            def featureType = new FeatureType(params)
+            controller.edit(featureType)
 
         then:"A model is populated containing the domain instance"
-            model.cannedCommentInstance == cannedComment
+            model.featureTypeInstance == featureType
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
@@ -98,28 +98,28 @@ class CannedCommentControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/cannedComment/index'
+            response.redirectedUrl == '/featureType/index'
             flash.message != null
 
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def cannedComment = new CannedComment()
-            cannedComment.validate()
-            controller.update(cannedComment)
+            def featureType = new FeatureType()
+            featureType.validate()
+            controller.update(featureType)
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.cannedCommentInstance == cannedComment
+            model.featureTypeInstance == featureType
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
             populateValidParams(params)
-            cannedComment = new CannedComment(params).save(flush: true)
-            controller.update(cannedComment)
+            featureType = new FeatureType(params).save(flush: true)
+            controller.update(featureType)
 
         then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/cannedComment/show/$cannedComment.id"
+            response.redirectedUrl == "/featureType/show/$featureType.id"
             flash.message != null
     }
 
@@ -130,23 +130,23 @@ class CannedCommentControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/cannedComment/index'
+            response.redirectedUrl == '/featureType/index'
             flash.message != null
 
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def cannedComment = new CannedComment(params).save(flush: true)
+            def featureType = new FeatureType(params).save(flush: true)
 
         then:"It exists"
-            CannedComment.count() == 1
+            FeatureType.count() == 1
 
         when:"The domain instance is passed to the delete action"
-            controller.delete(cannedComment)
+            controller.delete(featureType)
 
         then:"The instance is deleted"
-            CannedComment.count() == 0
-            response.redirectedUrl == '/cannedComment/index'
+            FeatureType.count() == 0
+            response.redirectedUrl == '/featureType/index'
             flash.message != null
     }
 }

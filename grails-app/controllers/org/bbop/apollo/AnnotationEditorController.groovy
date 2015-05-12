@@ -646,11 +646,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     comments.put(comment.value);
                 }
                 JSONArray cannedComments = new JSONArray();
+
                 newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
 
-                Collection<String> cc = CannedComment.findAllByOntologyId(feature.ontologyId)*.comment;
-                if (cc != null) {
-                    for (String comment : cc) {
+                List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
+                List<String> cannedCommentStrings = CannedComment.findAllByFeatureTypesInList(featureTypeList)
+                if (cannedCommentStrings != null) {
+                    for (String comment : cannedCommentStrings) {
                         cannedComments.put(comment);
                     }
                 }

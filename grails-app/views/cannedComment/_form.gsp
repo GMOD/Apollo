@@ -11,19 +11,25 @@
 
 </div>
 
-<div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'featureTypes', 'error')} required">
-	<label for="featureTypes">
-		<g:message code="cannedComment.featureTypes.label" default="Feature Types" />
-		%{--<span class="required-indicator">*</span>--}%
-	</label>
-	<g:textField name="featureTypes" value="${cannedCommentInstance?.featureTypes}"/>
-</div>
-
-<div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'metadata', 'error')} required">
+<div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'metadata', 'error')} ">
 	<label for="metadata">
 		<g:message code="cannedComment.metadata.label" default="Metadata" />
-		%{--<span class="required-indicator">*</span>--}%
+		
 	</label>
 	<g:textField name="metadata" value="${cannedCommentInstance?.metadata}"/>
+
+</div>
+
+<div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'featureTypes', 'error')} ">
+	<label for="featureTypes">
+		<g:message code="cannedComment.featureTypes.label" default="Feature Types" />
+		
+	</label>
+	<g:select name="featureTypes" from="${org.bbop.apollo.FeatureType.list()}"
+              multiple="multiple"
+              optionKey="id" size="10"
+              optionValue="name"
+              value="${cannedCommentInstance?.featureTypes*.id}" class="many-to-many"/>
+
 </div>
 

@@ -25,8 +25,7 @@
 					<tr>
 					
 						<g:sortableColumn property="comment" title="${message(code: 'cannedComment.comment.label', default: 'Comment')}" />
-
-						<g:sortableColumn property="featureTypes" title="${message(code: 'cannedComment.featureTypes.label', default: 'Feature Types')}" />
+					
 						<g:sortableColumn property="metadata" title="${message(code: 'cannedComment.metadata.label', default: 'Metadata')}" />
 					
 					</tr>
