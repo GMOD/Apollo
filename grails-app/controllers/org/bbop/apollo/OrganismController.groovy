@@ -53,12 +53,8 @@ class OrganismController {
         try {
             permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)
             if(organismJson.get("commonName")==""||organismJson.get("directory")=="") {
-                def error= [error: 'problem saving organism: empty fields detected']
-                render error as JSON
-                log.error(error.error)
-                return
+                throw new Exception('empty fields detected')
             }
-
 
             Organism organism = new Organism(
                     commonName: organismJson.commonName
@@ -69,13 +65,9 @@ class OrganismController {
             )
             log.debug "organism ${organism as JSON}"
 
-            if(!checkOrganism(organism)) {
-                def error= [error: 'problem saving organism: invalid data directory specified']
-                render error as JSON
-                log.error(error.error)
-                return
+            if(checkOrganism(organism)) {
+                organism.save(failOnError: true, flush: true, insert: true)
             }
-            organism.save(failOnError: true, flush: true, insert: true)
             sequenceService.loadRefSeqs(organism)
         } catch (e) {
             def error= [error: 'problem saving organism: '+e]
@@ -92,17 +84,17 @@ class OrganismController {
         File refSeqFile = new File(organism.getRefseqFile())
 
         if (!directory.exists() || !directory.isDirectory()) {
-            log.error("Is an invalid directory: " + directory.absolutePath)
             organism.valid = false
+            throw new Exception("Invalid directory specified: " + directory.absolutePath)
         } else if (!trackListFile.exists()) {
-            log.error("Track file does not exists: " + trackListFile.absolutePath)
             organism.valid = false
+            throw new Exception("Track file does not exists: " + trackListFile.absolutePath)
         } else if (!refSeqFile.exists()) {
-            log.error("Reference sequence file does not exists: " + refSeqFile.absolutePath)
             organism.valid = false
+            throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
         } else if (!trackListFile.text.contains("WebApollo")) {
-            log.error("Track is not WebApollo enabled: " + trackListFile.absolutePath)
             organism.valid = false
+            throw new Exception("The WA plugin is not enabled: " + trackListFile.absolutePath)
         } else {
             organism.valid = true
         }
@@ -125,33 +117,17 @@ class OrganismController {
 
                 boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
                 log.debug "directoryChanged ${directoryChanged}"
-                try {
-                    if (directoryChanged) {
-                        organism.directory = organismJson.directory
-                    }
-
-                    if (directoryChanged && checkOrganism(organism)) {
-                        organism.save(flush: true, insert: false, failOnError: true)
-                        sequenceService.loadRefSeqs(organism)
-                    }
-                    else if(directoryChanged) {
-                        def error=[error: 'problem saving organism: data directory not found. data directory not updated']
-                        render error as JSON
-                        log.error(error.error)
-                    }
-                } catch (e) {
-                    def error= [error: 'problem saving organism: '+e]
-                    render error as JSON
-                    log.error(error.error)
+                if (directoryChanged && checkOrganism(organism)) {
+                    organism.directory = organismJson.directory
+                    organism.save(flush: true, insert: false, failOnError: true)
+                    sequenceService.loadRefSeqs(organism)
                 }
-                render findAllOrganisms()
             } else {
-                def error= [error: 'problem saving organism: organism not found']
-                render error as JSON
-                log.error(error.error)
+                throw new Exception('organism not found')
             }
+            render findAllOrganisms()
         }
-        catch(Exception e) {
+        catch (e) {
             def error= [error: 'problem saving organism: '+e]
             render error as JSON
             log.error(error.error)
