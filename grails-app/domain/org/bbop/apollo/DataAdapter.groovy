@@ -18,6 +18,10 @@ class DataAdapter {
             dataAdapters: DataAdapter
     ]
 
+    static mapping = {
+        key column: "data_adapter_key"
+    }
+
     String key
     String implementationClass
     String permission
