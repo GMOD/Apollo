@@ -540,6 +540,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render sequenceSearchService.getSequenceSearchTools()
     }
 
+    def getCannedComments() {
+        log.debug "sequenceSearch ${params.data}"
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+        render CannedComment.listOrderByComment() as JSON
+    }
+
     def searchSequence() {
         log.debug "sequenceSearch ${params.data}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
