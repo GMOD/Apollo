@@ -772,6 +772,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 return false
             }
         }
+        else if (!jsonObject.username) {
+            jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
+        }
 
 
         Organism organism = permissionService.getCurrentOrganismPreference().organism
@@ -797,7 +800,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(), organism)
         }
 
-        return permissionService.checkPermissions(permissionEnum)
+        return permissionService.checkPermissions(jsonObject,organism,permissionEnum)
 
     }
 
