@@ -11,12 +11,19 @@
 
 </div>
 
+<div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'featureTypes', 'error')} required">
+	<label for="featureTypes">
+		<g:message code="cannedComment.featureTypes.label" default="Feature Types" />
+		%{--<span class="required-indicator">*</span>--}%
+	</label>
+	<g:textField name="featureTypes" value="${cannedCommentInstance?.featureTypes}"/>
+</div>
+
 <div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'metadata', 'error')} required">
 	<label for="metadata">
 		<g:message code="cannedComment.metadata.label" default="Metadata" />
 		%{--<span class="required-indicator">*</span>--}%
 	</label>
 	<g:textField name="metadata" value="${cannedCommentInstance?.metadata}"/>
-
 </div>
 

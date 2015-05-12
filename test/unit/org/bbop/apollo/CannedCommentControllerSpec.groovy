@@ -13,6 +13,7 @@ class CannedCommentControllerSpec extends Specification {
         assert params != null
         // TODO: Populate valid properties like...
         params["comment"] = 'someValidName'
+        params["featureTypes"] = 'sequence:tRNA,sequence:ncRNA'
     }
 
     void "Test the index action returns the correct model"() {

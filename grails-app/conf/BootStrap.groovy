@@ -51,6 +51,7 @@ class BootStrap {
         if(Role.count==0){
             def userRole = new Role(name: UserService.USER).save()
             userRole.addToPermissions("*:*")
+            userRole.removeFromPermissions("cannedComments:*")
             def adminRole = new Role(name: UserService.ADMIN).save()
             adminRole.addToPermissions("*:*")
         }
