@@ -134,6 +134,14 @@ class OrganismController {
         }
     }
 
+    @Transactional
+    def addOrganism(){
+        println "posting attempting to add organism"
+        println "params ${params}"
+//        println "params.json ${params.json}"
+        render new JSONObject() as JSON
+    }
+
     def findAllOrganisms() {
 
         def organismList = permissionService.getOrganismsForCurrentUser()
