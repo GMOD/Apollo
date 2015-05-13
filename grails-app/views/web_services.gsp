@@ -3,33 +3,38 @@
 <html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 
 <head>
-
+    <meta name="layout" content="main">
     <title>Apollo Web Services API</title>
     <asset:stylesheet src="web_api_stylesheet"/>
-    <asset:image src="webapollo_favicon.ico" />
-    %{--<link rel="stylesheet" type="text/css" href="css/web_api_stylesheet.css"/>--}%
-    %{--<link rel="icon" type="image/x-icon" href="images/webapollo_favicon.ico">--}%
-    %{--<link rel="shortcut icon" type="image/x-icon" href="images/webapollo_favicon.ico">--}%
-
+    %{--<asset:image src="webapollo_favicon.ico"/>--}%
 </head>
 
 <body>
-<h1>Apollo Web Service API</h1>
-
-<p>
-    The Apollo web service API is fully JSON based, to easily interact with JavaScript. Both the request and
-    response JSON are feature information are based on the Chado schema.
-</p>
+<div class="nav" role="navigation">
+    <ul>
+        <li><a class="home" href="${createLink(uri: '/')}"><g:message code="default.home.label"/></a></li>
+        %{--<li><g:link class="create" action="create"><g:message code="default.new.label" args="[entityName]" /></g:link></li>--}%
+    </ul>
+</div>
 
 <div class="section" id="login">
-    <h1>Login</h1>
+
+    <h3>Apollo Web Service API</h3>
+
+    <p>
+        The Apollo web service API is fully JSON based, to easily interact with JavaScript. Both the request and
+        response JSON are feature information are based on the Chado schema.
+    </p>
+
+
+    <h3>Login</h3>
 
     <p>
         To properly setup an user's editing session, the user needs to login to the web service. This is to prevent
         an user from just loading a page directly and making a request without prior authentication.
     </p>
 
-    <h2>Request</h2>
+    <h4>Request</h4>
 
     <p>
         The URL for login is:
@@ -54,7 +59,7 @@
         <code>foo</code> and <code>bar</code> respectively.
     </p>
 
-    <h2>Response</h2>
+    <h4>Response</h4>
 
     <p>
         Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's
@@ -66,7 +71,7 @@
 </div>
 
 <div class="section" id="feature">
-    <h1>Feature Object</h1>
+    <h3>Feature Object</h3>
 
     <p>
         Most requests and responses will contain an array of <code>feature</code> JSON objects named
@@ -112,7 +117,7 @@
 </div>
 
 <div class="section" id="operations">
-    <h1>Operations</h1>
+    <h3>Operations</h3>
 
     <p>
         All JSON requests need to contain a <code>operation</code> field, which defines the operation being
@@ -125,7 +130,7 @@
     }
     </div>
 
-    <h2>set_organism</h2>
+    <h4>set_organism</h4>
 
     <p>
         Set the organism to be associated with this session. Returns the organism just set.
@@ -143,6 +148,7 @@
     }
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -153,7 +159,7 @@
     }
     </div>
 
-    <h2>get_organism</h2>
+    <h4>get_organism</h4>
 
     <p>
         Get the organism associated with this session.
@@ -171,6 +177,7 @@
     }
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -181,7 +188,7 @@
     }
     </div>
 
-    <h2>set_source_feature</h2>
+    <h4>set_source_feature</h4>
 
     <p>
         Set the source feature to be associated with this session. Returns the source feature just set.
@@ -203,6 +210,7 @@
     "operation": "set_source_feature"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -217,7 +225,7 @@
     }]}
     </div>
 
-    <h2>get_source_feature</h2>
+    <h4>get_source_feature</h4>
 
     <p>
         Get the source feature associated with this session.
@@ -231,6 +239,7 @@
     "operation": "get_source_feature"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -245,7 +254,7 @@
     }]}
     </div>
 
-    <h2>add_feature</h2>
+    <h4>add_feature</h4>
 
     <p>
         Add a top level feature. Returns feature just added.
@@ -271,6 +280,7 @@
     "operation": "add_feature"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -289,7 +299,7 @@
     }]}
     </div>
 
-    <h2>delete_feature</h2>
+    <h4>delete_feature</h4>
 
     <p>
         Delete feature(s) from the session. Each feature only requires <code>uniquename</code> to be set. Returns
@@ -305,6 +315,7 @@
     "operation": "delete_feature"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -312,7 +323,7 @@
     <div class="code">{"features": []}
     </div>
 
-    <h2>get_features</h2>
+    <h4>get_features</h4>
 
     <p>
         Get all top level features.
@@ -326,6 +337,7 @@
     "operation": "get_features"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -344,7 +356,7 @@
     }]}
     </div>
 
-    <h2>add_transcript</h2>
+    <h4>add_transcript</h4>
 
     <p>
         Add transcript(s) to a gene. The first element of the <code>features</code> array should be the gene to add
@@ -375,6 +387,7 @@
     "operation": "add_transcript"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -405,7 +418,7 @@
     }]}
     </div>
 
-    <h2>duplicate_transcript</h2>
+    <h4>duplicate_transcript</h4>
 
     <p>
         Duplicate a transcript. Only the first transcript in the <code>features</code> array is processed. The transcript
@@ -421,6 +434,7 @@
     "operation": "duplicate_transcript"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -465,7 +479,7 @@
     }]}
     </div>
 
-    <h2>merge_transcripts</h2>
+    <h4>merge_transcripts</h4>
 
     <p>
         Merge two transcripts together. Only the transcripts in the first and second positions in the <code>features</code>
@@ -487,6 +501,7 @@
     "operation": "merge_transcripts"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -569,7 +584,7 @@
     }]}
     </div>
 
-    <h2>set_translation_start</h2>
+    <h4>set_translation_start</h4>
 
     <p>
         Set the CDS start and end in a transcript. The transcript feature only needs to have the <code>uniquename</code>
@@ -599,6 +614,7 @@
     "operation": "set_translation_start"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -691,7 +707,7 @@
     }]}
     </div>
 
-    <h2>set_translation_end</h2>
+    <h4>set_translation_end</h4>
 
     <p>
         Set the CDS end in a transcript. The transcript feature only needs to have the <code>uniquename</code>
@@ -721,6 +737,7 @@
     "operation": "set_translation_end"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -813,7 +830,7 @@
     }]}
     </div>
 
-    <h2>set_translation_ends</h2>
+    <h4>set_translation_ends</h4>
 
     <p>
         Set the CDS start and end in a transcript. The transcript feature only needs to have the <code>uniquename</code>
@@ -844,6 +861,7 @@
     "operation": "set_translation_ends"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -936,7 +954,7 @@
     }]}
     </div>
 
-    <h2>set_longest_orf</h2>
+    <h4>set_longest_orf</h4>
 
     <p>
         Calculate the longest ORF for a transcript. The only element in the <code>features</code> array should
@@ -953,6 +971,7 @@
     "operation": "set_longest_orf"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1034,7 +1053,7 @@
     }]}
     </div>
 
-    <h2>add_exon</h2>
+    <h4>add_exon</h4>
 
     <p>
         Add exon(s) to a transcript. The first element of the <code>features</code> array should be the transcript
@@ -1089,6 +1108,7 @@
     "operation": "add_exon"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1145,7 +1165,7 @@
     }]}
     </div>
 
-    <h2>delete_exon</h2>
+    <h4>delete_exon</h4>
 
     <p>
         Delete an exon from a transcript. If there are no exons left on the transcript, the transcript
@@ -1166,6 +1186,7 @@
     "operation": "delete_exon"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1208,7 +1229,7 @@
     }]}
     </div>
 
-    <h2>merge_exons</h2>
+    <h4>merge_exons</h4>
 
     <p>
         Merge exons. The <code>features</code> array should contain two exons. Each exon only requires
@@ -1227,6 +1248,7 @@
     "operation": "merge_exons"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1269,7 +1291,7 @@
     }]}
     </div>
 
-    <h2>split_exon</h2>
+    <h4>split_exon</h4>
 
     <p>
         Splits the exon, creating two exons, the left one ends at at the new fmax and the right one starts at the
@@ -1293,6 +1315,7 @@
     "operation": "split_exon"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1349,7 +1372,7 @@
     }]}
     </div>
 
-    <h2>split_transcript</h2>
+    <h4>split_transcript</h4>
 
     <p>
         Split a transcript between the two exons. One transcript will contain all exons from the leftmost
@@ -1371,6 +1394,7 @@
     "operation": "split_transcript"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1439,7 +1463,7 @@
     }]}
     </div>
 
-    <h2>add_sequence_alteration</h2>
+    <h4>add_sequence_alteration</h4>
 
     <p>
         Add sequence alteration(s). Each element of the <code>features</code> array should be an alteration feature
@@ -1468,6 +1492,7 @@
     "operation": "add_sequence_alteration"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1487,7 +1512,7 @@
     }]}
     </div>
 
-    <h2>delete_sequence_alteration</h2>
+    <h4>delete_sequence_alteration</h4>
 
     <p>
         Delete sequence alteration(s). Each feature only requires <code>uniquename</code> to be set. Returns
@@ -1506,6 +1531,7 @@
     "operation": "delete_sequence_alteration"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1513,7 +1539,7 @@
     <div class="code">{"features": []}
     </div>
 
-    <h2>get_sequence_alterations</h2>
+    <h4>get_sequence_alterations</h4>
 
     <p>
         Get all sequence alterations. Returns an array of alterations.
@@ -1527,6 +1553,7 @@
     "operation": "get_sequence_alterations"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1574,7 +1601,7 @@
     ]}
     </div>
 
-    <h2>get_residues_with_alterations</h2>
+    <h4>get_residues_with_alterations</h4>
 
     <p>
         Get the residues for feature(s) with any alterations. Only <code>uniquename</code> needs to be set for each
@@ -1591,6 +1618,7 @@
     "operation": "get_residues_with_alterations"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1601,7 +1629,7 @@
     }]}
     </div>
 
-    <h2>add_frameshift</h2>
+    <h4>add_frameshift</h4>
 
     <p>
         Add a frameshift to the transcript. The transcript must be the first element in the <code>features</code> array and
@@ -1627,6 +1655,7 @@
     "operation": "add_frameshift"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1714,7 +1743,7 @@
     }]}
     </div>
 
-    <h2>get_residues_with_frameshifts</h2>
+    <h4>get_residues_with_frameshifts</h4>
 
     <p>
         Get the residues for feature(s) with any frameshifts. Only applicable to CDS features. Other features will return
@@ -1731,6 +1760,7 @@
     "operation": "get_residues_with_frameshifts"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1741,7 +1771,7 @@
     }]}
     </div>
 
-    <h2>get_residues_with_alterations_and_frameshifts</h2>
+    <h4>get_residues_with_alterations_and_frameshifts</h4>
 
     <p>
         Get the residues for feature(s) with any alteration and frameshifts. Only <code>uniquename</code> needs to be set
@@ -1759,6 +1789,7 @@
     "operation": "get_residues_with_alterations_and_frameshifts"
     }
     </div>
+
     <p>
         Response:
     </p>
@@ -1769,10 +1800,10 @@
     }]}
     </div>
 
-
 </div>
+
 <div class="section" id="ioservice">
-    <h1>IO Service</h1>
+    <h3>IO Service</h3>
 
     <p>
         All JSON requests need to define:
@@ -1793,6 +1824,7 @@
             <div class="code">'options' (e.g. output=file&format=gzip)</div>
         </li>
     </ul>
+
     <p>
         requested (read or write) is returned according to the options and the adapter chosen.
     </p>
@@ -1805,6 +1837,7 @@
         curl -b cookies.txt -c cookies.txt -e "http://$hostname:$port" -H "Content-Type:application/json" -d
         "{'username': '$username', 'password': '$password'}" "http://$hostname:$port/apollo/Login?operation=login"
     </div>
+
     <div class="code">
         curl -b cookies.txt -c cookies.txt -e "http://$hostname:$port" --data '{ operation: "write", adapter: "GFF3",
         tracks: ["Annotations-scf1117875582023"], options: "output=file&format=gzip" }'
@@ -1814,7 +1847,7 @@
 </div>
 
 <div class="section" id="userservice">
-    <h1>User Manager Service</h1>
+    <h3>User Manager Service</h3>
 
     <p>
         All JSON requests need to define:
@@ -1825,6 +1858,7 @@
             <div class="code">'operation' ('add_user', 'delete_user', 'set_permissions' )</div>
         </li>
     </ul>
+
     <p>
         requested (read or write) is returned according to the options and the adapter chosen.
     </p>
