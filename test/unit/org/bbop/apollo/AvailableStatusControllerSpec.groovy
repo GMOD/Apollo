@@ -5,13 +5,13 @@ package org.bbop.apollo
 import grails.test.mixin.*
 import spock.lang.*
 
-@TestFor(CannedCommentController)
-@Mock(CannedComment)
-class CannedCommentControllerSpec extends Specification {
+@TestFor(AvailableStatusController)
+@Mock(AvailableStatus)
+class AvailableStatusControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
-        params["comment"] = 'somethign genetically interesting'
+        params["value"] = 'Needs Review'
     }
 
     void "Test the index action returns the correct model"() {
@@ -20,8 +20,8 @@ class CannedCommentControllerSpec extends Specification {
             controller.index()
 
         then:"The model is correct"
-            !model.cannedCommentInstanceList
-            model.cannedCommentInstanceCount == 0
+            !model.availableStatusInstanceList
+            model.availableStatusInstanceCount == 0
     }
 
     void "Test the create action returns the correct model"() {
@@ -29,7 +29,7 @@ class CannedCommentControllerSpec extends Specification {
             controller.create()
 
         then:"The model is correctly created"
-            model.cannedCommentInstance!= null
+            model.availableStatusInstance!= null
     }
 
     void "Test the save action correctly persists an instance"() {
@@ -37,25 +37,25 @@ class CannedCommentControllerSpec extends Specification {
         when:"The save action is executed with an invalid instance"
             request.contentType = FORM_CONTENT_TYPE
             request.method = 'POST'
-            def cannedComment = new CannedComment()
-            cannedComment.validate()
-            controller.save(cannedComment)
+            def availableStatus = new AvailableStatus()
+            availableStatus.validate()
+            controller.save(availableStatus)
 
         then:"The create view is rendered again with the correct model"
-            model.cannedCommentInstance!= null
+            model.availableStatusInstance!= null
             view == 'create'
 
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            cannedComment = new CannedComment(params)
+            availableStatus = new AvailableStatus(params)
 
-            controller.save(cannedComment)
+            controller.save(availableStatus)
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/cannedComment/show/1'
+            response.redirectedUrl == '/availableStatus/show/1'
             controller.flash.message != null
-            CannedComment.count() == 1
+            AvailableStatus.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
@@ -67,11 +67,11 @@ class CannedCommentControllerSpec extends Specification {
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def cannedComment = new CannedComment(params)
-            controller.show(cannedComment)
+            def availableStatus = new AvailableStatus(params)
+            controller.show(availableStatus)
 
         then:"A model is populated containing the domain instance"
-            model.cannedCommentInstance == cannedComment
+            model.availableStatusInstance == availableStatus
     }
 
     void "Test that the edit action returns the correct model"() {
@@ -83,11 +83,11 @@ class CannedCommentControllerSpec extends Specification {
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def cannedComment = new CannedComment(params)
-            controller.edit(cannedComment)
+            def availableStatus = new AvailableStatus(params)
+            controller.edit(availableStatus)
 
         then:"A model is populated containing the domain instance"
-            model.cannedCommentInstance == cannedComment
+            model.availableStatusInstance == availableStatus
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
@@ -97,28 +97,28 @@ class CannedCommentControllerSpec extends Specification {
             controller.update(null)
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/cannedComment/index'
+            response.redirectedUrl == '/availableStatus/index'
             flash.message != null
 
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def cannedComment = new CannedComment()
-            cannedComment.validate()
-            controller.update(cannedComment)
+            def availableStatus = new AvailableStatus()
+            availableStatus.validate()
+            controller.update(availableStatus)
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.cannedCommentInstance == cannedComment
+            model.availableStatusInstance == availableStatus
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
             populateValidParams(params)
-            cannedComment = new CannedComment(params).save(flush: true)
-            controller.update(cannedComment)
+            availableStatus = new AvailableStatus(params).save(flush: true)
+            controller.update(availableStatus)
 
         then:"A redirect is issues to the show action"
-            response.redirectedUrl == "/cannedComment/show/$cannedComment.id"
+            response.redirectedUrl == "/availableStatus/show/$availableStatus.id"
             flash.message != null
     }
 
@@ -129,23 +129,23 @@ class CannedCommentControllerSpec extends Specification {
             controller.delete(null)
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/cannedComment/index'
+            response.redirectedUrl == '/availableStatus/index'
             flash.message != null
 
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def cannedComment = new CannedComment(params).save(flush: true)
+            def availableStatus = new AvailableStatus(params).save(flush: true)
 
         then:"It exists"
-            CannedComment.count() == 1
+            AvailableStatus.count() == 1
 
         when:"The domain instance is passed to the delete action"
-            controller.delete(cannedComment)
+            controller.delete(availableStatus)
 
         then:"The instance is deleted"
-            CannedComment.count() == 0
-            response.redirectedUrl == '/cannedComment/index'
+            AvailableStatus.count() == 0
+            response.redirectedUrl == '/availableStatus/index'
             flash.message != null
     }
 }

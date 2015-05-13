@@ -211,6 +211,7 @@ apollo {
     administrativePanel = [
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
+            ,['label': "Statuses", 'link': "/availableStatus/"]
 //            , ['label': "Other Admin", 'link': "/annotator/cannedComments/"]
     ]
 

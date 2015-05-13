@@ -399,7 +399,7 @@ class PermissionService {
             try {
                 return SecurityUtils.subject.principal?.toString()
             } catch (e) {
-                log.error "trying to find user for session"
+                log.info "unable to find user for session ${e}"
                 return null
             }
         }

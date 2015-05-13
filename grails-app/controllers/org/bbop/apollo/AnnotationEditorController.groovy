@@ -226,7 +226,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    def addComments(){
+    def addComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addComments(inputObject)
@@ -235,7 +235,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    def deleteComments(){
+    def deleteComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteComments(inputObject)
@@ -245,7 +245,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    def updateComments(){
+    def updateComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.updateComments(inputObject)
@@ -255,7 +255,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    def getComments(){
+    def getComments() {
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render requestHandlingService.getComments(inputObject)
@@ -421,10 +421,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
         JSONObject annotationInfoEditorConfig = new JSONObject();
         annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
-        if (configWrapperService.hasStatus()) {
+
+        if (AvailableStatus.count) {
             JSONArray statusArray = new JSONArray()
             annotationInfoEditorConfig.put(FeatureStringEnum.STATUS.value, statusArray);
-            Status.all.each { status ->
+            AvailableStatus.all.each { status ->
                 statusArray.add(status.value)
             }
         }
@@ -635,11 +636,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return
         }
 
-
-
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-
-
         JSONObject returnObject = createJSONFeatureContainer()
 
         for (int i = 0; i < featuresArray.length(); ++i) {
@@ -657,6 +654,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
             jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
 
+            if (AvailableStatus.count>0 && feature.status) {
+                newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
+            }
             // TODO: add the rest of the attributes
             if (configWrapperService.hasAttributes()) {
                 JSONArray properties = new JSONArray();
@@ -684,16 +684,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 for (Comment comment : featurePropertyService.getComments(feature)) {
                     comments.put(comment.value);
                 }
-                JSONArray cannedComments = new JSONArray();
 
+                JSONArray cannedComments = new JSONArray();
                 newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
 
                 List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
                 List<String> cannedCommentStrings = new ArrayList<>()
-                if(featureTypeList){
-                    cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)",[featureTypeList:featureTypeList]).comment)
+                if (featureTypeList) {
+                    cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).comment)
                 }
-                cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty" ).comment)
+                cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty").comment)
                 if (cannedCommentStrings != null) {
                     for (String comment : cannedCommentStrings) {
                         cannedComments.put(comment);
@@ -809,7 +809,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    def web_services(){
+    def web_services() {
         render view: "/web_services"
     }
 
