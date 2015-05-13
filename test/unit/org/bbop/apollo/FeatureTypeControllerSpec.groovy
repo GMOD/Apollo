@@ -6,13 +6,15 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(FeatureTypeController)
-@Mock(FeatureType)
+@Mock([FeatureType,MRNA])
 class FeatureTypeControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
         // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        params["name"] = 'sequence'
+        params["type"] = MRNA.cvTerm
+        params["ontologyId"] = MRNA.ontologyId
     }
 
     void "Test the index action returns the correct model"() {

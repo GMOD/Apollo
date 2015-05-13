@@ -409,7 +409,7 @@ class PermissionService {
         if (fromJSON.containsKey(FeatureStringEnum.USERNAME.value)) {
             toJSON.put(FeatureStringEnum.USERNAME.value, fromJSON.getString(FeatureStringEnum.USERNAME.value))
         } else {
-            log.error "No username to copy from ${fromJSON}"
+            log.info "No username to copy from ${fromJSON}"
         }
         return toJSON
     }
