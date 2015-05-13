@@ -159,7 +159,13 @@ class SequenceController {
         log.debug "# of sequences to export ${sequenceList.size()}"
 
         List<String> ontologyIdList = [Gene.class.name]
-        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList])
+        List<Feature> listOfFeatures = new ArrayList<>()
+        if(sequenceList){
+            listOfFeatures.addAll(Feature.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList]))
+        }
+        else{
+            log.warn "There are no annotations to be exported in this list of sequences ${sequences}"
+        }
         File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
 
         if (typeOfExport == "GFF3") {
