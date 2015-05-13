@@ -474,15 +474,35 @@ class PermissionService {
         }
 
         if (!userOrganismPreference) {
+            // see if this user has any permissions or an organism . . just grab the first one
             UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByUser(user)
-            organism = userOrganismPermission.organism
+            if(userOrganismPermission){
+                organism = userOrganismPermission.organism
+            }
+            else
+            // if not, but we are admin, then just grab the first organism
+            if(!userOrganismPermission && isAdmin() && Organism.count>0){
+                organism = Organism.list().iterator().next()
+            }
 
-            userOrganismPreference = new UserOrganismPreference(
-                    user: user
-                    , organism: organism
-                    , currentOrganism: true
-                    , sequence: Sequence.findByOrganism(organism)
-            ).save(insert: true)
+
+            if(organism){
+                userOrganismPreference = new UserOrganismPreference(
+                        user: user
+                        , organism: organism
+                        , currentOrganism: true
+                        , sequence: Sequence.findByOrganism(organism)
+                ).save(insert: true)
+            }
+            else{
+                if(Organism.count>0){
+                    throw new PermissionException("User has no access to an organism and/or is not admin")
+                }
+                else{
+                    return null
+                }
+            }
+
         }
 
         organism = userOrganismPreference.organism
@@ -654,7 +674,7 @@ class PermissionService {
         }
 
 
-        Organism organism = getCurrentOrganismPreference().organism
+        Organism organism = getCurrentOrganismPreference()?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
@@ -698,7 +718,12 @@ class PermissionService {
 
         def organisms = getOrganisms(currentUser)
         if(!organisms){
-            throw new PermissionException("User does not have permission for any organisms.")
+            if(isAdmin()){
+                return null
+            }
+            else{
+                throw new PermissionException("User does not have permission for any organisms.")
+            }
         }
         Organism organism = organisms?.iterator()?.next()
         userOrganismPreference = new UserOrganismPreference(

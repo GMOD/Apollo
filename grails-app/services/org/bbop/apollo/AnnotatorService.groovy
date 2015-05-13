@@ -43,21 +43,25 @@ class AnnotatorService {
             }
             appStateObject.put("organismList", organismArray)
             UserOrganismPreference currentUserOrganismPreference = permissionService.currentOrganismPreference
-            appStateObject.put("currentOrganism", currentUserOrganismPreference.organism)
+            if(currentUserOrganismPreference){
+                Organism currentOrganism = currentUserOrganismPreference?.organism
+                appStateObject.put("currentOrganism", currentOrganism )
 
 
-            log.info "current sequence ${currentUserOrganismPreference.sequence}"
-            if (!currentUserOrganismPreference.sequence) {
-                Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
-                currentUserOrganismPreference.sequence = sequence
-                currentUserOrganismPreference.save()
-            }
-            appStateObject.put("currentSequence", currentUserOrganismPreference.sequence)
+                if(currentUserOrganismPreference)
+                    log.info "current sequence ${currentUserOrganismPreference?.sequence}"
+                if (!currentUserOrganismPreference.sequence) {
+                    Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
+                    currentUserOrganismPreference.sequence = sequence
+                    currentUserOrganismPreference.save()
+                }
+                appStateObject.put("currentSequence", currentUserOrganismPreference.sequence)
 
 
-            if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {
-                appStateObject.put("currentStartBp", currentUserOrganismPreference.startbp)
-                appStateObject.put("currentEndBp", currentUserOrganismPreference.endbp)
+                if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {
+                    appStateObject.put("currentStartBp", currentUserOrganismPreference.startbp)
+                    appStateObject.put("currentEndBp", currentUserOrganismPreference.endbp)
+                }
             }
 
 

@@ -196,7 +196,7 @@ apollo {
     // TODO: should come from config or via preferences database
     splice_donor_sites = ["GT"]
     splice_acceptor_sites = ["AG"]
-    gff3.source = "."
+    gff3.source= "."
     bootstrap = false
 
     info_editor = {
@@ -207,6 +207,9 @@ apollo {
         go_ids = true
         comments = true
     }
+
+    google_analytics = "UA-62921593-1"
+}
 
     administrativePanel = [
             ['label': "Canned Comments", 'link': "/cannedComment/"]

@@ -26,7 +26,8 @@ public class SequenceInfoConverter {
     public static List<SequenceInfo> convertFromJsonArray(JSONArray sequenceList) {
         List<SequenceInfo> sequenceInfoArrayList = new ArrayList<>();
 
-        for(int i = 0 ; i < sequenceList.size() ; i++){
+
+        for(int i = 0 ; sequenceList!=null && i < sequenceList.size() ; i++){
             sequenceInfoArrayList.add(convertFromJson(sequenceList.get(i).isObject()));
         }
 

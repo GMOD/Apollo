@@ -8,44 +8,63 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title><g:layoutTitle default="Web Apollo"/></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="apple-touch-icon" href="${assetPath(src: 'apple-touch-icon.png')}">
-    <link rel="apple-touch-icon" sizes="114x114" href="${assetPath(src: 'apple-touch-icon-retina.png')}">
-    <asset:stylesheet src="annotator.css"/>
-    <asset:javascript src="application.js"/>
-    <asset:link rel="shortcut icon" href="webapollo_favicon.ico" type="image/x-icon"/>
-    %{--<link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">--}%
-    <g:layoutHead/>
+<link rel="apple-touch-icon" href="${assetPath(src: 'apple-touch-icon.png')}">
+<link rel="apple-touch-icon" sizes="114x114" href="${assetPath(src: 'apple-touch-icon-retina.png')}">
+<asset:stylesheet src="annotator.css"/>
+<asset:javascript src="application.js"/>
+<asset:link rel="shortcut icon" href="webapollo_favicon.ico" type="image/x-icon"/>
+%{--<link rel="shortcut icon" href="${assetPath(src: 'favicon.ico')}" type="image/x-icon">--}%
+<g:if test="${grailsApplication.config.apollo.google_analytics}">
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                    }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', '${grailsApplication.config.apollo.google_analytics}', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+</g:if>
+
+
+<g:layoutHead/>
 </head>
 
-<body>
-
 %{--<div id="apolloLogo" style="padding: 5px;">--}%
-    %{--<a href="http://genomearchitect.org">--}%
-    %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
-    %{--Genome Annotator--}%
-    %{--<nav:primary class="nav primary small-menu"/>--}%
-    %{--<nav:primary/>--}%
-    %{--<ul class="nav nav-pills header1" >--}%
-        %{--<li role="presentation" class="">--}%
-            %{--<a href="http://genomearchitect.org">--}%
-                %{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
-        %{--</li>--}%
+%{--<a href="http://genomearchitect.org">--}%
+%{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
+%{--Genome Annotator--}%
+%{--<nav:primary class="nav primary small-menu"/>--}%
+%{--<nav:primary/>--}%
+%{--<ul class="nav nav-pills header1" >--}%
+%{--<li role="presentation" class="">--}%
+%{--<a href="http://genomearchitect.org">--}%
+%{--<asset:image src="ApolloLogo_100x36.png" alt="Web Apollo"/></a>--}%
+%{--</li>--}%
 
-        %{--<li role="presentation" class="menu-item">--}%
-            %{--<g:link action="list" controller="organism">Organisms</g:link>--}%
-        %{--</li>--}%
-        %{--<li role="presentation" class="active menu-item">--}%
-            %{--<g:link action="index" controller="sequence">Sequences</g:link>--}%
-        %{--</li>--}%
-        %{--<li role="presentation" class=" menu-item">--}%
-            %{--<g:link action="index" controller="annotator">Annotate</g:link>--}%
-        %{--</li>--}%
-        %{--<li role="presentation" class=" menu-item">--}%
-            %{--<g:link action="permissions" controller="user">Permissions</g:link>--}%
-        %{--</li>--}%
-    %{--</ul>--}%
+%{--<li role="presentation" class="menu-item">--}%
+%{--<g:link action="list" controller="organism">Organisms</g:link>--}%
+%{--</li>--}%
+%{--<li role="presentation" class="active menu-item">--}%
+%{--<g:link action="index" controller="sequence">Sequences</g:link>--}%
+%{--</li>--}%
+%{--<li role="presentation" class=" menu-item">--}%
+%{--<g:link action="index" controller="annotator">Annotate</g:link>--}%
+%{--</li>--}%
+%{--<li role="presentation" class=" menu-item">--}%
+%{--<g:link action="permissions" controller="user">Permissions</g:link>--}%
+%{--</li>--}%
+%{--</ul>--}%
 
 %{--</div>--}%
 
@@ -54,10 +73,12 @@
 %{--<g:include view="mainMenu"/>--}%
 %{--<nav:secondary/>--}%
 
-<g:layoutBody/>
+    <g:layoutBody/>
 
 %{--<div class="footer" role="contentinfo"></div>--}%
 
-<div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt" default="Loading&hellip;"/></div>
-</body>
-</html>
+
+    <div id="spinner" class="spinner" style="display:none;"><g:message code="spinner.alt"
+                                                                       default="Loading&hellip;"/></div>
+    </body>
+    </html>

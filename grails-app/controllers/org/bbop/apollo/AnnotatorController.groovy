@@ -184,19 +184,21 @@ class AnnotatorController {
 
         // TODO: should only be returning the top-level features
         List<Feature> allFeatures
-        if (!sequence) {
-            try {
-                allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-            } catch (e) {
-                allFeatures = new ArrayList<>()
-                log.error(e)
+        if(organism){
+            if (!sequence) {
+                try {
+                    allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
+                } catch (e) {
+                    allFeatures = new ArrayList<>()
+                    log.error(e)
+                }
+            } else {
+                allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
             }
-        } else {
-            allFeatures = Feature.executeQuery("select distinct f from Feature f left join f.parentFeatureRelationships pfr join f.featureLocations fl join fl.sequence s join s.organism o where s.name = :sequenceName and f.childFeatureRelationships is empty  and o = :organism  and f.class in (:viewableTypes)", [sequenceName: sequenceName, organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])
-        }
 
-        for (Feature feature in allFeatures) {
-            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+            for (Feature feature in allFeatures) {
+                returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+            }
         }
 
         returnObject.put(FeatureStringEnum.REQUEST_INDEX.getValue(), index + 1)

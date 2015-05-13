@@ -20,6 +20,7 @@ class OrganismController {
     def sequenceService
     def permissionService
     def requestHandlingService
+    def preferenceService
 
 
     @Transactional
@@ -65,8 +66,8 @@ class OrganismController {
             if(checkOrganism(organism)) {
                 organism.save(failOnError: true, flush: true, insert: true)
             }
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
             sequenceService.loadRefSeqs(organism)
-
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -97,6 +98,7 @@ class OrganismController {
             if(checkOrganism(organism)) {
                 organism.save(failOnError: true, flush: true, insert: true)
             }
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
             sequenceService.loadRefSeqs(organism)
         } catch (e) {
             def error= [error: 'problem saving organism: '+e]
