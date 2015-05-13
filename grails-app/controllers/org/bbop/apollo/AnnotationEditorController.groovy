@@ -650,7 +650,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
 
                 List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
-                List<String> cannedCommentStrings = CannedComment.findAllByFeatureTypesInList(featureTypeList)
+                List<String> cannedCommentStrings = CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)",[featureTypeList:featureTypeList]).comment
                 if (cannedCommentStrings != null) {
                     for (String comment : cannedCommentStrings) {
                         cannedComments.put(comment);

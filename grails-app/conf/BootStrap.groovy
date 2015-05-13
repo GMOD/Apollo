@@ -1,7 +1,13 @@
 import grails.converters.JSON
 import grails.util.Environment
+import org.bbop.apollo.FeatureType
+import org.bbop.apollo.Gene
+import org.bbop.apollo.MRNA
+import org.bbop.apollo.SnRNA
 import org.bbop.apollo.Organism
+import org.bbop.apollo.Pseudogene
 import org.bbop.apollo.Role
+import org.bbop.apollo.Transcript
 import org.bbop.apollo.User
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -12,6 +18,7 @@ class BootStrap {
     def sequenceService
     def configWrapperService
     def grailsApplication
+    def featureTypeService
 
 
     def init = { servletContext ->
@@ -47,6 +54,10 @@ class BootStrap {
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
+
+        if(FeatureType.count==0){
+            featureTypeService.stubDefaultFeatureTypes()
+        }
 
         if(Role.count==0){
             def userRole = new Role(name: UserService.USER).save()
