@@ -278,16 +278,16 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
-        for(int i = 0 ; i < featuresArray.size() ;i++){
+        for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             JSONArray commentsArray = jsonFeature.getJSONArray(FeatureStringEnum.COMMENTS.value)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
 
-            for(int commentIndex = 0 ; commentIndex < featuresArray.size() ; commentIndex++){
-                String commentString  = commentsArray.getString(commentIndex);
-                Comment comment = new Comment(value:commentString,feature:feature).save()
-                featurePropertyService.addComment(feature,comment)
+            for (int commentIndex = 0; commentIndex < commentsArray.size(); commentIndex++) {
+                String commentString = commentsArray.getString(commentIndex);
+                Comment comment = new Comment(value: commentString, feature: feature).save()
+                featurePropertyService.addComment(feature, comment)
             }
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
 
@@ -305,15 +305,90 @@ class RequestHandlingService {
     }
 
     def deleteComments(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            JSONArray commentsArray = jsonFeature.getJSONArray(FeatureStringEnum.COMMENTS.value)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+            for (int commentIndex = 0; commentIndex < commentsArray.size(); commentIndex++) {
+                String commentString = commentsArray.getString(commentIndex);
+                featurePropertyService.deleteComment(feature, commentString)
+            }
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+
+        }
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
     }
 
     def updateComments(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            JSONArray oldComments = jsonFeature.getJSONArray(FeatureStringEnum.OLD_COMMENTS.value);
+            JSONArray newComments = jsonFeature.getJSONArray(FeatureStringEnum.NEW_COMMENTS.value);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+            for (int commentIndex = 0; commentIndex < oldComments.size(); commentIndex++) {
+                String oldCommentString = oldComments.getString(commentIndex)
+                String newCommentString = newComments.getString(commentIndex)
+
+                Comment comment = Comment.findByFeatureAndValue(feature, oldCommentString)
+                comment.value = newCommentString
+                comment.save()
+            }
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+
+        }
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
 
     }
 
 
     def getComments(JSONObject inputObject) {
+        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            JSONArray commentsArray = new JSONArray()
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+            for (Comment comment in featurePropertyService.getComments(feature)) {
+                String commentString = comment.value
+                commentsArray.put(commentString)
+            }
+            jsonFeature.put(FeatureStringEnum.COMMENTS.value, commentsArray)
+        }
+        return featureContainer
 
     }
 
@@ -403,12 +478,10 @@ class RequestHandlingService {
 
         String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
-        if(sequenceName!=sequence.name){
-            sequence = Sequence.findByNameAndOrganism(sequenceName,sequence.organism)
-            preferenceService.setCurrentSequence(permissionService.getActiveUser(inputObject),sequence)
+        if (sequenceName != sequence.name) {
+            sequence = Sequence.findByNameAndOrganism(sequenceName, sequence.organism)
+            preferenceService.setCurrentSequence(permissionService.getActiveUser(inputObject), sequence)
         }
-
-
 
 //        if(permissionService.fixTrackHeader(inputObject.))
         println "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
