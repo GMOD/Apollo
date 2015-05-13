@@ -248,6 +248,11 @@ public class OrganismPanel extends Composite {
                 OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
                 organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
                 Annotator.eventBus.fireEvent(organismChangeEvent);
+
+                // in the case where we just add one . . .we should refresh the app state
+                if(organismInfoList.size()==1){
+                    MainPanel.getInstance().getAppState();
+                }
             }
             if(savingNewOrganism) {
                 savingNewOrganism=false;
