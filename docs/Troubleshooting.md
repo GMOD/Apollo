@@ -13,12 +13,27 @@ In cases where the assembled genome is highly fragmented, additional tuning of m
     "-Xmx12288m -Xms8192m -XX:PermSize=256m -XX:MaxPermSize=1024m -XX:ReservedCodeCacheSize=64m -XX:+UseG1GC -XX:+CMSClassUnloadingEnabled -Xloggc:$CATALINA_HOME/logs/gc.log -XX:+PrintHeapAtGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
 
 To use this setting, edit the setenv.sh script in 
-`$TOMCAT_BIN_DIR/setenv.sh` where `$TOMCAT_BIN_DIR` is where the
-directory where the Tomcat binaries reside.
+`$TOMCAT_BIN_DIR/setenv.sh` where `$TOMCAT_BIN_DIR` is where the directory where the Tomcat binaries reside.
 
-#### Memory fixes for special cases
-Some members of our community have contributed information on how they 
+Conversely, you may have to edit `catalina.sh` directly to inject the options.
 
+#### Confirm your settings
+
+`ps -ef | grep -i tomcat`
+
+You should see your memory settings applied here. 
+
+#### A clean install
+
+If you start seeing memory leaks (`java.lang.OutOfMemoryError: Java heap space`) after doing an update, try this.  Hot deploy is not recommended as it often leads to memory leaks or an inconsistent software state.  Instead I recommend a clean install, which is guaranteed to work.   
+
+If you war file is named 'mywar.war'
+
+- `apollo deploy`  (or `apollo release` if you have the proper libraries installed)
+- stop tomcat
+- `sudo rm -f $TOMCAT_WEBAPPS_DIR/webapps/mywar.war && sudo rm -rf $TOMCAT_WEBAPPS_DIR/webapps/mywar`
+- `sudo cp target/apollo-XXX.war $TOMCAT_WEBAPPS_DIR/webapps/mywar.war`
+- start tomcat 
 
 ### Tomcat permissions
 
