@@ -21,7 +21,9 @@ Conversely, you may have to edit `catalina.sh` directly to inject the options.
 
 `ps -ef | grep -i tomcat`
 
-You should see your memory settings applied here. 
+You should see your memory settings in the command that runs tomcat.   
+
+`/usr/local/bin/java -Dfile.encoding=UTF-8 -Xmx2048M -Xms64M -XX:MaxPermSize=1024m `
 
 #### A clean install
 
