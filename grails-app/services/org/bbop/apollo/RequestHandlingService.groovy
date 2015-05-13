@@ -1491,7 +1491,8 @@ class RequestHandlingService {
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
                     transcript.name = nameService.generateUniqueName(transcript, newFeature.name)
                     transcript.uniqueName = nameService.generateUniqueName()
-                    featurePropertyService.setOwner(transcript, user)
+                    transcript.addToOwners(user)
+//                    featurePropertyService.setOwner(transcript, user)
 
                     JSONObject jsonObject = featureService.convertFeatureToJSON(transcript)
                     if (!suppressHistory) {

@@ -158,26 +158,26 @@ class FeaturePropertyService {
 //     *  @deprecated . . . is a first-class object
 //     * @param owner - User of this feature
 //     */
-    public void setOwner(Feature feature, String owner) {
-
-        log.debug "looking for owner ${owner}"
-        User user = User.findByUsername(owner)
-        log.debug "owner ${owner} found ${user}"
-        log.debug "feature ${feature}"
-
-        if (user) {
-            setOwner(feature, user)
-        } else {
-            throw new AnnotationException("User ${owner} not found")
-        }
-//        setOwner(new User(owner));
-    }
-
-    public void setOwner(Feature feature, User user) {
-        FeatureProperty featureProperty = new FeatureProperty(feature:feature,value:user.username).save()
-//        addProperty(feature, user)
-        addProperty(feature,featureProperty)
-    }
+//    public void setOwner(Feature feature, String owner) {
+//
+//        log.debug "looking for owner ${owner}"
+//        User user = User.findByUsername(owner)
+//        log.debug "owner ${owner} found ${user}"
+//        log.debug "feature ${feature}"
+//
+//        if (user) {
+//            setOwner(feature, user)
+//        } else {
+//            throw new AnnotationException("User ${owner} not found")
+//        }
+////        setOwner(new User(owner));
+//    }
+//
+//    public void setOwner(Feature feature, User user) {
+//        FeatureProperty featureProperty = new FeatureProperty(feature:feature,value:user.username).save()
+////        addProperty(feature, user)
+//        addProperty(feature,featureProperty)
+//    }
 
 
     def getNonReservedProperties(Feature feature) {
