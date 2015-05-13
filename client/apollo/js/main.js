@@ -653,16 +653,15 @@ return declare( [JBPlugin, HelpMixin],
                                         onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
                                     })
                               );
-        // TODO: add back when complete
-        //browser.addGlobalMenuItem( 'help',
-        //    new dijitMenuItem(
-        //        {
-        //            id: 'menubar_web_service_api',
-        //            label: 'Web Service API',
-        //            // iconClass: 'jbrowseIconHelp',
-        //            onClick: function()  { window.open("../web_services/web_service_api.html",'help_window').focus(); }
-        //        })
-        //);
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'menubar_web_service_api',
+                    label: 'Web Service API',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  { window.open("web_services/api",'help_window').focus(); }
+                })
+        );
         browser.addGlobalMenuItem( 'help',
             new dijitMenuItem(
                 {
