@@ -25,7 +25,9 @@
 					<tr>
 					
 						<g:sortableColumn property="comment" title="${message(code: 'cannedComment.comment.label', default: 'Comment')}" />
-					
+
+						%{--<g:sortableColumn property="metadata" title="${message(code: 'cannedComment.featureTypes.label', default: 'Feature Types')}" />--}%
+						<th>Feature Types</th>
 						<g:sortableColumn property="metadata" title="${message(code: 'cannedComment.metadata.label', default: 'Metadata')}" />
 					
 					</tr>
@@ -35,6 +37,12 @@
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
 						<td><g:link action="show" id="${cannedCommentInstance.id}">${fieldValue(bean: cannedCommentInstance, field: "comment")}</g:link></td>
+
+						<td>
+							<g:each in="${cannedCommentInstance.featureTypes}" var="featureType">
+								${featureType.type}:${featureType.name}
+							</g:each>
+						</td>
 					
 						<td>${fieldValue(bean: cannedCommentInstance, field: "metadata")}</td>
 					
