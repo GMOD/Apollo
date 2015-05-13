@@ -8,6 +8,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
 import com.google.gwt.dom.builder.shared.TableCellBuilder;
 import com.google.gwt.dom.builder.shared.TableRowBuilder;
+import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -32,6 +33,7 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -128,15 +130,30 @@ public class AnnotatorPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
 
-        dataGrid.setSelectionModel(selectionModel);
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+        dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<AnnotationInfo>() {
             @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
-                GWT.log(selectionModel.getSelectedObject().getName());
-                updateAnnotationInfo(annotationInfo);
+            public void onCellPreview(CellPreviewEvent<AnnotationInfo> event) {
+                AnnotationInfo annotationInfo = event.getValue();
+                if (event.getNativeEvent().getType().equals(BrowserEvents.CLICK)) {
+                    if (event.getContext().getSubIndex() == 0) {
+                        // subIndex from dataGrid will be 0 only when top-level cell values are clicked
+                        // ie. gene, pseudogene
+                        GWT.log("Safe to call updateAnnotationInfo");
+                        updateAnnotationInfo(annotationInfo);
+                    }
+                }
             }
         });
+        
+//        dataGrid.setSelectionModel(selectionModel);
+//        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+//            @Override
+//            public void onSelectionChange(SelectionChangeEvent event) {
+//                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
+//                GWT.log(selectionModel.getSelectedObject().getName());
+//                updateAnnotationInfo(annotationInfo);
+//            }
+//        });
 
 
         exportStaticMethod(this);
