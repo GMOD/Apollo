@@ -209,7 +209,7 @@ apollo {
         comments = true
     }
 
-    google_analytics = ""
+    google_analytics = "UA-62921593-1"
 }
 
 
