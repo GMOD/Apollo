@@ -269,6 +269,54 @@ class RequestHandlingService {
 
     }
 
+    /**
+     * For each feature add the list of comments
+     * @param inputObject
+     */
+    def addComments(JSONObject inputObject) {
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for(int i = 0 ; i < featuresArray.size() ;i++){
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            JSONArray commentsArray = jsonFeature.getJSONArray(FeatureStringEnum.COMMENTS.value)
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+
+            for(int commentIndex = 0 ; commentIndex < featuresArray.size() ; commentIndex++){
+                String commentString  = commentsArray.getString(commentIndex);
+                Comment comment = new Comment(value:commentString,feature:feature).save()
+                featurePropertyService.addComment(feature,comment)
+            }
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+
+        }
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+    }
+
+    def deleteComments(JSONObject inputObject) {
+
+    }
+
+    def updateComments(JSONObject inputObject) {
+
+    }
+
+
+    def getComments(JSONObject inputObject) {
+
+    }
+
     def addNonPrimaryDbxrefs(JSONObject inputObject) {
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1425,7 +1473,8 @@ class RequestHandlingService {
             newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
-            featurePropertyService.setOwner(newFeature, user);
+            newFeature.addToOwners(user)
+//            featurePropertyService.setOwner(newFeature, user);
             newFeature.save(insert: true, flush: true)
 
             if (newFeature instanceof Gene) {

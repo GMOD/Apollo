@@ -6,6 +6,7 @@ import grails.transaction.Transactional
 class FeaturePropertyService {
 
 
+    public static List<String> nonReservedClasses = ["Comment","Owner","Description","Symbol","Status","ReadthroughStopCodon"]
 
 
 /** Get comments for this feature.
@@ -154,7 +155,7 @@ class FeaturePropertyService {
 //    }
 
 //    /** Set the owner of this feature.
-//     *
+//     *  @deprecated . . . is a first-class object
 //     * @param owner - User of this feature
 //     */
     public void setOwner(Feature feature, String owner) {
@@ -176,5 +177,12 @@ class FeaturePropertyService {
         FeatureProperty featureProperty = new FeatureProperty(feature:feature,value:user.username).save()
 //        addProperty(feature, user)
         addProperty(feature,featureProperty)
+    }
+
+
+    def getNonReservedProperties(Feature feature) {
+        return FeatureProperty.findAllByFeature(feature).find(){
+            return !nonReservedClasses.contains(it.cvTerm)
+        }
     }
 }

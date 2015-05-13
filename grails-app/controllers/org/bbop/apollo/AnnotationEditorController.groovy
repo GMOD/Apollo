@@ -225,6 +225,45 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+
+    def addComments(){
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.addComments(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    def deleteComments(){
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.deleteComments(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+
+    def updateComments(){
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.updateComments(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+
+    def getComments(){
+        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+            render requestHandlingService.getComments(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
     /**
      * // input
      *{"operation":"add_transcript","track":"Annotations-Group1.2","features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":258308,"strand":1,"fmax":258471},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":247976},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd","children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},"name":"00540e13-de64-4fa2-868a-e168e584f55d","uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},{"location":{"fmin":258308,"strand":1,"fmax":258471},"name":"de44177e-ce76-4a9a-8313-1c654d1174aa","uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5","uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915","uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],"uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}*
@@ -622,7 +661,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (configWrapperService.hasAttributes()) {
                 JSONArray properties = new JSONArray();
                 newFeature.put(FeatureStringEnum.NON_RESERVED_PROPERTIES.value, properties);
-                for (FeatureProperty property : feature.featureProperties) {
+                for (FeatureProperty property : featurePropertyService.getNonReservedProperties(feature)) {
                     JSONObject jsonProperty = new JSONObject();
                     jsonProperty.put(FeatureStringEnum.TAG.value, property.getTag());
                     jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
@@ -651,7 +690,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
                 List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
                 List<String> cannedCommentStrings = new ArrayList<>()
-                cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)",[featureTypeList:featureTypeList]).comment)
+                if(featureTypeList){
+                    cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)",[featureTypeList:featureTypeList]).comment)
+                }
                 cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty" ).comment)
                 if (cannedCommentStrings != null) {
                     for (String comment : cannedCommentStrings) {
