@@ -25,6 +25,8 @@ class FeatureTypeService {
         createFeatureTypeForFeature(TRNA.class)
         createFeatureTypeForFeature(NcRNA.class)
         createFeatureTypeForFeature(RRNA.class)
+        createFeatureTypeForFeature(RepeatRegion.class)
+        createFeatureTypeForFeature(TransposableElement.class)
 
     }
 }
