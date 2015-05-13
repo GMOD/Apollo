@@ -94,8 +94,13 @@ public class ExonDetailPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                exonEditContainer.setVisible(true);
-                updateDetailData(selectionModel.getSelectedObject());
+                if(selectionModel.getSelectedSet().isEmpty()){
+                    exonEditContainer.setVisible(false);
+                }
+                else{
+                    exonEditContainer.setVisible(true);
+                    updateDetailData(selectionModel.getSelectedObject());
+                }
             }
         });
 
