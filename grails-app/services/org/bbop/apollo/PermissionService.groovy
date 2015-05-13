@@ -654,7 +654,7 @@ class PermissionService {
         }
 
 
-        Organism organism = getCurrentOrganismPreference().organism
+        Organism organism = getCurrentOrganismPreference()?.organism
         log.debug "passing in an organism ${jsonObject.organism}"
         if (jsonObject.organism) {
             Organism thisOrganism = null
@@ -698,7 +698,12 @@ class PermissionService {
 
         def organisms = getOrganisms(currentUser)
         if(!organisms){
-            throw new PermissionException("User does not have permission for any organisms.")
+            if(isAdmin()){
+                return null
+            }
+            else{
+                throw new PermissionException("User does not have permission for any organisms.")
+            }
         }
         Organism organism = organisms?.iterator()?.next()
         userOrganismPreference = new UserOrganismPreference(

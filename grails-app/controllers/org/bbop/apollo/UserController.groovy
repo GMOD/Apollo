@@ -15,6 +15,10 @@ class UserController {
 
     def loadUsers() {
         JSONArray returnArray = new JSONArray()
+        if(!permissionService.currentUser){
+            render returnArray as JSON
+            return
+        }
 
         def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
         log.debug "allowable organisms ${allowableOrganisms.size()}"
