@@ -26,6 +26,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
@@ -65,7 +66,8 @@ public class ExonDetailPanel extends Composite {
     Button increaseThreePrime;
     @UiField
     Button decreaseThreePrime;
-    
+    @UiField
+    Container exonEditContainer;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(200, tablecss);
@@ -92,6 +94,7 @@ public class ExonDetailPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+                exonEditContainer.setVisible(true);
                 updateDetailData(selectionModel.getSelectedObject());
             }
         });
@@ -184,6 +187,7 @@ public class ExonDetailPanel extends Composite {
         //displayAnnotationInfo(annotationInfo);
         getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
+        exonEditContainer.setVisible(false);
         GWT.log("sublist: " + annotationInfo.getAnnotationInfoSet().size());
         for(AnnotationInfo annotationInfo1 : annotationInfo.getAnnotationInfoSet()){
             GWT.log("adding: "+annotationInfo1.getName());
