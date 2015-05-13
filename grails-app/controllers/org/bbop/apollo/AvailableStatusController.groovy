@@ -10,6 +10,15 @@ class AvailableStatusController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
+    def permissionService
+
+    def beforeInterceptor = {
+        if(!permissionService.isAdmin()){
+            forward action: "notAuthorized" ,controller: "annotator"
+            return
+        }
+    }
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond AvailableStatus.list(params), model:[availableStatusInstanceCount: AvailableStatus.count()]

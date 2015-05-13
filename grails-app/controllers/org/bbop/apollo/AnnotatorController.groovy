@@ -241,4 +241,8 @@ class AnnotatorController {
         render annotatorService.getAppState() as JSON
     }
 
+    def notAuthorized(){
+        println "not authorized"
+    }
+
 }
