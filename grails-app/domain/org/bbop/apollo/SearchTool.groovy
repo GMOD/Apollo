@@ -6,7 +6,7 @@ class SearchTool {
     }
 
     String key
-    String implementatinClass
+    String implementationClass
     String binaryPath
     String tmpDir
     String databasePath
