@@ -174,7 +174,7 @@ public class MainPanel extends Composite {
         };
 
         handlingNavEvent = true;
-        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end,true);
+        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end, true);
 
     }
 
@@ -220,31 +220,6 @@ public class MainPanel extends Composite {
         SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
 
     }
-
-//    private static void setCurrentSequenceAndRefresh(final String sequenceNameString, final Integer start, final Integer end) {
-//
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                handlingNavEvent = false;
-//                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
-//                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-//                currentStartBp = start != null ? start : 0;
-//                currentEndBp = end != null ? end : currentSequence.getEnd();
-//                sequenceSuggestBox.setText(currentSequence.getName());
-//                updateGenomicViewer();
-//                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                handlingNavEvent = false;
-//                Window.alert("failed to set JBrowse sequence: " + exception);
-//            }
-//        };
-//
-//        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
-//    }
 
 
     private void updatePermissionsForOrganism() {
@@ -365,20 +340,6 @@ public class MainPanel extends Composite {
         final String finalString = trackListString;
 
         frame.setUrl(finalString);
-
-        // was added to support copy and paste, but just bounces interface
-//        Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
-//            @Override
-//            public boolean execute() {
-//                if (!trackPanel.getTrackList().isEmpty()) {
-////                    frame.setUrl(finalString);
-//                    return false;
-//                } else {
-//                    return true;
-//                }
-//
-//            }
-//        });
     }
 
     public static void updateGenomicViewer() {
@@ -409,9 +370,11 @@ public class MainPanel extends Composite {
             }
         }
 
-        updatePermissionsForOrganism();
+        if(currentOrganism!=null) {
+            updatePermissionsForOrganism();
+            updateGenomicViewer();
+        }
 
-        updateGenomicViewer();
 
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
@@ -436,6 +399,7 @@ public class MainPanel extends Composite {
                     Window.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
+                    GWT.log(obj.toString());
                     loadingDialog.hide();
                     AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(obj);
                     setAppState(appStateInfo);
@@ -453,7 +417,6 @@ public class MainPanel extends Composite {
             builder.send();
         } catch (RequestException e) {
             loadingDialog.hide();
-            // Couldn't connect to server
             Window.alert(e.getMessage());
         }
 
