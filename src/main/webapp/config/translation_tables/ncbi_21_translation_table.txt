@@ -1,6 +1,0 @@
-TGA	W
-ATA	M
-AGA	S
-AGG	S
-AAA	N
-GTG	V	start
