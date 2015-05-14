@@ -31,23 +31,23 @@ class ConfigWrapperService {
 
 
     Boolean hasDbxrefs(){
-        return true
+        return grailsApplication.config.apollo.feature_has_dbxrefs
     }
     Boolean hasAttributes(){
-        return true
+        return grailsApplication.config.apollo.feature_has_attributes
     }
 
     Boolean hasPubmedIds(){
-        return true
+        return grailsApplication.config.apollo.feature_has_pubmed_ids
     }
     Boolean hasGoIds(){
-        return true
+        return grailsApplication.config.apollo.feature_has_go_ids
     }
     Boolean hasComments(){
-        return true
+        return grailsApplication.config.apollo.feature_has_comments
     }
     Boolean hasStatus(){
-        return true
+        return grailsApplication.config.apollo.feature_has_status
     }
 
     List<String> getSpliceDonorSites(){
