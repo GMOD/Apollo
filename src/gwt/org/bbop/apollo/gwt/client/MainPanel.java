@@ -419,9 +419,11 @@ public class MainPanel extends Composite {
             }
         }
 
-        updatePermissionsForOrganism();
+        if(currentOrganism!=null) {
+            updatePermissionsForOrganism();
+            updateGenomicViewer();
+        }
 
-        updateGenomicViewer();
 
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
@@ -446,6 +448,7 @@ public class MainPanel extends Composite {
                     Window.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
+                    GWT.log(obj.toString());
                     loadingDialog.hide();
                     AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(obj);
                     setAppState(appStateInfo);
@@ -463,7 +466,6 @@ public class MainPanel extends Composite {
             builder.send();
         } catch (RequestException e) {
             loadingDialog.hide();
-            // Couldn't connect to server
             Window.alert(e.getMessage());
         }
 

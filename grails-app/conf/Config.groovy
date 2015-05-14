@@ -173,6 +173,12 @@ apollo {
     overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
     track_name_comparator = "/config/track_name_comparator.js"
     use_cds_for_new_transcripts = true
+    feature_has_dbxrefs = true
+    feature_has_attributes = true
+    feature_has_pubmed_ids = true
+    feature_has_go_ids = true
+    feature_has_comments = true
+    feature_has_status = true
     user_pure_memory_store = true
     translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
     is_partial_translation_allowed = false // unused so far

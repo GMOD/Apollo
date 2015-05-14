@@ -322,6 +322,10 @@ public class Gff3HandlerService {
                     FeatureProperty prop = propertyIter.next();
                     StringBuilder props = properties.get(prop.getTag());
                     if (props == null) {
+                        if (prop.getTag() == null) {
+                            // tag is null for generic properties
+                            continue
+                        }
                         props = new StringBuilder();
                         properties.put(prop.getTag(), props);
                     } else {
@@ -334,6 +338,7 @@ public class Gff3HandlerService {
                 }
             }
         }
+
         if (feature.getOwner() && writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value)) {
             attributes.put(FeatureStringEnum.OWNER.value, encodeString(feature.getOwner().username));
         }
