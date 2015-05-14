@@ -127,7 +127,7 @@ class UserController {
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if(!userOrganismPreference){
+            if(!userOrganismPreference && !permissionService.isUserAdmin(currentUser)){
                 userObject.put(FeatureStringEnum.ERROR.value,"You do not have access to any organism on this server.  Please contact your administrator.")
             }
 
