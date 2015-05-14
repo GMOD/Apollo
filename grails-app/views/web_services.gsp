@@ -27,47 +27,46 @@
     </p>
 
 
-    <h3>Login</h3>
+    <h3>Global Parameters: username, password, organism</h3>
 
     <p>
-        To properly setup an user's editing session, the user needs to login to the web service. This is to prevent
-        an user from just loading a page directly and making a request without prior authentication.
+        Every request should have 3 parameters (in addition to the ones offered below) <code>username</code>, <code>password</code>, and <code>organism</code>.
+    The organism is the common name (from the UI-panel).
     </p>
 
-    <h4>Request</h4>
+    %{--<h4>Request</h4>--}%
 
-    <p>
-        The URL for login is:
+    %{--<p>--}%
+        %{--The URL for login is:--}%
 
-    <div class="code">http://$server:$port/ApolloWeb/Login</div>
-    where <code>Rserver</code> is the server name and <code>$port</code> is the server port.
-</p>
+    %{--<div class="code">http://$server:$port/ApolloWeb/Login</div>--}%
+    %{--where <code>Rserver</code> is the server name and <code>$port</code> is the server port.--}%
 
-    <p>
-        For example:
+    %{--<p>--}%
+        %{--For example:--}%
 
-    <div class="code">curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \
-    -H "Content-Type:application/json" -d "{'username': 'demo', 'password': 'demo'}"
-    "http://localhost:8080/apollo/Login?operation=login"
-    </div>
-</p>
+    %{--<div class="code">curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \--}%
+    %{---H "Content-Type:application/json" -d "{'username': 'demo', 'password': 'demo'}"--}%
+    %{--"http://localhost:8080/apollo/Login?operation=login"--}%
+    %{--</div>--}%
+%{--</p>--}%
 
 
-    <p>
-        Login expects two parameters: <code>username</code> and <code>password</code>. There currently isn't
-    any real user authentication implemented, so <code>username</code> and <code>password</code> should be set to
-        <code>foo</code> and <code>bar</code> respectively.
-    </p>
+    %{--<p>--}%
+        %{--Login expects two parameters: <code>username</code> and <code>password</code>. There currently isn't--}%
+    %{--any real user authentication implemented, so <code>username</code> and <code>password</code> should be set to--}%
+        %{--<code>foo</code> and <code>bar</code> respectively.--}%
+    %{--</p>--}%
 
-    <h4>Response</h4>
+    %{--<h4>Response</h4>--}%
 
-    <p>
-        Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's
-    browser does not support cookies (or is turned off), in which case the <code>session-id</code> should be
-    appended to all subsequent requests as <code>jsessionid=session-id</code> as an URL parameter.
+    %{--<p>--}%
+        %{--Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's--}%
+    %{--browser does not support cookies (or is turned off), in which case the <code>session-id</code> should be--}%
+    %{--appended to all subsequent requests as <code>jsessionid=session-id</code> as an URL parameter.--}%
 
-    <div class="code">{"session-id":"43FBA5B967595D260A1C0E6B7052C7A1"}
-    </div>
+    %{--<div class="code">{"session-id":"43FBA5B967595D260A1C0E6B7052C7A1"}--}%
+    %{--</div>--}%
 </div>
 
 <div class="section" id="feature">
@@ -160,130 +159,6 @@
         {}
     </div>
 
-
-    <h4>set_organism</h4>
-
-    <p>
-        Set the organism to be associated with this session. Returns the organism just set.
-    </p>
-
-    <p>
-        Request:
-    </p>
-
-    <div class="code">{
-    "operation": "set_organism",
-    "organism": {
-    "genus": "Foomus",
-    "species": "barius"
-    }
-    }
-    </div>
-
-    <p>
-        Response:
-    </p>
-
-    <div class="code">{
-    "genus": "Foomus",
-    "species": "barius"
-    }
-    </div>
-
-    <h4>get_organism</h4>
-
-    <p>
-        Get the organism associated with this session.
-    </p>
-
-    <p>
-        Request:
-    </p>
-
-    <div class="code">{
-    "operation": "set_organism",
-    "organism": {
-    "genus": "Foomus",
-    "species": "barius"
-    }
-    }
-    </div>
-
-    <p>
-        Response:
-    </p>
-
-    <div class="code">{
-    "genus": "Foomus",
-    "species": "barius"
-    }
-    </div>
-
-    <h4>set_source_feature</h4>
-
-    <p>
-        Set the source feature to be associated with this session. Returns the source feature just set.
-    </p>
-
-    <p>
-        Request:
-    </p>
-
-    <div class="code">{
-    "features": [{
-    "residues": "ATATCTTTTCTCACAATCGTTG...",
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "chromosome"
-    },
-    "uniquename": "chromosome"
-    }],
-    "operation": "set_source_feature"
-    }
-    </div>
-
-    <p>
-        Response:
-    </p>
-
-    <div class="code">{"features": [{
-    "residues": "ATATCTTTTCTCACAATCGTTG...",
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "chromosome"
-    },
-    "uniquename": "chromosome"
-    }]}
-    </div>
-
-    <h4>get_source_feature</h4>
-
-    <p>
-        Get the source feature associated with this session.
-    </p>
-
-    <p>
-        Request:
-    </p>
-
-    <div class="code">{
-    "operation": "get_source_feature"
-    }
-    </div>
-
-    <p>
-        Response:
-    </p>
-
-    <div class="code">{"features": [{
-    "residues": "ATATCTTTTCTCACAATCGTTG...",
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "chromosome"
-    },
-    "uniquename": "chromosome"
-    }]}
-    </div>
 
     <h4>add_feature</h4>
 
@@ -1846,7 +1721,8 @@
             <div class="code">'operation' ('read' or 'write')</div>
         </li>
         <li>
-            <div class="code">'adapter' ('GFF3','FASTA','Chado')</div>
+            %{--<div class="code">'adapter' ('GFF3','FASTA','Chado')</div>--}%
+            <div class="code">'adapter' ('GFF3','FASTA')</div>
         </li>
         <li>
             <div class="code">'tracks' (an array of tracks, e.g., ["Annotations-scf11","Annotations-BCD"])</div>
@@ -1865,13 +1741,8 @@
     </p>
 
     <div class="code">
-        curl -b cookies.txt -c cookies.txt -e "http://$hostname:$port" -H "Content-Type:application/json" -d
-        "{'username': '$username', 'password': '$password'}" "http://$hostname:$port/apollo/Login?operation=login"
-    </div>
-
-    <div class="code">
-        curl -b cookies.txt -c cookies.txt -e "http://$hostname:$port" --data '{ operation: "write", adapter: "GFF3",
-        tracks: ["Annotations-scf1117875582023"], options: "output=file&format=gzip" }'
+        curl -e "http://$hostname:$port" --data '{ operation: "write", adapter: "GFF3",
+        tracks: ["Annotations-scf1117875582023"], options: "output=file&format=gzip",'username': '$username', 'password': '$password','organism':'$organism' }'
         http://$hostname:$port:8080/apollo/IOService
     </div>
 
