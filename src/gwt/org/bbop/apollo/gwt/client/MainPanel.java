@@ -156,6 +156,27 @@ public class MainPanel extends Composite {
         setCurrentSequence(sequenceNameString, start, end, false, false);
     }
 
+    private static void sendCurrentSequenceLocation(String sequenceNameString, final Integer start, final Integer end) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                handlingNavEvent = false;
+
+//                GWT.log("response success: "+response.getText() + " status "+ response.getStatusText());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                handlingNavEvent = false;
+                Window.alert("failed to set sequence location: " + exception);
+            }
+        };
+
+        handlingNavEvent = true;
+        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end,true);
+
+    }
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end, final boolean updateViewer, final boolean blocking) {
 
@@ -635,7 +656,7 @@ public class MainPanel extends Composite {
 
         } else {
             // asynchrouns
-            setCurrentSequence(sequenceNameString, start, end);
+            sendCurrentSequenceLocation(sequenceNameString, start, end);
         }
 
 

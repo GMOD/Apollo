@@ -39,7 +39,12 @@ class SequenceController {
         }
 
         UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(params.name, start, end)
-        render userOrganismPreference.sequence as JSON
+        if(params.suppressOutput){
+            render new JSONObject() as JSON
+        }
+        else{
+            render userOrganismPreference.sequence as JSON
+        }
     }
 
     /**

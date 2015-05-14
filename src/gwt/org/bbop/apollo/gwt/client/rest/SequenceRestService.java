@@ -55,9 +55,17 @@ public class SequenceRestService {
         RestService.sendRequest(requestCallback, "sequence/exportSequences/", "data=" + jsonObject.toString());
     }
 
-
     public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end) {
-        RestService.sendRequest(requestCallback, "sequence/setCurrentSequenceLocation/?name=" + sequenceNameString + "&startbp=" + start + "&endbp=" + end);
+        setCurrentSequenceAndLocation(requestCallback,sequenceNameString,start,end,false) ;
+    }
+
+    public static void setCurrentSequenceAndLocation(RequestCallback requestCallback, String sequenceNameString, Integer start, Integer end,boolean suppressOutput) {
+        String url = "sequence/setCurrentSequenceLocation/?name=" + sequenceNameString + "&startbp=" + start + "&endbp=" + end;
+        if(suppressOutput){
+            url += "&suppressOutput=true";
+        }
+
+        RestService.sendRequest(requestCallback, url);
     }
 
     public static void getSequenceForOffsetAndMax(RequestCallback requestCallback, String text, int start, int length, String sortBy,Boolean sortNameAscending, String minFeatureLengthText, String maxFeatureLengthText) {
