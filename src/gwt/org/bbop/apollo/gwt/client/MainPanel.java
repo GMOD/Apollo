@@ -294,7 +294,7 @@ public class MainPanel extends Composite {
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
 //                        Window.alert(returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue());
-                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true);
+                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true,false);
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);

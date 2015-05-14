@@ -15,7 +15,7 @@ class UserController {
 
     def loadUsers() {
         JSONArray returnArray = new JSONArray()
-        if(!permissionService.currentUser){
+        if (!permissionService.currentUser) {
             render returnArray as JSON
             return
         }
@@ -121,22 +121,22 @@ class UserController {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
-               userOrganismPreference = permissionService.getCurrentOrganismPreference()
+                userOrganismPreference = permissionService.getCurrentOrganismPreference()
             } catch (e) {
-               log.error(e)
+                log.error(e)
             }
 
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)){
-                userObject.put(FeatureStringEnum.ERROR.value,"You do not have access to any organism on this server.  Please contact your administrator.")
+            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)) {
+                userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             }
 
             render userObject as JSON
         } else {
             def userObject = new JSONObject()
-            userObject.put(FeatureStringEnum.HAS_USERS.value,User.count >0)
+            userObject.put(FeatureStringEnum.HAS_USERS.value, User.count > 0)
             render userObject as JSON
         }
     }
@@ -163,70 +163,91 @@ class UserController {
     }
 
     def createUser() {
-        log.debug "creating user ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
-        if(User.findByUsername(dataObject.email)!=null) {
-            JSONObject error = new JSONObject()
-            error.put("error","User already exists. Please enter a new username")
-            render error.toString()
+        try {
+            log.debug "creating user ${request.JSON} -> ${params}"
+            JSONObject dataObject = JSON.parse(params.data)
+            if (User.findByUsername(dataObject.email) != null) {
+                JSONObject error = new JSONObject()
+                error.put("error", "User already exists. Please enter a new username")
+                render error.toString()
 
-            return
+                return
+            }
+
+            User user = new User(
+                    firstName: dataObject.firstName
+                    , lastName: dataObject.lastName
+                    , username: dataObject.email
+                    , passwordHash: new Sha256Hash(dataObject.password).toHex()
+            )
+            user.save(insert: true)
+
+            String roleString = dataObject.role
+            Role role = Role.findByName(roleString.toUpperCase())
+            log.debug "adding role: ${role}"
+            user.addToRoles(role)
+            role.addToUsers(user)
+            role.save()
+            user.save(flush: true)
+            render new JSONObject() as JSON
+        } catch (e) {
+            log.error(e.fillInStackTrace())
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to add the user " + e.message)
+            render jsonObject as JSON
         }
 
-        User user = new User(
-                firstName: dataObject.firstName
-                , lastName: dataObject.lastName
-                , username: dataObject.email
-                , passwordHash: new Sha256Hash(dataObject.password).toHex()
-        )
-        user.save(insert: true)
-
-        String roleString = dataObject.role
-        Role role = Role.findByName(roleString.toUpperCase())
-        log.debug "adding role: ${role}"
-        user.addToRoles(role)
-        role.addToUsers(user)
-        role.save()
-        user.save(flush: true)
-
-        render new JSONObject() as JSON
     }
 
     def deleteUser() {
-        log.debug "deleting user ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
-        User user = User.findById(dataObject.userId)
-        user.userGroups.each { it ->
-            it.removeFromUsers(user)
+        try {
+            log.debug "deleting user ${request.JSON} -> ${params}"
+            JSONObject dataObject = JSON.parse(params.data)
+            User user = User.findById(dataObject.userId)
+            user.userGroups.each { it ->
+                it.removeFromUsers(user)
+            }
+            UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
+            UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
+            user.delete(flush: true)
+        } catch (e) {
+            log.error(e.fillInStackTrace())
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the user " + e.message)
+            render jsonObject as JSON
         }
-        UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
-        UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
-        user.delete(flush: true)
     }
 
     def updateUser() {
-        JSONObject dataObject = JSON.parse(params.data)
-        User user = User.findById(dataObject.userId)
-        user.firstName = dataObject.firstName
-        user.lastName = dataObject.lastName
-        user.username = dataObject.email
+        try {
+            JSONObject dataObject = JSON.parse(params.data)
+            User user = User.findById(dataObject.userId)
+            user.firstName = dataObject.firstName
+            user.lastName = dataObject.lastName
+            user.username = dataObject.email
 
-        if (dataObject.password) {
-            user.passwordHash = new Sha256Hash(dataObject.password).toHex()
-        }
-
-        String roleString = dataObject.role
-        Role currentRole = userService.getHighestRole(user)
-
-        if (!currentRole || !roleString.equalsIgnoreCase(currentRole.name)) {
-            if (currentRole) {
-                user.removeFromRoles(currentRole)
+            if (dataObject.password) {
+                user.passwordHash = new Sha256Hash(dataObject.password).toHex()
             }
-            Role role = Role.findByName(roleString.toUpperCase())
-            user.addToRoles(role)
-        }
 
-        user.save(flush: true)
+            String roleString = dataObject.role
+            Role currentRole = userService.getHighestRole(user)
+
+            if (!currentRole || !roleString.equalsIgnoreCase(currentRole.name)) {
+                if (currentRole) {
+                    user.removeFromRoles(currentRole)
+                }
+                Role role = Role.findByName(roleString.toUpperCase())
+                user.addToRoles(role)
+            }
+
+            user.save(flush: true)
+        } catch (e) {
+            log.error(e.fillInStackTrace())
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the user " + e.message)
+            render jsonObject as JSON
+        }
 
     }
 

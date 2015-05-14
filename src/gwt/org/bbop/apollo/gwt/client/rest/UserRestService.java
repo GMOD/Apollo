@@ -9,10 +9,12 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.client.ErrorDialog;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +137,14 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                loadUsers(userInfoList);
+                JSONValue v=JSONParser.parseStrict(response.getText());
+                JSONObject o=v.isObject();
+                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                }
+                else{
+                    loadUsers(userInfoList);
+                }
             }
 
             @Override
@@ -151,7 +160,14 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                loadUsers(userInfoList);
+                JSONValue v=JSONParser.parseStrict(response.getText());
+                JSONObject o=v.isObject();
+                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Deleting User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                }
+                else{
+                    loadUsers(userInfoList);
+                }
             }
 
             @Override
@@ -169,8 +185,8 @@ public class UserRestService {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue v=JSONParser.parseStrict(response.getText());
                 JSONObject o=v.isObject();
-                if(o.get("error")!=null) {
-                    Window.alert(o.get("error").isString().stringValue());
+                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Creating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
                 }
                 else {
                     loadUsers(userInfoList);

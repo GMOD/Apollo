@@ -17,24 +17,9 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 //  TODO: this needs to be moved into UIBinder into its own class
 public class ErrorDialog extends Modal{
 
-    private Boolean showOnBuild = true ;
-
-    public ErrorDialog(boolean showOnConstruct){
-        this("Error ...",null,showOnConstruct);
-    }
-
-    public ErrorDialog(){
-        this("Error ...",null,true);
-    }
-
-
-    public ErrorDialog(String title){
-        this(title,null,true);
-
-    }
-    public ErrorDialog(String title,String message,Boolean showOnConstruct){
+    public ErrorDialog(String title,String message,Boolean showOnConstruct, boolean closeModal){
         setTitle(title);
-        setClosable(false);
+        setClosable(closeModal);
         setFade(true);
         setDataBackdrop(ModalBackdrop.STATIC);
 
@@ -44,6 +29,8 @@ public class ErrorDialog extends Modal{
             modalBody.add(content);
             add( modalBody );
         }
+
+
         if(showOnConstruct){
             show();
         }
