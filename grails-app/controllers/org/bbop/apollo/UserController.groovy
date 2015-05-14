@@ -117,9 +117,19 @@ class UserController {
     def checkLogin() {
         def currentUser = permissionService.currentUser
         if (currentUser) {
+            UserOrganismPreference userOrganismPreference
+            try {
+               userOrganismPreference = permissionService.getCurrentOrganismPreference()
+            } catch (e) {
+               log.error(e)
+            }
+
 
             def userObject = userService.convertUserToJson(currentUser)
 
+            if(!userOrganismPreference){
+                userObject.put(FeatureStringEnum.ERROR.value,"You do not have access to any organism on this server.  Please contact your administrator.")
+            }
 
             render userObject as JSON
         } else {

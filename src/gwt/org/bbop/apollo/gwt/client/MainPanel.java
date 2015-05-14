@@ -281,14 +281,20 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
-                    getAppState();
-                    logoutButton.setVisible(true);
-                    currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
+                    if(returnValue.containsKey(FeatureStringEnum.ERROR.getValue())){
+//                        Window.alert(returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue());
+                        new ErrorDialog("Error",returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true);
+                    }
+                    else{
+                        getAppState();
+                        logoutButton.setVisible(true);
+                        currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
 
-                    String displayName = currentUser.getEmail();
+                        String displayName = currentUser.getEmail();
 
-                    userName.setHTML(displayName.length() > maxUsernameLength ?
-                            displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
+                        userName.setHTML(displayName.length() > maxUsernameLength ?
+                                displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
+                    }
                 } else {
                     boolean hasUsers = returnValue.get(FeatureStringEnum.HAS_USERS.getValue()).isBoolean().booleanValue();
                     if (hasUsers) {

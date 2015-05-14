@@ -164,15 +164,15 @@
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Users</gwt:header>
-                            <apollo:UserPanel ui:field="userPanel"/>
+                            <apollo:UserPanel ui:field="userPanel" visible="false"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Groups</gwt:header>
-                            <apollo:GroupPanel ui:field="userGroupPanel"/>
+                            <apollo:GroupPanel ui:field="userGroupPanel"  visible="false"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Admin</gwt:header>
-                            <apollo:PreferencePanel ui:field="preferencePanel"/>
+                            <apollo:PreferencePanel ui:field="preferencePanel"  visible="false"/>
                         </gwt:tab>
                     </gwt:TabLayoutPanel>
                 </gwt:center>
