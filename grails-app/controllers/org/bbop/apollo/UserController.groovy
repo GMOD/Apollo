@@ -117,8 +117,10 @@ class UserController {
     def checkLogin() {
         def currentUser = permissionService.currentUser
         if (currentUser) {
+
             UserOrganismPreference userOrganismPreference
             try {
+                // sets it by default
                userOrganismPreference = permissionService.getCurrentOrganismPreference()
             } catch (e) {
                log.error(e)
@@ -127,7 +129,7 @@ class UserController {
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if(!userOrganismPreference && !permissionService.isUserAdmin(currentUser)){
+            if((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)){
                 userObject.put(FeatureStringEnum.ERROR.value,"You do not have access to any organism on this server.  Please contact your administrator.")
             }
 

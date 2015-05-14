@@ -9,7 +9,7 @@ abstract class Permission {
     }
 
     static mapping = {
-        trackNames type: "text"
+//        trackNames type: "text"
     }
 
 

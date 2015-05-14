@@ -7,7 +7,6 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
-import org.apache.shiro.web.tags.GuestTag
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -65,7 +64,7 @@ class PermissionService {
             return Organism.listOrderByCommonName()
         }
         Set<Organism> organismList = new HashSet<>()
-        for (UserPermission userPermission in UserPermission.findAllByUser(user)) {
+        for (UserOrganismPermission userPermission in UserOrganismPermission.findAllByUser(user)) {
             if (userPermission.permissions) {
                 organismList.add(userPermission.organism)
             }
@@ -734,4 +733,19 @@ class PermissionService {
         return userOrganismPreference
     }
 
+    Boolean hasAnyPermissions(User user) {
+
+        Map<String,Integer> permissions = getPermissionsForUser(user)
+        if(!permissions){
+            return false
+        }
+
+        for(Integer value : permissions.values()){
+            if(value > PermissionEnum.NONE.value){
+                return true
+            }
+        }
+
+        return false
+    }
 }
