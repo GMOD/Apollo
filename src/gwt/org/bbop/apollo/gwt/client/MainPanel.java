@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -25,12 +24,8 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.Label;
-import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-import org.gwtbootstrap3.client.ui.constants.Pull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,6 +60,8 @@ public class MainPanel extends Composite {
 
     private static MainPanel instance;
     private int maxUsernameLength = 15;
+    private static final double UPDATE_DIFFERENCE_BUFFER = 0.1;
+    private static final double GENE_VIEW_BUFFER = 1.2;
 
 
     @UiField
@@ -135,7 +132,49 @@ public class MainPanel extends Composite {
                 switch (annotationInfoChangeEvent.getAction()) {
                     case SET_FOCUS:
                         AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
-                        updateGenomicViewerForLocation(annotationInfo.getSequence(), annotationInfo.getMin(), annotationInfo.getMax());
+//                        updateGenomicViewerForLocation(annotationInfo.getSequence(), annotationInfo.getMin(), annotationInfo.getMax());
+
+                        int currentLength = currentEndBp - currentStartBp;
+                        int currentCenter = (int) (currentLength / 2.0) + currentStartBp;
+                        int start = annotationInfo.getMin();
+                        int end = annotationInfo.getMax();
+                        int newLength = end - start;
+
+                        start -= newLength * GENE_VIEW_BUFFER;
+                        end += newLength * GENE_VIEW_BUFFER;
+
+//
+//                        int newCenter = (int) (currentLength / 2.0) + start ;
+//                        float ratio = (float) currentLength / (float) newLength ;
+//                        int centerOffset = currentCenter - newCenter ;
+//
+//                        Window.alert("new " + start + " "+ end);
+//                        Window.alert("old" + currentStartBp+ " "+ currentEndBp);
+//                        Window.alert("ratio " + ratio);
+//                        Window.alert("center offset" + centerOffset);
+//
+//
+//
+//                        // do not zoom in all the way, just center
+//                        if(ratio > 1.0){
+//                            start = currentStartBp + centerOffset;
+//                            end = currentEndBp + centerOffset ;
+//                        }
+//
+//                        Window.alert("final start "+start + " "+end);
+
+                        if (start < 0) {
+//                            end = end + start ;
+                            start = 0;
+                        }
+
+//                        if(end < start){
+//                            start = (int) (annotationInfo.getMin() * 1.2) ;
+//                            end = (int) (annotationInfo.getMax()  * 1.2) ;
+//                        }
+
+
+                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start, end);
                         break;
                 }
             }
@@ -144,7 +183,7 @@ public class MainPanel extends Composite {
         sequenceSuggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null, true,false);
+                setCurrentSequence(sequenceSuggestBox.getText().trim(), null, null, true, false);
             }
         });
 
@@ -174,7 +213,7 @@ public class MainPanel extends Composite {
         };
 
         handlingNavEvent = true;
-        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end,true);
+        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end, true);
 
     }
 
@@ -220,31 +259,6 @@ public class MainPanel extends Composite {
         SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
 
     }
-
-//    private static void setCurrentSequenceAndRefresh(final String sequenceNameString, final Integer start, final Integer end) {
-//
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                handlingNavEvent = false;
-//                JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
-//                currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-//                currentStartBp = start != null ? start : 0;
-//                currentEndBp = end != null ? end : currentSequence.getEnd();
-//                sequenceSuggestBox.setText(currentSequence.getName());
-//                updateGenomicViewer();
-//                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                handlingNavEvent = false;
-//                Window.alert("failed to set JBrowse sequence: " + exception);
-//            }
-//        };
-//
-//        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
-//    }
 
 
     private void updatePermissionsForOrganism() {
@@ -302,11 +316,10 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
-                    if(returnValue.containsKey(FeatureStringEnum.ERROR.getValue())){
+                    if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
 //                        Window.alert(returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue());
-                        new ErrorDialog("Error",returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true);
-                    }
-                    else{
+                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true);
+                    } else {
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
@@ -349,13 +362,24 @@ public class MainPanel extends Composite {
 
     }
 
-
+    /**
+     * @param selectedSequence
+     * @param minRegion
+     * @param maxRegion
+     */
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
 
-        Integer buffer = (int) Math.round((maxRegion - minRegion) * 0.2);
-        minRegion -= buffer;
-        if (minRegion < 0) minRegion = 0;
-        maxRegion += buffer;
+        if (currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+            double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) minRegion;
+            double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) maxRegion;
+            if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
+                return;
+            }
+        }
+
+        currentStartBp = minRegion;
+        currentEndBp = maxRegion;
+
 
         String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
         trackListString += selectedSequence;
@@ -365,20 +389,6 @@ public class MainPanel extends Composite {
         final String finalString = trackListString;
 
         frame.setUrl(finalString);
-
-        // was added to support copy and paste, but just bounces interface
-//        Scheduler.get().scheduleFinally(new Scheduler.RepeatingCommand() {
-//            @Override
-//            public boolean execute() {
-//                if (!trackPanel.getTrackList().isEmpty()) {
-////                    frame.setUrl(finalString);
-//                    return false;
-//                } else {
-//                    return true;
-//                }
-//
-//            }
-//        });
     }
 
     public static void updateGenomicViewer() {
@@ -576,10 +586,6 @@ public class MainPanel extends Composite {
         linkPanel.setVisible(true);
         mainSplitPanel.setWidgetSize(linkPanel, 50);
         mainSplitPanel.animate(100);
-//        UrlDialogBox urlDialogBox = new UrlDialogBox(url);
-//        urlDialogBox.setWidth("600px");
-//
-//        urlDialogBox.show();
     }
 
     @UiHandler("logoutButton")
@@ -633,36 +639,28 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleNavigationEvent(String payload) {
-        if(handlingNavEvent) return ;
+        if (handlingNavEvent) return;
 
-        handlingNavEvent = true ;
+        handlingNavEvent = true;
         JSONObject navEvent = JSONParser.parseLenient(payload).isObject();
-//        GWT.log("Caught event: " + navEvent.toString());
-
 
         final Integer start = (int) navEvent.get("start").isNumber().doubleValue();
         final Integer end = (int) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
 
         if (!sequenceNameString.equals(currentSequence.getName())) {
-            setCurrentSequence(sequenceNameString, start, end, false,true);
+            setCurrentSequence(sequenceNameString, start, end, false, true);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
                 public boolean execute() {
 //                    Window.alert("waiting for this to be false: "+handlingNavEvent);
                     return handlingNavEvent;
                 }
-            },200);
+            }, 200);
 
         } else {
-            // asynchrouns
             sendCurrentSequenceLocation(sequenceNameString, start, end);
         }
-
-
-//        if (detailTabs.getSelectedIndex() == 0) {
-//            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, sequenceNameString));
-//        }
 
     }
 
