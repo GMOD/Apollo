@@ -403,6 +403,33 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
+    def deleteStatus(JSONObject inputObject) {
+        println "status being set ${inputObject as JSON}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+            String statusString = jsonFeature.getString(FeatureStringEnum.STATUS.value)
+            Feature feature = Feature.findByUniqueName(uniqueName)
+            feature.status = null
+            feature.save()
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+
+        }
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+        return updateFeatureContainer
+    }
+
 
     def getComments(JSONObject inputObject) {
         JSONObject featureContainer = createJSONFeatureContainer();
