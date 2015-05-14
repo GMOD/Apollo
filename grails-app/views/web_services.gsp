@@ -130,6 +130,37 @@
     }
     </div>
 
+    <h4>add_organism</h4>
+
+    <p>
+        Adds an organism to the database.  See "add_organism.groovy"
+    </p>
+
+    <p>
+        Request:
+    </p>
+
+    <div class="code">
+        {
+        "operation": "add_organism",
+        "directory": "/opt/apollo/myanimal/jbrowse/data",
+        "username": "bob@admin.gov",
+        "password": "password"
+        "blatdb": "/opt/apollo/myanimal/myanimal.2bit",
+        "genus": "My",
+        "species": "animal",
+        }
+    </div>
+
+    <p>
+        Response Status 200:
+    </p>
+
+    <div class="code">
+        {}
+    </div>
+
+
     <h4>set_organism</h4>
 
     <p>
