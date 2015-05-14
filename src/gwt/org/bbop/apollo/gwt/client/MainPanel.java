@@ -61,7 +61,7 @@ public class MainPanel extends Composite {
     private static MainPanel instance;
     private int maxUsernameLength = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.1;
-    private static final double GENE_VIEW_BUFFER = 1.2;
+    private static final double GENE_VIEW_BUFFER = 0.2;
 
 
     @UiField
@@ -132,49 +132,25 @@ public class MainPanel extends Composite {
                 switch (annotationInfoChangeEvent.getAction()) {
                     case SET_FOCUS:
                         AnnotationInfo annotationInfo = annotationInfoChangeEvent.getAnnotationInfo();
-//                        updateGenomicViewerForLocation(annotationInfo.getSequence(), annotationInfo.getMin(), annotationInfo.getMax());
-
-                        int currentLength = currentEndBp - currentStartBp;
-                        int currentCenter = (int) (currentLength / 2.0) + currentStartBp;
                         int start = annotationInfo.getMin();
                         int end = annotationInfo.getMax();
                         int newLength = end - start;
-
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
-
-//
-//                        int newCenter = (int) (currentLength / 2.0) + start ;
-//                        float ratio = (float) currentLength / (float) newLength ;
-//                        int centerOffset = currentCenter - newCenter ;
-//
-//                        Window.alert("new " + start + " "+ end);
-//                        Window.alert("old" + currentStartBp+ " "+ currentEndBp);
-//                        Window.alert("ratio " + ratio);
-//                        Window.alert("center offset" + centerOffset);
-//
-//
-//
-//                        // do not zoom in all the way, just center
-//                        if(ratio > 1.0){
-//                            start = currentStartBp + centerOffset;
-//                            end = currentEndBp + centerOffset ;
-//                        }
-//
-//                        Window.alert("final start "+start + " "+end);
-
-                        if (start < 0) {
-//                            end = end + start ;
-                            start = 0;
-                        }
-
-//                        if(end < start){
-//                            start = (int) (annotationInfo.getMin() * 1.2) ;
-//                            end = (int) (annotationInfo.getMax()  * 1.2) ;
+//                        int currentLength = currentEndBp - currentStartBp;
+//                        newLength = end - start;
+//                        if(currentLength > newLength){
+//                            int currentCenter = currentStartBp + (int) (currentLength /2.0) ;
+//                            int newCenter = start + (int) (newLength /2.0) ;
+//                            int offset = newCenter - currentCenter ;
+//                            start = start + offset;
+//                            end = end + offset;
 //                        }
 
-
-                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start, end);
+                        start = start < 0 ? 0 : start ;
+//                        currentStartBp = start ;
+//                        currentEndBp = end ;
+                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start , end);
                         break;
                 }
             }
@@ -370,8 +346,9 @@ public class MainPanel extends Composite {
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
 
         if (currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
-            double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) minRegion;
-            double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) maxRegion;
+            int oldLength = maxRegion - minRegion ;
+            double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
+            double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
             if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
                 return;
             }
