@@ -327,10 +327,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
  * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
  */
     def getFeatures() {
-
-        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        returnObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
-        render requestHandlingService.getFeatures(returnObject)
+        println "getting features and stufff "
+        JSONObject returnObject = request.JSON ?: JSON.parse(params.data) as JSONObject
+        println "return object ${returnObject as JSON}"
+        try {
+            permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+            println "updated 2 "
+            render requestHandlingService.getFeatures(returnObject)
+        } catch (e) {
+            def error= [error: 'problem getting features: '+e.fillInStackTrace()]
+            render error as JSON
+            log.error(error.error)
+        }
     }
 
     def getInformation() {
