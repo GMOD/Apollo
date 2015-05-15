@@ -83,7 +83,7 @@ An ideal pg_hba.conf for WebApollo might have a line for our special local login
 
 ### Chado export
 
-You must install chado to use the Chado export feature, and you must also set it up for your organism. If, after setting up chado, and you receive this error:
+You must [install chado](http://gmod.org/wiki/Chado_-_Getting_Started#Installation) to use the Chado export feature, and you must also [set it up for your organism](http://gmod.org/wiki/Load_RefSeq_Into_Chado). If, after setting up chado, and you receive this error:
 
     java.lang.IllegalArgumentException: entity for parameter binding cannot be null
         at org.hibernate.impl.AbstractQueryImpl.resolveEntityName(AbstractQueryImpl.java:587)
