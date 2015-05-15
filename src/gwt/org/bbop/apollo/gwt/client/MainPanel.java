@@ -122,10 +122,7 @@ public class MainPanel extends Composite {
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
-        GWT.log("name: " + frame.getName());
         frame.getElement().setAttribute("id", frame.getName());
-
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
@@ -137,19 +134,7 @@ public class MainPanel extends Composite {
                         int newLength = end - start;
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
-//                        int currentLength = currentEndBp - currentStartBp;
-//                        newLength = end - start;
-//                        if(currentLength > newLength){
-//                            int currentCenter = currentStartBp + (int) (currentLength /2.0) ;
-//                            int newCenter = start + (int) (newLength /2.0) ;
-//                            int offset = newCenter - currentCenter ;
-//                            start = start + offset;
-//                            end = end + offset;
-//                        }
-
                         start = start < 0 ? 0 : start ;
-//                        currentStartBp = start ;
-//                        currentEndBp = end ;
                         updateGenomicViewerForLocation(annotationInfo.getSequence(), start , end);
                         break;
                 }
@@ -177,8 +162,6 @@ public class MainPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 handlingNavEvent = false;
-
-//                GWT.log("response success: "+response.getText() + " status "+ response.getStatusText());
             }
 
             @Override

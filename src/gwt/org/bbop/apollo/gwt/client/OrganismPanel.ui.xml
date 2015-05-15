@@ -10,14 +10,7 @@
         }
 
         .widgetPanel {
-            /*font-size: large;*/
-            /*padding-bottom: 20px;*/
-            /*margin-bottom: 20px;*/
-            margin-bottom: 3px;
-            vertical-align: middle;
-            padding-left: 5px;
-            margin-left: 5px;
-            display: inline-table;
+            margin-bottom: 5px;
         }
 
         .trackTable {
@@ -25,17 +18,14 @@
             margin-top: 10px;
             vertical-align: middle;
         }
-        .tableKeyName {
-            font-weight: bolder;
-        }
         .container {
             margin-left: 20px;
             margin-top: 10px;
         }
 
-        .widgetValue {
-            font-weight: bolder;
-            display: inline-table;
+        .row {
+            margin-left: 0px;
+            margin-right: 0px;
         }
     </ui:style>
     <gwt:SplitLayoutPanel>
@@ -46,49 +36,49 @@
             <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%" styleName="{style.container}">
-                        <b:Row>
-                            <b:Column size="MD_12" styleName="{style.widgetPanel}">
-                                <b:InputGroup width="100%">
+                    <b:Container fluid="true" styleName="{style.container}">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
                                     <b:InputGroupAddon>Name</b:InputGroupAddon>
                                     <b:TextBox autoComplete="false" ui:field="organismName" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_12" styleName="{style.widgetPanel}">
-                                <b:InputGroup width="100%">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
                                     <b:InputGroupAddon>Genus</b:InputGroupAddon>
                                     <b:TextBox autoComplete="false" ui:field="genus" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="MD12" styleName="{style.widgetPanel}">
-                                <b:InputGroup width="100%">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
                                     <b:InputGroupAddon>Species</b:InputGroupAddon>
                                     <b:TextBox autoComplete="false" ui:field="species" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="6" styleName="{style.widgetPanel}">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Directory</b:InputGroupAddon>
-                                    <b:TextBox autoComplete="false" ui:field="sequenceFile" width="300px" enabled="false"/>
+                                    <b:TextBox autoComplete="false" ui:field="sequenceFile" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="6" styleName="{style.widgetPanel}">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Blat database</b:InputGroupAddon>
-                                    <b:TextBox autoComplete="false" ui:field="blatdb" width="300px" enabled="false"/>
+                                    <b:TextBox autoComplete="false" ui:field="blatdb" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="6" styleName="{style.widgetPanel}">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Annotations</b:InputGroupAddon>
                                     <b:InputGroupAddon ui:field="annotationCount" />
@@ -97,8 +87,8 @@
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
-                        <b:Row>
-                            <b:Column size="6" styleName="{style.widgetPanel}">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:Button ui:field="newButton" text="Add New Organism" enabled="true"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"/>
                                 <b:Button ui:field="createButton" text="Save New Organism" visible="false"/>

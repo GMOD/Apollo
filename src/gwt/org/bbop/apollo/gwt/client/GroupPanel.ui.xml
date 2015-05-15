@@ -20,16 +20,8 @@
             vertical-align: middle;
         }
 
-        /*.trackTable tr:hover{*/
-        /*background-color: #d3d3d3;*/
-        /*}*/
-
         .tableKeyName {
             font-weight: bolder;
-        }
-
-        .tableValue {
-            /*font-weight: bolder;*/
         }
 
         .center-table {
@@ -45,24 +37,9 @@
             padding-top: 10px;
         }</ui:style>
     <gwt:SplitLayoutPanel>
-        <!--<gwt:north size="80">-->
-        <!--<b:Container fluid="true" styleName="{style.northPanel}" >-->
-        <!--<b:Row>-->
-        <!--<b:Column size="MD_6" styleName="{style.widgetPanel}">-->
-        <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
-        <!--</b:Column>-->
-        <!--</b:Row>-->
-        <!--</b:Container>-->
-        <!--</gwt:north>-->
+
         <gwt:center>
-            <!--<b:DataGrid bordered="true" condensed="true" striped="true" hover="true" />-->
-            <!--<gwt:ScrollPanel>-->
-
-            <!--<gwt:FlexTable ui:field="dataGrid" styleName="{style.trackTable}" width="100%"/>-->
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}"/>
-            <!--<b:CellTable bordered="true" condensed="true" striped="true" hover="true" width="100%"/>-->
-
-            <!--</gwt:ScrollPanel>-->
         </gwt:center>
         <gwt:south size="200">
             <gwt:TabLayoutPanel barHeight="35" ui:field="userDetailTab">
@@ -71,23 +48,14 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <b:Column size="MD_1">
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Name
-                                </gwt:HTML>
+                                <gwt:HTML styleName="{style.tableKeyName}">Name</gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_4">
-                                <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
                                 <b:TextBox ui:field="name"/>
                             </b:Column>
                             <b:Column size="MD_1">
-                                <!--<gwt:HTML ui:field="name" styleName="{style.tableValue}"/>-->
                                 <b:Button ui:field="deleteButton" icon="REMOVE" color="RED" visible="false"/>
                             </b:Column>
-                            <!--</b:Row>-->
-                            <!--<b:Row styleName="{style.rowPadding}">-->
-                            <!--<b:Column size="MD_6"></b:Column>-->
-                            <!--</b:Row>-->
-                            <!--<b:Row>-->
                             <b:Column size="MD_1">
                                 <b:Button ui:field="createButton" icon="PLUS" color="BLUE"/>
                             </b:Column>
@@ -105,7 +73,7 @@
                 <!--</gwt:tab>-->
                 <!--<gwt:tab>-->
                 <!--<gwt:header>Tracks</gwt:header>-->
-                <!--&lt;!&ndash;<gwt:HTML text="track permissions"/>&ndash;&gt;-->
+                <!--<gwt:HTML text="track permissions"/>-->
                 <!--<gwt:FlexTable ui:field="trackPermissions" width="90%" styleName="{style.center-table}"/>-->
                 <!--</gwt:tab>-->
                 <gwt:tab>
