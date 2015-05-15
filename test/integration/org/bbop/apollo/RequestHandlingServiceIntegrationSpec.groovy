@@ -798,4 +798,40 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     }
 
 
+    void "when exons from two isoforms overlap, they should merge genes"() {
+
+        given: "GB40799-RA and GB40798-RA"
+        String transcript1 = '{"track":"Annotations-Group1.10","features":[{"location":{"fmin":143521,"fmax":146600,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"GB40798-RA","children":[{"location":{"fmin":143521,"fmax":143793,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":146021,"fmax":146600,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":143521,"fmax":143802,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":144067,"fmax":144447,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":145789,"fmax":146600,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":143793,"fmax":146021,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}}]}],"operation":"add_transcript"}'
+        String transcript2 = '{"track":"Annotations-Group1.10","features":[{"location":{"fmin":147460,"fmax":152444,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"GB40799-RA","children":[{"location":{"fmin":147460,"fmax":147608,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":147687,"fmax":147729,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":148511,"fmax":148946,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":152157,"fmax":152444,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":147460,"fmax":147608,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":147687,"fmax":147729,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":148511,"fmax":149770,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":150862,"fmax":151206,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":151594,"fmax":152444,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":148946,"fmax":152157,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}}]}],"operation":"add_transcript"}'
+
+        String moveExonThereCommand
+        String moveExonBackCommand
+
+        when: "we add the transcripts"
+        JSONObject jsonAddTranscriptObject1 = JSON.parse(transcript1) as JSONObject
+        JSONObject jsonAddTranscriptObject2 = JSON.parse(transcript2) as JSONObject
+        JSONObject returnCommand1 = requestHandlingService.addTranscript(jsonAddTranscriptObject1)
+        JSONObject returnCommand2 = requestHandlingService.addTranscript(jsonAddTranscriptObject2)
+
+        then: "we should have two transcripts and two genes!"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+
+
+//
+//        when: "we move the exons so that they overlap"
+//
+//
+//        then: "we should have one gene"
+//        assert Gene.count == 1
+//        assert MRNA.count == 2
+//
+//
+//        when: "we move the exon back"
+//
+//
+//        then: "we should have two genes again"
+//        assert Gene.count == 1
+//        assert MRNA.count == 2
+    }
 }
