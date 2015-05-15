@@ -408,7 +408,7 @@ public class MainPanel extends Composite {
                     Window.alert(obj.get("error").isString().stringValue());
                     loadingDialog.hide();
                 } else {
-                    GWT.log(obj.toString());
+                    loadingDialog.hide();
                     loadingDialog.hide();
                     AppStateInfo appStateInfo = AppInfoConverter.convertFromJson(obj);
                     setAppState(appStateInfo);

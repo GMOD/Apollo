@@ -123,9 +123,11 @@ class OrganismController {
                 organism.genus = organismJson.genus
                 organism.directory = organismJson.directory
 
-                boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
-                if (directoryChanged && checkOrganism(organism)) {
+                if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
+                }
+                else{
+                    throw new Exception("Bad organism directory: "+organism.directory)
                 }
             } else {
                 throw new Exception('organism not found')
