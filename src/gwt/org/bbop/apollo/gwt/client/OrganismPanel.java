@@ -78,8 +78,8 @@ public class OrganismPanel extends Composite {
     Button deleteButton;
     @UiField
     InputGroupAddon validDirectory;
-    @UiField
-    Button reloadButton;
+//    @UiField
+//    Button reloadButton;
 
     boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -381,10 +381,10 @@ public class OrganismPanel extends Composite {
         }
     }
 
-    @UiHandler("reloadButton")
-    public void handleReloadButton(ClickEvent clickEvent) {
-        updateOrganismInfo(true);
-    }
+//    @UiHandler("reloadButton")
+//    public void handleReloadButton(ClickEvent clickEvent) {
+//        updateOrganismInfo(true);
+//    }
 
     private void updateOrganismInfo() {
         updateOrganismInfo(false);
