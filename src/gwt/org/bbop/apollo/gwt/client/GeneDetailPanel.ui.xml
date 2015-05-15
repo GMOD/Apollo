@@ -9,16 +9,10 @@
             margin-left: 20px;
             margin-right: 20px;
             margin-top: 10px;
-            /*border: solid;*/
-            /*border-color: #000000;*/
         }
 
         .widgetPanel {
-            /*display: inline-table;*/
-            /*margin-right: 10px;*/
             margin-bottom: 5px;
-            /*border: solid;*/
-            /*border-color: #000000;*/
         }
 
         .widgetLabel {
@@ -28,13 +22,14 @@
             vertical-align: middle;
         }
 
-        .inputBox {
-
+        .row {
+            margin-left: 0px;
+            margin-right: 0px;
         }
     </ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">
-        <b:Row>
+        <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup >
                     <b:InputGroupAddon>Name</b:InputGroupAddon>
@@ -42,7 +37,7 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Symbol</b:InputGroupAddon>
@@ -50,7 +45,7 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Description</b:InputGroupAddon>
@@ -58,7 +53,7 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Location</b:InputGroupAddon>
@@ -66,7 +61,7 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Ref Sequence</b:InputGroupAddon>
@@ -74,7 +69,7 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
-        <b:Row>
+        <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Owner</b:InputGroupAddon>

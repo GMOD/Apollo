@@ -19,6 +19,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.gwtbootstrap3.client.ui.InputGroupAddon;
 import org.gwtbootstrap3.client.ui.gwt.CellTable;
+import org.gwtbootstrap3.client.ui.TextBox;
 
 /**
  * Created by ndunn on 1/9/15.
@@ -33,11 +34,9 @@ public class TranscriptDetailPanel extends Composite {
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
 
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox nameField;
-//    @UiField
-//    org.gwtbootstrap3.client.ui.TextBox symbolField;
+    TextBox nameField;
     @UiField
-    org.gwtbootstrap3.client.ui.TextBox descriptionField;
+    TextBox descriptionField;
     @UiField
     InputGroupAddon locationField;
     @UiField
@@ -75,7 +74,6 @@ public class TranscriptDetailPanel extends Composite {
         sequenceField.setText(internalAnnotationInfo.getSequence());
 
         if (internalAnnotationInfo.getMin() != null) {
-//            String locationText = internalAnnotationInfo.getMin().toString();
             String locationText = Integer.toString(internalAnnotationInfo.getMin() + 1);
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();

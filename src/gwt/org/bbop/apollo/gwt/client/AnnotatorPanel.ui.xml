@@ -30,16 +30,11 @@
             font-weight: bolder;
             margin-top: 10px;
             padding-bottom: 15px;
-            /*text-align: right;*/
         }
 
-        .tableValue {
-            /*font-weight: bolder;*/
-        }
 
         .labelText {
             white-space: nowrap;
-            /*font-weight: normal;*/
         }
 
         .selectedTreeItem {
@@ -54,25 +49,17 @@
         }
 
         .internalHeader {
-            /*background-color: lightblue;*/
             width: 100%;
             font-weight: bolder;
             font-size: large;
             color: darkcyan;
             padding-top: 10px;
-            /*margin: 10px;*/
         }
 
         .pager {
             width: 100%;
-            /*display: inline;*/
-            /*border-right: solid;*/
-            /*border-width: medium;*/
-            /*border-color: #000000;*/
             margin-left: auto;
             margin-right: auto;
-            /*padding-left: auto;*/
-            /*padding-right: auto;*/
         }
 
         .typeList {
@@ -95,7 +82,6 @@
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">
-            <!--<gwt:HTML text="filterPanel"/>-->
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
                     <b:Column size="MD_3">
