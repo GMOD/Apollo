@@ -46,67 +46,43 @@ class OrganismController {
         render findAllOrganisms()
     }
 
-    /**
-     * web services exposed method
-     * TODO: merge with saveOrganism into a service method
-     * @return
-     */
-    @Transactional
-    def addOrganism(){
-        JSONObject inputObject = request.JSON
-//        println "response.JSON ${request.JSON}"
-        if (permissionService.hasPermissions(inputObject, PermissionEnum.ADMINISTRATE)) {
-            Organism organism = new Organism(
-                    commonName: inputObject.name
-                    ,directory: inputObject.directory
-                    ,blatdb: inputObject.blatdb
-                    ,genus: inputObject.genus ?: ""
-                    ,species: inputObject.species ?: ""
-            ).save()
-            if(checkOrganism(organism)) {
-                organism.save(failOnError: true, flush: true, insert: true)
-            }
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
-            sequenceService.loadRefSeqs(organism)
-        } else {
-            render status: HttpStatus.UNAUTHORIZED
-        }
-        render new JSONObject() as JSON
-    }
 
     @Transactional
-    def saveOrganism() {
-        log.debug "saving params: ${params.data}"
-        def organismJson = JSON.parse(params.data.toString()) as JSONObject
-        log.debug "organismJSON ${organismJson}"
-        log.debug "id: ${organismJson.id}"
+    def addOrganism() {
+        def organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        println organismJson
+        println request.JSON
+        println request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         try {
-            permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)
-            if(organismJson.get("commonName")==""||organismJson.get("directory")=="") {
-                throw new Exception('empty fields detected')
-            }
+            if (permissionService.hasPermissions(organismJson,PermissionEnum.ADMINISTRATE)) {
+                if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
+                    throw new Exception('empty fields detected')
+                }
 
-            Organism organism = new Organism(
-                    commonName: organismJson.commonName
-                    , directory: organismJson.directory
-                    , blatdb: organismJson.blatdb
-                    , species: organismJson.species
-                    , genus: organismJson.genus
-            )
-            log.debug "organism ${organism as JSON}"
+                Organism organism = new Organism(
+                        commonName: organismJson.commonName
+                        , directory: organismJson.directory
+                        , blatdb: organismJson.blatdb
+                        , species: organismJson.species
+                        , genus: organismJson.genus
+                )
+                log.debug "organism ${organism as JSON}"
 
-            if(checkOrganism(organism)) {
-                organism.save(failOnError: true, flush: true, insert: true)
+                if (checkOrganism(organism)) {
+                    organism.save(failOnError: true, flush: true, insert: true)
+                }
+                preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
+                sequenceService.loadRefSeqs(organism)
+                render findAllOrganisms()
             }
-            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
-            sequenceService.loadRefSeqs(organism)
+            else {
+                render status: HttpStatus.UNAUTHORIZED
+            }
         } catch (e) {
             def error= [error: 'problem saving organism: '+e]
             render error as JSON
             log.error(error.error)
-            return
         }
-        render findAllOrganisms()
     }
 
     private boolean checkOrganism(Organism organism) {
@@ -147,7 +123,6 @@ class OrganismController {
                 organism.genus = organismJson.genus
 
                 boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
-                log.debug "directoryChanged ${directoryChanged}"
                 if (directoryChanged && checkOrganism(organism)) {
                     organism.directory = organismJson.directory
                     organism.save(flush: true, insert: false, failOnError: true)

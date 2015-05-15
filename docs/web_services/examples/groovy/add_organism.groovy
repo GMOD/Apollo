@@ -35,24 +35,23 @@ try {
 }
 
 def argumentsArray = [
-        name: options.name
-        ,directory: options.directory
-        ,username: options.username
-        ,password: options.password
+    commonName: options.name,
+    directory: options.directory,
+    username: options.username,
+    password: options.password,
+    blatdb: options.blatdb?:null,
+    genus: options.genus?:null,
+    species: options.species?:null
 ]
-argumentsArray.blatdb = options.dblatdb ?: null
-argumentsArray.genus = options.genus ?: null
-argumentsArray.species = options.species ?: null
 
 println "arguments array = ${argumentsArray}"
 
-//body : [ firstName:'John', lastName:'Doe' ]
 def client = new RESTClient(options.url)
 
 def resp = client.post(
-        contentType: 'text/javascript',
-        path: '/apollo/organism/addOrganism'
-, body : argumentsArray
+    contentType: 'text/javascript',
+    path: '/apollo/organism/addOrganism',
+    body : argumentsArray
 )
 
 assert resp.status == 200  // HTTP response code; 404 means not found, etc.

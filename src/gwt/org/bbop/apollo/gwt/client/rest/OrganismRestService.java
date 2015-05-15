@@ -87,7 +87,7 @@ public class OrganismRestService {
     }
 
     public static void createOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
-        RestService.sendRequest(requestCallback,"organism/saveOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
+        RestService.sendRequest(requestCallback,"organism/addOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
     }
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
