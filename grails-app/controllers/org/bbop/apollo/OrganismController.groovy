@@ -121,12 +121,11 @@ class OrganismController {
                 organism.blatdb = organismJson.blatdb
                 organism.species = organismJson.species
                 organism.genus = organismJson.genus
+                organism.directory = organismJson.directory
 
                 boolean directoryChanged = organism.directory != organismJson.directory || organismJson.forceReload
                 if (directoryChanged && checkOrganism(organism)) {
-                    organism.directory = organismJson.directory
                     organism.save(flush: true, insert: false, failOnError: true)
-                    sequenceService.loadRefSeqs(organism)
                 }
             } else {
                 throw new Exception('organism not found')
