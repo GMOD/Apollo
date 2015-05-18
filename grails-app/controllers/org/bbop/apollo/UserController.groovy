@@ -214,13 +214,21 @@ class UserController {
             if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED
             }
-            User user = User.findById(dataObject.userId)
+            User user = null
+            if(dataObject.has('userId')){
+                user = User.findById(dataObject.userId)
+            }
+            // to support the webservice
+            if(!user && dataObject.has("userToDelete")){
+                user = User.findByUsername(dataObject.userToDelete)
+            }
             user.userGroups.each { it ->
                 it.removeFromUsers(user)
             }
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
             user.delete(flush: true)
+            render new JSONObject() as JSON
         } catch (e) {
             log.error(e.fillInStackTrace())
             JSONObject jsonObject = new JSONObject()

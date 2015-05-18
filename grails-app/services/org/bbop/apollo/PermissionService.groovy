@@ -423,6 +423,9 @@ class PermissionService {
 
     public static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
+        if (inputObject.has("sequence")) {
+            trackName = fixTrackHeader(inputObject.sequence)
+        }
         if (inputObject.has("track")) {
             trackName = fixTrackHeader(inputObject.track)
         }

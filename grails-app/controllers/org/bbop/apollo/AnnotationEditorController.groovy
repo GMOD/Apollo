@@ -348,7 +348,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         try {
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-            println "updated 2 "
             render requestHandlingService.getFeatures(returnObject)
         } catch (e) {
             def error= [error: 'problem getting features: '+e.fillInStackTrace()]

@@ -23,22 +23,17 @@
 
     <p>
         The Apollo web service API is fully JSON based, to easily interact with JavaScript. Both the request and
-        response JSON are feature information are based on the Chado schema.
+        response JSON are feature information are based on the Chado schema.  We have provided numerous
+        <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/">scripting examples</a> utilizing
+    web services in addition to utilizing them internally.
     </p>
 
 
-    <h3>Global Parameters: username, password, organism</h3>
-
-    <p>
-        Every request should have 3 parameters (in addition to the ones offered below) <code>username</code>, <code>password</code>, and <code>organism</code>.
-    The organism is the common name (from the UI-panel).
-    </p>
-
-    <h4>Requests</h4>
+    <h3>Requests</h3>
 
     <p>
         For a given apollo server url (e.g., <code>https://myawesomewebsite.edu/apollo</code>), we need an appropriate website.
-        All JSON requests need:
+    All JSON requests need:
     </p>
 
     <ul>
@@ -46,9 +41,20 @@
             <code>https://myawesomewebsite.edu/apollo/annotationEditor/getFeatures</code>)</li>
         <li><code>username</code> in the JSON object</li>
         <li><code>password</code> in the JSON object</li>
-        <li><code>organism</code> name (shown in organism panel) in the JSON object for feature related operations</li>
+        <li><code>organism</code> (optional) common name (shown in organism panel) in the JSON object for feature related operations
+        </li>
+        <li><code>track/sequence</code> (optional) reference sequence name (shown in sequence panel / genomic browse) in the JSON object for most feature operations
+        </li>
     </ul>
-    If an error has occurred, a proper HTTP error code (most likely 400 or 500) and an error message
+
+    <p>
+        <code>uniquname</code> is a common parameter as well. This is a <a
+            href="https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html">UUID</a>
+        used to guarantee a unique ID across systems and not the name/symbol of any feature..
+    </p>
+
+    <h4>Errors</h4>
+    If an error has occurred, a proper HTTP error code (most likely 400 or 500) and an error message.
     is returned, in JSON format:
 
     <div class="code">{
@@ -56,7 +62,13 @@
     }
     </div>
 
-    If you are sending password you care about over the wire (even if not using web services) it is recommended that you use https (which adds encryption ssl) instead of http.
+    <h4>Additional Notes</h4>
+
+    <p>
+        If you are sending password you care about over the wire (even if not using web services) it is <strong>highly recommended</strong>  that you use https (which adds encryption ssl) instead of http.
+    </p>
+
+
     %{--<h4>Request</h4>--}%
 
     %{--<p>--}%
@@ -232,7 +244,6 @@
 
     <div class="code">{
     "features": [{"uniquename": "gene"}],
-    "operation": "delete_feature"
     }
     </div>
 
@@ -253,9 +264,8 @@
         Request: <code>/annotationEditor/getFeatures</code>
     </p>
 
-    <div class="code">{
-    "operation": "get_features"
-    }
+    <div class="code">
+        { }
     </div>
 
     <p>
@@ -303,8 +313,7 @@
     },
     "uniquename": "transcript"
     }
-    ],
-    "operation": "add_transcript"
+    ]
     }
     </div>
 
@@ -350,8 +359,7 @@
     </p>
 
     <div class="code">{
-    "features": [{"uniquename": "transcript"}],
-    "operation": "duplicate_transcript"
+    "features": [{"uniquename": "transcript"}]
     }
     </div>
 
@@ -417,8 +425,7 @@
     "features": [
     {"uniquename": "transcript1"},
     {"uniquename": "transcript2"}
-    ],
-    "operation": "merge_transcripts"
+    ]
     }
     </div>
 
@@ -530,8 +537,7 @@
     "uniquename": "cds"
     }],
     "uniquename": "transcript1"
-    }],
-    "operation": "set_translation_start"
+    }]
     }
     </div>
 
@@ -653,8 +659,7 @@
     "uniquename": "cds"
     }],
     "uniquename": "transcript1"
-    }],
-    "operation": "set_translation_end"
+    }]
     }
     </div>
 
@@ -764,8 +769,7 @@
     </p>
 
     <div class="code">{
-    "features": [{"uniquename": "transcript"}],
-    "operation": "set_longest_orf"
+    "features": [{"uniquename": "transcript"}]
     }
     </div>
 
@@ -901,8 +905,7 @@
     },
     "uniquename": "exon3"
     }
-    ],
-    "operation": "add_exon"
+    ]
     }
     </div>
 
@@ -979,8 +982,7 @@
     "features": [
     {"uniquename": "transcript"},
     {"uniquename": "exon1"}
-    ],
-    "operation": "delete_exon"
+    ]
     }
     </div>
 
@@ -1041,8 +1043,7 @@
     "features": [
     {"uniquename": "exon1"},
     {"uniquename": "exon2"}
-    ],
-    "operation": "merge_exons"
+    ]
     }
     </div>
 
@@ -1108,8 +1109,7 @@
     "fmin": 300
     },
     "uniquename": "exon1"
-    }],
-    "operation": "split_exon"
+    }]
     }
     </div>
 
@@ -1187,8 +1187,7 @@
     "features": [
     {"uniquename": "exon1-left"},
     {"uniquename": "exon1-right"}
-    ],
-    "operation": "split_transcript"
+    ]
     }
     </div>
 
@@ -1285,8 +1284,7 @@
     "name": "substitution"
     },
     "uniquename": "substitution1"
-    }],
-    "operation": "add_sequence_alteration"
+    }]
     }
     </div>
 
@@ -1324,8 +1322,7 @@
     "features": [
     {"uniquename": "substitution1"},
     {"uniquename": "substitution2"}
-    ],
-    "operation": "delete_sequence_alteration"
+    ]
     }
     </div>
 
@@ -1346,9 +1343,8 @@
         Request: <code>/annotationEditor/getSequenceAlterations</code>
     </p>
 
-    <div class="code">{
-    "operation": "get_sequence_alterations"
-    }
+    <div class="code">
+        { }
     </div>
 
     <p>
@@ -1616,7 +1612,7 @@
             <div class="code">'adapter' ('GFF3','FASTA')</div>
         </li>
         <li>
-            <div class="code">'tracks' (an array of tracks, e.g., ["Annotations-scf11","Annotations-BCD"])</div>
+            <div class="code">'tracks' (an array of tracks / reference sequences, e.g., ["Annotations-scf11","Annotations-BCD"])</div>
         </li>
         <li>
             <div class="code">'options' (e.g. output=file&format=gzip)</div>
@@ -1643,42 +1639,45 @@
     <h3>User Web Service</h3>
 
     <p>
-        All JSON requests need to define:
-        <code>operation</code> field, which defines the operation being
+        User specific operations are restricted to users with administrator permissions.
     </p>
-    <ul>
-        <li>
-            <div class="code">'operation' ('add_user', 'delete_user', 'set_permissions' )</div>
-        </li>
-    </ul>
+
+    <h4>create_user</h4>
 
     <p>
-        requested (read or write) is returned according to the options and the adapter chosen.
+        Request: <code>/user/createUser</code>
+
+        <code>
+            {
+            firstName:"Bob",
+            lastName:"Smith",
+            username:"bob@admin.gov",
+            password:"supersecret"
+            }
+        </code>
     </p>
+    <p>
+        Response: <code>{}</code>
+    </p>
+
+    <h4>delete_user</h4>
 
     <p>
-        Example:
+        Request: <code>/user/deleteUser</code>
+
+        <code>
+            {
+            userToDelete:"bob@admin.gov"
+            }
+        </code>
+
+        Conversely, userId can also be passed in with the database id.
+    </p>
+    <p>
+        Response: <code>{}</code>
     </p>
 
-    <div class="code">{
-    "operation": "set_permissions",
-    "permissions",{"names":[{"user1":3},{"user2":5}]}
-    }
-    </div>
 
-    <div class="code">{
-    "operation": "add_user",
-    "user":"johndoe",
-    "password":"abc123",
-    "encrypted":true
-    }
-    </div>
-
-    <div class="code">{
-    "operation": "delete_user",
-    "user":"johndoe"
-    }
-    </div>
 </div>
 
 </body>
