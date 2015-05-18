@@ -6,6 +6,7 @@ class FeatureType {
     }
 
     String name
+    String display
     String type
     String ontologyId
 }

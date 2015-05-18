@@ -28,7 +28,7 @@
 	<g:select name="featureTypes" from="${org.bbop.apollo.FeatureType.list()}"
               multiple="multiple"
               optionKey="id" size="10"
-              optionValue="name"
+              optionValue="display"
               value="${cannedCommentInstance?.featureTypes*.id}" class="many-to-many"/>
 
 </div>
