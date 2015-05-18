@@ -6,7 +6,8 @@ import grails.converters.JSON
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.springframework.http.HttpStatus;
 
 class UserController {
 
@@ -162,10 +163,15 @@ class UserController {
         render new JSONObject() as JSON
     }
 
+    //webservice
     def createUser() {
         try {
             log.debug "creating user ${request.JSON} -> ${params}"
-            JSONObject dataObject = JSON.parse(params.data)
+//            JSONObject dataObject = JSON.parse(params.data)
+            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+                render status: HttpStatus.UNAUTHORIZED
+            }
             if (User.findByUsername(dataObject.email) != null) {
                 JSONObject error = new JSONObject()
                 error.put("error", "User already exists. Please enter a new username")
@@ -199,10 +205,15 @@ class UserController {
 
     }
 
+    //webservice
     def deleteUser() {
         try {
             log.debug "deleting user ${request.JSON} -> ${params}"
-            JSONObject dataObject = JSON.parse(params.data)
+//            JSONObject dataObject = JSON.parse(params.data)
+            JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+            if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+                render status: HttpStatus.UNAUTHORIZED
+            }
             User user = User.findById(dataObject.userId)
             user.userGroups.each { it ->
                 it.removeFromUsers(user)
@@ -264,8 +275,12 @@ class UserController {
      * Only changing one of the boolean permissions
      * @return
      */
+    //webservice
     def updateOrganismPermission() {
-        JSONObject dataObject = JSON.parse(params.data)
+        JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            render status: HttpStatus.UNAUTHORIZED
+        }
         log.debug "json data ${dataObject}"
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 

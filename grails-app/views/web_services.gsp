@@ -736,129 +736,6 @@
     }]}
     </div>
 
-    <h4>set_translation_ends</h4>
-
-    <p>
-        Set the CDS start and end in a transcript. The transcript feature only needs to have the <code>uniquename</code>
-        field set. The JSON transcript must contain a CDS feature, which will contain the new CDS boundaries. Other
-        children of the transcript will be ignored. Returns the parent gene of the transcript.
-    </p>
-
-    <p>
-        Request:
-    </p>
-
-    <div class="code">{
-    "features": [{
-    "children": [{
-    "location": {
-    "fmax": 1400,
-    "fmin": 200,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "CDS"
-    },
-    "uniquename": "cds"
-    }],
-    "uniquename": "transcript1"
-    }],
-    "operation": "set_translation_ends"
-    }
-    </div>
-
-    <p>
-        Response:
-    </p>
-
-    <div class="code">{"features": [{
-    "children": [{
-    "children": [
-    {
-    "location": {
-    "fmax": 700,
-    "fmin": 500,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon2_1"
-    },
-    {
-    "location": {
-    "fmax": 200,
-    "fmin": 100,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon1_1"
-    },
-    {
-    "location": {
-    "fmax": 1400,
-    "fmin": 200,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "CDS"
-    },
-    "uniquename": "transcript1-CDS"
-    },
-    {
-    "location": {
-    "fmax": 1400,
-    "fmin": 1200,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon2_3"
-    },
-    {
-    "location": {
-    "fmax": 1000,
-    "fmin": 800,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon1_2"
-    }
-    ],
-    "location": {
-    "fmax": 1400,
-    "fmin": 100,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "transcript"
-    },
-    "uniquename": "transcript1"
-    }],
-    "location": {
-    "fmax": 1500,
-    "fmin": 0,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "gene"
-    },
-    "uniquename": "gene"
-    }]}
-    </div>
 
     <h4>set_longest_orf</h4>
 
@@ -1507,204 +1384,204 @@
     ]}
     </div>
 
-    <h4>get_residues_with_alterations</h4>
+    %{--<h4>get_residues_with_alterations</h4>--}%
 
-    <p>
-        Get the residues for feature(s) with any alterations. Only <code>uniquename</code> needs to be set for each
-    feature. Returns the requested feature(s), stripped down to only their <code>uniquename</code> and
-        <code>residues</code>.
-    </p>
+    %{--<p>--}%
+        %{--Get the residues for feature(s) with any alterations. Only <code>uniquename</code> needs to be set for each--}%
+    %{--feature. Returns the requested feature(s), stripped down to only their <code>uniquename</code> and--}%
+        %{--<code>residues</code>.--}%
+    %{--</p>--}%
 
-    <p>
-        Request:
-    </p>
+    %{--<p>--}%
+        %{--Request:--}%
+    %{--</p>--}%
 
-    <div class="code">{
-    "features": [{"uniquename": "transcript-CDS"}],
-    "operation": "get_residues_with_alterations"
-    }
-    </div>
+    %{--<div class="code">{--}%
+    %{--"features": [{"uniquename": "transcript-CDS"}],--}%
+    %{--"operation": "get_residues_with_alterations"--}%
+    %{--}--}%
+    %{--</div>--}%
 
-    <p>
-        Response:
-    </p>
+    %{--<p>--}%
+        %{--Response:--}%
+    %{--</p>--}%
 
-    <div class="code">{"features": [{
-    "residues": "ATGTATCAGTACGGAAGA...",
-    "uniquename": "transcript-CDS"
-    }]}
-    </div>
+    %{--<div class="code">{"features": [{--}%
+    %{--"residues": "ATGTATCAGTACGGAAGA...",--}%
+    %{--"uniquename": "transcript-CDS"--}%
+    %{--}]}--}%
+    %{--</div>--}%
 
-    <h4>add_frameshift</h4>
+    %{--<h4>add_frameshift</h4>--}%
 
-    <p>
-        Add a frameshift to the transcript. The transcript must be the first element in the <code>features</code> array and
-    it must contain a <code>properties</code> array, with each element being a frameshift. Returns the transcript's
-    parent gene.
-    </p>
+    %{--<p>--}%
+        %{--Add a frameshift to the transcript. The transcript must be the first element in the <code>features</code> array and--}%
+    %{--it must contain a <code>properties</code> array, with each element being a frameshift. Returns the transcript's--}%
+    %{--parent gene.--}%
+    %{--</p>--}%
 
-    <p>
-        Request:
-    </p>
+    %{--<p>--}%
+        %{--Request:--}%
+    %{--</p>--}%
 
-    <div class="code">{
-    "features": [{
-    "properties": [{
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "plus_1_frameshift"
-    },
-    "value": "100"
-    }],
-    "uniquename": "transcript"
-    }],
-    "operation": "add_frameshift"
-    }
-    </div>
+    %{--<div class="code">{--}%
+    %{--"features": [{--}%
+    %{--"properties": [{--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "plus_1_frameshift"--}%
+    %{--},--}%
+    %{--"value": "100"--}%
+    %{--}],--}%
+    %{--"uniquename": "transcript"--}%
+    %{--}],--}%
+    %{--"operation": "add_frameshift"--}%
+    %{--}--}%
+    %{--</div>--}%
 
-    <p>
-        Response:
-    </p>
+    %{--<p>--}%
+        %{--Response:--}%
+    %{--</p>--}%
 
-    <div class="code">{"features": [{
-    "children": [{
-    "children": [
-    {
-    "location": {
-    "fmax": 693,
-    "fmin": 638,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon1"
-    },
-    {
-    "location": {
-    "fmax": 2628,
-    "fmin": 2392,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon3"
-    },
-    {
-    "location": {
-    "fmax": 2628,
-    "fmin": 890,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "CDS"
-    },
-    "uniquename": "transcript-CDS"
-    },
-    {
-    "location": {
-    "fmax": 2223,
-    "fmin": 849,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "exon"
-    },
-    "uniquename": "exon2"
-    }
-    ],
-    "location": {
-    "fmax": 2628,
-    "fmin": 638,
-    "strand": 1
-    },
-    "properties": [{
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "plus_1_frameshift"
-    },
-    "value": "100"
-    }],
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "transcript"
-    },
-    "uniquename": "transcript"
-    }],
-    "location": {
-    "fmax": 2735,
-    "fmin": 0,
-    "strand": 1
-    },
-    "type": {
-    "cv": {"name": "SO"},
-    "name": "gene"
-    },
-    "uniquename": "gene"
-    }]}
-    </div>
+    %{--<div class="code">{"features": [{--}%
+    %{--"children": [{--}%
+    %{--"children": [--}%
+    %{--{--}%
+    %{--"location": {--}%
+    %{--"fmax": 693,--}%
+    %{--"fmin": 638,--}%
+    %{--"strand": 1--}%
+    %{--},--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "exon"--}%
+    %{--},--}%
+    %{--"uniquename": "exon1"--}%
+    %{--},--}%
+    %{--{--}%
+    %{--"location": {--}%
+    %{--"fmax": 2628,--}%
+    %{--"fmin": 2392,--}%
+    %{--"strand": 1--}%
+    %{--},--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "exon"--}%
+    %{--},--}%
+    %{--"uniquename": "exon3"--}%
+    %{--},--}%
+    %{--{--}%
+    %{--"location": {--}%
+    %{--"fmax": 2628,--}%
+    %{--"fmin": 890,--}%
+    %{--"strand": 1--}%
+    %{--},--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "CDS"--}%
+    %{--},--}%
+    %{--"uniquename": "transcript-CDS"--}%
+    %{--},--}%
+    %{--{--}%
+    %{--"location": {--}%
+    %{--"fmax": 2223,--}%
+    %{--"fmin": 849,--}%
+    %{--"strand": 1--}%
+    %{--},--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "exon"--}%
+    %{--},--}%
+    %{--"uniquename": "exon2"--}%
+    %{--}--}%
+    %{--],--}%
+    %{--"location": {--}%
+    %{--"fmax": 2628,--}%
+    %{--"fmin": 638,--}%
+    %{--"strand": 1--}%
+    %{--},--}%
+    %{--"properties": [{--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "plus_1_frameshift"--}%
+    %{--},--}%
+    %{--"value": "100"--}%
+    %{--}],--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "transcript"--}%
+    %{--},--}%
+    %{--"uniquename": "transcript"--}%
+    %{--}],--}%
+    %{--"location": {--}%
+    %{--"fmax": 2735,--}%
+    %{--"fmin": 0,--}%
+    %{--"strand": 1--}%
+    %{--},--}%
+    %{--"type": {--}%
+    %{--"cv": {"name": "SO"},--}%
+    %{--"name": "gene"--}%
+    %{--},--}%
+    %{--"uniquename": "gene"--}%
+    %{--}]}--}%
+    %{--</div>--}%
 
-    <h4>get_residues_with_frameshifts</h4>
+    %{--<h4>get_residues_with_frameshifts</h4>--}%
 
-    <p>
-        Get the residues for feature(s) with any frameshifts. Only applicable to CDS features. Other features will return
-        unmodified residues. Only <code>uniquename</code> needs to be set for each feature. Returns the requested
-    feature(s), stripped down to only their <code>uniquename</code> and <code>residues</code>.
-    </p>
+    %{--<p>--}%
+        %{--Get the residues for feature(s) with any frameshifts. Only applicable to CDS features. Other features will return--}%
+        %{--unmodified residues. Only <code>uniquename</code> needs to be set for each feature. Returns the requested--}%
+    %{--feature(s), stripped down to only their <code>uniquename</code> and <code>residues</code>.--}%
+    %{--</p>--}%
 
-    <p>
-        Request:
-    </p>
+    %{--<p>--}%
+        %{--Request:--}%
+    %{--</p>--}%
 
-    <div class="code">{
-    "features": [{"uniquename": "transcript-CDS"}],
-    "operation": "get_residues_with_frameshifts"
-    }
-    </div>
+    %{--<div class="code">{--}%
+    %{--"features": [{"uniquename": "transcript-CDS"}],--}%
+    %{--"operation": "get_residues_with_frameshifts"--}%
+    %{--}--}%
+    %{--</div>--}%
 
-    <p>
-        Response:
-    </p>
+    %{--<p>--}%
+        %{--Response:--}%
+    %{--</p>--}%
 
-    <div class="code">{"features": [{
-    "residues": "ATGTATCAGTACGGAAGA...",
-    "uniquename": "transcript-CDS"
-    }]}
-    </div>
+    %{--<div class="code">{"features": [{--}%
+    %{--"residues": "ATGTATCAGTACGGAAGA...",--}%
+    %{--"uniquename": "transcript-CDS"--}%
+    %{--}]}--}%
+    %{--</div>--}%
 
-    <h4>get_residues_with_alterations_and_frameshifts</h4>
+    %{--<h4>get_residues_with_alterations_and_frameshifts</h4>--}%
 
-    <p>
-        Get the residues for feature(s) with any alteration and frameshifts. Only <code>uniquename</code> needs to be set
-    for each
-    feature. Returns the requested feature(s), stripped down to only their <code>uniquename</code> and
-        <code>residues</code>.
-    </p>
+    %{--<p>--}%
+        %{--Get the residues for feature(s) with any alteration and frameshifts. Only <code>uniquename</code> needs to be set--}%
+    %{--for each--}%
+    %{--feature. Returns the requested feature(s), stripped down to only their <code>uniquename</code> and--}%
+        %{--<code>residues</code>.--}%
+    %{--</p>--}%
 
-    <p>
-        Request:
-    </p>
+    %{--<p>--}%
+        %{--Request:--}%
+    %{--</p>--}%
 
-    <div class="code">{
-    "features": [{"uniquename": "transcript-CDS"}],
-    "operation": "get_residues_with_alterations_and_frameshifts"
-    }
-    </div>
+    %{--<div class="code">{--}%
+    %{--"features": [{"uniquename": "transcript-CDS"}],--}%
+    %{--"operation": "get_residues_with_alterations_and_frameshifts"--}%
+    %{--}--}%
+    %{--</div>--}%
 
-    <p>
-        Response:
-    </p>
+    %{--<p>--}%
+        %{--Response:--}%
+    %{--</p>--}%
 
-    <div class="code">{"features": [{
-    "residues": "ATGTATCAGTACGGAAGA...",
-    "uniquename": "transcript-CDS"
-    }]}
-    </div>
+    %{--<div class="code">{"features": [{--}%
+    %{--"residues": "ATGTATCAGTACGGAAGA...",--}%
+    %{--"uniquename": "transcript-CDS"--}%
+    %{--}]}--}%
+    %{--</div>--}%
 
 </div>
 
@@ -1749,7 +1626,7 @@
 </div>
 
 <div class="section" id="userservice">
-    <h3>User Manager Service</h3>
+    <h3>User Web Service</h3>
 
     <p>
         All JSON requests need to define:

@@ -197,8 +197,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    // webservice
     def addFeature() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addFeature(inputObject)
         } else {
@@ -216,8 +217,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    // webservice
     def addExon() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addExon(inputObject)
         } else {
@@ -270,9 +272,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * // returned form the fir method
      *{"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
      */
+    // webservice
     def addTranscript() {
         log.debug "AEC::adding transcript ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addTranscript(inputObject)
         } else {
@@ -280,9 +283,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    // webservice
     def duplicateTranscript() {
         log.debug "AEC::set translation start ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.duplicateTranscript(inputObject)
         } else {
@@ -290,9 +294,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    // webservice
     def setTranslationStart() {
         log.debug "AEC::set translation start ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationStart(inputObject)
         } else {
@@ -300,11 +305,23 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    // webservice
     def setTranslationEnd() {
         log.debug "AEC::set translation end ${params}"
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setTranslationEnd(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    // webservice
+    def setLongestOrf() {
+        log.debug "AEC::set longest ORF ${params}"
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.setLongestOrf(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
         }
@@ -326,10 +343,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
  *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
  * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
  */
+    // webservice
     def getFeatures() {
-        println "getting features and stufff "
-        JSONObject returnObject = request.JSON ?: JSON.parse(params.data) as JSONObject
-        println "return object ${returnObject as JSON}"
+        JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         try {
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             println "updated 2 "
@@ -375,6 +391,53 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render featureContainer
     }
 
+
+    //webservice
+    // TODO: implement
+    def getResiduesWithAlterations(){
+        throw new RuntimeException("Not yet implemented")
+//        JSONObject featureContainer = createJSONFeatureContainer();
+//        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
+//        try {
+//            permissionService.checkPermissions(inputObject, PermissionEnum.EXPORT)
+//            println "updated 2 "
+//            JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+//            for (int i = 0; i < featuresArray.size(); ++i) {
+//                JSONObject jsonFeature = featuresArray.getJSONObject(i);
+//                String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
+//                Feature feature = Feature.findByUniqueName(uniqueName)
+//                String residue = sequenceService.getResiduesFromFeature(feature)
+//                JSONObject info = new JSONObject();
+//                info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
+//                info.put("residues", residue)
+//                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(info);
+//            }
+//            render featureContainer
+//        } catch (e) {
+//            def error= [error: 'problem getting features: '+e.fillInStackTrace()]
+//            render error as JSON
+//            log.error(error.error)
+//        }
+    }
+
+    //webservice
+    // TODO: implement
+    def addFrameshift(){
+        throw new RuntimeException("Not yet implemented")
+    }
+
+    //webservice
+    // TODO: implement
+    def getResiduesWithFrameShifts(){
+        throw new RuntimeException("Not yet implemented")
+    }
+
+    //webservice
+    // TODO: implement
+    def getResiduesWithAlternationsAndFrameshifts(){
+        throw new RuntimeException("Not yet implemented")
+    }
+
 /**
  * Provided if not coming thorugh a websocket
  * @param jsonObject
@@ -387,8 +450,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
+    //webservice
     def getSequenceAlterations() {
-        JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
 
         fixUserName(returnObject)
 
@@ -479,8 +543,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    //wevservice
     def addSequenceAlteration() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.addSequenceAlteration(inputObject)
         } else {
@@ -488,8 +553,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    //webservice
     def deleteSequenceAlteration() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteSequenceAlteration(inputObject)
         } else {
@@ -506,8 +572,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    //webservice
     def mergeExons() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.mergeExons(inputObject)
         } else {
@@ -515,8 +582,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    //webservice
     def splitExon() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.splitExon(inputObject)
         } else {
@@ -525,8 +593,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    // webservice
     def deleteFeature() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteFeature(inputObject)
         } else {
@@ -534,8 +603,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    //webservice
     def deleteExon() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteExon(inputObject)
         } else {
@@ -552,8 +622,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    //webservice
     def splitTranscript() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.splitTranscript(inputObject)
         } else {
@@ -561,8 +632,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    // webservice
     def mergeTranscripts() {
-        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
+        JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.mergeTranscripts(inputObject)
         } else {
