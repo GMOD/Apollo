@@ -34,34 +34,57 @@
     The organism is the common name (from the UI-panel).
     </p>
 
+    <h4>Requests</h4>
+
+    <p>
+        For a given apollo server url (e.g., <code>https://myawesomewebsite.edu/apollo</code>), we need an appropriate website.
+        All JSON requests need:
+    </p>
+
+    <ul>
+        <li>To be addressed to the proper url (e.g., to get features <code>/annotationEditor/getFeatures</code> ->
+            <code>https://myawesomewebsite.edu/apollo/annotationEditor/getFeatures</code>)</li>
+        <li><code>username</code> in the JSON object</li>
+        <li><code>password</code> in the JSON object</li>
+        <li><code>organism</code> name (shown in organism panel) in the JSON object for feature related operations</li>
+    </ul>
+    If an error has occurred, a proper HTTP error code (most likely 400 or 500) and an error message
+    is returned, in JSON format:
+
+    <div class="code">{
+    "error": "mergeExons(): Exons must be in the same strand"
+    }
+    </div>
+
+    If you are sending password you care about over the wire (even if not using web services) it is recommended that you use https (which adds encryption ssl) instead of http.
     %{--<h4>Request</h4>--}%
 
     %{--<p>--}%
-        %{--The URL for login is:--}%
+    %{--The URL for login is:--}%
 
     %{--<div class="code">http://$server:$port/ApolloWeb/Login</div>--}%
     %{--where <code>Rserver</code> is the server name and <code>$port</code> is the server port.--}%
 
     %{--<p>--}%
-        %{--For example:--}%
+    %{--For example:--}%
 
     %{--<div class="code">curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \--}%
     %{---H "Content-Type:application/json" -d "{'username': 'demo', 'password': 'demo'}"--}%
     %{--"http://localhost:8080/apollo/Login?operation=login"--}%
     %{--</div>--}%
-%{--</p>--}%
+    %{--</p>--}%
 
 
     %{--<p>--}%
-        %{--Login expects two parameters: <code>username</code> and <code>password</code>. There currently isn't--}%
+    %{--Login expects two parameters: <code>username</code> and <code>password</code>. There currently isn't--}%
     %{--any real user authentication implemented, so <code>username</code> and <code>password</code> should be set to--}%
-        %{--<code>foo</code> and <code>bar</code> respectively.--}%
+    %{--<code>foo</code> and <code>bar</code> respectively.--}%
     %{--</p>--}%
 
     %{--<h4>Response</h4>--}%
 
     %{--<p>--}%
-        %{--Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's--}%
+    %{--Login will return a JSON containing the <code>session-id</code> for the user. This is needed if the user's--}%
     %{--browser does not support cookies (or is turned off), in which case the <code>session-id</code> should be--}%
     %{--appended to all subsequent requests as <code>jsessionid=session-id</code> as an URL parameter.--}%
 
@@ -118,22 +141,13 @@
 <div class="section" id="operations">
     <h3>Operations</h3>
 
-    <p>
-        All JSON requests need to contain a <code>operation</code> field, which defines the operation being
-    requested. If an error has occurred, a proper HTTP error code (most likely 400) and an error message
-    is returned, in JSON format:
-    </p>
-
-    <div class="code">{
-    "error": "mergeExons(): Exons must be in the same strand"
-    }
-    </div>
 
     <h4>add_organism</h4>
 
     <p>
         Adds an organism to the database.
-        See <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/add_organism.groovy">add_organism.groovy</a>.
+        An example using this script <a
+            href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/add_organism.groovy">add_organism.groovy</a>.
     </p>
 
     <p>
@@ -164,10 +178,11 @@
 
     <inp>
         Add a top level feature. Returns feature just added.
+
     </inp>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/addFeature</code>
     </p>
 
     <div class="code">{
@@ -182,8 +197,7 @@
     "name": "gene"
     },
     "uniquename": "gene"
-    }],
-    "operation": "add_feature"
+    }]
     }
     </div>
 
@@ -213,7 +227,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/deleteFeature</code>
     </p>
 
     <div class="code">{
@@ -236,7 +250,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/getFeatures</code>
     </p>
 
     <div class="code">{
@@ -271,7 +285,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/addTranscript</code>
     </p>
 
     <div class="code">{
@@ -332,7 +346,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/duplicateTranscript</code>
     </p>
 
     <div class="code">{
@@ -396,7 +410,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/mergeTranscripts</code>
     </p>
 
     <div class="code">{
@@ -499,7 +513,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/setTranslationStart</code>
     </p>
 
     <div class="code">{
@@ -622,7 +636,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/setTranslationEnd</code>
     </p>
 
     <div class="code">{
@@ -746,7 +760,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/setLongestOrf</code>
     </p>
 
     <div class="code">{
@@ -845,7 +859,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/addExon</code>
     </p>
 
     <div class="code">{
@@ -958,7 +972,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/deleteExon</code>
     </p>
 
     <div class="code">}{
@@ -1020,7 +1034,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/mergeExons</code>
     </p>
 
     <div class="code">{
@@ -1084,7 +1098,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/splitExon</code>
     </p>
 
     <div class="code">{
@@ -1166,7 +1180,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/splitTranscript</code>
     </p>
 
     <div class="code">{
@@ -1255,7 +1269,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/addSequenceAlteration</code>
     </p>
 
     <div class="code">{
@@ -1303,7 +1317,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/deleteSequenceAlteration</code>
     </p>
 
     <div class="code">{
@@ -1329,7 +1343,7 @@
     </p>
 
     <p>
-        Request:
+        Request: <code>/annotationEditor/getSequenceAlterations</code>
     </p>
 
     <div class="code">{
@@ -1387,13 +1401,13 @@
     %{--<h4>get_residues_with_alterations</h4>--}%
 
     %{--<p>--}%
-        %{--Get the residues for feature(s) with any alterations. Only <code>uniquename</code> needs to be set for each--}%
+    %{--Get the residues for feature(s) with any alterations. Only <code>uniquename</code> needs to be set for each--}%
     %{--feature. Returns the requested feature(s), stripped down to only their <code>uniquename</code> and--}%
-        %{--<code>residues</code>.--}%
+    %{--<code>residues</code>.--}%
     %{--</p>--}%
 
     %{--<p>--}%
-        %{--Request:--}%
+    %{--Request:--}%
     %{--</p>--}%
 
     %{--<div class="code">{--}%
@@ -1403,7 +1417,7 @@
     %{--</div>--}%
 
     %{--<p>--}%
-        %{--Response:--}%
+    %{--Response:--}%
     %{--</p>--}%
 
     %{--<div class="code">{"features": [{--}%
@@ -1415,13 +1429,13 @@
     %{--<h4>add_frameshift</h4>--}%
 
     %{--<p>--}%
-        %{--Add a frameshift to the transcript. The transcript must be the first element in the <code>features</code> array and--}%
+    %{--Add a frameshift to the transcript. The transcript must be the first element in the <code>features</code> array and--}%
     %{--it must contain a <code>properties</code> array, with each element being a frameshift. Returns the transcript's--}%
     %{--parent gene.--}%
     %{--</p>--}%
 
     %{--<p>--}%
-        %{--Request:--}%
+    %{--Request:--}%
     %{--</p>--}%
 
     %{--<div class="code">{--}%
@@ -1440,7 +1454,7 @@
     %{--</div>--}%
 
     %{--<p>--}%
-        %{--Response:--}%
+    %{--Response:--}%
     %{--</p>--}%
 
     %{--<div class="code">{"features": [{--}%
@@ -1529,13 +1543,13 @@
     %{--<h4>get_residues_with_frameshifts</h4>--}%
 
     %{--<p>--}%
-        %{--Get the residues for feature(s) with any frameshifts. Only applicable to CDS features. Other features will return--}%
-        %{--unmodified residues. Only <code>uniquename</code> needs to be set for each feature. Returns the requested--}%
+    %{--Get the residues for feature(s) with any frameshifts. Only applicable to CDS features. Other features will return--}%
+    %{--unmodified residues. Only <code>uniquename</code> needs to be set for each feature. Returns the requested--}%
     %{--feature(s), stripped down to only their <code>uniquename</code> and <code>residues</code>.--}%
     %{--</p>--}%
 
     %{--<p>--}%
-        %{--Request:--}%
+    %{--Request:--}%
     %{--</p>--}%
 
     %{--<div class="code">{--}%
@@ -1545,7 +1559,7 @@
     %{--</div>--}%
 
     %{--<p>--}%
-        %{--Response:--}%
+    %{--Response:--}%
     %{--</p>--}%
 
     %{--<div class="code">{"features": [{--}%
@@ -1557,14 +1571,14 @@
     %{--<h4>get_residues_with_alterations_and_frameshifts</h4>--}%
 
     %{--<p>--}%
-        %{--Get the residues for feature(s) with any alteration and frameshifts. Only <code>uniquename</code> needs to be set--}%
+    %{--Get the residues for feature(s) with any alteration and frameshifts. Only <code>uniquename</code> needs to be set--}%
     %{--for each--}%
     %{--feature. Returns the requested feature(s), stripped down to only their <code>uniquename</code> and--}%
-        %{--<code>residues</code>.--}%
+    %{--<code>residues</code>.--}%
     %{--</p>--}%
 
     %{--<p>--}%
-        %{--Request:--}%
+    %{--Request:--}%
     %{--</p>--}%
 
     %{--<div class="code">{--}%
@@ -1574,7 +1588,7 @@
     %{--</div>--}%
 
     %{--<p>--}%
-        %{--Response:--}%
+    %{--Response:--}%
     %{--</p>--}%
 
     %{--<div class="code">{"features": [{--}%
