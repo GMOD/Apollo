@@ -26,7 +26,7 @@ class OrganismController {
     @Transactional
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"
-        def organismJson = JSON.parse(params.data.toString()) as JSONObject
+        def organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         try {
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
 
@@ -50,7 +50,7 @@ class OrganismController {
     // webservice
     @Transactional
     def addOrganism() {
-        def organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         try {
             if (permissionService.hasPermissions(organismJson,PermissionEnum.ADMINISTRATE)) {
                 if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
@@ -110,7 +110,7 @@ class OrganismController {
     @Transactional
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
-        def organismJson = JSON.parse(params.data.toString()) as JSONObject
+        JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
         try {
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
@@ -140,6 +140,11 @@ class OrganismController {
     }
 
     def findAllOrganisms() {
+        if(!permissionService.isAdmin()){
+            def error= [error: 'Must be admin to see all organisms ']
+            render error as JSON
+            return
+        }
 
         def organismList = permissionService.getOrganismsForCurrentUser()
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
