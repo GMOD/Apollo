@@ -132,16 +132,16 @@
     <h4>add_organism</h4>
 
     <p>
-        Adds an organism to the database.  See "add_organism.groovy"
+        Adds an organism to the database.
+        See <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/add_organism.groovy">add_organism.groovy</a>.
     </p>
 
     <p>
-        Request:
+        Request:  <code>/organism/addOrganism</code>
     </p>
 
     <div class="code">
         {
-        "operation": "add_organism",
         "directory": "/opt/apollo/myanimal/jbrowse/data",
         "username": "bob@admin.gov",
         "password": "password"
@@ -162,9 +162,9 @@
 
     <h4>add_feature</h4>
 
-    <p>
+    <inp>
         Add a top level feature. Returns feature just added.
-    </p>
+    </inp>
 
     <p>
         Request:

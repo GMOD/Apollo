@@ -134,8 +134,8 @@ public class MainPanel extends Composite {
                         int newLength = end - start;
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
-                        start = start < 0 ? 0 : start ;
-                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start , end);
+                        start = start < 0 ? 0 : start;
+                        updateGenomicViewerForLocation(annotationInfo.getSequence(), start, end);
                         break;
                 }
             }
@@ -277,7 +277,7 @@ public class MainPanel extends Composite {
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
 //                        Window.alert(returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue());
-                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true,false);
+                        new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false);
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);
@@ -321,18 +321,22 @@ public class MainPanel extends Composite {
 
     }
 
+    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+        updateGenomicViewerForLocation(selectedSequence,minRegion,maxRegion,false);
+    }
     /**
      * @param selectedSequence
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
+    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion,boolean forceReload) {
 
-        if (currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
-            int oldLength = maxRegion - minRegion ;
+        if (!forceReload && currentSequence!=null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+            int oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
             if (diff1 < UPDATE_DIFFERENCE_BUFFER && diff2 < UPDATE_DIFFERENCE_BUFFER) {
+//                GWT.log("Not updating sequence position");
                 return;
             }
         }
@@ -351,12 +355,16 @@ public class MainPanel extends Composite {
         frame.setUrl(finalString);
     }
 
-    public static void updateGenomicViewer() {
+    public static void updateGenomicViewer(boolean forceReload) {
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp,forceReload);
         } else {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd());
+            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(),forceReload);
         }
+    }
+
+    public static void updateGenomicViewer() {
+        updateGenomicViewer(false);
     }
 
     public void setAppState(AppStateInfo appStateInfo) {
@@ -379,9 +387,9 @@ public class MainPanel extends Composite {
             }
         }
 
-        if(currentOrganism!=null) {
+        if (currentOrganism != null) {
             updatePermissionsForOrganism();
-            updateGenomicViewer();
+            updateGenomicViewer(true);
         }
 
 

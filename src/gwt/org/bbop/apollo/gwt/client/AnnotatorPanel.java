@@ -307,7 +307,6 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
-//                exonDetailPanel.setVisible(false);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.selectTab(0);
                 break;
