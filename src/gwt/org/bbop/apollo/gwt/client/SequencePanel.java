@@ -87,7 +87,8 @@ public class SequencePanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
         ;
         dataGrid.setWidth("100%");
-        dataGrid.setEmptyTableWidget(new Label("Loading"));
+//        dataGrid.setLoadingIndicator(new Label("Loading"));
+//        dataGrid.setEmptyTableWidget(new Label("No results"));
 
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override

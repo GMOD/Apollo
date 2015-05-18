@@ -47,6 +47,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
@@ -115,7 +116,6 @@ public class AnnotatorPanel extends Composite {
     private static List<AnnotationInfo> annotationInfoList = new ArrayList<>();
     private static List<AnnotationInfo> filteredAnnotationList = dataProvider.getList();
     private final Set<String> showingTranscripts = new HashSet<String>();
-    private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
 
 
     public AnnotatorPanel() {
@@ -124,6 +124,8 @@ public class AnnotatorPanel extends Composite {
         sequenceList.getElement().setAttribute("placeHolder", "All Reference Sequences");
         dataGrid.setWidth("100%");
         dataGrid.setTableBuilder(new CustomTableBuilder());
+        dataGrid.setLoadingIndicator(new Label("Loading"));
+        dataGrid.setEmptyTableWidget(new Label("No results"));
         initializeTable();
 
 
@@ -145,16 +147,6 @@ public class AnnotatorPanel extends Composite {
             }
         });
         
-//        dataGrid.setSelectionModel(selectionModel);
-//        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-//            @Override
-//            public void onSelectionChange(SelectionChangeEvent event) {
-//                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
-//                GWT.log(selectionModel.getSelectedObject().getName());
-//                updateAnnotationInfo(annotationInfo);
-//            }
-//        });
-
 
         exportStaticMethod(this);
 
@@ -457,23 +449,6 @@ public class AnnotatorPanel extends Composite {
         dataGrid.setColumnWidth(1, "15%");
         dataGrid.setColumnWidth(2, "15%");
 
-        // Adding a clickHandler to dataGrid prevents the expand behavior of gene, pseudogene
-//        dataGrid.addDomHandler(new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                Set<AnnotationInfo> annotationInfoSet = selectionModel.getSelectedSet();
-//                AnnotationInfo annotationInfo = selectionModel.getSelectedObject();
-//                if (annotationInfo != null) {
-//                    GWT.log(annotationInfo.toString());
-//                    String type = annotationInfo.getType();
-//                    if(type.equals("repeat_region") || type.equals("transposable_element")) {
-//                        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-//                        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-//                        updateAnnotationInfo(annotationInfo);
-//                    }
-//                }
-//            }
-//        }, ClickEvent.getType());
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -764,41 +739,10 @@ public class AnnotatorPanel extends Composite {
                 safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>" + error + "</div>");
             }
 
-//                if(random.nextBoolean()){
-//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>CDS-3</div>");
-//                }
-//                else
-//                if(random.nextBoolean()){
-//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>Stop Codon</div>");
-//                }
-//                else{
-////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
-//                }
 
             div.html(safeHtmlBuilder.toSafeHtml());
             td.endDiv();
             td.endTD();
-//            }
-//            else{
-//                DivBuilder div = td.startDiv();
-//                SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
-//
-//                if(random.nextBoolean()){
-//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>CDS-3</div>");
-//                }
-//                else
-//                if(random.nextBoolean()){
-//                    safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>Stop Codon</div>");
-//                }
-//                else{
-////                    safeHtmlBuilder.appendHtmlConstant("<pre>abcd</pre>");
-//                }
-//
-//                div.html(safeHtmlBuilder.toSafeHtml());
-//                td.endDiv();
-//                td.endTD();
-//            }
-//            row.endTD();
 
             row.endTR();
 
