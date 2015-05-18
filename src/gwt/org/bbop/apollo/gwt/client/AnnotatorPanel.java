@@ -11,7 +11,6 @@ import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -30,13 +29,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
@@ -45,13 +41,10 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconType;
 
 import java.util.*;
 
@@ -67,6 +60,7 @@ public class AnnotatorPanel extends Composite {
 
     private Column<AnnotationInfo, String> nameColumn;
     private TextColumn<AnnotationInfo> typeColumn;
+    private TextColumn<AnnotationInfo> sequenceColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
     long requestIndex = 0;
 
@@ -96,7 +90,7 @@ public class AnnotatorPanel extends Composite {
     static TabLayoutPanel tabPanel;
     @UiField
     ListBox userField;
-//    @UiField
+    //    @UiField
 //    ListBox groupField;
 //    @UiField
 //    Row userFilterRow;
@@ -146,7 +140,7 @@ public class AnnotatorPanel extends Composite {
                 }
             }
         });
-        
+
 
         exportStaticMethod(this);
 
@@ -251,24 +245,24 @@ public class AnnotatorPanel extends Composite {
 
     private void initializeUsers() {
         userField.clear();
-        userField.addItem("All Users","");
+        userField.addItem("All Users", "");
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                for(int i = 0 ; i < array.size() ; i++){
+                for (int i = 0; i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
-                    userField.addItem(userInfo.getName(),userInfo.getEmail());
+                    userField.addItem(userInfo.getName(), userInfo.getEmail());
                 }
 
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error retrieving users: "+exception.fillInStackTrace());
+                Window.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
         UserRestService.loadUsers(requestCallback);
@@ -284,8 +278,8 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("ncRNA");
         typeList.addItem("rRNA");
         typeList.addItem("miRNA");
-        typeList.addItem("Transposable Element","transposable_element");
-        typeList.addItem("Repeat Region","repeat_region");
+        typeList.addItem("Transposable Element", "transposable_element");
+        typeList.addItem("Repeat Region", "repeat_region");
         // TODO: add rest
     }
 
@@ -409,6 +403,15 @@ public class AnnotatorPanel extends Composite {
         });
         nameColumn.setSortable(true);
 
+        sequenceColumn = new TextColumn<AnnotationInfo>() {
+            @Override
+            public String getValue(AnnotationInfo annotationInfo) {
+                return annotationInfo.getSequence();
+//                return "cats";
+            }
+        };
+        sequenceColumn.setSortable(true);
+        sequenceColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
         typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
@@ -441,13 +444,15 @@ public class AnnotatorPanel extends Composite {
 
 //        dataGrid.addColumn(nameColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         dataGrid.addColumn(nameColumn, "Name");
+        dataGrid.addColumn(sequenceColumn, "Seq");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
 //        dataGrid.addColumn(filterColumn, "Warnings");
 
-        dataGrid.setColumnWidth(0, "70%");
+        dataGrid.setColumnWidth(0, "55%");
         dataGrid.setColumnWidth(1, "15%");
         dataGrid.setColumnWidth(2, "15%");
+        dataGrid.setColumnWidth(3, "15%");
 
 
         ColumnSortEvent.ListHandler<AnnotationInfo> sortHandler = new ColumnSortEvent.ListHandler<AnnotationInfo>(filteredAnnotationList);
@@ -460,6 +465,13 @@ public class AnnotatorPanel extends Composite {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
                 return o1.getName().compareToIgnoreCase(o2.getName());
+            }
+        });
+
+        sortHandler.setComparator(sequenceColumn, new Comparator<AnnotationInfo>() {
+            @Override
+            public int compare(AnnotationInfo o1, AnnotationInfo o2) {
+                return o1.getSequence().compareToIgnoreCase(o2.getSequence());
             }
         });
 
@@ -564,7 +576,7 @@ public class AnnotatorPanel extends Composite {
                 (annotationInfo.getName().toLowerCase().contains(nameText.toLowerCase()))
                         &&
                         annotationInfo.getType().toLowerCase().contains(typeText.toLowerCase())
-                &&
+                        &&
                         annotationInfo.getOwner().toLowerCase().contains(userText)
         );
 
@@ -614,7 +626,7 @@ public class AnnotatorPanel extends Composite {
         return annotationInfo;
     }
 
-    @UiHandler( value ={"typeList","userField" })
+    @UiHandler(value = {"typeList", "userField"})
     public void searchType(ChangeEvent changeEvent) {
         filterList();
     }
@@ -699,6 +711,20 @@ public class AnnotatorPanel extends Composite {
             }
             td.endTD();
 
+            // Sequence column.
+            td = row.startTD();
+//            td.className(cellStyles);
+            td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
+            if (showTranscripts) {
+                DivBuilder div = td.startDiv();
+                div.style().trustedColor("green").endStyle();
+//                div.text(rowValue.getSequence());
+                td.endDiv();
+            } else {
+                renderCell(td, createContext(1), sequenceColumn, rowValue);
+            }
+            td.endTD();
+
             // Type column.
             td = row.startTD();
 //            td.className(cellStyles);
@@ -712,6 +738,7 @@ public class AnnotatorPanel extends Composite {
                 renderCell(td, createContext(1), typeColumn, rowValue);
             }
             td.endTD();
+
 
             // Length column.
             td = row.startTD();
