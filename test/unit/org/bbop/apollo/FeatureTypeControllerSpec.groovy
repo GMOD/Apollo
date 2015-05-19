@@ -13,6 +13,7 @@ class FeatureTypeControllerSpec extends Specification {
         assert params != null
         // TODO: Populate valid properties like...
         params["name"] = 'sequence'
+        params["display"] = MRNA.alternateCvTerm
         params["type"] = MRNA.cvTerm
         params["ontologyId"] = MRNA.ontologyId
     }
