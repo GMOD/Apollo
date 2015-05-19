@@ -24,7 +24,7 @@ class FeatureTypeServiceSpec extends Specification {
         assert FeatureType.count==0
 
         when: "we add a Feature Type"
-        service.createFeatureTypeForFeature(Gene.class)
+        service.createFeatureTypeForFeature(Gene.class,Gene.alternateCvTerm)
         FeatureType featureType = FeatureType.first()
 
         then: "we should have one"
