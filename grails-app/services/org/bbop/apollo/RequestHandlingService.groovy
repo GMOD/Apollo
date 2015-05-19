@@ -1055,14 +1055,15 @@ class RequestHandlingService {
         }
     }
 
-    public void sendAnnotationEvent(String returnString) {
+    public void sendAnnotationEvent(String returnString,Sequence sequence) {
         log.debug "RHS::return operations sent . . ${returnString?.size()}"
 //        log.debug "returnString ${returnString}"
         if (returnString.startsWith("[")) {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
         try {
-            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification", returnString
+            println "sending the Annotation event DIRECTLY IN RHS"
+            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/"+sequence.organismId+"/"+sequence.id, returnString
         } catch (e) {
             log.error("problem sending message: ${e}")
         }
@@ -1088,7 +1089,7 @@ class RequestHandlingService {
         }
 //        }
 
-        sendAnnotationEvent(operations.toString());
+        sendAnnotationEvent(operations.toString(), event.sequence);
 
     }
 

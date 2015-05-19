@@ -677,6 +677,19 @@ public class MainPanel extends Composite {
         }
     }
 
+    public static String getCurrentSequenceAsJson(){
+        if(currentSequence==null){
+            return "{}";
+        }
+        return currentSequence.toJSON().toString();
+    }
+
+    public static String getCurrentOrganismAsJson(){
+        if(currentOrganism==null){
+            return "{}";
+        }
+        return currentOrganism.toJSON().toString();
+    }
 
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
@@ -689,6 +702,8 @@ public class MainPanel extends Composite {
         $wnd.handleFeatureAdded = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureAdded(Ljava/lang/String;));
         $wnd.handleFeatureDeleted = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureDeleted(Ljava/lang/String;));
         $wnd.handleFeatureUpdated = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureUpdated(Ljava/lang/String;));
+        $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
+        $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {
                 return 'ApolloGwt-1.0';

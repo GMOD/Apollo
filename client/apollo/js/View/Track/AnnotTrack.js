@@ -42,46 +42,46 @@ define([
         'dojo/data/ObjectStore'
     ],
     function (declare,
-        array,
-        $,
-        draggable,
-        droppable,
-        resizable,
-        autocomplete,
-        dialog,
-        dijitMenu,
-        dijitMenuItem,
-        dijitMenuSeparator,
-        dijitPopupMenuItem,
-        dijitButton,
-        dijitDropDownButton,
-        dijitDropDownMenu,
-        dijitComboBox,
-        dijitTextBox,
-        dijitValidationTextBox,
-        dijitRadioButton,
-        dojoxDialogSimple,
-        dojoxDataGrid,
-        dojoxCells,
-        dojoItemFileWriteStore,
-        DraggableFeatureTrack,
-        FeatureSelectionManager,
-        JSONUtils,
-        BioFeatureUtils,
-        Permission,
-        SequenceSearch,
-        EUtils,
-        SequenceOntologyUtils,
-        SimpleFeature,
-        Util,
-        Layout,
-        xhr,
-        Standby,
-        Tooltip,
-        FormatUtils,
-        Select,
-        Memory,
-        ObjectStore) {
+              array,
+              $,
+              draggable,
+              droppable,
+              resizable,
+              autocomplete,
+              dialog,
+              dijitMenu,
+              dijitMenuItem,
+              dijitMenuSeparator,
+              dijitPopupMenuItem,
+              dijitButton,
+              dijitDropDownButton,
+              dijitDropDownMenu,
+              dijitComboBox,
+              dijitTextBox,
+              dijitValidationTextBox,
+              dijitRadioButton,
+              dojoxDialogSimple,
+              dojoxDataGrid,
+              dojoxCells,
+              dojoItemFileWriteStore,
+              DraggableFeatureTrack,
+              FeatureSelectionManager,
+              JSONUtils,
+              BioFeatureUtils,
+              Permission,
+              SequenceSearch,
+              EUtils,
+              SequenceOntologyUtils,
+              SimpleFeature,
+              Util,
+              Layout,
+              xhr,
+              Standby,
+              Tooltip,
+              FormatUtils,
+              Select,
+              Memory,
+              ObjectStore) {
 
         var listener;
         var client;
@@ -192,7 +192,7 @@ define([
                     var success = this.getPermission(function () {
                         track.initAnnotContextMenu();
                     });
-                   
+
                     var standby = new Standby({
                         target: track.div,
                         color: "transparent",
@@ -203,10 +203,10 @@ define([
                     standby.show();
 
 
-                    if (!this.webapollo.loginMenuInitialized&&this.browser.config.show_nav&&this.browser.config.show_menu) {
+                    if (!this.webapollo.loginMenuInitialized && this.browser.config.show_nav && this.browser.config.show_menu) {
                         this.webapollo.initLoginMenu(this.username);
                     }
-                    if (! this.webapollo.searchMenuInitialized && this.permission&&this.browser.config.show_nav&&this.browser.config.show_menu)  {
+                    if (!this.webapollo.searchMenuInitialized && this.permission && this.browser.config.show_nav && this.browser.config.show_menu) {
                         this.webapollo.initSearchMenu();
                     }
                     this.initSaveMenu();
@@ -264,13 +264,13 @@ define([
 
                 createAnnotationChangeListener: function (numTry) {
                     //this.listener = new SockJS(context_path+"/stomp");
-                    var stomp_url = window.location.href ;
+                    var stomp_url = window.location.href;
                     var index = stomp_url.search('/jbrowse');
-                    stomp_url = stomp_url.substr(0,index) + '/stomp/';
+                    stomp_url = stomp_url.substr(0, index) + '/stomp/';
                     this.listener = new SockJS(stomp_url);
                     this.client = Stomp.over(this.listener);
-                    this.client.debug = function(str){
-                        if(this.verbose_server_notification){
+                    this.client.debug = function (str) {
+                        if (this.verbose_server_notification) {
                             console.log(str);
                         }
                     };
@@ -278,8 +278,8 @@ define([
                     var track = this;
                     var browser = this.gview.browser;
 
-                    if(typeof window.parent.getEmbeddedVersion == 'function') {
-                        if(window.parent.getEmbeddedVersion()=='ApolloGwt-1.0') {
+                    if (typeof window.parent.getEmbeddedVersion == 'function') {
+                        if (window.parent.getEmbeddedVersion() == 'ApolloGwt-1.0') {
                             console.log('Registering embedded system with ApolloGwt-1.0.');
 
                             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
@@ -325,11 +325,11 @@ define([
 
                             window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
                         }
-                        else{
-                            console.log('Unknown embedded server: ' + window.parent.getEmbeddedVersion()+' ignoring.');
+                        else {
+                            console.log('Unknown embedded server: ' + window.parent.getEmbeddedVersion() + ' ignoring.');
                         }
                     }
-                    else{
+                    else {
                         console.log('No embedded server is present.');
                     }
 
@@ -337,7 +337,9 @@ define([
                     client.connect({}, function () {
 
                         // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        client.subscribe("/topic/AnnotationNotification", function (message) {
+                        var organism = JSON.parse(window.parent.getCurrentOrganism());
+                        var sequence = JSON.parse(window.parent.getCurrentSequence());
+                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, function (message) {
                             var changeData;
 
                             try {
@@ -898,7 +900,7 @@ define([
                         }
                         else {
                             var children = dragfeat.get("subfeatures");
-                            if(children) {
+                            if (children) {
                                 for (var j = 0; j < children.length; ++j) {
                                     subfeatures.push(children[j]);
                                 }
@@ -931,7 +933,7 @@ define([
                         var fmin = undefined;
                         var fmax = undefined;
                         featureToAdd.set('subfeatures', new Array());
-                        array.forEach(subfeatures,function(subfeature) {
+                        array.forEach(subfeatures, function (subfeature) {
                             if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
                                 return;
                             }
@@ -954,7 +956,7 @@ define([
 
                         console.log('add_transcript', featureToAdd);
 
-                        
+
                         var postData = {
                             "track": target_track.getUniqueTrackName(),
                             "features": featuresToAdd,
@@ -4221,7 +4223,7 @@ define([
                     console.log("ERROR: ");
                     console.log(response);  // in Firebug, allows retrieval of stack trace,
                                             // jump to code, etc.
-                    var error = response.responseText&&response.responseText.match("^<")!="<" ? JSON.parse(response.responseText) : response.response.data;
+                    var error = response.responseText && response.responseText.match("^<") != "<" ? JSON.parse(response.responseText) : response.response.data;
                     if (error && error.error) {
                         alert(error.error);
                         return false;
@@ -5518,52 +5520,56 @@ define([
                 },
 
                 // override getLayout to access addRect method
-                _getLayout: function( ) {
-                    var thisB=this; 
+                _getLayout: function () {
+                    var thisB = this;
                     var browser = this.browser;
-                    var layout=this.inherited( arguments ); 
-                    var clabel = this.name+"-collapsed";
-                    return declare.safeMixin( layout, { 
-                        addRect: function( id, left, right, height, data ) {
-                            var cm = thisB.collapsedMode||browser.cookie(clabel)=="true";
+                    var layout = this.inherited(arguments);
+                    var clabel = this.name + "-collapsed";
+                    return declare.safeMixin(layout, {
+                        addRect: function (id, left, right, height, data) {
+                            var cm = thisB.collapsedMode || browser.cookie(clabel) == "true";
                             //store height for collapsed mode
-                            if( cm ) {
-                                var pHeight = Math.ceil(  height / this.pitchY );
-                                this.pTotalHeight = Math.max( this.pTotalHeight||0, pHeight );
+                            if (cm) {
+                                var pHeight = Math.ceil(height / this.pitchY);
+                                this.pTotalHeight = Math.max(this.pTotalHeight || 0, pHeight);
                             }
-                            return cm?0:this.inherited(arguments);
+                            return cm ? 0 : this.inherited(arguments);
                         }
                     });
                 },
 
-                _trackMenuOptions: function() {
+                _trackMenuOptions: function () {
                     var thisB = this;
                     var browser = this.browser;
-                    var clabel = this.name+"-collapsed";
+                    var clabel = this.name + "-collapsed";
                     var options = this.inherited(arguments) || [];
                     options = this.webapollo.removeItemWithLabel(options, "Pin to top");
                     options = this.webapollo.removeItemWithLabel(options, "Delete track");
-                    
-                    options.push({ label: "Collapsed view",
-                             title: "Collapsed view",
-                             type: 'dijit/CheckedMenuItem',
-                             checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel)=="true"),
-                             onClick: function(event) {
-                                 thisB.collapsedMode=this.get("checked");
-                                 browser.cookie(clabel,this.get("checked")?"true":"false");
-                                 var temp=thisB.showLabels;
-                                 if(this.get("checked")) {thisB.showLabels=false; }
-                                 else if(thisB.previouslyShowLabels) {thisB.showLabels=true;}
-                                 thisB.previouslyShowLabels=temp;
-                                 delete thisB.trackMenu;
-                                 thisB.makeTrackMenu();
-                                 thisB.redraw();
-                             }
-                           });
+
+                    options.push({
+                        label: "Collapsed view",
+                        title: "Collapsed view",
+                        type: 'dijit/CheckedMenuItem',
+                        checked: !!('collapsedMode' in thisB ? thisB.collapsedMode : browser.cookie(clabel) == "true"),
+                        onClick: function (event) {
+                            thisB.collapsedMode = this.get("checked");
+                            browser.cookie(clabel, this.get("checked") ? "true" : "false");
+                            var temp = thisB.showLabels;
+                            if (this.get("checked")) {
+                                thisB.showLabels = false;
+                            }
+                            else if (thisB.previouslyShowLabels) {
+                                thisB.showLabels = true;
+                            }
+                            thisB.previouslyShowLabels = temp;
+                            delete thisB.trackMenu;
+                            thisB.makeTrackMenu();
+                            thisB.redraw();
+                        }
+                    });
 
                     return options;
                 },
-
 
 
                 executeUpdateOperation: function (postData, loadCallback) {

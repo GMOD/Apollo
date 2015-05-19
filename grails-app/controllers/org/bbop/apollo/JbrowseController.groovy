@@ -1,9 +1,11 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import org.apache.shiro.session.Session
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
@@ -199,18 +201,35 @@ class JbrowseController {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
 
-                // Open the file and output streams
-                FileInputStream fis = new FileInputStream(file);
-                OutputStream out = response.getOutputStream();
+//                if (fileName == "trackList.json") {
+//
+//                    JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+//                    Organism organism = preferenceService.currentOrganismForCurrentUser
+//                    JSONObject organismObject = new JSONObject()
+//                    organismObject.put(FeatureStringEnum.NAME.value,organism.commonName )
+//                    organismObject.put(FeatureStringEnum.ID.value,organism.id)
+//                    organismObject.put("genus",organism.genus)
+//                    organismObject.put("species",organism.species)
+//                    jsonObject.put(FeatureStringEnum.ORGANISM.value, organismObject.toString())
+////                    OutputStream out = response.getOutputStream();
+//                    response.outputStream << jsonObject.toString()
+//                }
+//
+//                else{
+                    // Open the file and output streams
+                    FileInputStream fis = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
 
-                // Copy the contents of the file to the output stream
-                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                int count = 0;
-                while ((count = fis.read(buf)) >= 0) {
-                    out.write(buf, 0, count);
-                }
-                fis.close();
-                out.close();
+                    // Copy the contents of the file to the output stream
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    int count = 0;
+                    while ((count = fis.read(buf)) >= 0) {
+                        out.write(buf, 0, count);
+                    }
+                    fis.close();
+                    out.close();
+//                }
+
                 return
             } else if (fileName.endsWith(".bam")
                     || fileName.endsWith(".bw")

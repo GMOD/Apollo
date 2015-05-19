@@ -47,6 +47,43 @@ class PreferenceService {
         return userOrganismPreference.organism
     }
 
+    Sequence getCurrentSequenceForCurrentUser() {
+        return getCurrentSequence(permissionService.currentUser)
+    }
+
+    /**
+     * Get the current user preference.
+     * If no preference, then set one
+     * @param user
+     * @return
+     */
+    Sequence getCurrentSequence(User user) {
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByCurrentOrganismAndUser(true, user)
+        if (!userOrganismPreference) {
+            userOrganismPreference = UserOrganismPreference.findByUser(user)
+
+            if (!userOrganismPreference) {
+                Iterator i = permissionService.getOrganisms(user).iterator();
+                if (i.hasNext()) {
+                    Organism organism = i.next()
+                    userOrganismPreference = new UserOrganismPreference(
+                            user: user
+                            , organism: organism
+                            , sequence: Sequence.findByOrganism(organism)
+                            , currentOrganism: true
+                    ).save()
+                } else {
+                    throw new PermissionException("User has no access to any organisms!")
+                }
+            }
+
+            userOrganismPreference.currentOrganism = true
+            userOrganismPreference.save(flush: true)
+        }
+
+        return userOrganismPreference.sequence
+    }
+
     def setCurrentOrganism(User user, Organism organism) {
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
         if (!userOrganismPreference) {
@@ -65,7 +102,7 @@ class PreferenceService {
 //        userOrganismPreference.save(flush: true)
     }
 
-    private def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
+    protected def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user) {
         UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user",
@@ -117,4 +154,5 @@ class PreferenceService {
         userOrganismPreference.setEndbp(endBp ?: sequence.end)
         userOrganismPreference.save()
     }
+
 }

@@ -12,6 +12,7 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.runtime.StackTraceUtils
 import org.springframework.http.HttpStatus
+import org.springframework.messaging.handler.annotation.DestinationVariable
 
 import java.nio.charset.Charset
 import java.nio.file.Files
@@ -38,7 +39,7 @@ import org.springframework.messaging.handler.annotation.SendTo
  * From the AnnotationEditorService
  */
 //@GrailsCompileStatic
-class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
+class AnnotationEditorController extends AbstractApolloController implements AnnotationListener{
 
 
     def featureService
