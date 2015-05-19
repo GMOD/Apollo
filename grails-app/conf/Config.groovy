@@ -221,6 +221,10 @@ apollo {
 //            , ['label': "Other Admin", 'link': "/annotator/cannedComments/"]
     ]
 
+    customPanel = [
+//            ['name':'GenSas2','link':'http://localhost/gensas2']
+    ]
+
     // comment out if you don't want this to be reported
     google_analytics = "UA-62921593-1"
 
