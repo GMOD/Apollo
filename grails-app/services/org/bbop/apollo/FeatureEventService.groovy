@@ -90,13 +90,13 @@ class FeatureEventService {
      * @return
      */
     FeatureEvent setTransactionForFeature(String uniqueName, int count) {
-        println "setting previous transactino for feature ${uniqueName} -> ${count}"
-        println "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
+        log.info "setting previous transactino for feature ${uniqueName} -> ${count}"
+        log.info "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
         int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
-        println "updated is ${updated}"
+        log.debug "updated is ${updated}"
         FeatureEvent featureEvent = FeatureEvent.findByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: 1, offset: count])
-        println "featureEvent found ${featureEvent}"
-        println "featureEvent ${featureEvent.operation} -> ${featureEvent.dateCreated}"
+        log.debug "featureEvent found ${featureEvent}"
+        log.debug "featureEvent ${featureEvent.operation} -> ${featureEvent.dateCreated}"
         featureEvent.current = true
         featureEvent.save(flush: true)
         return featureEvent
@@ -130,17 +130,15 @@ class FeatureEventService {
         deleteCommandObject = permissionService.copyUserName(inputObject, deleteCommandObject)
         deleteCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
 
-        println "feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)} -> ${count}"
-        println " final delete JSON ${deleteCommandObject as JSON}"
-        Feature.withNewTransaction {
-
-        }
-        println "deletion sucess . .  "
-        println "2 feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)} -> ${count}"
+        log.debug "feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)} -> ${count}"
+        log.debug " final delete JSON ${deleteCommandObject as JSON}"
+        requestHandlingService.deleteFeature(deleteCommandObject)
+        log.debug "deletion sucess . .  "
+        log.debug "2 feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)} -> ${count}"
 
         FeatureEvent featureEvent = setTransactionForFeature(uniqueName, count)
-        println "final feature event: ${featureEvent} ->${featureEvent.operation}"
-        println "current feature events for unique name ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)}"
+        log.debug "final feature event: ${featureEvent} ->${featureEvent.operation}"
+        log.debug "current feature events for unique name ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)}"
 
 
         JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
@@ -164,7 +162,7 @@ class FeatureEventService {
             addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
 
             JSONObject returnObject
-            println "addCommandObject = ${addCommandObject as JSON}"
+            log.info "addCommandObject = ${addCommandObject as JSON}"
             if (featureService.isJsonTranscript(jsonFeature)) {
                 returnObject = requestHandlingService.addTranscript(addCommandObject)
             } else {
@@ -191,7 +189,7 @@ class FeatureEventService {
      * @return
      */
     def redo(JSONObject inputObject, int countForward, boolean confirm) {
-        println "redoing ${countForward}"
+        log.info "redoing ${countForward}"
         if (countForward == 0) {
             log.warn "Redo to the same state"
             return
@@ -200,8 +198,8 @@ class FeatureEventService {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex + countForward
-        println "current Index ${currentIndex}"
-        println "${count} = ${currentIndex}-${countForward}"
+        log.info "current Index ${currentIndex}"
+        log.info "${count} = ${currentIndex}-${countForward}"
 
         setHistoryState(inputObject, count, confirm)
     }
@@ -226,7 +224,7 @@ class FeatureEventService {
     }
 
     def undo(JSONObject inputObject, int countBackwards, boolean confirm) {
-        println "undoing ${countBackwards}"
+        log.info "undoing ${countBackwards}"
         if (countBackwards == 0) {
             log.warn "Undo to the same state"
             return
@@ -236,7 +234,7 @@ class FeatureEventService {
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
-        println "${count} = ${currentIndex}-${countBackwards}"
+        log.info "${count} = ${currentIndex}-${countBackwards}"
         setHistoryState(inputObject, count, confirm)
     }
 

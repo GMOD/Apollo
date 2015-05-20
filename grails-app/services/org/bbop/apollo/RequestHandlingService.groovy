@@ -370,7 +370,7 @@ class RequestHandlingService {
     }
 
     def setStatus(JSONObject inputObject) {
-        println "status being set ${inputObject as JSON}"
+        log.debug "status being set ${inputObject as JSON}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -403,8 +403,11 @@ class RequestHandlingService {
         return updateFeatureContainer
     }
 
+    /**
+    * being invoked the RHS
+     */
     def deleteStatus(JSONObject inputObject) {
-        println "status being set ${inputObject as JSON}"
+        log.debug "status being set ${inputObject as JSON}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
@@ -544,7 +547,7 @@ class RequestHandlingService {
         }
 
 //        if(permissionService.fixTrackHeader(inputObject.))
-        println "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
+        log.debug "getFeatures for organism -> ${sequence.organism.commonName} and ${sequence.name}"
 
         Set<Feature> featureSet = new HashSet<>()
 
@@ -651,8 +654,8 @@ class RequestHandlingService {
 
         log.info "RHS::adding transcript return object ${inputObject?.size()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        println "do we have a sequence . . probably not ${sequence}"
-        println "writing feature for org ${sequence.organism}"
+        log.debug "do we have a sequence . . probably not ${sequence}"
+        log.debug "writing feature for org ${sequence.organism}"
 
         log.info "sequences avaialble ${Sequence.count} -> ${Sequence.first()?.name}"
         log.info "sequence ${sequence}"
@@ -1064,7 +1067,7 @@ class RequestHandlingService {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
         try {
-            println "sending the Annotation event DIRECTLY IN RHS"
+            log.debug "sending the Annotation event DIRECTLY IN RHS"
             brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/"+sequence.organismId+"/"+sequence.id, returnString
         } catch (e) {
             log.error("problem sending message: ${e}")
@@ -1579,7 +1582,7 @@ class RequestHandlingService {
 
     def addFeature(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        println "adding sequence with found sequence ${sequence}"
+        log.debug "adding sequence with found sequence ${sequence}"
         User user = permissionService.getActiveUser(inputObject)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1605,7 +1608,7 @@ class RequestHandlingService {
             }
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
             String principalName = newFeature.name
-            println "principal name ${principalName}"
+            log.debug "principal name ${principalName}"
             if(!suppressHistory){
                 newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
             }
@@ -1668,9 +1671,8 @@ class RequestHandlingService {
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     def deleteFeature(JSONObject inputObject) {
-        println "in delete feature ${inputObject as JSON}"
+        log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        println "had permissions ${inputObject as JSON}"
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
             suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
@@ -1685,13 +1687,13 @@ class RequestHandlingService {
         JSONArray oldJsonObjectsArray = new JSONArray()
         // we have to hold transcripts if feature is an exon, etc. or a feature itself if not a transcfript
         Map<String, JSONObject> oldFeatureMap = new HashMap<>()
-        println "features to delete: ${featuresArray.size()}"
+        log.debug "features to delete: ${featuresArray.size()}"
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            println "feature found to delete ${feature.name}"
+            log.debug "feature found to delete ${feature.name}"
             if (feature) {
                 if (feature instanceof Exon) {
                     Transcript transcript = exonService.getTranscript((Exon) feature)
@@ -1714,23 +1716,22 @@ class RequestHandlingService {
                 modifiedFeaturesList.add(feature)
                 modifiedFeaturesUniqueNames.put(uniqueName, modifiedFeaturesList)
             }
-            println " did a delete?"
         }
         for (String key : oldFeatureMap.keySet()) {
-            println " seeting keys ?"
+            log.debug " seeting keys ?"
             oldJsonObjectsArray.add(oldFeatureMap.get(key))
         }
 
         for (Map.Entry<String, List<Feature>> entry : modifiedFeaturesUniqueNames.entrySet()) {
             String uniqueName = entry.getKey();
             Feature feature = Feature.findByUniqueName(uniqueName);
-            println "updating name for feature ${uniqueName} -> ${feature}"
+            log.debug "updating name for feature ${uniqueName} -> ${feature}"
             if (feature == null) {
                 log.info("Feature already deleted");
                 continue;
             }
             if (!isUpdateOperation) {
-                println "is not update operation "
+                log.debug "is not update operation "
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
 //
                 if (feature instanceof Transcript) {
@@ -1799,7 +1800,7 @@ class RequestHandlingService {
                     }
                 }
             } else {
-                println "IS update operation "
+                log.debug "IS update operation "
                 FeatureOperation featureOperation
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
