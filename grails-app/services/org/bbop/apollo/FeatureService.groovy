@@ -130,7 +130,7 @@ class FeatureService {
      * @param isPseudogene
      * @return
      */
-    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean isPseudogene = false) {
+    def generateTranscript(JSONObject jsonTranscript, Sequence sequence,boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
@@ -155,7 +155,9 @@ class FeatureService {
 
             addTranscriptToGene(gene, transcript);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-            transcript.name = nameService.generateUniqueName(transcript)
+            if(!suppressHistory){
+                transcript.name = nameService.generateUniqueName(transcript)
+            }
         } else {
             log.debug "no gene given"
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
@@ -179,7 +181,9 @@ class FeatureService {
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
-                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                    if(!suppressHistory) {
+                        tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                    }
 
                     if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
                         log.debug "There is an overlap, adding to an existing gene"
@@ -205,22 +209,19 @@ class FeatureService {
             JSONObject jsonGene = new JSONObject();
             jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonTranscript));
             jsonGene.put(FeatureStringEnum.LOCATION.value, jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value));
-//            CVTerm cvTerm = CVTerm.findByName(isPseudogene ? FeatureStringEnum.PSEUDOGENE.value :FeatureStringEnum.GENE.value )
-            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
-//            CVTerm cvTerm = new CVTerm()
-//            jsonGene.put(FeatureStringEnum.TYPE.value, cvTermService.convertCVTermToJSON(cvTerm));
+            // TODO: review
+//            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
+            String cvTermString = FeatureStringEnum.GENE.value
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
             String geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
-            geneName = nameService.makeUniqueFeatureName(sequence.organism,geneName,new LetterPaddingStrategy(),true)
+            if(!suppressHistory){
+                geneName = nameService.makeUniqueFeatureName(sequence.organism,geneName,new LetterPaddingStrategy(),true)
+            }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
-//            Feature gsolGene = convertJSONToFeature(jsonGene, featureLazyResidues);
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
 
-
-
             updateNewGsolFeatureAttributes(gene, sequence);
-//            gene = (Gene) BioObjectUtil.createBioObject(gsolGene, bioObjectConfiguration);
             if (gene.getFmin() < 0 || gene.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
@@ -230,7 +231,9 @@ class FeatureService {
             }
             // I don't thikn that this does anything
             addFeature(gene)
-            transcript.name = nameService.generateUniqueName(transcript)
+            if(!suppressHistory) {
+                transcript.name = nameService.generateUniqueName(transcript)
+            }
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
@@ -288,9 +291,6 @@ class FeatureService {
 
 
     def addFeature(Feature feature) {
-
-//        Feature topLevelFeature = getTopLevelFeature(feature);
-
         if (feature instanceof Gene) {
             for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                 removeExonOverlapsAndAdjacencies(transcript);
@@ -298,32 +298,10 @@ class FeatureService {
         } else if (feature instanceof Transcript) {
             removeExonOverlapsAndAdjacencies((Transcript) feature);
         }
-
-        // event fire
-//        fireAnnotationChangeEvent(feature, topLevelFeature, AnnotationChangeEvent.Operation.ADD);
-
-//        getSession().addFeature(feature);
-
-        // old version was deleting the feature .. . badness!! , we want to update if its there.
-
-//        if (uniqueNameToStoredUniqueName.containsKey(feature.getUniqueName())) {
-//            addSequenceAlterationdeleteFeature(feature);
-//        }
-//        Feature topLevelFeature = getTopLevelFeature(feature);
-//        features.add(new FeatureData(topLevelFeature));
-//        if (getFeatureByUniqueName(topLevelFeature.getUniqueName()) == null) {
-//            beginTransactionForFeature(topLevelFeature);
-//        }
-//        indexFeature(topLevelFeature);
-//        Collections.sort(features, new FeatureDataPositionComparator());
-
     }
 
     def addTranscriptToGene(Gene gene, Transcript transcript) {
         removeExonOverlapsAndAdjacencies(transcript);
-//        gene.addTranscript(transcript);
-//        CVTerm partOfCvterm = cvTermService.partOf
-
         // no feature location, set location to transcript's
         if (gene.getSingleFeatureLocation() == null) {
             FeatureLocation transcriptFeatureLocation = transcript.getSingleFeatureLocation()
@@ -1239,7 +1217,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     ).save()
                     gsolFeature.addToFeatureDBXrefs(dbxref)
                     gsolFeature.save()
-//                    gsolFeature.addFeatureDBXref(new DB(db.getString("name")), dbxref.getString(FeatureStringEnum.ACCESSION.value));
                 }
             }
         }

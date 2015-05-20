@@ -671,7 +671,7 @@ class RequestHandlingService {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyUserName(inputObject, jsonTranscript)
             log.debug "copied jsonTranscript ${jsonTranscript}"
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence)
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence,suppressHistory)
 
             // should automatically write to history
             transcript.save(flush: true)
@@ -1604,7 +1604,9 @@ class RequestHandlingService {
             Feature newFeature = featureService.convertJSONToFeature(jsonFeature, sequence)
             String principalName = newFeature.name
             println "principal name ${principalName}"
-            newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
+            if(!suppressHistory){
+                newFeature.name = nameService.generateUniqueName(newFeature, newFeature.name)
+            }
             featureService.updateNewGsolFeatureAttributes(newFeature, sequence)
             featureService.addFeature(newFeature)
             newFeature.addToOwners(user)
@@ -1623,8 +1625,10 @@ class RequestHandlingService {
                         }
                     }
                     nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-                    transcript.name = nameService.generateUniqueName(transcript, newFeature.name)
-                    transcript.uniqueName = nameService.generateUniqueName()
+                    if(!suppressHistory){
+                        transcript.name = nameService.generateUniqueName(transcript, newFeature.name)
+                        transcript.uniqueName = nameService.generateUniqueName()
+                    }
                     transcript.addToOwners(user)
 //                    featurePropertyService.setOwner(transcript, user)
 
