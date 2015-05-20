@@ -1585,7 +1585,7 @@ class RequestHandlingService {
 
         boolean suppressHistory = false
         boolean suppressEvents = false
-        if (inputObject.hasProperty(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
             suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
         }
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
