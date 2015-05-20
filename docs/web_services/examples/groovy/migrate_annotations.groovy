@@ -12,8 +12,7 @@ import net.sf.json.JSONObject
 
 String usageString = "migrate_annotations.groovy <options>" +
         "Example: \n" +
-//        "./migrate_annotations.groovy -sourceurl http://remoteserver:8080/apollo/ -destinationurl http://localhost:8080/apollo/ -name amel -username ndunn@me.com -password supersecret"
-        "./migrate_annotations.groovy -sourceurl http://localhost:8080/apollo/ -source_organism amel -destinationurl newserver -destination_organism amel2  -username ndunn@me.com -password demo -organism Honey1"
+        "./migrate_annotations.groovy -sourceurl http://localhost:8080/apollo/ -source_organism amel -destinationurl http://localhost:8080/apollo2 -destination_organism amel2  -username ndunn@me.com -password demo "
 
 println "intro"
 def cli = new CliBuilder(usage: 'migrate_annotations.groovy <options>')
@@ -32,6 +31,7 @@ try {
     options = cli.parse(args)
 
     if (!(options?.sourceurl && options?.destinationurl && options?.source_organism && options?.destination_organism && options?.username && options?.password)) {
+        println "\n"+usageString
         return
     }
 } catch (e) {
@@ -43,7 +43,7 @@ def getFeaturesClient = new RESTClient(options.sourceurl)
 def getFeaturesResponse = getFeaturesClient.post(
         contentType: 'text/javascript',
         path: '/apollo/annotationEditor/getFeatures',
-        body: [operation: 'get_features', 'username': options.username, 'password': options.password, 'track': "Annotations-Group1.1", 'organism': options.source_organism]
+        body: ['username': options.username, 'password': options.password, 'track': "Annotations-Group1.1", 'organism': options.source_organism]
 )
 
 assert getFeaturesResponse.status == 200
@@ -65,8 +65,8 @@ println "JSONARRAY SIZE: ${jsonArray.size()}"
 def loadFeaturesClient = new RESTClient(options.destinationurl)
 def loadFeaturesResponse = loadFeaturesClient.post(
         contentType: 'text/javascript',
-        path: '/apollo/annotationEditor/addFeature',
-        body: [ operation: 'add_feature', 'username' : options.username, 'password' : options.password, 'track' : "Annotations-Group1.1", 'organism' : options.destination_organism, 'features' : jsonArray ]
+        path: '/apollo/annotationEditor/addTranscript',
+        body: [  'username' : options.username, 'password' : options.password, 'track' : "Annotations-Group1.1", 'organism' : options.destination_organism, 'features' : jsonArray ]
 )
 
 assert loadFeaturesResponse.status == 200
