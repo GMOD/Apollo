@@ -592,7 +592,8 @@ class PermissionService {
         organism = userOrganismPreference.organism
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
-        if(userOrganismPreference.sequence.name!=trackName){
+        println "found a sequence . . . have to have a sequence ${sequence} for track ${trackName} from ${inputObject.track}"
+        if(userOrganismPreference.sequence?.name!=trackName){
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()
         }
