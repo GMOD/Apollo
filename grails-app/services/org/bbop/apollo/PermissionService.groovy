@@ -579,8 +579,6 @@ class PermissionService {
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
 
-        log.info "found the current preference : ${userOrganismPreference.organism.commonName}"
-
         if (!userOrganismPreference) {
             userOrganismPreference = UserOrganismPreference.findByUser(user)
         }
