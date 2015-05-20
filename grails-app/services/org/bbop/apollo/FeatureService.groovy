@@ -2001,4 +2001,59 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //        Sequence sequence = feature.featureLocation.sequence
 //        return convertJSONToFeature(jsonObject,sequence)
 //    }
+
+    /**
+     * From https://github.com/GMOD/Apollo/issues/73
+     * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
+     1 - using OrfOverlapper, find other isoforms
+     2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
+     3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
+     * @param transcript
+     */
+    def handleIsoforms(Transcript transcript) {
+        JSONObject jsonTranscript = convertFeatureToJSON(transcript)
+        FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
+        Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
+        for (Feature feature : overlappingFeatures) {
+//            if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
+//                Gene tmpGene = (Gene) feature;
+//                log.debug "found an overlpaping gene ${tmpGene}"
+//                Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
+//                updateNewGsolFeatureAttributes(tmpTranscript, sequence);
+//                if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
+//                    throw new AnnotationException("Feature cannot have negative coordinates");
+//                }
+//                //wasn't working --colin
+//                //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
+//
+//                //this one is working, but was marked as needing improvement
+//                setOwner(tmpTranscript, owner);
+//
+//                if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
+//                    calculateCDS(tmpTranscript);
+//                }
+//                if(!suppressHistory) {
+//                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+//                }
+//
+//                if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
+//                    log.debug "There is an overlap, adding to an existing gene"
+//                    transcript = tmpTranscript;
+//                    gene = tmpGene;
+//                    addTranscriptToGene(gene, transcript)
+//                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+//                    transcript.save()
+//                    // was existing
+//                    gene.save(insert: false, flush: true)
+//                    break;
+//                } else {
+//                    featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
+//                    log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
+//                }
+//            } else {
+//                log.error "Feature is not an instance of a gene or is a pseudogene"
+//            }
+        }
+
+    }
 }

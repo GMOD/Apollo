@@ -991,6 +991,7 @@ class RequestHandlingService {
             featureService.calculateCDS(transcript)
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
 
+//            transcriptService.handleIsoforms(transcript);
 
             transcript.save()
 
