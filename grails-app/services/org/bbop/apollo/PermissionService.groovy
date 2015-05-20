@@ -591,6 +591,12 @@ class PermissionService {
 
         organism = userOrganismPreference.organism
 
+        Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
+        if(userOrganismPreference.sequence.name!=trackName){
+            userOrganismPreference.sequence = sequence
+            userOrganismPreference.save()
+        }
+
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 

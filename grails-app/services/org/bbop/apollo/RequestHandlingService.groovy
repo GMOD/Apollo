@@ -1069,7 +1069,7 @@ class RequestHandlingService {
         }
     }
 
-    synchronized void handleChangeEvent(AnnotationEvent event) {
+    void handleChangeEvent(AnnotationEvent event) {
 
 //        log.debug "handingling event ${events.length}"
         if (!event) {
