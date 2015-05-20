@@ -132,7 +132,9 @@ class FeatureEventService {
 
         println "feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)} -> ${count}"
         println " final delete JSON ${deleteCommandObject as JSON}"
-        requestHandlingService.deleteFeature(deleteCommandObject)
+        Feature.withNewTransaction {
+
+        }
         println "deletion sucess . .  "
         println "2 feature event values: ${FeatureEvent.countByUniqueNameAndCurrent(uniqueName, true)} -> ${count}"
 
