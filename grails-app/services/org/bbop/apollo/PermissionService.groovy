@@ -570,8 +570,8 @@ class PermissionService {
 
         User user = getActiveUser(inputObject)
 
-        if (inputObject.has("organism")) {
-            String organismString = inputObject.getString("organism")
+        if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
+            String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
             organism = Organism.findByCommonName(organismString)
             log.info "switching organism to ${organism.commonName}"
             preferenceService.setCurrentOrganism(user,organism)
