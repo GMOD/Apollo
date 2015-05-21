@@ -3,10 +3,9 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import groovy.json.JsonBuilder
 import org.bbop.apollo.sequence.search.blast.TabDelimittedAlignment
-import org.bbop.apollo.web.util.JSONUtil
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.bbop.apollo.tools.seq.search.blat.BlatCommandLine
+//import org.bbop.apollo.tools.seq.search.blat.BlatCommandLine
 
 
 @Transactional

@@ -1,8 +1,8 @@
 package org.bbop.apollo.sequence;
 
-import org.bbop.apollo.web.overlap.Overlapper;
-import org.gmod.gbol.bioObject.Gene;
-import org.gmod.gbol.bioObject.Transcript;
+
+import org.bbop.apollo.Gene;
+import org.bbop.apollo.Transcript;
 
 public class NoOverlapper implements Overlapper {
 

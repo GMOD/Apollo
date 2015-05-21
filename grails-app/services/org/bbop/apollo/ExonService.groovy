@@ -3,9 +3,7 @@ package org.bbop.apollo
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
-import grails.compiler.GrailsCompileStatic
-import org.bbop.apollo.editor.AnnotationEditor
-import org.bbop.apollo.event.AnnotationEvent
+//import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 

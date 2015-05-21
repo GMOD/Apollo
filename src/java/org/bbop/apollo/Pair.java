@@ -1,4 +1,4 @@
-package org.bbop.apollo.web.util;
+package org.bbop.apollo;
 
 public class Pair<T, U> {
 

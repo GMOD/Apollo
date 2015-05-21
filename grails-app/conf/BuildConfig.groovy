@@ -6,8 +6,8 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.7
 grails.project.source.level = 1.7
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-//def gebVersion = '0.9.3'
-//def seleniumVersion = '2.21.0'
+def gebVersion = '0.9.3'
+def seleniumVersion = '2.21.0'
 
 
 //forkConfig = [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
@@ -47,7 +47,6 @@ grails.project.dependency.resolution = {
     // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
 
     repositories {
-        inherits true // Whether to inherit repository definitions from plugins
 
         grailsPlugins()
         grailsHome()
@@ -58,8 +57,8 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
-        mavenRepo "http://maven.crbs.ucsd.edu/nexus/content/repositories/NIF-snapshot/"
-        mavenRepo "http://www.biojava.org/download/maven/"
+//        mavenRepo "http://maven.crbs.ucsd.edu/nexus/content/repositories/NIF-snapshot/"
+//        mavenRepo "http://www.biojava.org/download/maven/"
     }
 
     dependencies {
@@ -70,7 +69,7 @@ grails.project.dependency.resolution = {
         test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
 
         compile 'org.json:json:20140107'
-        compile 'com.sleepycat:je:5.0.73'
+//        compile 'com.sleepycat:je:5.0.73'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
         //compile 'org.spiffyui:spiffyuitasks:1.5'
         //compile 'org.spiffyui:spiffyui:1.5'
@@ -83,11 +82,11 @@ grails.project.dependency.resolution = {
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
 
-        //test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-        //test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-        //test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
-        //test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-        //test "org.gebish:geb-spock:$gebVersion"
+        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
+        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+        test "org.gebish:geb-spock:$gebVersion"
     }
 
     plugins {
@@ -139,7 +138,7 @@ grails.project.dependency.resolution = {
         //compile ":jasypt-encryption:1.1.0"
         //compile ":joda-time:1.4"
 
-        //test    ":geb:$gebVersion"
+        test    ":geb:$gebVersion"
     }
 }
 

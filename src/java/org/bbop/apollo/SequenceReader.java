@@ -1,7 +1,5 @@
 package org.bbop.apollo;
 
-import org.bbop.apollo.web.util.Pair;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
