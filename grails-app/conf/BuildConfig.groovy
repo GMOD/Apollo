@@ -82,6 +82,8 @@ grails.project.dependency.resolution = {
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
 
+
+
         test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
         test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
         test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
@@ -114,6 +116,7 @@ grails.project.dependency.resolution = {
 
         runtime ":jquery:1.11.1"
         runtime ':twitter-bootstrap:3.3.1'
+
 //        compile ":angularjs:1.0.0"
 
         //compile ":dojo:1.7.2.0"
@@ -137,6 +140,7 @@ grails.project.dependency.resolution = {
         compile ":audit-logging:1.0.3"
         //compile ":jasypt-encryption:1.1.0"
         //compile ":joda-time:1.4"
+        test ":rest-client-builder:2.1.1"
 
         test    ":geb:$gebVersion"
     }
