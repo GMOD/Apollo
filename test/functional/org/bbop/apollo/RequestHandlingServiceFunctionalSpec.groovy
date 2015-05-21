@@ -3,7 +3,6 @@ package org.bbop.apollo
 import geb.spock.GebSpec
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
-import net.sf.json.JSONObject
 
 
 //class RequestHandlingServiceFunctionalSpec extends IntegrationSpec {
