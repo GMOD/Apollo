@@ -2010,50 +2010,42 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
      * @param transcript
      */
-    def handleIsoforms(Transcript transcript) {
+    def handleIsoformOverlap(Transcript transcript) {
+        Gene currentGene = transcriptService.getGene(transcript)
+
+        List<Transcript> originalGeneTranscripts = transcriptService.getTranscripts(currentGene)
+
         JSONObject jsonTranscript = convertFeatureToJSON(transcript)
-        FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
+        FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value),transcript.featureLocation.sequence)
         Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
         for (Feature feature : overlappingFeatures) {
+            // TODO: should we do this loop first in order to get the Gene part?
+            // and then again to align the transcripts properly?
 //            if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
-//                Gene tmpGene = (Gene) feature;
-//                log.debug "found an overlpaping gene ${tmpGene}"
-//                Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
-//                updateNewGsolFeatureAttributes(tmpTranscript, sequence);
-//                if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
-//                    throw new AnnotationException("Feature cannot have negative coordinates");
-//                }
-//                //wasn't working --colin
-//                //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
-//
-//                //this one is working, but was marked as needing improvement
-//                setOwner(tmpTranscript, owner);
-//
-//                if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
-//                    calculateCDS(tmpTranscript);
-//                }
-//                if(!suppressHistory) {
-//                    tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
-//                }
-//
-//                if (overlapperService.overlaps(tmpTranscript, tmpGene)) {
-//                    log.debug "There is an overlap, adding to an existing gene"
-//                    transcript = tmpTranscript;
-//                    gene = tmpGene;
-//                    addTranscriptToGene(gene, transcript)
-//                    nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-//                    transcript.save()
-//                    // was existing
-//                    gene.save(insert: false, flush: true)
-//                    break;
-//                } else {
-//                    featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
-//                    log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
-//                }
-//            } else {
-//                log.error "Feature is not an instance of a gene or is a pseudogene"
-//            }
+            if(feature instanceof  Gene){
+                Gene someGene = (Gene) feature
+                // should be the gene above
+                // this means we overlap with another gene . . . that means we need to be child of THAT gene
+                if(feature.uniqueName!=currentGene.uniqueName){
+                    // TODO: make feature my parent
+//                    transcriptService.removeGeneFromTranscript(gene,transcript)
+
+                    addTranscriptToGene(someGene,transcript)
+                    currentGene = someGene
+                }
+                else{
+                    // that is what we would expect if overlap doesn't change
+                }
+            }
         }
 
+        for (Feature feature : overlappingFeatures) {
+            if(feature instanceof Transcript) {
+                Transcript otherTranscript = (Transcript) feature
+            }
+            else{
+                log.error "Not sure what to do here, ${feature.class.name}"
+            }
+        }
     }
 }
