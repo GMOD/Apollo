@@ -26,7 +26,7 @@ class OrganismController {
     @Transactional
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"
-        def organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        JSONObject organismJson = (request.JSON?:JSON.parse(params.data.toString())) as JSONObject
         try {
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
 
@@ -146,12 +146,12 @@ class OrganismController {
             return
         }
 
-        def organismList = permissionService.getOrganismsForCurrentUser()
+        List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.currentUser, true)
         Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
         JSONArray jsonArray = new JSONArray()
-        for (def organism in organismList) {
+        for (Organism organism in organismList) {
             Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
             Integer sequenceCount = Sequence.countByOrganism(organism)
             JSONObject jsonObject = [

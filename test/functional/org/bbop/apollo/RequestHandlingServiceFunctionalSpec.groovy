@@ -1,12 +1,13 @@
 package org.bbop.apollo
 
+import geb.spock.GebSpec
 import grails.plugins.rest.client.RestBuilder
 import grails.plugins.rest.client.RestResponse
-import grails.test.spock.IntegrationSpec
-import spock.lang.Shared
+import net.sf.json.JSONObject
 
 
-class RequestHandlingServiceFunctionalSpec extends IntegrationSpec {
+//class RequestHandlingServiceFunctionalSpec extends IntegrationSpec {
+class RequestHandlingServiceFunctionalSpec extends GebSpec {
 
 //    @Shared
 //    def grailsApplication
@@ -17,23 +18,41 @@ class RequestHandlingServiceFunctionalSpec extends IntegrationSpec {
     def cleanup() {
     }
 
-    void "create a merge an exon"() {
+    void "can we hit a basic request"() {
         given:
         RestBuilder rest = new RestBuilder()
 
         when:
-//        RestResponse response = rest.post("http://localhost:8080/${grailsApplication.metadata.'app.name'}/organism/findAllOrganisms") {
-            RestResponse response = rest.post("http://localhost:8080/apollo/organism/findAllOrganisms") {
+        RestResponse response = rest.post("http://localhost:8080/apollo/organism/findAllOrganisms?admin=true") {
             json([
-                    username: "ndunn@me.com"
-                    ,password: "demo"
+                    username  : "ndunn@me.com"
+                    , password: "demo"
             ])
         }
 
         then:
         response.status == 200
         println "json ${response.json}"
-//        response.json.title == "title2"
-//        Book.count == 2
+        // realize that this is not admin
     }
+
+
+//    void "moving exon boundaries should accurately"() {
+//        given:
+//        RestBuilder rest = new RestBuilder()
+//
+//        when:
+//        JSONObject payload = new JSONObject()
+//        RestResponse response = rest.post("http://localhost:8080/apollo/annotationEditor/addTranscript") {
+//            json( payload )
+//        }
+//
+//        then:
+//        response.status == 200
+//        println "json ${response.json}"
+//        // realize that this is not admin
+//
+//        when: "we have an exon"
+//    }
+
 }
