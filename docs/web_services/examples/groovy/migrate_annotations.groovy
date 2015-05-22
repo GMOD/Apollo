@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
-
+import groovy.json.JsonBuilder
+import groovy.json.internal.LazyMap
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 import groovyx.net.http.RESTClient
@@ -12,9 +13,8 @@ import net.sf.json.JSONObject
 
 String usageString = "migrate_annotations.groovy <options>" +
         "Example: \n" +
-        "./migrate_annotations.groovy -sourceurl http://localhost:8080/apollo/ -source_organism amel -destinationurl http://localhost:8080/apollo2 -destination_organism amel2  -username ndunn@me.com -password demo "
+        "./migrate_annotations.groovy -username ndunn@me.com -password demo -sourceurl http://localhost:8080/apollo/ -source_organism amel -destinationurl http://localhost:8080/apollo2 -destination_organism amel2 -sequence_names Group1.1,Group1.10,Group1.2 "
 
-println "intro"
 def cli = new CliBuilder(usage: 'migrate_annotations.groovy <options>')
 cli.setStopAtNonOption(true)
 cli.sourceurl('URL of source WebApollo instance from which annotations are fetched', required: true, args: 1)
@@ -23,14 +23,13 @@ cli.source_organism('source organism common name', required: true, args: 1)
 cli.destination_organism('destination organism common name', required: true, args: 1)
 cli.username('username', required: true, args: 1)
 cli.password('password', required: true, args: 1)
+cli.sequence_names('sequence_names', required: true, args: 1)
 OptionAccessor options
-
-println "clie done"
 
 try {
     options = cli.parse(args)
 
-    if (!(options?.sourceurl && options?.destinationurl && options?.source_organism && options?.destination_organism && options?.username && options?.password)) {
+    if (!(options?.sequence_names && options?.sourceurl && options?.destinationurl && options?.source_organism && options?.destination_organism && options?.username && options?.password)) {
         println "\n"+usageString
         return
     }
@@ -39,37 +38,139 @@ try {
     return
 }
 
-def getFeaturesClient = new RESTClient(options.sourceurl)
-def getFeaturesResponse = getFeaturesClient.post(
-        contentType: 'text/javascript',
-        path: '/apollo/annotationEditor/getFeatures',
-        body: ['username': options.username, 'password': options.password, 'track': "Annotations-Group1.1", 'organism': options.source_organism]
-)
+final String sequencePrefix = "Annotations-"
+uniqueNamesMap = [:]
+featuresMap = [:]
+JSONObject newArray = new JSONObject()
+JSONArray addFeaturesArray = new JSONArray()
+JSONArray addTranscriptArray = new JSONArray()
 
-assert getFeaturesResponse.status == 200
-println getFeaturesResponse.getData()
-if (getFeaturesResponse.getData().features.size() == 0) {
-    println "Couldn't establish session with ${options.sourceurl}"
-    return
+// For each sequence, fetching annotations from sourceurl
+for (def sequence in options.sequence_names.tokenize(',')) {
+    String sequenceName = sequencePrefix + sequence
+    def getFeaturesClient = new RESTClient(options.sourceurl)
+    def getFeaturesResponse = getFeaturesClient.post(
+            contentType: 'text/javascript',
+            path: '/apollo/annotationEditor/getFeatures',
+            body: ['username': options.username, 'password': options.password, 'track': sequenceName, 'organism': options.source_organism]
+    )
+
+    if (getFeaturesResponse.status != 200) {
+        println "Error. Source ${options.sourceurl} responded with ${getFeaturesResponse.status} status"
+        return
+    }
+    //println getFeaturesResponse.getData().toString()
+    if (getFeaturesResponse.getData().features == null) {
+        println "Sequence ${sequenceName} does not exist for ${options.source_organism} at source URL ${options.sourceurl}"
+        continue
+    }
+    else if (getFeaturesResponse.getData().features.size() == 0) {
+        println "Request to fetch features from Sequence ${sequenceName} for ${options.source_organism} at source URL ${options.sourceurl} did not return any features"
+        featuresMap.put(sequenceName, 0)
+        continue
+    }
+
+    def featuresFromSource  = getFeaturesResponse.getData().features // contains list of mRNAs; Size == number of annotations on chromosome
+    
+    for (def entity : featuresFromSource) {
+        JSONObject entityJSONObject = entity as JSONObject
+        newArray.location = entityJSONObject.location
+        newArray.type = entityJSONObject.type
+        newArray.name = entityJSONObject.name
+        //tmp.name = entityJSONObject.name.tokenize('-')[0]
+        newArray.children = assignNewUniqueName(entityJSONObject.children)
+        if (entityJSONObject.type.name == 'repeat_region' || entityJSONObject.type.name == 'transposable_element') {
+            addFeaturesArray.add(0, newArray)
+        }
+        else {
+            addTranscriptArray.add(0, newArray)
+        }
+    }
+    
+    if (addFeaturesArray.size() > 0) {
+        //println "ADDFEATURESARRAY: ${addFeaturesArray.toString()}"
+        def response = triggerAddFeature(options.destinationurl, options.username, options.password, options.destination_organism, sequenceName, addFeaturesArray)
+        if (response == null) { return }
+        println "addFeature response size: ${response.size()}"
+    }
+    if (addTranscriptArray.size() > 0) {
+        //println "ADDTRANSCRIPTARRAY: ${addTranscriptArray.toString()}"
+        def response = triggerAddTranscript(options.destinationurl, options.username, options.password, options.destination_organism, sequenceName, addTranscriptArray)
+        if (response == null) { return }
+        println "addTranscript response size: ${response.size()}"
+    }
+
+    featuresMap.put(sequenceName, (addFeaturesArray.size() + addTranscriptArray.size()))
 }
 
-count = 0
-JSONArray jsonArray = new JSONArray()
-for (def entity : getFeaturesResponse.getData().features) {
-    jsonArray.add(count, entity as JSONObject)
-    count += 1
+println "\n::: STATISTICS :::\nSource URL :${options.sourceurl}\nSource Organism: ${options.source_organism}"
+println "Destination URL :${options.destinationurl}\nDestination Organism: ${options.destination_organism}"
+
+
+if (featuresMap.size() > 0) {
+    println "\nFeatures Exported from each sequence:"
+    featuresMap.each{ println "${it.key} : ${it.value}" }
 }
 
-println "JSONARRAY SIZE: ${jsonArray.size()}"
-
-def loadFeaturesClient = new RESTClient(options.destinationurl)
-def loadFeaturesResponse = loadFeaturesClient.post(
-        contentType: 'text/javascript',
-        path: '/apollo/annotationEditor/addTranscript',
-        body: [  'username' : options.username, 'password' : options.password, 'track' : "Annotations-Group1.1", 'organism' : options.destination_organism, 'features' : jsonArray ]
-)
-
-assert loadFeaturesResponse.status == 200
-println "loadFeaturesResponse content: ${loadFeaturesResponse.getData()}"
+if (uniqueNamesMap.size() > 0) {
+    println "\nold uniquename : new uniquename"
+    uniqueNamesMap.each{ println "${it.key} : ${it.value}" }
+}
 
 
+String generateUniqueName() {
+    return UUID.randomUUID().toString()
+
+}
+
+JSONArray assignNewUniqueName(JSONArray inputArray) {
+    JSONArray returnArray = new JSONArray()
+    String oldUniqueName, newUniqueName
+    idx = 0
+    for (def eachEntity : inputArray) {
+        oldUniqueName = eachEntity.uniquename
+        newUniqueName = generateUniqueName()
+        eachEntity.uniquename = newUniqueName
+        returnArray.add(idx, eachEntity)
+        uniqueNamesMap.put(oldUniqueName, newUniqueName)
+        idx += 1
+    }
+    return returnArray
+}
+
+JSONObject triggerAddFeature(String url, String username, String password, String organism, String sequenceName, JSONArray featuresArray) {
+    def addFeatureClient = new RESTClient(url)
+    def addFeatureResponse = addFeatureClient.post(
+            contentType: 'text/javascript',
+            path: '/apollo/annotationEditor/addFeature',
+            body: [  'username' : username, 'password' : password, 'track' : sequenceName, 'organism' : organism, 'features' : featuresArray ]
+    )
+
+    assert addFeatureResponse.status == 200
+    if (addFeatureResponse.getData().size() == 0) {
+        println "Error: Server did not respond properly while trying to call /addFeature"
+        return
+    }
+    else {
+        return addFeatureResponse.getData()
+        
+    }
+}
+
+JSONObject triggerAddTranscript(String url, String username, String password, String organism, String sequenceName, JSONArray featuresArray) {
+    def addTranscriptClient = new RESTClient(url)
+    def addTranscriptResponse = addTranscriptClient.post(
+            contentType: 'text/javascript',
+            path: '/apollo/annotationEditor/addTranscript',
+            body: [  'username' : username, 'password' : password, 'track' : sequenceName, 'organism' : organism, 'features' : featuresArray ]
+    )
+
+    assert addTranscriptResponse.status == 200
+    if (addTranscriptResponse.getData().size() == 0) {
+        println "Error: Server did not respond properly while trying to call /addTranscript"
+        return
+    }
+    else {
+        return addTranscriptResponse.getData()
+    }
+}
