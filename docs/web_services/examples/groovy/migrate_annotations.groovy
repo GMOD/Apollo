@@ -50,6 +50,7 @@ if (!options.sequence_names) {
     // fetching sequences that are accessible by user
     sequenceArray = getAllSequencesForUsername(options.sourceurl, options.username, options.password, options.source_organism)
     if (sequenceArray == null) {
+        println "Error: Could not fetch sequences for organism ${options.source_organism}."
         return
     }
 }
@@ -201,19 +202,18 @@ ArrayList getAllSequencesForUsername(String sourceurl, String username, String p
             password : password,
             organism : organism
     ]
-    def getSequencesForUserClient = new RESTClient(sourceurl)
-    def getSequencesForUserResponse = getSequencesForUserClient.post(
+    def getSequencesForOrganismClient = new RESTClient(sourceurl)
+    def getSequencesForOrganismResponse = getSequencesForOrganismClient.post(
             contentType: 'text/javascript',
             path: fullPath,
             body: argumentsArray
     )
     
-    println "Response:${getSequencesForUserResponse.status}"
-    println "Response:${getSequencesForUserResponse.getData()}"
-    if (getSequencesForUserResponse.getData().sequences) {
-        return getSequencesForUserResponse.getData().sequences as ArrayList
+    assert getSequencesForOrganismResponse.status == 200
+    if (getSequencesForOrganismResponse.getData().sequences) {
+        return getSequencesForOrganismResponse.getData().sequences as ArrayList
     } else {
-        println getSequencesForUserResponse.getData().error
+        println getSequencesForOrganismResponse.getData().error
         return
     }
 }
