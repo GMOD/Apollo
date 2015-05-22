@@ -2017,35 +2017,68 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     private Gene mergeGenes(Set<Gene> genes) {
         // TODO: implement
+        Gene newGene = null
 
-        return null
+        if (!genes) {
+            log.error "No genes to merge, returning null"
+        }
+
+        for (Gene gene in genes) {
+            if (!newGene) {
+                newGene = gene
+            }
+            else {
+                // merging code goes here
+
+            }
+        }
+
+
+        return newGene
     }
 
     /**
-     * Remove old gene / transcript
-     * Add old one
+     * Remove old gene / transcript from the transcript
+     * Delete gene if no overlapping.
      * @param transcript
      * @param gene
      */
     private void setGeneTranscript(Transcript transcript, Gene gene) {
-        // TODO: implement
+        Gene oldGene = transcriptService.getGene(transcript)
+        if (gene.uniqueName == oldGene.uniqueName) {
+            log.info "Same gene do not need to set"
+            return
+        }
+
+        featureRelationshipService.removeFeatureRelationship(oldGene, transcript)
+
+        // if this is empty then delete the gene
+        if (!featureRelationshipService.getChildren(oldGene)) {
+            deleteFeature(oldGene)
+        }
+
+        addTranscriptToGene(gene, transcript)
 
     }
 
-    /**
-     * From https://github.com/GMOD/Apollo/issues/73
-     * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
-     1 - using OrfOverlapper, find other isoforms
-     2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
-     3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
-     * @param transcript
-     */
+/**
+ * From https://github.com/GMOD/Apollo/issues/73
+ * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
+ 1 - using OrfOverlapper, find other isoforms
+ 2 - for each isoform, confirm that they belong to the same gene (if not, we merge genes)
+ 3 - confirm that no other non-overlapping isoforms have the same gene (if not, we create a new gene)
+ * @param transcript
+ */
     def handleIsoformOverlap(Transcript transcript) {
         Gene originalGene = transcriptService.getGene(transcript)
 
         // TODO: should go left to right, may need to sort
-        List<Transcript> originalTranscripts = transcriptService.getTranscripts(originalGene)
-        List<Transcript> newTranscripts = getOverlappingTranscripts(transcript.featureLocation);
+        List<Transcript> originalTranscripts = transcriptService.getTranscripts(originalGene)?.sort() { a, b ->
+            a.featureLocation.fmin <=> b.featureLocation.fmin
+        }
+        List<Transcript> newTranscripts = getOverlappingTranscripts(transcript.featureLocation)?.sort() { a, b ->
+            a.featureLocation.fmin <=> b.featureLocation.fmin
+        };
 
         List<Transcript> leftBehindTranscripts = originalTranscripts - newTranscripts
 
@@ -2053,7 +2086,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         for (Transcript newTranscript in newTranscripts) {
             newGenesToMerge.add(transcriptService.getGene(newTranscript))
         }
-        Gene newGene = mergeGenes(newGenesToMerge)
+        Gene newGene = newGenesToMerge ? mergeGenes(newGenesToMerge) : new Gene(
+                name: transcript.name
+                ,uniqueName: nameService.generateUniqueName()
+        ).save(flush: true, insert:true)
 
         for (Transcript newTranscript in newTranscripts) {
             setGeneTranscript(newTranscript, newGene)
@@ -2061,15 +2097,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
         Set<Gene> usedGenes = new HashSet<>()
-        while (originalTranscripts.size() > 0) {
-            Transcript originalOverlappingTranscript = originalTranscripts.pop()
+        while (leftBehindTranscripts.size() > 0) {
+            Transcript originalOverlappingTranscript = leftBehindTranscripts.pop()
             Gene originalOverlappingGene = transcriptService.getGene(originalOverlappingTranscript)
             List<Transcript> overlappingTranscripts = getOverlappingTranscripts(originalOverlappingTranscript.featureLocation)
             overlappingTranscripts = overlappingTranscripts - usedGenes
             overlappingTranscripts.each { it ->
                 setGeneTranscript(it, originalOverlappingGene)
             }
-            originalTranscripts = originalTranscripts - overlappingTranscripts
+            leftBehindTranscripts = leftBehindTranscripts - overlappingTranscripts
         }
     }
 
