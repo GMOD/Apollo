@@ -231,6 +231,10 @@ class FeatureService {
             if (!suppressHistory) {
                 geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
             }
+            // set back to the original gene name
+            if(jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)){
+                geneName = jsonTranscript.getString(FeatureStringEnum.GENE_NAME.value)
+            }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
             gene = (Gene) convertJSONToFeature(jsonGene, sequence);
@@ -243,7 +247,7 @@ class FeatureService {
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
             }
-            // I don't thikn that this does anything
+            // I don't think that this does anything
             addFeature(gene)
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)

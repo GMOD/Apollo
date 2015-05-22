@@ -142,6 +142,7 @@ class FeatureEventService {
 
 
         JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
+        JSONObject originalCommandObject = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
         log.debug "array to add size: ${jsonArray.size()} "
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonFeature = jsonArray.getJSONObject(i)
@@ -152,7 +153,7 @@ class FeatureEventService {
             addCommandObject.put(FeatureStringEnum.FEATURES.value, featuresToAddArray)
 
             // we have to explicitly set the track (if we have features ... which we should)
-            if(!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size()>0  ){
+            if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
                 addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(i).getString(FeatureStringEnum.SEQUENCE.value))
             }
 
@@ -162,8 +163,18 @@ class FeatureEventService {
             addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
 
             JSONObject returnObject
-            log.info "addCommandObject = ${addCommandObject as JSON}"
             if (featureService.isJsonTranscript(jsonFeature)) {
+                // set the original gene name
+                if (originalCommandObject.containsKey(FeatureStringEnum.NAME.value)) {
+//                    addCommandObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
+                    for (int k = 0; k < featuresToAddArray.size(); k++) {
+                        JSONObject featureObject = featuresToAddArray.getJSONObject(k)
+                        featureObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
+                    }
+                }
+                println "original command object = ${originalCommandObject as JSON}"
+                println "final command object = ${addCommandObject as JSON}"
+
                 returnObject = requestHandlingService.addTranscript(addCommandObject)
             } else {
                 returnObject = requestHandlingService.addFeature(addCommandObject)
