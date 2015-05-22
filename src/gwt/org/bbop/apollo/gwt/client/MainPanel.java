@@ -161,6 +161,8 @@ public class MainPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                currentStartBp = start ;
+                currentEndBp = end ;
                 handlingNavEvent = false;
             }
 
