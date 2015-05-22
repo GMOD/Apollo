@@ -4,9 +4,6 @@ import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
-import groovy.transform.CompileStatic
-import org.apache.catalina.security.SecurityUtil
-import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.filter.Cds3Filter
 import org.bbop.apollo.filter.StopCodonFilter
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -43,7 +40,7 @@ class FeatureService {
     public
     static FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, Sequence sequence) throws JSONException {
         FeatureLocation gsolLocation = new FeatureLocation();
-        if(jsonLocation.has(FeatureStringEnum.ID.value)){
+        if (jsonLocation.has(FeatureStringEnum.ID.value)) {
             gsolLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
         }
         gsolLocation.setFmin(jsonLocation.getInt(FeatureStringEnum.FMIN.value));
@@ -62,6 +59,24 @@ class FeatureService {
 //    public Collection<Feature> getOverlappingFeatures(FeatureLocation location) {
 //        return getOverlappingFeatures(location, true);
 //    }
+
+    /** Get features that overlap a given location.
+     *
+     * @param location - FeatureLocation that the features overlap
+     * @param compareStrands - Whether to compare strands in overlap
+     * @return Collection of Feature objects that overlap the FeatureLocation
+     */
+    public Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
+        List<Transcript> transcriptList = new ArrayList<>()
+
+        for (Feature feature : getOverlappingFeatures(location, compareStrands)) {
+            if (feature instanceof Transcript) {
+                transcriptList.add((Transcript) feature)
+            }
+        }
+
+        return transcriptList
+    }
 
     /** Get features that overlap a given location.
      *
@@ -129,7 +144,7 @@ class FeatureService {
      * @param isPseudogene
      * @return
      */
-    def generateTranscript(JSONObject jsonTranscript, Sequence sequence,boolean suppressHistory) {
+    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         log.debug "JSON transcript ${jsonTranscript}"
         log.debug "has parent: ${jsonTranscript.has(FeatureStringEnum.PARENT_ID.value)}"
@@ -154,7 +169,7 @@ class FeatureService {
 
             addTranscriptToGene(gene, transcript);
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-            if(!suppressHistory){
+            if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
         } else {
@@ -180,7 +195,7 @@ class FeatureService {
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
                     }
-                    if(!suppressHistory) {
+                    if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
                     }
 
@@ -213,8 +228,8 @@ class FeatureService {
             String cvTermString = FeatureStringEnum.GENE.value
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
             String geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
-            if(!suppressHistory){
-                geneName = nameService.makeUniqueFeatureName(sequence.organism,geneName,new LetterPaddingStrategy(),true)
+            if (!suppressHistory) {
+                geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
 
@@ -230,7 +245,7 @@ class FeatureService {
             }
             // I don't thikn that this does anything
             addFeature(gene)
-            if(!suppressHistory) {
+            if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
@@ -501,7 +516,7 @@ class FeatureService {
             return feature.getFeatureLocation().getFmin() + localCoordinate;
         }
     }
-    
+
     int convertLocalCoordinateToSourceCoordinateForTranscript(Transcript transcript, int localCoordinate) {
         List<Exon> exons = exonService.getSortedExons(transcript)
         int sourceCoordinate = -1;
@@ -545,18 +560,15 @@ class FeatureService {
                 println "Exon and CDS don't overlap"
                 offset += exon.getLength();
                 continue;
-            }
-            else if (overlapperService.overlaps(cds, exon)) {
+            } else if (overlapperService.overlaps(cds, exon)) {
                 if (exon.fmin >= cds.fmin && exon.fmax <= cds.fmax) {
                     // exon falls within the boundaries of the CDS
                     continue
-                }
-                else {
+                } else {
                     // exon doesn't overlap completely with the CDS
                     if (exon.fmin < cds.fmin && exon.strand == Strand.POSITIVE.value) {
                         offset += cds.fmin - exon.fmin
-                    }
-                    else if (exon.fmax > cds.fmax && exon.strand == Strand.NEGATIVE.value) {
+                    } else if (exon.fmax > cds.fmax && exon.strand == Strand.NEGATIVE.value) {
                         offset += exon.fmax - cds.fmax
                     }
                 }
@@ -1091,7 +1103,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // TODO: JSON type feature not set
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
             String ontologyId = convertJSONToOntologyId(type)
-            if(!ontologyId) {
+            if (!ontologyId) {
                 log.warn "Feature type not set for ${type}"
                 return null
             }
@@ -1143,7 +1155,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     log.debug "child object ${childObject}"
                     Feature child = convertJSONToFeature(childObject, sequence);
                     // if it retuns null, we ignore it
-                    if(child){
+                    if (child) {
                         child.save(failOnError: true)
                         FeatureRelationship fr = new FeatureRelationship();
                         fr.setParentFeature(gsolFeature);
@@ -1172,13 +1184,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
                     FeatureProperty gsolProperty = new FeatureProperty();
-                    if(propertyType.has(FeatureStringEnum.NAME.value)){
+                    if (propertyType.has(FeatureStringEnum.NAME.value)) {
                         CV cv = CV.findByName(propertyType.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value))
                         CVTerm cvTerm = CVTerm.findByNameAndCv(propertyType.getString(FeatureStringEnum.NAME.value), cv)
 //                    gsolProperty.setType(new CVTerm(propertyType.getString("name"), new CV(propertyType.getJSONObject("cv").getString("name"))));
                         gsolProperty.setType(cvTerm);
-                    }
-                    else{
+                    } else {
                         log.warn "No proper type for the CV is set ${propertyType as JSON}"
                     }
                     String[] propertySet = property.getString(FeatureStringEnum.VALUE.value).split(FeatureStringEnum.TAG_VALUE_DELIMITER.value)
@@ -1262,9 +1273,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     List<String> cvTermTranscriptList = [
-            MRNA.cvTerm,MRNA.alternateCvTerm,MiRNA.cvTerm,MiRNA.alternateCvTerm,NcRNA.cvTerm,NcRNA.alternateCvTerm
-            ,SnoRNA.cvTerm,SnoRNA.alternateCvTerm,SnRNA.cvTerm,SnRNA.alternateCvTerm
-            ,RRNA.cvTerm,RRNA.alternateCvTerm,TRNA.cvTerm,TRNA.alternateCvTerm,
+            MRNA.cvTerm, MRNA.alternateCvTerm, MiRNA.cvTerm, MiRNA.alternateCvTerm, NcRNA.cvTerm, NcRNA.alternateCvTerm
+            , SnoRNA.cvTerm, SnoRNA.alternateCvTerm, SnRNA.cvTerm, SnRNA.alternateCvTerm
+            , RRNA.cvTerm, RRNA.alternateCvTerm, TRNA.cvTerm, TRNA.alternateCvTerm,
             Transcript.cvTerm
     ]
 
@@ -1273,7 +1284,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
         return cvTermTranscriptList.contains(typeString)
     }
-
 
 // TODO: hopefully change in the client and get rid of this ugly code
     Feature generateFeatureForType(String ontologyId) {
@@ -1403,9 +1413,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (exon.fmin <= sourceCoordinate && exon.fmax >= sourceCoordinate) {
                 //sourceCoordinate falls within the exon
                 if (exon.strand == Strand.NEGATIVE.value) {
-                    localCoordinate = currentCoordinate + (exon.fmax - sourceCoordinate) -1;
-                }
-                else {
+                    localCoordinate = currentCoordinate + (exon.fmax - sourceCoordinate) - 1;
+                } else {
                     localCoordinate = currentCoordinate + (sourceCoordinate - exon.fmin);
                 }
             }
@@ -1650,7 +1659,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         JSONObject jsonFeature = new JSONObject();
         try {
 
-            if(gsolFeature.id){
+            if (gsolFeature.id) {
                 jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
             }
             jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
@@ -1766,7 +1775,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     JSONObject jsonPropertyTypeCv = new JSONObject()
                     jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                     jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
-    
+
                     jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
 //                    jsonProperty.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(property.getType()));
 //                    jsonFeature.put(FeatureStringEnum.TYPE.value, generateFeatureStringForType(gsolFeature.ontologyId));
@@ -2002,6 +2011,28 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //    }
 
     /**
+     * If genes is empty, create a new gene.
+     * Else, merge
+     * @param genes
+     */
+    private Gene mergeGenes(Set<Gene> genes) {
+        // TODO: implement
+
+        return null
+    }
+
+    /**
+     * Remove old gene / transcript
+     * Add old one
+     * @param transcript
+     * @param gene
+     */
+    private void setGeneTranscript(Transcript transcript, Gene gene) {
+        // TODO: implement
+
+    }
+
+    /**
      * From https://github.com/GMOD/Apollo/issues/73
      * Need to add another call after other calculations are done to verify that we verify that we have not left our current isoform siblings or that we have just joined some and we should merge genes (always taking the one on the left).
      1 - using OrfOverlapper, find other isoforms
@@ -2010,41 +2041,37 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param transcript
      */
     def handleIsoformOverlap(Transcript transcript) {
-        Gene currentGene = transcriptService.getGene(transcript)
+        Gene originalGene = transcriptService.getGene(transcript)
 
-        List<Transcript> originalGeneTranscripts = transcriptService.getTranscripts(currentGene)
+        // TODO: should go left to right, may need to sort
+        List<Transcript> originalTranscripts = transcriptService.getTranscripts(originalGene)
+        List<Transcript> newTranscripts = getOverlappingTranscripts(transcript.featureLocation);
 
-        JSONObject jsonTranscript = convertFeatureToJSON(transcript)
-        FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value),transcript.featureLocation.sequence)
-        Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation);
-        for (Feature feature : overlappingFeatures) {
-            // TODO: should we do this loop first in order to get the Gene part?
-            // and then again to align the transcripts properly?
-//            if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
-            if(feature instanceof  Gene){
-                Gene someGene = (Gene) feature
-                // should be the gene above
-                // this means we overlap with another gene . . . that means we need to be child of THAT gene
-                if(feature.uniqueName!=currentGene.uniqueName){
-                    // TODO: make feature my parent
-//                    transcriptService.removeGeneFromTranscript(gene,transcript)
+        List<Transcript> leftBehindTranscripts = originalTranscripts - newTranscripts
 
-                    addTranscriptToGene(someGene,transcript)
-                    currentGene = someGene
-                }
-                else{
-                    // that is what we would expect if overlap doesn't change
-                }
-            }
+        Set<Gene> newGenesToMerge = new HashSet<>()
+        for (Transcript newTranscript in newTranscripts) {
+            newGenesToMerge.add(transcriptService.getGene(newTranscript))
+        }
+        Gene newGene = mergeGenes(newGenesToMerge)
+
+        for (Transcript newTranscript in newTranscripts) {
+            setGeneTranscript(newTranscript, newGene)
         }
 
-        for (Feature feature : overlappingFeatures) {
-            if(feature instanceof Transcript) {
-                Transcript otherTranscript = (Transcript) feature
+
+        Set<Gene> usedGenes = new HashSet<>()
+        while (originalTranscripts.size() > 0) {
+            Transcript originalOverlappingTranscript = originalTranscripts.pop()
+            Gene originalOverlappingGene = transcriptService.getGene(originalOverlappingTranscript)
+            List<Transcript> overlappingTranscripts = getOverlappingTranscripts(originalOverlappingTranscript.featureLocation)
+            overlappingTranscripts = overlappingTranscripts - usedGenes
+            overlappingTranscripts.each { it ->
+                setGeneTranscript(it, originalOverlappingGene)
             }
-            else{
-                log.error "Not sure what to do here, ${feature.class.name}"
-            }
+            originalTranscripts = originalTranscripts - overlappingTranscripts
         }
     }
+
 }
+
