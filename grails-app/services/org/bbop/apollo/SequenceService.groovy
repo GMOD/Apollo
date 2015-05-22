@@ -66,14 +66,8 @@ class SequenceService {
             sequenceString.append(sequenceChunk.residue)
         }
 
-        // TODO: optimize
-        //   SequenceChunk.findAllBySequenceAndChunkNumberGreaterThanAndChunkNumberLessThanEquals(sequence,startChunkNumber,endChunkNumber)["order":"chunkNumber"].collect(){ it -> it.residue}
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
-
-//        if(grails.util.Environment.current == grails.util.Environment.TEST){
-//            return sequenceString
-//        }
 
         return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
     }
@@ -99,11 +93,6 @@ class SequenceService {
     
 
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
-      
-//        if(grails.util.Environment.current == grails.util.Environment.TEST){
-//            return generatorSampleDNA(chunkNumber)
-//        }
-        
         String filePath = sequence.sequenceDirectory + "/" + sequence.seqChunkPrefix + chunkNumber + ".txt"
 
         return new File(filePath).getText().toUpperCase()
@@ -128,7 +117,6 @@ class SequenceService {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         StringBuilder buffer = new StringBuilder();
         String line;
-//        reader.readLine();
         while ((line = reader.readLine()) != null) {
             buffer.append(line);
         }
@@ -171,24 +159,18 @@ class SequenceService {
 
 
             Sequence sequence = new Sequence(
-                   organism: organism
-                   ,length: length
+                    organism: organism
+                    ,length: length
                     ,refSeqFile: organism.refseqFile
                     ,seqChunkPrefix: seqChunkPrefix
                     ,seqChunkSize: seqChunkSize
                     ,start: start
                     ,end: end
-//                    ,dataDirectory: refSeqsFile.getParentFile().getParent()
                     ,sequenceDirectory: seqDir
                     ,name: name
             ).save(failOnError: true)
 
 
-//            SourceFeatureConfiguration sourceFeature = new SourceFeatureConfiguration(seqDir, seqChunkSize, seqChunkPrefix, length, name, sequenceType, start, end);
-//
-//            TrackConfiguration c = new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature, spliceDonorSites, spliceAcceptorSites);
-//            tracks.put(name, c);
-//            tracks.put(name, new TrackConfiguration(annotationTrackName + "-" + name, organism, translationTable, sourceFeature));
         }
 
         organism.valid = true
@@ -287,8 +269,8 @@ class SequenceService {
                 ).save()
                 FeatureLocation genomicRegionLocation = new FeatureLocation(
                         feature: genomicRegion
-                        , fmin: fmin // fmin with the flank
-                        , fmax: fmax // fmax with the flank
+                        , fmin: fmin
+                        , fmax: fmax
                         , strand: gbolFeature.strand
                         , sequence: gbolFeature.getFeatureLocation().sequence
                 ).save()
@@ -310,7 +292,7 @@ class SequenceService {
         int flank
         if (inputObject.has('flank')) {
             flank = inputObject.getInt("flank")
-            log.debug "FLANK from request object: ${flank}"
+            log.debug "flank from request object: ${flank}"
         } else {
             flank = 0
         }
