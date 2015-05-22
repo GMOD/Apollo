@@ -104,15 +104,15 @@ for (def sequence in sequenceArray) {
     
     if (addFeaturesArray.size() > 0) {
         //println "ADDFEATURESARRAY: ${addFeaturesArray.toString()}"
-//        def response = triggerAddFeature(options.destinationurl, options.username, options.password, options.destination_organism, sequenceName, addFeaturesArray)
-//        if (response == null) { return }
-//        println "addFeature response size: ${response.size()}"
+        def response = triggerAddFeature(options.destinationurl, options.username, options.password, options.destination_organism, sequenceName, addFeaturesArray)
+        if (response == null) { return }
+        println "addFeature response size: ${response.size()}"
     }
     if (addTranscriptArray.size() > 0) {
         //println "ADDTRANSCRIPTARRAY: ${addTranscriptArray.toString()}"
-//        def response = triggerAddTranscript(options.destinationurl, options.username, options.password, options.destination_organism, sequenceName, addTranscriptArray)
-//        if (response == null) { return }
-//        println "addTranscript response size: ${response.size()}"
+        def response = triggerAddTranscript(options.destinationurl, options.username, options.password, options.destination_organism, sequenceName, addTranscriptArray)
+        if (response == null) { return }
+        println "addTranscript response size: ${response.size()}"
     }
 
     featuresMap.put(sequenceName, (addFeaturesArray.size() + addTranscriptArray.size()))
