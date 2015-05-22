@@ -15,4 +15,6 @@ psql $DBARG -c  "delete from feature_property";
 psql $DBARG -c  "delete from feature_relationship";
 psql $DBARG -c  "delete from feature_location";
 psql $DBARG -c  "delete from feature";
+psql $DBARG -c  "delete from feature_event";
+psql $DBARG -c  "delete from preference";
 

@@ -63,7 +63,7 @@ class FeatureEventService {
         JSONArray oldFeatureArray = new JSONArray()
         oldFeatureArray.add(oldJsonObject)
 
-        FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = 'f' ");
+        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
                 , uniqueName: uniqueName
