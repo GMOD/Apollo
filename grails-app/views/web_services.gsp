@@ -185,7 +185,37 @@
         {}
     </div>
 
-
+    <h4>get_sequences_for_organism</h4>
+    
+    <p>
+        Gets all sequence names for a given organism, that has annotations.
+        An example using this operation is <a href="https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/migrate_annotations.groovy">migrate_annotations.groovy</a>.
+    </p>
+    
+    <p>
+        Request: <code>/organism/getSequencesForOrganism</code>
+    </p>
+    
+    <div class="code">
+        {
+        "username": "bob@admin.gov",
+        "password": "password",
+        "organism": "organism_common_name"
+        }
+    </div>
+    
+    <p>
+        Response Status 200:
+    </p>
+    
+    <div class="code">
+        {
+        "username": "bob@admin.gov",
+        "sequences": [ "chr1", "chr4", "chr11" ],
+        "organism": "organism_common_name"
+        }
+    </div>
+    
     <h4>add_feature</h4>
 
     <inp>
