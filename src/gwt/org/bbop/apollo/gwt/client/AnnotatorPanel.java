@@ -223,20 +223,20 @@ public class AnnotatorPanel extends Composite {
         });
 
 
-        userField.setVisible(false);
+//        userField.setVisible(false);
 //        groupField.setVisible(false);
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                if (MainPanel.getInstance().isCurrentUserAdmin()) {
+//                if (MainPanel.getInstance().isCurrentUserAdmin()) {
 //                    splitPanel.setWidgetSize(northPanelContainer, 150);
-                    userField.setVisible(true);
+                userField.setVisible(true);
 //                    groupField.setVisible(true);
-                } else {
-                    userField.setVisible(false);
-//                    splitPanel.setWidgetSize(northPanelContainer, 100);
-                }
+//                } else {
+//                    userField.setVisible(false);
+////                    splitPanel.setWidgetSize(northPanelContainer, 100);
+//                }
             }
         });
 
