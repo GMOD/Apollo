@@ -22,6 +22,8 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.gwtbootstrap3.client.ui.TextBox;
 import com.google.gwt.dom.client.BrowserEvents;
@@ -179,6 +181,24 @@ public class TrackPanel extends Composite {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
                 return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE,new OrganismChangeEventHandler(){
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
+                dataGrid.setLoadingIndicator(new Label("Loading..."));
+                dataGrid.setEmptyTableWidget(new Label("Loading..."));
+                filteredTrackInfoList.clear();
+                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+                    @Override
+                    public boolean execute() {
+                        reload();
+                        dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
+                        return true;
+                    }
+                }, 1000);
             }
         });
 

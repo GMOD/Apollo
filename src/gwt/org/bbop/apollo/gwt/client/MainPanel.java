@@ -625,7 +625,6 @@ public class MainPanel extends Composite {
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
                 public boolean execute() {
-//                    Window.alert("waiting for this to be false: "+handlingNavEvent);
                     return handlingNavEvent;
                 }
             }, 200);
