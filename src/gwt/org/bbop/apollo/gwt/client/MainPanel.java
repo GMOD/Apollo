@@ -17,6 +17,8 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.SuggestBox;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
@@ -24,6 +26,7 @@ import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -97,9 +100,9 @@ public class MainPanel extends Composite {
     @UiField
     Button generateLink;
     @UiField
-    com.google.gwt.user.client.ui.ListBox organismListBox;
+    ListBox organismListBox;
     @UiField(provided = true)
-    static SuggestBox sequenceSuggestBox;
+    static org.gwtbootstrap3.client.ui.SuggestBox sequenceSuggestBox;
     @UiField
     HTML linkUrl;
     @UiField
@@ -118,7 +121,7 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new SuggestBox(sequenceOracle);
+        sequenceSuggestBox = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));

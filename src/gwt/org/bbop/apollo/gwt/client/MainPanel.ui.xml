@@ -89,6 +89,8 @@
             background-color: gray;
             color: white;
             font-size: smaller;
+            height: 25px;
+            width: 100px;
         }
 
         .lookup-display {
@@ -98,7 +100,8 @@
             background-color: gray;
             color: white;
             font-size: smaller;
-            height: 20px;
+            height: 25px;
+            width: 100px;
         }
 
         .northPanel {
@@ -129,10 +132,11 @@
                     <gwt:FlowPanel styleName="{style.details-header}">
                         <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
-                        <gwt:ListBox ui:field="organismListBox" addStyleNames="{style.dropdown-display}"/>
+
+                        <gwt:ListBox ui:field="organismListBox" addStyleNames="{style.dropdown-display}" />
+                        <b:SuggestBox ui:field="sequenceSuggestBox" addStyleNames="{style.lookup-display}" />
                         <!--<b:Label ui:field="currentOrganismDisplay" addStyleNames="{style.navigation-display}"/>-->
                         <!--<b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>-->
-                        <gwt:SuggestBox ui:field="sequenceSuggestBox" addStyleNames="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
                             <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
