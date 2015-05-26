@@ -416,7 +416,7 @@ class PermissionService {
     def getOrganismsForCurrentUser() {
         User thisUser = currentUser
         if (thisUser) {
-            return getOrganisms(thisUser)
+            return getOrganisms(thisUser) as List<Organism>
         }
         return []
     }
@@ -685,7 +685,10 @@ class PermissionService {
                 return false
             }
         }
-        else if (!jsonObject.username) {
+        else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
+            jsonObject.username = SecurityUtils?.subject?.principal
+        }
+        else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
         }
 

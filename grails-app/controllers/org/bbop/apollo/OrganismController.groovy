@@ -50,7 +50,7 @@ class OrganismController {
     // webservice
     @Transactional
     def addOrganism() {
-        JSONObject organismJson = request.JSON?:JSON.parse(params.data.toString()) as JSONObject
+        JSONObject organismJson = request.JSON?:JSON.parse(params.data) as JSONObject
         try {
             if (permissionService.hasPermissions(organismJson,PermissionEnum.ADMINISTRATE)) {
                 if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
