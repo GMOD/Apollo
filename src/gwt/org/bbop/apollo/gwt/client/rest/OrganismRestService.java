@@ -4,12 +4,14 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
+import org.bbop.apollo.gwt.client.ErrorDialog;
 import org.bbop.apollo.gwt.client.LoadingDialog;
 import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.AppInfoConverter;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,10 +49,18 @@ public class OrganismRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
-                List<OrganismInfo> organismInfoList  = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
-                organismChangeEvent.setOrganismInfoList(organismInfoList);
-                Annotator.eventBus.fireEvent(organismChangeEvent);
+                JSONValue jsonValue = JSONParser.parseStrict(response.getText());
+                if(jsonValue.isObject()!=null){
+                    String errorMessage = jsonValue.isObject().get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
+                    ErrorDialog errorDialog = new ErrorDialog("Unable to update the organism",errorMessage,true,true);
+                }
+                else{
+                    OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
+                    List<OrganismInfo> organismInfoList  = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
+                    organismChangeEvent.setOrganismInfoList(organismInfoList);
+                    Annotator.eventBus.fireEvent(organismChangeEvent);
+                }
+
             }
 
             @Override
