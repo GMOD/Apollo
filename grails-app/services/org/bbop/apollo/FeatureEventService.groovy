@@ -24,20 +24,21 @@ class FeatureEventService {
     }
 
 
-    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject inputCommand, JSONObject jsonObject, User user) {
+    FeatureEvent addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONObject jsonObject, User user) {
         if (Environment.current == Environment.TEST) {
-            return addNewFeatureEventWithUser(featureOperation, uniqueName, inputCommand, jsonObject, (User) null)
+            return addNewFeatureEventWithUser(featureOperation, name, uniqueName, inputCommand, jsonObject, (User) null)
         }
-        addNewFeatureEventWithUser(featureOperation, uniqueName, inputCommand, jsonObject, user)
+        addNewFeatureEventWithUser(featureOperation, name, uniqueName, inputCommand, jsonObject, user)
     }
 
-    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String uniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
+    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String name, String uniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
 
         FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = :current where fe.uniqueName = :uniqueName", [current: false, uniqueName: uniqueName]);
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(jsonObject)
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
+                , name: name
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
                 , current: true
@@ -54,10 +55,10 @@ class FeatureEventService {
     }
 
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
-        return addNewFeatureEventWithUser(featureOperation, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
+        return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
     }
 
-    def addNewFeatureEvent(FeatureOperation featureOperation, String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
+    def addNewFeatureEvent(FeatureOperation featureOperation, String name,String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(newJsonObject)
         JSONArray oldFeatureArray = new JSONArray()
@@ -66,6 +67,7 @@ class FeatureEventService {
         int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
+                , name: name
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
                 , current: true
@@ -165,13 +167,14 @@ class FeatureEventService {
             JSONObject returnObject
             if (featureService.isJsonTranscript(jsonFeature)) {
                 // set the original gene name
-                if (originalCommandObject.containsKey(FeatureStringEnum.NAME.value)) {
-//                    addCommandObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
-                    for (int k = 0; k < featuresToAddArray.size(); k++) {
-                        JSONObject featureObject = featuresToAddArray.getJSONObject(k)
-                        featureObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
-                    }
+//                if (originalCommandObject.containsKey(FeatureStringEnum.NAME.value)) {
+////                    addCommandObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
+                for (int k = 0; k < featuresToAddArray.size(); k++) {
+                    JSONObject featureObject = featuresToAddArray.getJSONObject(k)
+//                        featureObject.put(FeatureStringEnum.GENE_NAME.value, originalCommandObject.getString(FeatureStringEnum.NAME.value))
+                    featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
                 }
+//                }
                 println "original command object = ${originalCommandObject as JSON}"
                 println "final command object = ${addCommandObject as JSON}"
 
@@ -249,29 +252,29 @@ class FeatureEventService {
         setHistoryState(inputObject, count, confirm)
     }
 
-    int historySize(String uniqueName) {
-        FeatureEvent.countByUniqueName(uniqueName)
-    }
-
-    FeatureEvent getCurrentFeatureEvent(String uniqueName) {
-        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
-        if (featureEventList.size() != 1) {
-            throw new AnnotationException("Feature event list is the wrong size ${featureEventList?.size()}")
-        }
-        return featureEventList.get(0)
-    }
-
-
-    List<FeatureEvent> getRecentFeatureEvents(String uniqueName, int count) {
-        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: count])
-        return featureEventList
-    }
-
-    private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
-        if (locationA.getInt(FeatureStringEnum.FMIN.value) != locationB.getInt(FeatureStringEnum.FMIN.value)) return false
-        if (locationA.getInt(FeatureStringEnum.FMAX.value) != locationB.getInt(FeatureStringEnum.FMAX.value)) return false
-        if (locationA.getInt(FeatureStringEnum.STRAND.value) != locationB.getInt(FeatureStringEnum.STRAND.value)) return false
-        return true
-    }
+//    int historySize(String uniqueName) {
+//        FeatureEvent.countByUniqueName(uniqueName)
+//    }
+//
+//    FeatureEvent getCurrentFeatureEvent(String uniqueName) {
+//        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true, [sort: "dateCreated", order: "asc"])
+//        if (featureEventList.size() != 1) {
+//            throw new AnnotationException("Feature event list is the wrong size ${featureEventList?.size()}")
+//        }
+//        return featureEventList.get(0)
+//    }
+//
+//
+//    List<FeatureEvent> getRecentFeatureEvents(String uniqueName, int count) {
+//        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueName(uniqueName, [sort: "dateCreated", order: "asc", max: count])
+//        return featureEventList
+//    }
+//
+//    private Boolean compareLocationObjects(JSONObject locationA, JSONObject locationB) {
+//        if (locationA.getInt(FeatureStringEnum.FMIN.value) != locationB.getInt(FeatureStringEnum.FMIN.value)) return false
+//        if (locationA.getInt(FeatureStringEnum.FMAX.value) != locationB.getInt(FeatureStringEnum.FMAX.value)) return false
+//        if (locationA.getInt(FeatureStringEnum.STRAND.value) != locationB.getInt(FeatureStringEnum.STRAND.value)) return false
+//        return true
+//    }
 
 }

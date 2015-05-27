@@ -13,6 +13,7 @@ class FeatureEvent {
     FeatureOperation operation
     Boolean current
 
+    String name  // this is the name of the top-level feature (typically gene) during this event
     String uniqueName // from original top-level feature
     String originalJsonCommand
     String newFeaturesJsonArray
@@ -24,6 +25,7 @@ class FeatureEvent {
         originalJsonCommand nullable: true
         newFeaturesJsonArray nullable: true
         oldFeaturesJsonArray nullable: true
+        name nullable: false, blank: false
     }
 
     static mapping = {

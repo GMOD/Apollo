@@ -5,8 +5,6 @@ import grails.transaction.Transactional
 @Transactional
 class FeatureRelationshipService {
 
-    def featureEventService
-
     List<Feature> getChildrenForFeatureAndTypes(Feature feature, String... ontologyIds) {
         List<Feature> childFeatures = FeatureRelationship.findAllByParentFeature(feature)*.childFeature
         List<Feature> returnFeatures = new ArrayList<>()
