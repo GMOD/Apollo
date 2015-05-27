@@ -161,7 +161,15 @@ class FeatureService {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
 
-            setOwner(transcript, owner);
+            //this one is working, but was marked as needing improvement
+            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                if (owner) {
+                    setOwner(transcript, owner);
+                } else {
+                    log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
+                }
+            }
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript);
@@ -190,7 +198,14 @@ class FeatureService {
                     //setOwner(tmpTranscript, permissionService.findUser(jsonTranscript));
 
                     //this one is working, but was marked as needing improvement
-                    setOwner(tmpTranscript, owner);
+                    if (grails.util.Environment.current != grails.util.Environment.TEST) {
+                        log.debug "setting owner for gene and transcript per: ${permissionService.findUser(jsonTranscript)}"
+                        if (owner) {
+                            setOwner(tmpTranscript, owner);
+                        } else {
+                            log.error("Unable to find valid user to set on transcript!" + jsonTranscript)
+                        }
+                    }
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript);
@@ -321,8 +336,8 @@ class FeatureService {
     def addTranscriptToGene(Gene gene, Transcript transcript) {
         removeExonOverlapsAndAdjacencies(transcript);
         // no feature location, set location to transcript's
-        if (gene.getSingleFeatureLocation() == null) {
-            FeatureLocation transcriptFeatureLocation = transcript.getSingleFeatureLocation()
+        if (gene.getFeatureLocation() == null) {
+            FeatureLocation transcriptFeatureLocation = transcript.getFeatureLocation()
             FeatureLocation featureLocation = new FeatureLocation()
             featureLocation.properties = transcriptFeatureLocation.properties
             featureLocation.id = null
@@ -330,11 +345,11 @@ class FeatureService {
             gene.addToFeatureLocations(featureLocation);
         } else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
-            if (transcript.getSingleFeatureLocation().getFmin() < gene.getSingleFeatureLocation().getFmin()) {
-                gene.getSingleFeatureLocation().setFmin(transcript.getSingleFeatureLocation().getFmin());
+            if (transcript.getFeatureLocation().getFmin() < gene.getFeatureLocation().getFmin()) {
+                gene.getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
             }
-            if (transcript.getSingleFeatureLocation().getFmax() > gene.getSingleFeatureLocation().getFmax()) {
-                gene.getSingleFeatureLocation().setFmax(transcript.getSingleFeatureLocation().getFmax());
+            if (transcript.getFeatureLocation().getFmax() > gene.getFeatureLocation().getFmax()) {
+                gene.getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax());
             }
         }
 
@@ -2054,14 +2069,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             return
         }
 
-        featureRelationshipService.removeFeatureRelationship(oldGene, transcript)
+        transcriptService.deleteTranscript(oldGene, transcript)
+        addTranscriptToGene(gene, transcript)
+//        featureRelationshipService.removeFeatureRelationship(oldGene, transcript)
 
         // if this is empty then delete the gene
         if (!featureRelationshipService.getChildren(oldGene)) {
             deleteFeature(oldGene)
         }
 
-        addTranscriptToGene(gene, transcript)
+
+//        addTranscriptToGene(gene, transcript)
 
     }
 

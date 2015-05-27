@@ -145,6 +145,8 @@ class Feature implements Ontological{
      *  location so it returns the first (and hopefully only) location from the collection of
      *  locations.  Returns <code>null</code> if none are found.
      *
+     *  @deprecated  Just use getFeatureLocation
+     *
      * @return FeatureLocation of this object
      */
     public FeatureLocation getSingleFeatureLocation() {
