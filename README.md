@@ -16,8 +16,10 @@ The Web Apollo client is implemented as a plugin for JBrowse, for more informati
 
 ![Build status](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
 
-## Please note repository update
+## Please note repository update and be aware
 As of 15-April-2015 the mainline is our 2.0 code. The 1.0 code has now moved to a 1.0 branch.
+
+**Apollo 2 is still a project under development, it has not been formally released, and will lack some of the features and stability necessary for annotation.**
 
 ## Quick Update Guide to Version 2.0.x 
 
