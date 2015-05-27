@@ -11,11 +11,11 @@ import net.sf.json.JSONObject
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
 
-String usageString = "migrate_annotations.groovy <options>" +
+String usageString = "transfer_annotations.groovyy <options>" +
         "Example: \n" +
-        "./migrate_annotations.groovy -username ndunn@me.com -password demo -sourceurl http://localhost:8080/apollo -source_organism amel -destinationurl http://localhost:8080/apollo2 -destination_organism amel2 -sequence_names Group1.1,Group1.10,Group1.2 "
+        "./transfer_annotations.groovyy -username ndunn@me.com -password demo -sourceurl http://localhost:8080/apollo -source_organism amel -destinationurl http://localhost:8080/apollo2 -destination_organism amel2 -sequence_names Group1.1,Group1.10,Group1.2 "
 
-def cli = new CliBuilder(usage: 'migrate_annotations.groovy <options>')
+def cli = new CliBuilder(usage: 'transfer_annotations.groovyy <options>')
 cli.setStopAtNonOption(true)
 cli.sourceurl('URL of source WebApollo instance from which annotations are fetched', required: true, args: 1)
 cli.destinationurl('URL of destination WebApollo instance to which annotations are to be loaded', required: true, args: 1)
@@ -59,7 +59,7 @@ else {
 }
 
 // For each sequence, fetching annotations from sourceurl
-for (def sequence in sequenceArray) {
+for (String sequence in sequenceArray) {
     String sequenceName = sequencePrefix + sequence
     URL url = new URL(options.sourceurl)
     String fullPath = "${url.path}/annotationEditor/getFeatures"
