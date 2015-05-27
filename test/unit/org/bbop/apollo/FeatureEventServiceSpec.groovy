@@ -17,13 +17,13 @@ class FeatureEventServiceSpec extends Specification {
 
     // create 5 FeatureEvents
     def setup() {
-        new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE ,uniqueName: uniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,uniqueName: uniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,uniqueName: uniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_READTHROUGH_STOP_CODON,uniqueName: uniqueName  ,dateCreated: today-4 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_BOUNDARIES,uniqueName: uniqueName ,dateCreated: today-3 ,current: true).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.ADD_EXON,uniqueName: uniqueName  ,dateCreated: today-2 ,current: false).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.MERGE_TRANSCRIPTS,uniqueName: uniqueName  ,dateCreated: today-1 ,current: false).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE ,name:"Gene123",uniqueName: uniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SET_READTHROUGH_STOP_CODON,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-4 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SET_BOUNDARIES,name:"Gene123",uniqueName: uniqueName ,dateCreated: today-3 ,current: true).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.ADD_EXON,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-2 ,current: false).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.MERGE_TRANSCRIPTS,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-1 ,current: false).save(failOnError:true)
     }
 
     def cleanup() {
@@ -58,24 +58,28 @@ class FeatureEventServiceSpec extends Specification {
         when: "we have multiple feature events"
         new FeatureEvent(
                 operation: FeatureOperation.ADD_FEATURE
+                ,name: "Gene123"
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-1
         ).save()
         new FeatureEvent(
                 operation: FeatureOperation.ADD_TRANSCRIPT
+                ,name: "Gene123"
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-2
         ).save()
         new FeatureEvent(
                 operation: FeatureOperation.SPLIT_TRANSCRIPT
+                ,name: "Gene123"
                 ,uniqueName: "AAAA"
                 ,current: true
                 ,dateCreated: new Date()-3
         ).save()
         new FeatureEvent(
                 operation: FeatureOperation.MERGE_TRANSCRIPTS
+                ,name: "Gene123"
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-4
