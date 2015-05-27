@@ -156,11 +156,6 @@ public class TrackPanel extends Composite {
 
         dataProvider.addDataDisplay(dataGrid);
 
-        Scheduler.get().scheduleDeferred(new Command() {
-            public void execute() {
-                reload();
-            }
-        });
 
         ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -196,7 +191,7 @@ public class TrackPanel extends Composite {
                     public boolean execute() {
                         reload();
                         dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
-                        return true;
+                        return false;
                     }
                 }, 1000);
             }
