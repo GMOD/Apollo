@@ -717,8 +717,8 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         String uniqueName1 = MRNA.findByName("GB40787-RA-00001").uniqueName
         String uniqueName2 = MRNA.findByName("GB40788-RA-00001").uniqueName
         String uniqueName3 = MRNA.findByName("GB40787-RA-00002").uniqueName
-        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueName1)
-        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueName2)
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueName2)
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueName1)
         JSONObject commandObject = JSON.parse(mergeTranscriptString) as JSONObject
         JSONObject returnedAfterExonObject = requestHandlingService.mergeTranscripts(commandObject)
 
@@ -735,13 +735,12 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         when: "we get the transcripts and gene that should be left"
         MRNA bigMRNA = MRNA.findByName("GB40788-RA-00001")
         MRNA undisturbedMRNA = MRNA.findByName("GB40787-RA-00002")
-        println "bigMRNA: "+bigMRNA
-        println "undisturbedMRNA: "+undisturbedMRNA
 
         then: "this one should be long-gone"
         assert undisturbedMRNA!=null
         assert bigMRNA!=null
         assert undisturbedMRNA.featureLocation.fmax > undisturbedMRNA.featureLocation.fmin
+        assert undisturbedMRNA.featureLocation.fmax - undisturbedMRNA.featureLocation.fmin > 0
         assert 0 == MRNA.countByName("GB40787-RA-00001")
         assert undisturbedMRNA.parentFeatureRelationships.size()==2+1+0
         assert bigMRNA.parentFeatureRelationships.size()==5+1+2

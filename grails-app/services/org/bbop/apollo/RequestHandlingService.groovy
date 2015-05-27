@@ -2043,11 +2043,7 @@ class RequestHandlingService {
 
         Gene gene1 = transcriptService.getGene(transcript1)
 
-//        if (gene1 != gene2) {
-//            // isn't it already deleted?
-//            gene2.delete(flush:true)
-//        }
-
+        gene1 = gene1.refresh()
 
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
         JSONObject updateFeatureContainer = createJSONFeatureContainer();

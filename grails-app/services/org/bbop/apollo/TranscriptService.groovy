@@ -121,9 +121,9 @@ class TranscriptService {
             setFmin(transcript, fmin)
         }
         if (fmax != null) {
-            setFmax(transcript, fmin)
+            setFmax(transcript, fmax)
         }
-
+//        transcript.save(flush: true )
     }
 
     /** Retrieve all the transcripts associated with this gene.  Uses the configuration to determine
@@ -368,9 +368,7 @@ class TranscriptService {
         // Merging transcripts basically boils down to moving all exons from one transcript to the other
 
         for (Exon exon : getExons(transcript2)) {
-//            exonService.deleteExon(transcript2, exon)
             featureRelationshipService.removeFeatureRelationship(transcript2, exon)
-//            featureRelationshipService.addChildFeature(transcript2,exon)
             addExon(transcript1, exon)
         }
 //        transcript1.save()
@@ -389,18 +387,7 @@ class TranscriptService {
                         featureService.addTranscriptToGene(gene1, transcript)
                     }
                 }
-
-//                gene2.save()
-//                gene1.save(flush: true)
-
-//                if (getTranscripts(gene2).size() == 0) {
-//                featureService.deleteFeature(gene2)
                 featureRelationshipService.deleteFeatureAndChildren(gene2)
-//                gene2.delete(flush: true)
-//                gene2 = null
-//                gene2.delete()
-//                gene2 = null
-//                }
             }
         }
         // Delete the empty transcript from the gene, if gene not already deleted
@@ -410,16 +397,9 @@ class TranscriptService {
             featureRelationshipService.deleteChildrenForTypes(transcript2)
             Feature.deleteAll(childFeatures)
             deleteTranscript(gene2, transcript2);
-//            featureRelationshipService.removeFeatureRelationship(gene2,transcript2)
-//            transcript2.parentFeatureRelationships.clear()
-//            transcript2.childFeatureRelationships.clear()
-//            transcript2.save(flush: true )
             featureEventService.deleteHistory(transcript2.uniqueName)
-//            transcript2.delete(flush: true)
         } else {
             featureService.deleteFeature(transcript2);
-//            transcript2.delete(flush: true)
-//            transcript2 = null
         }
         featureService.removeExonOverlapsAndAdjacencies(transcript1);
     }
