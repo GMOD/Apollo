@@ -21,6 +21,8 @@ As of 15-April-2015 the mainline is our 2.0 code. The 1.0 code has now moved to 
 
 **Apollo 2 is still a project under development, it has not been formally released, and will lack some of the features and stability necessary for annotation.**
 
+Version 1.0.4 is the latest, fully-functional version of Apollo and is available for download at https://github.com/GMOD/Apollo/releases/latest
+
 ## Quick Update Guide to Version 2.0.x 
 
 If you already have Web Apollo instances running, you can use your current JBrowse data directories.  
