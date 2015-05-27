@@ -704,7 +704,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         requestHandlingService.addTranscript(jsonAddTranscriptObject2)
 
 
-        then: "we should see 2 genes, 2 transcripts, 5 exons, 2 CDS, no noncanonical splice sites"
+        then: "we should see 2 genes, 3 transcripts, 7 exons, 3 CDS, no noncanonical splice sites"
         assert Gene.count == 2
         assert MRNA.count == 3
         assert CDS.count == 3
@@ -723,14 +723,14 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         JSONObject returnedAfterExonObject = requestHandlingService.mergeTranscripts(commandObject)
 
 
-        then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        then: "we should see 1 gene, 2 transcripts, 5 exons, 2 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
         def allFeatures = Feature.all
         assert Gene.count == 1
-        assert MRNA.count == 1
-        assert Exon.count == 5
+        assert MRNA.count == 2
+        assert Exon.count == 7
+        assert CDS.count == 2
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
-        assert CDS.count == 1
 
     }
 

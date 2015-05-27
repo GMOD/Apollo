@@ -104,7 +104,7 @@ class TranscriptService {
      * @param transcript - Transcript to be deleted
      */
     public void deleteTranscript(Gene gene, Transcript transcript) {
-        featureRelationshipService.removeFeatureRelationship(gene,transcript)
+        featureRelationshipService.removeFeatureRelationship(gene, transcript)
 //        featureRelationshipService.deleteChildrenForTypes(gene, ontologyIds as String[])
 //        featureRelationshipService.deleteParentForTypes(transcript, Gene.ontologyId, Pseudogene.ontologyId)
 
@@ -267,7 +267,7 @@ class TranscriptService {
         updateGeneBoundaries(transcript);  // 6, moved transcript fmin, fmax
         log.debug "post update gene boundaries: ${transcript.parentFeatureRelationships?.size()}"
     }
-    
+
     Transcript getParentTranscriptForFeature(Feature feature) {
         return (Transcript) featureRelationshipService.getParentForFeature(feature, ontologyIds as String[])
     }
@@ -278,17 +278,17 @@ class TranscriptService {
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
-        
+
         // copy feature locations if right of right exon
-        transcript.featureLocations.each { featureLocation -> 
+        transcript.featureLocations.each { featureLocation ->
             FeatureLocation newFeatureLocation = new FeatureLocation(
                     fmin: featureLocation.fmin
-                    ,fmax: featureLocation.fmax
-                    ,rank: featureLocation.rank
-                    ,sequence: featureLocation.sequence
-                    ,strand: featureLocation.strand
-                    
-                    ,feature: splitTranscript
+                    , fmax: featureLocation.fmax
+                    , rank: featureLocation.rank
+                    , sequence: featureLocation.sequence
+                    , strand: featureLocation.strand
+
+                    , feature: splitTranscript
             ).save()
             splitTranscript.addToFeatureLocations(newFeatureLocation)
         }
@@ -315,11 +315,11 @@ class TranscriptService {
 //                featureRelationshipService.removeFeatureRelationship()
 //                exonService.deleteExon(transcript, exon);
                 if (exon.equals(rightExon)) {
-                    featureRelationshipService.removeFeatureRelationship(transcript,rightExon)
+                    featureRelationshipService.removeFeatureRelationship(transcript, rightExon)
                     log.debug "right4: ${rightExon.featureLocation}"
                     addExon(splitTranscript, rightExon);
                 } else {
-                    featureRelationshipService.removeFeatureRelationship(transcript,exon)
+                    featureRelationshipService.removeFeatureRelationship(transcript, exon)
                     log.debug "right5: ${rightExon.featureLocation}"
                     addExon(splitTranscript, exon);
                 }
@@ -371,15 +371,15 @@ class TranscriptService {
 
         for (Exon exon : getExons(transcript2)) {
 //            exonService.deleteExon(transcript2, exon)
-            featureRelationshipService.removeFeatureRelationship(transcript2,exon)
+            featureRelationshipService.removeFeatureRelationship(transcript2, exon)
 //            featureRelationshipService.addChildFeature(transcript2,exon)
             addExon(transcript1, exon)
         }
-        transcript1.save()
+//        transcript1.save()
         Gene gene1 = getGene(transcript1)
         Gene gene2 = getGene(transcript2)
         if (gene1) {
-            gene1.save()
+            gene1.save(flush: true)
         }
         // if the parent genes aren't the same, this leads to a merge of the genes
         if (gene1 && gene2) {
@@ -391,13 +391,22 @@ class TranscriptService {
                         featureService.addTranscriptToGene(gene1, transcript)
                     }
                 }
-                featureService.deleteFeature(gene2)
-                gene2.delete(flush: true)
-                gene2 = null
+
+//                gene2.save()
+//                gene1.save(flush: true)
+
+//                if (getTranscripts(gene2).size() == 0) {
+//                featureService.deleteFeature(gene2)
+                featureRelationshipService.deleteFeatureAndChildren(gene2)
+//                gene2.delete(flush: true)
+//                gene2 = null
+//                gene2.delete()
+//                gene2 = null
+//                }
             }
         }
-        // Delete the empty transcript from the gene
-        if (gene2) {
+        // Delete the empty transcript from the gene, if gene not already deleted
+        if (getGene(transcript2)) {
             def parentFeatureRelationships = transcript2.parentFeatureRelationships
             def childFeatures = parentFeatureRelationships.childFeature
             featureRelationshipService.deleteChildrenForTypes(transcript2)
@@ -408,12 +417,11 @@ class TranscriptService {
 //            transcript2.childFeatureRelationships.clear()
 //            transcript2.save(flush: true )
             featureEventService.deleteHistory(transcript2.uniqueName)
-
-            transcript2.delete(flush: true)
+//            transcript2.delete(flush: true)
         } else {
             featureService.deleteFeature(transcript2);
-            transcript2.delete(flush: true)
-            transcript2 = null
+//            transcript2.delete(flush: true)
+//            transcript2 = null
         }
         featureService.removeExonOverlapsAndAdjacencies(transcript1);
     }
@@ -436,12 +444,11 @@ class TranscriptService {
 //        JSONObject jsonTranscript = featureService.convertFeatureToJSON(oldTranscript, false)
 //        JSONObject requestJSONObject = requestHandlingService.createJSONFeatureContainer(jsonTranscript)
 //        requestJSONObject.put(FeatureStringEnum.TRACK.value,oldTranscript.featureLocation.sequence.name)
-       
+
 //        String sequenceName = oldTranscript.featureLocation.sequence.name
 //        Transcript newTranscript = featureService.generateTranscript(jsonTranscript,sequenceName)
 //        newTranscript.name = oldTranscriptName
 //        newTranscript.save()
-
 
 //        JSONObject newJsonTranscript = requestHandlingService.addTranscript(requestJSONObject)
 //        if (getTranscripts(oldGene).size() == 0) {
@@ -460,24 +467,24 @@ class TranscriptService {
 //        JSONArray features = newJsonTranscript.getJSONArray(FeatureStringEnum.FEATURES.value)
 //        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value)
 //        Transcript newTranscript = Transcript.findByUniqueName(uniqueName)
-        
+
         return oldTranscript;
     }
 
     String getResiduesFromTranscript(Transcript transcript) {
         def exons = exonService.getSortedExons(transcript)
-        if(!exons){
+        if (!exons) {
             return null
         }
-        
+
         StringBuilder residues = new StringBuilder()
-        for(Exon exon in exons){
+        for (Exon exon in exons) {
             residues.append(sequenceService.getResiduesFromFeature(exon))
         }
-        return residues.size()>0 ? residues.toString() : null
+        return residues.size() > 0 ? residues.toString() : null
     }
 
     Transcript getTranscript(CDS cds) {
-        return (Transcript) featureRelationshipService.getParentForFeature(cds,ontologyIds as String[])
+        return (Transcript) featureRelationshipService.getParentForFeature(cds, ontologyIds as String[])
     }
 }

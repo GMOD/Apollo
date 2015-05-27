@@ -2036,17 +2036,17 @@ class RequestHandlingService {
         if (!transcript1.getStrand().equals(transcript2.getStrand())) {
             throw new AnnotationException("You cannot merge transcripts on opposite strands");
         }
-        Gene gene2 = transcriptService.getGene(transcript2)
-
+//        Gene gene2 = transcriptService.getGene(transcript2)
         transcriptService.mergeTranscripts(transcript1, transcript2)
         featureService.calculateCDS(transcript1)
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript1)
 
         Gene gene1 = transcriptService.getGene(transcript1)
 
-        if (gene1 != gene2) {
-            gene2.delete()
-        }
+//        if (gene1 != gene2) {
+//            // isn't it already deleted?
+//            gene2.delete(flush:true)
+//        }
 
 
         transcript1.name = transcript1.name ?: nameService.generateUniqueName(transcript1)
@@ -2055,6 +2055,7 @@ class RequestHandlingService {
 
         JSONObject returnObject = createJSONFeatureContainerFromFeatures(featureService.getTopLevelFeature(transcript1))
 
+        gene1 = gene1.refresh()
         List<Transcript> gene1Transcripts = transcriptService.getTranscripts(gene1)
         for (Transcript transcript : gene1Transcripts) {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript));

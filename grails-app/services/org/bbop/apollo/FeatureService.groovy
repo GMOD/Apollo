@@ -2069,14 +2069,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             return
         }
 
-        featureRelationshipService.removeFeatureRelationship(oldGene, transcript)
+        transcriptService.deleteTranscript(oldGene, transcript)
+        addTranscriptToGene(gene, transcript)
+//        featureRelationshipService.removeFeatureRelationship(oldGene, transcript)
 
         // if this is empty then delete the gene
         if (!featureRelationshipService.getChildren(oldGene)) {
             deleteFeature(oldGene)
         }
 
-        addTranscriptToGene(gene, transcript)
+
+//        addTranscriptToGene(gene, transcript)
 
     }
 
