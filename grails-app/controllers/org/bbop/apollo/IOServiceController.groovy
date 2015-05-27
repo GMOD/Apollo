@@ -35,7 +35,7 @@ class IOServiceController extends AbstractApolloController {
         String sequenceName = params.tracks.substring("Annotations-".size())
         String fileName
         String sequenceType
-        List<String> ontologyIdList = [Gene.class.name]
+        List<String> ontologyIdList = [Gene.class.name,Pseudogene.class.name,RepeatRegion.class.name,TransposableElement.class.name]
         Organism organism = preferenceService.currentOrganismForCurrentUser
         def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList,organism:organism])
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
