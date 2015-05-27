@@ -61,7 +61,7 @@ class FeatureEventServiceSpec extends Specification {
                 ,name: "Gene123"
                 ,uniqueName: "AAAA"
                 ,current: false
-                ,dateCreated: new Date()-1b
+                ,dateCreated: new Date()-1
         ).save()
         new FeatureEvent(
                 operation: FeatureOperation.ADD_TRANSCRIPT
