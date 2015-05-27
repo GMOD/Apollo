@@ -193,7 +193,7 @@ public class TrackPanel extends Composite {
                         dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
                         return false;
                     }
-                }, 1000);
+                }, 2000);
             }
         });
 
