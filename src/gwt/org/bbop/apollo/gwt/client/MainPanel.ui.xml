@@ -115,12 +115,20 @@
             margin-left: 5px;
             font-size: smaller;
         }
+
+        /*.dropdown-menu .item {*/
+            /*padding: 5px;*/
+        /*}*/
+
+        /*.dropdown-menu .item-selected {*/
+            /*background-color: #eee;*/
+        /*}*/
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:north size="0">
             <gwt:FlowPanel ui:field="linkPanel" visible="false" width="100%" styleName="{style.northPanel}">
-                <b:Button ui:field="closeUrlButton" icon="CLOSE" size="EXTRA_SMALL" />
-                <gwt:HTML ui:field="linkUrl" visible="true"   styleName="{style.linkStyle}"/>
+                <b:Button ui:field="closeUrlButton" icon="CLOSE" size="EXTRA_SMALL"/>
+                <gwt:HTML ui:field="linkUrl" visible="true" styleName="{style.linkStyle}"/>
             </gwt:FlowPanel>
         </gwt:north>
         <gwt:center>
@@ -130,13 +138,24 @@
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
-                        <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose" styleName="{style.details-button}"/>
-                        <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
+                        <!--<b:Container fluid="true" addStyleNames="{style.inline}">-->
+                            <!--<b:Row>-->
+                                <!--<b:Column size="MD_1" styleName="{style.inline}">-->
+                                    <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose"
+                                              styleName="{style.details-button}"/>
+                                    <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
+                                <!--</b:Column>-->
 
-                        <gwt:ListBox ui:field="organismListBox" addStyleNames="{style.dropdown-display}" />
-                        <b:SuggestBox ui:field="sequenceSuggestBox" addStyleNames="{style.lookup-display}" />
-                        <!--<b:Label ui:field="currentOrganismDisplay" addStyleNames="{style.navigation-display}"/>-->
-                        <!--<b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>-->
+                                <!--<b:Column size="MD_3" styleName="{style.inline}">-->
+                                    <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
+                                <!--</b:Column>-->
+                                <!--<b:Column size="MD_2" styleName="{style.inline}">-->
+                                    <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
+                                <!--</b:Column>-->
+                            <!--</b:Row>-->
+                            <!--<b:Label ui:field="currentOrganismDisplay" addStyleNames="{style.navigation-display}"/>-->
+                            <!--<b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>-->
+                        <!--</b:Container>-->
                         <b:Panel styleName="pull-right">
                             <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
@@ -172,11 +191,11 @@
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Groups</gwt:header>
-                            <apollo:GroupPanel ui:field="userGroupPanel"  visible="false"/>
+                            <apollo:GroupPanel ui:field="userGroupPanel" visible="false"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Admin</gwt:header>
-                            <apollo:PreferencePanel ui:field="preferencePanel"  visible="false"/>
+                            <apollo:PreferencePanel ui:field="preferencePanel" visible="false"/>
                         </gwt:tab>
                     </gwt:TabLayoutPanel>
                 </gwt:center>
