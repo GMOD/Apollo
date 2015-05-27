@@ -392,6 +392,8 @@ class TranscriptService {
                     }
                 }
                 featureService.deleteFeature(gene2)
+                gene2.delete(flush: true)
+                gene2 = null
             }
         }
         // Delete the empty transcript from the gene
@@ -410,6 +412,8 @@ class TranscriptService {
             transcript2.delete(flush: true)
         } else {
             featureService.deleteFeature(transcript2);
+            transcript2.delete(flush: true)
+            transcript2 = null
         }
         featureService.removeExonOverlapsAndAdjacencies(transcript1);
     }

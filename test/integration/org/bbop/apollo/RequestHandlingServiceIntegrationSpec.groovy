@@ -685,6 +685,56 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
 
     }
 
+    /**
+     * https://github.com/GMOD/Apollo/issues/413
+     */
+    void "merging transcript with an upstream isoform effects the non-merged isoform"() {
+
+        given: "the GB40788-RA and GB40787-RA"
+        String gb40787String = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":77860,\"fmax\":78076,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40787-RA\",\"children\":[{\"location\":{\"fmin\":77860,\"fmax\":77944,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":78049,\"fmax\":78076,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":77860,\"fmax\":78076,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String gb40788String = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40788-RA\",\"children\":[{\"location\":{\"fmin\":65107,\"fmax\":65286,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":71477,\"fmax\":71651,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":75270,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        JSONObject jsonAddTranscriptObject1 = JSON.parse(gb40787String) as JSONObject
+        JSONObject jsonAddTranscriptObject2 = JSON.parse(gb40788String) as JSONObject
+        String mergeTranscriptString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT1_UNIQUENAME@\" }, { \"uniquename\": \"@TRANSCRIPT2_UNIQUENAME@\" } ], \"operation\": \"merge_transcripts\" }"
+
+
+        when: "we add three transcripts"
+        requestHandlingService.addTranscript(jsonAddTranscriptObject1)
+        requestHandlingService.addTranscript(jsonAddTranscriptObject1)
+        requestHandlingService.addTranscript(jsonAddTranscriptObject2)
+
+
+        then: "we should see 2 genes, 2 transcripts, 5 exons, 2 CDS, no noncanonical splice sites"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+        assert CDS.count == 3
+        assert Exon.count == 7
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+
+
+        when: "we merge the transcripts"
+        String uniqueName1 = MRNA.findByName("GB40787-RA-00001").uniqueName
+        String uniqueName2 = MRNA.findByName("GB40788-RA-00001").uniqueName
+        String uniqueName3 = MRNA.findByName("GB40787-RA-00002").uniqueName
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueName1)
+        mergeTranscriptString = mergeTranscriptString.replaceAll("@TRANSCRIPT2_UNIQUENAME@", uniqueName2)
+        JSONObject commandObject = JSON.parse(mergeTranscriptString) as JSONObject
+        JSONObject returnedAfterExonObject = requestHandlingService.mergeTranscripts(commandObject)
+
+
+        then: "we should see 1 gene, 1 transcripts, 5 exons, 1 CDS, 1 3' noncanonical splice site and 1 5' noncanonical splice site"
+        def allFeatures = Feature.all
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Exon.count == 5
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert CDS.count == 1
+
+    }
+
+
     void "adding transcripts on overlapping opposite strands fails (should just be two genes and transcripts)"() {
 
         given: "the GB40781-RA and GB40800-RA"
