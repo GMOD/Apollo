@@ -173,7 +173,18 @@ h1 {
   /*border: 1px dotted #888;*/
 /*}*/
 
+.dropdown-menu{
+  width: 80px;
+}
 
+.dropdown-menu .item {
+  padding: 5px;
+  width: 80px;
+}
 
+.dropdown-menu .item-selected {
+  background-color: #eee;
+  width: 80px;
+}
 
 

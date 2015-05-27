@@ -63,7 +63,7 @@ public class MainPanel extends Composite {
 
     private static MainPanel instance;
     private int maxUsernameLength = 15;
-    private static final double UPDATE_DIFFERENCE_BUFFER = 0.1;
+    private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
 
 
