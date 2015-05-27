@@ -732,6 +732,20 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
 
+        when: "we get the transcripts and gene that should be left"
+        MRNA bigMRNA = MRNA.findByName("GB40788-RA-00001")
+        MRNA undisturbedMRNA = MRNA.findByName("GB40787-RA-00002")
+        println "bigMRNA: "+bigMRNA
+        println "undisturbedMRNA: "+undisturbedMRNA
+
+        then: "this one should be long-gone"
+        assert undisturbedMRNA!=null
+        assert bigMRNA!=null
+        assert undisturbedMRNA.featureLocation.fmax > undisturbedMRNA.featureLocation.fmin
+        assert 0 == MRNA.countByName("GB40787-RA-00001")
+        assert undisturbedMRNA.parentFeatureRelationships.size()==2+1+0
+        assert bigMRNA.parentFeatureRelationships.size()==5+1+2
+
     }
 
 

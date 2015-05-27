@@ -105,18 +105,16 @@ class TranscriptService {
      */
     public void deleteTranscript(Gene gene, Transcript transcript) {
         featureRelationshipService.removeFeatureRelationship(gene, transcript)
-//        featureRelationshipService.deleteChildrenForTypes(gene, ontologyIds as String[])
-//        featureRelationshipService.deleteParentForTypes(transcript, Gene.ontologyId, Pseudogene.ontologyId)
 
         // update bounds
         Integer fmin = null;
         Integer fmax = null;
         for (Transcript t : getTranscripts(gene)) {
-            if (fmin == null || t.getSingleFeatureLocation().getFmin() < fmin) {
-                fmin = t.getSingleFeatureLocation().getFmin();
+            if (fmin == null || t.getFeatureLocation().getFmin() < fmin) {
+                fmin = t.getFeatureLocation().getFmin();
             }
-            if (fmax == null || t.getSingleFeatureLocation().getFmax() > fmax) {
-                fmax = t.getSingleFeatureLocation().getFmax();
+            if (fmax == null || t.getFeatureLocation().getFmax() > fmax) {
+                fmax = t.getFeatureLocation().getFmax();
             }
         }
         if (fmin != null) {

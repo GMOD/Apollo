@@ -336,8 +336,8 @@ class FeatureService {
     def addTranscriptToGene(Gene gene, Transcript transcript) {
         removeExonOverlapsAndAdjacencies(transcript);
         // no feature location, set location to transcript's
-        if (gene.getSingleFeatureLocation() == null) {
-            FeatureLocation transcriptFeatureLocation = transcript.getSingleFeatureLocation()
+        if (gene.getFeatureLocation() == null) {
+            FeatureLocation transcriptFeatureLocation = transcript.getFeatureLocation()
             FeatureLocation featureLocation = new FeatureLocation()
             featureLocation.properties = transcriptFeatureLocation.properties
             featureLocation.id = null
@@ -345,11 +345,11 @@ class FeatureService {
             gene.addToFeatureLocations(featureLocation);
         } else {
             // if the transcript's bounds are beyond the gene's bounds, need to adjust the gene's bounds
-            if (transcript.getSingleFeatureLocation().getFmin() < gene.getSingleFeatureLocation().getFmin()) {
-                gene.getSingleFeatureLocation().setFmin(transcript.getSingleFeatureLocation().getFmin());
+            if (transcript.getFeatureLocation().getFmin() < gene.getFeatureLocation().getFmin()) {
+                gene.getFeatureLocation().setFmin(transcript.getFeatureLocation().getFmin());
             }
-            if (transcript.getSingleFeatureLocation().getFmax() > gene.getSingleFeatureLocation().getFmax()) {
-                gene.getSingleFeatureLocation().setFmax(transcript.getSingleFeatureLocation().getFmax());
+            if (transcript.getFeatureLocation().getFmax() > gene.getFeatureLocation().getFmax()) {
+                gene.getFeatureLocation().setFmax(transcript.getFeatureLocation().getFmax());
             }
         }
 
