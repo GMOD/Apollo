@@ -151,14 +151,16 @@ class SequenceController {
         String sequenceType = dataObject.sequenceType
         String exportAllSequences = dataObject.exportAllSequences
 
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
+
         def sequences = dataObject.sequences.name
         def sequenceList
         if (exportAllSequences == "true") {
             // HQL for all sequences
-            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl order by s.name asc ")
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.organism = :organism order by s.name asc ",[organism: organism])
         } else {
             // HQL for a single sequence or selected sequences
-            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences])
+            sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.organism = :organism and s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences,organism: organism])
         }
         println "::: sequenceList: ${sequenceList}"
         log.debug "# of sequences to export ${sequenceList.size()}"

@@ -14,6 +14,7 @@ class IOServiceController extends AbstractApolloController {
     def featureService
     def gff3HandlerService
     def fastaHandlerService
+    def preferenceService
     def grailsResourceLocator
     
     def index() { }
@@ -35,7 +36,8 @@ class IOServiceController extends AbstractApolloController {
         String fileName
         String sequenceType
         List<String> ontologyIdList = [Gene.class.name]
-        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList])
+        Organism organism = preferenceService.currentOrganismForCurrentUser
+        def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList,organism:organism])
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
         
         if (typeOfExport == "GFF3") {
