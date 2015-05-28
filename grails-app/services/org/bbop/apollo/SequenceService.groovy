@@ -278,7 +278,8 @@ class SequenceService {
                 // since we are saving the genomicFeature object, the backend database will have these entities
                 gbolFeature = genomicRegion
             }
-            sequence = getResiduesFromFeature(gbolFeature)
+            //sequence = getResiduesFromFeature(gbolFeature)
+            sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
         }
         return sequence
     }
