@@ -30,7 +30,7 @@ public class Gff3HandlerService {
     def featurePropertyService
 
 
-    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source) throws IOException {
+    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportReferenceSequence = false) throws IOException {
         WriteObject writeObject = new WriteObject()
 
         writeObject.mode = Mode.WRITE
@@ -60,6 +60,9 @@ public class Gff3HandlerService {
         writeObject.out = out
         out.println("##gff-version 3")
         writeFeatures(writeObject, features, source)
+        if(exportReferenceSequence) {
+            writeFastaForReferenceSequence(writeObject, features[0])
+        }
         out.flush()
         out.close()
     }
@@ -121,10 +124,10 @@ public class Gff3HandlerService {
         }
     }
 
-    public void writeFasta(PrintWriter out, Collection<? extends Feature> features) {
-        writeEmptyFastaDirective(out);
+    public void writeFasta(WriteObject writeObject, Collection<? extends Feature> features) {
+        writeEmptyFastaDirective(writeObject.out);
         for (Feature feature : features) {
-            writeFasta(out, feature, false);
+            writeFasta(writeObject.out, feature, false);
         }
     }
 
@@ -157,7 +160,49 @@ public class Gff3HandlerService {
             }
         }
     }
-
+    
+    public void writeFastaForReferenceSequence(WriteObject writeObject, Feature feature) {
+        int lineLength = 60;
+        String residues = null
+        Sequence sequence = feature.featureLocation.sequence
+        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select a from SequenceAlteration a join a.featureLocations fl join fl.sequence s where s = :sequence and a.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
+        writeEmptyFastaDirective(writeObject.out);
+        residues = sequenceService.getResiduesFromSequence(sequence, 0, sequence.length)
+        if (residues != null) {
+            writeObject.out.println(">" + sequence.name);
+            int idx = 0;
+            while(idx < residues.length()) {
+                writeObject.out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())))
+                idx += lineLength
+            }
+        }
+        
+        if (sequenceAlterationList.size() != 0) {
+            writeFastaForSequenceAlterations(writeObject, sequenceAlterationList)
+        }
+    }
+    
+    public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends SequenceAlteration> sequenceAlterations) {
+        for (SequenceAlteration sequenceAlteration : sequenceAlterations) {
+            writeFastaForSequenceAlteration(writeObject, sequenceAlteration)
+        }
+    }
+    
+    public void writeFastaForSequenceAlteration(WriteObject writeObject, SequenceAlteration sequenceAlteration) {
+        int lineLength = 60;
+        String residues = null
+        residues = sequenceAlteration.getAlterationResidue()
+        if(residues != null) {
+            writeObject.out.println(">" + sequenceAlteration.uniqueName)
+            int idx = 0;
+            while(idx < residues.length()) {
+                writeObject.out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())))
+                idx += lineLength
+            }
+        }
+    }
+    
     private Collection<GFF3Entry> convertToEntry(WriteObject writeObject, Feature feature, String source) {
         List<GFF3Entry> gffEntries = new ArrayList<GFF3Entry>();
         convertToEntry(writeObject, feature, source, gffEntries);
