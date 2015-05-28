@@ -81,6 +81,7 @@ public class Gff3HandlerService {
             }
             featureList.add(feature);
         }
+        featuresBySource.sort{ it.key }
         for (Map.Entry<Sequence, Collection<Feature>> entry : featuresBySource.entrySet()) {
             println "writing group directives ${entry.key}"
             writeGroupDirectives(writeObject, entry.getKey());
