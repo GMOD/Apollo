@@ -113,7 +113,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getDataAdapters() {
         // temporary workaround
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
-        String jsonString = "[{\"permission\":1,\"key\":\"GFF3\",\"data_adapters\":[{\"permission\":1,\"key\":\"Only GFF3\",\"options\":\"output=file&format=gzip&type=GFF3&exportReferenceSeq=false\"},{\"permission\":1,\"key\":\"GFF3 with reference sequence FASTA\",\"options\":\"output=file&format=gzip&type=GFF3&exportReferenceSeq=true\"}]},{\"permission\":1,\"key\":\"FASTA\",\"data_adapters\":[{\"permission\":1,\"key\":\"peptide\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=peptide\"},{\"permission\":1,\"key\":\"cDNA\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cdna\"},{\"permission\":1,\"key\":\"CDS\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cds\"}]}]"
+        String jsonString = "[{\"permission\":1,\"key\":\"GFF3\",\"data_adapters\":[{\"permission\":1,\"key\":\"Only GFF3\",\"options\":\"output=file&format=gzip&type=GFF3&exportSequence=false\"},{\"permission\":1,\"key\":\"GFF3 with FASTA\",\"options\":\"output=file&format=gzip&type=GFF3&exportSequence=true\"}]},{\"permission\":1,\"key\":\"FASTA\",\"data_adapters\":[{\"permission\":1,\"key\":\"peptide\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=peptide\"},{\"permission\":1,\"key\":\"cDNA\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cdna\"},{\"permission\":1,\"key\":\"CDS\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cds\"}]}]"
         JSONArray dataAdaptersArray = new JSONArray()
 
         if (!permissionService.checkPermissions(PermissionEnum.EXPORT)) {

@@ -166,9 +166,14 @@ class SequenceController {
         log.debug "# of sequences to export ${sequenceList.size()}"
 
         List<String> ontologyIdList = [Gene.class.name]
+        List<String> alterationTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
         List<Feature> listOfFeatures = new ArrayList<>()
+        List<Feature> listOfSequenceAlterations = new ArrayList<>()
+        
         if(sequenceList){
             listOfFeatures.addAll(Feature.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList]))
+            listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in :sequenceList and f.class in :alterationTypes", [sequenceList: sequenceList, alterationTypes: alterationTypes])
+            listOfFeatures.addAll(listOfSequenceAlterations)
         }
         else{
             log.warn "There are no annotations to be exported in this list of sequences ${sequences}"
@@ -177,7 +182,11 @@ class SequenceController {
 
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
-            gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
+            if (sequenceList.size() == 1) {
+                gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String, true)
+            } else {
+                gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
+            }
         } else if (typeOfExport == "FASTA") {
             // call fastaHandlerService
             fastaHandlerService.writeFeatures(listOfFeatures, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT)

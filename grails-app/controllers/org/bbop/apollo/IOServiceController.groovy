@@ -39,15 +39,19 @@ class IOServiceController extends AbstractApolloController {
         List<String> ontologyIdList = [Gene.class.name,Pseudogene.class.name,RepeatRegion.class.name,TransposableElement.class.name]
         Organism organism = preferenceService.currentOrganismForCurrentUser
         def listOfFeatures = FeatureLocation.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s.organism = :organism and s.name in (:sequenceName) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceName: sequenceName, ontologyIdList: ontologyIdList,organism:organism])
+        Sequence sequence = Sequence.executeQuery("select distinct s from Sequence s where s.name = :sequenceName", [sequenceName: sequenceName])[0]
+        def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
+        def listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
+        def featuresToExport = listOfFeatures + listOfSequenceAlterations
         File outputFile = File.createTempFile ("Annotations-" + sequenceName + "-", "." + typeOfExport.toLowerCase())
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
             fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
-            if (params.exportReferenceSeq == "true") {
-                gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String, true)
+            if (params.exportSequence == "true") {
+                gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String, true)
             }
             else {
-                gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
+                gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String)
             }
         } else if (typeOfExport == "FASTA") {
             // call fastaHandlerService

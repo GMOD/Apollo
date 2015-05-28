@@ -30,7 +30,7 @@ public class Gff3HandlerService {
     def featurePropertyService
 
 
-    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportReferenceSequence = false) throws IOException {
+    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false) throws IOException {
         WriteObject writeObject = new WriteObject()
 
         writeObject.mode = Mode.WRITE
@@ -60,8 +60,9 @@ public class Gff3HandlerService {
         writeObject.out = out
         out.println("##gff-version 3")
         writeFeatures(writeObject, features, source)
-        if(exportReferenceSequence) {
-            writeFastaForReferenceSequence(writeObject, features[0])
+        if(exportSequence) {
+            writeFastaForReferenceSequence(writeObject, features[0].featureLocation.sequence)
+            writeFastaForSequenceAlterations(writeObject, features)
         }
         out.flush()
         out.close()
@@ -161,12 +162,10 @@ public class Gff3HandlerService {
         }
     }
     
-    public void writeFastaForReferenceSequence(WriteObject writeObject, Feature feature) {
+    public void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
         int lineLength = 60;
         String residues = null
-        Sequence sequence = feature.featureLocation.sequence
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select a from SequenceAlteration a join a.featureLocations fl join fl.sequence s where s = :sequence and a.class in :sequenceTypes", [sequence: sequence, sequenceTypes: sequenceTypes])
         writeEmptyFastaDirective(writeObject.out);
         residues = sequenceService.getResiduesFromSequence(sequence, 0, sequence.length)
         if (residues != null) {
@@ -177,15 +176,13 @@ public class Gff3HandlerService {
                 idx += lineLength
             }
         }
-        
-        if (sequenceAlterationList.size() != 0) {
-            writeFastaForSequenceAlterations(writeObject, sequenceAlterationList)
-        }
     }
     
-    public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends SequenceAlteration> sequenceAlterations) {
-        for (SequenceAlteration sequenceAlteration : sequenceAlterations) {
-            writeFastaForSequenceAlteration(writeObject, sequenceAlteration)
+    public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends Feature> features) {
+        for (Feature feature : features) {
+            if (feature instanceof SequenceAlteration) {
+                writeFastaForSequenceAlteration(writeObject, feature)
+            }
         }
     }
     
