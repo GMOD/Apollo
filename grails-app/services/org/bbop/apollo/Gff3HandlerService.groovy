@@ -198,7 +198,7 @@ public class Gff3HandlerService {
         String residues = null
         residues = sequenceAlteration.getAlterationResidue()
         if(residues != null) {
-            writeObject.out.println(">" + sequenceAlteration.uniqueName)
+            writeObject.out.println(">" + sequenceAlteration.name)
             int idx = 0;
             while(idx < residues.length()) {
                 writeObject.out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())))
