@@ -48,7 +48,7 @@ class IOServiceController extends AbstractApolloController {
             // call gff3HandlerService
             fileName = "Annotations-" + sequenceName + "." + typeOfExport.toLowerCase()
             if (params.exportSequence == "true") {
-                gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String, true)
+                gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String, true, [sequence])
             }
             else {
                 gff3HandlerService.writeFeaturesToText(outputFile.path, featuresToExport, grailsApplication.config.apollo.gff3.source as String)
