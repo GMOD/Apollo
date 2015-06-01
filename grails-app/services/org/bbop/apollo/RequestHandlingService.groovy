@@ -1675,6 +1675,7 @@ class RequestHandlingService {
      */
 //    { "track": "Annotations-Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     def deleteFeature(JSONObject inputObject) {
+        println "in delete feature ${inputObject as JSON}"
         log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         boolean suppressEvents = false
@@ -1695,8 +1696,17 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature feature = Feature.findByUniqueName(uniqueName)
+            Feature feature
+            String uniqueName
+            if(jsonFeature.has(FeatureStringEnum.UNIQUENAME.value)){
+                uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+                feature = Feature.findByUniqueName(uniqueName)
+            }
+            else{
+                feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
+                uniqueName = feature.uniqueName
+            }
+
             log.debug "feature found to delete ${feature.name}"
             if (feature) {
                 if (feature instanceof Exon) {
