@@ -15,6 +15,8 @@ use Getopt::Long qw(:config no_ignore_case bundling);
 use IO::File;
 use LWP::UserAgent;
 use JSON;
+use Data::Dumper;
+
 
 my $gene_types_in = "gene";
 my $transcript_types_in = "transcript|mRNA";
@@ -33,7 +35,6 @@ my $in = \*STDIN;
 my $username;
 my $password;
 my $url;
-my $session_id;
 
 my $success_log;
 my $error_log;
@@ -59,9 +60,7 @@ my %ignored_properties = (  owner               => 1,
 $| = 1;
 
 parse_options();
-login();
 process_gff();
-logout();
 
 sub parse_options {
     my $help;
@@ -168,43 +167,6 @@ usage: $progname
 END
 }
 
-sub login {
-    my $login = {
-        username => $username,
-        password => $password
-    };
-    my $req = new HTTP::Request();
-    $req->method("POST");
-    $req->uri("$url/Login?operation=login");
-    $req->content($json->encode($login));
-    my $res = $ua->request($req);
-    if ($res->is_success()) {
-        my $content = $json->decode($res->content());
-        $session_id = $content->{sessionId};
-    }   
-    else {
-        my $content;
-        my $message;
-        eval {
-            $content = $json->decode($res->content());
-        };
-        if ($@) {
-            $message = $res->status_line;
-        }
-        else {
-            $message = $content->{error} ? $content->{error} : $res->status_line;
-        }
-        die "Error logging in to server: $message\n";
-    }
-}
-
-sub logout {
-    my $req = new HTTP::Request();
-    $req->method("POST");
-    $req->uri("$url/Login?operation=logout");
-    $ua->request($req);
-}
-
 sub process_gff {
     my $gffio = Bio::GFF3::LowLevel::Parser->open($in);
     my $seq_ids_to_transcripts = {};
@@ -213,8 +175,8 @@ sub process_gff {
         next if ref $features ne "ARRAY";
         process_gff_entry($features, $seq_ids_to_genes, $seq_ids_to_transcripts);
     }
-    write_features("add_feature", $seq_ids_to_genes);
-    write_features("add_transcript", $seq_ids_to_transcripts);
+    write_features("addFeature", $seq_ids_to_genes);
+    write_features("addTranscript", $seq_ids_to_transcripts);
     if (!scalar(keys(%{$seq_ids_to_genes})) && !scalar(keys(%{$seq_ids_to_transcripts}))) {
         print "No genes of type \"$gene_types_in\" or transcripts of type \"$transcript_types_in\" found\n";
     }
@@ -267,7 +229,6 @@ sub write_features {
                 }
             }
         }
-    release_resources($seq_id);
     }
 }
 
@@ -374,28 +335,9 @@ sub convert_feature {
 }
 
 sub get_editor_url {
-    return "$url/AnnotationEditorService;jsessionid=$session_id";
+    return "$url/annotationEditor";
 }
 
-sub get_source_feature {
-    my $seq_id = shift;
-    my $source_feature = $source_features{$seq_id};
-    if ($source_feature) {
-        return $source_feature;
-    }
-    my $operation = "get_source_feature";
-    my $features = send_request($seq_id, $operation);
-    $source_feature = $features->{features}->[0];
-    $source_features{$seq_id} = $source_feature;
-    release_resources($seq_id) if $source_feature;
-    return $source_feature;
-}
-
-sub release_resources {
-    my $seq_id = shift;
-    my $operation = "release_resources";
-    send_request($seq_id, $operation);
-}
 
 sub send_request {
     my $seq_id = shift;
@@ -403,8 +345,11 @@ sub send_request {
     my $features = shift;
     my $request = {
             track => "$annotation_track_prefix$seq_id",
-            operation => $operation
+            operation => $operation,
+            username => $username,
+            password => $password
     };
+    print Dumper($request) ;
     if ($features) {
         foreach my $feature (@{$features}) {
             push(@{$request->{features}}, $feature);
@@ -412,7 +357,11 @@ sub send_request {
     }
     my $req = new HTTP::Request();
     $req->method("POST");
-    $req->uri(get_editor_url());
+
+    my $newurl = get_editor_url();
+	$newurl = "$newurl/$operation";
+	print "$newurl \n";
+    $req->uri($newurl);
     $req->content($json->encode($request));
     my $res = $ua->request($req);
     if ($res->is_success()) {
@@ -518,33 +467,8 @@ sub get_type {
     return $features->[0]->{type};
 }
 
-sub validate_feature {
-    my $features = shift;
-    my $type = shift;
-    my $seq_id = get_seq_id($features);
-    my $source_feature = get_source_feature($seq_id);
-    my $start = get_start($features);
-    my $end = get_end($features);
-    my $id = get_id($features);
-    my $strand = get_strand($features);
-    if (!$source_feature) {
-        printf("Error writing $id: Refseq %s does not exist [%s, %d, %d, %d]\n", $seq_id, $id, $start, $end, $strand);
-        print $error_log "$id\n" if $error_log;
-        return 0;
-    }
-    if ($start < $source_feature->{fmin} + 1 || $end > $source_feature->{fmax}) {
-        printf("Error writing $id: $type extends beyond refseq boundaries [%s, %d, %d] [%s, %d, %d, %d]\n", $source_feature->{uniquename}, $source_feature->{fmin}, $source_feature->{fmax}, $id, $start, $end, $strand);
-        print $error_log "$id\n" if $error_log;
-        return 0;
-    }
-    return 1;
-}
-
 sub process_gene {
     my $features = shift;
-    if (!validate_feature($features, "Gene")) {
-        return undef;
-    }
     my $gene = convert_feature($features, $gene_type_out);
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
@@ -559,9 +483,6 @@ sub process_gene {
 
 sub process_transcript {
     my $features = shift;
-    if (!validate_feature($features, "Transcript")) {
-        return undef;
-    }
     my $transcript = convert_feature($features, $transcript_type_out);
     my $cds_feature = undef;
     my $subfeatures = get_subfeatures($features);
