@@ -59,9 +59,9 @@ my %ignored_properties = (  owner               => 1,
 $| = 1;
 
 parse_options();
-login();
+#login();
 process_gff();
-logout();
+#logout();
 
 sub parse_options {
     my $help;
@@ -168,42 +168,42 @@ usage: $progname
 END
 }
 
-sub login {
-    my $login = {
-        username => $username,
-        password => $password
-    };
-    my $req = new HTTP::Request();
-    $req->method("POST");
-    $req->uri("$url/Login?operation=login");
-    $req->content($json->encode($login));
-    my $res = $ua->request($req);
-    if ($res->is_success()) {
-        my $content = $json->decode($res->content());
-        $session_id = $content->{sessionId};
-    }   
-    else {
-        my $content;
-        my $message;
-        eval {
-            $content = $json->decode($res->content());
-        };
-        if ($@) {
-            $message = $res->status_line;
-        }
-        else {
-            $message = $content->{error} ? $content->{error} : $res->status_line;
-        }
-        die "Error logging in to server: $message\n";
-    }
-}
-
-sub logout {
-    my $req = new HTTP::Request();
-    $req->method("POST");
-    $req->uri("$url/Login?operation=logout");
-    $ua->request($req);
-}
+#sub login {
+#    my $login = {
+#        username => $username,
+#        password => $password
+#    };
+#    my $req = new HTTP::Request();
+#    $req->method("POST");
+#    $req->uri("$url/Login?operation=login");
+#    $req->content($json->encode($login));
+#    my $res = $ua->request($req);
+#    if ($res->is_success()) {
+#        my $content = $json->decode($res->content());
+#        $session_id = $content->{sessionId};
+#    }
+#    else {
+#        my $content;
+#        my $message;
+#        eval {
+#            $content = $json->decode($res->content());
+#        };
+#        if ($@) {
+#            $message = $res->status_line;
+#        }
+#        else {
+#            $message = $content->{error} ? $content->{error} : $res->status_line;
+#        }
+#        die "Error logging in to server: $message\n";
+#    }
+#}
+#
+#sub logout {
+#    my $req = new HTTP::Request();
+#    $req->method("POST");
+#    $req->uri("$url/Login?operation=logout");
+#    $ua->request($req);
+#}
 
 sub process_gff {
     my $gffio = Bio::GFF3::LowLevel::Parser->open($in);
