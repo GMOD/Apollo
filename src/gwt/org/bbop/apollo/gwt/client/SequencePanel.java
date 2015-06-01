@@ -384,6 +384,8 @@ public class SequencePanel extends Composite {
         exportPanel.setExportAll(exportAll);
         if (type.equals("FASTA")) {
             exportPanel.renderFastaSelection();
+        } else if (type.equals("GFF3")) {
+            exportPanel.renderGff3Selection();
         }
         exportPanel.show();
     }

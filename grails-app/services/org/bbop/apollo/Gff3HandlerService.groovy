@@ -30,7 +30,7 @@ public class Gff3HandlerService {
     def featurePropertyService
 
 
-    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false) throws IOException {
+    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
 
         writeObject.mode = Mode.WRITE
@@ -61,7 +61,7 @@ public class Gff3HandlerService {
         out.println("##gff-version 3")
         writeFeatures(writeObject, features, source)
         if(exportSequence) {
-            writeFastaForReferenceSequence(writeObject, features[0].featureLocation.sequence)
+            writeFastaForReferenceSequences(writeObject, sequences)
             writeFastaForSequenceAlterations(writeObject, features)
         }
         out.flush()
@@ -160,6 +160,12 @@ public class Gff3HandlerService {
                 out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())));
                 idx += lineLength;
             }
+        }
+    }
+    
+    public void writeFastaForReferenceSequences(WriteObject writeObject, Collection<Sequence> sequences) {
+        for (Sequence sequence : sequences) {
+            writeFastaForReferenceSequence(writeObject, sequence)
         }
     }
     

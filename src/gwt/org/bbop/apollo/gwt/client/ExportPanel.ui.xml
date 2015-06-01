@@ -11,6 +11,8 @@
             <gwt:HTML ui:field="organismLabel"/>
             <gwt:HTML ui:field="sequenceInfoLabel"/>
             <gwt:HTML ui:field="typeLabel"/>
+            <gwt:RadioButton ui:field='gff3Button' name="export" text="GFF3" checked="true" visible="false"/>
+            <gwt:RadioButton ui:field='gff3WithFastaButton' name="export" text="GFF3 with FASTA" checked="false" visible="false"/>
             <gwt:RadioButton ui:field='genomicRadioButton' name="export" text="Genomic" checked="true" visible="false"/>
             <gwt:RadioButton ui:field='cdnaRadioButton' name="export" text="cDNA" checked="false" visible="false"/>
             <gwt:RadioButton ui:field='cdsRadioButton' name="export" text="CDS" checked="false" visible="false"/>

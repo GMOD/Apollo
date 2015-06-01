@@ -150,7 +150,7 @@ class SequenceController {
         String typeOfExport = dataObject.type
         String sequenceType = dataObject.sequenceType
         String exportAllSequences = dataObject.exportAllSequences
-
+        String exportGff3Fasta = dataObject.exportGff3Fasta
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser()
 
         def sequences = dataObject.sequences.name
@@ -162,7 +162,6 @@ class SequenceController {
             // HQL for a single sequence or selected sequences
             sequenceList = Sequence.executeQuery("select distinct s from Sequence s join s.featureLocations fl where s.organism = :organism and s.name in (:sequenceNames) order by s.name asc ", [sequenceNames: sequences,organism: organism])
         }
-        println "::: sequenceList: ${sequenceList}"
         log.debug "# of sequences to export ${sequenceList.size()}"
 
         List<String> ontologyIdList = [Gene.class.name]
@@ -182,8 +181,8 @@ class SequenceController {
 
         if (typeOfExport == "GFF3") {
             // call gff3HandlerService
-            if (sequenceList.size() == 1) {
-                gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String, true)
+            if (exportGff3Fasta == "true") {
+                gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String, true, sequenceList)
             } else {
                 gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String)
             }

@@ -24,6 +24,7 @@ public class ExportPanel extends DialogBox{
     private OrganismInfo organismInfo ;
     private List<SequenceInfo> sequenceList ;
     private String sequenceType = "genomic";
+    private Boolean exportGff3Fasta = false;
     private Boolean exportAll = false;
 
 
@@ -45,6 +46,10 @@ public class ExportPanel extends DialogBox{
     Button closeButton;
     @UiField
     Button exportButton;
+    @UiField
+    RadioButton gff3Button;
+    @UiField
+    RadioButton gff3WithFastaButton;
     @UiField
     RadioButton genomicRadioButton;
     @UiField
@@ -102,6 +107,8 @@ public class ExportPanel extends DialogBox{
     
     public String getSequenceType() { return sequenceType; }
     
+    public Boolean getExportGff3Fasta() { return exportGff3Fasta; }
+    
     @UiHandler("closeButton")
     public void closeExportPanel(ClickEvent clickEvent){
         hide();
@@ -119,6 +126,9 @@ public class ExportPanel extends DialogBox{
             cdsRadioButton.setVisible(false);
             peptideRadioButton.setVisible(false);
             showSequenceTypeLabel();
+        } else if (type.equals("GFF3")) {
+            gff3Button.setVisible(false);
+            gff3WithFastaButton.setVisible(false);
         }
         exportButton.setEnabled(false);
         generateLink();
@@ -131,11 +141,17 @@ public class ExportPanel extends DialogBox{
         sequenceTypeLabel.setHTML("Sequence Type: " + this.sequenceType);
         sequenceTypeLabel.setVisible(true);
     }
+    
     public void renderFastaSelection() {
         genomicRadioButton.setVisible(true);
         cdnaRadioButton.setVisible(true);
         cdsRadioButton.setVisible(true);
         peptideRadioButton.setVisible(true);
+    }
+    
+    public void renderGff3Selection() {
+        gff3Button.setVisible(true);
+        gff3WithFastaButton.setVisible(true);
     }
     
     @UiHandler("genomicRadioButton")
@@ -158,6 +174,12 @@ public class ExportPanel extends DialogBox{
         sequenceType = FeatureStringEnum.TYPE_PEPTIDE.getValue();
     }
     
+    @UiHandler("gff3Button")
+    public void selectOnlyGff3(ClickEvent clickEvent) { exportGff3Fasta = false; }
+
+    @UiHandler("gff3WithFastaButton")
+    public void selectGff3WithFasta(ClickEvent clickEvent) { exportGff3Fasta = true; }
+
     public List<SequenceInfo> getSequenceList() {
         return sequenceList;
     }
