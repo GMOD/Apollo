@@ -373,7 +373,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             JSONObject info = new JSONObject();
             info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
             info.put("time_accessioned", gbolFeature.lastUpdated)
-            info.put("owner", "some username");
+            info.put("owner", gbolFeature.owner ? gbolFeature.owner.username : "N/A");
             String parentIds = "";
             featureRelationshipService.getParentForFeature(gbolFeature).each {
                 if (parentIds.length() > 0) {

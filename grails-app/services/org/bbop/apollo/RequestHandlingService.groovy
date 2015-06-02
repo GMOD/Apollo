@@ -1174,12 +1174,15 @@ class RequestHandlingService {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User activeUser = permissionService.getActiveUser(inputObject)
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
 //            Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 //            updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            featureService.setOwner(sequenceAlteration,activeUser)
+            sequenceAlteration.save()
 
 
             featureService.updateNewGsolFeatureAttributes(sequenceAlteration, sequence)
