@@ -133,7 +133,7 @@ class FeatureService {
         }
     }
 
-    private setOwner(Feature feature, User owner) {
+    def setOwner(Feature feature, User owner) {
         println "setting owner for feature ${feature} to ${owner}"
         feature.addToOwners(owner)
     }
