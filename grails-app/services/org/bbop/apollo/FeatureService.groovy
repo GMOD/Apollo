@@ -606,7 +606,7 @@ class FeatureService {
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature,
                                                                 int localCoordinate) {
 //        Transcript transcript = cdsService.getTranscript((CDS) feature )
-        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, transcriptService.ontologyIds as String[])
+        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
         List<SequenceAlteration> alterations = feature instanceof CDS ? getFrameshiftsAsAlterations(transcript) : new ArrayList<SequenceAlteration>();
 
 //        alterations.addAll(dataStore.getSequenceAlterations());
@@ -626,7 +626,7 @@ class FeatureService {
             Collections.reverse(alterations);
         }
         for (SequenceAlteration alteration : alterations) {
-            if (!overlapperService.overlaps(feature, alteration, false)) {
+            if (!overlapperService.overlaps(feature, alteration, true)) {
                 continue;
             }
             if (feature.getFeatureLocation().getStrand() == -1) {
@@ -904,7 +904,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             return getResiduesWithAlterations(feature, SequenceAlteration.all);
         }
 //        Transcript transcript = cdsService.getTranscript((CDS) feature)
-        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, transcriptService.ontologyIds as String[])
+        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
         Collection<SequenceAlteration> alterations = getFrameshiftsAsAlterations(transcript);
 
         List<SequenceAlteration> allSequenceAlterationList = getAllSequenceAlterationsForFeature(feature)
@@ -1449,9 +1449,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                                       Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
         String residueString = null
 
-        if (feature instanceof FlankingRegion) {
-            return ""
-        } else if (feature instanceof Transcript) {
+        if (feature instanceof Transcript) {
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
         } else if (feature instanceof CDS) {
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
