@@ -247,7 +247,7 @@ class FeatureService {
                 geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
             }
             // set back to the original gene name
-            if(jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)){
+            if (jsonTranscript.has(FeatureStringEnum.GENE_NAME.value)) {
                 geneName = jsonTranscript.getString(FeatureStringEnum.GENE_NAME.value)
             }
             jsonGene.put(FeatureStringEnum.NAME.value, geneName)
@@ -626,7 +626,7 @@ class FeatureService {
             Collections.reverse(alterations);
         }
         for (SequenceAlteration alteration : alterations) {
-            if (!overlapperService.overlaps(feature, alteration,false)) {
+            if (!overlapperService.overlaps(feature, alteration, false)) {
                 continue;
             }
             if (feature.getFeatureLocation().getStrand() == -1) {
@@ -1449,7 +1449,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                                       Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
         String residueString = null
 
-        if (feature instanceof Transcript) {
+        if (feature instanceof FlankingRegion) {
+            return ""
+        } else if (feature instanceof Transcript) {
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
         } else if (feature instanceof CDS) {
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
@@ -1478,8 +1480,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //            }
             FeatureLocation sequenceAlterationLoc = sequenceAlteration.getFeatureLocation();
             if (sequenceAlterationLoc.sequence == featureLoc.sequence) {
-//                int localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlterationLoc.getFmin());
-                int localCoordinate = convertModifiedLocalCoordinateToSourceCoordinate(feature, sequenceAlterationLoc.getFmin());
+
+                int localCoordinate
+                if(feature instanceof Transcript){
+                    localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlterationLoc.getFmin());
+                }
+                else {
+                    localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlterationLoc.getFmin());
+                }
+//                int localCoordinate = convertModifiedLocalCoordinateToSourceCoordinate(feature, sequenceAlterationLoc.getFmin());
 //                String sequenceAlterationResidues = sequenceAlteration.getResidues();
 
                 // TODO: is this correct?
@@ -2046,8 +2055,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         for (Gene gene in genes) {
             if (!newGene) {
                 newGene = gene
-            }
-            else {
+            } else {
                 // merging code goes here
 
             }
@@ -2078,7 +2086,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (!featureRelationshipService.getChildren(oldGene)) {
             deleteFeature(oldGene)
         }
-
 
 //        addTranscriptToGene(gene, transcript)
 
@@ -2111,8 +2118,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         Gene newGene = newGenesToMerge ? mergeGenes(newGenesToMerge) : new Gene(
                 name: transcript.name
-                ,uniqueName: nameService.generateUniqueName()
-        ).save(flush: true, insert:true)
+                , uniqueName: nameService.generateUniqueName()
+        ).save(flush: true, insert: true)
 
         for (Transcript newTranscript in newTranscripts) {
             setGeneTranscript(newTranscript, newGene)
