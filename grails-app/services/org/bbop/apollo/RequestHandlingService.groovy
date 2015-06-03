@@ -19,7 +19,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  *
  * Its goal is to replace a a lot of the layers in AnnotationEditorController
  *
- * Furethermore, this handles requests for websocket, which come in via a different mehcanism than the controller
+ * Furthermore, this handles requests for websocket, which come in via a different mechanism than the controller
  */
 //@GrailsCompileStatic
 @Transactional
