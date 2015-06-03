@@ -626,7 +626,7 @@ class FeatureService {
             Collections.reverse(alterations);
         }
         for (SequenceAlteration alteration : alterations) {
-            if (!overlapperService.overlaps(feature, alteration)) {
+            if (!overlapperService.overlaps(feature, alteration,false)) {
                 continue;
             }
             if (feature.getFeatureLocation().getStrand() == -1) {
@@ -1478,7 +1478,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 //            }
             FeatureLocation sequenceAlterationLoc = sequenceAlteration.getFeatureLocation();
             if (sequenceAlterationLoc.sequence == featureLoc.sequence) {
-                int localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlterationLoc.getFmin());
+//                int localCoordinate = convertSourceCoordinateToLocalCoordinate(feature, sequenceAlterationLoc.getFmin());
+                int localCoordinate = convertModifiedLocalCoordinateToSourceCoordinate(feature, sequenceAlterationLoc.getFmin());
 //                String sequenceAlterationResidues = sequenceAlteration.getResidues();
 
                 // TODO: is this correct?

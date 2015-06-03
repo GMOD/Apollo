@@ -861,6 +861,11 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     }
 
 
+    void "add sequence alteration should work on intron"(){
+
+    }
+
+
     void "when exons from three isoforms, genes should merge on overlap and split on separation"() {
 
         given: "Three exons we are turning into three transcripts using Group 1.10 GB40782-RA"
