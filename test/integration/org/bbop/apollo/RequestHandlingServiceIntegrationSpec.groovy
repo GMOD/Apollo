@@ -11,6 +11,7 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
     def requestHandlingService
     def featureRelationshipService
     def exonService
+    def sequenceService
 
     def setup() {
         Organism organism = new Organism(
@@ -860,8 +861,80 @@ class RequestHandlingServiceIntegrationSpec extends IntegrationSpec {
         assert NonCanonicalThreePrimeSpliceSite.count == 0
     }
 
+    /**
+     * From #427
+     *
+     *
+     */
+    void "add sequence alteration should work on intron and all multi-exon genes"(){
 
-    void "add sequence alteration should work on intron"(){
+        given: "a Gene GB40788-RA"
+        String addTranscriptString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40788-RA\",\"children\":[{\"location\":{\"fmin\":65107,\"fmax\":65286,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":71477,\"fmax\":71651,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":75270,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }:"
+        String peptideSequencePlain = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLRPTPSPLSETSATLQSDNNDTFSGGVDPRLLLGANTGGDRNTWEGRYRVKEHRRAGKATFQGQVYNFLERPTGWKCFLYHFSV"
+        String addSAS1String = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71549, \"fmax\": 71549, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"AAAAAAAAAAAAAAAAAAAA\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String insertionStringOne = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQHCSPTTMIPLVEVSIHDYCWAQTPGATVTRGRVVTV"
+        String addSASIntronString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71199, \"fmax\": 71199, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"GGGGGGGGGGGGGGGGGGGGG\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String insertionStringTwo = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQHCSPTTMIPLVEVSIHDYCWAQTPGATVTRGRVVTV"
+        String addSADeleteString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71499, \"fmax\": 71509, \"strand\": 1 }, \"type\": {\"name\": \"deletion\", \"cv\": { \"name\":\"sequence\" } } } ], \"operation\": \"add_sequence_alteration\" }"
+        String deletionString = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQH"
+        String addSASubstitutionString = "{ \"track\": \"Annotations-Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71624, \"fmax\": 71638, \"strand\": 1 }, \"type\": {\"name\": \"substitution\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"TTTTTTTTTTTTTT\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String finalSubstitutionString = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPKKKKKVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQH"
+
+
+        when: "we add the gene"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        MRNA transcript = MRNA.first()
+        String residues = sequenceService.getSequenceForFeature(transcript,FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we expect to see some genomic results and some residues"
+        assert Gene.count ==1
+        assert CDS.count ==1
+        assert MRNA.count ==1
+        assert Exon.count ==3
+        assert residues == peptideSequencePlain
+
+        when: "we add an insert sequence alteration to an exon"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addSAS1String) as JSONObject)
+        transcript = MRNA.first()
+        residues = sequenceService.getSequenceForFeature(transcript,FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we expect the appropriate residues"
+        assert Gene.count ==1
+        assert MRNA.count ==1
+        assert Exon.count ==3
+        assert residues == insertionStringOne
+
+        when: "we add an insert sequence alteration to an intron"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addSASIntronString) as JSONObject)
+        transcript = MRNA.first()
+        residues = sequenceService.getSequenceForFeature(transcript,FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we expect the same residues"
+        assert Gene.count ==1
+        assert MRNA.count ==1
+        assert Exon.count ==3
+        assert residues == insertionStringTwo
+
+        when: "we add a delete sequence alteration"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addSADeleteString) as JSONObject)
+        transcript = MRNA.first()
+        residues = sequenceService.getSequenceForFeature(transcript,FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we expect less residues"
+        assert residues == deletionString
+
+        when: "we add a substitution sequence alteration"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addSASubstitutionString) as JSONObject)
+        transcript = MRNA.first()
+        residues = sequenceService.getSequenceForFeature(transcript,FeatureStringEnum.TYPE_PEPTIDE.value)
+
+        then: "we expect different residues"
+        assert Gene.count ==1
+        assert MRNA.count ==1
+        assert CDS.count ==1
+        assert Exon.count ==3
+        assert residues == finalSubstitutionString
+
 
     }
 
