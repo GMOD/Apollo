@@ -569,7 +569,7 @@ class FeatureService {
         List<Exon> exons = exonService.getSortedExons(transcript)
         if (exons.size() == 0) {
             log.debug "FS::convertLocalCoordinateToSourceCoordinateForCDS() - No exons for given transcript"
-            return convertLocalCoordinateToSourceCoordinateForTranscript(cds, localCoordinate)
+            return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate)
         }
         if (transcript.strand == Strand.NEGATIVE.value) {
             exons.reverse()
@@ -606,7 +606,7 @@ class FeatureService {
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature,
                                                                 int localCoordinate) {
 //        Transcript transcript = cdsService.getTranscript((CDS) feature )
-        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
+        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, transcriptService.ontologyIds as String[])
         List<SequenceAlteration> alterations = feature instanceof CDS ? getFrameshiftsAsAlterations(transcript) : new ArrayList<SequenceAlteration>();
 
 //        alterations.addAll(dataStore.getSequenceAlterations());
@@ -904,7 +904,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             return getResiduesWithAlterations(feature, SequenceAlteration.all);
         }
 //        Transcript transcript = cdsService.getTranscript((CDS) feature)
-        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
+        Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, transcriptService.ontologyIds as String[])
         Collection<SequenceAlteration> alterations = getFrameshiftsAsAlterations(transcript);
 
         List<SequenceAlteration> allSequenceAlterationList = getAllSequenceAlterationsForFeature(feature)

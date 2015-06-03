@@ -180,15 +180,15 @@ class TranscriptService {
     }
 
     List<String> getFrameShiftOntologyIds() {
-        List<String> frameshiftOntologyIds = new ArrayList<>()
+        List<String> intFrameshiftOntologyIds = new ArrayList<>()
 
-        frameShiftOntologyIds.add(Plus1Frameshift.ontologyId)
-        frameShiftOntologyIds.add(Plus2Frameshift.ontologyId)
-        frameShiftOntologyIds.add(Minus1Frameshift.ontologyId)
-        frameShiftOntologyIds.add(Minus2Frameshift.ontologyId)
+        intFrameshiftOntologyIds.add(Plus1Frameshift.ontologyId)
+        intFrameshiftOntologyIds.add(Plus2Frameshift.ontologyId)
+        intFrameshiftOntologyIds.add(Minus1Frameshift.ontologyId)
+        intFrameshiftOntologyIds.add(Minus2Frameshift.ontologyId)
 
 
-        return frameshiftOntologyIds
+        return intFrameshiftOntologyIds
     }
 
     List<Frameshift> getFrameshifts(Transcript transcript) {
