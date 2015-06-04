@@ -23,6 +23,10 @@ class OrganismController {
     def preferenceService
 
 
+    def chooseOrganismForJbrowse(){
+        [organisms:Organism.listOrderByCommonName(),urlString:params.urlString]
+    }
+
     @Transactional
     def deleteOrganism() {
         log.debug "DELETING ORGANISM params: ${params.data}"

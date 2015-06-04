@@ -21,7 +21,8 @@ class UrlMappings {
 //            println "organism ${organism}"
 //        }
 //        "/jbrowse/"(uri: "/jbrowse/index.html")
-        "/jbrowse/"(controller: "jbrowse", action:  "indexRouter",params:params)
+//        "/jbrowse/"(controller: "jbrowse", action:  "indexRouter",params:params)
+        "/jbrowse/index.html"(controller: "jbrowse", action:  "indexRouter",params:params)
         "/jbrowse/data/${fileName}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/bigwig/${fileName}"(controller: "jbrowse", action: "bigwig")
         "/jbrowse/data/bam/${fileName}"(controller: "jbrowse", action: "bam")

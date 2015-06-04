@@ -350,7 +350,7 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() + "jbrowse/?loc=";
+        String trackListString = Annotator.getRootUrl() + "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
         trackListString += "&highlight=&tracklist=0";

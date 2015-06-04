@@ -20,27 +20,31 @@ class JbrowseController {
     def sequenceService
     def permissionService
     def preferenceService
+    def servletContext
 
     def indexRouter(){
         println "routing the the index: ${params}"
 
+        List<String> paramList = new ArrayList<>()
+        params.eachWithIndex{ entry, int i ->
+            if(entry.key!="action" && entry.key!="controller"){
+                paramList.add(entry.key+"="+entry.value)
+            }
+        }
+        String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
         if(permissionService.currentUser){
-            println "2 - has a current user . . forwarding"
-            String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
-            println "params: ${params}"
-            List<String> paramList = new ArrayList<>()
-            params.eachWithIndex{ entry, int i ->
-println "entry: ${entry}"
-                if(entry.key!="action" && entry.key!="controller"){
-                    paramList.add(entry.key+"="+entry.value)
-                }
-            }
-            String urlString = "/jbrowse/index.html?${paramList.join("&")}"
-            println "urlString: ${urlString}"
-            redirect uri: urlString
-//            redirect uri: "/jbrowse/index.html"
-//            uri: "/jbrowse/index.html"
+//            File file = new File("web-app/jbrowse/index.html")
+//            println "current directory: ${file.absolutePath}"
+//            render file.text
+//            File file = new File("web-app/jbrowse/index.html")
+//            File file = new File(servletContext.contextPath+"jbrowse/index.html")
+            File file = new File(servletContext.getRealPath("jbrowse/index.html"))
+//            println "current directory: ${file.absolutePath}"
+            render file.text
+
+//            render resource(dir: "jbrowse",file: "index.html").getReader().text
+//            redirect uri: urlString
             return
         }
 
@@ -48,11 +52,20 @@ println "entry: ${entry}"
 
         // case 1 - anonymous login with organism ID
         // lookup the organism and create an
+        if(params.organism){
+            println "has an orngaism ${params.organism}"
 
+            // set the organism
+
+            // create an anonymous login
+
+//            redirect uri: urlString
+            println 'need to implement '
+            return
+        }
         // case 2 - anonymous login with-OUT organism ID
            // this is just an error . . . or error page
-
-
+        forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
 
 
     }
