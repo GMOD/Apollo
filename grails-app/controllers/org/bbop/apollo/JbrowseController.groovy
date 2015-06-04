@@ -34,17 +34,8 @@ class JbrowseController {
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
         if(permissionService.currentUser){
-//            File file = new File("web-app/jbrowse/index.html")
-//            println "current directory: ${file.absolutePath}"
-//            render file.text
-//            File file = new File("web-app/jbrowse/index.html")
-//            File file = new File(servletContext.contextPath+"jbrowse/index.html")
             File file = new File(servletContext.getRealPath("jbrowse/index.html"))
-//            println "current directory: ${file.absolutePath}"
             render file.text
-
-//            render resource(dir: "jbrowse",file: "index.html").getReader().text
-//            redirect uri: urlString
             return
         }
 
@@ -55,12 +46,15 @@ class JbrowseController {
         if(params.organism){
             println "has an orngaism ${params.organism}"
 
+
             // set the organism
+            Organism organism = Organism.findById(params.organism)
 
             // create an anonymous login
-
-//            redirect uri: urlString
-            println 'need to implement '
+            def session = request.getSession(true)
+            session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            File file = new File(servletContext.getRealPath("jbrowse/index.html"))
+            render file.text
             return
         }
         // case 2 - anonymous login with-OUT organism ID
@@ -86,6 +80,9 @@ class JbrowseController {
     }
 
     private String getJBrowseDirectoryForSession() {
+        if(!permissionService.getCurrentUser()){
+            return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+        }
 
         long startTime = System.currentTimeMillis()
         String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
