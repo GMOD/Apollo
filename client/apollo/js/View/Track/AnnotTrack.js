@@ -279,8 +279,8 @@ define([
                     var browser = this.gview.browser;
 
                     if (typeof window.parent.getEmbeddedVersion == 'function') {
-                        if (window.parent.getEmbeddedVersion() == 'ApolloGwt-1.0') {
-                            console.log('Registering embedded system with ApolloGwt-1.0.');
+                        if (window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                            console.log('Registering embedded system with ApolloGwt-2.0.');
 
                             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                                 window.parent.handleNavigationEvent(JSON.stringify(currRegion));
@@ -324,6 +324,70 @@ define([
                             };
 
                             window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+
+
+                            client.connect({}, function () {
+
+
+                                // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                                var organism = JSON.parse(window.parent.getCurrentOrganism());
+                                var sequence = JSON.parse(window.parent.getCurrentSequence());
+                                client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, function (message) {
+                                    var changeData;
+
+                                    try {
+                                        changeData = JSON.parse(JSON.parse(message.body));
+
+                                        if (track.verbose_server_notification) {
+                                            console.log(changeData.operation + " command from server: ");
+                                            console.log(JSON.stringify(changeData));
+                                        }
+
+                                        if (changeData.operation == "ERROR" && changeData.username == track.username) {
+                                            alert(changeData.error_message);
+                                            return;
+                                        }
+
+                                        if (changeData.operation == "ADD") {
+                                            if (changeData.sequenceAlterationEvent) {
+                                                track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                                            }
+                                            else {
+                                                track.annotationsAddedNotification(changeData.features);
+                                            }
+                                            window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                                        }
+                                        else if (changeData.operation == "DELETE") {
+                                            if (changeData.sequenceAlterationEvent) {
+                                                track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                                            }
+                                            else {
+                                                track.annotationsDeletedNotification(changeData.features);
+                                            }
+                                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                                        }
+                                        else if (changeData.operation == "UPDATE") {
+                                            if (changeData.sequenceAlterationEvent) {
+                                                track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
+                                            }
+                                            else {
+                                                track.annotationsUpdatedNotification(changeData.features);
+                                            }
+                                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                                        }
+                                        else {
+                                            console.log('unknown command: ', changeData.operation);
+                                        }
+
+                                        track.changed();
+                                    } catch (e) {
+                                        console.log('not JSON ', e, ' ignoring callback: ', message.body);
+                                    }
+
+                                });
+                            });
+                            console.log('connection established');
+
                         }
                         else {
                             console.log('Unknown embedded server: ' + window.parent.getEmbeddedVersion() + ' ignoring.');
@@ -334,66 +398,6 @@ define([
                     }
 
 
-                    client.connect({}, function () {
-
-                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        var organism = JSON.parse(window.parent.getCurrentOrganism());
-                        var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, function (message) {
-                            var changeData;
-
-                            try {
-                                changeData = JSON.parse(JSON.parse(message.body));
-
-                                if (track.verbose_server_notification) {
-                                    console.log(changeData.operation + " command from server: ");
-                                    console.log(JSON.stringify(changeData));
-                                }
-
-                                if (changeData.operation == "ERROR" && changeData.username == track.username) {
-                                    alert(changeData.error_message);
-                                    return;
-                                }
-
-                                if (changeData.operation == "ADD") {
-                                    if (changeData.sequenceAlterationEvent) {
-                                        track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                    }
-                                    else {
-                                        track.annotationsAddedNotification(changeData.features);
-                                    }
-                                    window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
-                                }
-                                else if (changeData.operation == "DELETE") {
-                                    if (changeData.sequenceAlterationEvent) {
-                                        track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                    }
-                                    else {
-                                        track.annotationsDeletedNotification(changeData.features);
-                                    }
-                                    window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-                                }
-                                else if (changeData.operation == "UPDATE") {
-                                    if (changeData.sequenceAlterationEvent) {
-                                        track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                                    }
-                                    else {
-                                        track.annotationsUpdatedNotification(changeData.features);
-                                    }
-                                    window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-                                }
-                                else {
-                                    console.log('unknown command: ', changeData.operation);
-                                }
-
-                                track.changed();
-                            } catch (e) {
-                                console.log('not JSON ', e, ' ignoring callback: ', message.body);
-                            }
-
-                        });
-                    });
-                    console.log('connection established');
                 },
 
                 /**

@@ -710,7 +710,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.getEmbeddedVersion = $entry(
             function apolloEmbeddedVersion() {
-                return 'ApolloGwt-1.0';
+                return 'ApolloGwt-2.0';
             }
         );
     }-*/;
