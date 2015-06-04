@@ -17,10 +17,11 @@ class UrlMappings {
 
         // set this routing here
         //"/jbrowse"(controller: "jbrowse", action: "index")
-        "/jbrowse/org-${organism}"(uri: "/jbrowse/index.html"){
-            println "organism ${organism}"
-        }
-        "/jbrowse/"(uri: "/jbrowse/index.html")
+//        "/jbrowse/org-${organism}"(uri: "/jbrowse/index.html"){
+//            println "organism ${organism}"
+//        }
+//        "/jbrowse/"(uri: "/jbrowse/index.html")
+        "/jbrowse/"(controller: "jbrowse", action:  "indexRouter",params:params)
         "/jbrowse/data/${fileName}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/bigwig/${fileName}"(controller: "jbrowse", action: "bigwig")
         "/jbrowse/data/bam/${fileName}"(controller: "jbrowse", action: "bam")

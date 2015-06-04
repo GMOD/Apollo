@@ -21,6 +21,42 @@ class JbrowseController {
     def permissionService
     def preferenceService
 
+    def indexRouter(){
+        println "routing the the index: ${params}"
+
+        // case 3 - validated login (just read from preferences, then
+        if(permissionService.currentUser){
+            println "2 - has a current user . . forwarding"
+            String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
+            println "params: ${params}"
+            List<String> paramList = new ArrayList<>()
+            params.eachWithIndex{ entry, int i ->
+println "entry: ${entry}"
+                if(entry.key!="action" && entry.key!="controller"){
+                    paramList.add(entry.key+"="+entry.value)
+                }
+            }
+            String urlString = "/jbrowse/index.html?${paramList.join("&")}"
+            println "urlString: ${urlString}"
+            redirect uri: urlString
+//            redirect uri: "/jbrowse/index.html"
+//            uri: "/jbrowse/index.html"
+            return
+        }
+
+        println "anonymous user "
+
+        // case 1 - anonymous login with organism ID
+        // lookup the organism and create an
+
+        // case 2 - anonymous login with-OUT organism ID
+           // this is just an error . . . or error page
+
+
+
+
+    }
+
 
     // is typically checking for trackData.json
     def tracks(String jsonFile, String trackName, String groupName) {
