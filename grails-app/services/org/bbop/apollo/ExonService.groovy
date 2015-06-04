@@ -447,6 +447,8 @@ class ExonService {
                 ,strand : exon.getFeatureLocation().strand
                 ,sequence : exon.getFeatureLocation().sequence
         ).save()
+        flankingRegion.addToFeatureLocations(flankingRegionLocation)
+        flankingRegion.save()
         String residues = featureService.getResiduesWithAlterationsAndFrameshifts(flankingRegion)
         if (removePartialCodons) {
             int phase = length % 3 == 0 ? 0 : 3 - (length % 3)

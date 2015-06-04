@@ -247,15 +247,16 @@ class SequenceService {
             }
         } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
 
+            int fmin = gbolFeature.getFmin() - flank
+            int fmax = gbolFeature.getFmax() + flank
+
             if (flank > 0) {
-                int fmin = gbolFeature.getFmin() - flank
                 if (fmin < 0) {
                     fmin = 0
                 }
                 if (fmin < gbolFeature.getFeatureLocation().sequence.start) {
                     fmin = gbolFeature.getFeatureLocation().sequence.start
                 }
-                int fmax = gbolFeature.getFmax() + flank
                 if (fmax > gbolFeature.getFeatureLocation().sequence.length) {
                     fmax = gbolFeature.getFeatureLocation().sequence.length
                 }
@@ -263,21 +264,21 @@ class SequenceService {
                     fmax = gbolFeature.getFeatureLocation().sequence.end
                 }
 
-                FlankingRegion genomicRegion = new FlankingRegion(
-                        name: gbolFeature.name
-                        , uniqueName: gbolFeature.uniqueName + "_flank"
-                ).save()
-                FeatureLocation genomicRegionLocation = new FeatureLocation(
-                        feature: genomicRegion
-                        , fmin: fmin
-                        , fmax: fmax
-                        , strand: gbolFeature.strand
-                        , sequence: gbolFeature.getFeatureLocation().sequence
-                ).save()
-                genomicRegion.addToFeatureLocations(genomicRegionLocation)
-                // since we are saving the genomicFeature object, the backend database will have these entities
-                gbolFeature = genomicRegion
             }
+            FlankingRegion genomicRegion = new FlankingRegion(
+                    name: gbolFeature.name
+                    , uniqueName: gbolFeature.uniqueName + "_flank"
+            ).save()
+            FeatureLocation genomicRegionLocation = new FeatureLocation(
+                    feature: genomicRegion
+                    , fmin: fmin
+                    , fmax: fmax
+                    , strand: gbolFeature.strand
+                    , sequence: gbolFeature.getFeatureLocation().sequence
+            ).save()
+            genomicRegion.addToFeatureLocations(genomicRegionLocation)
+            // since we are saving the genomicFeature object, the backend database will have these entities
+            gbolFeature = genomicRegion
             //sequence = getResiduesFromFeature(gbolFeature)
             sequence = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
         }
