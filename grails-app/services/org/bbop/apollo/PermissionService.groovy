@@ -586,13 +586,14 @@ class PermissionService {
                 organism=Organism.findById(organismString);
             if(!organism)
                 log.info "organism not found ${organismString}"
-            else
+            else {
                 log.info "switching organism to ${organism.commonName}"
+                preferenceService.setCurrentOrganism(user, organism)
+            }
         }
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
         if(user!=null) {
-            preferenceService.setCurrentOrganism(user,organism)
 
 
             if (!userOrganismPreference) {
