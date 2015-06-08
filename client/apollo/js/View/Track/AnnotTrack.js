@@ -341,79 +341,91 @@ define([
 
 
                             client.connect({}, function () {
-
-
                                 // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                                 var organism = JSON.parse(window.parent.getCurrentOrganism());
                                 var sequence = JSON.parse(window.parent.getCurrentSequence());
-                                client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, function (message) {
-                                    var changeData;
-
-                                    try {
-                                        changeData = JSON.parse(JSON.parse(message.body));
-
-                                        if (track.verbose_server_notification) {
-                                            console.log(changeData.operation + " command from server: ");
-                                            console.log(JSON.stringify(changeData));
-                                        }
-
-                                        if (changeData.operation == "ERROR" && changeData.username == track.username) {
-                                            alert(changeData.error_message);
-                                            return;
-                                        }
-
-                                        if (changeData.operation == "ADD") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                            }
-                                            else {
-                                                track.annotationsAddedNotification(changeData.features);
-                                            }
-                                            window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
-                                        }
-                                        else if (changeData.operation == "DELETE") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                            }
-                                            else {
-                                                track.annotationsDeletedNotification(changeData.features);
-                                            }
-                                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-                                        }
-                                        else if (changeData.operation == "UPDATE") {
-                                            if (changeData.sequenceAlterationEvent) {
-                                                track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                                            }
-                                            else {
-                                                track.annotationsUpdatedNotification(changeData.features);
-                                            }
-                                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-                                        }
-                                        else {
-                                            console.log('unknown command: ', changeData.operation);
-                                        }
-
-                                        track.changed();
-                                    } catch (e) {
-                                        console.log('not JSON ', e, ' ignoring callback: ', message.body);
-                                    }
-
-                                });
+                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response.id, dojo.hitch(this,annotationNotification));
                             });
                             console.log('connection established');
+                        }
 
-                        }
-                        else {
-                            console.log('Unknown embedded server: ' + window.parent.getEmbeddedVersion() + ' ignoring.');
-                        }
                     }
                     else {
                         console.log('No embedded server is present.');
+                        client.connect({}, function () {
+
+
+                            // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                            queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+                            var organism = queryParams.organism;
+
+                            xhr(context_path+"/sequence/lookupSequenceByNameAndOrganism/", {
+                                data: {
+                                    name: track.refSeq.name,
+                                    organism: organism
+                                }
+                            }).then(function(response) {
+                                console.log(response);
+
+
+                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response.id, dojo.hitch(this,annotationNotification));
+                            });
+                        });
                     }
-
-
                 },
+                annotationNotification: function(message) {
+                    var track=this;
+                    var changeData;
 
+                    try {
+                        changeData = JSON.parse(JSON.parse(message.body));
+
+                        if (track.verbose_server_notification) {
+                            console.log(changeData.operation + " command from server: ");
+                            console.log(JSON.stringify(changeData));
+                        }
+
+                        if (changeData.operation == "ERROR" && changeData.username == track.username) {
+                            alert(changeData.error_message);
+                            return;
+                        }
+
+                        if (changeData.operation == "ADD") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsAddedNotification(changeData.features);
+                            }
+                            window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                        }
+                        else if (changeData.operation == "DELETE") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsDeletedNotification(changeData.features);
+                            }
+                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        }
+                        else if (changeData.operation == "UPDATE") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsUpdatedNotification(changeData.features);
+                            }
+                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        }
+                        else {
+                            console.log('unknown command: ', changeData.operation);
+                        }
+
+                        track.changed();
+                    } catch (e) {
+                        console.log('not JSON ', e, ' ignoring callback: ', message.body);
+                    }
+                },
                 /**
                  * received notification from server ChangeNotificationListener that
                  * annotations were added
@@ -1873,30 +1885,28 @@ define([
                         return;
                     }
                     var operation = "get_annotation_info_editor_configuration";
-                    var postData = '{ "track": "' + trackName + '", "operation": "' + operation + '" }';
-                    dojo.xhrPost({
+                    var postData = { "track": trackName, "operation": operation };
+                    xhr.post(context_path + "/AnnotationEditorService", {
                         sync: true,
-                        postData: postData,
-                        url: context_path + "/AnnotationEditorService",
+                        data: JSON.stringify(postData),
                         handleAs: "json",
-                        timeout: 5000 * 1000, // Time in milliseconds
-                        load: function (response, ioArgs) {
-                            track.annotationInfoEditorConfigs = {};
-                            for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
-                                var config = response.annotation_info_editor_configs[i];
-                                for (var j = 0; j < config.supported_types.length; ++j) {
-                                    track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
-                                }
+                        timeout: 5000 * 1000
+                    }).then(function(response) {
+                        track.annotationInfoEditorConfigs = {};
+                        for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
+                            var config = response.annotation_info_editor_configs[i];
+                            for (var j = 0; j < config.supported_types.length; ++j) {
+                                track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
                             }
                         }
-                    });
+                    }
+                    );
                 },
 
 
                 createAnnotationInfoEditorPanelForFeatureSideBar: function (uniqueName, trackName, selector, reload) {
                     console.log("createAnnotationInfoEditorPanelForFeatureSideBar");
                     var track = this;
-//      var hasWritePermission = this.hasWritePermission();
                     var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
                     var content = dojo.create("span");
                     var header = dojo.create("div", {className: "annotation_sidebar_header"}, content);
@@ -1959,12 +1969,12 @@ define([
                     };
 
                     function init() {
-                        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+                        var features = [ { "uniquename": uniqueName } ];
                         var operation = "get_annotation_info_editor_data";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var postData = { "track": trackName, features: features, "operation": operation };
                         dojo.xhrPost({
                             sync: true,
-                            postData: postData,
+                            postData: JSON.stringify(postData),
                             url: context_path + "/AnnotationEditorService",
                             handleAs: "json",
                             timeout: 5000 * 1000, // Time in milliseconds

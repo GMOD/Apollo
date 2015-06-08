@@ -29,7 +29,7 @@ import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-
+import org.gwtbootstrap3.client.ui.SuggestBox;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,7 +102,7 @@ public class MainPanel extends Composite {
     @UiField
     ListBox organismListBox;
     @UiField(provided = true)
-    static org.gwtbootstrap3.client.ui.SuggestBox sequenceSuggestBox;
+    static SuggestBox sequenceSuggestBox;
     @UiField
     HTML linkUrl;
     @UiField
@@ -121,7 +121,7 @@ public class MainPanel extends Composite {
 
     MainPanel() {
         instance = this;
-        sequenceSuggestBox = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
+        sequenceSuggestBox = new SuggestBox(sequenceOracle);
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));

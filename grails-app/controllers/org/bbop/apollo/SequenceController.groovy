@@ -91,8 +91,7 @@ class SequenceController {
 
     @Transactional
     def loadSequences(Organism organism) {
-        println "LOADING SEQUENCES ${organism.commonName}"
-        log.info "loading sequences for organism ${organism}"
+        println "Loading sequences ${organism.commonName}"
         if (!organism.sequences) {
             sequenceService.loadRefSeqs(organism)
         }
@@ -109,12 +108,10 @@ class SequenceController {
                     , organism: organism
                     , currentOrganism: true
                     , sequence: Sequence.findByOrganism(organism)
-                    ,
             ).save(insert: true, flush: true)
         }
         UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ", [prefId: userOrganismPreference.id])
 
-//        log.info "loading default sequence from session: ${defaultName}"
         JSONArray sequenceArray = new JSONArray()
         for (Sequence sequence in organism.sequences) {
             JSONObject jsonObject = new JSONObject()
@@ -123,10 +120,6 @@ class SequenceController {
             jsonObject.put("length", sequence.length)
             jsonObject.put("start", sequence.start)
             jsonObject.put("end", sequence.end)
-//            jsonObject.put("default", defaultName && defaultName == sequence.name)
-//            if (defaultName == sequence.name) {
-//                log.info "setting the default sequence: ${jsonObject.get("default")}"
-//            }
             sequenceArray.put(jsonObject)
         }
 
@@ -221,7 +214,14 @@ class SequenceController {
         }
         render sequences as JSON
     }
-
+    def lookupSequenceByNameAndOrganism(String q) {
+        log.debug "lookup sequence ${request.JSON} -> ${params}"
+        JSONObject dataObject = JSON.parse(params.data)
+        Organism organism = dataObject.get("organism");
+        String sequence = dataObject.get("name")
+        def sequences = Sequence.findAllByNameAndOrganism(name, organism)
+        render sequences as JSON
+    }
     @Transactional
     def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
         try {
@@ -237,5 +237,7 @@ class SequenceController {
             render error as JSON
         }
     }
+
+
 
 }

@@ -21,27 +21,16 @@
 
 
 .Dark div.outerTrackContainer {
-
     background-color: rgb(59, 59, 61);
 }
 
-.Dark div.ruler.vertical_ruler>div>svg>g>line {
-    stroke : red;
-}
-
-.Dark div.ruler.vertical_ruler>div>div>div[style] {
-    color: red !important;
-}
 
 .Dark div.gridline_major {
-
     border-color : rgb(41,40,38);
 }
 
 .Dark div.gridline_minor {
-
     border-color : rgba(96,96, 104, 0.72);
-
 }
 
 
