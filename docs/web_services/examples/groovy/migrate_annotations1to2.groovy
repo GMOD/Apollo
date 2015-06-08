@@ -1,13 +1,20 @@
 #!/usr/bin/env groovy
-import groovy.json.JsonSlurper
-import groovyx.net.http.RESTClient
+evaluate(new File("./Apollo1Operations.groovy"))
+evaluate(new File("./Apollo2Operations.groovy"))
+//@groovy.transform.BaseScript Apollo1Operations
+
+
+//import groovy.json.JsonSlurper
+import net.sf.json.JSONArray
+import net.sf.json.JSONObject
+
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
 
 String usageString = "migrate_annotations1to2.groovy <options>" +
         "Example: \n" +
-        "./migrate_annotations1to2.groovyy -username1 ndunn@me.com -password1 demo -username2 demo -password2 demo -sourceurl http://localhost:8080/apollo -organism amel -destinationurl http://localhost:8080/apollo2 -sequence_names Group1.1,Group1.10,Group1.2"
+        "./migrate_annotations1to2.groovy -username1 demo -password1 demo -username2 ndunn@me.com -password2 demo  -sourceurl http://localhost:8080/WebApollo1Instance/ -organism Honey2 -destinationurl http://localhost:8080/WebApollo2/ -sequence_names Group1.26,Group1.3"
 
 def cli = new CliBuilder(usage: 'migrate_annotations.groovyy <options>')
 cli.setStopAtNonOption(true)
@@ -33,79 +40,65 @@ try {
     return
 }
 
-URL url = new URL(options.sourceurl)
-String loginPath = "${url.path}/Login"
-def jsonSlurper = new JsonSlurper()
 String cookieFile = "${options.username2}_cookies.txt"
 
-//def argumentsArray = [
-//        operation: 'login',
-//        username: options.username2,
-//        password: options.password2
-//]
-
-//login using RESTClient
-//try {
-//    def loginClient = new RESTClient(options.sourceurl)
-//    def loginResponse = loginClient.post(
-//            contentType: 'text/javascript',
-//            path: loginPath,
-//            body: argumentsArray
-//    )
-//    println loginResponse.status
-//    println loginResponse.getData()
-//
-//} catch(HttpResponseException h) {
-//    println h.response.getData()
-//}
-
-//do login using curl
-
-def responseArray = doLogin(options.sourceurl, options.username1, options.password1,cookieFile)
-println "response array: ${responseArray}"
+def responseArray = Apollo1Operations.doLogin(options.sourceurl, options.username1, options.password1,cookieFile)
 if (responseArray == null) {
     println "Could not communicate with ${options.sourceurl}"
     return
 }
-//if (responseArray.error) {
-//    println "Error: ${responseArray.error}"
-//    return
-//}
 
 final String sequencePrefix = "Annotations-"
 uniqueNamesMap = [:]
 featuresMap = [:]
 
+JSONObject newArray = new JSONObject()
+JSONArray addFeaturesArray = new JSONArray()
+JSONArray addTranscriptArray = new JSONArray()
+
 
 sequenceArray = options.sequence_names.tokenize(',')
 for (String sequence in sequenceArray) {
     String sequenceName = sequencePrefix + sequence
-    def featuresResponse = getFeature(options.sourceurl,sequenceName,cookieFile)
-    featuresMap.put(sequence,featuresResponse)
-//    println featuresResponse
-}
+    def featuresResponse = Apollo1Operations.getFeature(options.sourceurl,sequenceName,cookieFile)
+    def featuresFromSource  = featuresResponse.features // contains list of mRNAs; Size == number of annotations on chromosome
 
-def getFeature(url,track,cookieFile){
-
-//    curl -b demo_cookies.txt -c demo_cookies.txt -e "http://icebox.lbl.gov/WebApolloDemo/" --data "{ 'operation': 'get_features', 'track': 'Annotations-Group1.10'}" http://icebox.lbl.gov/WebApolloDemo/AnnotationEditorService
-    String json = "{ 'operation': 'get_features', 'track': '${track}'}"
-    def process = ["curl","-b",cookieFile,"-c",cookieFile,"-e",url,"--data",json,"${url}/AnnotationEditorService"].execute()
-    def response = process.text
-    if(process.exitValue()!=0){
-        println process.errorStream.text
+    for (def entity : featuresFromSource) {
+        JSONObject entityJSONObject = entity as JSONObject
+        newArray.location = entityJSONObject.location
+        newArray.type = entityJSONObject.type
+        newArray.name = entityJSONObject.name
+        //tmp.name = entityJSONObject.name.tokenize('-')[0]
+        newArray.children = Apollo2Operations.assignNewUniqueName(entityJSONObject.children,uniqueNamesMap)
+        if (entityJSONObject.type.name == 'repeat_region' || entityJSONObject.type.name == 'transposable_element') {
+            addFeaturesArray.add(0, newArray)
+        }
+        else {
+            addTranscriptArray.add(0, newArray)
+        }
     }
-    def jsonResponse = new JsonSlurper().parseText(response)
-    return jsonResponse
 
-}
-
-def doLogin(url, username, password,cookieFile) {
-    String json = "{'username': '${username}', 'password': '${password}'}"
-    def process = ["curl","-c",cookieFile,"-H","Content-Type:application/json","-d",json,"${url}/Login?operation=login"].execute()
-    def response = process.text
-    if(process.exitValue()!=0){
-        println process.errorStream.text
+    if (addFeaturesArray.size() > 0) {
+        def response = Apollo2Operations.triggerAddFeature(options.destinationurl, options.username2, options.password2, options.organism, sequenceName, addFeaturesArray)
+        if (response == null) { return }
+        println "Migrate ${response.size()} features for ${sequence}"
     }
-    def jsonResponse = new JsonSlurper().parseText(response)
-    return jsonResponse
+    if (addTranscriptArray.size() > 0) {
+        //println "ADDTRANSCRIPTARRAY: ${addTranscriptArray.toString()}"
+        def response = Apollo2Operations.triggerAddTranscript(options.destinationurl, options.username2, options.password2, options.organism, sequenceName, addTranscriptArray)
+        if (response == null) { return }
+        println "Migrate ${response.size()} transcripts for ${sequence}"
+    }
+
+    // keep stats
+    featuresMap.put(sequenceName, (addFeaturesArray.size() + addTranscriptArray.size()))
+    addFeaturesArray.clear()
+    addTranscriptArray.clear()
 }
+
+for(f in featuresMap){
+    println f.value + " found in " + f.key
+}
+
+
+
