@@ -56,7 +56,7 @@ class AnnotatorController {
     }
 
     def index() {
-        println "loading the index"
+        log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
         Organism.all.each {
             log.info it.commonName

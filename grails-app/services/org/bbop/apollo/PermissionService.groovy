@@ -207,7 +207,7 @@ class PermissionService {
             }
         }
         else {
-            permissions.add(PermissionEnum.NONE)
+            permissions.add(PermissionEnum.READ)
         }
 
 
@@ -586,7 +586,7 @@ class PermissionService {
                 organism=Organism.findById(organismString);
             if(!organism)
                 log.info "organism not found ${organismString}"
-            else {
+            else if(user!=null) {
                 log.info "switching organism to ${organism.commonName}"
                 preferenceService.setCurrentOrganism(user, organism)
             }
@@ -619,7 +619,7 @@ class PermissionService {
         }
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
-        println "found a sequence . . . have to have a sequence ${sequence} for track ${trackName} from ${organism} ${inputObject.track}"
+        log.debug "found a sequence ${sequence} for track ${trackName} from ${organism} ${inputObject.track}"
         if(userOrganismPreference!=null&&userOrganismPreference.sequence?.name!=trackName){
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()
@@ -628,10 +628,10 @@ class PermissionService {
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
-            println "highest value ${highestValue}"
-            println "required permission ${requiredPermissionEnum}"
-            println "highest value display ${highestValue.display}"
-            println "perm dispaly ${requiredPermissionEnum.display}"
+            log.debug "highest value ${highestValue}"
+            log.debug "required permission ${requiredPermissionEnum}"
+            log.debug "highest value display ${highestValue.display}"
+            log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
         if(userOrganismPreference!=null)

@@ -344,7 +344,7 @@ define([
                                 // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                                 var organism = JSON.parse(window.parent.getCurrentOrganism());
                                 var sequence = JSON.parse(window.parent.getCurrentSequence());
-                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response.id, dojo.hitch(this,annotationNotification));
+                                client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track,'annotationNotification'));
                             });
                             console.log('connection established');
                         }
@@ -358,17 +358,19 @@ define([
                             // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                             queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
                             var organism = queryParams.organism;
+                            var request={data: {
+                                name: track.refSeq.name,
+                                organism: organism
+                            }};
 
-                            xhr(context_path+"/sequence/lookupSequenceByNameAndOrganism/", {
-                                data: {
-                                    name: track.refSeq.name,
-                                    organism: organism
-                                }
+                            xhr.post(context_path+"/sequence/lookupSequenceByNameAndOrganism/", {
+                                data: JSON.stringify(request),
+                                handleAs: "json"
                             }).then(function(response) {
                                 console.log(response);
 
 
-                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response.id, dojo.hitch(this,annotationNotification));
+                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response.id, dojo.hitch(track,'annotationNotification'));
                             });
                         });
                     }
@@ -906,7 +908,7 @@ define([
                 },
 
                 createAnnotations: function (selection_records) {
-                    console.log('should be creating an annotation . .. ');
+                    console.log('createAnnotations');
                     var target_track = this;
                     var featuresToAdd = new Array();
                     var parentFeatures = new Object();
@@ -994,9 +996,6 @@ define([
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
                         featuresToAdd.push(afeat);
-
-                        console.log('add_transcript', featureToAdd);
-
 
                         var postData = {
                             "track": target_track.getUniqueTrackName(),
@@ -5612,7 +5611,7 @@ define([
 
 
                 executeUpdateOperation: function (postData, loadCallback) {
-                    console.log('connected . .. trying to send notification');
+                    console.log('connected and sending notifications');
                     this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
                     console.log('sent notification message');
                 },

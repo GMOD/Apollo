@@ -214,14 +214,13 @@ class SequenceController {
         }
         render sequences as JSON
     }
-    def lookupSequenceByNameAndOrganism(String q) {
-        log.debug "lookup sequence ${request.JSON} -> ${params}"
-        JSONObject dataObject = JSON.parse(params.data)
-        Organism organism = dataObject.get("organism");
-        String sequence = dataObject.get("name")
-        def sequences = Sequence.findAllByNameAndOrganism(name, organism)
+    def lookupSequenceByNameAndOrganism() {
+        log.info "lookup sequence ${params}"
+        log.error "lookup sequence ${params.name} ${params.organism}"
+        def sequences = Sequence.findAllByNameAndOrganism(params.name, params.organism)
         render sequences as JSON
     }
+
     @Transactional
     def getSequences(String name, Integer start, Integer length, String sort, Boolean asc, Integer minFeatureLength, Integer maxFeatureLength) {
         try {

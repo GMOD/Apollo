@@ -31,23 +31,18 @@ class UrlMappings {
         "/jbrowse/data/names/${directory}/${jsonFile}.json"(controller: "jbrowse", action: "namesFiles")
         "/jbrowse/data/names/${fileName}.json"(controller: "jbrowse", action: "names")
         "/jbrowse/data/names/meta.json"(controller: "jbrowse", action: "meta")
-        //"/jbrowse/data/tracks/**"(controller: "jbrowse", action: "tracks")
         "/jbrowse/data/tracks/$trackName/$groupName/${jsonFile}.json" {
             controller = 'jbrowse'
             action = 'tracks'
         }
-        "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params){
 
-        }
-        "/Login"(controller:"login",action: "handleOperation",params:params){
-        }
-        "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params){
-        }
-        "/IOService"(controller:"IOService",action: "handleOperation",params:params){
-        }
+
+        "/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
+        "/Login"(controller:"login",action: "handleOperation",params:params)
+        "/ProxyService"(controller:"ncbiProxyService",action: "index",params:params)
+        "/IOService"(controller:"IOService",action: "handleOperation",params:params)
         "/IOService/download"(controller:"IOService",action: "download", params:params)
         "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
         "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
-
     }
 }

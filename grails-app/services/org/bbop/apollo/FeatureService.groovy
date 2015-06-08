@@ -134,7 +134,7 @@ class FeatureService {
     }
 
     def setOwner(Feature feature, User owner) {
-        println "setting owner for feature ${feature} to ${owner}"
+        log.debug "setting owner for feature ${feature} to ${owner}"
         feature.addToOwners(owner)
     }
 
@@ -1134,7 +1134,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             gsolFeature = generateFeatureForType(ontologyId)
-            println "gsolFeature ${gsolFeature} for ${ontologyId}"
+            log.debug "gsolFeature ${gsolFeature} for ${ontologyId}"
 
             if (jsonFeature.has(FeatureStringEnum.ID.value)) {
                 gsolFeature.setId(jsonFeature.getLong(FeatureStringEnum.ID.value));

@@ -23,7 +23,7 @@ class JbrowseController {
     def servletContext
 
     def indexRouter(){
-        println "routing the the index: ${params}"
+        log.debug "routing the index: ${params}"
 
         List<String> paramList = new ArrayList<>()
         params.eachWithIndex{ entry, int i ->
@@ -244,21 +244,20 @@ class JbrowseController {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
 
-//                if (fileName == "trackList.json") {
-//
-//                    JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-//                    Organism organism = preferenceService.currentOrganismForCurrentUser
-//                    JSONObject organismObject = new JSONObject()
-//                    organismObject.put(FeatureStringEnum.NAME.value,organism.commonName )
-//                    organismObject.put(FeatureStringEnum.ID.value,organism.id)
-//                    organismObject.put("genus",organism.genus)
-//                    organismObject.put("species",organism.species)
-//                    jsonObject.put(FeatureStringEnum.ORGANISM.value, organismObject.toString())
-////                    OutputStream out = response.getOutputStream();
-//                    response.outputStream << jsonObject.toString()
-//                }
-//
-//                else{
+                if (fileName == "trackList.json") {
+
+                    JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+                    Organism organism = preferenceService.currentOrganismForCurrentUser
+                    JSONObject organismObject = new JSONObject()
+                    organismObject.put(FeatureStringEnum.NAME.value,organism.commonName )
+                    organismObject.put(FeatureStringEnum.ID.value,organism.id)
+                    organismObject.put("genus",organism.genus)
+                    organismObject.put("species",organism.species)
+                    jsonObject.put(FeatureStringEnum.ORGANISM.value, organismObject.toString())
+                    response.outputStream << jsonObject.toString()
+                }
+
+                else{
                     // Open the file and output streams
                     FileInputStream fis = new FileInputStream(file);
                     OutputStream out = response.getOutputStream();
@@ -271,7 +270,7 @@ class JbrowseController {
                     }
                     fis.close();
                     out.close();
-//                }
+                }
 
                 return
             } else if (fileName.endsWith(".bam")
