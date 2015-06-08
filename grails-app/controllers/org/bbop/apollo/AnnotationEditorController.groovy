@@ -101,12 +101,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (permissions.values().size() > 0) {
                 permission = permissions.values().iterator().next();
             }
+            returnObject.put(REST_PERMISSION, permission)
+            returnObject.put(REST_USERNAME, username)
+            render returnObject
+            return
         }
 
-        returnObject.put(REST_PERMISSION, permission)
-        returnObject.put(REST_USERNAME, username)
+        response.status = 400
+        JSONObject errorMessage = new JSONObject()
+        errorMessage.message = "You must first login before editing"
+        render errorMessage as JSON
 
-        render returnObject
     }
 
 
