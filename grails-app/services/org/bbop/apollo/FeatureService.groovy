@@ -242,7 +242,13 @@ class FeatureService {
 //            String cvTermString = isPseudogene ? FeatureStringEnum.PSEUDOGENE.value : FeatureStringEnum.GENE.value
             String cvTermString = FeatureStringEnum.GENE.value
             jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString));
-            String geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
+            String geneName
+            if(jsonTranscript.has(FeatureStringEnum.NAME.value)){
+                geneName = jsonTranscript.getString(FeatureStringEnum.NAME.value)
+            }
+            else{
+                geneName = nameService.makeUniqueFeatureName(sequence.organism, sequence.name, new LetterPaddingStrategy(), false)
+            }
             if (!suppressHistory) {
                 geneName = nameService.makeUniqueFeatureName(sequence.organism, geneName, new LetterPaddingStrategy(), true)
             }
