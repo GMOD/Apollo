@@ -1,11 +1,6 @@
 #!/usr/bin/env groovy
-import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import groovyx.net.http.Method
 import groovyx.net.http.RESTClient
-import net.sf.json.JSON
-import net.sf.json.JSONArray
-import net.sf.json.JSONObject
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
@@ -69,10 +64,10 @@ if (responseArray == null) {
     println "Could not communicate with ${options.sourceurl}"
     return
 }
-if (responseArray.error) {
-    println "Error: ${responseArray.error}"
-    return
-}
+//if (responseArray.error) {
+//    println "Error: ${responseArray.error}"
+//    return
+//}
 
 final String sequencePrefix = "Annotations-"
 uniqueNamesMap = [:]
@@ -90,7 +85,7 @@ for (String sequence in sequenceArray) {
 //    body.put(responseArray.key,responseArray.value)
     println "body: "+body
     def getfeaturesResponse = getFeaturesClient.post(
-            contentType: 'text/javascript',
+            contentType: 'application/json',
             path: fullPath,
             body: body
     )
@@ -99,18 +94,13 @@ for (String sequence in sequenceArray) {
 
 def doLogin(url, username, password) {
     def jsonSlurper = new JsonSlurper()
-    def cmd = "../shell/doLogin.sh ${url} ${username} ${password}"
-//    def cmd = "http://localhost:8080/apollo/"
-//    String cookieFile = "${username}_cookies.txt"
-//    def cmd = "/bin/bash curl -c ${cookieFile} -H 'Content-Type:application/json' -d \"{'username': '${username}', 'password': '${password}'}\" \"${url}/Login?operation=login\" 2> /dev/null"
-    println "cmd object[${cmd}]"
-    def proc = cmd.execute()
-    proc.waitFor()
-    
-    if (proc.exitValue() != 0) {
-        println "Error while login to ${url} with username ${username}"
-        return
+    String cookieFile = "${username}_cookies.txt"
+    String json = "{'username': '${username}', 'password': '${password}'}"
+    def process = ["curl","-c",cookieFile,"-H","Content-Type:application/json","-d",json,"${url}/Login?operation=login"].execute()
+    def response = process.text
+    if(process.exitValue()!=0){
+        println process.errorStream.text
     }
-    def responseArray = jsonSlurper.parseText(proc.getText())
-    return responseArray
+    def jsonResponse = jsonSlurper.parseText(response)
+    return jsonResponse
 }
