@@ -39,12 +39,11 @@ class JbrowseController {
             return
         }
 
-        println "anonymous user "
+        println "anonymous user"
 
-        // case 1 - anonymous login with organism ID
-        // lookup the organism and create an
+        // case 1 - anonymous login with organism ID, show organism
         if(params.organism){
-            println "has an orngaism ${params.organism}"
+            println "organism ID specified: ${params.organism}"
 
 
             // set the organism
@@ -57,11 +56,9 @@ class JbrowseController {
             render file.text
             return
         }
-        // case 2 - anonymous login with-OUT organism ID
-           // this is just an error . . . or error page
+
+        // case 2 - anonymous login with-OUT organism ID, show organism list
         forward(controller: "organism", action: "chooseOrganismForJbrowse",params:[urlString:urlString])
-
-
     }
 
 

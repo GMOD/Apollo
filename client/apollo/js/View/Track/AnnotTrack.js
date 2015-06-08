@@ -39,7 +39,8 @@ define([
         'WebApollo/FormatUtils',
         'dijit/form/Select',
         'dojo/store/Memory',
-        'dojo/data/ObjectStore'
+        'dojo/data/ObjectStore',
+        'dojo/io-query'
     ],
     function (declare,
               array,
@@ -81,7 +82,8 @@ define([
               FormatUtils,
               Select,
               Memory,
-              ObjectStore) {
+              ObjectStore,
+              ioQuery) {
 
         var listener;
         var client;
@@ -214,12 +216,24 @@ define([
 
                     if (success) {
                         track.createAnnotationChangeListener(0);
+
+                        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+                        var query={"track": track.getUniqueTrackName(), "operation": "get_features" }
+
+                        if(queryParams.organism) {
+                            query.organism=parseInt(queryParams.organism,10);
+                        }
+
                         xhr(context_path + "/AnnotationEditorService", {
                             handleAs: "json",
-                            data: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
+                            data: JSON.stringify(query),
                             method: "post"
                         }).then(function (response, ioArgs) {
                             var responseFeatures = response.features;
+                            if(!responseFeatures) {
+                                alert("Error: "+JSON.stringify(response)); 
+                                return;
+                            }
                             var i = 0;
 
                             var func = function () {

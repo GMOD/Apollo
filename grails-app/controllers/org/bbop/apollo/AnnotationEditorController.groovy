@@ -452,7 +452,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         if (jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
 
         String username = SecurityUtils.subject.principal
-        jsonObject.put(FeatureStringEnum.USERNAME.value, username)
+        if(username==null)
+            jsonObject.put(FeatureStringEnum.USERNAME.value, "Guest")
+        else
+            jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
     //webservice
@@ -467,7 +470,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
-        // TODO: get alterations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
                 , [sequence: sequence, sequenceTypes: sequenceTypes])
         for (SequenceAlteration alteration : sequenceAlterationList) {

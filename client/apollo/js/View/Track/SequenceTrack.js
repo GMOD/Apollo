@@ -5,9 +5,10 @@ define( [
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
-    'dojox/widget/Standby'
+    'dojox/widget/Standby',
+    'dojo/io-query'
      ],
-function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby ) {
+function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby, ioQuery ) {
 
     var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
@@ -157,12 +158,14 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
    
     loadTranslationTable: function() {
         var track = this;
+        var query={
+            "track": track.annotTrack.getUniqueTrackName(),
+            "operation": "get_translation_table"
+        };
         return dojo.xhrPost( {
-            postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_translation_table" }',
+            postData: JSON.stringify(query),
             url: track.context_path + "/AnnotationEditorService",
             handleAs: "json",
-            //timeout: 5 * 1000, // Time in milliseconds
-            // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) { //
                 track.translationTable = {};
                 var ttable = response.translation_table;
@@ -170,7 +173,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                     // looping through codon table, make sure not hitting generic properties...
                     if (ttable.hasOwnProperty(codon)) {
                         var aa = ttable[codon];
-                        // console.log("Codon: ", codon, ", aa: ", aa);
                         var nucs = [];
                         for (var i=0; i<3; i++) {
                             var nuc = codon.charAt(i);
@@ -194,9 +196,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 }
                 track.changed();
             },
-            // The ERROR function will be called in an error case.
-            error: function(response, ioArgs) { //
-                return response; //
+            error: function(response, ioArgs) {
+                return response;
             }
         });
     },
@@ -207,17 +208,26 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     loadSequenceAlterations: function() {
         var track = this;
 
-        /**
-         *    now do XHR to WebApollo AnnotationEditorService for "get_sequence_alterations"
-         */
+        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+        var query={
+            "track": track.annotTrack.getUniqueTrackName(),
+            "operation": "get_sequence_alterations",
+        };
+
+        if(queryParams.organism) {
+            query.organism=parseInt(queryParams.organism,10);
+        }
+        console.log(query,queryParams);
         return dojo.xhrPost( {
-            postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "operation": "get_sequence_alterations" }',
+            postData: JSON.stringify(query),
             url: track.context_path + "/AnnotationEditorService",
             handleAs: "json",
-            //timeout: 5 * 1000, // Time in milliseconds
-            // The LOAD function will be called on a successful response.
             load: function(response, ioArgs) { //
                 var responseFeatures = response.features;
+                if(!responseFeatures) {
+                    alert("Error: "+JSON.stringify(response));
+                    return;
+                }
                 for (var i = 0; i < responseFeatures.length; i++) {
                     var jfeat = JSONUtils.createJBrowseSequenceAlteration(responseFeatures[i]);
                     track.store.insert(jfeat);
@@ -229,12 +239,10 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                 else {
                     track.hide();
                 }
-                // track.hideAll();  shouldn't need to call hideAll() before changed() anymore
                 track.changed();
             },
-            // The ERROR function will be called in an error case.
-            error: function(response, ioArgs) { //
-                return response; //
+            error: function(response) {
+                return response;
             }
         });
     },
