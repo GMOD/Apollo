@@ -11,7 +11,7 @@ import net.sf.json.JSONObject
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group = 'org.codehaus.groovy.modules.http-builder', module = 'http-builder', version = '0.7')
 
-String usageString = "transfer_annotations.groovyy <options>" +
+String usageString = "transfer_annotations.groovy <options>" +
         "Example: \n" +
         "./transfer_annotations.groovyy -username ndunn@me.com -password demo -sourceurl http://localhost:8080/apollo -source_organism amel -destinationurl http://localhost:8080/apollo2 -destination_organism amel2 -sequence_names Group1.1,Group1.10,Group1.2 "
 
