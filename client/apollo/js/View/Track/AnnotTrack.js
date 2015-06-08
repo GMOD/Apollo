@@ -699,7 +699,18 @@ define([
                                     var fmin = subfeat.get('start') + leftDeltaBases;
                                     var fmax = subfeat.get('end') + rightDeltaBases;
                                     var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
-                                    var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
+                                    var postData = {
+                                        "track": track.getUniqueTrackName(),
+                                        "features": [
+                                        { 
+                                            "uniquename": subfeat.getUniqueName(),
+                                            "location": {
+                                                "fmin": fmin, "fmax": fmax
+                                            }
+                                        }
+                                        ],
+                                            "operation": operation
+                                    };
                                     track.executeUpdateOperation(postData);
                                     track.changed();
                                 }
@@ -5615,7 +5626,7 @@ define([
                 },
 
                 isLoggedIn: function () {
-                    return this.username != undefined;
+                    return this.username != undefined&&this.username!='Guest';
                 },
 
                 hasWritePermission: function () {

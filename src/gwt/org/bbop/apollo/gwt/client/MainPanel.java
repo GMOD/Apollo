@@ -752,14 +752,6 @@ public class MainPanel extends Composite {
         this.currentOrganism = currentOrganism;
     }
 
-//    public SequenceInfo getCurrentSequence() {
-//        return currentSequence;
-//    }
-
-//    public void setCurrentSequence(SequenceInfo currentSequence) {
-//        this.currentSequence = currentSequence;
-//    }
-
     public List<OrganismInfo> getOrganismInfoList() {
         return organismInfoList;
     }
