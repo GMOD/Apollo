@@ -35,12 +35,14 @@ try {
 
 URL url = new URL(options.sourceurl)
 String loginPath = "${url.path}/Login"
+def jsonSlurper = new JsonSlurper()
+String cookieFile = "${options.username2}_cookies.txt"
 
-def argumentsArray = [
-        operation: 'login',
-        username: options.username2,
-        password: options.password2
-]
+//def argumentsArray = [
+//        operation: 'login',
+//        username: options.username2,
+//        password: options.password2
+//]
 
 //login using RESTClient
 //try {
@@ -58,7 +60,8 @@ def argumentsArray = [
 //}
 
 //do login using curl
-def responseArray = doLogin(options.sourceurl, options.username1, options.password1)
+
+def responseArray = doLogin(options.sourceurl, options.username1, options.password1,cookieFile)
 println "response array: ${responseArray}"
 if (responseArray == null) {
     println "Could not communicate with ${options.sourceurl}"
@@ -73,34 +76,36 @@ final String sequencePrefix = "Annotations-"
 uniqueNamesMap = [:]
 featuresMap = [:]
 
+
 sequenceArray = options.sequence_names.tokenize(',')
-String cookieFile = "${options.username1}_cookies.txt"
 for (String sequence in sequenceArray) {
     String sequenceName = sequencePrefix + sequence
-    String fullPath = "${url.path}/AnnotationEditorService"
-    def getFeaturesClient = new RESTClient(options.sourceurl)
-    def body = ['username': options.username1, 'password': options.password1, 'track': sequenceName, 'operation': 'get_features' ]
-    println "repsonseArray ${responseArray}"
-    body << responseArray
-//    body.put(responseArray.key,responseArray.value)
-    println "body: "+body
-    def getfeaturesResponse = getFeaturesClient.post(
-            contentType: 'application/json',
-            path: fullPath,
-            body: body
-    )
-    println getfeaturesResponse.getData()
+    def featuresResponse = getFeature(options.sourceurl,sequenceName,cookieFile)
+    featuresMap.put(sequence,featuresResponse)
+//    println featuresResponse
 }
 
-def doLogin(url, username, password) {
-    def jsonSlurper = new JsonSlurper()
-    String cookieFile = "${username}_cookies.txt"
+def getFeature(url,track,cookieFile){
+
+//    curl -b demo_cookies.txt -c demo_cookies.txt -e "http://icebox.lbl.gov/WebApolloDemo/" --data "{ 'operation': 'get_features', 'track': 'Annotations-Group1.10'}" http://icebox.lbl.gov/WebApolloDemo/AnnotationEditorService
+    String json = "{ 'operation': 'get_features', 'track': '${track}'}"
+    def process = ["curl","-b",cookieFile,"-c",cookieFile,"-e",url,"--data",json,"${url}/AnnotationEditorService"].execute()
+    def response = process.text
+    if(process.exitValue()!=0){
+        println process.errorStream.text
+    }
+    def jsonResponse = new JsonSlurper().parseText(response)
+    return jsonResponse
+
+}
+
+def doLogin(url, username, password,cookieFile) {
     String json = "{'username': '${username}', 'password': '${password}'}"
     def process = ["curl","-c",cookieFile,"-H","Content-Type:application/json","-d",json,"${url}/Login?operation=login"].execute()
     def response = process.text
     if(process.exitValue()!=0){
         println process.errorStream.text
     }
-    def jsonResponse = jsonSlurper.parseText(response)
+    def jsonResponse = new JsonSlurper().parseText(response)
     return jsonResponse
 }
