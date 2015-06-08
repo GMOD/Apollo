@@ -27,14 +27,14 @@ class AnnotatorController {
     def loadLink(){
         try {
             Organism organism = Organism.findById(params.organism as Long)
-            log.debug "loading org . . . ${organism}"
+            log.debug "loading organism: ${organism}"
             String location = params.loc
             String[] splitString = location.split(":")
             log.debug "splitString : ${splitString}"
             String sequenceString = splitString[0]
             Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
             String[] minMax = splitString[1].split("\\.\\.")
-            println "minMax: ${minMax}"
+            log.debug "minMax: ${minMax}"
             int fmin, fmax
             try {
                 fmin = minMax[0] as Integer
@@ -242,7 +242,7 @@ class AnnotatorController {
     }
 
     def notAuthorized(){
-        println "not authorized"
+        log.error "not authorized"
     }
 
 }

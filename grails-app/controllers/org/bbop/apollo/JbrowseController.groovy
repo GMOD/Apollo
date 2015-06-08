@@ -249,11 +249,12 @@ class JbrowseController {
                     JSONObject jsonObject = JSON.parse(file.text) as JSONObject
                     Organism organism = preferenceService.currentOrganismForCurrentUser
                     JSONObject organismObject = new JSONObject()
-                    organismObject.put(FeatureStringEnum.NAME.value,organism.commonName )
-                    organismObject.put(FeatureStringEnum.ID.value,organism.id)
-                    organismObject.put("genus",organism.genus)
-                    organismObject.put("species",organism.species)
-                    jsonObject.put(FeatureStringEnum.ORGANISM.value, organismObject.toString())
+                    JSONObject organismObjectContainer = new JSONObject()
+                    organismObject.put("name",organism.commonName)
+                    organismObject.put("url","http://google.com")
+                    organismObjectContainer.put(organism.id, organismObject)
+                    jsonObject.put("dataset_id",organism.id)
+                    jsonObject.put("datasets",organismObjectContainer)
                     response.outputStream << jsonObject.toString()
                 }
 
