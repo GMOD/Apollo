@@ -220,10 +220,8 @@ class SequenceController {
             j=JSON.parse(k.key)
             break;
         }
-        log.debug "TEST ${j}"
         def seqid=j.name
         def organism=Organism.findById(j.organism)
-        log.debug "TEST2 ${seqid} ${organism}"
         def sequences = Sequence.findAllByNameAndOrganism(seqid,organism)
         render sequences as JSON
     }

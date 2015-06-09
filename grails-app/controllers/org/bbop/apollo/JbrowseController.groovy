@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.json.JSONArray
 
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
@@ -21,7 +22,6 @@ class JbrowseController {
     def permissionService
     def preferenceService
     def servletContext
-    def currentOrganism
 
     def indexRouter(){
         log.debug "routing the index: ${params}"
@@ -45,8 +45,6 @@ class JbrowseController {
         // case 1 - anonymous login with organism ID, show organism
         if(params.organism){
             log.debug "organism ID specified: ${params.organism}"
-            currentOrganism=params.organism
-
 
             // set the organism
             Organism organism = Organism.findById(params.organism)
@@ -134,7 +132,7 @@ class JbrowseController {
     def namesFiles(String directory, String jsonFile) {
         String dataDirectory = getJBrowseDirectoryForSession()
         String absoluteFilePath = dataDirectory + "/names/${directory}/${jsonFile}.json"
-        log.debug "names Files ${directory} ${jsonFile}  ${absoluteFilePath}"
+        log.debug "names Files ${absoluteFilePath}"
         File file = new File(absoluteFilePath);
         if (!file.exists()) {
             log.warn("Could not get for name and path: ${absoluteFilePath}");
@@ -209,10 +207,7 @@ class JbrowseController {
      * Has to handle a number of routes for the data directory.
      *
      * e.g. --
-     * trackList.json
      * tracks.conf
-     * names/meta.json
-     * refSeq.json
      * data/tracks/<track>/<annotation>/trackData.json
      * data/tracks/Amel_4.5_brain_ovary.gff/Group1.1/lf-1.json
      * data/bigwig/<fileName>.bw
@@ -243,45 +238,6 @@ class JbrowseController {
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
-
-                if (fileName == "trackList.json") {
-                    JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-                    Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-                    if(currentOrganism!=null) {
-                        jsonObject.put("dataset_id",currentOrganism.id)
-                    }
-                    List<Organism> list=Organism.getAll()
-                    JSONObject organismObjectContainer = new JSONObject()
-                    for(organism in list) {
-                        JSONObject organismObject = new JSONObject()
-                        organismObject.put("name",organism.commonName)
-                        String url = "javascript:window.top.location.href = \"/apollo/annotator/loadLink?"
-                        url += "organism=" + organism.getId();
-                        url += "&highlight=0";
-                        url += "&tracks=\"";
-                        organismObject.put("url",url)
-                        organismObjectContainer.put(organism.id, organismObject)
-                    }
-                    jsonObject.put("datasets",organismObjectContainer)
-                    response.outputStream << jsonObject.toString()
-                }
-
-                else{
-                    // Open the file and output streams
-                    FileInputStream fis = new FileInputStream(file);
-                    OutputStream out = response.getOutputStream();
-
-                    // Copy the contents of the file to the output stream
-                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-                    int count = 0;
-                    while ((count = fis.read(buf)) >= 0) {
-                        out.write(buf, 0, count);
-                    }
-                    fis.close();
-                    out.close();
-                }
-
-                return
             } else if (fileName.endsWith(".bam")
                     || fileName.endsWith(".bw")
                     || fileName.endsWith(".bai")
@@ -385,7 +341,72 @@ class JbrowseController {
 
     }
 
+    def trackList() {
+        String dataDirectory = getJBrowseDirectoryForSession()
+        String absoluteFilePath = dataDirectory + "/trackList.json"
+        log.debug "trackList ${absoluteFilePath}"
+        File file = new File(absoluteFilePath);
+        def mimeType = "application/json";
+        response.setContentType(mimeType);
 
+        if (!file.exists()) {
+            log.warn("Could not get for name and path: ${absoluteFilePath}");
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            render status: NOT_FOUND
+            return;
+        }
+
+        // add datasets to the configuration
+        JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+        if(currentOrganism!=null) {
+            jsonObject.put("dataset_id",currentOrganism.id)
+        }
+        List<Organism> list=Organism.getAll()
+        JSONObject organismObjectContainer = new JSONObject()
+        for(organism in list) {
+            JSONObject organismObject = new JSONObject()
+            organismObject.put("name",organism.commonName)
+            String url = "javascript:window.top.location.href = \"/apollo/annotator/loadLink?"
+            url += "organism=" + organism.getId();
+            url += "&highlight=0";
+            url += "&tracks=\"";
+            organismObject.put("url",url)
+            organismObjectContainer.put(organism.id, organismObject)
+        }
+        jsonObject.put("datasets",organismObjectContainer)
+
+        if(jsonObject.include==null) jsonObject.put("include",new JSONArray())
+        jsonObject.include.add("../plugins/WebApollo/json/annot.json")
+
+        response.outputStream << jsonObject.toString()
+        response.outputStream.close()
+    }
+
+     /*   JSONArray plugins=jsonObject.plugins
+        if(plugins==null) {
+            log.debug "no plugins array"
+            JSONObject webapolloPlugin=new JSONObject()
+            JSONArray newPlugins=new JSONArray()
+            webapolloPlugin.put("location","plugins/WebApollo")
+            webapolloPlugin.put("name","WebApollo")
+            newPlugins.add(webapolloPlugin)
+            jsonObject.put("plugins",newPlugins)
+        }
+        else {
+            boolean flag=false;
+            for(int i=0; i<plugins.length();i++) {
+                JSONObject p=plugins.get(i)
+                if(p.get("name")=="WebApollo") flag=true
+            }
+            if(!flag) {
+                JSONObject webapolloPlugin=new JSONObject()
+                webapolloPlugin.put("location","plugins/WebApollo")
+                webapolloPlugin.put("name","WebApollo")
+                plugins.add(webapolloPlugin)
+            }
+            log.debug "added to plugins array"
+        }*/
     private static boolean isCacheableFile(String fileName) {
         if (fileName.endsWith(".txt")) return true;
         if (fileName.endsWith(".json")) {
