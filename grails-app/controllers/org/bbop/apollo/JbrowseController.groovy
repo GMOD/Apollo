@@ -52,6 +52,7 @@ class JbrowseController {
             // create an anonymous login
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
             File file = new File(servletContext.getRealPath("jbrowse/index.html"))
             render file.text
             return
@@ -247,7 +248,14 @@ class JbrowseController {
                 if (fileName == "trackList.json") {
 
                     JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-                    Organism organism = preferenceService.currentOrganismForCurrentUser
+                    Organism organism
+                    if(permissionService.currentUser){
+                        organism = preferenceService.currentOrganismForCurrentUser
+                    }
+                    else{
+                        Long organismId = Long.valueOf(request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value).toString())
+                        organism = Organism.findById(organismId)
+                    }
                     JSONObject organismObject = new JSONObject()
                     JSONObject organismObjectContainer = new JSONObject()
                     organismObject.put("name",organism.commonName)
