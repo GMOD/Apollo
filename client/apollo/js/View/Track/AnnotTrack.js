@@ -164,13 +164,11 @@ define([
                     var utrClass;
                     var parentType = subfeature.parent().afeature.parent_type;
                     if (!this.isProteinCoding(subfeature.parent())) {
-                        // utrClass = parentType && parentType.name == "pseudogene" ? "pseudogene" :
-                        // subfeature.parent().get("type");
                         var clsName = parentType && parentType.name == "pseudogene" ? "pseudogene" : subfeature.parent().get("type");
                         var cfg = this.config.style.alternateClasses[clsName];
                         utrClass = cfg.className;
                     }
-                    return DraggableFeatureTrack.prototype.renderExonSegments.call(this, subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass);
+                    return this.inherited(arguments, [subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass]);
                 },
 
                 _defaultConfig: function () {
@@ -357,20 +355,20 @@ define([
 
                             // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                             queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
-                            var organism = queryParams.organism;
-                            var request={data: {
-                                name: track.refSeq.name,
-                                organism: organism
-                            }};
+                            var organism = parseInt(queryParams.organism,10);
+                            var request={
+                                "name": track.refSeq.name,
+                                "organism": organism
+                            };
 
                             xhr.post(context_path+"/sequence/lookupSequenceByNameAndOrganism/", {
                                 data: JSON.stringify(request),
                                 handleAs: "json"
                             }).then(function(response) {
-                                console.log(response);
-
-
-                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response.id, dojo.hitch(track,'annotationNotification'));
+                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response[0].id, dojo.hitch(track,'annotationNotification'));
+                            },
+                            function() {
+                                console.log("Received error in organism lookup, anonymous mode jbrowse");
                             });
                         });
                     }
@@ -399,7 +397,7 @@ define([
                             else {
                                 track.annotationsAddedNotification(changeData.features);
                             }
-                            window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                            if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
                         }
                         else if (changeData.operation == "DELETE") {
                             if (changeData.sequenceAlterationEvent) {
@@ -408,7 +406,7 @@ define([
                             else {
                                 track.annotationsDeletedNotification(changeData.features);
                             }
-                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                            if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
                         }
                         else if (changeData.operation == "UPDATE") {
                             if (changeData.sequenceAlterationEvent) {
@@ -417,7 +415,7 @@ define([
                             else {
                                 track.annotationsUpdatedNotification(changeData.features);
                             }
-                            window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                            if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
                         }
                         else {
                             console.log('unknown command: ', changeData.operation);
@@ -425,9 +423,11 @@ define([
 
                         track.changed();
                     } catch (e) {
-                        console.log('not JSON ', e, ' ignoring callback: ', message.body);
+                        console.log(e);
+                        console.log('Processing: ', message.body);
                     }
                 },
+                
                 /**
                  * received notification from server ChangeNotificationListener that
                  * annotations were added
@@ -4279,7 +4279,8 @@ define([
                         timeout: 5 * 1000, // Time in milliseconds
                         // The LOAD function will be called on a successful response.
                         load: function (response, ioArgs) { //
-                            window.parent.location.reload();
+                            if(window.parent) window.parent.location.reload();
+                            else window.location.reload();
                         },
                         error: function (response, ioArgs) { //
                             alert('Failed to log out cleanly.  Please refresh your browser.');
@@ -4343,7 +4344,8 @@ define([
                                         // will be called on a
                                         // successful response.
                                         load: function (response, ioArgs) { //
-                                            window.parent.location.reload();
+                                            if(window.parent) window.parent.location.reload();
+                                            else window.location.reload();
                                         },
                                         error: function (response, ioArgs) { //
                                             alert('Failed to log out cleanly.  Please refresh your browser.');
@@ -4670,7 +4672,6 @@ define([
                             track.makeTrackMenu();
                         },
                         error: function (response, ioArgs) { //
-                            // track.handleError(response);
                         }
                     });
                 },
@@ -4755,7 +4756,6 @@ define([
                             ;
                         },
                         error: function (response, ioArgs) { //
-                            // thisObj.handleError(response);
                             success = false;
                         }
                     });

@@ -215,9 +215,16 @@ class SequenceController {
         render sequences as JSON
     }
     def lookupSequenceByNameAndOrganism() {
-        log.info "lookup sequence ${params}"
-        log.error "lookup sequence ${params.name} ${params.organism}"
-        def sequences = Sequence.findAllByNameAndOrganism(params.name, params.organism)
+        JSONObject j;
+        for(k in params) {
+            j=JSON.parse(k.key)
+            break;
+        }
+        log.debug "TEST ${j}"
+        def seqid=j.name
+        def organism=Organism.findById(j.organism)
+        log.debug "TEST2 ${seqid} ${organism}"
+        def sequences = Sequence.findAllByNameAndOrganism(seqid,organism)
         render sequences as JSON
     }
 
