@@ -216,7 +216,7 @@ You can use the `tools/data/add_transcripts_from_gff3_to_annotations.pl` script 
 to the user annotation track. Let's say we want to load our `maker.gff` transcripts.
 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
-        -U https://localhost:8080/WebApollo -u admin@bio.gov -p secretpassword \
+        -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
         -i WEB_APOLLO_SAMPLE_DIR/split_gff/maker.gff
 
 The default options should be handle GFF3 most files that contain genes, transcripts, and exons.
@@ -226,7 +226,7 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 `blastn.gff` file as an example.
 
     tools/data/add_transcripts_from_gff3_to_annotations.pl \
-       -U https://localhost:8080/WebApollo -u admin@bio.gov  -p secretpassword \
+       -U localhost:8080/WebApollo -u web_apollo_admin -p web_apollo_admin \
        -i split_gff/blastn.gff -t match -e match_part
 
 Look at the script's help (`-h`) for all available options.
