@@ -2,11 +2,11 @@
 
 View <a href="https://github.com/GMOD/Apollo/blob/master/docs/Data_loading.md">On GitHub</a>
 
-The data generation pipeline, based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
-is installed automatically from `apollo deploy` or `install_jbrowse.sh`
+The data generation pipeline is based on the typical jbrowse commands such as prepare-refseqs.pl and flatfile-to-json.pl,
+ and it is installed automatically using the `apollo deploy` or `install_jbrowse.sh` commands.
 
 If you have setup webapollo properly using these steps, then a bin/ subdirectory will be initialized with the jbrowse
-perl scripts. If this does not exist, please check setup.log to see where the error might be, check the [troubleshooting
+perl scripts. If this does not exist, please check setup.log to see where the error might be, and check the [troubleshooting
 guide](Troubleshooting.md), and post to apollo@lists.lbl.gov for further assistance.
 
 ### prepare-refseqs.pl
@@ -16,53 +16,30 @@ script to output to the data directory that we will point to later in the organi
 
     bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 
-### add-webapollo-plugin.pl
 
-After initializing the data directory, add the WebApollo plugin tracks using the `add-webapollo-plugin.pl`. It takes a
-'trackList.json' as an argument.
+### flatfile-to-json.pl
 
-    client/apollo/bin/add-webapollo-plugin.pl -i /opt/apollo/data/trackList.json
+The flatfile-to-json.pl script can be used to setup a GFF3 tracks with flexible feature types. Here, we'll start off by loading data from the MAKER generated GFF for the Pythium ultimum data. The simplest loading command specifies a --trackLabel, the --type of feature to load, the --gff file and the --out directory.
 
-### split_gff_by_source.pl
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type mRNA:maker --trackLabel MAKER --out /opt/apollo/data
+    
+Note: The --type command that is used here is loading first the feature type from column 3 of the GFF, and then filtering on column 2, the source column of the GFF. The source filtering is optional, and it is often just fine to load --type mRNA. We can load the rest of the annotations using different filters too.
 
-Generating data from GFF3 works best by having a separate GFF3 per source type. If your GFF3 has all source types in the
-same file, as with the Pythium ultimum sample, then use the  `tools/data/split_gff_by_source.pl` script. We'll output
-the split GFF3 to some temporary directory (e.g. `split_gff`).
-
-    mkdir split_gff
-    tools/data/split_gff_by_source.pl -i pyu_data/scf1117875582023.gff -d split_gff
-
-If we look at the contents of `split_gff`, we can see we have the following files:
-
-    blastn.gff  est2genome.gff  protein2genome.gff  repeatrunner.gff
-    blastx.gff  maker.gff       repeatmasker.gff    snap_masked.gff
-
-We will load each file and create the appropriate tracks in the following steps.
-
-#### flatfile-to-json.pl transcripts
-
-The flatfile-to-json script can setup a GFF3 track with gene/transcript/exon/CDS/polypeptide features. We'll start off
-by loading `maker.gff` from the Pythium ultimum data. The simplest loading command specifies a trackLabel, the type of
-feature to load [1] and an input file and an output directory.
-
-    bin/flatfile-to-json.pl --gff split_gff/maker.gff --type mRNA --trackLabel maker --out /opt/apollo/data
-
-See the [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS
-styles of the Web Apollo 2.0 features.
-
-#### flatfile-to-json.pl match features
-
-If your track uses match and match_part types instead of gene->mRNA->exon, you can load the track using the --type match
-argument.
-
-    bin/flatfile-to-json.pl --gff split_gff/blastn.gff \
-      --arrowheadClass webapollo-arrowhead \
-      --subfeatureClasses '{"match_part": "darkblue-80pct"}'
-      --type match
-      --className container-10px --trackLabel blastn --out /opt/apollo/data
+ 
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type match:repeatmasker --trackLabel RepeatMasker --out /opt/apollo/data
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type expressed_sequence_match:blastn --trackLabel BlastN --out /opt/apollo/data
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type protein_match:blastx --trackLabel BlastX --out /opt/apollo/data 
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type match:snap_masked --trackLabel SNAP_masked --out /opt/apollo/data  
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type protein_match:protein2genome --trackLabel Protein2Genome --out /opt/apollo/data  
+    bin/flatfile-to-json.pl --gff pyu_data/scf1117875582023.gff --type expressed_sequence_match:est2genome --trackLabel Est2Genome --out /opt/apollo/data  
+    
 
 
-#### generate-names.pl
+
+Also: See the [Customizing features](Data_loading.md#customizing-features) section for more information on customizing the CSS styles of the Web Apollo 2.0 features.
+
+
+### generate-names.pl
 
 Once data tracks have been created, you can generate a searchable index of names using the generate-names.pl script:
 
@@ -72,7 +49,7 @@ This script creates an index of sequence names and feature names in order to ena
 text box. If you have some tracks that have millions of features, consider using "--completionLimit 0" to disable the
 autocompletion which will save time.
 
-#### add-bam-track.pl
+### add-bam-track.pl
 
 BAM files are natively supported so the file can be read (in chunks) directly from the server with no preprocessing.
 
@@ -87,7 +64,7 @@ the tracklist.
 
 Note: the `bam_url` parameter is a relative URL to the data directory. It is not a filepath!
 
-#### add-bw-track.pl
+### add-bw-track.pl
 
 WebApollo also has native support for BigWig files (.bw), so no extra processing of these files is required either.
 
@@ -158,10 +135,10 @@ information on customizing the CSS classes.
 
 The visual appearance of biological features in WebApollo (and JBrowse) is handled by CSS stylesheets with HTMLFeatures
 tracks. Every feature and subfeature is given a default CSS "class" that matches a default CSS style in a CSS
-stylesheet. These styles are are defined in `src/main/webapps/jbrowse/plugins/WebApollo/jbrowse/track_styles.css` and
-`src/main/webapps/jbrowse/plugins/WebApollo/css/webapollo_track_styles.css`. Additional styles are also defined in these
+stylesheet. These styles are are defined in `client/apollo/css/track_styles.css` and
+`client/apollo/css/webapollo_track_styles.css`. Additional styles are also defined in these
 files, and can be used by explicitly specifying them in the --className, --subfeatureClasses, --renderClassname, or
---arrowheadClass parameters to flatfile-to-json.pl [see section](Data_loading.md#flatfile-to-json.pl_transcripts).
+--arrowheadClass parameters to flatfile-to-json.pl ([see data loading section](Data_loading.md#flatfile-to-json.pl_transcripts)).
 
 WebApollo differs from JBrowse in some of it's styling, largely in order to help with feature selection, edge-matching,
 and dragging. WebApollo by default uses invisible container elements (with style class names like "container-16px") for
@@ -201,10 +178,9 @@ adding this to the trackList.json
 
        "css" : "data/custom_track_styles.css" 
 
-Then you may use these new styles when loading tracks to flatfile-to-json.pl, for example:
+Then you may use these new styles using --subfeatureClasses, which uses the specified CSS classes for your features in the genome browser, for example:
 
-    bin/flatfile-to-json.pl --gff WEB_APOLLO_SAMPLE_DIR/split_gff/maker.gff 
-        --getSubfeatures --type mRNA --trackLabel maker --webApollo 
+    bin/flatfile-to-json.pl --gff MyFile.gff --type mRNA --trackLabel MyTrack
         --subfeatureClasses '{"CDS":"gold-90pct", "UTR": "dimgold-60pct"}' 
 
 
