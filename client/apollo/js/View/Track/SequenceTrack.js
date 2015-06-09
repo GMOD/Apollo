@@ -1,5 +1,6 @@
 define( [
     'dojo/_base/declare',
+    'dojo/request/xhr',
     'JBrowse/Store/Sequence/StaticChunked', 
     'WebApollo/Store/SeqFeature/ScratchPad', 
     'WebApollo/View/Track/DraggableHTMLFeatures',
@@ -8,7 +9,7 @@ define( [
     'dojox/widget/Standby',
     'dojo/io-query'
      ],
-function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby, ioQuery ) {
+function( declare, xhr, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby, ioQuery ) {
 
     var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
@@ -162,43 +163,42 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             "track": track.annotTrack.getUniqueTrackName(),
             "operation": "get_translation_table"
         };
-        return dojo.xhrPost( {
-            postData: JSON.stringify(query),
-            url: track.context_path + "/AnnotationEditorService",
-            handleAs: "json",
-            load: function(response, ioArgs) { //
-                track.translationTable = {};
-                var ttable = response.translation_table;
-                for (var codon in ttable) {
-                    // looping through codon table, make sure not hitting generic properties...
-                    if (ttable.hasOwnProperty(codon)) {
-                        var aa = ttable[codon];
-                        var nucs = [];
-                        for (var i=0; i<3; i++) {
-                            var nuc = codon.charAt(i);
-                            nucs[i] = [];
-                            nucs[i][0] = nuc.toUpperCase();
-                            nucs[i][1] = nuc.toLowerCase();
-                        }
-                        for (var i=0; i<2; i++) {
-                            var n0 = nucs[0][i];
-                            for (var j=0; j<2; j++) {
-                                var n1 = nucs[1][j];
-                                for (var k=0; k<2; k++) {
-                                    var n2 = nucs[2][k];
-                                    var triplet = n0 + n1 + n2;
-                                    track.translationTable[triplet] = aa;
-                                    // console.log("triplet: ", triplet, ", aa: ", aa );
-                                }
+        return xhr.post(track.context_path + "/AnnotationEditorService", {
+            data: JSON.stringify(query),
+            handleAs: "json"
+        }).then(function(response) { //
+            track.translationTable = {};
+            var ttable = response.translation_table;
+            for (var codon in ttable) {
+                // looping through codon table, make sure not hitting generic properties...
+                if (ttable.hasOwnProperty(codon)) {
+                    var aa = ttable[codon];
+                    var nucs = [];
+                    for (var i=0; i<3; i++) {
+                        var nuc = codon.charAt(i);
+                        nucs[i] = [];
+                        nucs[i][0] = nuc.toUpperCase();
+                        nucs[i][1] = nuc.toLowerCase();
+                    }
+                    for (var i=0; i<2; i++) {
+                        var n0 = nucs[0][i];
+                        for (var j=0; j<2; j++) {
+                            var n1 = nucs[1][j];
+                            for (var k=0; k<2; k++) {
+                                var n2 = nucs[2][k];
+                                var triplet = n0 + n1 + n2;
+                                track.translationTable[triplet] = aa;
+                                // console.log("triplet: ", triplet, ", aa: ", aa );
                             }
                         }
                     }
                 }
-                track.changed();
-            },
-            error: function(response, ioArgs) {
-                return response;
             }
+            track.changed();
+        },
+        function(response) {
+            console.log("get_translation_table error",response);
+            return response;
         });
     },
 
@@ -217,7 +217,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         if(queryParams.organism) {
             query.organism=parseInt(queryParams.organism,10);
         }
-        console.log(query,queryParams);
         return dojo.xhrPost( {
             postData: JSON.stringify(query),
             url: track.context_path + "/AnnotationEditorService",
@@ -253,17 +252,13 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         //    so would require keeping prevScale var around, or passing in prevScale as additional parameter to startZoom()
         // so for now just always trying to hide residues on a zoom, whether they're present or not
 
-        // if (prevScale == this.charWidth) {
-
         $(".dna-residues", this.div).css('display', 'none');
         $(".block-seq-container", this.div).css('height', '20px');
-        // }
         this.heightUpdate(20);
         this.gview.trackHeightUpdate(this.name, Math.max(this.labelHeight, 20));
     },
 
     endZoom: function(destScale, destBlockBases) {
-//        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
 
         if( ( destScale == charSize.width ) ||
@@ -274,18 +269,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             this.hide();
         }
         this.clear();
-        //    this.prevScale = destScale;
     },
-
-    /*
-     * SequenceTrack.prototype.showRange = function(first, last, startBase, bpPerBlock, scale,
-     containerStart, containerEnd) {
-     console.log("called SequenceTrack.showRange():");
-     console.log({ first: first, last: last, startBase: startBase, bpPerBloc: bpPerBlock, scale: scale,
-     containerStart: containerStart, containerEnd: containerEnd });
-     DraggableFeatureTrack.prototype.showRange.apply(this, arguments);
-     };
-     */
 
     setViewInfo: function( genomeView, numBlocks,
                            trackDiv, labelDiv,
@@ -293,7 +277,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         this.inherited( arguments );
 
-//        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ( (scale == charSize.width ) ||
             this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
@@ -320,13 +303,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         }
     },
     
-    /**
-     *   GAH
-     *   not entirely sure, but I think this strategy of calling getRange() only works as long as
-     *   seq chunk sizes are a multiple of block sizes
-     *   or in other words for a given block there is only one chunk that overlaps it
-     *      (otherwise in the callback would need to fiddle with horizontal position of seqNode within the block) ???
-     */
     fillBlock: function( args ) {
         var blockIndex = args.blockIndex;
         var block = args.block;
@@ -337,9 +313,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         var containerEnd = args.containerEnd;
 
         var verbose = false;
-        // test block for diagnostics
-        // var verbose = (leftBase === 245524);
-
         var fillArgs = arguments;
         var track = this;
         
@@ -380,26 +353,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             var proteinHeight = charSize.height;
 
             if ( scale == charSize.width ) {
-            // this.sequenceStore.getRange( this.refSeq, leftBase, rightBase,
-            //  this.sequenceStore.getRange( this.refSeq, leftBase, endBase,
-            //    this.store.getFeatures(
                 this.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
                     function( seq ) {
-                        //var start = feat.get('start');
-                        //var end   = feat.get('end');
-                        //var seq   = feat.get('seq') || feat.get('residues').substring;
                         var start = args.leftBase - 2;
                         var end = args.rightBase + 2;
-
-                        // fill with leading blanks if the
-                        // sequence does not extend all the way
-                        // across our range
-                        /*
-                        for( ; start < 0; start++ ) {
-                                seq = SequenceTrack.nbsp + seq; //nbsp is an "&nbsp;" entity
-                        }
-                        */
 
                         if (start < 0) {
                             start = 0;
@@ -418,20 +376,11 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                         var extendedStartResidues = seq.substring(0, seq.length-2);
                         var extendedEndResidues = seq.substring(2);
 
-                        if (verbose)  {
-                            console.log("seq: " + seq + ", length: " + seq.length);
-                            console.log("blockResidues: " + blockResidues + ", length: " + blockResidues.length);
-                            console.log("extendedStartResidues: " + extendedStartResidues + ", length: " + extendedStartResidues.length);
-                            console.log("extendedEndResidues: " + extendedEndResidues + ", length: " + extendedEndResidues.length);
-                        }
-
                         if (track.show_protein_translation) {
                             var framedivs = [];
                             for (var i=0; i<3; i++) {
-                                // var tstart = start + i;
                                 var tstart = blockStart + i;
                                 var frame = tstart % 3;
-                                if (verbose) { console.log("  forward translating: offset = " + i + ", frame = " + frame); }
                                 var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
                                 // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
                                 //    otherwise use more muted "frame" styling
@@ -439,18 +388,12 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 framedivs[frame] = transProtein;
                             }
                             for (var i=2; i>=0; i--) {
-                                    var transProtein = framedivs[i];
-                                    seqNode.appendChild(transProtein);
-                                    $(transProtein).bind("mousedown", track.residuesMouseDown);
-                                    blockHeight += proteinHeight;
+                                var transProtein = framedivs[i];
+                                seqNode.appendChild(transProtein);
+                                $(transProtein).bind("mousedown", track.residuesMouseDown);
+                                blockHeight += proteinHeight;
                             }
                         }
-
-                        /*
-                        var dnaContainer = document.createElement("div");
-                        $(dnaContainer).addClass("dna-container");
-                        seqNode.appendChild(dnaContainer);
-                        */
 
                         // add a div for the forward strand
                         var forwardDNA = track.renderResidues( blockResidues );
@@ -458,16 +401,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                         seqNode.appendChild( forwardDNA );
 
 
-                        /*
-                        could force highlighting on mouseenter in additona to mousemove,
-                         but mousemove seems to always be fired anyway when there's a mouseenter
-                           $(forwardDNA).bind("mouseenter", function(event) {
-                         track.removeTextHighlight(element);
-                         } );
-                         */
-
-
-                        // dnaContainer.appendChild(forwardDNA);
                         track.residues_context_menu.bindDomNode(forwardDNA);
                         $(forwardDNA).bind("mousedown", track.residuesMouseDown);
                         blockHeight += dnaHeight;
@@ -556,11 +489,8 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                                 blockHeight += proteinHeight;
                             }
                         }
-                        //DraggableFeatureTrack.prototype.fillBlock.apply(track, fillArgs);
-                        //dojo.hitch ???
                         track.inherited("fillBlock", fillArgs);
                         blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
-                        // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
                         track.heightUpdate(blockHeight, blockIndex);
                     },
                     function() {}
@@ -570,11 +500,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                     blockHeight = 20;  // default dna track height if not zoomed to base level
                     seqNode.style.height = "20px";
 
-                    // DraggableFeatureTrack.prototype.fillBlock.apply(track, arguments);
                     track.inherited("fillBlock", arguments);
-                    // this.inherited("fillBlock", arguments);
-
-                    // this.blockHeights[blockIndex] = blockHeight;  // shouldn't be necessary, done in track.heightUpdate();
                     track.heightUpdate(blockHeight, blockIndex);
                 }
         } else {
@@ -582,23 +508,12 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         }
     },
 
-    // heightUpdate: function(height, blockIndex)  {
-    //     // console.log("SequenceTrack.heightUpdate: height = " + height + ", bindex = " + blockIndex);
-    //     DraggableFeatureTrack.prototype.heightUpdate.call(this, height, blockIndex);
-    // };
-
     addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                                  containerStart, containerEnd ) {
         var featDiv =
         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
         $(featDiv).addClass("sequence-alteration");
 
-        // need to decrease the left boundary by 1% to properly overlay
-        //        var left = /-?\d+/.exec($(featDiv).css("left"));
-        //        if (left >= 0) {
-        //                $(featDiv).css("left", (left - 1) + "%");
-        //        }
-        //        var charSize = this.getCharacterMeasurements();
         var charSize = this.webapollo.getSequenceCharacterSize();
 
         var seqNode = $("div.wa-sequence", block.domNode).get(0);
@@ -620,9 +535,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                     container.style.backgroundColor = "#AAFFAA";
                     featDiv.appendChild(container);
                 }
-                else  {
-                    //
-                }
             }
             else if ((ftype == "substitution")) {
                 if ( scale == charSize.width ) {
@@ -636,9 +548,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                     container.style.backgroundColor = "#FFF506";
                     featDiv.appendChild(container);
                 }
-                else  {
-
-                }
             }
         }
         seqNode.appendChild(featDiv);
@@ -650,9 +559,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
      */
     renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
                              containerStart, containerEnd ) {
-        // var track = this;
-        // var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale,
-
         var featDiv = this.inherited( arguments );
 
         if (featDiv && featDiv != null)  {
@@ -683,9 +589,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
                      };
                  })(),
 
-    //given the start and end coordinates, and the sequence bases, makes a
-    //div containing the sequence
-    // SequenceTrack.prototype.renderResidues = function ( start, end, seq ) {
+    // given the start and end coordinates, and the sequence bases, creates a div containing the sequence
     renderResidues: function ( seq ) {
         var container  = document.createElement("div");
         $(container).addClass("dna-residues");
@@ -693,7 +597,7 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         return container;
     },
 
-    /** end is ignored, assume all of seq is translated (except any extra bases at end) */
+    // end is ignored, assume all of seq is translated (except any extra bases at end)
     renderTranslation: function ( input_seq, offset, blockLength, reverse) {
             var CodonTable = this.translationTable;
         var verbose = false;
@@ -750,9 +654,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     },
 
     onFeatureMouseDown: function(event) {
-        // _not_ calling DraggableFeatureTrack.prototyp.onFeatureMouseDown --
-        //     don't want to allow dragging (at least not yet)
-        // event.stopPropagation();
         this.last_mousedown_event = event;
         var ftrack = this;
         if (ftrack.verbose_selection || ftrack.verbose_drag)  {
@@ -766,21 +667,21 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
         thisObj.contextMenuItems = new Array();
         thisObj.annot_context_menu = new dijit.Menu({});
 
-         var index = 0;
+        var index = 0;
         if (this.annotTrack.permission & Permission.WRITE) {
-                thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Delete",
-                        onClick: function() {
-                                thisObj.deleteSelectedFeatures();
-                        }
-                } ));
-                thisObj.contextMenuItems["delete"] = index++;
+            thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
+                label: "Delete",
+                onClick: function() {
+                    thisObj.deleteSelectedFeatures();
+                }
+            } ));
+            thisObj.contextMenuItems["delete"] = index++;
         }
         thisObj.annot_context_menu.addChild(new dijit.MenuItem( {
-                label: "Information",
-                onClick: function(event) {
-                        thisObj.getInformation();
-                }
+            label: "Information",
+            onClick: function(event) {
+                thisObj.getInformation();
+            }
         } ));
         thisObj.contextMenuItems["information"] = index++;
 
@@ -804,88 +705,74 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         thisObj.residuesMenuItems["toggle_reverse_strand"] = index++;
         thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Toggle Reverse Strand",
-                        onClick: function(event) {
-                        thisObj.show_reverse_strand = ! thisObj.show_reverse_strand;
-                        thisObj.clearHighlightedBases();
-                        // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
-                        thisObj.changed();
-                        // thisObj.toggleReverseStrand();
-                        }
-                } ));
+            label: "Toggle Reverse Strand",
+            onClick: function(event) {
+                thisObj.show_reverse_strand = ! thisObj.show_reverse_strand;
+                thisObj.clearHighlightedBases();
+                thisObj.changed();
+            }
+        } ));
 
         thisObj.residuesMenuItems["toggle_protein_translation"] = index++;
         thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Toggle Protein Translation",
-                        onClick: function(event) {
-                        thisObj.show_protein_translation = ! thisObj.show_protein_translation;
-                        thisObj.clearHighlightedBases();
-                        // thisObj.hideAll();  shouldn't need to call hideAll() before changed() anymore
-                        thisObj.changed();
-                        // thisObj.toggleProteinTranslation();
-                        }
-                } ));
+            label: "Toggle Protein Translation",
+            onClick: function(event) {
+                thisObj.show_protein_translation = ! thisObj.show_protein_translation;
+                thisObj.clearHighlightedBases();
+                thisObj.changed();
+            }
+        } ));
 
 
         if (this.annotTrack.permission & Permission.WRITE) {
 
             thisObj.residues_context_menu.addChild(new dijit.MenuSeparator());
                 thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Create Genomic Insertion",
-                        onClick: function() {
-                            thisObj.freezeHighlightedBases = true;
-                            thisObj.createGenomicInsertion();
-                        }
+                    label: "Create Genomic Insertion",
+                    onClick: function() {
+                        thisObj.freezeHighlightedBases = true;
+                        thisObj.createGenomicInsertion();
+                    }
                 } ));
                 thisObj.residuesMenuItems["create_insertion"] = index++;
                 thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Create Genomic Deletion",
-                        onClick: function(event) {
-                                thisObj.freezeHighlightedBases = true;
-                                thisObj.createGenomicDeletion();
-                        }
+                    label: "Create Genomic Deletion",
+                    onClick: function(event) {
+                            thisObj.freezeHighlightedBases = true;
+                            thisObj.createGenomicDeletion();
+                    }
                 } ));
                 thisObj.residuesMenuItems["create_deletion"] = index++;
 
                 thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                        label: "Create Genomic Substitution",
-                        onClick: function(event) {
-                                thisObj.freezeHighlightedBases = true;
-                                thisObj.createGenomicSubstitution();
-                        }
+                    label: "Create Genomic Substitution",
+                    onClick: function(event) {
+                            thisObj.freezeHighlightedBases = true;
+                            thisObj.createGenomicSubstitution();
+                    }
                 } ));
                 thisObj.residuesMenuItems["create_substitution"] = index++;
         }
-        /*
-            thisObj.residues_context_menu.addChild(new dijit.MenuItem( {
-                    label: "..."
-            }
-            ));
-            */
 
-            thisObj.residues_context_menu.onOpen = function(event) {
-                    // keeping track of mousedown event that triggered residues_context_menu popup,
-                    //   because need mouse position of that event for some actions
-                    thisObj.residues_context_mousedown = thisObj.last_mousedown_event;
-                    // if (thisObj.permission & Permission.WRITE) { thisObj.updateMenu() }
-                    dojo.forEach(this.getChildren(), function(item, idx, arr) {
-                         if (item._setSelected) { item._setSelected(false); }
-                         if (item._onUnhover) { item._onUnhover(); }
-                    });
+        thisObj.residues_context_menu.onOpen = function(event) {
+            thisObj.residues_context_mousedown = thisObj.last_mousedown_event;
+            dojo.forEach(this.getChildren(), function(item, idx, arr) {
+                 if (item._setSelected) { item._setSelected(false); }
+                 if (item._onUnhover) { item._onUnhover(); }
+            });
 
-                    thisObj.freezeHighlightedBases = true;
+            thisObj.freezeHighlightedBases = true;
+        };
 
-            };
+        thisObj.residues_context_menu.onBlur = function() {
+                thisObj.freezeHighlightedBases = false;
+        };
 
-            thisObj.residues_context_menu.onBlur = function() {
-                    thisObj.freezeHighlightedBases = false;
-            };
-
-            thisObj.residues_context_menu.onClose = function(event) {
-                    if (!thisObj.freezeHighlightedBases) {
-                            thisObj.clearHighlightedBases();
-                    }
-            };
+        thisObj.residues_context_menu.onClose = function(event) {
+                if (!thisObj.freezeHighlightedBases) {
+                        thisObj.clearHighlightedBases();
+                }
+        };
 
         thisObj.annot_context_menu.startup();
         thisObj.residues_context_menu.startup();
@@ -900,25 +787,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
 
         var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
         this.annotTrack.openDialog("Add Insertion", content);
-
-    /*
-    var track = this;
-    var features = '[ { "uniquename": "insertion-' + gcoord + '","location": { "fmin": ' + gcoord + ', "fmax": ' + gcoord + ', "strand": 1 }, "residues": "A", "type": {"name": "insertion", "cv": { "name":"SO" } } } ]';
-        dojo.xhrPost( {
-                postData: '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }',
-                url: context_path + "/AnnotationEditorService",
-                handleAs: "json",
-                timeout: 5000, // Time in milliseconds
-                // The LOAD function will be called on a successful response.
-                load: function(response, ioArgs) {
-                },
-                // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { //
-                        return response;
-                }
-        });
-        */
-
     },
 
     createGenomicDeletion: function()  {
@@ -1070,13 +938,6 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
             var plusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, plusDiv);
             var minusLabel = dojo.create("label", { innerHTML: "- strand", className: "sequence_alteration_input_label" }, minusDiv);
             var minusField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_input_field" }, minusDiv);
-            // not sure why, but dojo.connect doesn't work well here??  (at least in Chrome)
-            //    dojo.connect(inputField, "keypress", null, function(e) {        
-            // and JQuery keypress almost works, but doesn't register backspace events
-            //    $(inputField).keypress(function(e) {
-            //    apparently keypress in general doesn't report for some non-character keys:
-            //        http://stackoverflow.com/questions/3911589/why-doesnt-keypress-handle-the-delete-key-and-the-backspace-key
-            // but jquery keydown seems to work
             $(plusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
@@ -1336,29 +1197,3 @@ function( declare, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, 
     return SequenceTrack;
 });
 
-/*
- * highlightText is nice,
- * what would be _really_ good is a residue highlighter that works in genome coords, and
- *     does highlights across all blocks that overlap genome coord range
- * NOT YET IMPLEMENTED
- */
- /*SequenceTrack.prototype.highlightResidues = function(genomeStart, genomeEnd) {
-}
-*/
-
-/*
- *  More efficient form
- *  residues_class is CSS class of residues:  forward, reverse, frame0, frame1, frame2, frameMinus1, frameMinus2, frameMinus3
- *  highlight_class is CSS class for the highlighted span
- *  ranges is an ordered array (min to max) of ranges, each range is itself an array of form [start, end] in genome coords
- *  ranges MUST NOT overlap
- *
- * assumes:
- *     ranges do not overlap
- *     any previous highlighting is removed (revert to raw residues before applying new highlighting)
- *
- *
- *  In implementation can insert span elements in reverse order, so that indexing into string is always accurate (not tripped up by span elements inserted farther upstream)
- *     will need to clamp to bounds of each block
- */
-/*SequenceTrack.prototype.highlightResidues = function(highlight_class, residues_class, ranges) */
