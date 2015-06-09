@@ -39,18 +39,13 @@ static def doLogin(url, username, password,cookieFile) {
 
 static def getUsers(username,password,url){
     JSONArray usersArray = new JSONArray()
-//    ["psql","-U",username,"-p",password]
     Class.forName("org.postgresql.Driver");
 
-
-//    def sql = groovy.sql.Sql.newInstance(
-//            "jdbc:postgresql://host.example.org/database",
-//            "username", "password", "org.postgresql.Driver")
-
-//    Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://${url}", username, password, "org.postgresql.Driver")
-    Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://${url}",  "org.postgresql.Driver")
-//    sql.executeQuery("select * from tracks ; ");
-//    sql.executeQuery("\\d ");
+//    Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://localhost/web_apollo_users",username,password, "org.postgresql.Driver")
+    Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://${url}",username,password, "org.postgresql.Driver")
+    sql.eachRow('select * from users') { row ->
+        println row
+    }
 
     return usersArray
 }
