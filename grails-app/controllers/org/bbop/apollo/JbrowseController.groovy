@@ -247,13 +247,20 @@ class JbrowseController {
                 if (fileName == "trackList.json") {
 
                     JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-                    Organism organism = preferenceService.currentOrganismForCurrentUser
-                    JSONObject organismObject = new JSONObject()
+                    Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+                    List<Organism> list=Organism.getAll()
                     JSONObject organismObjectContainer = new JSONObject()
-                    organismObject.put("name",organism.commonName)
-                    organismObject.put("url","http://google.com")
-                    organismObjectContainer.put(organism.id, organismObject)
-                    jsonObject.put("dataset_id",organism.id)
+                    for(organism in list) {
+                        JSONObject organismObject = new JSONObject()
+                        organismObject.put("name",organism.commonName)
+                        String url = "javascript:window.top.location.href = \"/apollo/annotator/loadLink?"
+                        url += "organism=" + organism.getId();
+                        url += "&highlight=0";
+                        url += "&tracks=\"";
+                        organismObject.put("url",url)
+                        organismObjectContainer.put(organism.id, organismObject)
+                    }
+                    jsonObject.put("dataset_id",currentOrganism.id)
                     jsonObject.put("datasets",organismObjectContainer)
                     response.outputStream << jsonObject.toString()
                 }

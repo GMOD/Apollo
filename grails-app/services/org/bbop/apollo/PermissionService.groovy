@@ -207,7 +207,7 @@ class PermissionService {
             }
         }
         else {
-            permissions.add(PermissionEnum.READ)
+            permissions.add(PermissionEnum.NONE)
         }
 
 
