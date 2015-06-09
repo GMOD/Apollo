@@ -37,6 +37,7 @@ define(
            'WebApollo/View/Dialog/Help',
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
+           'dojo/io-query',
            'lazyload/lazyload'
        ],
     function( declare,
@@ -65,6 +66,7 @@ define(
             HelpMixin,
             GFF3Driver,
             CodonTable,
+            ioQuery,
             LazyLoad ) {
 
 return declare( [JBPlugin, HelpMixin],
@@ -99,7 +101,11 @@ return declare( [JBPlugin, HelpMixin],
             // this.setFavicon("plugins/WebApollo/img/webapollo_favicon.ico");
             this.setFavicon(browser.config.favicon);
         }
+        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
 
+        if(queryParams.organism) {
+            browser.config.dataset_id=queryParams.organism;
+        }
         args.cssLoaded.then( function() {
             if (! browser.config.view) { browser.config.view = {}; }
             browser.config.view.maxPxPerBp = thisB.getSequenceCharacterSize().width;

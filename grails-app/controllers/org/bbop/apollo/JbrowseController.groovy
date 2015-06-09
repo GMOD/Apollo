@@ -21,6 +21,7 @@ class JbrowseController {
     def permissionService
     def preferenceService
     def servletContext
+    def currentOrganism
 
     def indexRouter(){
         log.debug "routing the index: ${params}"
@@ -39,11 +40,12 @@ class JbrowseController {
             return
         }
 
-        println "anonymous user"
+        log.debug "anonymous user"
 
         // case 1 - anonymous login with organism ID, show organism
         if(params.organism){
-            println "organism ID specified: ${params.organism}"
+            log.debug "organism ID specified: ${params.organism}"
+            currentOrganism=params.organism
 
 
             // set the organism
@@ -52,7 +54,6 @@ class JbrowseController {
             // create an anonymous login
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
-            session.setAttribute(FeatureStringEnum.ORGANISM_ID.value,organism.id)
             File file = new File(servletContext.getRealPath("jbrowse/index.html"))
             render file.text
             return
@@ -219,8 +220,6 @@ class JbrowseController {
     def data(String fileName) {
         String dataDirectory = getJBrowseDirectoryForSession()
         log.debug "dataDir: ${dataDirectory}"
-
-        //log.debug  "fileName ${fileName}"
         log.debug "URI: " + request.getRequestURI()
         log.debug "URL: " + request.getRequestURL()
         log.debug "pathInfo: " + request.getPathInfo()
@@ -246,22 +245,23 @@ class JbrowseController {
                 response.setContentType(mimeType);
 
                 if (fileName == "trackList.json") {
-
                     JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-                    Organism organism
-                    if(permissionService.currentUser){
-                        organism = preferenceService.currentOrganismForCurrentUser
+                    Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+                    if(currentOrganism!=null) {
+                        jsonObject.put("dataset_id",currentOrganism.id)
                     }
-                    else{
-                        Long organismId = Long.valueOf(request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value).toString())
-                        organism = Organism.findById(organismId)
-                    }
-                    JSONObject organismObject = new JSONObject()
+                    List<Organism> list=Organism.getAll()
                     JSONObject organismObjectContainer = new JSONObject()
-                    organismObject.put("name",organism.commonName)
-                    organismObject.put("url","http://google.com")
-                    organismObjectContainer.put(organism.id, organismObject)
-                    jsonObject.put("dataset_id",organism.id)
+                    for(organism in list) {
+                        JSONObject organismObject = new JSONObject()
+                        organismObject.put("name",organism.commonName)
+                        String url = "javascript:window.top.location.href = \"/apollo/annotator/loadLink?"
+                        url += "organism=" + organism.getId();
+                        url += "&highlight=0";
+                        url += "&tracks=\"";
+                        organismObject.put("url",url)
+                        organismObjectContainer.put(organism.id, organismObject)
+                    }
                     jsonObject.put("datasets",organismObjectContainer)
                     response.outputStream << jsonObject.toString()
                 }
