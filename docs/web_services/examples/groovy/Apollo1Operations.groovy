@@ -2,9 +2,12 @@
 import groovy.json.JsonSlurper
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
+import groovy.sql.Sql
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
 @Grab(group='postgresql', module='postgresql', version='8.3-603.jdbc4')
+//@Grab('org.postgresql:postgresql:9.3-1101-jdbc41')
+@GrabConfig(systemClassLoader = true)
 
 
 
@@ -34,12 +37,20 @@ static def doLogin(url, username, password,cookieFile) {
     return jsonResponse
 }
 
-static def getUsers(url,username,password){
+static def getUsers(username,password,url){
     JSONArray usersArray = new JSONArray()
 //    ["psql","-U",username,"-p",password]
     Class.forName("org.postgresql.Driver");
 
 
+//    def sql = groovy.sql.Sql.newInstance(
+//            "jdbc:postgresql://host.example.org/database",
+//            "username", "password", "org.postgresql.Driver")
+
+//    Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://${url}", username, password, "org.postgresql.Driver")
+    Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://${url}",  "org.postgresql.Driver")
+//    sql.executeQuery("select * from tracks ; ");
+//    sql.executeQuery("\\d ");
 
     return usersArray
 }
