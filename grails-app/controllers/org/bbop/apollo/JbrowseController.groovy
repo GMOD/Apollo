@@ -21,6 +21,7 @@ class JbrowseController {
     def permissionService
     def preferenceService
     def servletContext
+    def currentOrganism
 
     def indexRouter(){
         log.debug "routing the index: ${params}"
@@ -39,11 +40,12 @@ class JbrowseController {
             return
         }
 
-        println "anonymous user"
+        log.debug "anonymous user"
 
         // case 1 - anonymous login with organism ID, show organism
         if(params.organism){
-            println "organism ID specified: ${params.organism}"
+            log.debug "organism ID specified: ${params.organism}"
+            currentOrganism=params.organism
 
 
             // set the organism
@@ -218,8 +220,6 @@ class JbrowseController {
     def data(String fileName) {
         String dataDirectory = getJBrowseDirectoryForSession()
         log.debug "dataDir: ${dataDirectory}"
-
-        //log.debug  "fileName ${fileName}"
         log.debug "URI: " + request.getRequestURI()
         log.debug "URL: " + request.getRequestURL()
         log.debug "pathInfo: " + request.getPathInfo()
@@ -245,9 +245,11 @@ class JbrowseController {
                 response.setContentType(mimeType);
 
                 if (fileName == "trackList.json") {
-
                     JSONObject jsonObject = JSON.parse(file.text) as JSONObject
                     Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+                    if(currentOrganism!=null) {
+                        jsonObject.put("dataset_id",currentOrganism.id)
+                    }
                     List<Organism> list=Organism.getAll()
                     JSONObject organismObjectContainer = new JSONObject()
                     for(organism in list) {
@@ -260,7 +262,6 @@ class JbrowseController {
                         organismObject.put("url",url)
                         organismObjectContainer.put(organism.id, organismObject)
                     }
-                    jsonObject.put("dataset_id",currentOrganism.id)
                     jsonObject.put("datasets",organismObjectContainer)
                     response.outputStream << jsonObject.toString()
                 }
