@@ -39,10 +39,10 @@ try {
 JSONArray usersArray = new JSONArray()
 new File(options.inputfile).splitEachLine(",") { fields ->
     JSONObject user = new JSONObject()
-
     user.email = fields[0]
     user.firstName = fields[1]
     user.lastName = fields[2]
+    user.role = "user"
     user.password = fields.size() > 2 ? fields[3] : RandomStringUtils.random(10)
 
     usersArray.add(user)
@@ -59,6 +59,7 @@ for (user in usersArray) {
             email    : user.email,
             firstName: user.firstName,
             lastName : user.lastName,
+            role     : user.role,
             username : options.username,
             password : options.password
 
@@ -68,7 +69,7 @@ for (user in usersArray) {
     def resp = client.post(
             contentType: 'text/javascript',
             path: fullPath,
-            body: [data:userArgument]
+            body: userArgument
     )
 
     assert resp.status == 200  // HTTP response code; 404 means not found, etc.
