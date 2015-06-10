@@ -45,13 +45,9 @@ static def getUsers(username,password,url){
     Sql sql = groovy.sql.Sql.newInstance( "jdbc:postgresql://${url}",username,password, "org.postgresql.Driver")
     sql.eachRow('select * from users') { row ->
         JSONObject userObject = new JSONObject()
-//        println row
         userObject.username=row[1]
-        userObject.password=row[2]
-
         usersArray.add(userObject)
     }
-    println "output object ${usersArray}"
 
     return usersArray
 }
