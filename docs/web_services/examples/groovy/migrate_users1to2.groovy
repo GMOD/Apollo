@@ -4,6 +4,7 @@ evaluate(new File("./Apollo2Operations.groovy"))
 
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
+import groovyx.net.http.RESTClient
 
 
 @Grab(group = 'org.json', module = 'json', version = '20140107')
@@ -35,10 +36,8 @@ try {
     return
 }
 
-String cookieFile = "${options.username2}_cookies.txt"
-
-def responseArray = Apollo1Operations.getUsers(options.username1, options?.password1 ?: "",options.databaseurl)
-if (responseArray == null) {
+def users = Apollo1Operations.getUsers(options.username1, options?.password1 ?: "",options.databaseurl)
+if (users == null) {
     println "Could not communicate with ${options.databaseurl}"
     return
 }
@@ -46,10 +45,33 @@ if (responseArray == null) {
 JSONObject newArray = new JSONObject()
 JSONArray addUsersArray = new JSONArray()
 
-def users = Apollo1Operations.getUsers(options.databaseurl,options.username1,options.username2)
+URL url = new URL(options.destinationurl)
 
-println users
+def argumentsArray = [
+        username  : options.username2,
+        password  : options.password2
+]
 
+println "arguments array = ${argumentsArray}"
 
+def client = new RESTClient(options.destinationurl)
+
+String fullPath = "${url.path}/user/createUser"
+
+for(user in users){
+    def userArray = [
+//          email: user
+    ]
+    userArray << argumentsArray
+
+    def resp = client.post(
+            contentType: 'text/javascript',
+            path: fullPath,
+            body: userArray
+    )
+
+    assert resp.status == 200  // HTTP response code; 404 means not found, etc.
+    println resp.getData()
+}
 
 
