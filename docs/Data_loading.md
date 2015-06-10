@@ -51,18 +51,16 @@ autocompletion which will save time.
 
 ### add-bam-track.pl
 
-BAM files are natively supported so the file can be read (in chunks) directly from the server with no preprocessing.
+WebApollo natively supports BAM files and the file can be read (in chunks) directly from the server with no preprocessing.
 
-To use this, copy the BAM+BAM index to your jbrowse data directory, and then use the add-bam-track.pl to add the file to
-the tracklist.
+To add a BAM track, copy the BAM+BAI files to your data directory, and then use the add-bam-track.pl to add the file to the tracklist.
 
     mkdir /opt/apollo/data/bam
-    cp pyu_data/simulated-sorted.bam /opt/apollo/data/bam
-    cp pyu_data/simulated-sorted.bam.bai /opt/apollo/data/bam
+    cp pyu_data/simulated-sorted.bam* /opt/apollo/data/bam
     bin/add-bam-track.pl --bam_url bam/simulated-sorted.bam \
        --label simulated_bam --key "simulated BAM" -i /opt/apollo/data/trackList.json
 
-Note: the `bam_url` parameter is a relative URL to the data directory. It is not a filepath!
+Note: the `bam_url` parameter is a URL that is relative to the data directory. It is not a filepath!
 
 ### add-bw-track.pl
 
@@ -76,17 +74,15 @@ the tracklist.
 
 Now we need to add the BigWig track.
 
-    bin/add-bw-track.pl --bw_url bigwig/simulated-sorted.coverage.bw \ `
-      --label simulated_bw --key "simulated BigWig"`</span>
+    bin/add-bw-track.pl --bw_url bigwig/simulated-sorted.coverage.bw \
+      --label simulated_bw --key "simulated BigWig"
 
-Note: the `bw_url` paramter is a relative URL to the data directory. It is not a filepath!
+Note: the `bw_url` parameter is a URL that is relative to the data directory. It is not a filepath!
 
 ### Customizing different annotation types (advanced)
 
-After running `add-webapollo-plugin.pl`, the annotation track will be added to `trackList.json`. To change how the
-different annotation types look in the "User-created annotation" track, you'll need to update the mapping of the
-annotation type to the appropriate CSS class. This data resides in `trackList.json` after running
-`add-webapollo-plugin.pl`. You'll need to modify the JSON entry whose label is `Annotations`. Of particular interest is
+To change how the different annotation types look in the "User-created annotation" track, you'll need to update the mapping of the
+annotation type to the appropriate CSS class. This data resides in `client/apollo/json/annot.json`, which is a file containing WebApollo tracks that is loaded by default. You'll need to modify the JSON entry whose label is `Annotations`. Of particular interest is
 the `alternateClasses` element. Let's look at that default element:
 
     "alternateClasses": {
