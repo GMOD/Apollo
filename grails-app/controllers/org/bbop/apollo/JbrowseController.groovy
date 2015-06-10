@@ -383,30 +383,6 @@ class JbrowseController {
         response.outputStream.close()
     }
 
-     /*   JSONArray plugins=jsonObject.plugins
-        if(plugins==null) {
-            log.debug "no plugins array"
-            JSONObject webapolloPlugin=new JSONObject()
-            JSONArray newPlugins=new JSONArray()
-            webapolloPlugin.put("location","plugins/WebApollo")
-            webapolloPlugin.put("name","WebApollo")
-            newPlugins.add(webapolloPlugin)
-            jsonObject.put("plugins",newPlugins)
-        }
-        else {
-            boolean flag=false;
-            for(int i=0; i<plugins.length();i++) {
-                JSONObject p=plugins.get(i)
-                if(p.get("name")=="WebApollo") flag=true
-            }
-            if(!flag) {
-                JSONObject webapolloPlugin=new JSONObject()
-                webapolloPlugin.put("location","plugins/WebApollo")
-                webapolloPlugin.put("name","WebApollo")
-                plugins.add(webapolloPlugin)
-            }
-            log.debug "added to plugins array"
-        }*/
     private static boolean isCacheableFile(String fileName) {
         if (fileName.endsWith(".txt")) return true;
         if (fileName.endsWith(".json")) {
