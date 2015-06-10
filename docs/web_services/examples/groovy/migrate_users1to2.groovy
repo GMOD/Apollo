@@ -47,12 +47,6 @@ JSONArray addUsersArray = new JSONArray()
 
 URL url = new URL(options.destinationurl)
 
-def argumentsArray = [
-        username  : options.username2,
-        password  : options.password2
-]
-
-println "arguments array = ${argumentsArray}"
 
 def client = new RESTClient(options.destinationurl)
 
@@ -61,8 +55,10 @@ String fullPath = "${url.path}/user/createUser"
 for(user in users){
     def userArray = [
 //          email: user
+        username  : options.username2,
+        password  : options.password2
     ]
-    userArray << argumentsArray
+    println "user array ${userArray}"
 
     def resp = client.post(
             contentType: 'text/javascript',
