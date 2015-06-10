@@ -13,7 +13,7 @@ String usageString = "get_usersinwa1.groovy <options>" +
         "Example: \n" +
         "./get_usersinwa1.groovy -username web_apollo_users_admin -password somepass -databaseurl localhost/web_apollo_users "
 
-def cli = new CliBuilder(usage: 'migrate_users.groovy <options>')
+def cli = new CliBuilder(usage: 'get_usersinwa1.groovy <options>')
 cli.setStopAtNonOption(true)
 cli.databaseurl('URL of WebApollo 1.0.x database from which users are fetched', required: true, args: 1)
 cli.username('username', required: true, args: 1)

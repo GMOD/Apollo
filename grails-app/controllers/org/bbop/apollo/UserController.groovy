@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.converters.JSON
@@ -164,12 +165,14 @@ class UserController {
     }
 
     //webservice
+    @Transactional
     def createUser() {
         try {
-            log.debug "creating user ${request.JSON} -> ${params}"
-//            JSONObject dataObject = JSON.parse(params.data)
+//            log.debug "creating user ${request.JSON} -> ${params}"
+            println "request.JSON ${request.JSON as JSON}"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
+            println "dataObject ${dataObject as JSON}"
+            if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED
             }
             if (User.findByUsername(dataObject.email) != null) {
@@ -206,6 +209,7 @@ class UserController {
     }
 
     //webservice
+    @Transactional
     def deleteUser() {
         try {
             log.debug "deleting user ${request.JSON} -> ${params}"
