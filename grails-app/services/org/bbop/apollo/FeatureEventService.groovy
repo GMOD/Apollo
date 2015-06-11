@@ -32,45 +32,32 @@ class FeatureEventService {
     }
 
     FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, String name, String uniqueName, JSONObject commandObject, JSONObject jsonObject, User user) {
-
         FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = :current where fe.uniqueName = :uniqueName", [current: false, uniqueName: uniqueName]);
         JSONArray newFeatureArray = new JSONArray()
         newFeatureArray.add(jsonObject)
+        return addNewFeatureEvent(featureOperation, name, uniqueName, commandObject, new JSONArray(), newFeatureArray, user)
+
+    }
+
+    /**
+     * For non-split , non-merge operations
+     */
+    def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
+//        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
+        FeatureEvent lastFeatureEvent = findLastCurrentFeature(uniqueName)
+        lastFeatureEvent.childUniqueName = uniqueName
+        lastFeatureEvent.current = false;
+        lastFeatureEvent.save()
+
+        deleteFutureHistoryEvents(lastFeatureEvent)
+
         FeatureEvent featureEvent = new FeatureEvent(
                 editor: user
                 , name: name
                 , uniqueName: uniqueName
                 , operation: featureOperation.name()
                 , current: true
-                , originalJsonCommand: commandObject.toString()
-                , newFeaturesJsonArray: newFeatureArray.toString()
-                , oldFeaturesJsonArray: new JSONArray().toString()
-                , dateCreated: new Date()
-                , lastUpdated: new Date()
-        ).save()
-
-
-        return featureEvent
-
-    }
-
-    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
-        return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
-    }
-
-    def addNewFeatureEvent(FeatureOperation featureOperation, String name,String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
-        JSONArray newFeatureArray = new JSONArray()
-        newFeatureArray.add(newJsonObject)
-        JSONArray oldFeatureArray = new JSONArray()
-        oldFeatureArray.add(oldJsonObject)
-
-        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
-        FeatureEvent featureEvent = new FeatureEvent(
-                editor: user
-                , name: name
-                , uniqueName: uniqueName
-                , operation: featureOperation.name()
-                , current: true
+                , parentUniqueName: uniqueName
                 , originalJsonCommand: inputCommand.toString()
                 , newFeaturesJsonArray: newFeatureArray.toString()
                 , oldFeaturesJsonArray: oldFeatureArray.toString()
@@ -80,6 +67,61 @@ class FeatureEventService {
 
         return featureEvent
     }
+
+    def deleteFutureHistoryEvents(FeatureEvent featureEvent) {
+        Set<FeatureEvent> featureEventList = findAllFutureFeatureEvents(featureEvent)
+        return FeatureEvent.deleteAll(featureEventList)
+    }
+
+    Set<FeatureEvent> findAllPreviousFeatureEvents(FeatureEvent featureEvent) {
+        Set<FeatureEvent> featureEventList = new HashSet<>()
+        if(featureEvent.parentUniqueName){
+            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedLessThan(featureEvent.parentUniqueName,featureEvent.dateCreated))
+        }
+
+        if(featureEvent.parentMergeUniqueName){
+            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedLessThan(featureEvent.parentMergeUniqueName,featureEvent.dateCreated))
+        }
+
+        return featureEventList
+    }
+
+    Set<FeatureEvent> findAllFutureFeatureEvents(FeatureEvent featureEvent) {
+        Set<FeatureEvent> featureEventList = new HashSet<>()
+        if(featureEvent.childUniqueName){
+            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childUniqueName,featureEvent.dateCreated))
+        }
+
+        if(featureEvent.childSplitUniqueName){
+            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childSplitUniqueName,featureEvent.dateCreated))
+        }
+
+        // for each split in the feature events, we also need to process??
+
+        return featureEventList
+    }
+
+    FeatureEvent findLastCurrentFeature(String uniqueName) {
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByUniqueNameAndCurrent(uniqueName, true)
+        if (featureEventList.size() != 1) {
+            log.error("Wrong number of current feature events for ${uniqueName}: " + featureEventList.size())
+        }
+        return featureEventList.first()
+    }
+
+    def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONObject oldJsonObject, JSONObject newJsonObject, User user) {
+        JSONArray newFeatureArray = new JSONArray()
+        newFeatureArray.add(newJsonObject)
+        JSONArray oldFeatureArray = new JSONArray()
+        oldFeatureArray.add(oldJsonObject)
+
+        return addNewFeatureEvent(featureOperation, name, uniqueName, inputCommand, oldFeatureArray, newFeatureArray, user)
+    }
+
+    FeatureEvent addNewFeatureEventWithUser(FeatureOperation featureOperation, Feature feature, JSONObject inputCommand, User user) {
+        return addNewFeatureEventWithUser(featureOperation, feature.name, feature.uniqueName, inputCommand, featureService.convertFeatureToJSON(feature), user)
+    }
+
 
     def deleteHistory(String uniqueName) {
         FeatureEvent.deleteAll(FeatureEvent.findAllByUniqueName(uniqueName))
