@@ -65,7 +65,7 @@ class GroupController {
             JSONArray organismPermissionsArray = new JSONArray()
             def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            log.debug "lsit retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
+            log.debug "list retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
             for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
                 if(groupOrganismPermission.organism in allowableOrganisms){
                     JSONObject organismJSON = new JSONObject()

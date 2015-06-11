@@ -79,7 +79,7 @@ class UserController {
             JSONArray organismPermissionsArray = new JSONArray()
             def userOrganismPermissionList3 = userOrganismPermissionMap.get(it.username)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            log.debug "lsit retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
+            log.debug "list retrieved? : ${userOrganismPermissionList3?.size()} for ${it.username}"
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList3) {
                 if (userOrganismPermission.organism in allowableOrganisms) {
                     JSONObject organismJSON = new JSONObject()
@@ -168,18 +168,17 @@ class UserController {
     @Transactional
     def createUser() {
         try {
-//            log.debug "creating user ${request.JSON} -> ${params}"
             println "request.JSON ${request.JSON as JSON}"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             println "dataObject ${dataObject as JSON}"
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED
+                return
             }
             if (User.findByUsername(dataObject.email) != null) {
                 JSONObject error = new JSONObject()
                 error.put("error", "User already exists. Please enter a new username")
                 render error.toString()
-
                 return
             }
 
@@ -213,7 +212,6 @@ class UserController {
     def deleteUser() {
         try {
             log.debug "deleting user ${request.JSON} -> ${params}"
-//            JSONObject dataObject = JSON.parse(params.data)
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
             if(!permissionService.checkPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED
