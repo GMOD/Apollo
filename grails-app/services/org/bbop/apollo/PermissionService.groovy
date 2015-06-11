@@ -642,22 +642,30 @@ class PermissionService {
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
-            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-            Integer permission = permissions.get(SecurityUtils.subject.principal)
-            PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
+            if(session) {
+                Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+                Integer permission = permissions.get(SecurityUtils.subject.principal)
+                PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
-            if (sessionPermissionsEnum == null) {
-                log.warn "No permissions found in session"
+                if (sessionPermissionsEnum == null) {
+                    log.warn "No permissions found in session"
+                    return false
+                }
+
+                if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
+                    log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
+                    return false
+                }
+                return true
+            }
+            else {
+                log.debug "No session found"
                 return false
             }
 
-            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
-                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
-                return false
-            }
-            return true
         } catch (e) {
             log.error "Error checking permissions from session ${e}"
+            e.printStackTrace()
             return false
         }
 
