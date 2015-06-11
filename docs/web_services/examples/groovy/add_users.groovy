@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
-evaluate(new File("./Apollo2Operations.groovy"))
+scriptDir = new File(getClass().protectionDomain.codeSource.location.path).parent
+evaluate(new File("${scriptDir}/Apollo2Operations.groovy"))
 
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
