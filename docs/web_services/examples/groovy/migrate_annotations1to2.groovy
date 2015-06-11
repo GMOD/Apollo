@@ -1,10 +1,9 @@
 #!/usr/bin/env groovy
-evaluate(new File("./Apollo1Operations.groovy"))
-evaluate(new File("./Apollo2Operations.groovy"))
-//@groovy.transform.BaseScript Apollo1Operations
+scriptDir = new File(getClass().protectionDomain.codeSource.location.path).parent
+evaluate(new File("${scriptDir}/Apollo1Operations.groovy"))
+evaluate(new File("${scriptDir}/Apollo2Operations.groovy"))
 
 
-//import groovy.json.JsonSlurper
 import net.sf.json.JSONArray
 import net.sf.json.JSONObject
 
