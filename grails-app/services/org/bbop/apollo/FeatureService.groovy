@@ -1186,7 +1186,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 log.debug "NO name using unique name"
                 gsolFeature.name = gsolFeature.uniqueName + "-${type.get('name')}"
             }
-
+            if (gsolFeature instanceof Deletion) {
+                int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
+                gsolFeature.deletionLength = deletionLength
+            }
+            
             gsolFeature.save(failOnError: true)
 
 
