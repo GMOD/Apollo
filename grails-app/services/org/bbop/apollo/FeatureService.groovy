@@ -628,13 +628,13 @@ class FeatureService {
         if (feature.getFeatureLocation().getStrand() == -1) {
             Collections.reverse(alterations);
         }
-
+        
+        int sequenceAlterationOffset = 0
         for (SequenceAlteration alteration : alterations) {
             if (! (overlapperService.overlaps(feature, alteration, false) && isSequenceAlterationInContext(feature, alteration)) ) {
                 // isSequenceAlterationInContext method verifies if the alteration is within any of the given exons of the transcript
                 continue;
             }
-            println "alteration sourceCoordinate: ${alteration.featureLocation.fmin}"
             int coordinateInContext = -1
             if (feature instanceof CDS) {
                 // if feature is CDS then calling convertSourceCoordinateToLocalCoordinateForCDS
@@ -646,16 +646,14 @@ class FeatureService {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.featureLocation.fmin)
             }
-
-            if (feature.strand == Strand.NEGATIVE.value) {
-                if (coordinateInContext < localCoordinate) {
-                    localCoordinate -= alteration.getOffset()
-                }
-            } else {
-                if (coordinateInContext < localCoordinate) {
-                    localCoordinate -= alteration.getOffset()
-                }
+            
+            if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
+                sequenceAlterationOffset += alteration.getOffset()
             }
+            if (coordinateInContext < localCoordinate && alteration instanceof Insertion) {
+                sequenceAlterationOffset -= alteration.getOffset()
+            }
+            
 //            if (feature.getFeatureLocation().getStrand() == -1) {
 //                if (convertSourceCoordinateToLocalCoordinate(feature, alteration.getFeatureLocation().getFmin()) > localCoordinate) {
 //                    localCoordinate -= alteration.getOffset();
@@ -666,7 +664,8 @@ class FeatureService {
 //                }
 //            }
         }
-
+        
+        localCoordinate = sequenceAlterationOffset > 0 ? localCoordinate - sequenceAlterationOffset : localCoordinate + sequenceAlterationOffset
         if (feature instanceof CDS) {
             // if feature is CDS then calling convertLocalCoordinateToSourceCoordinateForCDS
             return convertLocalCoordinateToSourceCoordinateForCDS((CDS) feature, localCoordinate)
@@ -1069,8 +1068,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int bestStartIndex = -1;
         int bestStopIndex = -1;
         boolean partialStop = false;
-//        println "::: cds.fmin before any operation @setLongestORF: ${transcriptService.getCDS(transcript).fmin}"
-//        println "::: cds.fmax before any operation @setLongestORF: ${transcriptService.getCDS(transcript).fmax}"
+        
         if (mrna.length() > 3) {
             for (String startCodon : translationTable.getStartCodons()) {
                 int startIndex = mrna.indexOf(startCodon);
@@ -1110,8 +1108,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 cds.featureLocation.setIsFminPartial(false);
                 setFmax(cds, fmax);
                 cds.featureLocation.setIsFmaxPartial(partialStop);
-//                println ":::CDS fmin when bestStartIndex >= 0 @setLongestORF: ${cds.fmin}"
-//                println ":::CDS fmax when bestStartIndex >= 0 @setLongestORF: ${cds.fmax}"
             } else {
                 setFmin(cds, transcript.getFmin());
                 cds.featureLocation.setIsFminPartial(true);
