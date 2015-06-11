@@ -185,7 +185,7 @@ class UserController {
                     firstName: dataObject.firstName
                     , lastName: dataObject.lastName
                     , username: dataObject.email
-                    , passwordHash: new Sha256Hash(dataObject.password).toHex()
+                    , passwordHash: new Sha256Hash(dataObject.newPassword).toHex()
             )
             user.save(insert: true)
 
