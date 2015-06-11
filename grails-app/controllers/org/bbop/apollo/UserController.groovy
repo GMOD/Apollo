@@ -168,9 +168,8 @@ class UserController {
     @Transactional
     def createUser() {
         try {
-            println "request.JSON ${request.JSON as JSON}"
+            log.debug "creating user ${request.JSON} -> ${params}"
             JSONObject dataObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
-            println "dataObject ${dataObject as JSON}"
             if(!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)){
                 render status: HttpStatus.UNAUTHORIZED
                 return
