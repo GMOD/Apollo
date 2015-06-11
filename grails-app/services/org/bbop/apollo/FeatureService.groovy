@@ -646,7 +646,7 @@ class FeatureService {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.featureLocation.fmin)
             }
-            
+
             if (feature.strand == Strand.NEGATIVE.value) {
                 if (coordinateInContext < localCoordinate) {
                     localCoordinate -= alteration.getOffset()
@@ -666,7 +666,7 @@ class FeatureService {
 //                }
 //            }
         }
-        println "::: localCoordinate @ convertModifiedLocalCoordinateToSourceCoordinate: ${localCoordinate}"
+
         if (feature instanceof CDS) {
             // if feature is CDS then calling convertLocalCoordinateToSourceCoordinateForCDS
             return convertLocalCoordinateToSourceCoordinateForCDS((CDS) feature, localCoordinate)
@@ -1069,8 +1069,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int bestStartIndex = -1;
         int bestStopIndex = -1;
         boolean partialStop = false;
-        println "::: cds.fmin before any operation @setLongestORF: ${transcriptService.getCDS(transcript).fmin}"
-        println "::: cds.fmax before any operation @setLongestORF: ${transcriptService.getCDS(transcript).fmax}"
+//        println "::: cds.fmin before any operation @setLongestORF: ${transcriptService.getCDS(transcript).fmin}"
+//        println "::: cds.fmax before any operation @setLongestORF: ${transcriptService.getCDS(transcript).fmax}"
         if (mrna.length() > 3) {
             for (String startCodon : translationTable.getStartCodons()) {
                 int startIndex = mrna.indexOf(startCodon);
@@ -1110,8 +1110,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 cds.featureLocation.setIsFminPartial(false);
                 setFmax(cds, fmax);
                 cds.featureLocation.setIsFmaxPartial(partialStop);
-                println ":::CDS fmin when bestStartIndex >= 0 @setLongestORF: ${cds.fmin}"
-                println ":::CDS fmax when bestStartIndex >= 0 @setLongestORF: ${cds.fmax}"
+//                println ":::CDS fmin when bestStartIndex >= 0 @setLongestORF: ${cds.fmin}"
+//                println ":::CDS fmax when bestStartIndex >= 0 @setLongestORF: ${cds.fmax}"
             } else {
                 setFmin(cds, transcript.getFmin());
                 cds.featureLocation.setIsFminPartial(true);
@@ -1485,12 +1485,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     
     
     public int convertSourceCoordinateToLocalCoordinateForCDS(Feature feature, int sourceCoordinate) {
-        List<Exon> exons = exonService.getSortedExons(feature)
+        List<Exon> exons = exonService.getSortedExons(feature, true)
         CDS cds = transcriptService.getCDS(feature)
         int localCoordinate = 0
-        int currentCoordinate = 0
-        int fivePrimeUtrOffset = 0
-        int threePrimeUtrOffset = 0
+        
         if (!(cds.fmin <= sourceCoordinate && cds.fmax >= sourceCoordinate)) {
             return -1
         }
@@ -1535,7 +1533,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     // partial overlap
                     //x = cds.fmax
                     //y = exon.fmin
-                    if (exon.fmin < cds.fmin && exon.fmax < cds.fmax) {
+                    if (exon.fmin <= cds.fmin && exon.fmax <= cds.fmax) {
                         x = exon.fmax
                         y = cds.fmin
                     }
@@ -1549,10 +1547,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     continue
                 }
                 if (y <= sourceCoordinate && x >= sourceCoordinate) {
-                    localCoordinate += (x - sourceCoordinate) + 1
+                    localCoordinate += (x - sourceCoordinate) - 1
                     return localCoordinate
                 } else {
-                    localCoordinate += (x - y) + 1
+                    localCoordinate += (x - y)
                 }
             }
         }
