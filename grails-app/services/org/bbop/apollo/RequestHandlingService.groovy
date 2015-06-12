@@ -1181,7 +1181,15 @@ class RequestHandlingService {
 //            Feature gsolFeature = JSONUtil.convertJSONToFeature(features.getJSONObject(i), bioObjectConfiguration, trackToSourceFeature.get(track), new HttpSessionTimeStampNameAdapter(session, editor.getSession()));
 //            updateNewGsolFeatureAttributes(gsolFeature, trackToSourceFeature.get(track));
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
-            featureService.setOwner(sequenceAlteration,activeUser)
+
+            if (grails.util.Environment.current != grails.util.Environment.TEST) {
+//                log.debug "setting owner for gene and transcript per: ${permissionService.findUser(activeUser)}"
+                if (activeUser) {
+                    featureService.setOwner(sequenceAlteration,activeUser)
+                } else {
+                    log.error("Unable to find valid user to set on transcript!" + inputObject)
+                }
+            }
             sequenceAlteration.save()
 
 
@@ -1195,7 +1203,7 @@ class RequestHandlingService {
 //            setOwner(sequenceAlteration, (String) session.getAttribute("username"));
 //            editor.addSequenceAlteration(sequenceAlteration);
 
-            sequenceAlteration.save(insert: true, failOnError: true, flush: true)
+            sequenceAlteration.save(flush: true)
 //
 //            if (dataStore != null) {
 //                writeFeatureToStore(editor, dataStore, sequenceAlteration, track);

@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 class Deletion extends SequenceAlteration{
 
+    Integer deletionLength
 
     static constraints = {
     }
@@ -10,5 +11,9 @@ class Deletion extends SequenceAlteration{
     static String ontologyId = "SO:0000159"
     static String alternateCvTerm = "deletion"
 
-
+    @Override
+    int getOffset() {
+        // TODO: add offset
+        return deletionLength
+    }
 }

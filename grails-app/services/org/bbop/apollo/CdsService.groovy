@@ -18,6 +18,7 @@ class CdsService {
     def transcriptService
     def featureService
     def exonService
+    def sequenceService
     def overlapperService
     
     public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
@@ -205,7 +206,7 @@ class CdsService {
                 localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin)
                 localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax)
             }
-            residues += featureService.getResiduesWithAlterationsAndFrameshifts((Feature) exon).substring(localStart, localEnd)
+            residues += sequenceService.getResiduesFromFeature((Feature) exon).substring(localStart, localEnd)
         }
         return residues
     }

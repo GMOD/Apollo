@@ -296,13 +296,14 @@ public class TrackPanel extends Composite {
         }
         List<String> trackListArray = new ArrayList<>();
         for(TrackInfo trackInfo : trackInfoList){
-            if(trackInfo.getVisible()){
-                trackListArray.add(trackInfo.getName());
+            if(trackInfo.getVisible()&&
+                    !isReferenceSequence(trackInfo) &&
+                    !isAnnotationTrack(trackInfo)){
+                trackListArray.add(trackInfo.getLabel());
             }
         }
         return trackListArray;
     }
-
     public static void updateTracks(JSONArray array) {
         trackInfoList.clear();
 

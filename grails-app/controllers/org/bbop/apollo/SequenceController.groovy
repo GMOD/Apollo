@@ -220,6 +220,12 @@ class SequenceController {
             j=JSON.parse(k.key)
             break;
         }
+        if(!j.name||!j.organism) {
+            JSONObject error = new JSONObject()
+            error.put(FeatureStringEnum.ERROR.value, "Couldn't lookup organism")
+            render error.toString()
+            return
+        }
         def seqid=j.name
         def organism=Organism.findById(j.organism)
         def sequences = Sequence.findAllByNameAndOrganism(seqid,organism)

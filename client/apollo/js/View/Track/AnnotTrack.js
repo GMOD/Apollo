@@ -365,6 +365,9 @@ define([
                                 data: JSON.stringify(request),
                                 handleAs: "json"
                             }).then(function(response) {
+                                if(response.error) {
+                                    alert("Failed to subscribe to websocket, no seq/org id available")
+                                }
                                 client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response[0].id, dojo.hitch(track,'annotationNotification'));
                             },
                             function() {

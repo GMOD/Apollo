@@ -644,19 +644,24 @@ class PermissionService {
             Session session = SecurityUtils.subject.getSession(false)
             if(session) {
                 Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-                Integer permission = permissions.get(SecurityUtils.subject.principal)
-                PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
+                if(permissions) {
+                    Integer permission = permissions.get(SecurityUtils.subject.principal)
+                    PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
-                if (sessionPermissionsEnum == null) {
-                    log.warn "No permissions found in session"
-                    return false
-                }
+                    if (sessionPermissionsEnum == null) {
+                        log.warn "No permissions found in session"
+                        return false
+                    }
 
-                if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
-                    log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
-                    return false
+                    if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
+                        log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
+                        return false
+                    }
+                    return true
                 }
-                return true
+                else {
+                    log.debug "No permissions found on session"
+                }
             }
             else {
                 log.debug "No session found"

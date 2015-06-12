@@ -1099,9 +1099,11 @@ function( declare, xhr, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUt
 
         this.loadTranslationTable().then(
                 function() {
-                    track.loadSequenceAlterations().then(function() {
-                        track.stopStandby();
-                    });
+                    if(track.webapollo.getAnnotTrack().isLoggedIn()) {
+                        track.loadSequenceAlterations().then(function() {
+                            track.stopStandby();
+                        });
+                    }
                 },
                 function() {
                     track.stopStandby();
