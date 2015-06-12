@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import org.bbop.apollo.history.FeatureOperation
+import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Specification
 
 /**
@@ -17,13 +18,13 @@ class FeatureEventServiceSpec extends Specification {
 
     // create 5 FeatureEvents
     def setup() {
-        new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE ,name:"Gene123",uniqueName: uniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_READTHROUGH_STOP_CODON,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-4 ,current: false ).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.SET_BOUNDARIES,name:"Gene123",uniqueName: uniqueName ,dateCreated: today-3 ,current: true).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.ADD_EXON,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-2 ,current: false).save(failOnError:true)
-        new FeatureEvent ( operation: FeatureOperation.MERGE_TRANSCRIPTS,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-1 ,current: false).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.ADD_FEATURE ,childUniqueName: uniqueName, name:"Gene123",uniqueName: uniqueName ,dateCreated: today-7 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SPLIT_TRANSCRIPT,childUniqueName: uniqueName,parentUniqueName: uniqueName, name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-6 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SET_TRANSLATION_END,childUniqueName: uniqueName,parentUniqueName: uniqueName,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-5 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SET_READTHROUGH_STOP_CODON,childUniqueName: uniqueName,parentUniqueName: uniqueName,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-4 ,current: false ).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.SET_BOUNDARIES,childUniqueName: uniqueName,parentUniqueName: uniqueName,name:"Gene123",uniqueName: uniqueName ,dateCreated: today-3 ,current: true).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.ADD_EXON,childUniqueName: uniqueName,parentUniqueName: uniqueName,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-2 ,current: false).save(failOnError:true)
+        new FeatureEvent ( operation: FeatureOperation.MERGE_TRANSCRIPTS,parentUniqueName: uniqueName,name:"Gene123",uniqueName: uniqueName  ,dateCreated: today-1 ,current: false).save(failOnError:true)
     }
 
     def cleanup() {
@@ -62,11 +63,14 @@ class FeatureEventServiceSpec extends Specification {
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-1
+                ,parentUniqueName: "AAAA"
         ).save()
         new FeatureEvent(
                 operation: FeatureOperation.ADD_TRANSCRIPT
                 ,name: "Gene123"
                 ,uniqueName: "AAAA"
+                ,childUniqueName: "AAAA"
+                ,parentUniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-2
         ).save()
@@ -74,12 +78,15 @@ class FeatureEventServiceSpec extends Specification {
                 operation: FeatureOperation.SPLIT_TRANSCRIPT
                 ,name: "Gene123"
                 ,uniqueName: "AAAA"
+                ,childUniqueName: "AAAA"
+                ,parentUniqueName: "AAAA"
                 ,current: true
                 ,dateCreated: new Date()-3
         ).save()
         new FeatureEvent(
                 operation: FeatureOperation.MERGE_TRANSCRIPTS
                 ,name: "Gene123"
+                ,childUniqueName: "AAAA"
                 ,uniqueName: "AAAA"
                 ,current: false
                 ,dateCreated: new Date()-4
@@ -102,5 +109,97 @@ class FeatureEventServiceSpec extends Specification {
         assert currentIndex==2
 
     }
+
+    void "if we use the service to do insertions"(){
+
+        given:"a transcript with a unique name"
+        String name = "sox9a-0001"
+        String uniqueName = "abc123"
+
+        when: "we add a feature event"
+        service.addNewFeatureEvent(FeatureOperation.ADD_TRANSCRIPT,name,uniqueName,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        List<FeatureEvent> featureEventList = service.getHistory(uniqueName)
+
+        then: "we should see a feature event"
+        assert 1==FeatureEvent.countByUniqueName(uniqueName)
+        assert featureEventList.size()==1
+
+
+        when: "we add another feature event"
+        service.addNewFeatureEvent(FeatureOperation.SET_EXON_BOUNDARIES,name,uniqueName,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        featureEventList = service.getHistory(uniqueName)
+
+        then: "we should see two feature events, with the second one current and the prior one before"
+        assert featureEventList.size()==2
+        assert 2==FeatureEvent.countByUniqueName(uniqueName)
+        assert featureEventList.get(1).current
+        assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert !featureEventList.get(0).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+
+
+        when: "we add a third feature event"
+        service.addNewFeatureEvent(FeatureOperation.SET_TRANSLATION_START,name,uniqueName,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        featureEventList = service.getHistory(uniqueName)
+
+        then: "we should see three feature events, with the third one current and the prior two before"
+        assert featureEventList.size()==3
+        assert 3==FeatureEvent.countByUniqueName(uniqueName)
+
+        assert featureEventList.get(2).operation==FeatureOperation.SET_TRANSLATION_START
+        assert featureEventList.get(2).current
+        assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert !featureEventList.get(1).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList.get(0).current
+
+        when: "if we make the second one current"
+        service.setTransactionForFeature(uniqueName,1)
+        featureEventList = service.getHistory(uniqueName)
+
+        then: "we should see one in front and one behind"
+        assert featureEventList.size()==3
+        assert 3==FeatureEvent.countByUniqueName(uniqueName)
+        assert featureEventList.get(2).operation==FeatureOperation.SET_TRANSLATION_START
+        assert !featureEventList.get(2).current
+        assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert featureEventList.get(1).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList.get(0).current
+
+        when: "we add another feature event"
+        service.addNewFeatureEvent(FeatureOperation.SPLIT_EXON,name,uniqueName,new JSONObject(),new JSONObject(),new JSONObject(),null)
+        featureEventList = service.getHistory(uniqueName)
+
+
+        then: "the last one disappears"
+        assert featureEventList.size()==3
+        assert 3==FeatureEvent.countByUniqueName(uniqueName)
+        assert featureEventList.get(2).operation==FeatureOperation.SPLIT_EXON
+        assert featureEventList.get(2).current
+        assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert !featureEventList.get(1).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList.get(0).current
+
+        when: "we set the first one current"
+        service.setTransactionForFeature(uniqueName,0)
+        assert 1==FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)
+
+        featureEventList = service.getHistory(uniqueName)
+
+        then: "the first one will be current"
+        assert featureEventList.size()==3
+        assert 3==FeatureEvent.countByUniqueName(uniqueName)
+        assert featureEventList.get(2).operation==FeatureOperation.SPLIT_EXON
+        assert !featureEventList.get(2).current
+        assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert !featureEventList.get(1).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList.get(0).current
+
+    }
+
+
 
 }
