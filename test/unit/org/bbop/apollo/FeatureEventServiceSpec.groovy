@@ -132,10 +132,10 @@ class FeatureEventServiceSpec extends Specification {
         then: "we should see two feature events, with the second one current and the prior one before"
         assert featureEventList.size()==2
         assert 2==FeatureEvent.countByUniqueName(uniqueName)
-        assert featureEventList.get(0).current
-        assert featureEventList.get(0).operation==FeatureOperation.SET_EXON_BOUNDARIES
-        assert !featureEventList.get(1).current
-        assert featureEventList.get(1).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList.get(1).current
+        assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
+        assert !featureEventList.get(0).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
 
 
         when: "we add a third feature event"
@@ -146,12 +146,12 @@ class FeatureEventServiceSpec extends Specification {
         assert featureEventList.size()==3
         assert 3==FeatureEvent.countByUniqueName(uniqueName)
 
-        assert featureEventList.get(0).operation==FeatureOperation.SET_TRANSLATION_START
-        assert featureEventList.get(0).current
+        assert featureEventList.get(2).operation==FeatureOperation.SET_TRANSLATION_START
+        assert featureEventList.get(2).current
         assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
         assert !featureEventList.get(1).current
-        assert featureEventList.get(2).operation==FeatureOperation.ADD_TRANSCRIPT
-        assert !featureEventList.get(2).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList.get(0).current
 
         when: "if we make the second one current"
         service.setTransactionForFeature(uniqueName,1)
@@ -160,12 +160,12 @@ class FeatureEventServiceSpec extends Specification {
         then: "we should see one in front and one behind"
         assert featureEventList.size()==3
         assert 3==FeatureEvent.countByUniqueName(uniqueName)
-        assert featureEventList.get(0).operation==FeatureOperation.SET_TRANSLATION_START
-        assert !featureEventList.get(0).current
+        assert featureEventList.get(2).operation==FeatureOperation.SET_TRANSLATION_START
+        assert !featureEventList.get(2).current
         assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
         assert featureEventList.get(1).current
-        assert featureEventList.get(2).operation==FeatureOperation.ADD_TRANSCRIPT
-        assert !featureEventList.get(2).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList.get(0).current
 
         when: "we add another feature event"
         service.addNewFeatureEvent(FeatureOperation.SPLIT_EXON,name,uniqueName,new JSONObject(),new JSONObject(),new JSONObject(),null)
@@ -175,15 +175,15 @@ class FeatureEventServiceSpec extends Specification {
         then: "the last one disappears"
         assert featureEventList.size()==3
         assert 3==FeatureEvent.countByUniqueName(uniqueName)
-        assert featureEventList.get(0).operation==FeatureOperation.SPLIT_EXON
-        assert featureEventList.get(0).current
+        assert featureEventList.get(2).operation==FeatureOperation.SPLIT_EXON
+        assert featureEventList.get(2).current
         assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
         assert !featureEventList.get(1).current
-        assert featureEventList.get(2).operation==FeatureOperation.ADD_TRANSCRIPT
-        assert !featureEventList.get(2).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert !featureEventList.get(0).current
 
         when: "we set the first one current"
-        service.setTransactionForFeature(uniqueName,2)
+        service.setTransactionForFeature(uniqueName,0)
         assert 1==FeatureEvent.countByUniqueNameAndCurrent(uniqueName,true)
 
         featureEventList = service.getHistory(uniqueName)
@@ -191,12 +191,12 @@ class FeatureEventServiceSpec extends Specification {
         then: "the first one will be current"
         assert featureEventList.size()==3
         assert 3==FeatureEvent.countByUniqueName(uniqueName)
-        assert featureEventList.get(0).operation==FeatureOperation.SPLIT_EXON
-        assert !featureEventList.get(0).current
+        assert featureEventList.get(2).operation==FeatureOperation.SPLIT_EXON
+        assert !featureEventList.get(2).current
         assert featureEventList.get(1).operation==FeatureOperation.SET_EXON_BOUNDARIES
         assert !featureEventList.get(1).current
-        assert featureEventList.get(2).operation==FeatureOperation.ADD_TRANSCRIPT
-        assert featureEventList.get(2).current
+        assert featureEventList.get(0).operation==FeatureOperation.ADD_TRANSCRIPT
+        assert featureEventList.get(0).current
 
     }
 

@@ -343,7 +343,7 @@ class FeatureEventService {
 
 
         return (featureEvents as List).sort(){a,b ->
-            b.dateCreated <=> a.dateCreated
+            a.dateCreated <=> b.dateCreated
         }
     }
 
