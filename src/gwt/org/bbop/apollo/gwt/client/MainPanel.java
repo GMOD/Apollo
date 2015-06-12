@@ -280,15 +280,12 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
-//                        Window.alert(returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue());
                         new ErrorDialog("Error", returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, false);
                     } else {
                         getAppState();
                         logoutButton.setVisible(true);
                         currentUser = UserInfoConverter.convertToUserInfoFromJSON(returnValue);
-
                         String displayName = currentUser.getEmail();
-
                         userName.setHTML(displayName.length() > maxUsernameLength ?
                                 displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
                     }
@@ -319,7 +316,6 @@ public class MainPanel extends Composite {
             builder.setCallback(requestCallback);
             builder.send();
         } catch (RequestException e) {
-            // Couldn't connect to server
             Window.alert(e.getMessage());
         }
 
@@ -521,7 +517,6 @@ public class MainPanel extends Composite {
     }
 
     public void closeLink() {
-//        linkUrl.setHTML("");
         linkPanel.setVisible(false);
         mainSplitPanel.setWidgetSize(linkPanel, 0);
         mainSplitPanel.animate(100);
@@ -587,7 +582,7 @@ public class MainPanel extends Composite {
 
 
     public static void reloadAnnotator() {
-        GWT.log("!!! MainPanel::calling annotator relaod ");
+        GWT.log("MainPanel reloadAnnotator");
         annotatorPanel.reload();
     }
 
@@ -643,7 +638,6 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureAdded(String payload) {
-//        if (handlingNavEvent) return;
         if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
@@ -655,8 +649,6 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureDeleted(String payload) {
-//        if (handlingNavEvent) return;
-
         if (detailTabs.getSelectedIndex() == 0) {
             Scheduler.get().scheduleDeferred(new Command() {
                 @Override
@@ -674,7 +666,6 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureUpdated(String payload) {
-//        if (handlingNavEvent) return;
         if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
