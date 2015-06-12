@@ -38,13 +38,80 @@ class FeatureEventService {
 
     }
 
+/**
+ * Convention is that 1 is the parent and is returned first in the array.
+ * @param name1
+ * @param uniqueName1
+ * @param name2
+ * @param uniqueName2
+ * @param commandObject
+ * @param oldFeatureObject
+ * @param newFeatureArray
+ * @param user
+ * @return
+ */
+    List<FeatureEvent> addSplitFeatureEvent(String name1, String uniqueName1, String name2, String uniqueName2, JSONObject commandObject, JSONObject oldFeatureObject, JSONArray newFeatureArray,
+                                            User user) {
+        List<FeatureEvent> featureEventList = new ArrayList<>()
+        JSONArray oldFeatureArray = new JSONArray()
+        oldFeatureArray.add(oldFeatureObject)
+
+        FeatureEvent lastFeatureEvent = findCurrentFeatureEvent(uniqueName1)
+        if (lastFeatureEvent) {
+            lastFeatureEvent.childUniqueName = uniqueName1
+            lastFeatureEvent.childSplitUniqueName = uniqueName2
+            lastFeatureEvent.current = false;
+            lastFeatureEvent.save()
+
+            deleteFutureHistoryEvents(lastFeatureEvent)
+        }
+
+        Date addDate = new Date()
+
+        FeatureEvent featureEvent1 = new FeatureEvent(
+                editor: user
+                , name: name1
+                , uniqueName: uniqueName1
+                , operation: FeatureOperation.SPLIT_TRANSCRIPT
+                , current: true
+                , parentUniqueName: uniqueName1
+                , originalJsonCommand: commandObject.toString()
+                , newFeaturesJsonArray: newFeatureArray.toString()
+                , oldFeaturesJsonArray: oldFeatureArray.toString()
+                , dateCreated: addDate
+                , lastUpdated: addDate
+        ).save()
+
+        FeatureEvent featureEvent2 = new FeatureEvent(
+                editor: user
+                , name: name2
+                , uniqueName: uniqueName2
+                , operation: FeatureOperation.SPLIT_TRANSCRIPT
+                , current: true
+                , parentUniqueName: uniqueName1
+                , originalJsonCommand: commandObject.toString()
+                , newFeaturesJsonArray: newFeatureArray.toString()
+                , oldFeaturesJsonArray: oldFeatureArray.toString()
+                , dateCreated: addDate
+                , lastUpdated: addDate
+        ).save()
+
+        featureEvent1.dateCreated = featureEvent2.dateCreated
+        featureEvent1.save()
+
+        featureEventList.add(featureEvent1)
+        featureEventList.add(featureEvent2)
+
+        return featureEventList
+    }
+
     /**
      * For non-split , non-merge operations
      */
     def addNewFeatureEvent(FeatureOperation featureOperation, String name, String uniqueName, JSONObject inputCommand, JSONArray oldFeatureArray, JSONArray newFeatureArray, User user) {
 //        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
         FeatureEvent lastFeatureEvent = findCurrentFeatureEvent(uniqueName)
-        if(lastFeatureEvent){
+        if (lastFeatureEvent) {
             lastFeatureEvent.childUniqueName = uniqueName
             lastFeatureEvent.current = false;
             lastFeatureEvent.save()
@@ -69,6 +136,16 @@ class FeatureEventService {
         return featureEvent
     }
 
+    def setNotCurrentFutureHistoryEvents(FeatureEvent featureEvent) {
+        Set<FeatureEvent> featureEventList = findAllFutureFeatureEvents(featureEvent)
+        featureEventList.each {
+            if(it.current){
+                it.current=false
+                it.save()
+            }
+        }
+    }
+
     def deleteFutureHistoryEvents(FeatureEvent featureEvent) {
         Set<FeatureEvent> featureEventList = findAllFutureFeatureEvents(featureEvent)
         return FeatureEvent.deleteAll(featureEventList)
@@ -76,12 +153,25 @@ class FeatureEventService {
 
     Set<FeatureEvent> findAllPreviousFeatureEvents(FeatureEvent featureEvent) {
         Set<FeatureEvent> featureEventList = new HashSet<>()
-        if(featureEvent.parentUniqueName){
-            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedLessThan(featureEvent.parentUniqueName,featureEvent.dateCreated))
+        if (featureEvent.parentUniqueName) {
+//            for(FeatureEvent parentFeatureEvent in FeatureEvent.findAllByUniqueNameAndDateCreatedLessThan(featureEvent.parentUniqueName, featureEvent.dateCreated)){
+            for (FeatureEvent parentFeatureEvent in FeatureEvent.findAllByUniqueName(featureEvent.parentUniqueName)) {
+                // this is likely a rounding error
+                // this is sometimes off by 3-5 ns . . . annoying
+                if(parentFeatureEvent.dateCreated.time < featureEvent.dateCreated.time-10){
+                    featureEventList.add(parentFeatureEvent)
+                    featureEventList.addAll(findAllPreviousFeatureEvents(parentFeatureEvent))
+                }
+            }
         }
 
-        if(featureEvent.parentMergeUniqueName){
-            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedLessThan(featureEvent.parentMergeUniqueName,featureEvent.dateCreated))
+        if (featureEvent.parentMergeUniqueName) {
+            for (FeatureEvent parentFeatureEvent in FeatureEvent.findAllByUniqueName(featureEvent.parentMergeUniqueName)) {
+                if(parentFeatureEvent.dateCreated.time < featureEvent.dateCreated.time-10){
+                    featureEventList.add(parentFeatureEvent)
+                    featureEventList.addAll(findAllPreviousFeatureEvents(parentFeatureEvent))
+                }
+            }
         }
 
         return featureEventList
@@ -89,12 +179,23 @@ class FeatureEventService {
 
     Set<FeatureEvent> findAllFutureFeatureEvents(FeatureEvent featureEvent) {
         Set<FeatureEvent> featureEventList = new HashSet<>()
-        if(featureEvent.childUniqueName){
-            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childUniqueName,featureEvent.dateCreated))
+        if (featureEvent.childUniqueName) {
+            for(FeatureEvent childFeatureEvent in FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childUniqueName, featureEvent.dateCreated)){
+                if(childFeatureEvent.dateCreated.time-10 > featureEvent.dateCreated.time){
+                    featureEventList.add(childFeatureEvent)
+                    featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent))
+                }
+            }
         }
 
-        if(featureEvent.childSplitUniqueName){
-            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childSplitUniqueName,featureEvent.dateCreated))
+        if (featureEvent.childSplitUniqueName) {
+//            featureEventList.addAll(FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childSplitUniqueName, featureEvent.dateCreated))
+            for(FeatureEvent childFeatureEvent in FeatureEvent.findAllByUniqueNameAndDateCreatedGreaterThan(featureEvent.childSplitUniqueName, featureEvent.dateCreated)){
+                if(childFeatureEvent.dateCreated.time-10 > featureEvent.dateCreated.time){
+                    featureEventList.add(childFeatureEvent)
+                    featureEventList.addAll(findAllFutureFeatureEvents(childFeatureEvent))
+                }
+            }
         }
 
         // for each split in the feature events, we also need to process??
@@ -132,21 +233,29 @@ class FeatureEventService {
         log.info "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${count}"
 //        int updated = FeatureEvent.executeUpdate("update FeatureEvent  fe set fe.current = false where fe.uniqueName = :uniqueName", [uniqueName: uniqueName])
         List<FeatureEvent> featureEventList = getHistory(uniqueName)
-        for(int i = 0 ; i < featureEventList.size() ; i++){
+        FeatureEvent currentFeatureEvent = null
+        for (int i = 0; i < featureEventList.size(); i++) {
             FeatureEvent featureEvent = featureEventList.get(i)
-            if(i==count && !featureEvent.current){
+            if (i == count && !featureEvent.current) {
                 featureEvent.current = true
                 featureEvent.save()
-            }
-            else
-            if(i!=count && featureEvent.current){
+                currentFeatureEvent = featureEvent
+            } else if (i != count && featureEvent.current) {
                 featureEvent.current = false
                 featureEvent.save()
             }
         }
 
+        if(!currentFeatureEvent){
+            log.warn "Did we forget to change the feature event?"
+            return findCurrentFeatureEvent(uniqueName)
+        }
+
+        setNotCurrentFutureHistoryEvents(currentFeatureEvent)
+
+
 //        log.debug "updated is ${updated}"
-        return findCurrentFeatureEvent(uniqueName)
+        return findCurrentFeatureEvent(currentFeatureEvent.uniqueName)
     }
 
     def setHistoryState(JSONObject inputObject, int count, boolean confirm) {
@@ -342,10 +451,9 @@ class FeatureEventService {
         featureEvents.add(currentFeatureEvent)
 
 
-        return (featureEvents as List).sort(){a,b ->
+        return (featureEvents as List).sort() { a, b ->
             a.dateCreated <=> b.dateCreated
         }
     }
-
 
 }
