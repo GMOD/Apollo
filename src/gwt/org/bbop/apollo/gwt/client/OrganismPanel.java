@@ -62,8 +62,6 @@ public class OrganismPanel extends Composite {
     @UiField
     TextBox species;
     @UiField
-    InputGroupAddon annotationCount;
-    @UiField
     TextBox sequenceFile;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -76,10 +74,6 @@ public class OrganismPanel extends Composite {
     Button cancelButton;
     @UiField
     Button deleteButton;
-    @UiField
-    InputGroupAddon validDirectory;
-//    @UiField
-//    Button reloadButton;
 
     boolean creatingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism=false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -91,8 +85,7 @@ public class OrganismPanel extends Composite {
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        loadingDialog = new LoadingDialog("Processing ...");
-        loadingDialog.hide();
+        loadingDialog = new LoadingDialog("Processing ...",null, false);
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -205,26 +198,11 @@ public class OrganismPanel extends Composite {
         genus.setText(organismInfo.getGenus());
         species.setText(organismInfo.getSpecies());
         sequenceFile.setText(organismInfo.getDirectory());
-        annotationCount.setText(organismInfo.getNumFeatures().toString());
 
         deleteButton.setVisible(true);
         sequenceFile.setEnabled(true);
         deleteButton.setEnabled(true);
 
-
-        if(organismInfo.getValid()==null){
-            validDirectory.setIcon(IconType.QUESTION);
-            validDirectory.setColor("Red");
-        }
-        else if(organismInfo.getValid()){
-            validDirectory.setIcon(IconType.CHECK);
-            validDirectory.setColor("Green");
-        }
-        else{
-            validDirectory.setIcon(IconType.XING);
-            validDirectory.setColor("Red");
-        }
-        validDirectory.setVisible(true);
     }
 
     private class UpdateInfoListCallback implements  RequestCallback {
@@ -270,19 +248,10 @@ public class OrganismPanel extends Composite {
     }
 
 
-
-    public void clearSelections(){
-        singleSelectionModel.clear();
-        clearTextBoxes();
-        validDirectory.setVisible(false);
-        newButton.setEnabled(false);
-    }
-
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
         creatingNewOrganism=true;
         clearTextBoxes();
-        annotationCount.setText("");
         singleSelectionModel.clear();
 
         createButton.setText("Create Organism");
@@ -295,7 +264,6 @@ public class OrganismPanel extends Composite {
         cancelButton.setVisible(true);
         newButton.setVisible(true);
         deleteButton.setVisible(false);
-        validDirectory.setVisible(false);
 
 
         setTextEnabled(true);
@@ -381,10 +349,6 @@ public class OrganismPanel extends Composite {
         }
     }
 
-//    @UiHandler("reloadButton")
-//    public void handleReloadButton(ClickEvent clickEvent) {
-//        updateOrganismInfo(true);
-//    }
 
     private void updateOrganismInfo() {
         updateOrganismInfo(false);
@@ -405,8 +369,6 @@ public class OrganismPanel extends Composite {
         clearTextBoxes();
         setTextEnabled(false);
 
-        annotationCount.setText("");
-        validDirectory.setVisible(false);
         deleteButton.setVisible(false);
     }
 

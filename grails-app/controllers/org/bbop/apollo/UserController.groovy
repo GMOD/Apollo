@@ -23,12 +23,10 @@ class UserController {
         }
 
         def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-        log.debug "allowable organisms ${allowableOrganisms.size()}"
 
         List<String> allUserGroups = UserGroup.all.name
         Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        log.debug "total permission list ${userOrganismPermissionList.size()}"
         for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
             List<UserOrganismPermission> userOrganismPermissionListTemp = userOrganismPermissionMap.get(userOrganismPermission.user.username)
             if (userOrganismPermissionListTemp == null) {
@@ -37,7 +35,6 @@ class UserController {
             userOrganismPermissionListTemp.add(userOrganismPermission)
             userOrganismPermissionMap.put(userOrganismPermission.user.username, userOrganismPermissionListTemp)
         }
-        log.debug "org permission map ${userOrganismPermissionMap.size()}"
         for (v in userOrganismPermissionMap) {
             log.debug "${v.key} ${v.value}"
         }
@@ -96,8 +93,6 @@ class UserController {
             Set<Organism> organismList = allowableOrganisms.findAll() {
                 !organismsWithPermissions.contains(it.id)
             }
-            log.debug "organisms with permissions ${organismsWithPermissions.size()}"
-            log.debug "organisms list ${organismList.size()}"
 
             for (Organism organism in organismList) {
                 JSONObject organismJSON = new JSONObject()

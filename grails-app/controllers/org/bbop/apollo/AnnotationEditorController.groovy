@@ -163,7 +163,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getHistoryForFeatures() {
-        log.debug "getting history !! ${params}"
+        log.debug "getHistoryForFeatures ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -200,9 +200,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                         JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
                         // TODO: this needs to be functional
                         if (false && transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
-////                        if (gbolFeature.overlaps(f)) {
+//                        if (gbolFeature.overlaps(f)) {
 //                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
-////                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
+//                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
 //                            historyFeatures.put(featureService.convertFeatureToJSON(f));
                             throw new RuntimeException("split transcript operations not supported yet")
                         }
@@ -222,7 +222,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getTranslationTable() {
-        log.debug "get translation table!! ${params}"
+        log.debug "getTranslationTable ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         TranslationTable translationTable = SequenceTranslationHandler.getDefaultTranslationTable()
         JSONObject ttable = new JSONObject();
@@ -234,7 +234,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    // webservice
     def addFeature() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -254,7 +253,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    // webservice
     def addExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -349,7 +347,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
      * "type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,
      * "parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
      */
-    // webservice
     def addTranscript() {
         log.debug "AEC::adding transcript ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -360,7 +357,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def duplicateTranscript() {
         log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -371,7 +367,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def setTranslationStart() {
         log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -382,7 +377,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def setTranslationEnd() {
         log.debug "AEC::set translation end ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -393,7 +387,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def setLongestOrf() {
         log.debug "AEC::set longest ORF ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -467,7 +460,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    //webservice
     // TODO: implement
     def getResiduesWithAlterations(){
         throw new RuntimeException("Not yet implemented")
@@ -495,19 +487,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //        }
     }
 
-    //webservice
     // TODO: implement
     def addFrameshift(){
         throw new RuntimeException("Not yet implemented")
     }
 
-    //webservice
     // TODO: implement
     def getResiduesWithFrameShifts(){
         throw new RuntimeException("Not yet implemented")
     }
 
-    //webservice
     // TODO: implement
     def getResiduesWithAlternationsAndFrameshifts(){
         throw new RuntimeException("Not yet implemented")
@@ -528,7 +517,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
-    //webservice
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
 
@@ -560,7 +548,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getAnnotationInfoEditorConfiguration() {
-        log.debug "getting the config "
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
@@ -614,7 +601,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //wevservice
     def addSequenceAlteration() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -624,7 +610,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def deleteSequenceAlteration() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -643,7 +628,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def mergeExons() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -653,7 +637,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def splitExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -664,7 +647,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    // webservice
     def deleteFeature() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -674,7 +656,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def deleteExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -693,7 +674,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def splitTranscript() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -703,7 +683,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def mergeTranscripts() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {

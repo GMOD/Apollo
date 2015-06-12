@@ -22,9 +22,8 @@ class LoginController extends AbstractApolloController {
 
     def index() {}
 
-    def handleOperation(String track, String operation) {
-        // TODO: this is a hack, but it should come through the UrlMapper
 
+    def handleOperation(String track, String operation) {
         log.debug "request stuff ${request.parameterMap.keySet()}"
         log.debug "upstream params ${params}"
         JSONObject postObject = findPost()
