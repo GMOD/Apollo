@@ -4,57 +4,21 @@
              xmlns:apollo='urn:import:org.bbop.apollo.gwt.client'
         >
     <ui:style>
-        .details-header-title {
-            /*background-color: #808080;*/
-            font-size: larger;
-            width: 20%;
-            /*margin-top: 5px;*/
-            margin-left: 10px;
-            text-align: left;
-            font-weight: 200;
-            /*width: 100%;*/
-            /*border: solid;*/
-            display: inline-table;
-        }
 
-        /** Set ids using widget.getElement().setId("idOfElement") */
-        #closeButton {
-            margin: 15px 6px 6px;
-        }
 
         .details-header {
             background-color: #cccccc;
             width: 100%;
             border-top: 0;
-            /*display: inline-block;*/
         }
 
         .details-button {
-            /*width: 10px;*/
             display: inline-table;
             cursor: pointer;
-            /*border-top: 0;*/
-        }
-
-        .details-list-title {
-            display: inline-table;
-            margin-left: 10px;
-            margin-right: 5px;
-            font-size: smaller;
-        }
-
-        .details-list {
-            font-size: smaller;
         }
 
         .title-tab-headers {
             font-size: smaller;
-        }
-
-        .active-piece {
-            display: inline;
-            padding-left: 10px;
-            color: #ffffff;
         }
 
         .emptyPanel {
@@ -64,9 +28,6 @@
             border-width: 1px;
         }
 
-        .inline {
-            display: inline-table;
-        }
 
         .logout-button {
             margin-left: 10px;
@@ -75,11 +36,6 @@
         .username {
             display: inline-table;
             font-size: smaller;
-        }
-
-        .navigation-display {
-            margin-left: 5px;
-            margin-right: 5px;
         }
 
         .dropdown-display {
@@ -116,13 +72,6 @@
             font-size: smaller;
         }
 
-        /*.dropdown-menu .item {*/
-            /*padding: 5px;*/
-        /*}*/
-
-        /*.dropdown-menu .item-selected {*/
-            /*background-color: #eee;*/
-        /*}*/
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:north size="0">

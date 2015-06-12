@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -540,8 +539,6 @@ public class MainPanel extends Composite {
             url += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
         }
         url += "&organism=" + currentOrganism.getId();
-        url += "&highlight=0";
-        url += "&tracklist=0";
         url += "&tracks=";
 
         List<String> trackList = trackPanel.getTrackList();
@@ -551,7 +548,24 @@ public class MainPanel extends Composite {
                 url += ",";
             }
         }
-        linkUrl.setText(url);
+        String url2 = Annotator.getRootUrl();
+        url2 += "jbrowse/index.html";
+        if (currentStartBp != null) {
+            url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
+        } else {
+            url2 += "?loc=" + currentSequence.getName() + ":" + currentSequence.getStart() + ".." + currentSequence.getEnd();
+        }
+        url2 += "&organism=" + currentOrganism.getId();
+        url2 += "&tracks=";
+
+        trackList = trackPanel.getTrackList();
+        for (int i = 0; i < trackList.size(); i++) {
+            url2 += trackList.get(i);
+            if (i < trackList.size() - 1) {
+                url2 += ",";
+            }
+        }
+        linkUrl.setHTML("Annotator link: "+url+"<br />Public link: "+url2);
         linkPanel.setVisible(true);
         mainSplitPanel.setWidgetSize(linkPanel, 50);
         mainSplitPanel.animate(100);
