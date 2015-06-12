@@ -176,7 +176,7 @@ class UserController {
             }
             if (User.findByUsername(dataObject.email) != null) {
                 JSONObject error = new JSONObject()
-                error.put("error", "User already exists. Please enter a new username")
+                error.put(FeatureStringEnum.ERROR.value, "User already exists. Please enter a new username")
                 render error.toString()
                 return
             }
