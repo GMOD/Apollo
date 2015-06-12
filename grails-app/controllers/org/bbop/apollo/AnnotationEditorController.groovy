@@ -53,6 +53,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def permissionService
     def preferenceService
     def sequenceSearchService
+    def featureEventService
 
 
     def index() {
@@ -177,7 +178,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
+//            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
+            List<FeatureEvent> transactionList = featureEventService.getHistory(feature.uniqueName)
             for (int j = 0; j < transactionList.size(); ++j) {
                 FeatureEvent transaction = transactionList.get(j);
                 JSONObject historyItem = new JSONObject();
