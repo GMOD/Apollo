@@ -4,16 +4,12 @@
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
         >
     <ui:style>
-        .northPanel {
-            padding: 0px;
-            margin: 10px;
-        }
 
         .widgetPanel {
             margin-bottom: 5px;
         }
 
-        .trackTable {
+        .organismTable {
             margin-left: 10px;
             margin-top: 10px;
             vertical-align: middle;
@@ -30,7 +26,7 @@
     </ui:style>
     <gwt:SplitLayoutPanel>
         <gwt:center>
-            <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}"/>
+            <cellview:DataGrid ui:field="dataGrid" styleName="{style.organismTable}"/>
         </gwt:center>
         <gwt:south size="300">
             <gwt:TabLayoutPanel barHeight="35">
@@ -78,12 +74,11 @@
                             </b:Column>
                         </b:Row>
                         <b:Row styleName="{style.row}">
-                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                            <b:Column size="MD_5" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Annotations</b:InputGroupAddon>
                                     <b:InputGroupAddon ui:field="annotationCount" />
                                     <b:InputGroupAddon ui:field="validDirectory" visible="false" icon="CHECK" iconPosition="RIGHT" color="RED">trackList.json</b:InputGroupAddon>
-                                    <!--<b:Button icon="REFRESH" ui:field="reloadButton"/>-->
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>

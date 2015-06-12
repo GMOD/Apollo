@@ -2,58 +2,12 @@
              xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:apollo='urn:import:org.bbop.apollo.gwt.client'
-             xmlns:bcellview="urn:import:org.gwtbootstrap3.client.ui.gwt"
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
         >
     <ui:style>
         .northPanel {
             padding: 0px;
             margin: 10px;
-        }
-
-        .widgetPanel {
-            padding: 5px;
-            margin: 5px;
-        }
-
-        .trackTable {
-            margin-left: 10px;
-            margin-top: 10px;
-            vertical-align: middle;
-        }
-
-        /*.headerTable {*/
-        /*font-weight: bolder;*/
-        /*}*/
-
-        .tableKeyName {
-            font-weight: bolder;
-            margin-top: 10px;
-            padding-bottom: 15px;
-        }
-
-
-        .labelText {
-            white-space: nowrap;
-        }
-
-        .selectedTreeItem {
-            background-color: darkgray;
-        }
-
-        .annotation-name {
-            font-size: larger;
-            font-weight: bolder;
-            background-color: inherit;
-            padding-left: 10px;
-        }
-
-        .internalHeader {
-            width: 100%;
-            font-weight: bolder;
-            font-size: large;
-            color: darkcyan;
-            padding-top: 10px;
         }
 
         .pager {
@@ -74,11 +28,6 @@
             margin-bottom: 40px;
         }
 
-        .rowSpacing {
-            margin-top: 10px;
-            margin-left: 0;
-            padding-left: 0;
-        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="splitPanel">
         <gwt:north size="100">

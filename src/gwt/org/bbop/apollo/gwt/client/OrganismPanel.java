@@ -91,8 +91,7 @@ public class OrganismPanel extends Composite {
 
     public OrganismPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        loadingDialog = new LoadingDialog("Processing ...");
-        loadingDialog.hide();
+        loadingDialog = new LoadingDialog("Processing ...",null, false);
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
