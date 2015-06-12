@@ -628,8 +628,9 @@ class FeatureService {
         if (feature.getFeatureLocation().getStrand() == -1) {
             Collections.reverse(alterations);
         }
-        
-        int sequenceAlterationOffset = 0
+
+        int insertionOffset = 0
+        int deletionOffset = 0
         for (SequenceAlteration alteration : alterations) {
             if (! (overlapperService.overlaps(feature, alteration, false) && isSequenceAlterationInContext(feature, alteration)) ) {
                 // isSequenceAlterationInContext method verifies if the alteration is within any of the given exons of the transcript
@@ -646,26 +647,23 @@ class FeatureService {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.featureLocation.fmin)
             }
-            
-            if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
-                sequenceAlterationOffset += alteration.getOffset()
+
+            if (feature.strand == Strand.NEGATIVE.value) {
+                if (coordinateInContext <= localCoordinate && alteration instanceof Deletion) {
+                    deletionOffset += alteration.getOffset()
+                }
+            } else {
+                if (coordinateInContext < localCoordinate && alteration instanceof Deletion) {
+                    deletionOffset += alteration.getOffset()
+                }
             }
             if (coordinateInContext < localCoordinate && alteration instanceof Insertion) {
-                sequenceAlterationOffset -= alteration.getOffset()
+                insertionOffset += alteration.getOffset()
             }
-            
-//            if (feature.getFeatureLocation().getStrand() == -1) {
-//                if (convertSourceCoordinateToLocalCoordinate(feature, alteration.getFeatureLocation().getFmin()) > localCoordinate) {
-//                    localCoordinate -= alteration.getOffset();
-//                }
-//            } else {
-//                if (convertSourceCoordinateToLocalCoordinate(feature, alteration.getFeatureLocation().getFmin()) < localCoordinate) {
-//                    localCoordinate -= alteration.getOffset();
-//                }
-//            }
         }
-        
-        localCoordinate = sequenceAlterationOffset > 0 ? localCoordinate - sequenceAlterationOffset : localCoordinate + sequenceAlterationOffset
+        localCoordinate = localCoordinate - insertionOffset
+        localCoordinate = localCoordinate + deletionOffset
+
         if (feature instanceof CDS) {
             // if feature is CDS then calling convertLocalCoordinateToSourceCoordinateForCDS
             return convertLocalCoordinateToSourceCoordinateForCDS((CDS) feature, localCoordinate)
@@ -1068,7 +1066,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int bestStartIndex = -1;
         int bestStopIndex = -1;
         boolean partialStop = false;
-        
+
         if (mrna.length() > 3) {
             for (String startCodon : translationTable.getStartCodons()) {
                 int startIndex = mrna.indexOf(startCodon);
@@ -1186,7 +1184,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 int deletionLength = jsonFeature.location.fmax - jsonFeature.location.fmin
                 gsolFeature.deletionLength = deletionLength
             }
-            
+
             gsolFeature.save(failOnError: true)
 
 
@@ -1482,13 +1480,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return localCoordinate
     }
-    
-    
+
+
     public int convertSourceCoordinateToLocalCoordinateForCDS(Feature feature, int sourceCoordinate) {
         List<Exon> exons = exonService.getSortedExons(feature, true)
         CDS cds = transcriptService.getCDS(feature)
         int localCoordinate = 0
-        
+
         if (!(cds.fmin <= sourceCoordinate && cds.fmax >= sourceCoordinate)) {
             return -1
         }
@@ -1503,7 +1501,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 } else if (overlapperService.overlaps(exon,cds,true)) {
                     // partial overlap
                     if (exon.fmin < cds.fmin && exon.fmax < cds.fmax) {
-                        x = cds.fmin    
+                        x = cds.fmin
                         y = exon.fmax
                     }
                     else {
@@ -1515,7 +1513,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     // no overlap
                     continue
                 }
-                
+
                 if (x <= sourceCoordinate && y >= sourceCoordinate) {
                     localCoordinate += sourceCoordinate - x
                     return localCoordinate
@@ -1655,7 +1653,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return sequenceAlterationsInContext
     }
-    
+
     def isSequenceAlterationInContext(Feature feature, SequenceAlteration sequenceAlteration) {
         List<Exon> exonList = exonService.getSortedExons(feature, true)
         for (Exon exon : exonList) {
@@ -1690,14 +1688,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (sequenceAlterations.size() == 0 || sequenceAlterationsInContext.size() == 0) {
             return residueString
         }
-        
+
         StringBuilder residues = new StringBuilder(residueString);
         List<SequenceAlteration> orderedSequenceAlterationList = new ArrayList<>(sequenceAlterationsInContext)
         Collections.sort(orderedSequenceAlterationList, new FeaturePositionComparator<SequenceAlteration>());
         if (!feature.getFeatureLocation().getStrand().equals(orderedSequenceAlterationList.get(0).getFeatureLocation().getStrand())) {
             Collections.reverse(orderedSequenceAlterationList);
         }
-        
+
         int currentOffset = 0;
         for (SequenceAlteration sequenceAlteration : orderedSequenceAlterationList) {
             int localCoordinate
@@ -1750,15 +1748,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         return residues.toString();
     }
-    
+
     public void removeFeatureRelationship(Transcript transcript, Feature feature) {
 
         FeatureRelationship featureRelationship = FeatureRelationship.findByParentFeatureAndChildFeature(transcript, feature)
         if (featureRelationship) {
             FeatureRelationship.deleteAll()
         }
-    
-        
+
+
 //        CVTerm partOfCvterm = cvTermService.partOf
 ////        CVTerm exonCvterm = cvTermService.getTerm(type);
 //        CVTerm transcriptCvterms = cvTermService.getTerm(FeatureStringEnum.TRANSCRIPT);
@@ -2365,4 +2363,3 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 }
-
