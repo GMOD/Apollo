@@ -40,11 +40,14 @@ class PermissionService {
     }
 
     boolean isUserAdmin(User user) {
-        for (Role role in user.roles) {
-            if (role.name == UserService.ADMIN) {
-                return true
+        if(user!=null) {
+            for (Role role in user.roles) {
+                if (role.name == UserService.ADMIN) {
+                    return true
+                }
             }
         }
+
         return false
     }
 
@@ -198,10 +201,15 @@ class PermissionService {
                 permissions.add(permissionEnum)
             }
         }
-
-        for (UserGroup group in user.userGroups) {
-            permissions = mergeOrganismPermissions(permissions, getOrganismPermissionsForUserGroup(organism, group))
+        if(user!=null) {
+            for (UserGroup group in user.userGroups) {
+                permissions = mergeOrganismPermissions(permissions, getOrganismPermissionsForUserGroup(organism, group))
+            }
         }
+        else {
+            permissions.add(PermissionEnum.NONE)
+        }
+
 
         return permissions as List
 
@@ -535,15 +543,16 @@ class PermissionService {
         if (!username) {
             username = SecurityUtils.subject.principal
         }
-        if (!username) {
-            throw new PermissionException("Unable to find a username to check")
+        if(!username) {
+            return null;
         }
-
 
         User user = User.findByUsername(username)
         return user
 
     }
+
+
     /**
      * This method finds the proper username with their proper organism for the current organism.
      *
@@ -573,70 +582,90 @@ class PermissionService {
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
             organism = Organism.findByCommonName(organismString)
-            log.info "switching organism to ${organism.commonName}"
-            preferenceService.setCurrentOrganism(user,organism)
+            if(!organism)
+                organism=Organism.findById(organismString);
+            if(!organism)
+                log.info "organism not found ${organismString}"
+            else if(user!=null) {
+                log.info "switching organism to ${organism.commonName}"
+                preferenceService.setCurrentOrganism(user, organism)
+            }
         }
 
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(user, true)
+        if(user!=null) {
 
-        if (!userOrganismPreference) {
-            userOrganismPreference = UserOrganismPreference.findByUser(user)
+
+            if (!userOrganismPreference) {
+                userOrganismPreference = UserOrganismPreference.findByUser(user)
+            }
+
+            if (!userOrganismPreference) {
+                // find a random organism based on sequence
+                Sequence sequence = Sequence.findByName(trackName)
+                organism  = sequence.organism
+
+                userOrganismPreference = new UserOrganismPreference(
+                        user: user
+                        , organism: organism
+                        , currentOrganism: true
+                        , sequence: sequence
+                ).save(insert: true)
+            }
+
+            organism = userOrganismPreference.organism
+
+
         }
-
-        if (!userOrganismPreference) {
-            // find a random organism based on sequence
-            Sequence sequence = Sequence.findByName(trackName)
-            organism  = sequence.organism
-
-            userOrganismPreference = new UserOrganismPreference(
-                    user: user
-                    , organism: organism
-                    , currentOrganism: true
-                    , sequence: sequence
-            ).save(insert: true)
-        }
-
-        organism = userOrganismPreference.organism
 
         Sequence sequence = Sequence.findByNameAndOrganism(trackName,organism)
-        println "found a sequence . . . have to have a sequence ${sequence} for track ${trackName} from ${inputObject.track}"
-        if(userOrganismPreference.sequence?.name!=trackName){
+        log.debug "found a sequence ${sequence} for track ${trackName} from ${organism} ${inputObject.track}"
+        if(userOrganismPreference!=null&&userOrganismPreference.sequence?.name!=trackName){
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save()
         }
-
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
-            println "highest value ${highestValue}"
-            println "required permission ${requiredPermissionEnum}"
-            println "highest value display ${highestValue.display}"
-            println "perm dispaly ${requiredPermissionEnum.display}"
+            log.debug "highest value ${highestValue}"
+            log.debug "required permission ${requiredPermissionEnum}"
+            log.debug "highest value display ${highestValue.display}"
+            log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficent permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-        return userOrganismPreference.sequence ?: null
+        if(userOrganismPreference!=null)
+            return userOrganismPreference.sequence
+        return sequence
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
-            Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
-            Integer permission = permissions.get(SecurityUtils.subject.principal)
-            PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
+            if(session) {
+                Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+                Integer permission = permissions.get(SecurityUtils.subject.principal)
+                PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
 
-            if (sessionPermissionsEnum == null) {
-                log.warn "No permissions found in session"
+                if (sessionPermissionsEnum == null) {
+                    log.warn "No permissions found in session"
+                    return false
+                }
+
+                if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
+                    log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
+                    return false
+                }
+                return true
+            }
+            else {
+                log.debug "No session found"
                 return false
             }
 
-            if (sessionPermissionsEnum.rank < requiredPermissionEnum.rank) {
-                log.warn "Permission required ${requiredPermissionEnum.display} vs found ${sessionPermissionsEnum.display}"
-                return false
-            }
-            return true
         } catch (e) {
             log.error "Error checking permissions from session ${e}"
+            e.printStackTrace()
             return false
         }
 

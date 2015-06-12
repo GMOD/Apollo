@@ -26,7 +26,6 @@ class GroupController {
         Map<String,List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 
         List<GroupOrganismPermission> groupOrganismPermissionList = GroupOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
-        log.debug "total permission list ${groupOrganismPermissionList.size()}"
         for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList){
             List<GroupOrganismPermission> groupOrganismPermissionListTemp =  groupOrganismPermissionMap.get(groupOrganismPermission.group.name)
             if(groupOrganismPermissionListTemp==null){
@@ -35,7 +34,6 @@ class GroupController {
             groupOrganismPermissionListTemp.add(groupOrganismPermission)
             groupOrganismPermissionMap.put(groupOrganismPermission.group.name,groupOrganismPermissionListTemp)
         }
-        log.debug "org permission map ${groupOrganismPermissionMap.size()}"
         for(v in groupOrganismPermissionMap){
             log.debug "${v.key} ${v.value}"
         }
@@ -65,11 +63,10 @@ class GroupController {
             JSONArray organismPermissionsArray = new JSONArray()
             def  groupOrganismPermissionList3 = groupOrganismPermissionMap.get(it.name)
             List<Long> organismsWithPermissions = new ArrayList<>()
-            log.debug "lsit retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
+            log.debug "list retrieved? : ${groupOrganismPermissionList3?.size()} for ${it.name}"
             for(GroupOrganismPermission groupOrganismPermission in groupOrganismPermissionList3){
                 if(groupOrganismPermission.organism in allowableOrganisms){
                     JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                     organismJSON.put("organism", groupOrganismPermission.organism.commonName)
                     organismJSON.put("permissions",groupOrganismPermission.permissions)
                     organismJSON.put("groupId",groupOrganismPermission.groupId)
@@ -79,27 +76,20 @@ class GroupController {
                 }
             }
 
-//            Set<Organism> organismList = permissionService.getOrganisms(it).findAll(){
             Set<Organism> organismList = allowableOrganisms.findAll(){
                 !organismsWithPermissions.contains(it.id)
             }
-            log.debug "organisms with permissions ${organismsWithPermissions.size()}"
-            log.debug "organisms list ${organismList.size()}"
 
             for(Organism organism in organismList){
                 JSONObject organismJSON = new JSONObject()
-//                organismJSON.put("organism", (userOrganismPermission.organism as JSON).toString())
                 organismJSON.put("organism", organism.commonName)
                 organismJSON.put("permissions","[]")
                 organismJSON.put("groupId",it.id)
-//                organismJSON.put("id",null)
                 organismPermissionsArray.add(organismJSON)
             }
 
 
             groupObject.organismPermissions = organismPermissionsArray
-            
-
             returnArray.put(groupObject)
         }
 

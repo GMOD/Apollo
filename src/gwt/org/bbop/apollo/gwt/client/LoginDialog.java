@@ -41,8 +41,8 @@ public class LoginDialog extends DialogBox {
 
         username.setFocus(true);
 
-        horizontalPanel.add(rememberMeCheckBox);
-        horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));
+//        horizontalPanel.add(rememberMeCheckBox);
+//        horizontalPanel.add(new HTML("&nbsp;&nbsp;&nbsp;&nbsp;"));
         horizontalPanel.add(okButton);
         panel.add(horizontalPanel);
         // DialogBox is a SimplePanel, so you have to set its widget property to

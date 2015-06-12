@@ -27,27 +27,31 @@ class AnnotatorController {
     def loadLink(){
         try {
             Organism organism = Organism.findById(params.organism as Long)
-            log.debug "loading org . . . ${organism}"
-            String location = params.loc
-            String[] splitString = location.split(":")
-            log.debug "splitString : ${splitString}"
-            String sequenceString = splitString[0]
-            Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
-            String[] minMax = splitString[1].split("\\.\\.")
-            println "minMax: ${minMax}"
-            int fmin, fmax
-            try {
-                fmin = minMax[0] as Integer
-                fmax = minMax[1] as Integer
-            } catch (e) {
-                log.error "error parsing ${e}"
-                fmin = sequence.start
-                fmax = sequence.end
-            }
-            log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
-//            preferenceService.setCurrentSequence(permissionService.currentUser, sequence)
+            log.debug "loading organism: ${organism}"
             preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
-            preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)
+            if(params.loc) {
+                String location = params.loc
+                String[] splitString = location.split(":")
+                log.debug "splitString : ${splitString}"
+                String sequenceString = splitString[0]
+                Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
+                String[] minMax = splitString[1].split("\\.\\.")
+
+                log.debug "minMax: ${minMax}"
+                int fmin, fmax
+                try {
+                    fmin = minMax[0] as Integer
+                    fmax = minMax[1] as Integer
+                } catch (e) {
+                    log.error "error parsing ${e}"
+                    fmin = sequence.start
+                    fmax = sequence.end
+                }
+                log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
+
+                preferenceService.setCurrentSequenceLocation(sequence.name,fmin,fmax)
+            }
+
         } catch (e) {
             log.error "problem parsing the string ${e}"
         }
@@ -56,7 +60,7 @@ class AnnotatorController {
     }
 
     def index() {
-        println "loading the index"
+        log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
         Organism.all.each {
             log.info it.commonName
@@ -242,7 +246,7 @@ class AnnotatorController {
     }
 
     def notAuthorized(){
-        println "not authorized"
+        log.error "not authorized"
     }
 
 }

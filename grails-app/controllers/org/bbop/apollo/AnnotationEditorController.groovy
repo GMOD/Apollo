@@ -53,6 +53,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def permissionService
     def preferenceService
     def sequenceSearchService
+    def featureEventService
 
 
     def index() {
@@ -101,18 +102,52 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             if (permissions.values().size() > 0) {
                 permission = permissions.values().iterator().next();
             }
+            returnObject.put(REST_PERMISSION, permission)
+            returnObject.put(REST_USERNAME, username)
+            render returnObject
+            return
         }
 
-        returnObject.put(REST_PERMISSION, permission)
-        returnObject.put(REST_USERNAME, username)
+        response.status = 400
+        JSONObject errorMessage = new JSONObject()
+        errorMessage.message = "You must first login before editing"
+        render errorMessage as JSON
 
-        render returnObject
     }
 
 
     def getDataAdapters() {
         // temporary workaround
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
+        /*json [{
+             "permission": 1,
+             "key": "GFF3",
+             "data_adapters": [{
+                                   "permission": 1,
+                                   "key": "Only GFF3",
+                                   "options": "output=file&format=gzip&type=GFF3&exportSequence=false"
+                               }, {
+                                   "permission": 1,
+                                   "key": "GFF3 with FASTA",
+                                   "options": "output=file&format=gzip&type=GFF3&exportSequence=true"
+                               }]
+         }, {
+             "permission": 1,
+             "key": "FASTA",
+             "data_adapters": [{
+                                   "permission": 1,
+                                   "key": "peptide",
+                                   "options": "output=file&format=gzip&type=FASTA&seqType=peptide"
+                               }, {
+                                   "permission": 1,
+                                   "key": "cDNA",
+                                   "options": "output=file&format=gzip&type=FASTA&seqType=cdna"
+                               }, {
+                                   "permission": 1,
+                                   "key": "CDS",
+                                   "options": "output=file&format=gzip&type=FASTA&seqType=cds"
+                               }]
+         }]*/
         String jsonString = "[{\"permission\":1,\"key\":\"GFF3\",\"data_adapters\":[{\"permission\":1,\"key\":\"Only GFF3\",\"options\":\"output=file&format=gzip&type=GFF3&exportSequence=false\"},{\"permission\":1,\"key\":\"GFF3 with FASTA\",\"options\":\"output=file&format=gzip&type=GFF3&exportSequence=true\"}]},{\"permission\":1,\"key\":\"FASTA\",\"data_adapters\":[{\"permission\":1,\"key\":\"peptide\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=peptide\"},{\"permission\":1,\"key\":\"cDNA\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cdna\"},{\"permission\":1,\"key\":\"CDS\",\"options\":\"output=file&format=gzip&type=FASTA&seqType=cds\"}]}]"
         JSONArray dataAdaptersArray = new JSONArray()
 
@@ -128,7 +163,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
     def getHistoryForFeatures() {
-        log.debug "getting history !! ${params}"
+        log.debug "getHistoryForFeatures ${params}"
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -143,7 +178,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             JSONArray history = new JSONArray();
             jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
-            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
+//            List<FeatureEvent> transactionList = FeatureEvent.findAllByUniqueName(feature.uniqueName, [sort: "dateCreated", order: "asc"])
+            List<FeatureEvent> transactionList = featureEventService.getHistory(feature.uniqueName)
             for (int j = 0; j < transactionList.size(); ++j) {
                 FeatureEvent transaction = transactionList.get(j);
                 JSONObject historyItem = new JSONObject();
@@ -164,9 +200,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                         JSONObject featureJsonObject = newFeaturesJsonArray.getJSONObject(featureIndex)
                         // TODO: this needs to be functional
                         if (false && transaction.getOperation().equals(FeatureOperation.SPLIT_TRANSCRIPT)) {
-////                        if (gbolFeature.overlaps(f)) {
+//                        if (gbolFeature.overlaps(f)) {
 //                            if (overlapperService.overlaps(feature.featureLocation,f.featureLocation,true)) {
-////                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
+//                                if (f.getUniqueName().equals(jsonFeature.getString("uniquename"))) {
 //                            historyFeatures.put(featureService.convertFeatureToJSON(f));
                             throw new RuntimeException("split transcript operations not supported yet")
                         }
@@ -186,7 +222,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def getTranslationTable() {
-        log.debug "get translation table!! ${params}"
+        log.debug "getTranslationTable ${params}"
         JSONObject returnObject = (JSONObject) JSON.parse(params.data)
         TranslationTable translationTable = SequenceTranslationHandler.getDefaultTranslationTable()
         JSONObject ttable = new JSONObject();
@@ -198,7 +234,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    // webservice
     def addFeature() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -218,7 +253,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    // webservice
     def addExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -269,11 +303,50 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     /**
      * // input
-     *{"operation":"add_transcript","track":"Annotations-Group1.2","features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"geneid_mRNA_CM000054.5_150","children":[{"location":{"fmin":305327,"strand":1,"fmax":305356},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":258308,"strand":1,"fmax":258471},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":247976},"type":{"name":"exon","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"type":{"name":"CDS","cv":{"name":"sequence"}}}],"type":{"name":"mRNA","cv":{"name":"sequence"}}},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd","children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},"name":"00540e13-de64-4fa2-868a-e168e584f55d","uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},{"location":{"fmin":258308,"strand":1,"fmax":258471},"name":"de44177e-ce76-4a9a-8313-1c654d1174aa","uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},{"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5","uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},{"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915","uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],"uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}*
-     * // returned form the fir method
-     *{"operation":"ADD","sequenceAlterationEvent":false,"features":[{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},"name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730","type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,"parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
+     *{"operation":"add_transcript","track":"Annotations-Group1.2",
+     * "features":[{"location":{"fmin":247892,"strand":1,"fmax":305356},
+     * "name":"geneid_mRNA_CM000054.5_150","children":
+     * [{"location":{"fmin":305327,"strand":1,"fmax":305356},
+     * "type":{"name":"exon","cv":{"name":"sequence"}}},
+     * {"location":{"fmin":258308,"strand":1,"fmax":258471},
+     * "type":{"name":"exon","cv":{"name":"sequence"}}},
+     * {"location":{"fmin":247892,"strand":1,"fmax":247976},
+     * "type":{"name":"exon","cv":{"name":"sequence"}}},
+     * {"location":{"fmin":247892,"strand":1,"fmax":305356},
+     * "type":{"name":"CDS","cv":{"name":"sequence"}}}],
+     * "type":{"name":"mRNA","cv":{"name":"sequence"}}},
+     * {"location":{"fmin":247892,"strand":1,"fmax":305356},
+     * "name":"5e5c32e6-ca4a-4b53-85c8-b0f70c76acbd",
+     * "children":[{"location":{"fmin":247892,"strand":1,"fmax":247976},
+     * "name":"00540e13-de64-4fa2-868a-e168e584f55d",
+     * "uniquename":"00540e13-de64-4fa2-868a-e168e584f55d","type":"exon","date_last_modified":new Date(1415391635593)},
+     * {"location":{"fmin":258308,"strand":1,"fmax":258471},
+     * "name":"de44177e-ce76-4a9a-8313-1c654d1174aa",
+     * "uniquename":"de44177e-ce76-4a9a-8313-1c654d1174aa","type":"exon","date_last_modified":new Date(1415391635586)},
+     * {"location":{"fmin":305327,"strand":1,"fmax":305356},"name":"fa49095f-cdb9-4734-8659-3286a7c727d5",
+     * "uniquename":"fa49095f-cdb9-4734-8659-3286a7c727d5","type":"exon","date_last_modified":new Date(1415391635578)},
+     * {"location":{"fmin":247892,"strand":1,"fmax":305356},"name":"29b83822-d5a0-4795-b0a9-71b1651ff915",
+     * "uniquename":"29b83822-d5a0-4795-b0a9-71b1651ff915","type":"cds","date_last_modified":new Date(1415391635600)}],
+     * "uniquename":"df08b046-ed1b-4feb-93fc-53adea139df8","type":"mrna","date_last_modified":new Date(1415391635771)}]}*
+     * // returned from method
+     *{"operation":"ADD","sequenceAlterationEvent":false,"features":
+     * [{"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"gene","cv":{"name":"sequence"}},
+     * "name":"geneid_mRNA_CM000054.5_38","children":[{"location":{"fmin":670576,"strand":1,"fmax":670658},
+     * "parent_type":{"name":"mRNA","cv":{"name":"sequence"}},"properties":[{"value":"demo","type":{"name":"owner",
+     * "cv":{"name":"feature_property"}}}],"uniquename":"60072F8198F38EB896FB218D2862FFE4","type":{"name":"exon",
+     * "cv":{"name":"sequence"}},"date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},
+     * {"location":{"fmin":690970,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
+     * "properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],
+     * "uniquename":"CC6058CFA17BD6DB8861CC3B6FA1E4B1","type":{"name":"exon","cv":{"name":"sequence"}},
+     * "date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"},
+     * {"location":{"fmin":670576,"strand":1,"fmax":691185},"parent_type":{"name":"mRNA","cv":{"name":"sequence"}},
+     * "properties":[{"value":"demo","type":{"name":"owner","cv":{"name":"feature_property"}}}],
+     * "uniquename":"6D85D94970DE82168B499C75D886FB89","type":{"name":"CDS","cv":{"name":"sequence"}},
+     * "date_last_modified":1415391541148,"parent_id":"D1D1E04521E6FFA95FD056D527A94730"}],"properties":[{"value":"demo",
+     * "type":{"name":"owner","cv":{"name":"feature_property"}}}],"uniquename":"D1D1E04521E6FFA95FD056D527A94730",
+     * "type":{"name":"mRNA","cv":{"name":"sequence"}},"date_last_modified":1415391541169,
+     * "parent_id":"8E2895FDD74F4F9DF9F6785B72E04A50"}]}* @return
      */
-    // webservice
     def addTranscript() {
         log.debug "AEC::adding transcript ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -284,7 +357,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def duplicateTranscript() {
         log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -295,7 +367,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def setTranslationStart() {
         log.debug "AEC::set translation start ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -306,7 +377,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def setTranslationEnd() {
         log.debug "AEC::set translation end ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -317,7 +387,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def setLongestOrf() {
         log.debug "AEC::set longest ORF ${params}"
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
@@ -338,13 +407,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-/**
- *
- * Should return of form:
- *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
- * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
- */
-    // webservice
+    /**
+     *
+     * Should return of form:
+     *{"features": [{"location": {"fmin": 511,"strand": - 1,"fmax": 656},
+     * parent_type": {"name": "gene","cv": {"name": "sequence"}},"name": "feat"}]}* @return
+     */
     def getFeatures() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         try {
@@ -392,7 +460,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    //webservice
     // TODO: implement
     def getResiduesWithAlterations(){
         throw new RuntimeException("Not yet implemented")
@@ -420,37 +487,36 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 //        }
     }
 
-    //webservice
     // TODO: implement
     def addFrameshift(){
         throw new RuntimeException("Not yet implemented")
     }
 
-    //webservice
     // TODO: implement
     def getResiduesWithFrameShifts(){
         throw new RuntimeException("Not yet implemented")
     }
 
-    //webservice
     // TODO: implement
     def getResiduesWithAlternationsAndFrameshifts(){
         throw new RuntimeException("Not yet implemented")
     }
 
-/**
- * Provided if not coming thorugh a websocket
- * @param jsonObject
- * @return
- */
+    /**
+     * Provided if not coming through a websocket
+     * @param jsonObject
+     * @return
+     */
     private def fixUserName(JSONObject jsonObject) {
         if (jsonObject.containsKey(FeatureStringEnum.USERNAME.value)) return
 
         String username = SecurityUtils.subject.principal
-        jsonObject.put(FeatureStringEnum.USERNAME.value, username)
+        if(username==null)
+            jsonObject.put(FeatureStringEnum.USERNAME.value, "Guest")
+        else
+            jsonObject.put(FeatureStringEnum.USERNAME.value, username)
     }
 
-    //webservice
     def getSequenceAlterations() {
         JSONObject returnObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
 
@@ -462,7 +528,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         def sequenceTypes = [Insertion.class.canonicalName, Deletion.class.canonicalName, Substitution.class.canonicalName]
 
-        // TODO: get alterations from session
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
                 , [sequence: sequence, sequenceTypes: sequenceTypes])
         for (SequenceAlteration alteration : sequenceAlterationList) {
@@ -482,12 +547,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-/**
- * TODO: link to the database for real config values
- * @return
- */
     def getAnnotationInfoEditorConfiguration() {
-        log.debug "getting the config "
         JSONObject annotationInfoEditorConfigContainer = new JSONObject();
         JSONArray annotationInfoEditorConfigs = new JSONArray();
         annotationInfoEditorConfigContainer.put(FeatureStringEnum.ANNOTATION_INFO_EDITOR_CONFIGS.value, annotationInfoEditorConfigs);
@@ -515,8 +575,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
 
     def setDescription() {
-//        JSONObject inputObject = (JSONObject) JSON.parse(params.data)
-//        return requestHandlingService.setDescription(inputObject)
         JSONObject inputObject = (JSONObject) JSON.parse(params.data)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.setDescription(inputObject)
@@ -543,7 +601,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //wevservice
     def addSequenceAlteration() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -553,7 +610,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def deleteSequenceAlteration() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -572,7 +628,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def mergeExons() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -582,7 +637,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def splitExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -593,7 +647,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    // webservice
     def deleteFeature() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -603,7 +656,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def deleteExon() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -622,7 +674,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    //webservice
     def splitTranscript() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
@@ -632,7 +683,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
-    // webservice
     def mergeTranscripts() {
         JSONObject inputObject = (request.JSON ?: JSON.parse(params.data)) as JSONObject
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {

@@ -14,11 +14,16 @@ class FeatureEvent {
     Boolean current
 
     String name  // this is the name of the top-level feature (typically gene) during this event
-    String uniqueName // from original top-level feature
     String originalJsonCommand
     String newFeaturesJsonArray
     String oldFeaturesJsonArray
 
+
+    String parentUniqueName // will be the same, unless split, then parent name may be different
+    String parentMergeUniqueName // the name of the parent merged from
+    String uniqueName // from original top-level feature
+    String childUniqueName // will be the same, unless merged, then name will change
+    String childSplitUniqueName // on a split, then the name will change
 
     static constraints = {
         editor nullable: true
@@ -26,6 +31,12 @@ class FeatureEvent {
         newFeaturesJsonArray nullable: true
         oldFeaturesJsonArray nullable: true
         name nullable: false, blank: false
+
+        uniqueName nullable: false, blank: false
+        parentUniqueName nullable: true, blank: false
+        parentMergeUniqueName nullable: true, blank: false
+        childUniqueName nullable: true, blank: false
+        childSplitUniqueName  nullable: true, blank: false
     }
 
     static mapping = {

@@ -249,6 +249,7 @@ class SequenceService {
 
             int fmin = gbolFeature.getFmin() - flank
             int fmax = gbolFeature.getFmax() + flank
+
             if (flank > 0) {
                 if (fmin < 0) {
                     fmin = 0

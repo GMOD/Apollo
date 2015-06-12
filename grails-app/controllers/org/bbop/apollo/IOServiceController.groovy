@@ -71,7 +71,8 @@ class IOServiceController extends AbstractApolloController {
     
     def download() {
         def file = new File(params.filePath)
-        if (!file.exists()) { return }
+        if (!file.exists())
+            return
         response.contentType = "txt"
         //TODO: Support for gzipped output
         String fileName = params.fileName

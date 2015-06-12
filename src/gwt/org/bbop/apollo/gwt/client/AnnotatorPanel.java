@@ -504,7 +504,15 @@ public class AnnotatorPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONValue returnValue = null;
+                try {
+                    returnValue = JSONParser.parseStrict(response.getText());
+                } catch (Exception e) {
+
+                    Window.Location.reload();
+                    GWT.log(e.getMessage());
+//                    Window.alert(response.getText());
+                }
                 long localRequestValue = (long) returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue()).isNumber().doubleValue();
                 // returns
                 if (localRequestValue <= requestIndex) {

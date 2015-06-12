@@ -72,7 +72,7 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportFastaButton;
     //    @UiField
-//    Button exportChadoButton;
+    //    Button exportChadoButton;
     @UiField
     Button selectSelectedButton;
 
@@ -85,10 +85,7 @@ public class SequencePanel extends Composite {
     public SequencePanel() {
 
         initWidget(ourUiBinder.createAndBindUi(this));
-        ;
         dataGrid.setWidth("100%");
-//        dataGrid.setLoadingIndicator(new Label("Loading"));
-//        dataGrid.setEmptyTableWidget(new Label("No results"));
 
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
@@ -107,11 +104,8 @@ public class SequencePanel extends Composite {
         lengthColumn.setSortable(true);
 
 
-//        dataGrid.addColumn(selectColumn, "Selected");
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(lengthColumn, "Length");
-
-//        dataGrid.setColumnWidth(0, "80px");
         dataGrid.setColumnWidth(1, "100px");
 
         dataGrid.setSelectionModel(multiSelectionModel);

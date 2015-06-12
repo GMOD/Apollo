@@ -39,7 +39,8 @@ define([
         'WebApollo/FormatUtils',
         'dijit/form/Select',
         'dojo/store/Memory',
-        'dojo/data/ObjectStore'
+        'dojo/data/ObjectStore',
+        'dojo/io-query'
     ],
     function (declare,
               array,
@@ -81,7 +82,8 @@ define([
               FormatUtils,
               Select,
               Memory,
-              ObjectStore) {
+              ObjectStore,
+              ioQuery) {
 
         var listener;
         var client;
@@ -162,13 +164,11 @@ define([
                     var utrClass;
                     var parentType = subfeature.parent().afeature.parent_type;
                     if (!this.isProteinCoding(subfeature.parent())) {
-                        // utrClass = parentType && parentType.name == "pseudogene" ? "pseudogene" :
-                        // subfeature.parent().get("type");
                         var clsName = parentType && parentType.name == "pseudogene" ? "pseudogene" : subfeature.parent().get("type");
                         var cfg = this.config.style.alternateClasses[clsName];
                         utrClass = cfg.className;
                     }
-                    return DraggableFeatureTrack.prototype.renderExonSegments.call(this, subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass);
+                    return this.inherited(arguments, [subfeature, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse, utrClass]);
                 },
 
                 _defaultConfig: function () {
@@ -214,12 +214,24 @@ define([
 
                     if (success) {
                         track.createAnnotationChangeListener(0);
+
+                        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+                        var query={"track": track.getUniqueTrackName(), "operation": "get_features" }
+
+                        if(queryParams.organism) {
+                            query.organism=parseInt(queryParams.organism,10);
+                        }
+
                         xhr(context_path + "/AnnotationEditorService", {
                             handleAs: "json",
-                            data: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_features" }',
+                            data: JSON.stringify(query),
                             method: "post"
                         }).then(function (response, ioArgs) {
                             var responseFeatures = response.features;
+                            if(!responseFeatures) {
+                                alert("Error: "+JSON.stringify(response)); 
+                                return;
+                            }
                             var i = 0;
 
                             var func = function () {
@@ -279,8 +291,8 @@ define([
                     var browser = this.gview.browser;
 
                     if (typeof window.parent.getEmbeddedVersion == 'function') {
-                        if (window.parent.getEmbeddedVersion() == 'ApolloGwt-1.0') {
-                            console.log('Registering embedded system with ApolloGwt-1.0.');
+                        if (window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                            console.log('Registering embedded system with ApolloGwt-2.0.');
 
                             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                                 window.parent.handleNavigationEvent(JSON.stringify(currRegion));
@@ -324,78 +336,98 @@ define([
                             };
 
                             window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+
+
+                            client.connect({}, function () {
+                                // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                                var organism = JSON.parse(window.parent.getCurrentOrganism());
+                                var sequence = JSON.parse(window.parent.getCurrentSequence());
+                                client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track,'annotationNotification'));
+                            });
+                            console.log('connection established');
                         }
-                        else {
-                            console.log('Unknown embedded server: ' + window.parent.getEmbeddedVersion() + ' ignoring.');
-                        }
+
                     }
                     else {
                         console.log('No embedded server is present.');
-                    }
+                        client.connect({}, function () {
 
 
-                    client.connect({}, function () {
+                            // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                            queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
+                            var organism = parseInt(queryParams.organism,10);
+                            var request={
+                                "name": track.refSeq.name,
+                                "organism": organism
+                            };
 
-                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        var organism = JSON.parse(window.parent.getCurrentOrganism());
-                        var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, function (message) {
-                            var changeData;
-
-                            try {
-                                changeData = JSON.parse(JSON.parse(message.body));
-
-                                if (track.verbose_server_notification) {
-                                    console.log(changeData.operation + " command from server: ");
-                                    console.log(JSON.stringify(changeData));
-                                }
-
-                                if (changeData.operation == "ERROR" && changeData.username == track.username) {
-                                    alert(changeData.error_message);
-                                    return;
-                                }
-
-                                if (changeData.operation == "ADD") {
-                                    if (changeData.sequenceAlterationEvent) {
-                                        track.getSequenceTrack().annotationsAddedNotification(changeData.features);
-                                    }
-                                    else {
-                                        track.annotationsAddedNotification(changeData.features);
-                                    }
-                                    window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
-                                }
-                                else if (changeData.operation == "DELETE") {
-                                    if (changeData.sequenceAlterationEvent) {
-                                        track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
-                                    }
-                                    else {
-                                        track.annotationsDeletedNotification(changeData.features);
-                                    }
-                                    window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-                                }
-                                else if (changeData.operation == "UPDATE") {
-                                    if (changeData.sequenceAlterationEvent) {
-                                        track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
-                                    }
-                                    else {
-                                        track.annotationsUpdatedNotification(changeData.features);
-                                    }
-                                    window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-                                }
-                                else {
-                                    console.log('unknown command: ', changeData.operation);
-                                }
-
-                                track.changed();
-                            } catch (e) {
-                                console.log('not JSON ', e, ' ignoring callback: ', message.body);
-                            }
-
+                            xhr.post(context_path+"/sequence/lookupSequenceByNameAndOrganism/", {
+                                data: JSON.stringify(request),
+                                handleAs: "json"
+                            }).then(function(response) {
+                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response[0].id, dojo.hitch(track,'annotationNotification'));
+                            },
+                            function() {
+                                console.log("Received error in organism lookup, anonymous mode jbrowse");
+                            });
                         });
-                    });
-                    console.log('connection established');
+                    }
                 },
+                annotationNotification: function(message) {
+                    var track=this;
+                    var changeData;
 
+                    try {
+                        changeData = JSON.parse(JSON.parse(message.body));
+
+                        if (track.verbose_server_notification) {
+                            console.log(changeData.operation + " command from server: ");
+                            console.log(JSON.stringify(changeData));
+                        }
+
+                        if (changeData.operation == "ERROR" && changeData.username == track.username) {
+                            alert(changeData.error_message);
+                            return;
+                        }
+
+                        if (changeData.operation == "ADD") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsAddedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsAddedNotification(changeData.features);
+                            }
+                            if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                        }
+                        else if (changeData.operation == "DELETE") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsDeletedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsDeletedNotification(changeData.features);
+                            }
+                            if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        }
+                        else if (changeData.operation == "UPDATE") {
+                            if (changeData.sequenceAlterationEvent) {
+                                track.getSequenceTrack().annotationsUpdatedNotification(changeData.features);
+                            }
+                            else {
+                                track.annotationsUpdatedNotification(changeData.features);
+                            }
+                            if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        }
+                        else {
+                            console.log('unknown command: ', changeData.operation);
+                        }
+
+                        track.changed();
+                    } catch (e) {
+                        console.log(e);
+                        console.log('Processing: ', message.body);
+                    }
+                },
+                
                 /**
                  * received notification from server ChangeNotificationListener that
                  * annotations were added
@@ -669,8 +701,19 @@ define([
                                     var fmin = subfeat.get('start') + leftDeltaBases;
                                     var fmax = subfeat.get('end') + rightDeltaBases;
                                     var operation = subfeat.get("type") == "exon" ? "set_exon_boundaries" : "set_boundaries";
-                                    var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": [ { "uniquename": ' + subfeat.getUniqueName() + ', "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ], "operation": "' + operation + '" }';
-                                    track.executeUpdateOperation(postData);
+                                    var postData = {
+                                        "track": track.getUniqueTrackName(),
+                                        "features": [
+                                        { 
+                                            "uniquename": subfeat.getUniqueName(),
+                                            "location": {
+                                                "fmin": fmin, "fmax": fmax
+                                            }
+                                        }
+                                        ],
+                                            "operation": operation
+                                    };
+                                    track.executeUpdateOperation(JSON.stringify(postData));
                                     track.changed();
                                 }
                             });
@@ -865,7 +908,7 @@ define([
                 },
 
                 createAnnotations: function (selection_records) {
-                    console.log('should be creating an annotation . .. ');
+                    console.log('createAnnotations');
                     var target_track = this;
                     var featuresToAdd = new Array();
                     var parentFeatures = new Object();
@@ -953,9 +996,6 @@ define([
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
                         featuresToAdd.push(afeat);
-
-                        console.log('add_transcript', featureToAdd);
-
 
                         var postData = {
                             "track": target_track.getUniqueTrackName(),
@@ -1855,30 +1895,28 @@ define([
                         return;
                     }
                     var operation = "get_annotation_info_editor_configuration";
-                    var postData = '{ "track": "' + trackName + '", "operation": "' + operation + '" }';
-                    dojo.xhrPost({
+                    var postData = { "track": trackName, "operation": operation };
+                    xhr.post(context_path + "/AnnotationEditorService", {
                         sync: true,
-                        postData: postData,
-                        url: context_path + "/AnnotationEditorService",
+                        data: JSON.stringify(postData),
                         handleAs: "json",
-                        timeout: 5000 * 1000, // Time in milliseconds
-                        load: function (response, ioArgs) {
-                            track.annotationInfoEditorConfigs = {};
-                            for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
-                                var config = response.annotation_info_editor_configs[i];
-                                for (var j = 0; j < config.supported_types.length; ++j) {
-                                    track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
-                                }
+                        timeout: 5000 * 1000
+                    }).then(function(response) {
+                        track.annotationInfoEditorConfigs = {};
+                        for (var i = 0; i < response.annotation_info_editor_configs.length; ++i) {
+                            var config = response.annotation_info_editor_configs[i];
+                            for (var j = 0; j < config.supported_types.length; ++j) {
+                                track.annotationInfoEditorConfigs[config.supported_types[j]] = config;
                             }
                         }
-                    });
+                    }
+                    );
                 },
 
 
                 createAnnotationInfoEditorPanelForFeatureSideBar: function (uniqueName, trackName, selector, reload) {
                     console.log("createAnnotationInfoEditorPanelForFeatureSideBar");
                     var track = this;
-//      var hasWritePermission = this.hasWritePermission();
                     var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
                     var content = dojo.create("span");
                     var header = dojo.create("div", {className: "annotation_sidebar_header"}, content);
@@ -1941,12 +1979,12 @@ define([
                     };
 
                     function init() {
-                        var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+                        var features = [ { "uniquename": uniqueName } ];
                         var operation = "get_annotation_info_editor_data";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var postData = { "track": trackName, features: features, "operation": operation };
                         dojo.xhrPost({
                             sync: true,
-                            postData: postData,
+                            postData: JSON.stringify(postData),
                             url: context_path + "/AnnotationEditorService",
                             handleAs: "json",
                             timeout: 5000 * 1000, // Time in milliseconds
@@ -4241,7 +4279,8 @@ define([
                         timeout: 5 * 1000, // Time in milliseconds
                         // The LOAD function will be called on a successful response.
                         load: function (response, ioArgs) { //
-                            window.parent.location.reload();
+                            if(window.parent) window.parent.location.reload();
+                            else window.location.reload();
                         },
                         error: function (response, ioArgs) { //
                             alert('Failed to log out cleanly.  Please refresh your browser.');
@@ -4305,7 +4344,8 @@ define([
                                         // will be called on a
                                         // successful response.
                                         load: function (response, ioArgs) { //
-                                            window.parent.location.reload();
+                                            if(window.parent) window.parent.location.reload();
+                                            else window.location.reload();
                                         },
                                         error: function (response, ioArgs) { //
                                             alert('Failed to log out cleanly.  Please refresh your browser.');
@@ -4632,7 +4672,6 @@ define([
                             track.makeTrackMenu();
                         },
                         error: function (response, ioArgs) { //
-                            // track.handleError(response);
                         }
                     });
                 },
@@ -4717,7 +4756,6 @@ define([
                             ;
                         },
                         error: function (response, ioArgs) { //
-                            // thisObj.handleError(response);
                             success = false;
                         }
                     });
@@ -5573,7 +5611,7 @@ define([
 
 
                 executeUpdateOperation: function (postData, loadCallback) {
-                    console.log('connected . .. trying to send notification');
+                    console.log('connected and sending notifications');
                     this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
                     console.log('sent notification message');
                 },
@@ -5587,7 +5625,7 @@ define([
                 },
 
                 isLoggedIn: function () {
-                    return this.username != undefined;
+                    return this.username != undefined&&this.username!='Guest';
                 },
 
                 hasWritePermission: function () {
