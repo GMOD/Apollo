@@ -360,7 +360,7 @@ define([
                                 if (response.error) {
                                     alert("Failed to subscribe to websocket, no seq/org id available")
                                 }
-                                client.subscribe("/topic/AnnotationNotification/" + organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
+                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
                             },
                             function () {
                                 console.log("Received error in organism lookup, anonymous mode jbrowse");
