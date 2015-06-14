@@ -358,7 +358,8 @@ define([
                             handleAs: "json"
                         }).then(function (response) {
                                 if (response.error) {
-                                    alert("Failed to subscribe to websocket, no seq/org id available")
+                                    alert("Failed to subscribe to websocket, no seq/org id available");
+                                    return;
                                 }
                                 client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response[0].id, dojo.hitch(track, 'annotationNotification'));
                             },

@@ -6,13 +6,19 @@ define( [
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
-    'dojox/widget/Standby',
-    'dojo/io-query'
+    'dojox/widget/Standby'
      ],
-function( declare, xhr, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUtils, Permission, Standby, ioQuery ) {
+function( declare,
+    xhr,
+    StaticChunked,
+    ScratchPad,
+    DraggableFeatureTrack,
+    JSONUtils,
+    Permission,
+    Standby
+) {
 
-    var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
-
+var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 {
 
 /**
@@ -208,15 +214,12 @@ function( declare, xhr, StaticChunked, ScratchPad, DraggableFeatureTrack, JSONUt
     loadSequenceAlterations: function() {
         var track = this;
 
-        queryParams=ioQuery.queryToObject( window.location.search.slice(1) );
         var query={
             "track": track.annotTrack.getUniqueTrackName(),
             "operation": "get_sequence_alterations",
+            "organism": track.webapollo.organism
         };
 
-        if(queryParams.organism) {
-            query.organism=parseInt(queryParams.organism,10);
-        }
         return dojo.xhrPost( {
             postData: JSON.stringify(query),
             url: track.context_path + "/AnnotationEditorService",
