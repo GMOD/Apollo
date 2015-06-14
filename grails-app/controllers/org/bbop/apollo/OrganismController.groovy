@@ -75,7 +75,6 @@ class OrganismController {
                 }
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism)
                 sequenceService.loadRefSeqs(organism)
-                println "trying to find all organisms"
                 render findAllOrganisms()
             }
             else {

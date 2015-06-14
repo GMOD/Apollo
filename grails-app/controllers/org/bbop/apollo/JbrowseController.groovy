@@ -34,7 +34,12 @@ class JbrowseController {
         }
         String urlString = "/jbrowse/index.html?${paramList.join("&")}"
         // case 3 - validated login (just read from preferences, then
-        if(permissionService.currentUser){
+        if(permissionService.currentUser&&params.organism){
+            Organism organism = Organism.findById(params.organism)
+            preferenceService.setCurrentOrganism(permissionService.currentUser,organism)
+        }
+
+        if(permissionService.currentUser) {
             File file = new File(servletContext.getRealPath("jbrowse/index.html"))
             render file.text
             return
@@ -48,10 +53,10 @@ class JbrowseController {
 
             // set the organism
             Organism organism = Organism.findById(params.organism)
-
-            // create an anonymous login
             def session = request.getSession(true)
             session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value,organism.directory)
+
+            // create an anonymous login
             File file = new File(servletContext.getRealPath("jbrowse/index.html"))
             render file.text
             return
@@ -95,12 +100,10 @@ class JbrowseController {
                 }
 
                 if (organism.sequences) {
-
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user,organism)
                     Sequence sequence = organism?.sequences?.first()
                     if(userOrganismPreference ==null){
-                        log.debug "creating a new one!"
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
                                 ,organism: organism
@@ -109,7 +112,6 @@ class JbrowseController {
                         ).save(insert:true,flush:true)
                     }
                     else{
-                        log.debug "updating an old one!!"
                         userOrganismPreference.sequence = sequence
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
@@ -124,7 +126,6 @@ class JbrowseController {
                 }
             }
         }
-
         return organismJBrowseDirectory
     }
 

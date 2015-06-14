@@ -14,16 +14,10 @@
             margin-bottom: 5px;
         }
 
-        .widgetLabel {
-            font-size: large;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            vertical-align: middle;
-        }
 
         .row {
-            margin-left: 0px;
-            margin-right: 0px;
+            margin-left: 5px;
+            margin-right: 5px;
         }
     </ui:style>
 
@@ -56,7 +50,7 @@
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Location</b:InputGroupAddon>
-                    <b:InputGroupAddon ui:field="locationField"/>
+                    <b:TextBox enabled="false" ui:field="locationField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
@@ -64,7 +58,7 @@
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Ref Sequence</b:InputGroupAddon>
-                    <b:InputGroupAddon ui:field="sequenceField"/>
+                    <b:TextBox enabled="false" ui:field="sequenceField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
@@ -72,7 +66,7 @@
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
                     <b:InputGroupAddon>Owner</b:InputGroupAddon>
-                    <b:InputGroupAddon ui:field="userField"/>
+                    <b:TextBox enabled="false" ui:field="userField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>

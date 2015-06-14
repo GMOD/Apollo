@@ -3,9 +3,6 @@
              xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
         >
-    <!--<g:HTMLPanel>-->
-    <!--New Panel-->
-    <!--</g:HTMLPanel>-->
     <ui:style>
 
         .container {
@@ -19,22 +16,11 @@
             margin-bottom: 5px;
         }
 
-        .widgetLabel {
-            font-size: large;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            vertical-align: middle;
+        .row {
+            margin-left: 5px;
+            margin-right: 5px;
         }
-
-        .inputBox {
-
-        }
-
-        .phaseButton {
-            background-color: cornflowerblue;
-            font-weight: bold;
-            font-size: large;
-        }</ui:style>
+        </ui:style>
 
     <gwt:SplitLayoutPanel>
         <gwt:west size="250">
@@ -42,7 +28,7 @@
         </gwt:west>
         <gwt:center>
             <b:Container ui:field="exonEditContainer" fluid="true" width="100%" styleName="{style.container}" visible="false">
-                <b:Row>
+                <b:Row styleName="{style.row}">
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
                             <b:InputGroupAddon>5' End</b:InputGroupAddon>
@@ -56,7 +42,7 @@
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
-                <b:Row>
+                <b:Row styleName="{style.row}">
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
                             <b:InputGroupAddon>3' End</b:InputGroupAddon>
@@ -70,7 +56,7 @@
                         </b:InputGroup>
                     </b:Column>
                 </b:Row>
-                <b:Row>
+                <b:Row styleName="{style.row}">
                     <b:Column size="MD_4" styleName="{style.widgetPanel}">
                         <b:InputGroup>
                             <b:InputGroupAddon>Strand</b:InputGroupAddon>
@@ -91,7 +77,7 @@
                         <!--</b:InputGroup>-->
                     <!--</b:Column>-->
                 <!--</b:Row>-->
-                <b:Row>
+                <b:Row styleName="{style.row}">
                     <b:Column size="6" styleName="{style.widgetPanel}">
                         <gwt:HTML ui:field="notePanel"/>
                     </b:Column>

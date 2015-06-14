@@ -87,24 +87,11 @@
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
-                        <!--<b:Container fluid="true" addStyleNames="{style.inline}">-->
-                            <!--<b:Row>-->
-                                <!--<b:Column size="MD_1" styleName="{style.inline}">-->
-                                    <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose"
-                                              styleName="{style.details-button}"/>
-                                    <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
-                                <!--</b:Column>-->
-
-                                <!--<b:Column size="MD_3" styleName="{style.inline}">-->
-                                    <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
-                                <!--</b:Column>-->
-                                <!--<b:Column size="MD_2" styleName="{style.inline}">-->
-                                    <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
-                                <!--</b:Column>-->
-                            <!--</b:Row>-->
-                            <!--<b:Label ui:field="currentOrganismDisplay" addStyleNames="{style.navigation-display}"/>-->
-                            <!--<b:Label ui:field="currentSequenceDisplay" addStyleNames="{style.navigation-display}"/>-->
-                        <!--</b:Container>-->
+                        <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose"
+                                  styleName="{style.details-button}"/>
+                        <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
+                        <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
+                        <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
                         <b:Panel styleName="pull-right">
                             <gwt:HTML ui:field="userName" styleName="{style.username}"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT"/>
