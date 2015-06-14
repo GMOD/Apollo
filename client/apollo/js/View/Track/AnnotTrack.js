@@ -7,6 +7,7 @@ define([
         'jqueryui/resizable',
         'jqueryui/autocomplete',
         'jqueryui/dialog',
+        'dijit/registry',
         'dijit/Menu',
         'dijit/MenuItem',
         'dijit/MenuSeparator',
@@ -39,8 +40,7 @@ define([
         'WebApollo/FormatUtils',
         'dijit/form/Select',
         'dojo/store/Memory',
-        'dojo/data/ObjectStore',
-        'dojo/io-query'
+        'dojo/data/ObjectStore'
     ],
     function (declare,
               array,
@@ -50,6 +50,7 @@ define([
               resizable,
               autocomplete,
               dialog,
+              registry,
               dijitMenu,
               dijitMenuItem,
               dijitMenuSeparator,
@@ -82,8 +83,7 @@ define([
               FormatUtils,
               Select,
               Memory,
-              ObjectStore,
-              ioQuery) {
+              ObjectStore) {
 
         var listener;
         var client;
@@ -92,8 +92,6 @@ define([
         var contextMenuItems;
 
         var context_path = "..";
-
-        var non_annot_context_menu;
 
         var AnnotTrack = declare(DraggableFeatureTrack, {
             constructor: function (args) {
@@ -114,10 +112,10 @@ define([
                 this.useResiduesOverlay = 'pointerEvents' in document.body.style;
                 this.FADEIN_RESIDUES = false;
 
-                var thisObj = this;
+                var thisB = this;
 
                 this.annotMouseDown = function (event) {
-                    thisObj.onAnnotMouseDown(event);
+                    thisB.onAnnotMouseDown(event);
                 };
 
                 this.verbose_create = false;
@@ -214,12 +212,11 @@ define([
                 if (success) {
                     track.createAnnotationChangeListener(0);
 
-                    queryParams = ioQuery.queryToObject(window.location.search.slice(1));
-                    var query = {"track": track.getUniqueTrackName(), "operation": "get_features"}
-
-                    if (queryParams.organism) {
-                        query.organism = parseInt(queryParams.organism, 10);
-                    }
+                    var query = {
+                        "track": track.getUniqueTrackName(),
+                        "operation": "get_features",
+                        "organism": track.webapollo.organism
+                    };
 
                     xhr(context_path + "/AnnotationEditorService", {
                         handleAs: "json",
@@ -351,13 +348,9 @@ define([
                     console.log('No embedded server is present.');
                     client.connect({}, function () {
 
-
-                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        queryParams = ioQuery.queryToObject(window.location.search.slice(1));
-                        var organism = parseInt(queryParams.organism, 10);
                         var request = {
                             "name": track.refSeq.name,
-                            "organism": organism
+                            "organism": track.webapollo.organism
                         };
 
                         xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
@@ -4391,15 +4384,15 @@ define([
             },
 
             initAnnotContextMenu: function () {
-                var thisObj = this;
+                var thisB = this;
                 contextMenuItems = new Array();
                 annot_context_menu = new dijit.Menu({});
-                var permission = thisObj.permission;
+                var permission = thisB.permission;
                 var index = 0;
                 annot_context_menu.addChild(new dijit.MenuItem({
                     label: "Get Sequence",
                     onClick: function (event) {
-                        thisObj.getSequence();
+                        thisB.getSequence();
                     }
                 }));
                 contextMenuItems["get_sequence"] = index++;
@@ -4407,7 +4400,7 @@ define([
                 annot_context_menu.addChild(new dijit.MenuItem({
                     label: "Get GFF3",
                     onClick: function (event) {
-                        thisObj.getGff3();
+                        thisB.getGff3();
                     }
                 }));
                 contextMenuItems["get_gff3"] = index++;
@@ -4415,11 +4408,11 @@ define([
                 annot_context_menu.addChild(new dijit.MenuItem({
                     label: "Zoom to Base Level",
                     onClick: function (event) {
-                        if (thisObj.getMenuItem("zoom_to_base_level").get("label") == "Zoom to Base Level") {
-                            thisObj.zoomToBaseLevel(thisObj.annot_context_mousedown);
+                        if (thisB.getMenuItem("zoom_to_base_level").get("label") == "Zoom to Base Level") {
+                            thisB.zoomToBaseLevel(thisB.annot_context_mousedown);
                         }
                         else {
-                            thisObj.zoomBackOut(thisObj.annot_context_mousedown);
+                            thisB.zoomBackOut(thisB.annot_context_mousedown);
                         }
                     }
                 }));
@@ -4430,7 +4423,7 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Information Editor (alt-click)",
                         onClick: function (event) {
-                            thisObj.getAnnotationInfoEditor();
+                            thisB.getAnnotationInfoEditor();
                         }
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
@@ -4441,7 +4434,7 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Edit Information (alt-click)",
                         onClick: function (event) {
-                            thisObj.getAnnotationInfoEditor();
+                            thisB.getAnnotationInfoEditor();
                         }
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
@@ -4450,14 +4443,14 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
-                            thisObj.deleteSelectedFeatures();
+                            thisB.deleteSelectedFeatures();
                         }
                     }));
                     contextMenuItems["delete"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Merge",
                         onClick: function () {
-                            thisObj.mergeSelectedFeatures();
+                            thisB.mergeSelectedFeatures();
                         }
                     }));
                     contextMenuItems["merge"] = index++;
@@ -4468,7 +4461,7 @@ define([
                             // want to split
                             // at mouse position of event that triggered annot_context_menu
                             // popup
-                            thisObj.splitSelectedFeatures(thisObj.annot_context_mousedown);
+                            thisB.splitSelectedFeatures(thisB.annot_context_mousedown);
                         }
                     }));
                     contextMenuItems["split"] = index++;
@@ -4479,7 +4472,7 @@ define([
                             // want to split
                             // at mouse position of event that triggered annot_context_menu
                             // popup
-                            thisObj.duplicateSelectedFeatures(thisObj.annot_context_mousedown);
+                            thisB.duplicateSelectedFeatures(thisB.annot_context_mousedown);
                         }
                     }));
                     contextMenuItems["duplicate"] = index++;
@@ -4490,14 +4483,14 @@ define([
                         // at mouse position of event that triggered annot_context_menu
                         // popup
                         onClick: function (event) {
-                            thisObj.makeIntron(thisObj.annot_context_mousedown);
+                            thisB.makeIntron(thisB.annot_context_mousedown);
                         }
                     }));
                     contextMenuItems["make_intron"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Move to Opposite Strand",
                         onClick: function (event) {
-                            thisObj.flipStrand();
+                            thisB.flipStrand();
                         }
                     }));
                     contextMenuItems["flip_strand"] = index++;
@@ -4511,7 +4504,7 @@ define([
                         // at mouse position of event that triggered annot_context_menu
                         // popup
                         onClick: function (event) {
-                            thisObj.setTranslationStart(thisObj.annot_context_mousedown);
+                            thisB.setTranslationStart(thisB.annot_context_mousedown);
                         }
                     }));
                     contextMenuItems["set_translation_start"] = index++;
@@ -4522,7 +4515,7 @@ define([
                         // at mouse position of event that triggered annot_context_menu
                         // popup
                         onClick: function (event) {
-                            thisObj.setTranslationEnd(thisObj.annot_context_mousedown);
+                            thisB.setTranslationEnd(thisB.annot_context_mousedown);
                         }
                     }));
                     contextMenuItems["set_translation_end"] = index++;
@@ -4533,14 +4526,14 @@ define([
                         // at mouse position of event that triggered annot_context_menu
                         // popup
                         onClick: function (event) {
-                            thisObj.setLongestORF();
+                            thisB.setLongestORF();
                         }
                     }));
                     contextMenuItems["set_longest_orf"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set Readthrough Stop Codon",
                         onClick: function (event) {
-                            thisObj.setReadthroughStopCodon();
+                            thisB.setReadthroughStopCodon();
                         }
                     }));
                     contextMenuItems["set_readthrough_stop_codon"] = index++;
@@ -4550,21 +4543,21 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set as 5' end",
                         onClick: function (event) {
-                            thisObj.setAsFivePrimeEnd();
+                            thisB.setAsFivePrimeEnd();
                         }
                     }));
                     contextMenuItems["set_as_five_prime_end"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set as 3' End",
                         onClick: function (event) {
-                            thisObj.setAsThreePrimeEnd();
+                            thisB.setAsThreePrimeEnd();
                         }
                     }));
                     contextMenuItems["set_as_three_prime_end"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set both Ends",
                         onClick: function (event) {
-                            thisObj.setBothEnds();
+                            thisB.setBothEnds();
                         }
                     }));
                     contextMenuItems["set_both_ends"] = index++;
@@ -4574,28 +4567,28 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set to Downstream Splice Donor",
                         onClick: function (event) {
-                            thisObj.setToDownstreamDonor();
+                            thisB.setToDownstreamDonor();
                         }
                     }));
                     contextMenuItems["set_upstream_donor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set to Upstream Splice Donor",
                         onClick: function (event) {
-                            thisObj.setToUpstreamDonor();
+                            thisB.setToUpstreamDonor();
                         }
                     }));
                     contextMenuItems["set_downstream_acceptor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set to Downstream Splice Acceptor",
                         onClick: function (event) {
-                            thisObj.setToDownstreamAcceptor();
+                            thisB.setToDownstreamAcceptor();
                         }
                     }));
                     contextMenuItems["set_upstream_acceptor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set to Upstream Splice Acceptor",
                         onClick: function (event) {
-                            thisObj.setToUpstreamAcceptor();
+                            thisB.setToUpstreamAcceptor();
                         }
                     }));
                     annot_context_menu.addChild(new dijit.MenuSeparator());
@@ -4603,21 +4596,21 @@ define([
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Undo",
                         onClick: function (event) {
-                            thisObj.undo();
+                            thisB.undo();
                         }
                     }));
                     contextMenuItems["undo"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Redo",
                         onClick: function (event) {
-                            thisObj.redo();
+                            thisB.redo();
                         }
                     }));
                     contextMenuItems["redo"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Show History",
                         onClick: function (event) {
-                            thisObj.getHistory();
+                            thisB.getHistory();
                         }
                     }));
                     contextMenuItems["history"] = index++;
@@ -4626,9 +4619,9 @@ define([
                 annot_context_menu.onOpen = function (event) {
                     // keeping track of mousedown event that triggered annot_context_menu popup
                     // because need mouse position of that event for some actions
-                    thisObj.annot_context_mousedown = thisObj.last_mousedown_event;
-                    if (thisObj.permission & Permission.WRITE) {
-                        thisObj.updateMenu();
+                    thisB.annot_context_mousedown = thisB.last_mousedown_event;
+                    if (thisB.permission & Permission.WRITE) {
+                        thisB.updateMenu();
                     }
                     dojo.forEach(this.getChildren(), function (item, idx, arr) {
                         if (item instanceof dijit.MenuItem) {
@@ -4737,25 +4730,24 @@ define([
             },
 
             getPermission: function (callback) {
-                var thisObj = this;
+                var thisB = this;
                 var loadCallback = callback;
                 var success = true;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + thisObj.getUniqueTrackName() + '", "operation": "get_user_permission" }',
+                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" }',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
                     // The LOAD function will be called on a successful response.
                     load: function (response, ioArgs) { //
                         var permission = response.permission;
-                        thisObj.permission = permission;
+                        thisB.permission = permission;
                         var username = response.username;
-                        thisObj.username = username;
+                        thisB.username = username;
                         if (loadCallback) {
                             loadCallback(permission);
                         }
-                        ;
                     },
                     error: function (response, ioArgs) { //
                         success = false;
@@ -4772,7 +4764,7 @@ define([
                 var id = "popup_dialog";
 
                 // deregister widget (needed if changing refseq without reloading page)
-                var widget = dijit.registry.byId(id);
+                var widget = registry.byId(id);
                 if (widget) {
                     widget.destroy();
                 }
