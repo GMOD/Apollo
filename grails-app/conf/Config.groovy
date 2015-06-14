@@ -107,18 +107,12 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        // TODO: grails.serverURL = "http://www.changeme.com"
     }
 }
 
 // log4j configuration
 log4j.main = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
-
+    // log errors from dependencies
     error 'org.codehaus.groovy.grails.web.servlet',        // controllers
             'org.codehaus.groovy.grails.web.pages',          // GSP
             'org.codehaus.groovy.grails.web.sitemesh',       // layouts
@@ -131,12 +125,12 @@ log4j.main = {
             'org.hibernate',
             'net.sf.ehcache.hibernate'
 
-//    trace 'org.hibernate.type'
-//    debug 'org.hibernate.SQL'
 
+    // enable logging of our webapollo instance (uncomment debug for extensive output)
+    //debug 'grails.app'
     warn 'grails.app'
-//    debug 'grails.app'
 
+    // more find grained logging
     //trace 'org.hibernate.type'
     //debug 'org.hibernate.SQL'
     //debug 'grails.app'
@@ -161,8 +155,6 @@ log4j.main = {
 //}
 //grails.datastore.gorm.GormInstanceApi.copy = cloneForDomains ;
 grails.gorm.failOnError = true
-// https://github.com/zyro23/grails-spring-websocket
-// websocket info
 grails.tomcat.nio = true
 grails.tomcat.scan.enabled = true
 
@@ -214,15 +206,16 @@ apollo {
         comments = true
     }
 
+    // customize admin tab on annotator panel with these links
     administrativePanel = [
             ['label': "Canned Comments", 'link': "/cannedComment/"]
             ,['label': "Feature Types", 'link': "/featureType/"]
             ,['label': "Statuses", 'link': "/availableStatus/"]
-//            , ['label': "Other Admin", 'link': "/annotator/cannedComments/"]
     ]
 
+    // customize new tabs on the annotator panel with these links
     customPanel = [
-//            ['name':'GenSas2','link':'http://localhost/gensas2']
+        //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
     // comment out if you don't want this to be reported
@@ -231,10 +224,9 @@ apollo {
 }
 
 // from: http://grails.org/plugin/audit-logging
-// may end up going away
 auditLog {
     //note, this disables the audit log
-//    disabled = true
+    //disabled = true
     //verbose = true // verbosely log all changed values to db
     logIds = true  // log db-ids of associated objects.
 
