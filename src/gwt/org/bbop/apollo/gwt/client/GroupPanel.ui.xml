@@ -4,15 +4,6 @@
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
         >
     <ui:style>
-        .northPanel {
-            padding: 0px;
-            margin: 10px;
-        }
-
-        .widgetPanel {
-            padding: 5px;
-            margin: 5px;
-        }
 
         .trackTable {
             margin-left: 10px;
@@ -28,9 +19,6 @@
             margin: 10px;
         }
 
-        .rowPadding {
-            padding-bottom: 10px;
-        }
 
         .paddedTable {
             padding-left: 30px;
