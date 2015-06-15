@@ -164,8 +164,6 @@ class SequenceController {
         
         if(sequenceList){
             listOfFeatures.addAll(Feature.executeQuery("select distinct f from FeatureLocation fl join fl.sequence s join fl.feature f where s in (:sequenceList) and fl.feature.class in (:ontologyIdList) order by f.name asc", [sequenceList: sequenceList, ontologyIdList: ontologyIdList]))
-            listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in :sequenceList and f.class in :alterationTypes", [sequenceList: sequenceList, alterationTypes: alterationTypes])
-            listOfFeatures.addAll(listOfSequenceAlterations)
         }
         else{
             log.warn "There are no annotations to be exported in this list of sequences ${sequences}"
@@ -173,6 +171,9 @@ class SequenceController {
         File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
 
         if (typeOfExport == "GFF3") {
+            // adding sequence alterations to list of features to export
+            listOfSequenceAlterations = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in :sequenceList and f.class in :alterationTypes", [sequenceList: sequenceList, alterationTypes: alterationTypes])
+            listOfFeatures.addAll(listOfSequenceAlterations)
             // call gff3HandlerService
             if (exportGff3Fasta == "true") {
                 gff3HandlerService.writeFeaturesToText(outputFile.path, listOfFeatures, grailsApplication.config.apollo.gff3.source as String, true, sequenceList)
